@@ -543,4 +543,66 @@ public class QuollChartUtils
 
     }
 
+    public static JFreeChart createSparkLine (TimeSeries series,
+                                              int        maxRange,
+                                              int        minRange)
+    {
+
+        TimeSeriesCollection tsc = new TimeSeriesCollection ();
+        tsc.addSeries (series);
+
+        DateAxis x = new DateAxis ();
+        x.setTickUnit (new DateTickUnit (DateTickUnitType.DAY,
+                                         1));
+        x.setTickLabelsVisible (false);
+        x.setTickMarksVisible (false);
+        x.setAxisLineVisible (false);
+        x.setNegativeArrowVisible (false);
+        x.setPositiveArrowVisible (false);
+        x.setVisible (false);
+
+        NumberAxis y = new NumberAxis ();
+        y.setTickLabelsVisible (false);
+        y.setTickMarksVisible (false);
+        y.setAxisLineVisible (false);
+        y.setNegativeArrowVisible (false);
+        y.setPositiveArrowVisible (false);
+        y.setVisible (false);
+        y.setRange (minRange,
+                    maxRange);
+
+        XYPlot plot = new XYPlot ();
+        plot.setInsets (new RectangleInsets (-1,
+                                             -1,
+                                             0,
+                                             0));
+        plot.setDataset (tsc);
+        plot.setDomainAxis (x);
+        plot.setDomainGridlinesVisible (false);
+        plot.setDomainCrosshairVisible (false);
+        plot.setRangeGridlinesVisible (false);
+        plot.setRangeCrosshairVisible (false);
+        plot.setRangeAxis (y);
+
+        XYLineAndShapeRenderer rend = new XYLineAndShapeRenderer (true,
+                                                                  false);
+        plot.setRenderer (rend);
+        rend.setBaseStroke (new java.awt.BasicStroke (10f));
+        rend.setSeriesStroke (0,
+                              new java.awt.BasicStroke (10f));
+        rend.setBasePaint (UIUtils.getColor ("#516CA3"));
+
+        rend.setSeriesPaint (0,
+                             UIUtils.getColor ("#516CA3"));
+
+        JFreeChart chart = new JFreeChart (null,
+                                           JFreeChart.DEFAULT_TITLE_FONT,
+                                           plot,
+                                           false);
+        chart.setBorderVisible (false);
+
+        return chart;
+
+    }
+
 }

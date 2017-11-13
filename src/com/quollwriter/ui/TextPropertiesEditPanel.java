@@ -84,146 +84,146 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME))
                 {
-    
+
                     this.fonts.setSelectedItem (this.textProps.getFontFamily ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME))
                 {
-                
+
                     this.sizes.setSelectedItem (this.textProps.getFontSize ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME))
                 {
-                
+
                     this.align.setSelectedItem (this.textProps.getAlignment ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME))
                 {
-                
+
                     this.line.setSelectedItem (this.textProps.getLineSpacing ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME))
                 {
-                
+
                     this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
-                    
+
                 }
-    
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME))
                 {
-    
+
                     this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
                 {
-                
+
                     this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
                 {
-                
+
                     this.indent.setSelected (this.textProps.getFirstLineIndent ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
                 {
-                
+
                     this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME))
                 {
-                
+
                     this.textBorder.setValue (this.textProps.getTextBorder ());
-                    
+
                 }
 
             } else {
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_FONT_PROPERTY_NAME))
                 {
-    
+
                     this.fonts.setSelectedItem (this.textProps.getFontFamily ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME))
                 {
-                
+
                     this.sizes.setSelectedItem (this.textProps.getFontSize ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME))
                 {
-                
+
                     this.align.setSelectedItem (this.textProps.getAlignment ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME))
                 {
-                
+
                     this.line.setSelectedItem (this.textProps.getLineSpacing ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME))
                 {
-                
+
                     this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
-                    
+
                 }
-    
+
                 if (ev.getName ().equals (Constants.EDITOR_BGCOLOR_PROPERTY_NAME))
                 {
-    
+
                     this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
                 {
-                
+
                     this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
                 {
-                
+
                     this.indent.setSelected (this.textProps.getFirstLineIndent ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
                 {
-                
+
                     this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
-                    
+
                 }
-                
+
                 if (ev.getName ().equals (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME))
                 {
-                
+
                     this.textBorder.setValue (this.textProps.getTextBorder ());
-                    
+
                 }
-                
+
             }
 
         } finally {
@@ -248,9 +248,9 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         try
         {
-            
+
             this.updateProperty = false;
-    
+
             this.fonts.setSelectedItem (props.getFontFamily ());
             this.sizes.setSelectedItem (props.getFontSize ());
             this.align.setSelectedItem (props.getAlignment ());
@@ -260,11 +260,11 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             this.highlightWritingLine.setSelected (props.isHighlightWritingLine ());
             this.indent.setSelected (props.getFirstLineIndent ());
             this.textBorder.setValue (props.getTextBorder ());
-            
+
         } finally {
-            
+
             this.updateProperty = true;
-            
+
         }
 
     }
@@ -323,9 +323,9 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                 if (_this.updateProperty)
                 {
-                    
+
                     _this.textProps.setFontFamily ((String) _this.fonts.getSelectedItem ());
-    
+
                     _this.viewer.fireProjectEvent (_this.eventType,
                                                    ProjectEvent.CHANGE_FONT);
 
@@ -344,6 +344,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                       layout);
 
         this.sizes = UIUtils.getFontSizesComboBox (this.textProps.getFontSize ());
+
+        this.sizes.setToolTipText ("Enter a value to set a size that is not already in the list");
 
         this.sizes.addActionListener (new ActionAdapter ()
         {
@@ -397,24 +399,24 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                 }
 
                 int ind = _this.align.getSelectedIndex ();
-                
+
                 String a = QTextEditor.ALIGN_LEFT;
-                
+
                 // 0 = left, 1 = justified, 2 = right
                 if (ind == 1)
                 {
-                    
+
                     a = QTextEditor.ALIGN_JUSTIFIED;
-                    
+
                 }
-                
+
                 if (ind == 2)
                 {
-                    
+
                     a = QTextEditor.ALIGN_RIGHT;
-                    
+
                 }
-                
+
                 _this.textProps.setAlignment (a);
 
                 _this.viewer.fireProjectEvent (_this.eventType,
@@ -429,6 +431,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                       layout);
 
         this.line = UIUtils.getLineSpacingComboBox (this.textProps.getLineSpacing ());
+
+        this.line.setToolTipText ("Enter a value to set a spacing that is not already in the list");
 
         this.line.addActionListener (new ActionAdapter ()
         {
@@ -588,9 +592,9 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                                                                         if (!_this.updateProperty)
                                                                         {
-                                                        
+
                                                                             return;
-                                                        
+
                                                                         }
 
                                                                         _this.textProps.setWritingLineColor (c);
@@ -696,9 +700,9 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                                                                             if (!_this.updateProperty)
                                                                             {
-                                                            
+
                                                                                 return;
-                                                            
+
                                                                             }
 
                                                                             _this.textProps.setBackgroundColor (c);

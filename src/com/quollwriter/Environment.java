@@ -2515,7 +2515,8 @@ public class Environment
                                                                                     LanguageStrings.text),
                                                            p.getName ()),
                                             //"{Project}: <b>" + p.getName () + "</b> is encrypted, please enter the password.",
-                                            Environment.getUIString (LanguageStrings.buttons,
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.buttons,
                                                                      LanguageStrings.open),
                                             //"Open",
                                             new ValueValidator<String> ()

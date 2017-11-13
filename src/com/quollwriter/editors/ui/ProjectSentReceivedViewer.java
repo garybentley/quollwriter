@@ -70,7 +70,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
     private IconProvider iconProvider = null;
     private EditorEditor editor = null;
     protected E message = null;
-    
+
     public ProjectSentReceivedViewer (Project      proj,
                                       E            message)
     {
@@ -79,212 +79,212 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
         this.proj = proj;
         this.message = message;
-        
+
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ()
         {
-        
+
             @Override
             public boolean canEdit (ChapterItem it)
             {
-                
+
                 return false;
-                
+
             }
-            
+
             @Override
             public boolean canDelete (ChapterItem it)
             {
 
                 return false;
-                
+
             }
 
         };
-        
+
         this.chapterItemViewPopupProvider.setShowLinks (false);
         this.chapterItemViewPopupProvider.setFormatDetails (Note.OBJECT_TYPE,
                                                             new NoteFormatDetails<ProjectSentReceivedViewer> ()
                                                             {
-                                                                                                                                
+
                                                                 @Override
                                                                 public String getTitle (Note item)
                                                                 {
-                                                                    
+
                                                                     return "{Comment}";
-                                                                    
+
                                                                 }
-                                                                
+
                                                                 @Override
                                                                 public String getIcon (Note item)
                                                                 {
-                                                                    
+
                                                                     return Constants.COMMENT_ICON_NAME;
-                                                                    
+
                                                                 }
-                                                                
+
                                                                 @Override
                                                                 public String getItemDescription (Note item)
                                                                 {
-                                                                    
+
                                                                     return item.getDescription ().getMarkedUpText ();
-                                                                    
+
                                                                 }
-                                                                
+
                                                                 @Override
                                                                 public ActionListener getEditItemActionHandler (Note                                         item,
                                                                                                                 ChapterItemViewer<ProjectSentReceivedViewer> ep)
                                                                 {
-                                                            
+
                                                                     throw new UnsupportedOperationException ("Not supported for project comments.");
-                                                            
-                                                                }                                                                
-                                                                
+
+                                                                }
+
                                                                 @Override
                                                                 public ActionListener getDeleteItemActionHandler (Note                                         item,
                                                                                                                   ChapterItemViewer<ProjectSentReceivedViewer> ep,
                                                                                                                   boolean                                      showAtItem)
                                                                 {
-                                                            
+
                                                                     throw new UnsupportedOperationException ("Not supported for project comments.");
-                                                            
+
                                                                 }
-                                                                
+
                                                                 @Override
                                                                 public Set<JComponent> getTools (Note                                         item,
                                                                                                  ChapterItemViewer<ProjectSentReceivedViewer> ep)
                                                                 {
-                                                                    
+
                                                                     if (_this.message.isSentByMe ())
                                                                     {
-                                                                        
+
                                                                         return null;
-                                                                        
+
                                                                     }
-                                                                    
+
                                                                     Set<JComponent> buts = new LinkedHashSet ();
-                                                                    
+
                                                                     final JButton but = UIUtils.createButton ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
                                                                                                               Constants.ICON_MENU,
                                                                                                               String.format ("Click to mark the {comment} as %s with",
                                                                                                                (item.isDealtWith () ? "undealt" : "dealt")),
                                                                                                               null);
-                                                                    
+
                                                                     ActionListener aa = new ActionListener ()
                                                                     {
-                                                                        
+
                                                                         @Override
                                                                         public void actionPerformed (ActionEvent ev)
                                                                         {
-                                                            
+
                                                                             Date d = null;
-                                                            
+
                                                                             if (!item.isDealtWith ())
                                                                             {
-                                                                                
+
                                                                                 d = new Date ();
-                                                                                
+
                                                                             }
-                                                            
+
                                                                             item.setDealtWith (d);
-                                                                            
+
                                                                             but.setToolTipText (String.format ("Click to mark the {comment} as %s with",
                                                                                                                (item.isDealtWith () ? "undealt" : "dealt")));
                                                                             but.setIcon (Environment.getIcon ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
                                                                                                               Constants.ICON_MENU));
-                                                            
+
                                                                             // Inform the sidebar of the change.
                                                                             _this.sideBar.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
-                                                            
+
                                                                         }
 
                                                                     };
 
                                                                     but.addActionListener (aa);
-                                                                    
+
                                                                     buts.add (but);
-                                                                                                                                            
+
                                                                     return buts;
-                                                                    
+
                                                                 }
-                                                                                                                                
+
                                                             });
-        
+
         this.iconProvider = new DefaultIconProvider ()
         {
-          
+
             @Override
             public ImageIcon getIcon (String name,
                                       int    type)
             {
-                
+
                 if (name.equals (Note.OBJECT_TYPE))
                 {
-                    
+
                     name = Constants.COMMENT_ICON_NAME;
-                    
+
                 }
-                
+
                 return super.getIcon (name,
                                       type);
-                
+
             }
-            
+
         };
-                                                            
+
         this.sideBar = this.getSideBar ();
-                        
+
     }
-     
+
     public E getMessage ()
     {
-        
+
         return this.message;
-        
+
     }
-    
+
     public abstract ProjectSentReceivedSideBar getSideBar ();
-  
+
     public void close ()
     {
-        
+
         this.close (true,
                     null);
-        
+
     }
-    
+
     @Override
     public boolean close (boolean              noConfirm,
                           final ActionListener afterClose)
-    {   
+    {
 
         this.dispose ();
-        
+
         if (afterClose != null)
         {
-            
+
             afterClose.actionPerformed (new ActionEvent (this,
                                                          0,
-                                                         "closed"));            
-            
+                                                         "closed"));
+
         }
-        
+
         return true;
-        
+
     }
-		
+
     @Override
     public Set<String> getTitleHeaderControlIds ()
 	{
-		
+
 		Set<String> ids = new LinkedHashSet ();
 
 		ids.add (FIND_HEADER_CONTROL_ID);
 		ids.add (CLOSE_HEADER_CONTROL_ID);
-				
+
 		return ids;
-		
+
 	}
-    
+
     @Override
     public void init ()
                throws Exception
@@ -293,7 +293,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         super.init ();
     /*
         final ProjectSentReceivedViewer _this = this;
-    
+
         JToolBar titleC = UIUtils.createButtonBar (new ArrayList ());
 
         titleC.add (UIUtils.createButton (Constants.FIND_ICON_NAME,
@@ -301,14 +301,14 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                           "Click to open the find",
                                           new ActionAdapter ()
                                           {
-                                            
+
                                               public void actionPerformed (ActionEvent ev)
                                               {
-                                
+
                                                   _this.showFind (null);
-                                                
+
                                               }
-                                            
+
                                           }));
 
         titleC.add (UIUtils.createButton (Constants.CLOSE_ICON_NAME,
@@ -316,97 +316,97 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                           "Click to close",
                                           new ActionAdapter ()
                                           {
-                                            
+
                                               public void actionPerformed (ActionEvent ev)
                                               {
-                                
+
                                                   _this.close ();
-                                                
+
                                               }
-                                            
+
                                           }));
-                                          
+
         this.setViewerControls (titleC);
         */
         this.initSideBars ();
-        
+
         this.initWindow ();
-                        
+
     }
 
     public IconProvider getIconProvider ()
     {
-        
+
         return this.iconProvider;
-        
+
     }
-    
+
     public ChapterItemViewPopupProvider getChapterItemViewPopupProvider ()
     {
-        
+
         return this.chapterItemViewPopupProvider;
-        
+
     }
-    
+
     public void initActionMappings (ActionMap am)
     {
-    
+
         super.initActionMappings (am);
-                
+
     }
-    
+
     public void initKeyMappings (InputMap im)
     {
-        
+
         super.initKeyMappings (im);
-                
+
     }
 
     public void showObjectInTree (String      treeObjType,
                                   NamedObject obj)
     {
-        
+
         this.sideBar.showObjectInTree (treeObjType,
                                        obj);
-        
+
     }
-    
+
     public void reloadTreeForObjectType (String objType)
     {
-        
+
         this.sideBar.reloadTreeForObjectType (objType);
-        
+
     }
-    
+
     public void reloadTreeForObjectType (NamedObject obj)
     {
-        
+
         this.sideBar.reloadTreeForObjectType (obj.getObjectType ());
-        
+
     }
 
     public AbstractSideBar getMainSideBar ()
     {
-        
+
         return this.sideBar;
-        
+
     }
-    
+
     public void fillFullScreenTitleToolbar (JToolBar toolbar)
     {
-        
+
         this.fillTitleToolbar (toolbar);
-        
+
     }
-    
+
     public void fillTitleToolbar (JToolBar toolbar)
     {
-                                              
+
     }
-        
+
     public void fillSettingsPopup (JPopupMenu titlePopup)
     {
-                
+
     }
 
     public Action getAction (int               name,
@@ -431,9 +431,9 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
     public void handleNewProject ()
     {
-    
+
         throw new UnsupportedOperationException ("Not supported for viewing project comments.");
-        
+
     }
 
     public String getViewerIcon ()
@@ -455,17 +455,17 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
         StringTokenizer t = new StringTokenizer (v,
                                                  ",;");
-        
+
         if (t.countTokens () > 1)
         {
-        
+
             while (t.hasMoreTokens ())
             {
-                
+
                 String tok = t.nextToken ().trim ();
-                
+
                 this.handleHTMLPanelAction (tok);
-                
+
             }
 
             return;
@@ -474,22 +474,22 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
         if (v.equals ("find"))
         {
-            
+
             this.showFind (null);
-            
+
             return;
-            
-        }        
-        
+
+        }
+
         super.handleHTMLPanelAction (v);
 
     }
 
     public void handleOpenProject ()
     {
-        
+
         throw new UnsupportedOperationException ("Not supported for viewing project comments.");
-        
+
     }
 
     public void handleItemChangedEvent (ItemChangedEvent ev)
@@ -508,17 +508,17 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
             this.sideBar.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
         }
-        
+
     }
 
 	@Override
 	public void saveProject ()
 	{
-		
-		
-		
+
+
+
 	}
-	
+
     public void doSaveState ()
     {
 
@@ -529,27 +529,27 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
         for (QuollPanel qp : this.getAllQuollPanelsForObject (c))
         {
-        
+
             if (qp instanceof FullScreenQuollPanel)
             {
-                
+
                 qp = ((FullScreenQuollPanel) qp).getChild ();
-                
+
             }
 
             if (qp instanceof ChapterCommentsPanel)
             {
-                
+
                 return (ChapterCommentsPanel) qp;
-                
+
             }
-            
+
         }
-        
+
         return null;
 
     }
-    
+
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter has been opened for editing.
@@ -563,21 +563,21 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
         if (qep != null)
         {
-        
+
             this.setPanelVisible (qep);
 
             qep.getEditor ().grabFocus ();
 
             if (doAfterOpen != null)
             {
-                
+
                 UIUtils.doActionWhenPanelIsReady (qep,
                                                   doAfterOpen,
                                                   c,
                                                   "afterview");
-                
+
             }
-        
+
             return true;
 
         }
@@ -611,20 +611,20 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
         qep.addActionListener (new ActionAdapter ()
         {
-            
-        
+
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 if (ev.getID () == QuollPanel.UNSAVED_CHANGES_ACTION_EVENT)
                 {
-                    
+
                     th.setComponentChanged (true);
-                                            
+
                 }
-                
+
             }
-            
+
         });
 
         /*
@@ -640,12 +640,12 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
     public boolean viewObject (DataObject d)
     {
-    
+
         return this.viewObject (d,
                                 null);
-        
+
     }
-    
+
     public boolean viewObject (final DataObject     d,
                                final ActionListener doAfterView)
     {
@@ -659,45 +659,45 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
             {
 
                 final Chapter c = (Chapter) n.getObject ();
-            
+
                 final ProjectSentReceivedViewer _this = this;
-            
+
                 ActionListener onOpen = new ActionListener ()
                 {
-                  
+
                     public void actionPerformed (ActionEvent ev)
                     {
-                      
+
                         try
                         {
 
                             _this.getEditorForChapter (c).showNote (n);
-  
+
                         } catch (Exception e) {
-  
+
                             Environment.logError ("Unable to scroll to note: " +
                                                   n,
                                                   e);
-  
+
                             UIUtils.showErrorMessage (_this,
                                                       "Unable to display {comment}.");
-  
+
                         }
-                        
+
                         if (doAfterView != null)
                         {
-                            
+
                             doAfterView.actionPerformed (ev);
-                          
+
                         }
-                      
+
                     }
-                  
+
                 };
-            
+
                 return this.editChapter (c,
                                          onOpen);
-            
+
             }
 
         }
@@ -721,25 +721,25 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
     public boolean openPanel (String id)
     {
-    
+
         return false;
 
     }
-            
+
     public JTree getTreeForObjectType (String objType)
     {
-        
+
         return this.sideBar.getTreeForObjectType (objType);
-                
+
     }
-        
+
     public JTree getChapterTree ()
     {
-        
+
         return this.getTreeForObjectType (Chapter.OBJECT_TYPE);
-        
+
     }
-        
+
     public void chapterTreeChanged (DataObject d)
     {
 
@@ -761,7 +761,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         this.editChapter (c,
                           new ActionListener ()
         {
-            
+
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -781,7 +781,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                               "Unable to scroll to position.");
 
                 }
-                
+
             }
 
         });
@@ -791,33 +791,33 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
     public void updateChapterIndexes (Book   b)
                                throws GeneralException
     {
-        
-        throw new UnsupportedOperationException ("Not supported for project comments.");        
-        
+
+        throw new UnsupportedOperationException ("Not supported for project comments.");
+
     }
 
     public void deleteChapter (Chapter c)
     {
-        
-        throw new UnsupportedOperationException ("Not supported for project comments.");                
-        
+
+        throw new UnsupportedOperationException ("Not supported for project comments.");
+
     }
 
     public void deleteObject (NamedObject o)
                   throws      GeneralException
     {
-        
-        throw new UnsupportedOperationException ("Not supported for project comments.");                
-        
+
+        throw new UnsupportedOperationException ("Not supported for project comments.");
+
     }
-    
+
     public void deleteObject (NamedObject o,
                               boolean     deleteChildObjects)
                        throws GeneralException
     {
-        
-        throw new UnsupportedOperationException ("Not supported for project comments.");                
-        
+
+        throw new UnsupportedOperationException ("Not supported for project comments.");
+
     }
 
     public String getChapterObjectName ()
@@ -826,13 +826,13 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         return Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
 
     }
-    
+
     public TypesHandler getObjectTypesHandler (String objType)
     {
-        
+
         return null;
-        
-    }        
+
+    }
 
     @Override
     public void setLinks (NamedObject o)
@@ -844,12 +844,11 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
     public Set<FindResultsBox> findText (String t)
     {
-        
+
         Set<FindResultsBox> res = new LinkedHashSet ();
-        
+
         // Get the snippets.
-        Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getTextSnippets (t,
-                                                                                  this);
+        Map<Chapter, java.util.List<Segment>> snippets = this.getTextSnippets (t);
 
         if (snippets.size () > 0)
         {
@@ -859,25 +858,24 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                 Chapter.OBJECT_TYPE,
                                                 this,
                                                 snippets));
-            
+
         }
-                                                           
-        Set<Note> notes = UIUtils.getNotesContaining (t,
-                                                      this.proj);
+
+        Set<Note> notes = this.proj.getNotesContaining (t);
 
         if (notes.size () > 0)
-        {                                                      
-        
+        {
+
             res.add (new NamedObjectFindResultsBox<Note> ("{Comments}",
                                                           Constants.COMMENT_ICON_NAME,
                                                           Note.OBJECT_TYPE,
                                                           this,
                                                           notes));
-            
+
         }
-                
+
         return res;
-        
+
     }
-    
+
 }

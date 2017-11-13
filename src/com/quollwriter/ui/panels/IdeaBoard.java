@@ -19,6 +19,7 @@ import java.beans.*;
 
 import java.text.*;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +33,9 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 
 import com.jgoodies.forms.factories.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
@@ -76,7 +80,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             this.typeBox = tb;
             this.idea = i;
-            
+
             this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
             this.createViewBox (showToolBar);
@@ -93,9 +97,9 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         public Idea getIdea ()
         {
-            
+
             return this.idea;
-            
+
         }
 
         public void showViewBox ()
@@ -111,6 +115,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         private void createViewBox (boolean showToolBar)
         {
 
+            java.util.List<String> prefix = Arrays.asList (ideaboard,ideas,view);
+
             final IdeaBox _this = this;
 
             this.viewBox = new Box (BoxLayout.Y_AXIS);
@@ -120,12 +126,12 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             this.shortDesc = UIUtils.createHelpTextPane ((String) null,
                                                          this.typeBox.ideaBoard.getViewer ());
                                                          */
-            
+
             this.shortDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
                                                                       this.typeBox.ideaBoard.getViewer ().getProject (),
                                                                       this.typeBox.ideaBoard.getViewer (),
                                                                       this.typeBox.ideaBoard);
-            
+
             this.shortDesc.setBorder (UIUtils.createPadding (3, 5, 0, 5));
             this.viewBox.add (this.shortDesc);
             this.shortDesc.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -137,7 +143,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                                                      this.typeBox.ideaBoard.getViewer ().getProject (),
                                                                      this.typeBox.ideaBoard.getViewer (),
                                                                      this.typeBox.ideaBoard);
-  
+
             this.fullDesc.setBorder (UIUtils.createPadding (3, 5, 0, 5));
             this.updateViewText ();
 
@@ -158,7 +164,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             // Create the actions bar.
             JButton mb = new JButton (Environment.getIcon ("edit",
                                                            Constants.ICON_MENU));
-            mb.setToolTipText ("Click to edit this item");
+            mb.setToolTipText (getUIString (prefix, LanguageStrings.buttons,edit,tooltip));//"Click to edit this item");
             mb.setOpaque (false);
             mb.addActionListener (new ActionAdapter ()
                 {
@@ -191,7 +197,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             mb = new JButton (Environment.getIcon (Constants.CONVERT_ICON_NAME,
                                                    Constants.ICON_MENU));
-            mb.setToolTipText (Environment.replaceObjectNames ("Click to convert this idea to an item such as a {Chapter}, {Object} etc."));
+            mb.setToolTipText (getUIString (prefix, LanguageStrings.buttons,convert,tooltip));
+            //Environment.replaceObjectNames ("Click to convert this idea to an item such as a {Chapter}, {Object} etc."));
             mb.setOpaque (false);
 
             mb.addActionListener (new ActionAdapter ()
@@ -203,29 +210,29 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                         JPopupMenu p = new JPopupMenu ();
 
                         String oName = Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
-            
+
                         JMenuItem mi = new JMenuItem (oName,
                                                       Environment.getIcon (Chapter.OBJECT_TYPE,
                                                                            Constants.ICON_MENU));
-            
+
                         char fc = Character.toUpperCase (oName.charAt (0));
-            
+
                         mi.setMnemonic (fc);
                         //mi.setToolTipText (pref + fc);
 
                         // Get the last chapter from the project.
                         final Chapter ch = _this.typeBox.ideaBoard.projectViewer.getProject ().getBook (0).getLastChapter ();
-        
+
                         Chapter newCh = new Chapter (ch.getBook (),
                                                      null);
-        
+
                         newCh.setDescription (_this.idea.getDescription ());
-        
+
                         AddChapterActionHandler caa = new AddChapterActionHandler (ch.getBook (),
                                                                                    ch,
                                                                                    _this.typeBox.ideaBoard.projectViewer,
                                                                                    newCh);
-                                
+
                         mi.addActionListener (caa);
 
                         p.add (mi);
@@ -251,7 +258,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             mb = new JButton (Environment.getIcon (Constants.DELETE_ICON_NAME,
                                                    Constants.ICON_MENU));
             mb.setOpaque (false);
-            mb.setToolTipText ("Click to delete this item");
+            mb.setToolTipText (getUIString (prefix, LanguageStrings.buttons,delete,tooltip));
+                                //"Click to delete this item");
 
             mb.addActionListener (new ActionAdapter ()
             {
@@ -263,46 +271,52 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                                            0,
                                                            0,
                                                            IdeaBoard.this.projectViewer);
-                
+
+                    java.util.List<String> prefix = Arrays.asList (ideaboard,ideas,delete,popup);
+
                     UIUtils.createQuestionPopup (_this.typeBox.getIdeaBoard ().projectViewer,
-                                                 "Delete the {idea}?",
+                                                 getUIString (prefix,title),
+                                                 //"Delete the {idea}?",
                                                  Constants.DELETE_ICON_NAME,
-                                                 "Please confirm you wish to delete this {idea}?",
-                                                 "Yes, delete it",
-                                                 null,
+                                                 getUIString (prefix,text),
+                                                 //"Please confirm you wish to delete this {idea}?",
+                                                 getUIString (prefix, LanguageStrings.buttons,confirm),
+                                                 //"Yes, delete it",
+                                                 getUIString (prefix, LanguageStrings.buttons,cancel),
+                                                 //null,
                                                  new ActionListener ()
                                                  {
-                                                    
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
+
                                                         if (_this.typeBox.getIdeaBoard ().projectViewer.deleteIdea (_this.idea))
                                                         {
-                                                        
+
                                                             _this.idea.getType ().removeIdea (_this.idea);
-                                                        
+
                                                             _this.typeBox.removeIdea (_this.idea);
-                                                        
+
                                                         }
-                                                        
+
                                                     }
-                                                    
+
                                                  },
                                                  null,
                                                  null,
                                                  p);
 
                 }
-                
+
             });
-            
+
             buttons.add (mb);
 
             JButton hideBut = new JButton (Environment.getIcon (Constants.UP_ICON_NAME,
                                                                 Constants.ICON_MENU));
             hideBut.setOpaque (false);
-            hideBut.setToolTipText ("Click to hide");
-            
+            hideBut.setToolTipText (getUIString (prefix, LanguageStrings.buttons,hide,tooltip));//"Click to hide");
+
             buttons.add (hideBut);
 
             JToolBar tb = UIUtils.createButtonBar (buttons);
@@ -335,31 +349,31 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                     _this.typeBox._repaint ();
 
                 }
-                
+
             });
-            
+
             MouseEventHandler vis = new MouseEventHandler ()
             {
 
                 @Override
                 public void handlePress (MouseEvent ev)
                 {
-                    
+
                     _this.shortDesc.setVisible (false);
                     _this.fullDesc.setVisible (true);
                     tbb.setVisible (true);
 
                     _this.typeBox._repaint ();
-                    
+
                 }
 
             };
 
             this.shortDesc.addMouseListener (vis);
-            
+
             StarBar sb = new StarBar ();
 
-            sb.setToolTipText ("Rate this item.");
+            sb.setToolTipText (getUIString (prefix, LanguageStrings.buttons,rating,tooltip));//"Rate this item.");
             sb.setSelected (this.idea.getRating ());
 
             // Now add the property change listener.
@@ -389,10 +403,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                           });
 
             tbb.add (sb);
-/*
-            UIUtils.addListenerToChildren (vis,
-                                           this.viewBox);
-*/
+
             this.viewBox.add (Box.createVerticalStrut (3));
 
             this.viewBox.setBorder (new MatteBorder (0,
@@ -405,7 +416,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         public void saveIdea (StringWithMarkup text)
         {
-        
+
             if (!text.hasText ())
             {
 
@@ -438,7 +449,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                       e);
 
                 UIUtils.showErrorMessage (this.typeBox.ideaBoard,
-                                          "Unable to update idea.");
+                                          getUIString (ideaboard,ideas,save,actionerror));
+                                          //"Unable to update idea.");
 
             }
 
@@ -450,29 +462,31 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         {
 
             StringWithMarkup sm = this.idea.getDescription ();
-        
+
             Paragraph p = new Paragraph (sm.getText (),
                                          0);
-        
+
             String firstSent = "";
-        
+
             if (p.getSentenceCount () > 0)
             {
-                
+
                 firstSent = p.getFirstSentence ().markupAsHTML (sm.getMarkup ());
-            
+
                 if (p.getSentenceCount () > 1)
                 {
-                    
-                    firstSent += " <b><i>More...</i></b>";
-                    
+
+                    firstSent += getUIString (ideaboard,ideas,view,shorttext,more);
+                    //" <b><i>More...</i></b>";
+
                 }
-                
+
             }
-            
+
             this.shortDesc.setText (firstSent);
 
-            this.shortDesc.setToolTipText ("Click to show the full text");
+            this.shortDesc.setToolTipText (getUIString (ideaboard,ideas,view,shorttext,tooltip));
+            //"Click to show the full text");
 
             this.fullDesc.setText (this.idea.getDescription ().getMarkedUpText ());
 
@@ -506,30 +520,31 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                                 UIUtils.createLineBorder ()));
 
             this.text = UIUtils.createTextArea (typeBox.getIdeaBoard ().projectViewer,
-                                                "Enter your {Idea} here...",
+                                                getUIString (ideaboard,ideas,_new, LanguageStrings.text,tooltip),
+                                                //"Enter your {Idea} here...",
                                                 5,
                                                 -1);
             this.text.setCanFormat (true);
             this.text.setAutoGrabFocus (true);
             this.text.setBorder (null);
-            
+
             final AddEditBox _this = this;
 
             UIUtils.addDoActionOnReturnPressed (this.text,
                                                 new ActionListener ()
                                                 {
-                                                    
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
                                                         _this.save ();
-                                                        
+
                                                     }
 
                                                 });
 
             this.initTextArea ();
-            
+
             this.add (this.text);
 
             this.setVisible (false);
@@ -538,39 +553,41 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             JButton save = UIUtils.createButton (Constants.SAVE_ICON_NAME,
                                                  Constants.ICON_MENU,
-                                                 "Click to save the idea",
+                                                 getUIString (ideaboard,ideas,_new,buttons, LanguageStrings.save,tooltip),
+                                                 //"Click to save the idea",
                                                  new ActionAdapter ()
                                                  {
-                                                    
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                                                                                
+
                                                         _this.save ();
-                                                        
+
                                                     }
-                                                    
+
                                                  });
 
             JButton cancel = UIUtils.createButton (Constants.CANCEL_ICON_NAME,
                                                    Constants.ICON_MENU,
-                                                   "Click to cancel",
+                                                   getUIString (ideaboard,ideas,_new,buttons, LanguageStrings.cancel,tooltip),
+                                                   //"Click to cancel",
                                                    new ActionAdapter ()
                                                    {
-                                                    
+
                                                       public void actionPerformed (ActionEvent ev)
                                                       {
 
                                                         _this.typeBox.hideAdd ();
-                                
+
                                                         if (i != null)
                                                         {
-                                
+
                                                             ideaBox.showViewBox ();
-                                
+
                                                         }
-                                                        
+
                                                       }
-                                                      
+
                                                    });
 
             List<JButton> buts = new ArrayList ();
@@ -597,14 +614,14 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         {
 
             StringWithMarkup t = this.text.getTextWithMarkup ();
-            
+
             if (!t.hasText ())
             {
-                
+
                 return;
-                
+
             }
-                            
+
             if (this.idea == null)
             {
 
@@ -616,7 +633,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                 ideaBox.saveIdea (t);
 
             }
-            
+
             this.text.clearText ();
 
         }
@@ -658,14 +675,51 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         {
 
             super ("name",
-                   ((it.getIconType () == null) ? null : Environment.getIcon (it.getIconType (),
-                                                                              Constants.ICON_POPUP)),
+                   null,
+                   //((it.getIconType () == null) ? null : Environment.getIcon (it.getIconType (),
+                    //                                                          Constants.ICON_POPUP)),
                    null);
+
+            if (it.getIconType () != null)
+            {
+
+                // TODO: Not a good hack...
+                if (it.getIconType ().startsWith ("asset:"))
+                {
+
+                    try
+                    {
+
+                        UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (Long.parseLong (it.getIconType ().substring ("asset:".length ())));
+
+                        if (type != null)
+                        {
+
+                            this.getHeader ().setIcon (type.getIcon16x16 ());
+
+                        }
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to get user object type for: " +
+                                              it.getIconType (),
+                                              e);
+
+                    }
+
+                } else {
+
+                    this.getHeader ().setIcon (Environment.getIcon (it.getIconType (),
+                                                                    Constants.ICON_POPUP));
+
+                }
+
+            }
 
             this.ideaType = it;
 
             this.setAllowRemoveOnEscape (false);
-            
+
             this.ideaBoard = ideaBoard;
 
             this.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -676,20 +730,11 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             List<JComponent> buttons = new ArrayList ();
             final JButton add = UIUtils.createButton ("add",
                                                       Constants.ICON_MENU,
-                                                      "Click to add a new " + this.getIdeaTypeName () + " Idea",
+                                                      getUIString (ideaboard,ideatypes,view,headercontrols,items,newidea,tooltip),
+                                                      //"Click to add a new " + this.getIdeaTypeName () + " Idea",
                                                       null);
             buttons.add (add);
-            
-/*
-            final ImagePanel add = new ImagePanel (Environment.getIcon ("add",
-                                                                        false),
-                                                   null);
 
-            UIUtils.setAsButton (add);
-            add.setToolTipText ("Click to add a new " + this.getIdeaTypeName () + " Idea");
-            add.setBorder (null);
-            add.setVisible (false);
-*/
             add.setVisible (false);
             add.addMouseListener (new MouseEventHandler ()
             {
@@ -752,7 +797,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                        MouseEvent ev)
                 {
 
-                    JMenuItem mi = new JMenuItem ("Add new Idea",
+                    JMenuItem mi = new JMenuItem (getUIString (ideaboard,ideatypes,view,popupmenu,items,newidea),
+                                                //"Add new Idea",
                                                   Environment.getIcon ("add",
                                                                        Constants.ICON_MENU));
                     mi.addActionListener (new ActionAdapter ()
@@ -769,7 +815,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
                     p.add (mi);
 
-                    JMenu sortMenu = new JMenu ("Sort Ideas by");
+                    JMenu sortMenu = new JMenu (getUIString (ideaboard,ideatypes,view,popupmenu,items,sort));
+                    //"Sort Ideas by");
 
                     p.add (sortMenu);
 
@@ -778,7 +825,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                     sortMenu.setIcon (Environment.getIcon (Constants.SORT_ICON_NAME,
                                                            Constants.ICON_MENU));
 
-                    mi = new JRadioButtonMenuItem ("Rating",
+                    mi = new JRadioButtonMenuItem (getUIString (ideaboard,ideatypes,view,sortrating),
+                                                    //"Rating",
                                                    Environment.getIcon (Constants.STAR_ICON_NAME,
                                                                         Constants.ICON_MENU));
 
@@ -809,7 +857,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
                     sortMenu.add (mi);
 
-                    mi = new JRadioButtonMenuItem ("Date Added",
+                    mi = new JRadioButtonMenuItem (getUIString (ideaboard,ideatypes,view,sortdate),
+                                                    //"Date Added",
                                                    Environment.getIcon (Constants.DATE_ICON_NAME,
                                                                         Constants.ICON_MENU));
 
@@ -840,7 +889,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
                     group.add (mi);
 
-                    mi = new JRadioButtonMenuItem ("Alphabetical",
+                    mi = new JRadioButtonMenuItem (getUIString (ideaboard,ideatypes,view,sortalpha),
+                                                //"Alphabetical",
                                                    Environment.getIcon (Constants.SPELLCHECKER_ICON_NAME,
                                                                         Constants.ICON_MENU));
 
@@ -871,7 +921,16 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
                     group.add (mi);
 
-                    mi = new JMenuItem ((_this.ideaBox.isVisible () ? "Hide" : "Show") + " Ideas");
+                    String t = show;
+
+                    if (_this.ideaBox.isVisible ())
+                    {
+
+                        t = hide;
+
+                    }
+
+                    mi = new JMenuItem (getUIString (ideaboard,ideatypes,view,popupmenu,items,t));
 
                     mi.addActionListener (new ActionAdapter ()
                         {
@@ -887,7 +946,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
                     p.add (mi);
 
-                    mi = new JMenuItem ("Edit the name of this type",
+                    mi = new JMenuItem (getUIString (ideaboard,ideatypes,view,popupmenu,items,edit),
+                                        //"Edit the name of this type",
                                         Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                              Constants.ICON_MENU));
 
@@ -896,7 +956,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                     mi.addActionListener (new EditIdeaTypeActionHandler (_this.ideaType,
                                                                          _this.ideaBoard));
 
-                    mi = new JMenuItem ("Delete this type of Idea",
+                    mi = new JMenuItem (getUIString (ideaboard,ideatypes,view,popupmenu,items,delete),
+                                       //"Delete this type of Idea",
                                         Environment.getIcon (Constants.DELETE_ICON_NAME,
                                                              Constants.ICON_MENU));
 
@@ -926,9 +987,9 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                                                                _this.ideaBoard));
 
                     }
-                    
+
                 }
-                
+
                 @Override
                 public void handlePress (MouseEvent ev)
                 {
@@ -939,8 +1000,9 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             });
 
-            this.getHeader ().setToolTipText ("Click to show/hide the Ideas");
-            
+            this.getHeader ().setToolTipText (getUIString (ideaboard,ideatypes,view, LanguageStrings.header,tooltip));
+                                                //"Click to show/hide the Ideas");
+
             Box content = new Box (BoxLayout.Y_AXIS);
             content.setMinimumSize (new Dimension (300,
                                                    50));
@@ -954,7 +1016,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             this.ideaBox.setOpaque (false);//true);
             this.setContent (content);//this.ideaBox);
 
-            this.helpText = UIUtils.createHelpTextPane ("You currently have no <b>" + this.getIdeaTypeName () + "</b> ideas recorded.  To add a new Idea perform one of the actions below:<ul><li>Use the plus button on the header.</li><li>Click anywhere in this box.</li><li>Right click on the header and select <b>Add new Idea</b>.</li></ul>",
+            this.helpText = UIUtils.createHelpTextPane (getUIString (ideaboard,ideatypes,view,noideas),
+                    //"You currently have no <b>" + this.getIdeaTypeName () + "</b> ideas recorded.  To add a new Idea perform one of the actions below:<ul><li>Use the plus button on the header.</li><li>Click anywhere in this box.</li><li>Right click on the header and select <b>Add new Idea</b>.</li></ul>",
                                                         IdeaBoard.this.projectViewer);
 
             this.helpText.addMouseListener (new MouseAdapter ()
@@ -994,7 +1057,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             this.setBorder (new CompoundBorder (com.quollwriter.ui.components.UIUtils.internalPanelDropShadow,
                                                 new MatteBorder (1, 1, 1, 1, UIUtils.getBorderColor ())));
-            
+
             this.showHelpText (false);
 
             this.setBoxTitle ();
@@ -1010,9 +1073,9 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         public IdeaBoard getIdeaBoard ()
         {
-            
+
             return this.ideaBoard;
-            
+
         }
 
         public void sortIdeas (String sortBy)
@@ -1073,7 +1136,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         private String getIdeaTypeName ()
         {
 
-            return Environment.replaceObjectNames (this.ideaType.getName ());
+            return this.ideaType.getName ();
 
         }
 
@@ -1166,7 +1229,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         public void createIdea (StringWithMarkup text)
         {
-        
+
             if (!text.hasText ())
             {
 
@@ -1175,7 +1238,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             }
 
             text.update (text);
-            
+
             Idea i = new Idea ();
             i.setDescription (text);
             i.setType (this.ideaType);
@@ -1194,7 +1257,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to save new Idea.");
+                                          getUIString (ideaboard,ideas,_new,actionerror));
+                                          //"Unable to save new Idea.");
 
                 return;
 
@@ -1212,38 +1276,38 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         private void removeIdea (Idea i)
         {
-            
+
             int c = this.ideaBox.getComponentCount ();
-            
+
             for (int x = 0; x < c; x++)
             {
-                
+
                 Component cc = (Component) this.ideaBox.getComponent (x);
-                
+
                 if (cc instanceof IdeaBox)
                 {
-                    
+
                     IdeaBox ib = (IdeaBox) cc;
-                    
+
                     if (ib.getIdea () == i)
                     {
-                        
+
                         this.ideaBox.remove (ib);
 
                         this.ideaType.removeIdea (i);
 
                         this.setBoxTitle ();
-                        
+
                         this._repaint ();
 
                         break;
-                        
+
                     }
-                    
+
                 }
-                
+
             }
-                        
+
         }
 
         private void addIdea (Idea    i,
@@ -1284,7 +1348,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         this.setBackground (UIUtils.getComponentColor ());
         this.setOpaque (true);
-        
+
     }
 
     public String getPanelId ()
@@ -1311,10 +1375,11 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         //this.categories = new JPanel (layout)
 
         this.categories = new BackgroundImagePanel (layout);
-        this.categories.setToolTipText ("Double click to add a new type of Idea.  Right click to change the background.");
-        
+        this.categories.setToolTipText (getUIString (ideaboard,tooltip));
+        //"Double click to add a new type of Idea.  Right click to change the background.");
+
         //this.categories.setBackgroundObject (Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME));
-    
+
         this.categories.setBorder (new EmptyBorder (20,
                                                     20,
                                                     20,
@@ -1326,31 +1391,31 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         final JScrollPane cscroll = new JScrollPane (this.categories);
 
         cscroll.setBorder (null);
-        
+
         cscroll.setBorder (new EmptyBorder (1, 0, 0, 0));
-     
+
         cscroll.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
         {
-           
+
             public void adjustmentValueChanged (AdjustmentEvent ev)
             {
-                
+
                 if (cscroll.getVerticalScrollBar ().getValue () > 0)
                 {
-                
+
                     cscroll.setBorder (new MatteBorder (1, 0, 0, 0,
                                                         UIUtils.getInnerBorderColor ()));
 
                 } else {
-                    
+
                     cscroll.setBorder (new EmptyBorder (1, 0, 0, 0));
-                    
+
                 }
-                    
+
             }
-            
+
         });
-        
+
         cscroll.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         cscroll.getVerticalScrollBar ().setUnitIncrement (20);
         cscroll.setOpaque (false);
@@ -1364,15 +1429,16 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             {
 
                 new NewIdeaTypeActionHandler (_this).actionPerformed (new ActionEvent (_this, 0, "show"));
-                
+
             }
-                
+
             @Override
             public void fillPopup (JPopupMenu p,
                                    MouseEvent ev)
             {
-                
-                JMenuItem add = new JMenuItem ("Add a new type of Idea",
+
+                JMenuItem add = new JMenuItem (getUIString (ideaboard,popupmenu,items,_new),
+                                                //"Add a new type of Idea",
                                                Environment.getIcon ("add",
                                                                     Constants.ICON_MENU));
                 add.addActionListener (new NewIdeaTypeActionHandler (_this));
@@ -1382,23 +1448,25 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                 p.add (_this.getSelectBackgroundButton (true));
 
             }
-                
+
         });
 
         java.util.List<JButton> buts = new ArrayList ();
 
         buts.add (UIUtils.createButton ("add",
                                         Constants.ICON_PANEL_ACTION,
-                                        "Click to add a new type of Idea",
+                                        getUIString (ideaboard,headercontrols,items,_new,tooltip),
+                                        //"Click to add a new type of Idea",
                                         new NewIdeaTypeActionHandler (this)));
-    
+
         buts.add (UIUtils.createHelpPageButton ("idea-board/overview",
                                                 Constants.ICON_PANEL_ACTION,
                                                 null));
 
-        this.header = UIUtils.createHeader ("Idea Board",
+        this.header = UIUtils.createHeader (getUIString (ideaboard,title),
+                                            //"Idea Board",
                                             Constants.PANEL_TITLE,
-                                            "idea",
+                                            Constants.IDEA_ICON_NAME,
                                             UIUtils.createButtonBar (buts));
 
         this.add (this.header);
@@ -1413,24 +1481,42 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             // Add the default types, they are inserted in reverse since
             // we insert at the top of the container rather than adding to the bottom.
-            this.addNewType (Environment.replaceObjectNames ("{Scenes}"),
+            this.addNewType (getUIString (objectnames,plural, Scene.OBJECT_TYPE),
+                            //"{Scenes}"),
                              "scene",
                              false);
 
-            this.addNewType ("Other",
+            this.addNewType (getUIString (ideaboard,ideatypes,defaulttypes,dialogue),
+                            //"Dialogue",
+                             "dialogue",
+                             false);
+
+            this.addNewType (getUIString (ideaboard,ideatypes,defaulttypes,other),
+                            //"Other",
                              null,
                              false);
 
-            this.addNewType (Environment.replaceObjectNames ("{Locations}"),
-                             "location",
+            for (UserConfigurableObjectType type : Environment.getAssetUserConfigurableObjectTypes (true))
+            {
+
+                this.addNewType (type.getObjectTypeNamePlural (),
+                                 type.getObjectTypeId (), //getIcon16x16 (),
+                                 false);
+
+            }
+
+            this.addNewType (getUIString (objectnames,plural, Chapter.OBJECT_TYPE),
+                            //"{Chapters}"),
+                             "chapter",
                              false);
+
+/*
+                this.addNewType (Environment.replaceObjectNames ("{Locations}"),
+                                 "location",
+                                 false);
 
             this.addNewType (Environment.replaceObjectNames ("{Items}"),
                              "object",
-                             false);
-
-            this.addNewType ("Dialogue",
-                             "dialogue",
                              false);
 
             this.addNewType (Environment.replaceObjectNames ("{Characters}"),
@@ -1440,7 +1526,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             this.addNewType (Environment.replaceObjectNames ("{Chapters}"),
                              "chapter",
                              false);
-
+*/
             this.projectViewer.setIgnoreProjectEvents (false);
 
         } else
@@ -1460,7 +1546,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         }
 
         this.add (cscroll);
-        
+
     }
 
     public boolean hasTypeWithName (String n)
@@ -1496,7 +1582,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         if (showText)
         {
 
-            mi = new JMenuItem ("Select a background image/color");
+            mi = new JMenuItem (getUIString (ideaboard,popupmenu,items,selectbackground));
+                //"Select a background image/color");
 
         } else
         {
@@ -1504,7 +1591,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             mi = new JButton ();
             UIUtils.setAsButton (mi);
             mi.setOpaque (false);
-            mi.setToolTipText ("Click to show/hide the background image/color selector");
+            mi.setToolTipText (getUIString (ideaboard,toolbar,buttons,selectbackground,tooltip));
+            //"Click to show/hide the background image/color selector");
 
         }
 
@@ -1527,47 +1615,6 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
     }
 
-    private AbstractButton getSelectOpacityButton (boolean showText)
-    {
-
-        final IdeaBoard _this = this;
-
-        AbstractButton mi = null;
-
-        if (showText)
-        {
-
-            mi = new JMenuItem ("Set how transparent the background is");
-
-        } else
-        {
-
-            mi = new JButton ();
-            UIUtils.setAsButton (mi);
-            mi.setOpaque (false);
-            mi.setToolTipText ("Click to show/hide the background transparency selector");
-
-        }
-
-        mi.setIcon (Environment.getIcon ("transparency",
-                                         (showText ? Constants.ICON_MENU : Constants.ICON_TOOLBAR)));
-
-        mi.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.showBackgroundSelector ();
-
-            }
-
-        });
-
-        return mi;
-
-    }    
-    
     public void showBackgroundSelector ()
     {
 
@@ -1632,16 +1679,16 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
     public void setBoardOpacity (float v)
     {
-        
+
         this.categories.setBackgroundOpacity (v);
-        
+
     }
-    
+
     public void setBoardBackground (Object o)
     {
 
         this.categories.setBackgroundObject (o);
-        
+
     }
 
     public void addNewType (String  name,
@@ -1655,7 +1702,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         it.setIconType (iconType);
 
         this.projectViewer.getProject ().addIdeaType (it);
-        
+
         this.projectViewer.addNewIdeaType (it);
 
         TypeBox cb = this.addType (it);
@@ -1740,16 +1787,16 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
     {
 
         String bg = this.categories.getBackgroundObjectAsString ();
-            
+
         // Legacy < v2
         m.remove ("backgroundImage");
-    
+
         m.put ("background",
                bg);
 
         m.put ("opacity",
                String.valueOf (this.categories.getBackgroundOpacity ()));
-               
+
         // Get all the type boxes that are "open".
         StringBuilder sb = new StringBuilder ();
 
@@ -1798,57 +1845,57 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         // Legacy < v2
         if (bg == null)
         {
-            
+
             bg = s.get ("backgroundImage");
-            
+
             if (bg != null)
             {
-                
+
                 bg = "bg:" + bg;
-                
+
             }
-            
+
         }
-        
+
         if (bg == null)
         {
-            
+
             bg = "bg:" + Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME);
-            
+
         }
-        
+
         try
         {
-        
+
             this.setBoardBackground (bg);
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set board background to: " +
                                   bg,
                                   e);
-            
+
             this.setBoardBackground ("bg:" + Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME));
-            
+
         }
-        
+
         String op = s.get ("opacity");
-        
+
         float opv = 0.7f;
-        
+
         try
         {
-            
+
             opv = Float.parseFloat (op);
-            
+
         } catch (Exception e) {
-            
+
             // Ignore.
-            
+
         }
-  
+
         this.setBoardOpacity (opv);
-    
+
         // Open the types.
         String openTypes = s.get ("openTypes");
 
@@ -1907,7 +1954,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         this.repaint ();
 
         this.setReadyForUse (true);
-        
+
     }
 
     public void fillToolBar (JToolBar acts,
@@ -1916,7 +1963,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         JButton add = new JButton (Environment.getIcon ("add",
                                                         Constants.ICON_TOOLBAR));
-        add.setToolTipText ("Click to add a new type of Idea");
+        add.setToolTipText (getUIString (ideaboard,toolbar,buttons,_new,tooltip));
+        //"Click to add a new type of Idea");
         add.setOpaque (false);
         UIUtils.setAsButton (add);
         add.addActionListener (new NewIdeaTypeActionHandler (this));
@@ -1924,8 +1972,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
         acts.add (this.getSelectBackgroundButton (false));
 
-        //acts.add (this.getSelectOpacityButton (false));        
-        
+        //acts.add (this.getSelectOpacityButton (false));
+
         JButton helpBut = UIUtils.createHelpPageButton ("idea-board/overview",
                                                         Constants.ICON_TOOLBAR,
                                                         null);
@@ -1937,11 +1985,12 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
     @Override
     public String getTitle ()
     {
-        
-        return "Idea Board";
-        
+
+        return getUIString (ideaboard,title);
+        //"Idea Board";
+
     }
-    
+
     @Override
     public ImageIcon getIcon (int type)
     {
@@ -1950,14 +1999,14 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                     type);
 
     }
-    
+
     public List<Component> getTopLevelComponents ()
     {
 
         return new ArrayList ();
 
     }
-    
+
     @Override
     public void refresh ()
     {

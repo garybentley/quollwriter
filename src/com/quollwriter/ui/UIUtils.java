@@ -105,6 +105,8 @@ import org.jfree.ui.*;
 
 import org.josql.utils.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class UIUtils
 {
@@ -852,41 +854,7 @@ public class UIUtils
     {
 
         Environment.scrollIntoView (c);
-/*
-        JComponent p = (JComponent) c.getParent ();
 
-        JComponent pp = c;
-
-        while (p != null)
-        {
-
-            if (p instanceof JScrollPane)
-            {
-
-                final JScrollPane sp = (JScrollPane) p;
-
-                SwingUtilities.invokeLater (new Runnable ()
-                {
-
-                    public void run ()
-                    {
-
-                        sp.getVerticalScrollBar ().setValue (c.getBounds (null).y);
-
-                    }
-
-                });
-
-                return;
-
-            }
-
-            pp = p;
-
-            p = (JComponent) p.getParent ();
-
-        }
-  */
     }
 
     public static void expandPathsForLinkedOtherObjects (JTree       tree,
@@ -974,7 +942,8 @@ public class UIUtils
             l.setOpaque (false);
             l.setIcon (Environment.getIcon (other.getObjectType (),
                                             Constants.ICON_MENU));
-            l.setToolTipText ("Click to view the item");
+            l.setToolTipText (getUIString (viewitem,tooltip));
+            //"Click to view the item");
             l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
             l.setForeground (Color.BLUE);
             l.setBorder (new EmptyBorder (0,
@@ -1091,7 +1060,8 @@ public class UIUtils
 
         JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
                                               Constants.ICON_MENU,
-                                              "Click to close",
+                                              getUIString (actions,clicktoclose),
+                                              //"Click to close",
                                               new ActionAdapter ()
         {
 
@@ -1136,7 +1106,8 @@ public class UIUtils
         }
 
         TreeParentNode nullN = new TreeParentNode (Note.OBJECT_TYPE,
-                                                   Environment.replaceObjectNames ("{Notes}"),
+                                                   getUIString (objectnames,plural, Note.OBJECT_TYPE),
+                                                   //Environment.replaceObjectNames ("{Notes}"),
                                                    notes.size ());
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode (nullN);
@@ -2389,6 +2360,13 @@ public class UIUtils
                                               final Point                      showAt)
     {
 
+        if (popupTitle == null)
+        {
+
+            throw new IllegalArgumentException ("Expected a popup title.");
+
+        }
+
         UIUtils.doActionLater (new ActionListener ()
         {
 
@@ -2478,7 +2456,7 @@ public class UIUtils
 
                 content.add (sp);
 
-                final QPopup ep = UIUtils.createClosablePopup ((popupTitle != null ? popupTitle : "Select an item"),
+                final QPopup ep = UIUtils.createClosablePopup (popupTitle,
                                                                Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
                                                                null);
@@ -2597,8 +2575,7 @@ public class UIUtils
                 content.add (buttons);
                 content.setBorder (new EmptyBorder (10, 10, 10, 10));
 
-                final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : Environment.getUIString (LanguageStrings.generalmessage,
-                                                                                                                 LanguageStrings.title)),
+                final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : getUIString (generalmessage,title)),
                                                                 //"Just so you know..."),
                                                                Environment.getIcon (Constants.INFO_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
@@ -2856,7 +2833,8 @@ public class UIUtils
 
             final JButton cancel = UIUtils.createButton ("cancel",
                                                          Constants.ICON_MENU,
-                                                         "Click to close.",
+                                                         getUIString (actions,clicktoclose),
+                                                         //"Click to close.",
                                                          null);
 
             cancel.addActionListener (new ActionAdapter ()
@@ -3178,8 +3156,6 @@ public class UIUtils
 
         }
 
-        cb.setToolTipText ("Enter a value to set a size that is not already in the list");
-
         return cb;
 
     }
@@ -3266,18 +3242,16 @@ public class UIUtils
         line.setEditable (true);
 
         line.setEditor (new javax.swing.plaf.basic.BasicComboBoxEditor ()
+        {
+
+            protected JTextField createEditorComponent ()
             {
 
-                protected JTextField createEditorComponent ()
-                {
+                return new FormattedTextField ("[0-9\\.]");
 
-                    return new FormattedTextField ("[0-9\\.]");
+            }
 
-                }
-
-            });
-
-        line.setToolTipText ("Enter a value to set a spacing that is not already in the list");
+        });
 
         line.setMaximumSize (line.getPreferredSize ());
 
@@ -3370,14 +3344,11 @@ public class UIUtils
     {
 
         Vector<String> alignS = new Vector ();
-        alignS.add (Environment.getUIString (LanguageStrings.textalignments,
-                                             LanguageStrings.left));
+        alignS.add (getUIString (textalignments,left));
                     //QTextEditor.ALIGN_LEFT);
-        alignS.add (Environment.getUIString (LanguageStrings.textalignments,
-                                             LanguageStrings.justified));
+        alignS.add (getUIString (textalignments,justified));
         //QTextEditor.ALIGN_JUSTIFIED);
-        alignS.add (Environment.getUIString (LanguageStrings.textalignments,
-                                             LanguageStrings.right));
+        alignS.add (getUIString (textalignments,right));
         //QTextEditor.ALIGN_RIGHT);
 
         final JComboBox align = new JComboBox (alignS);
@@ -3492,6 +3463,7 @@ public class UIUtils
     }
 
 /*
+
     public static List<Segment> getChapterSnippetsForNames (Collection<String> names,
                                                             Chapter            c)
     {
@@ -3501,6 +3473,7 @@ public class UIUtils
 
     }
 */
+/*
     public static List<Segment> getTextSnippetsForNames (Collection<String> names,
                                                          String             text)
     {
@@ -3578,7 +3551,8 @@ public class UIUtils
         return snippets;
 
     }
-
+*/
+/*
     public static Set<NamedObject> getObjectsContaining (String  s,
                                                          Project p)
     {
@@ -3723,7 +3697,7 @@ public class UIUtils
         return ret;
 
     }
-
+*/
     public static Map<Chapter, List<Segment>> getObjectSnippets (NamedObject n,
                                                                  AbstractProjectViewer pv)
     {
@@ -3773,8 +3747,8 @@ public class UIUtils
 
                 }
 
-                List<Segment> snippets = UIUtils.getTextSnippetsForNames (names,
-                                                                          t);
+                List<Segment> snippets = TextUtilities.getTextSnippetsForNames (names,
+                                                                                t);
 
                 if ((snippets != null) &&
                     (snippets.size () > 0))
@@ -3793,6 +3767,7 @@ public class UIUtils
 
     }
 
+/*
     public static Map<Chapter, List<Segment>> getTextSnippets (String  s,
                                                                AbstractProjectViewer pv)
     {
@@ -3847,8 +3822,8 @@ public class UIUtils
 
                 }
 
-                List<Segment> snippets = UIUtils.getTextSnippetsForNames (names,
-                                                                          t);
+                List<Segment> snippets = TextUtilities.getTextSnippetsForNames (names,
+                                                                                t);
 
                 if ((snippets != null) &&
                     (snippets.size () > 0))
@@ -3866,7 +3841,7 @@ public class UIUtils
         return data;
 
     }
-
+*/
     public static String markupLinks (String s)
     {
 
@@ -4606,24 +4581,6 @@ public class UIUtils
 
     }
 
-    public static Action getComingSoonAction (final Component pv)
-    {
-
-        return new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.showMessage (pv,
-                                     "This fantastic feature is coming soon!  Honest!");
-
-            }
-
-        };
-
-    }
-
     public static void setCenterOfScreenLocation (Window f)
     {
 
@@ -4959,26 +4916,6 @@ public class UIUtils
 
         desc.setText (text);
 
-        /*
-        desc.setMaximumSize (new Dimension (500,
-                                            500)); // desc.getPreferredSize ());
-*/
-                                            /* old
-        desc.setBorder (new EmptyBorder (10,
-                                         5,
-                                         10,
-                                         5));
-*/
-
-        // new
-        /*
-        desc.setBorder (new EmptyBorder (5,
-                                         5,
-                                         10,
-                                         5));
-          */
-        // end new
-
         UIUtils.addHyperLinkListener (desc,
                                       viewer);
 
@@ -5070,6 +5007,7 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
+            //XXX
                                       "Unable to open web page: " + url);
 
             return;
@@ -5174,6 +5112,7 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
+            //XXX
                                       "Unable to open: " + f);
 
             return;
@@ -5432,6 +5371,7 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
+            //XXX
                                       "Unable to open web page: " + url);
 
         }
@@ -5552,7 +5492,8 @@ public class UIUtils
 
                                 UIUtils.showObjectSelectPopup (objs,
                                                                pv,
-                                                               "Select an item to view",
+                                                               getUIString (selectitem,popup,title),
+                                                               //"Select an item to view",
                                                                new ActionListener ()
                                                                {
 
@@ -5761,7 +5702,8 @@ public class UIUtils
 
                                 UIUtils.showObjectSelectPopup (objs,
                                                                pv,
-                                                               "Select an item to view",
+                                                               getUIString (selectitem,popup,title),
+                                                               //"Select an item to view",
                                                                new ActionListener ()
                                                                {
 
@@ -6008,7 +5950,9 @@ public class UIUtils
                                           e);
 
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to create new asset type.");
+                                              String.format (getUIString (assets,add,actionerror),
+                                                             forAssetType.getObjectTypeName ()));
+                                              //"Unable to create new asset type.");
 
                     return;
 
@@ -6021,7 +5965,9 @@ public class UIUtils
                                           forAssetType);
 
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to create new asset type.");
+                                              String.format (getUIString (assets,add,actionerror),
+                                                             forAssetType.getObjectTypeName ()));
+                                              //"Unable to create new asset type.");
 
                     return;
 
@@ -6066,28 +6012,7 @@ public class UIUtils
 
                 viewer.showAddAsset (as,
                                      null);
-                /*
 
-                AssetActionHandler aah = new AssetActionHandler (a,
-                                                                 viewer);
-
-                if (showPopupAt instanceof PopupsSupported)
-                {
-
-                    aah.setPopupOver (pv);
-                    aah.setShowPopupAt (null,
-                                        "below");
-
-                } else
-                {
-
-                    aah.setShowPopupAt (showPopupAt,
-                                        "above");
-
-                }
-
-                aah.actionPerformed (ev);
-                */
             }
 
         };
@@ -6123,159 +6048,11 @@ public class UIUtils
 
             }
 
-            //final UserConfigurableObjectType _type = type;
-
             mi.addActionListener (UIUtils.createAddAssetActionListener (type,
                                                                         pv,
                                                                         name,
                                                                         desc));
-/*
-            mi.addActionListener (new ActionListener ()
-            {
 
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    Asset a = null;
-
-                    try
-                    {
-
-                        a = Asset.createAsset (_type);
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to create new asset for object type: " +
-                                              _type,
-                                              e);
-
-                        UIUtils.showErrorMessage (pv,
-                                                  "Unable to create new asset type.");
-
-                        return;
-
-                    }
-
-                    if (a == null)
-                    {
-
-                        Environment.logError ("Unable to create new asset for object type: " +
-                                              _type);
-
-                        UIUtils.showErrorMessage (pv,
-                                                  "Unable to create new asset type.");
-
-                        return;
-
-                    }
-
-                    if (name != null)
-                    {
-
-                        a.setName (name);
-
-                    }
-
-                    if (desc != null)
-                    {
-
-                        a.setDescription (new StringWithMarkup (desc));
-
-                    }
-
-                    AssetActionHandler aah = new AssetActionHandler (a,
-                                                                     pv);
-
-                    if (showPopupAt instanceof PopupsSupported)
-                    {
-
-                        aah.setPopupOver (pv);
-                        aah.setShowPopupAt (null,
-                                            "below");
-
-                    } else
-                    {
-
-                        aah.setShowPopupAt (showPopupAt,
-                                            "above");
-
-                    }
-
-                    aah.actionPerformed (ev);
-
-                }
-
-            });
-            */
-
-        /*
-            Asset a = null;
-
-            try
-            {
-
-                a = Asset.createSubType (type);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to create asset sub type: " +
-                                      type,
-                                      e);
-
-                continue;
-
-            }
-
-            if (name != null)
-            {
-
-                a.setName (name);
-
-            }
-
-            if (desc != null)
-            {
-
-                a.setDescription (new StringWithMarkup (desc));
-
-            }
-
-            String oName = Environment.getObjectTypeName (a.getObjectType ());
-
-            JMenuItem mi = new JMenuItem (oName,
-                                          Environment.getIcon (a.getObjectType (),
-                                                               Constants.ICON_MENU));
-
-            char fc = Character.toUpperCase (oName.charAt (0));
-
-            mi.setMnemonic (fc);
-            mi.setToolTipText (pref + fc);
-
-            AbstractActionHandler aah = new AssetActionHandler (a,
-                                                                pv,
-                                                                AbstractActionHandler.ADD);
-
-            if (showPopupAt instanceof PopupsSupported)
-            {
-
-                aah.setPopupOver (pv);
-                aah.setShowPopupAt (null,
-                                    "below");
-
-            } else
-            {
-
-                aah.setShowPopupAt (showPopupAt,
-                                    "above");
-
-            }
-
-            mi.addActionListener (aah);
-
-            m.add (mi);
-*/
         }
 
     }
@@ -6295,7 +6072,8 @@ public class UIUtils
         {
 
             JButton but = UIUtils.createButton (type.getIcon16x16 (),
-                                                String.format ("Click to add a new %s",
+                                                String.format (getUIString (assets,add,button,tooltip),
+                                                                //"Click to add a new %s",
                                                                type.getObjectTypeName ()),
                                                 null);
 
@@ -6324,7 +6102,9 @@ public class UIUtils
                                               e);
 
                         UIUtils.showErrorMessage (pv,
-                                                  "Unable to create new asset type.");
+                                                  String.format (getUIString (assets,add,actionerror),
+                                                                 _type.getObjectTypeName ()));
+                                                  //"Unable to create new asset type.");
 
                         return;
 
@@ -6337,7 +6117,9 @@ public class UIUtils
                                               _type);
 
                         UIUtils.showErrorMessage (pv,
-                                                  "Unable to create new asset type.");
+                                                  String.format (getUIString (assets,add,actionerror),
+                                                                 _type.getObjectTypeName ()));
+                                                  //"Unable to create new asset type.");
 
                         return;
 
@@ -6387,79 +6169,6 @@ public class UIUtils
                                                  m,
                                                  buts));
 
-/*
-        for (String type : Asset.supportedAssetTypes.keySet ())
-        {
-
-            Asset a = null;
-
-            try
-            {
-
-                a = Asset.createAsset (type);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to create asset sub type: " +
-                                      type,
-                                      e);
-
-                continue;
-
-            }
-
-            if (name != null)
-            {
-
-                a.setName (name);
-
-            }
-
-            if (desc != null)
-            {
-
-                a.setDescription (new StringWithMarkup (desc));
-
-            }
-
-            String oName = Environment.getObjectTypeName (a.getObjectType ());
-
-            JButton but = UIUtils.createButton (Environment.getIcon (a.getObjectType (),
-                                                                     Constants.ICON_MENU),
-                                                "Click to add a new {" + a.getObjectType () + "}",
-                                                null);
-
-            AbstractActionHandler aah = new AssetActionHandler (a,
-                                                                pv,
-                                                                AbstractActionHandler.ADD);
-
-            aah.setPopupOver (pv);
-
-            if (showPopupAt instanceof PopupsSupported)
-            {
-
-                aah.setShowPopupAt (null,
-                                    "below");
-
-            } else
-            {
-
-                aah.setShowPopupAt (showPopupAt,
-                                    "above");
-
-            }
-
-            but.addActionListener (aah);
-
-            buts.add (but);
-
-        }
-
-        m.add (UIUtils.createPopupMenuButtonBar (null,
-                                                 m,
-                                                 buts));
-*/
     }
 
     public static Color getBorderHighlightColor ()
@@ -6528,7 +6237,8 @@ public class UIUtils
 
         final JButton helpBut = new JButton (Environment.getIcon ("help",
                                                                   iconType));
-        helpBut.setToolTipText ((helpText != null ? helpText : "Click to view the help"));
+        helpBut.setToolTipText ((helpText != null ? helpText : getUIString (help,button,tooltip)));
+        //"Click to view the help"));
         helpBut.setOpaque (false);
         UIUtils.setAsButton (helpBut);
 
@@ -6730,31 +6440,7 @@ public class UIUtils
                 }
 
             }
-        /*
-            @Override
-            public void mouseEntered (MouseEvent ev)
-            {
 
-                Map attrs = new HashMap ();
-                attrs.put (TextAttribute.UNDERLINE,
-                           TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-
-                l.setFont (l.getFont ().deriveFont (attrs));
-
-            }
-
-            @Override
-            public void mouseExited (MouseEvent ev)
-            {
-
-                Map attrs = new HashMap ();
-                attrs.put (TextAttribute.UNDERLINE,
-                           null);
-
-                l.setFont (l.getFont ().deriveFont (attrs));
-
-            }
-*/
         });
 
         l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
@@ -6862,8 +6548,7 @@ public class UIUtils
 
                 }
 
-                super.setToolTipText (String.format ("%s",
-                                                     Environment.replaceObjectNames (t)));
+                super.setToolTipText (t);
 
             }
 
@@ -7354,7 +7039,7 @@ public class UIUtils
     }
 
     public static JComponent createPopupMenuButtonBar (String           title,
-                                                       final JPopupMenu       parent,
+                                                       final JPopupMenu parent,
                                                        List<JComponent> buttons)
     {
 
@@ -7539,20 +7224,9 @@ public class UIUtils
                                         String icon)
     {
 
-        JButton b = new JButton (Environment.replaceObjectNames (Environment.getButtonLabel (label)),
+        JButton b = new JButton (Environment.getButtonLabel (label),
                                  (icon == null ? null : Environment.getIcon (icon,
-                                                                             Constants.ICON_MENU)))
-        {
-
-            @Override
-            public void setToolTipText (String t)
-            {
-
-                super.setToolTipText (Environment.replaceObjectNames (t));
-
-            }
-
-        };
+                                                                             Constants.ICON_MENU)));
 
         return b;
 
@@ -7616,7 +7290,8 @@ public class UIUtils
         if (p == null)
         {
 
-            return "Prompt no longer available.  Usually this is due to it's removal at the request of the author.";
+            return getUIString (warmups,prompt,view,unavailable);
+            //"Prompt no longer available.  Usually this is due to it's removal at the request of the author.";
 
         }
 
@@ -7625,12 +7300,14 @@ public class UIUtils
         if (p.isUserPrompt ())
         {
 
-            link = "by You";
+            link = getUIString (warmups,prompt,view,ownprompt);
+            //"by You";
 
         } else
         {
 
-            link = String.format ("<a title='Click to visit the website' href='%s'>%s by %s</a>",
+            link = String.format (getUIString (warmups,prompt,view,link),
+                                //"<a title='Click to visit the website' href='%s'>%s by %s</a>",
                                   p.getURL (),
                                   p.getStoryName (),
                                   p.getAuthor ());
@@ -7700,68 +7377,6 @@ public class UIUtils
         float s = (float) size * ((float) java.awt.Toolkit.getDefaultToolkit ().getScreenResolution () / 72f);
 
         return (int) s;
-
-    }
-
-    public static JFreeChart createSparkLine (TimeSeries series,
-                                              int        maxRange,
-                                              int        minRange)
-    {
-
-        TimeSeriesCollection tsc = new TimeSeriesCollection ();
-        tsc.addSeries (series);
-
-        DateAxis x = new DateAxis ();
-        x.setTickUnit (new DateTickUnit (DateTickUnitType.DAY,
-                                         1));
-        x.setTickLabelsVisible (false);
-        x.setTickMarksVisible (false);
-        x.setAxisLineVisible (false);
-        x.setNegativeArrowVisible (false);
-        x.setPositiveArrowVisible (false);
-        x.setVisible (false);
-
-        NumberAxis y = new NumberAxis ();
-        y.setTickLabelsVisible (false);
-        y.setTickMarksVisible (false);
-        y.setAxisLineVisible (false);
-        y.setNegativeArrowVisible (false);
-        y.setPositiveArrowVisible (false);
-        y.setVisible (false);
-        y.setRange (minRange,
-                    maxRange);
-
-        XYPlot plot = new XYPlot ();
-        plot.setInsets (new RectangleInsets (-1,
-                                             -1,
-                                             0,
-                                             0));
-        plot.setDataset (tsc);
-        plot.setDomainAxis (x);
-        plot.setDomainGridlinesVisible (false);
-        plot.setDomainCrosshairVisible (false);
-        plot.setRangeGridlinesVisible (false);
-        plot.setRangeCrosshairVisible (false);
-        plot.setRangeAxis (y);
-
-        XYLineAndShapeRenderer rend = new XYLineAndShapeRenderer (true,
-                                                                  false);
-        plot.setRenderer (rend);
-        rend.setBaseStroke (new java.awt.BasicStroke (10f));
-        rend.setSeriesStroke (0,
-                              new java.awt.BasicStroke (10f));
-        rend.setBasePaint (UIUtils.getColor ("#516CA3"));
-
-        rend.setSeriesPaint (0,
-                             UIUtils.getColor ("#516CA3"));
-
-        JFreeChart chart = new JFreeChart (null,
-                                           JFreeChart.DEFAULT_TITLE_FONT,
-                                           plot,
-                                           false);
-        chart.setBorderVisible (false);
-
-        return chart;
 
     }
 
@@ -7946,33 +7561,6 @@ public class UIUtils
         }
 
         return false;
-
-    }
-
-    public static void addListenerToChildren (MouseListener l,
-                                              Container     parent)
-    {
-
-        parent.addMouseListener (l);
-
-        int n = parent.getComponentCount ();
-
-        for (int i = 0; i < n; i++)
-        {
-
-            Component c = parent.getComponent (i);
-
-            c.addMouseListener (l);
-
-            if (c instanceof Container)
-            {
-
-                UIUtils.addListenerToChildren (l,
-                                               (Container) c);
-
-            }
-
-        }
 
     }
 
@@ -8534,8 +8122,6 @@ public class UIUtils
     public static String formatForUser (String v)
     {
 
-        v = Environment.replaceObjectNames (v);
-
         return v;
 
     }
@@ -8545,7 +8131,7 @@ public class UIUtils
                                             ActionListener action)
     {
 
-        JMenuItem mi = new JMenuItem (Environment.getButtonLabel (Environment.replaceObjectNames (label)),
+        JMenuItem mi = new JMenuItem (Environment.getButtonLabel (label),
                                       Environment.getIcon (icon,
                                                  Constants.ICON_MENU));
         mi.addActionListener (action);
@@ -8559,7 +8145,7 @@ public class UIUtils
                                             ActionListener action)
     {
 
-        JMenuItem mi = new JMenuItem (Environment.getButtonLabel (Environment.replaceObjectNames (label)),
+        JMenuItem mi = new JMenuItem (Environment.getButtonLabel (label),
                                       icon);
         mi.addActionListener (action);
 
@@ -8705,9 +8291,6 @@ public class UIUtils
                                               Utils.getStackTrace (pe),
                                               e);
 
-                        UIUtils.showErrorMessage (p.getViewer (),
-                                                  "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
-
                     }
 
                     return;
@@ -8721,9 +8304,6 @@ public class UIUtils
                     Environment.logError ("Unable to perform action: " + action,
                                           new Exception ("Unable to perform action for panel: " + p.getPanelId (),
                                                          pe));
-
-                    UIUtils.showErrorMessage (p.getViewer (),
-                                              "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
 
                     t.setRepeats (false);
                     t.stop ();
@@ -8775,8 +8355,6 @@ public class UIUtils
                     Environment.logError ("Unable to perform action",
                                           e);
 
-                    UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
-
                 }
 
             }
@@ -8791,14 +8369,10 @@ public class UIUtils
 
         text.addDoActionOnCtrlReturnPressed (action);
 
-        /*
-        UIUtils.addDoActionOnReturnPressed (text.getTextArea (),
-                                            action);
-        */
     }
 
     public static void addDoActionOnReturnPressed (final JTextComponent text,
-                                                    final ActionListener action)
+                                                   final ActionListener action)
     {
 
         if (action == null)
@@ -8856,188 +8430,7 @@ public class UIUtils
         }
 
     }
-/*
-    public static MessageWindow createQuestionPopup (PopupWindow           popup,
-                                                     String                title,
-                                                     String                icon,
-                                                     String                message,
-                                                     final String          confirmButtonLabel,
-                                                     final String          cancelButtonLabel,
-                                                     final ActionListener  onConfirm,
-                                                     final ActionListener  onCancel,
-                                                     Point                 showAt)
-    {
 
-        Map<String, ActionListener> buttons = new LinkedHashMap ();
-
-        if (onConfirm != null)
-        {
-
-            buttons.put (Environment.getButtonLabel (confirmButtonLabel,
-                                                     Constants.CONFIRM_BUTTON_LABEL_ID),
-                         new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    try
-                    {
-
-                        onConfirm.actionPerformed (ev);
-
-                    } catch (Exception e) {
-
-                        // This is just a hail mary in case something unexpected happens like an NPE and isn't
-                        // caught by the action listener.
-                        Environment.logError ("Something wrong on action",
-                                              e);
-
-                    }
-
-                }
-
-            });
-
-        }
-
-        buttons.put (Environment.getButtonLabel (cancelButtonLabel,
-                                                 Constants.CANCEL_BUTTON_LABEL_ID),
-                     new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                if (onCancel != null)
-                {
-
-                    try
-                    {
-
-                        onCancel.actionPerformed (ev);
-
-                    } catch (Exception e) {
-
-                        // This is just a hail mary in case something unexpected happens like an NPE and isn't
-                        // caught by the action listener.
-                        Environment.logError ("Something wrong on action",
-                                              e);
-
-                    }
-
-                }
-
-            }
-
-        });
-
-        return UIUtils.createQuestionPopup (popup,
-                                            title,
-                                            icon,
-                                            message,
-                                            buttons,
-                                            null,
-                                            showAt);
-
-    }
-*/
-/*
-    public static MessageWindow createQuestionPopup (PopupWindow           popup,
-                                                     String                title,
-                                                     String                icon,
-                                                     String                message,
-                                                     final Map<String, ActionListener> buttons,
-                                                     final ActionListener              onClose,
-                                                     Point                 showAt)
-    {
-
-        final MessageWindow mw = new MessageWindow ((popup != null ? popup.getViewer () : null),
-                                                    title,
-                                                    message)
-        {
-
-            public JButton[] getButtons ()
-            {
-
-                JButton[] buts = new JButton[buttons.size ()];
-
-                int i = 0;
-
-                // Too much type information required to do entrySet...
-                // We will never do much iterating here so simpler and clearer to just do it the "hard way".
-                Iterator<String> iter = buttons.keySet ().iterator ();
-
-                while (iter.hasNext ())
-                {
-
-                    String label = iter.next ();
-
-                    ActionListener a = buttons.get (label);
-
-                    JButton b = UIUtils.createButton (label,
-                                                      this.getCloseAction ());
-
-                    if (a != null)
-                    {
-
-                        b.addActionListener (a);
-
-                    }
-
-                    buts[i++] = b;
-
-                }
-
-                return buts;
-
-            }
-
-        };
-
-        mw.init ();
-
-        // If show at is null then show the message window at the center of the popup.
-        if (showAt == null)
-        {
-
-            Rectangle pbounds = popup.getBounds ();
-
-            Dimension size = mw.getPreferredSize ();
-
-            int x = ((pbounds.width - size.width) / 2) + pbounds.x;
-            int y = ((pbounds.height - size.height) / 2) + pbounds.y;
-
-            // Move the window
-            showAt = new Point (x,
-                                y);
-
-        }
-
-        mw.setShowAt (showAt);
-
-        // Add the on close
-        if (onClose != null)
-        {
-
-            mw.addWindowListener (new WindowAdapter ()
-            {
-
-                public void windowClosing (WindowEvent ev)
-                {
-
-                    onClose.actionPerformed (new ActionEvent (mw, 0, "closing"));
-
-                }
-
-            });
-
-        }
-
-        return mw;
-
-    }
-*/
     public static QPopup createQuestionPopup (AbstractViewer        viewer,
                                               String                title,
                                               String                icon,
@@ -9099,85 +8492,7 @@ public class UIUtils
                                             showAt);
 
     }
-    /*
-    public static QPopup createQuestionPopup (AbstractProjectViewer       viewer,
-                                              String                      title,
-                                              String                      icon,
-                                              JComponent                  mess,
-                                              Map<String, ActionListener> buttons,
-                                              ActionListener              onClose,
-                                              Point                       showAt)
-    {
 
-        final QPopup qp = UIUtils.createClosablePopup (title,
-                                                       Environment.getIcon (icon,
-                                                                            Constants.ICON_POPUP),
-                                                       onClose);
-
-        Box content = new Box (BoxLayout.Y_AXIS);
-
-        content.add (mess);
-        content.add (Box.createVerticalStrut (10));
-
-        JButton[] buts = new JButton[buttons.size ()];
-
-        int i = 0;
-
-        // Too much type information required to do entrySet...
-        // We will never do much iterating here so simpler and clearer to just do it the "hard way".
-        Iterator<String> iter = buttons.keySet ().iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            String label = iter.next ();
-
-            ActionListener a = buttons.get (label);
-
-            JButton b = UIUtils.createButton (label,
-                                              null);
-
-            b.addActionListener (qp.getCloseAction ());
-
-            if (a != null)
-            {
-
-                b.addActionListener (a);
-
-            }
-
-            buts[i++] = b;
-
-        }
-
-        JComponent bs = UIUtils.createButtonBar2 (buts,
-                                                  Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
-        bs.setAlignmentX (Component.LEFT_ALIGNMENT);
-        content.add (bs);
-        content.setBorder (new EmptyBorder (10, 10, 10, 10));
-        qp.setContent (content);
-
-        content.setPreferredSize (new Dimension (Math.max (UIUtils.getPopupWidth (), bs.getPreferredSize ().width) + 20,
-                                                 content.getPreferredSize ().height));
-
-        if (showAt == null)
-        {
-
-            showAt = UIUtils.getCenterShowPosition (viewer,
-                                                    qp);
-
-        }
-
-        viewer.showPopupAt (qp,
-                            showAt,
-                            false);
-
-        qp.setDraggable (viewer);
-
-        return qp;
-
-    }
-*/
     public static QPopup createQuestionPopup (PopupsSupported             viewer,
                                               String                      title,
                                               String                      icon,
@@ -9271,7 +8586,8 @@ public class UIUtils
                                           Point           showAt)
     {
 
-        final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : "Help"),
+        final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : getUIString (help,popup,title)),
+                                                        //"Help"),
                                                        Environment.getIcon (Constants.HELP_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        onClose);
@@ -9412,13 +8728,11 @@ public class UIUtils
 
         content.add (Box.createVerticalStrut (10));
 
-        final JLabel error = UIUtils.createErrorLabel ("Please enter a value.");
+        final JLabel error = UIUtils.createErrorLabel (getUIString (form,errors,novalue));
+        //"Please enter a value.");
 
         error.setVisible (false);
-        error.setBorder (new EmptyBorder (0,
-                                          0,
-                                          5,
-                                          0));
+        error.setBorder (UIUtils.createPadding (0, 0, 5, 0));
 
         final JTextField text = textField;
 
@@ -9589,14 +8903,12 @@ public class UIUtils
     {
 
         UIUtils.doLater (l,
-                         null,
                          null);
 
     }
 
     public static void doLater (final ActionListener l,
-                                final Object         c,
-                                final String         showOnError)
+                                final Object         c)
     {
 
         if (l == null)
@@ -9621,81 +8933,23 @@ public class UIUtils
 
                } catch (Exception e) {
 
-                   if (showOnError != null)
-                   {
+                    Environment.logError ("Unable to perform action",
+                                          e);
+/*
+                    if (c instanceof Component)
+                    {
 
-                        Environment.logError (showOnError,
-                                              e);
+                        UIUtils.showErrorMessage ((Component) c,
+                                                  "Unable to perform action");
 
-                        if (c instanceof Component)
-                        {
-
-                            UIUtils.showErrorMessage ((Component) c,
-                                                      showOnError);
-
-                        }
-
-                   } else {
-
-                        Environment.logError ("Unable to perform action",
-                                              e);
-
-                        if (c instanceof Component)
-                        {
-
-                            UIUtils.showErrorMessage ((Component) c,
-                                                      "Unable to perform action");
-
-                        }
-
-                   }
-
+                    }
+*/
                }
 
             }
 
         });
 
-
-    }
-
-    public static String getOpenProjectHTML (String projId)
-    {
-
-        ProjectInfo proj = null;
-
-        try
-        {
-
-            proj = Environment.getProjectById (projId,
-                                               null);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to get project for id: " +
-                                  projId,
-                                  e);
-
-            return "Unknown Project";
-
-        }
-
-        if (proj == null)
-        {
-
-            Environment.logError ("Unable to get project info for project with id: " +
-                                  projId);
-
-            return "Unknown Project";
-
-        }
-
-        String projName = proj.getName ();
-
-        return String.format ("<a href='%s:%s'>%s</a>",
-                              Constants.OPENPROJECT_PROTOCOL,
-                              projId,
-                              proj.getName ());
 
     }
 
@@ -9883,11 +9137,12 @@ public class UIUtils
 
                 if ((v == null)
                     ||
-                    (!v.trim ().equalsIgnoreCase ("yes"))
+                    (!v.trim ().equalsIgnoreCase (getUIString (form,affirmativevalue)))
                    )
                 {
 
-                    return "Please enter the word Yes below.";
+                    return getUIString (form,errors,affirmativevalue);
+                    //"Please enter the word Yes below.";
 
                 }
 
@@ -10242,13 +9497,16 @@ public class UIUtils
                     public String isValid (String v)
                     {
 
+                        java.util.List<String> prefix = Arrays.asList (project,actions,openproject,enterpasswordpopup,errors);
+
                         if ((v == null)
                             ||
                             (v.trim ().equals (""))
                            )
                         {
 
-                            return "Please enter the password.";
+                            return getUIString (prefix,novalue);
+                            //"Please enter the password.";
 
                         }
 
@@ -10265,14 +9523,16 @@ public class UIUtils
                             if (ObjectManager.isDatabaseAlreadyInUseException (e))
                             {
 
-                                return "Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
+                                return getUIString (prefix,projectalreadyopen);
+                                //"Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
 
                             }
 
                             if (ObjectManager.isEncryptionException (e))
                             {
 
-                                return "Password is not valid.";
+                                return getUIString (prefix,invalidpassword);
+                                //"Password is not valid.";
 
                             }
 
@@ -10281,7 +9541,8 @@ public class UIUtils
                                                   e);
 
                             UIUtils.showErrorMessage (parentViewer,
-                                                      "Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
+                                                      getUIString (prefix,general));
+                                                      //"Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
 
                             return null;
 
@@ -10304,38 +9565,44 @@ public class UIUtils
 
             }
 
-            UIUtils.createPasswordInputPopup (parentViewer,
-                                          "Password required",
-                                          Constants.PROJECT_ICON_NAME,
-                                          String.format ("{Project} <b>%s</b> is encrypted, please enter the password to unlock it below.",
-                                                         proj.getName ()),
-                                          "Open",
-                                          Constants.CANCEL_BUTTON_LABEL_ID,
-                                          null,
-                                          validator,
-                                          new ActionListener ()
-                                          {
+            java.util.List<String> prefix = Arrays.asList (project,actions,openproject,enterpasswordpopup);
 
-                                              @Override
-                                              public void actionPerformed (ActionEvent ev)
+            UIUtils.createPasswordInputPopup (parentViewer,
+                                              getUIString (prefix,title),
+                                              //"Password required",
+                                              Constants.PROJECT_ICON_NAME,
+                                              String.format (getUIString (prefix,text),
+                                              //"{Project} <b>%s</b> is encrypted, please enter the password to unlock it below.",
+                                                         proj.getName ()),
+                                              getUIString (prefix,buttons,open),
+                                              //"Open",
+                                              getUIString (prefix,buttons,cancel),
+                                              //Constants.CANCEL_BUTTON_LABEL_ID,
+                                              null,
+                                              validator,
+                                              new ActionListener ()
                                               {
 
-                                                  proj.setFilePassword (ev.getActionCommand ());
-
-                                                  if (onProvided != null)
+                                                  @Override
+                                                  public void actionPerformed (ActionEvent ev)
                                                   {
 
-                                                    onProvided.actionPerformed (new ActionEvent (proj,
-                                                                                                 1,
-                                                                                                 "provided"));
+                                                      proj.setFilePassword (ev.getActionCommand ());
+
+                                                      if (onProvided != null)
+                                                      {
+
+                                                        onProvided.actionPerformed (new ActionEvent (proj,
+                                                                                                     1,
+                                                                                                     "provided"));
+
+                                                      }
 
                                                   }
 
-                                              }
-
-                                          },
-                                          null,
-                                          null);
+                                              },
+                                              null,
+                                              null);
 
         } else {
 
@@ -10454,10 +9721,7 @@ public class UIUtils
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.backups,
-                                                                          LanguageStrings.show,
-                                                                          LanguageStrings.popup,
-                                                                          LanguageStrings.title),
+            popup = UIUtils.createClosablePopup (getUIString (backups,show, LanguageStrings.popup,title),
                                                  //"Current Backups",
                                                  Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
                                                                       Constants.ICON_POPUP),
@@ -10478,9 +9742,7 @@ public class UIUtils
                                       e);
 
                 UIUtils.showErrorMessage (viewer,
-                                          Environment.getUIString (LanguageStrings.backups,
-                                                                   LanguageStrings.show,
-                                                                   LanguageStrings.actionerror));
+                                          getUIString (backups,show,actionerror));
                                           //"Unable to show backups manager, please contact Quoll Writer support for assistance.");
 
                 return;
@@ -10536,12 +9798,16 @@ public class UIUtils
     {
 
         UIUtils.createQuestionPopup (viewer,
-                                     "Create a Backup",
+                                     getUIString (backups,_new,popup,title),
+                                     //"Create a Backup",
                                      Constants.SNAPSHOT_ICON_NAME,
-                                     String.format ("Please confirm you wish to create a backup of {project} <b>%s</b>.",
+                                     String.format (getUIString (backups,_new,popup,text),
+                                                    //"Please confirm you wish to create a backup of {project} <b>%s</b>.",
                                                     proj.getName ()),
-                                     "Yes, create it",
-                                     null,
+                                     getUIString (backups,_new,popup,buttons,confirm),
+                                     //"Yes, create it",
+                                     getUIString (backups,_new,popup,buttons,cancel),
+                                     //null,
                                      new ActionAdapter ()
                                      {
 
@@ -10556,7 +9822,8 @@ public class UIUtils
 
                                                 Box b = new Box (BoxLayout.Y_AXIS);
 
-                                                JTextPane m = UIUtils.createHelpTextPane (String.format ("A backup has been created and written to:\n\n  <a href='%s'>%s</a>",
+                                                JTextPane m = UIUtils.createHelpTextPane (String.format (getUIString (backups,_new,confirmpopup,text),
+                                                                                                        //"A backup has been created and written to:\n\n  <a href='%s'>%s</a>",
                                                                                                          f.getParentFile ().toURI ().toString (),
                                                                                                          f),
                                                                                           viewer);
@@ -10569,7 +9836,8 @@ public class UIUtils
 
                                                 b.add (Box.createVerticalStrut (10));
 
-                                                JLabel l = UIUtils.createClickableLabel ("Click to view the backups",
+                                                JLabel l = UIUtils.createClickableLabel (getUIString (backups,_new,confirmpopup,labels,view),
+                                                                                        //"Click to view the backups",
                                                                                          Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
                                                                                                               Constants.ICON_MENU),
                                                                                          new ActionListener ()
@@ -10589,7 +9857,8 @@ public class UIUtils
                                                 b.add (l);
 
                                                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                     "Backup created",
+                                                                     getUIString (backups,_new,confirmpopup,title),
+                                                                    //"Backup created",
                                                                      b);
 
                                             } catch (Exception e)
@@ -10600,7 +9869,8 @@ public class UIUtils
                                                                       e);
 
                                                 UIUtils.showErrorMessage (viewer,
-                                                                          "Unable to create backup.");
+                                                                          getUIString (backups,_new,actionerror));
+                                                                          //"Unable to create backup.");
 
                                             }
 
@@ -10657,11 +9927,12 @@ public class UIUtils
 
         } catch (Exception e) {
 
-            UIUtils.showErrorMessage (parent,
-                                      "Unable to download language files");
-
             Environment.logError ("Unable to download language files, cant create url",
                                   e);
+
+            UIUtils.showErrorMessage (parent,
+                                      getUIString (dictionary,download,actionerror));
+                                      //"Unable to download language files");
 
             return;
 
@@ -10680,11 +9951,12 @@ public class UIUtils
 
         } catch (Exception e) {
 
-            UIUtils.showErrorMessage (parent,
-                                      "Unable to download language files");
-
             Environment.logError ("Unable to download language files, cant create temp file",
                                   e);
+
+            UIUtils.showErrorMessage (parent,
+                                      getUIString (dictionary,download,actionerror));
+                                    //"Unable to download language files");
 
             return;
 
@@ -10696,7 +9968,8 @@ public class UIUtils
 
         Box b = new Box (BoxLayout.Y_AXIS);
 
-        final JTextPane htmlP = UIUtils.createHelpTextPane (String.format ("The language files for <b>%s</b> are now being downloaded.",
+        final JTextPane htmlP = UIUtils.createHelpTextPane (String.format (getUIString (dictionary,download,notification),
+                                                                            //"The language files for <b>%s</b> are now being downloaded.",
                                                                            language),
                                                             parent);
         htmlP.setBorder (null);
@@ -10740,13 +10013,14 @@ public class UIUtils
                                                                 public void handleError (Exception e)
                                                                 {
 
-                                                                    UIUtils.showErrorMessage (parent,
-                                                                                              "A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+                                                                    UIUtils.doLater (removeNotification);
 
                                                                     Environment.logError ("Unable to download language files",
                                                                                           e);
 
-                                                                    UIUtils.doLater (removeNotification);
+                                                                    UIUtils.showErrorMessage (parent,
+                                                                                              getUIString (dictionary,download,actionerror));
+                                                                                              //"A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
 
                                                                 }
 
@@ -10797,6 +10071,9 @@ public class UIUtils
                                                                                                       " to: " +
                                                                                                       Environment.getUserQuollWriterDir (),
                                                                                                       e);
+
+                                                                                 UIUtils.showErrorMessage (parent,
+                                                                                                           getUIString (dictionary,download,actionerror));
 
                                                                                 return;
 
@@ -10889,15 +10166,17 @@ public class UIUtils
                                           ActionListener onCreate)
 	{
 
-        final QPopup popup = UIUtils.createClosablePopup ("Create a new {project}",
+        final QPopup popup = UIUtils.createClosablePopup (getUIString (newproject, LanguageStrings.popup,title),
+                                                        //"Create a new {project}",
                                                           Environment.getIcon (Constants.ADD_ICON_NAME,
                                                                                Constants.ICON_POPUP),
                                                           null);
 
 		Box content = new Box (BoxLayout.Y_AXIS);
 
-		content.add (UIUtils.createHelpTextPane ("To create a new {Project} enter the name below, select the directory it should be saved to and press the Create button.",
-										   null));
+		content.add (UIUtils.createHelpTextPane (getUIString (newproject, LanguageStrings.popup,text),
+                                                //"To create a new {Project} enter the name below, select the directory it should be saved to and press the Create button.",
+										         null));
 
 		final NewProjectPanel newProjPanel = new NewProjectPanel ();
 
@@ -10948,12 +10227,14 @@ public class UIUtils
         if (c.getLastModified () != null)
         {
 
-            lastEd = String.format ("Last edited: %s",
+            lastEd = String.format (getUIString (project,sidebar,chapters,preview,lastedited),
+                                    //"Last edited: %s",
                                     Environment.formatDate (c.getLastModified ()));
 
         } else {
 
-            lastEd = "Not yet edited.";
+            lastEd = getUIString (project,sidebar,chapters,preview,notedited);
+            //"Not yet edited.";
 
         }
 
@@ -10988,7 +10269,8 @@ public class UIUtils
            )
         {
 
-            desc = "<b>No description.</b>";
+            desc = getUIString (project,sidebar,chapters,preview,nodescription);
+            //"<b>No description.</b>";
             descFirstLine = desc;
 
         } else {
@@ -11017,7 +10299,8 @@ public class UIUtils
 
         } else {
 
-            chapText = Environment.replaceObjectNames ("{Chapter} is empty.");
+            chapText = getUIString (project,sidebar,chapters,preview,emptychapter);
+            //"{Chapter} is empty.");
 
         }
 
@@ -11052,7 +10335,8 @@ public class UIUtils
 
         text = StringUtils.replaceString (text,
                                           Constants.WORDS_TAG,
-                                          String.format ("%s words",
+                                          String.format (getUIString (project,sidebar,chapters,preview,words),
+                                                        //"%s words",
                                                          Environment.formatNumber (cc.wordCount)));
 
         text = StringUtils.replaceString (text,
@@ -11096,7 +10380,8 @@ public class UIUtils
 
         text = StringUtils.replaceString (text,
                                           Constants.EDIT_COMPLETE_TAG,
-                                          String.format ("%s%% complete",
+                                          String.format (getUIString (project,sidebar,chapters,preview,editcomplete),
+                                          //"%s%% complete",
                                                          Environment.formatNumber (ep)));
 
         if (text.contains (Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG))
@@ -11104,7 +10389,8 @@ public class UIUtils
 
             text = StringUtils.replaceString (text,
                                               Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG,
-                                              String.format ("%s problems",
+                                              String.format (getUIString (project,sidebar,chapters,preview,problemcount),
+                                                            //"%s problems",
                                                              Environment.formatNumber (viewer.getProblems (c).size ())));
 
         }
@@ -11114,7 +10400,8 @@ public class UIUtils
 
             text = StringUtils.replaceString (text,
                                               Constants.SPELLING_ERROR_COUNT_TAG,
-                                              String.format ("%s spelling errors",
+                                              String.format (getUIString (project,sidebar,chapters,preview,spellingcount),
+                                                            //"%s spelling errors",
                                                              Environment.formatNumber (viewer.getSpellingErrors (c).size ())));
 
         }
@@ -11129,9 +10416,11 @@ public class UIUtils
 
         }
 
-        String GL = "N/A";
-        String RE = "N/A";
-        String GF = "N/A";
+        String na = getUIString (project,sidebar,chapters,preview,notapplicable);
+
+        String GL = na; //"N/A";
+        String RE = na; //"N/A";
+        String GF = na; //"N/A";
 
         if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
         {
@@ -11144,7 +10433,8 @@ public class UIUtils
 
         text = StringUtils.replaceString (text,
                                           Constants.READABILITY_TAG,
-                                          String.format ("GL: %s, RE: %s, GF: %s",
+                                          String.format (getUIString (project,sidebar,chapters,preview,readability),
+                                          //"GL: %s, RE: %s, GF: %s",
                                                          GL,
                                                          RE,
                                                          GF));
@@ -11166,8 +10456,10 @@ public class UIUtils
 
         UserConfigurableObjectType type = new UserConfigurableObjectType ();
 
-        type.setObjectTypeName ("Widget");
-        type.setObjectTypeNamePlural ("Widgets");
+        type.setObjectTypeName (getUIString (userobjects,type,_new,defaults,names,singular));
+        //"Widget");
+        type.setObjectTypeNamePlural (getUIString (userobjects,type,_new,defaults,names,plural));
+        //"Widgets");
         type.setLayout (null);
         type.setAssetObjectType (true);
         type.setIcon24x24 (Environment.getIcon ("whats-new",
@@ -11178,7 +10470,8 @@ public class UIUtils
         // Name
         ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
-        nameF.setFormName ("Name");
+        nameF.setFormName (getUIString (userobjects,type,_new,defaults,fields,name));
+        //"Name");
 
         type.addConfigurableField (nameF);
 
@@ -11186,14 +10479,16 @@ public class UIUtils
         ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
         cdescF.setSearchable (true);
-        cdescF.setFormName ("Description");
+        cdescF.setFormName (getUIString (userobjects,type,_new,defaults,fields,description));
+        //"Description");
 
         type.addConfigurableField (cdescF);
 
         Wizard w = UserConfigurableObjectTypeEdit.getAsWizard (viewer,
                                                                type);
 
-        final QPopup p = UIUtils.createWizardPopup ("Add a new type of Object",
+        final QPopup p = UIUtils.createWizardPopup (getUIString (userobjects,type,_new,popup,title),
+                                                    //"Add a new type of Object",
                                                     Constants.NEW_ICON_NAME,
                                                     null,
                                                     w);
@@ -11226,7 +10521,8 @@ public class UIUtils
                                            AbstractViewer             viewer)
     {
 
-        final QPopup p = UIUtils.createClosablePopup (String.format ("Edit the %s information",
+        final QPopup p = UIUtils.createClosablePopup (String.format (getUIString (userobjects,type,edit,popup,title),
+                                                                    //"Edit the %s information",
                                                                      type.getObjectTypeName ()),
                                                       Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                            Constants.ICON_POPUP),
@@ -11236,7 +10532,8 @@ public class UIUtils
 
         b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
 
-        JTextPane m = UIUtils.createHelpTextPane (String.format ("Use this popup to add or edit the fields, layout and information for your %s.",
+        JTextPane m = UIUtils.createHelpTextPane (String.format (getUIString (userobjects,type,edit,popup,text),
+                                                                //"Use this popup to add or edit the fields, layout and information for your %s.",
                                                                  type.getObjectTypeNamePlural ()),
                                                   viewer);
 
@@ -11251,7 +10548,8 @@ public class UIUtils
         b.add (UserConfigurableObjectTypeEdit.getAsTabs (viewer,
                                                          type));
 
-        JButton finish = new JButton ("Finish");
+        JButton finish = new JButton (getUIString (userobjects,type,edit,popup,buttons,finish));
+        //"Finish");
 
         finish.addActionListener (new ActionAdapter ()
         {

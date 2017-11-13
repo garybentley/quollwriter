@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Set;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -40,6 +41,9 @@ import com.quollwriter.exporter.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.events.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandler> extends Box implements PropertyChangedListener
 {
@@ -70,9 +74,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
     public String getNewItemsTitle ()
     {
 
-        return Environment.getUIString (LanguageStrings.manageitems,
-                                        LanguageStrings.newitems,
-                                        LanguageStrings.title);
+        return getUIString (manageitems,newitems,title);
                                         //"New Items";
 
     }
@@ -80,9 +82,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
     public String getNewItemSeparators ()
     {
 
-        return Environment.getUIString (LanguageStrings.manageitems,
-                                        LanguageStrings.newitems,
-                                        LanguageStrings.separators);
+        return getUIString (manageitems,newitems,separators);
                                         //",;";
 
     }
@@ -90,9 +90,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
     public String getExistingItemsTitle ()
     {
 
-        return Environment.getUIString (LanguageStrings.manageitems,
-                                        LanguageStrings.table,
-                                        LanguageStrings.title);
+        return getUIString (manageitems,table,title);
                                         //"Current Items";
 
     }
@@ -107,9 +105,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
     public String getNewItemsHelp ()
     {
 
-        return Environment.getUIString (LanguageStrings.manageitems,
-                                        LanguageStrings.newitems,
-                                        LanguageStrings.text);
+        return getUIString (manageitems,newitems,text);
                                         //"Enter the new items to add below, separate each item with commas or semi-colons.";
 
     }
@@ -129,8 +125,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
 
         this.handler.addPropertyChangedListener (this);
 
-        final java.util.List<String> prefix = new ArrayList<> ();
-        prefix.add (LanguageStrings.manageitems);
+        final java.util.List<String> prefix = Arrays.asList (manageitems);
 
         final TypesEditor _this = this;
 
@@ -165,9 +160,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
         if (this.handler.typesEditable ())
         {
 
-            typeTable.setToolTipText (Environment.getUIString (prefix,
-                                                               LanguageStrings.table,
-                                                               LanguageStrings.tooltip));
+            typeTable.setToolTipText (getUIString (prefix,table,tooltip));
                                                                //"Double click to edit, press Enter when done.");
 
         }
@@ -222,11 +215,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
                 typeTable.setRowSelectionInterval (rowInd,
                                                    rowInd);
 
-                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
-                                                                        LanguageStrings.table,
-                                                                        LanguageStrings.popupmenu,
-                                                                        LanguageStrings.items,
-                                                                        LanguageStrings.edit),
+                m.add (UIUtils.createMenuItem (getUIString (prefix,table,popupmenu,items,edit),
                                                                         //"Edit",
                                                Constants.EDIT_ICON_NAME,
                                                new ActionListener ()
@@ -257,9 +246,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
         fb.add (Box.createVerticalStrut (5));
         fb.setBorder (UIUtils.createPadding (5, 5, 20, 5));
 
-        final JButton add = UIUtils.createButton (Environment.getUIString (prefix,
-                                                                           LanguageStrings.newitems,
-                                                                           LanguageStrings.add));
+        final JButton add = UIUtils.createButton (getUIString (prefix,newitems, LanguageStrings.add));
                                                                   //"Add");
 
         JButton[] buts = new JButton[] { add };
@@ -279,6 +266,14 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
                 {
 
                     String w = t.nextToken ().trim ();
+
+                    if (_this.handler.hasType (w))
+                    {
+
+                        // Skip the one we already have.
+                        continue;
+
+                    }
 
                     DefaultTableModel m = (DefaultTableModel) typeTable.getModel ();
 
@@ -332,9 +327,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
 
         fb.add (ppsp);
 
-        final JButton remove = UIUtils.createButton (Environment.getUIString (prefix,
-                                                                              LanguageStrings.table,
-                                                                              LanguageStrings.remove));
+        final JButton remove = UIUtils.createButton (getUIString (prefix,table, LanguageStrings.remove));
                                                                               //"Remove Selected");
 
         buts = new JButton[] { remove };
@@ -375,8 +368,7 @@ public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandl
 
         this.add (fb);
 
-        JButton finish = UIUtils.createButton (Environment.getUIString (prefix,
-                                                                        LanguageStrings.finish));
+        JButton finish = UIUtils.createButton (getUIString (prefix, LanguageStrings.finish));
                                                                         //"Finish");
 
         finish.addActionListener (new ActionAdapter ()

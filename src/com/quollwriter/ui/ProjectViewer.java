@@ -14,7 +14,6 @@ import java.text.*;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -24,9 +23,9 @@ import java.util.StringTokenizer;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
-import java.util.TimerTask;
 import java.util.WeakHashMap;
 import java.util.Collections;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -65,6 +64,9 @@ import com.quollwriter.editors.ui.panels.*;
 import com.quollwriter.editors.ui.sidebars.*;
 
 import com.quollwriter.text.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class ProjectViewer extends AbstractProjectViewer implements DocumentListener, ProjectEventListener
 {
@@ -528,12 +530,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         toolbar.add (UIUtils.createButton (Constants.IDEA_ICON_NAME,
                                            Constants.ICON_TITLE_ACTION,
-                                           Environment.getUIString (LanguageStrings.fullscreen,
-                                                                    LanguageStrings.title,
-                                                                    LanguageStrings.toolbar,
-                                                                    LanguageStrings.buttons,
-                                                                    LanguageStrings.ideaboard,
-                                                                    LanguageStrings.tooltip),
+                                           getUIString (fullscreen,title, LanguageStrings.toolbar,buttons,ideaboard,tooltip),
                                            //"Click to open the Idea Board",
                                            new ActionAdapter ()
                                            {
@@ -562,23 +559,17 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         final ProjectViewer _this = this;
 
-        java.util.List<String> prefix = new ArrayList ();
-
-        prefix.add (LanguageStrings.project);
-        prefix.add (LanguageStrings.settingsmenu);
-        prefix.add (LanguageStrings.items);
+        java.util.List<String> prefix = Arrays.asList (project,settingsmenu,items);
 
         JMenuItem mi = null;
 
         // Open project.
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.openproject),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,openproject),
                                              //"Open {Project}",
                                              Constants.OPEN_PROJECT_ICON_NAME,
                                              ProjectViewer.OPEN_PROJECT_ACTION));
 
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.newproject),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,newproject),
                                              //"New {Project}",
                                              Constants.NEW_ICON_NAME,
                                              ProjectViewer.NEW_PROJECT_ACTION));
@@ -586,41 +577,35 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 		titlePopup.addSeparator ();
 
         // Rename project
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.renameproject),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,renameproject),
                                              //"Rename this {Project}",
                                              Constants.RENAME_ICON_NAME,
                                              ProjectViewer.RENAME_PROJECT_ACTION));
 
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.statistics),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,statistics),
                                              //"Statistics",
                                              Constants.CHART_ICON_NAME,
                                              AbstractProjectViewer.SHOW_STATISTICS_ACTION));
 
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.targets),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,targets),
                                              //"Targets",
                                              Constants.TARGET_ICON_NAME,
                                              ProjectViewer.SHOW_TARGETS_ACTION));
 
         // Create Project Snapshot
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.createbackup),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,createbackup),
                                              //"Create a Backup",
                                              Constants.SNAPSHOT_ICON_NAME,
                                              ProjectViewer.CREATE_PROJECT_SNAPSHOT_ACTION));
 
         // Close Project
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.closeproject),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,closeproject),
                                              //"Close {Project}",
                                              Constants.CLOSE_ICON_NAME,
                                              ProjectViewer.CLOSE_PROJECT_ACTION));
 
         // Delete Project
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.deleteproject),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,deleteproject),
                                              //"Delete {Project}",
                                              Constants.DELETE_ICON_NAME,
                                              ProjectViewer.DELETE_PROJECT_ACTION));
@@ -628,8 +613,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         titlePopup.addSeparator ();
 
         // Idea Board
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.ideaboard),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,ideaboard),
                                              //"Idea Board",
                                              Constants.IDEA_ICON_NAME,
                                              new ActionAdapter ()
@@ -645,8 +629,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                             }));
 
         // Do a Warm-up Exercise
-        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.dowarmup),
+        titlePopup.add (this.createMenuItem (getUIString (prefix,dowarmup),
                                              //String.format ("Do a {Warmup} Exercise", Warmup.OBJECT_TYPE),
                                              Constants.WARMUPS_ICON_NAME,
                                              AbstractProjectViewer.WARMUP_EXERCISE_ACTION));
@@ -1191,7 +1174,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         if (name == ProjectViewer.NEW_BOOK_ACTION)
         {
 
-            return UIUtils.getComingSoonAction (pv);
+            //return UIUtils.getComingSoonAction (pv);
 
             /*
             return new AddBookActionHandler ((Book) other,
@@ -3088,6 +3071,14 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
+    @Override
+    public String getChapterObjectName ()
+    {
+
+        return getUIString (objectnames,plural, Chapter.OBJECT_TYPE);
+
+    }
+
     public void updateChapterIndexes (Book b)
                                throws GeneralException
     {
@@ -3136,13 +3127,6 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
-    public String getChapterObjectName ()
-    {
-
-        return Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
-
-    }
-
     @Override
     public Set<FindResultsBox> findText (String t)
     {
@@ -3150,13 +3134,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         Set<FindResultsBox> res = new LinkedHashSet ();
 
         // Get the snippets.
-        Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getTextSnippets (t,
-                                                                                  this);
+        Map<Chapter, java.util.List<Segment>> snippets = this.getTextSnippets (t);
 
         if (snippets.size () > 0)
         {
 
-            res.add (new ChapterFindResultsBox (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+            res.add (new ChapterFindResultsBox (getUIString (objectnames,plural, Chapter.OBJECT_TYPE),
                                                 Chapter.OBJECT_TYPE,
                                                 Chapter.OBJECT_TYPE,
                                                 this,
@@ -3169,9 +3152,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         for (UserConfigurableObjectType type : types)
         {
 
-            Set<Asset> objs = UIUtils.getAssetsContaining (t,
-                                                           type,
-                                                           this.proj);
+            Set<Asset> objs = this.proj.getAssetsContaining (t,
+                                                             type);
 
             if (objs.size () > 0)
             {
@@ -3184,13 +3166,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         }
 
-        Set<Note> notes = UIUtils.getNotesContaining (t,
-                                                      this.proj);
+        Set<Note> notes = this.proj.getNotesContaining (t);
 
         if (notes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<Note> (Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE),
+            res.add (new NamedObjectFindResultsBox<Note> (getUIString (objectnames,plural, Note.OBJECT_TYPE),
                                                 Note.OBJECT_TYPE,
                                                 Note.OBJECT_TYPE,
                                                 this,
@@ -3198,13 +3179,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         }
 
-        Set<OutlineItem> oitems = UIUtils.getOutlineItemsContaining (t,
-                                                                     this.proj);
+        Set<OutlineItem> oitems = this.proj.getOutlineItemsContaining (t);
 
         if (oitems.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<OutlineItem> (Environment.getObjectTypeNamePlural (OutlineItem.OBJECT_TYPE),
+            res.add (new NamedObjectFindResultsBox<OutlineItem> (getUIString (objectnames,plural, OutlineItem.OBJECT_TYPE),
                                                 OutlineItem.OBJECT_TYPE,
                                                 OutlineItem.OBJECT_TYPE,
                                                 this,
@@ -3212,13 +3192,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         }
 
-        Set<Scene> scenes = UIUtils.getScenesContaining (t,
-                                                         this.proj);
+        Set<Scene> scenes = this.proj.getScenesContaining (t);
 
         if (scenes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<Scene> (Environment.getObjectTypeNamePlural (Scene.OBJECT_TYPE),
+            res.add (new NamedObjectFindResultsBox<Scene> (getUIString (objectnames,plural, Scene.OBJECT_TYPE),
                                                 Scene.OBJECT_TYPE,
                                                 Scene.OBJECT_TYPE,
                                                 this,

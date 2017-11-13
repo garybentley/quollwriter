@@ -23,6 +23,9 @@ import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -39,7 +42,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
     private File                 selectedFile = null;
 
     private Map<File, JComponent> imgCache = new HashMap ();
-    
+
     private Object origSelection = null;
 
     public BackgroundSelector(Dimension swatchSize,
@@ -52,38 +55,38 @@ public class BackgroundSelector extends Box implements ListSelectionListener
                                                swatchSize.height + (2 * BORDER_WIDTH) + 2);
 
         if (selected != null)
-        {                                               
-        
+        {
+
             this.origSelection = selected;
-            
+
         }
 
         DefaultListModel lm = new DefaultListModel ();
 
         this.initFiles ();
-                
+
         Set<BackgroundImage> bgImages = null;
-        
+
         try
         {
-            
+
             bgImages = Environment.getBackgroundImages ();
-            
+
         } catch (Exception e)
         {
 
         }
 
         List<BackgroundImage> _bgImages = new ArrayList (bgImages);
-        
+
         Collections.sort (_bgImages);
-        
+
         bgImages = new LinkedHashSet (_bgImages);
 
         lm.addElement ("add");
-        
+
         lm.addElement ("none");
-                
+
         if (this.origSelection != null)
         {
 
@@ -93,20 +96,20 @@ public class BackgroundSelector extends Box implements ListSelectionListener
 
         for (File f : this.files)
         {
-            
+
             if (f.equals (this.origSelection))
             {
-                
+
                 this.selectedFile = f;
-                
+
                 continue;
-                
+
             }
-            
+
             lm.addElement (f);
-            
+
         }
-        
+
         for (BackgroundImage bi : bgImages)
         {
 
@@ -124,7 +127,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         String colors = UserProperties.get (Constants.COLOR_SWATCHES_PROPERTY_NAME);
 
         // XXXTODO: Add a listener for the swatches.
-        
+
         colors = "#ffffff," + colors;
         colors += ",#000000";
 
@@ -158,81 +161,82 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         this.list.setOpaque (true);
         this.list.setBackground (UIUtils.getComponentColor ());
         UIUtils.setAsButton (this.list);
-        
+
         this.list.addMouseListener (new MouseAdapter ()
         {
-           
+
             private void handle (MouseEvent ev)
             {
 
                 if (ev.isPopupTrigger ())
                 {
-                    
+
                     final int ind = _this.list.locationToIndex (ev.getPoint ());
-                    
+
                     if (ind >= 0)
                     {
-                        
+
                         Object o = _this.list.getModel ().getElementAt (ind);
-                        
+
                         if (o instanceof File)
                         {
-                            
+
                             // Show a menu.
                             JPopupMenu m = new JPopupMenu ();
-                            
+
                             JMenuItem mi = null;
-    
-                            mi = new JMenuItem ("Remove this image",
+
+                            mi = new JMenuItem (getUIString (selectbackground,popupmenu,items,remove),
+                                                //"Remove this image",
                                                 Environment.getIcon (Constants.DELETE_ICON_NAME,
                                                                      Constants.ICON_MENU));
                             mi.addActionListener (new ActionAdapter ()
                             {
-                               
+
                                 public void actionPerformed (ActionEvent ev)
                                 {
 
-                                    // Remove the file.                               
+                                    // Remove the file.
                                     Object o = ((DefaultListModel) _this.list.getModel ()).remove (ind);
-                               
+
                                     _this.files.remove (o);
-                               
+
                                     _this.updateFiles ();
-                               
+
                                 }
-                                
+
                             });
-                            
+
                             m.add (mi);
 
                             m.show ((Component) ev.getSource (),
                                     ev.getX (),
-                                    ev.getY ());                            
-                            
+                                    ev.getY ());
+
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
             }
-           
+
             public void mouseReleased (MouseEvent ev)
             {
-                
+
                 handle (ev);
-                
+
             }
-           
+
             public void mousePressed (MouseEvent ev)
             {
 
                 handle (ev);
-                
+
             }
-            
+
         });
-        
+
         this.list.setCellRenderer (new DefaultListCellRenderer ()
         {
 
@@ -268,89 +272,89 @@ public class BackgroundSelector extends Box implements ListSelectionListener
 
     private void initFiles ()
     {
-        
+
         try
         {
-        
+
             String bgFiles = UserProperties.get (Constants.BG_IMAGE_FILES_PROPERTY_NAME);
-            
+
             if (bgFiles == null)
             {
-                
+
                 return;
-                
+
             }
-            
+
             // Will be xml.
             Element root = JDOMUtils.getStringAsElement (bgFiles);
-            
+
             List els = JDOMUtils.getChildElements (root,
                                                    "f",
                                                    false);
-            
+
             for (int i = 0; i < els.size (); i++)
             {
-                
+
                 Element el = (Element) els.get (i);
-                
+
                 File f = new File (JDOMUtils.getChildContent (el));
-                
+
                 if ((!f.exists ())
                     ||
                     (!f.isFile ())
                    )
                 {
-                    
+
                     continue;
-                    
+
                 }
-                
+
                 this.files.add (f);
-                
+
             }
 
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to load background image files",
                                   e);
-            
+
         }
-        
+
     }
-    
+
     private void updateFiles ()
     {
-        
+
         try
         {
-        
+
             Element root = new Element ("files");
-    
+
             for (File f : this.files)
             {
-                
+
                 Element el = new Element ("f");
                 el.addContent (f.getPath ());
-                
+
                 root.addContent (el);
-                
+
             }
-            
+
             // Get as a string.
             String data = JDOMUtils.getElementAsString (root);
-            
+
             UserProperties.set (Constants.BG_IMAGE_FILES_PROPERTY_NAME,
                                 data);
 
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to update background image files",
-                                  e);            
-                
+                                  e);
+
         }
-        
+
     }
-    
+
     public void setSelected (Object obj)
     {
 
@@ -369,40 +373,40 @@ public class BackgroundSelector extends Box implements ListSelectionListener
 
         if (this.list.getSelectedValue ().toString ().equals ("add"))
         {
-            
+
             JFileChooser fc = new JFileChooser ();//f);
 
             fc.setFileFilter (UIUtils.imageFileFilter);
-            
+
             if (this.selectedFile != null)
             {
-                
+
                 fc.setSelectedFile (this.selectedFile.getParentFile ());
-                
+
             }
-            
+
             if (fc.showOpenDialog (this) == JFileChooser.APPROVE_OPTION)
             {
-                
+
                 File f = fc.getSelectedFile ();
-                
+
                 this.fireChangeEvent (f);
-                
+
                 ((DefaultListModel) this.list.getModel ()).add (2, f);
-                
+
                 this.files.add (f);
-                
+
                 this.updateFiles ();
-                
+
                 this.selectedFile = f;
-                
-            }                        
+
+            }
 
             return;
-            
+
         }
-            
-    
+
+
         this.fireChangeEvent (this.list.getSelectedValue ());
 
     }
@@ -412,76 +416,79 @@ public class BackgroundSelector extends Box implements ListSelectionListener
                                  boolean      isSelected)
     {
 
-        final BackgroundSelector _this = this;    
-    
+        final BackgroundSelector _this = this;
+
         JComponent c = null;
-        
+
         if (v instanceof JComponent)
         {
 
             c = (JComponent) v;
-        
+
             c.setSize (swatchSize);
             c.setMinimumSize (swatchSize);
             c.setMaximumSize (swatchSize);
             c.setPreferredSize (c.getMinimumSize ());
-                                    
+
         }
 
         if (v instanceof File)
         {
-            
+
             File f = (File) v;
-            
+
             if (!f.exists ())
             {
-                
+
                 return null;
-                
+
             }
-            
+
             c = this.imgCache.get (f);
-            
+
             if (c == null)
             {
-            
+
                 BufferedImage i = UIUtils.getImage (f);
-                
+
                 c = new ImagePanel (UIUtils.getScaledImage (i,
                                                             75),
                                                             //75),
                                     null);
-    
-                c.setToolTipText ("Click to select this background");
-                                             
+
+                c.setToolTipText (getUIString (selectbackground,types,file,tooltip));
+                //"Click to select this background");
+
                 this.imgCache.put (f,
                                    c);
-                                             
+
             }
-                        
+
         }
-        
+
         if (v instanceof String)
         {
-        
+
             String vv = v.toString ();
-        
+
             if (vv.equals ("own"))
             {
-    
+
                 c = new JPanel ();
                 c.setBackground (new Color (0,
                                             0,
                                             0,
                                             0));
-                c.setToolTipText ("Click to select no background");
-        
+                c.setToolTipText (getUIString (selectbackground,types,none,tooltip));
+                    //"Click to select no background");
+
             }
-            
+
             if (vv.equals ("none"))
             {
-    
-                JLabel l = new JLabel ("Clear",
+
+                JLabel l = new JLabel (getUIString (selectbackground,types,clear,text),
+                                        //"Clear",
                                 Environment.getIcon (Constants.CLEAR_ICON_NAME,
                                                      Constants.ICON_BG_SWATCH),
                                 SwingConstants.CENTER);
@@ -495,17 +502,19 @@ public class BackgroundSelector extends Box implements ListSelectionListener
                 box.add(Box.createVerticalGlue());
 
                 c = box;
-                
+
                 l.setMaximumSize (new Dimension (75, 75));
-                                
-                c.setToolTipText ("Click to select no background");                
-        
+
+                c.setToolTipText (getUIString (selectbackground,types,clear,tooltip));
+                //"Click to select no background");
+
             }
 
             if (vv.equals ("add"))
             {
-    
-                JLabel l = new JLabel ("Add Image",
+
+                JLabel l = new JLabel (getUIString (selectbackground,types,add,text),
+                                    //"Add Image",
                                 Environment.getIcon (Constants.ADD_ICON_NAME,
                                                      Constants.ICON_BG_SWATCH),
                                 SwingConstants.CENTER);
@@ -520,35 +529,38 @@ public class BackgroundSelector extends Box implements ListSelectionListener
                 box.add(Box.createVerticalGlue());
 
                 c = box;
-                
+
                 l.setMaximumSize (new Dimension (75, 75));
-                                
-                c.setToolTipText ("Click to select no background");                
-    
+
+                c.setToolTipText (getUIString (selectbackground,types,add,tooltip));
+                //"Click to select no background");
+
             }
-            
+
         }
-        
+
         if (v instanceof Color)
         {
-    
+
             c = new JPanel ();
             c.setBackground ((Color) v);
 
-            c.setToolTipText ("Click to select this color as the background");
-    
+            c.setToolTipText (getUIString (selectbackground,types,color,tooltip));
+            //"Click to select this color as the background");
+
         }
-        
+
         if (v instanceof BackgroundImage)
-        { 
-    
+        {
+
             c = new ImagePanel (((BackgroundImage) v).getThumb (),
                                 null);
-    
-            c.setToolTipText ("Click to select this background");
-    
+
+            c.setToolTipText (getUIString (selectbackground,types,image,tooltip));
+            //"Click to select this background");
+
         }
- 
+
         UIUtils.setAsButton (c);
         c.setOpaque (true);
         c.setSize (swatchSize);
@@ -564,7 +576,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         if (isSelected)
         {
 
-            col = UIUtils.getColor ("#D38230"); //Environment.getBorderColor (); // 
+            col = UIUtils.getColor ("#D38230"); //Environment.getBorderColor (); //
             w = BORDER_WIDTH + 1;
 
             ccBorder = new MatteBorder (w,
@@ -575,7 +587,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
 
         } else
         {
-            
+
             ccBorder = new CompoundBorder (new MatteBorder (w,
                                                             w,
                                                             w,
@@ -588,7 +600,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         c.setBorder (ccBorder);
 
         UIUtils.setAsButton (c);
-        
+
         return c;
 
     }
@@ -611,21 +623,21 @@ public class BackgroundSelector extends Box implements ListSelectionListener
     {
 
         String v = null;
-        
+
         if (val instanceof String)
         {
-            
+
             v = val.toString ();
-            
+
             if (!v.startsWith ("#"))
             {
-                
+
                 v = "bg:" + v;
-                
+
             }
-            
+
         }
-    
+
         BackgroundChangeEvent ev = new BackgroundChangeEvent (this,
                                                               val);
 
@@ -655,7 +667,8 @@ public class BackgroundSelector extends Box implements ListSelectionListener
                                                      Object         selected)
     {
 
-        final QPopup qp = new QPopup ("Select a background image/color",
+        final QPopup qp = new QPopup (getUIString (selectbackground,title),
+                                    //"Select a background image/color",
                                       Environment.getIcon ("bg-select",
                                                            Constants.ICON_POPUP),
                                       null);
@@ -728,5 +741,3 @@ public class BackgroundSelector extends Box implements ListSelectionListener
     }
 
 }
-
-

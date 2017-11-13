@@ -193,19 +193,19 @@ public class EditorsEnvironment
                                 final AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                 Notification _n = null;
-                                
+
                                 // We may not have a viewer if we are opening an encrypted project.
                                 if (viewer != null)
                                 {
-                                
+
                                     _n = viewer.addNotification ("Logging in to the Editors service...",
                                                                  Constants.EDITORS_ICON_NAME,
                                                                  30);
 
                                 }
-                                
+
                                 final Notification n = _n;
-                                                                 
+
                                 EditorsEnvironment.setLoginCredentials (email,
                                                                         pwd);
 
@@ -220,9 +220,9 @@ public class EditorsEnvironment
 
                                                                     if (viewer != null)
                                                                     {
-                                                                        
+
                                                                         viewer.removeNotification (n);
-                                                                        
+
                                                                     }
 
                                                                 }
@@ -237,9 +237,9 @@ public class EditorsEnvironment
 
                                                                     if (viewer != null)
                                                                     {
-                                                                
+
                                                                         viewer.removeNotification (n);
-                                                                        
+
                                                                     }
 
                                                                 }
@@ -257,9 +257,9 @@ public class EditorsEnvironment
 
                                                                     if (viewer != null)
                                                                     {
-                                                                        
+
                                                                         viewer.removeNotification (n);
-                                                                        
+
                                                                     }
 
                                                                     EditorsUIUtils.showLoginError ("Unable to automatically login, please check your email and password.",
@@ -1885,7 +1885,7 @@ public class EditorsEnvironment
                                                          Constants.SEND_ICON_NAME,
                                                          String.format ("Would you like to send your {project}/{chapters} to <b>%s</b> now?",
                                                                         ed.getMainName ()),
-                                                         "Yes",
+                                                         "Yes, send it",
                                                          "No, not now",
                                                          new ActionListener ()
                                                          {
@@ -2272,9 +2272,9 @@ public class EditorsEnvironment
 
         EditorsEnvironment.sendProjectEditStopMessage (Environment.getProjectInfo (p),
                                                        onComplete);
-    
+
     }
-    
+
     public static void sendProjectEditStopMessage (final ProjectInfo    p,
                                                    final ActionListener onComplete)
     {

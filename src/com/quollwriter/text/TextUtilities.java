@@ -4,6 +4,10 @@ import java.text.*;
 
 import java.util.*;
 
+import org.josql.*;
+
+import javax.swing.text.*;
+
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
@@ -758,7 +762,7 @@ public class TextUtilities
         {
 
             return ret;
-            
+
         }
 
         List<String> _words = new ArrayList ();
@@ -822,4 +826,83 @@ public class TextUtilities
         return ret;
 
     }
+
+    public static List<Segment> getTextSnippetsForNames (Collection<String> names,
+                                                         String             text)
+    {
+
+        List<Segment> snippets = new ArrayList<Segment> ();
+
+        if (text != null)
+        {
+
+            text = StringUtils.replaceString (text,
+                                              String.valueOf ('\r'),
+                                              "");
+
+        }
+
+        TextIterator ti = new TextIterator (text);
+
+        for (String n : names)
+        {
+
+            Map<Sentence, NavigableSet<Integer>> matches = ti.findInSentences (n,
+                                                                               null);
+
+            if (matches != null)
+            {
+
+                Iterator<Sentence> iter = matches.keySet ().iterator ();
+
+                char[] tchar = text.toCharArray ();
+
+                while (iter.hasNext ())
+                {
+
+                    Sentence sen = iter.next ();
+
+                    Set<Integer> inds = matches.get (sen);
+
+                    if ((inds != null)
+                        &&
+                        (inds.size () > 0)
+                       )
+                    {
+
+                        Segment s = new Segment (tchar,
+                                                 sen.getAllTextStartOffset (),
+                                                 sen.getText ().length ());
+
+                        snippets.add (s);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        // Order the segments by the start offset.
+        try
+        {
+
+            Query q = new Query ();
+            q.parse ("SELECT * FROM javax.swing.text.Segment ORDER BY beginIndex");
+            QueryResults qr = q.execute (snippets);
+
+            snippets = new ArrayList (qr.getResults ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to sort segments",
+                                  e);
+
+        }
+
+        return snippets;
+
+    }
+
 }

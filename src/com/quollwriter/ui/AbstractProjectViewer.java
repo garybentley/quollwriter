@@ -7502,4 +7502,77 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     }
 
+    public Map<Chapter, java.util.List<Segment>> getTextSnippets (String  s)
+    {
+
+        Map<Chapter, java.util.List<Segment>> data = new LinkedHashMap<> ();
+
+        // String name = n.getName ().toLowerCase ();
+
+        java.util.List<String> names = new ArrayList<> ();
+        names.add (s);
+
+        // Get all the books and chapters.
+        java.util.List<Book> books = this.getProject ().getBooks ();
+
+        for (int i = 0; i < books.size (); i++)
+        {
+
+            Book b = books.get (i);
+
+            java.util.List<Chapter> chapters = b.getChapters ();
+
+            for (int j = 0; j < chapters.size (); j++)
+            {
+
+                Chapter c = chapters.get (j);
+
+                AbstractEditorPanel qep = this.getEditorForChapter (c);
+
+                String t = null;
+
+                if (qep != null)
+                {
+
+                    t = qep.getEditor ().getText ();
+
+                } else {
+
+                    if (c.getText () != null)
+                    {
+
+                        // Get the text.
+                        t = c.getText ().getText ();
+
+                    }
+
+                }
+
+                if (t == null)
+                {
+
+                    continue;
+
+                }
+
+                java.util.List<Segment> snippets = TextUtilities.getTextSnippetsForNames (names,
+                                                                                          t);
+
+                if ((snippets != null) &&
+                    (snippets.size () > 0))
+                {
+
+                    data.put (c,
+                              snippets);
+
+                }
+
+            }
+
+        }
+
+        return data;
+
+    }
+
 }

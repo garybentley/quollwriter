@@ -35,10 +35,10 @@ public class Project extends NamedObject
 
     }
 
-    public static final String LAST_EDITED = "lastEdited";    
+    public static final String LAST_EDITED = "lastEdited";
     public static final String PROJECT_DIRECTORY = "projectDirectory";
     public static final String BACKUP_DIRECTORY = "backupDirectory";
-    
+
     public static final String OBJECT_TYPE = "project";
     public static final String WORDCOUNTS_OBJECT_TYPE = "wordcounts";
 
@@ -70,18 +70,18 @@ public class Project extends NamedObject
     private String             type = Project.NORMAL_PROJECT_TYPE;
     //private String             editorsProjectId = null;
     //private EditorProject      editorProject = null;
-    
+
     // TODO: Need a new object to encapsulate this stuff
     //private EditorEditor       forEditor = null;
     private Set<ProjectEditor> projectEditors = null;
     private ProjectVersion     projVer = null;
-    
+
     public Project (Element pEl)
                     throws  Exception
     {
 
         this ();
-    
+
         String name = JDOMUtils.getChildElementContent (pEl,
                                                         XMLConstants.name);
         String type = JDOMUtils.getAttributeValue (pEl,
@@ -94,7 +94,7 @@ public class Project extends NamedObject
             type = null;
 
         }
-        
+
         String id = JDOMUtils.getAttributeValue (pEl,
                                                  XMLConstants.id,
                                                  false);
@@ -128,15 +128,15 @@ public class Project extends NamedObject
         String d = JDOMUtils.getAttributeValue (pEl,
                                                 XMLConstants.lastEdited,
                                                 false);
-                                                
+
         File dir = new File (directory);
 
         this.setName (name);
-        
+
         this.setProjectDirectory (dir);
         this.setEncrypted (encrypted);
         this.setNoCredentials (noCredentials);
-        
+
         if (type != null)
         {
 
@@ -144,62 +144,62 @@ public class Project extends NamedObject
 
             if (this.isEditorProject ())
             {
-                
+
                 this.projVer = new ProjectVersion ();
-                                
+
                 String dueDate = JDOMUtils.getAttributeValue (pEl,
                                                               XMLConstants.editDueDate,
                                                               false);
-                
+
                 if (!dueDate.equals (""))
                 {
 
                     // TODO: Fix this otherwise I will go to hell...
                     this.projVer.setDueDate (new Date (Long.parseLong (dueDate)));
 
-                }                
-                
+                }
+
                 String editorEmail = JDOMUtils.getChildElementContent (pEl,
                                                                        XMLConstants.forEditor);
-                
+
                 if (editorEmail == null)
                 {
-                    
+
                     throw new GeneralException ("Expected to find a child element: " +
                                                 XMLConstants.forEditor +
                                                 ", indicating who the project is being edited for.");
-                    
+
                 }
-                
+
                 // Get the editor.
                 EditorEditor ed = EditorsEnvironment.getEditorByEmail (editorEmail);
-                
+
                 // If we are in debug mode then allow a null editor through.  This is to allow
                 // testing of the send/receive cycle without having to resort to handling two
-                // different accounts or having per user projects.xml files.                
+                // different accounts or having per user projects.xml files.
                 if ((!Environment.isDebugModeEnabled ())
                     &&
                     (ed == null)
                    )
                 {
-                    
+
                     throw new GeneralException ("Expected to find editor with email: " +
                                                 editorEmail);
-                    
+
                 } else {
-                    
+
                     ed = new EditorEditor ();
                     ed.setKey (new Long (0));
                     ed.setEmail (editorEmail);
-                    
+
                 }
-                
+
                 this.setForEditor (editorEmail);
-                
+
                 //this.forEditor = ed;
-                
+
             }
-            
+
         }
 
         if (!d.equals (""))
@@ -220,12 +220,12 @@ public class Project extends NamedObject
         }
 
     }
-   
+
     public Project()
     {
 
         super (Project.OBJECT_TYPE);
-        
+
     }
 
     public Project(String name)
@@ -233,141 +233,141 @@ public class Project extends NamedObject
 
         super (Project.OBJECT_TYPE,
                name);
-               
+
     }
-    
+
     public ProjectEditor getProjectEditor (EditorEditor ed)
     {
-        
+
         if (this.projectEditors == null)
         {
 
             return null;
-        
+
         }
-        
+
         for (ProjectEditor pe : this.projectEditors)
         {
-            
+
             if (pe.getEditor () == ed)
             {
-                
+
                 return pe;
-                
+
             }
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public void addProjectEditor (ProjectEditor pe)
     {
-        
+
         if (this.projectEditors == null)
         {
-            
+
             this.projectEditors = new LinkedHashSet ();
-            
+
         }
-        
+
         this.projectEditors.add (pe);
-        
+
     }
-    
+
     public void removeProjectEditor (ProjectEditor pe)
     {
-        
+
         if (this.projectEditors == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         this.projectEditors.remove (pe);
-        
+
     }
-    
+
     public boolean isProjectEditor (EditorEditor ed)
     {
-        
+
         if (this.projectEditors == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         for (ProjectEditor pe : this.projectEditors)
         {
-            
+
             if (pe.getEditor () == ed)
             {
-                
+
                 return true;
-                
+
             }
-            
+
         }
-        
+
         return false;
-        
+
     }
-    
+
     public Set<ProjectEditor> getProjectEditors ()
     {
-        
+
         if (this.projectEditors == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return new LinkedHashSet (this.projectEditors);
 
     }
-    
+
     public void setProjectEditors (Collection<ProjectEditor> eds)
     {
-        
+
         if (eds == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         this.projectEditors = new LinkedHashSet (eds);
-        
+
     }
 
     public void setForEditor (String editorEmail) //EditorEditor ed)
     {
-        
-/*        
+
+/*
         if ((this.forEditor != null)
             &&
             (ed == null)
            )
         {
-            
+
             throw new IllegalArgumentException ("Cannot remove forEditor once it has been set.");
-            
+
         }
-        
+
         if ((this.forEditor != null)
             &&
             (!this.forEditor.getEmail ().equals (ed.getEmail ()))
            )
         {
-            
+
             throw new IllegalArgumentException ("Cannot change the forEditor once it has been set.");
-            
+
         }
-                
+
         this.forEditor = ed;
 */
         try
@@ -378,281 +378,281 @@ public class Project extends NamedObject
                               //this.forEditor.getEmail ());
 
         } catch (Exception e) {
-            
+
             // Not really the correct type of exception to throw but it shouldn't be
             // checked or handled "properly" either since it should always happen, this
             // is just the weird edge case when something terrible goes wrong.
             throw new IllegalArgumentException ("Unable to set the for editor",
                                                 e);
-            
+
         }
-        
+
     }
-    
+
     public String getEditResponseMessage ()
     {
-        
+
         return this.getProperty (Constants.EDITOR_RESPONSE_MESSAGE_PROPERTY_NAME);
-        
+
     }
-    
+
     public void setEditResponseMessage (String m)
     {
-                    
+
         try
         {
-            
+
             this.setProperty (Constants.EDITOR_RESPONSE_MESSAGE_PROPERTY_NAME,
                               m);
 
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set response message: " +
                                   m,
                                   e);
-            
+
         }
-        
+
     }
 
     public void setProjectVersion (ProjectVersion pv)
     {
-        
+
         this.projVer = pv;
-        
+
     }
-    
+
     public ProjectVersion getProjectVersion ()
     {
-        
+
         return this.projVer;
-        
+
     }
-        
+
     public EditorEditor getForEditor ()
     {
-        
+
         if (this.isEditorProject ())
         {
-            
+
             // Get the editor email.
             String edEmail = this.getProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME);
 
             if (edEmail == null)
             {
-                
+
                 // This is a strange situation, what to do?
                 return null;
-                
+
             }
-            
+
             return EditorsEnvironment.getEditorByEmail (edEmail);
 
         }
-        
+
         return null;
-        
+
         //return this.forEditor;
-        
+
     }
-    
+
     public boolean isEditorProject ()
     {
-        
+
         return this.type.equals (Project.EDITOR_PROJECT_TYPE);
-        
+
     }
-    
+
     public boolean isWarmupsProject ()
     {
-        
+
         return this.type.equals (Project.WARMUPS_PROJECT_TYPE);
-        
+
     }
 
     public boolean isNormalProject ()
     {
-        
+
         return this.type.equals (Project.NORMAL_PROJECT_TYPE);
-        
+
     }
 
     public int getChapterCount ()
     {
-        
+
         int c = 0;
-        
+
         if (this.books == null)
         {
-            
+
             return c;
-            
+
         }
-        
+
         for (Book b : this.books)
         {
-            
+
             c += b.getChapters ().size ();
-            
+
         }
-        
-        return c;        
-        
+
+        return c;
+
     }
-    
+
     public ReadabilityIndices getAllProjectReadabilityIndices ()
     {
-        
+
         ReadabilityIndices ri = new ReadabilityIndices ();
-        
+
         if (this.books == null)
         {
-            
+
             return ri;
-            
+
         }
-        
+
         for (Book b : this.books)
         {
-            
+
             for (Chapter c : b.getChapters ())
             {
-                
+
                 ri.add (c.getChapterText ());
             }
-            
+
         }
 
         return ri;
-        
+
     }
-    
+
     public int getEditedWordCount ()
     {
-        
+
         if (this.books == null)
         {
-            
+
             return 0;
-            
+
         }
-        
+
         final StringBuilder buf = new StringBuilder ();
-        
-        int editComplete = 0; 
-        
+
+        int editComplete = 0;
+
         for (Book b : this.books)
         {
-        
+
             for (Chapter c : b.getChapters ())
             {
-                    
+
                 if (c.getEditPosition () > 0)
                 {
-                                
+
                     if (buf.length () > 0)
                     {
-                        
+
                         buf.append (" ");
-                        
+
                     }
-                            
+
                     String t = c.getChapterText ();
-                    
+
                     if (t == null)
                     {
-                        
+
                         continue;
-                        
+
                     }
-                    
+
                     if (c.getEditPosition () <= t.length ())
                     {
-                        
+
                         buf.append (t.substring (0,
                                                  c.getEditPosition ()));
-                        
+
                     }
 
                 }
-            
+
             }
-            
+
         }
-                                
+
         if (buf.length () > 0)
         {
-        
+
             ChapterCounts allc = new ChapterCounts (buf.toString ());
 
             return allc.wordCount;
-            
+
         }
 
         return 0;
-        
+
     }
-    
+
     public int getWordCount ()
     {
-        
+
         int c = 0;
-        
+
         if (this.books == null)
         {
-            
+
             return c;
-            
+
         }
-        
+
         for (Book b : this.books)
         {
-            
+
             c += b.getChapterWordCount ();
-            
+
         }
-        
+
         return c;
-        
+
     }
     /*
     public void setEditorProject (EditorProject p)
     {
-        
+
         this.editorProject = p;
-        
+
         if (p != null)
         {
-        
+
             p.setProject (this);
-            
+
         }
-        
+
     }
-    
+
     public EditorProject getEditorProject ()
     {
-        
+
         return this.editorProject;
-        
+
     }
     */
     /*
     public void setEditorsProjectId (String id)
     {
-        
+
         this.editorsProjectId = id;
-        
+
     }
-    
+
     public String getEditorsProjectId ()
     {
-        
+
         return this.editorsProjectId;
-        
+
     }
     */
-    
+
     public String getType ()
     {
 
@@ -676,48 +676,188 @@ public class Project extends NamedObject
     public NamedObject getObjectById (Class  ofType,
                                       String id)
     {
-        
+
         Set<NamedObject> objs = this.getAllNamedChildObjects (ofType);
 
         for (NamedObject o : objs)
         {
-            
+
             if (o.getId ().equals (id))
             {
-                
+
                 return o;
-                
+
             }
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
+    public static Set<NamedObject> getObjectsContaining (String  s,
+                                                         Project p)
+    {
+
+        Set<NamedObject> ret = new TreeSet (NamedObjectSorter.getInstance ());
+
+        for (NamedObject n : p.getAllNamedChildObjects ())
+        {
+
+            if (n.contains (s))
+            {
+
+                ret.add (n);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Asset> getAssetsContaining (String  s)
+    {
+
+        Set<Asset> ret = new TreeSet (NamedObjectSorter.getInstance ());
+
+        for (NamedObject n : this.getAllNamedChildObjects (Asset.class))
+        {
+
+            if (n.contains (s))
+            {
+
+                ret.add ((Asset) n);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Asset> getAssetsContaining (String                     s,
+                                           UserConfigurableObjectType limitTo)
+    {
+
+        Set<Asset> ret = new TreeSet (NamedObjectSorter.getInstance ());
+
+        if (limitTo != null)
+        {
+
+            if (!limitTo.isAssetObjectType ())
+            {
+
+                return ret;
+
+            }
+
+        }
+
+        for (NamedObject n : this.getAllNamedChildObjects (limitTo))
+        {
+
+            if (n.contains (s))
+            {
+
+                ret.add ((Asset) n);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Note> getNotesContaining (String  s)
+    {
+
+        Set<Note> ret = new TreeSet (NamedObjectSorter.getInstance ());
+
+        for (NamedObject n : this.getAllNamedChildObjects (Note.class))
+        {
+
+            if (n.contains (s))
+            {
+
+                ret.add ((Note) n);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<OutlineItem> getOutlineItemsContaining (String  s)
+    {
+
+        Set<OutlineItem> ret = new TreeSet (NamedObjectSorter.getInstance ());
+
+        for (NamedObject n : this.getAllNamedChildObjects (OutlineItem.class))
+        {
+
+            if (n.contains (s))
+            {
+
+                ret.add ((OutlineItem) n);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Scene> getScenesContaining (String  s)
+    {
+
+        Set<Scene> ret = new TreeSet (NamedObjectSorter.getInstance ());
+
+        for (NamedObject n : this.getAllNamedChildObjects (Scene.class))
+        {
+
+            if (n.contains (s))
+            {
+
+                ret.add ((Scene) n);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
     public Set<NamedObject> getAllObjectsWithTag (Tag tag)
     {
-        
+
         Set<NamedObject> objs = this.getAllNamedChildObjects ();
 
         Set<NamedObject> ret = new LinkedHashSet ();
-        
+
         for (NamedObject n : objs)
         {
-            
+
             if (n.hasTag (tag))
             {
-                
+
                 ret.add (n);
-                
+
             }
-            
+
         }
-        
+
         return ret;
-        
+
     }
-    
+
     public Set<NamedObject> getAllNamedChildObjects (UserConfigurableObjectType withType)
     {
 
@@ -729,23 +869,23 @@ public class Project extends NamedObject
         {
 
             NamedObject o = iter.next ();
-            
+
             if (!(o instanceof UserConfigurableObject))
             {
 
                 iter.remove ();
 
                 continue;
-                
+
             }
-            
+
             UserConfigurableObject uo = (UserConfigurableObject) o;
-            
+
             if (!uo.getUserConfigurableObjectType ().equals (withType))
             {
-                
+
                 iter.remove ();
-                
+
             }
 
         }
@@ -793,18 +933,18 @@ public class Project extends NamedObject
 
         for (UserConfigurableObjectType t : this.assets.keySet ())
         {
-            
+
             Set<Asset> as = this.assets.get (t);
-            
+
             for (Asset a : as)
             {
-                
+
                 ret.add (a);
-                
+
                 ret.addAll (a.getAllNamedChildObjects ());
-                
+
             }
-        
+
         }
 
         for (IdeaType it : this.ideaTypes)
@@ -827,57 +967,57 @@ public class Project extends NamedObject
         {
 
             return this.getIdeaType (d.getKey ()) != null;
-        
+
         }
-        
+
         if (d instanceof Chapter)
         {
 
             Chapter c = (Chapter) d;
-            
+
             if (c.getBook () == null)
             {
-                
+
                 return false;
-                
+
             }
-        
+
             return c.getBook ().getChapterByKey (d.getKey ()) != null;
-            
+
         }
-        
+
         if (d instanceof Asset)
         {
-            
+
             Asset a = (Asset) d;
-            
+
             Set<Asset> as = this.assets.get (a.getUserConfigurableObjectType ());
-            
+
             if (as != null)
             {
 
                 for (Asset _a : as)
                 {
-                    
+
                     if (_a == a)
                     {
-                        
+
                         return true;
-                        
+
                     }
-                    
+
                 }
-            
+
             }
-            
+
             return false;
-        
+
         }
-        
+
         return false;
-        
+
     }
-    
+
     public void removeObject (DataObject d)
     {
 
@@ -890,20 +1030,20 @@ public class Project extends NamedObject
 
         if (d instanceof Asset)
         {
-            
+
             Asset a = (Asset) d;
-            
+
             Set<Asset> as = this.assets.get (a.getUserConfigurableObjectType ());
-            
+
             if (as != null)
             {
-                
+
                 as.remove (a);
-                
+
             }
-            
+
         }
-        
+
     }
 
     public boolean hasAsset (Asset a)
@@ -913,111 +1053,111 @@ public class Project extends NamedObject
                                     a.getUserConfigurableObjectType ()) != null;
 
     }
-    
+
     public Set<NamedObject> getAllNamedObjectsByName (String n)
     {
-        
+
         Set<NamedObject> ret = new LinkedHashSet ();
-        
+
         Set<NamedObject> objs = this.getAllNamedChildObjects ();
 
         for (NamedObject o : objs)
         {
-        
+
             Set<String> names = o.getAllNames ();
-            
+
             for (String name : names)
             {
-                
+
                 if (n.equalsIgnoreCase (name))
                 {
-                    
+
                     ret.add (o);
-                
+
                 }
-                        
+
             }
-            
+
         }
-        
-        return ret;        
-        
+
+        return ret;
+
     }
-    
+
     public Set<Asset> getAllAssetsByName (String                     n,
                                           UserConfigurableObjectType type)
     {
 
         Set<Asset> assets = new LinkedHashSet ();
-    
+
         if (type != null)
         {
-            
+
             Asset as = this.getAssetByName (n,
                                             type);
-            
+
             if (as != null)
             {
-                
+
                 assets.add (as);
-                
+
             }
-            
+
             return assets;
-            
+
         }
-    
+
         for (UserConfigurableObjectType t : this.assets.keySet ())
         {
-            
+
             Asset as = this.getAssetByName (n,
                                             t);
-            
+
             if (as != null)
             {
-            
+
                 assets.add (as);
-                
+
             }
-            
+
         }
-    
+
         return assets;
-        
+
     }
-    
+
     public Asset getAssetByName (String                     n,
                                  UserConfigurableObjectType type)
     {
 
         Set<Asset> as = this.assets.get (type);
-        
+
         if (as == null)
         {
-    
+
             return null;
-            
+
         }
-    
+
         for (Asset a : as)
         {
-            
+
             Set<String> names = a.getAllNames ();
-            
+
             for (String name : names)
             {
-                
+
                 if (n.equalsIgnoreCase (name))
                 {
-                    
+
                     return a;
-                
+
                 }
-                        
+
             }
-                        
+
         }
-    
+
         return null;
 
     }
@@ -1049,7 +1189,7 @@ public class Project extends NamedObject
     {
 
         Set<Asset> matched = new LinkedHashSet ();
-    
+
         n = n.toLowerCase ();
 
         for (Asset a : assets)
@@ -1061,57 +1201,57 @@ public class Project extends NamedObject
                 matched.add (a);
 
                 continue;
-                
+
             }
 
             List<String> aliases = a.getAliasesAsList ();
-            
+
             if (aliases != null)
             {
-                
+
                 for (String al : aliases)
                 {
-                    
+
                     if (al.equalsIgnoreCase (n))
                     {
-        
+
                         matched.add (a);
-        
+
                         continue;
-        
+
                     }
-                    
+
                 }
-                
+
             }
-            
+
         }
 
         return matched;
 
     }
-    
+
     public Set<UserConfigurableObjectType> getAssetTypes ()
     {
-        
+
         return this.assets.keySet ();
-        
+
     }
-    
+
     public Set<Asset> getAssets (UserConfigurableObjectType type)
     {
-        
+
         return this.assets.get (type);
-                
+
     }
-    
+
     public Map<UserConfigurableObjectType, Set<Asset>> getAssets ()
     {
-        
+
         return this.assets;
-        
+
     }
-    
+
 /*
     public Set<QCharacter> getAllCharactersByName (String n)
     {
@@ -1120,7 +1260,7 @@ public class Project extends NamedObject
                                                               n);
 
     }
-    
+
     public Set<Location> getAllLocationsByName (String n)
     {
 
@@ -1231,13 +1371,13 @@ public class Project extends NamedObject
     {
 
         Date oldDate = this.lastEdited;
-    
+
         this.lastEdited = d;
 
         this.firePropertyChangedEvent (Project.LAST_EDITED,
                                        oldDate,
                                        this.lastEdited);
-        
+
     }
 
     public File getProjectDirectory ()
@@ -1246,25 +1386,25 @@ public class Project extends NamedObject
         return this.projectDirectory;
 
     }
-    
+
     public void setProjectDirectory (File dir)
     {
 
         File oldDir = this.projectDirectory;
-    
+
         this.projectDirectory = dir;
 
         this.firePropertyChangedEvent (Project.PROJECT_DIRECTORY,
                                        oldDir,
                                        this.projectDirectory);
-        
+
     }
-    
+
     public void saveToFilesDirectory (File   file,
                                       String fileName)
                                throws IOException
     {
-        
+
         if ((file == null)
             ||
             (!file.exists ())
@@ -1272,15 +1412,15 @@ public class Project extends NamedObject
             (file.isDirectory ())
            )
         {
-            
+
             return;
-            
+
         }
 
         File dir = this.getFilesDirectory ();
-        
+
         dir.mkdirs ();
-        Utils.createQuollWriterDirFile (dir);        
+        Utils.createQuollWriterDirFile (dir);
 
         File f = new File (dir,
                            fileName);
@@ -1288,43 +1428,43 @@ public class Project extends NamedObject
         IOUtils.copyFile (file,
                           f,
                           4096);
-                
+
     }
-    
+
     public void deleteFile (String fileName)
     {
-        
+
         this.getFile (fileName).delete ();
-        
+
     }
-    
+
     public File getFile (String fileName)
     {
-        
+
         return new File (this.getFilesDirectory (),
                          fileName);
-        
+
     }
-    
+
     public File getFilesDirectory ()
     {
-        
+
         return new File (this.projectDirectory,
                          Constants.PROJECT_FILES_DIR_NAME);
-        
+
     }
-    
+
     public File getBackupDirectory ()
     {
 
         if (this.backupDirectory == null)
         {
-            
+
             this.backupDirectory = new File (this.projectDirectory,
                                              "versions");
-            
+
         }
-    
+
         return this.backupDirectory;
 
     }
@@ -1333,13 +1473,13 @@ public class Project extends NamedObject
     {
 
         File oldDir = this.backupDirectory;
-    
+
         this.backupDirectory = dir;
 
         this.firePropertyChangedEvent (Project.BACKUP_DIRECTORY,
                                        oldDir,
                                        this.backupDirectory);
-        
+
     }
 /*
     public List<QCharacter> getCharacters ()
@@ -1365,44 +1505,44 @@ public class Project extends NamedObject
 */
     public List<IdeaType> getIdeaTypes ()
     {
-        
+
         return this.ideaTypes;
-        
+
     }
-    
+
     public void addIdeaType (IdeaType it)
     {
-        
+
         if (this.ideaTypes.contains (it))
         {
-            
+
             return;
-            
-        }        
-        
+
+        }
+
         this.ideaTypes.add (it);
-        
+
         it.setProject (this);
-        
+
     }
 
     public void addAsset (Asset a)
     {
-        
+
         Set<Asset> as = this.assets.get (a.getUserConfigurableObjectType ());
-        
+
         if (as == null)
         {
-            
+
             as = new LinkedHashSet ();
-            
+
             this.assets.put (a.getUserConfigurableObjectType (),
                              as);
-            
+
         }
-    
+
         a.setProject (this);
-        
+
         as.add (a);
 
     }
@@ -1412,11 +1552,11 @@ public class Project extends NamedObject
     {
 
         super.fillToStringProperties (props);
-        
+
         this.addToStringProperties (props,
                                     "type",
                                     this.type);
-        
+
         this.addToStringProperties (props,
                                     "projectDir",
                                     (this.projectDirectory != null ? this.projectDirectory.getPath () : "Not set"));
@@ -1433,48 +1573,48 @@ public class Project extends NamedObject
         this.addToStringProperties (props,
                                     "encrypted",
                                     this.encrypted);
-        
+
         for (UserConfigurableObjectType t : this.assets.keySet ())
         {
-            
+
             Set<Asset> as = this.assets.get (t);
-            
+
             this.addToStringProperties (props,
                                         t.getObjectTypeId (),
                                         as.size ());
-            
+
         }
-        
+
         this.addToStringProperties (props,
                                     "ideaTypes",
                                     this.ideaTypes.size ());
-        
+
         EditorEditor ed = this.getForEditor ();
-        
+
         if (ed != null)
         {
-            
+
             this.addToStringProperties (props,
                                         "forEditor",
                                         ed.getEmail ());
-            
+
         }
-        
+
         if (this.projectEditors != null)
         {
-            
+
             this.addToStringProperties (props,
                                         "projectEditors",
                                         this.projectEditors.size ());
-            
+
         }
 
         this.addToStringProperties (props,
                                     "projectVersion",
                                     this.projVer);
-        
+
     }
-    
+
     public int getBookIndex (Book b)
     {
 
@@ -1558,21 +1698,21 @@ public class Project extends NamedObject
 */
     public IdeaType getIdeaType (Long key)
     {
-        
+
         for (IdeaType i : this.ideaTypes)
         {
-            
+
             if (i.getKey () == key)
             {
-                
+
                 return i;
-                
+
             }
-            
+
         }
-        
+
         return null;
-        
+
     }
     /*
     public QObject getQObject (Long key)
@@ -1598,7 +1738,7 @@ public class Project extends NamedObject
     public Location getLocation (Long key)
     {
 
-        
+
         for (Location l : this.locations)
         {
 
@@ -1676,23 +1816,23 @@ public class Project extends NamedObject
 
         for (UserConfigurableObjectType t : this.assets.keySet ())
         {
-            
+
             Set<Asset> as = this.assets.get (t);
-            
+
             for (Asset a : as)
             {
-            
+
                 d = a.getObjectForReference (r);
-                
+
                 if (d != null)
                 {
-                    
+
                     return d;
-                    
+
                 }
-            
+
             }
-            
+
         }
         /*
         for (QCharacter c : this.characters)
@@ -1788,11 +1928,11 @@ public class Project extends NamedObject
 
         if (this.books.contains (b))
         {
-            
+
             return;
-            
-        }    
-    
+
+        }
+
         b.setProject (this);
 
         this.books.add (b);
@@ -1834,18 +1974,18 @@ public class Project extends NamedObject
 
         if (this.projectDirectory == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return this.projectDirectory.equals (po.projectDirectory);
 
     }
 
     public Element getAsJDOMElement ()
     {
-        
+
         Element pEl = new Element (Project.OBJECT_TYPE);
 
         Element nEl = new Element (Environment.XMLConstants.name);
@@ -1863,46 +2003,46 @@ public class Project extends NamedObject
                           this.getType ());
 
         if (this.getId () != null)
-        {                          
-        
+        {
+
             pEl.setAttribute (XMLConstants.id,
                               this.getId ());
 
         }
-                                  
+
         Element dEl = new Element (XMLConstants.directory);
         pEl.addContent (dEl);
         dEl.addContent (this.getProjectDirectory ().getPath ());
 
         EditorEditor ed = this.getForEditor ();
-        
+
         if (ed != null)
         {
-            
+
             Element fEl = new Element (XMLConstants.forEditor);
             pEl.addContent (fEl);
-            fEl.addContent (ed.getEmail ());            
-            
+            fEl.addContent (ed.getEmail ());
+
         }
-        
+
         if ((this.isEditorProject ())
             &&
             (this.projVer != null)
            )
         {
-            
+
             Date d = this.projVer.getDueDate ();
-            
+
             if (d != null)
             {
-                
+
                 pEl.setAttribute (XMLConstants.editDueDate,
                                   d.getTime () + "");
-                
+
             }
-            
+
         }
-        
+
         Date lastEdited = this.getLastEdited ();
 
         if (lastEdited != null)
@@ -1926,14 +2066,14 @@ public class Project extends NamedObject
 /*
         if (this.editorsProjectId != null)
         {
-            
+
             pEl.setAttribute (XMLConstants.editorsProjectId,
                               this.editorsProjectId);
-            
+
         }
-  */      
+  */
         return pEl;
-        
+
     }
-        
+
 }

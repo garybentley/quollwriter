@@ -22,6 +22,7 @@ import com.jgoodies.forms.layout.*;
 import com.quollwriter.data.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.charts.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.db.*;
 import com.quollwriter.events.*;
@@ -452,7 +453,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                                                                                    (wordDiff == 0 ? "" : (wordDiff > 0 ? "+" : "")),
                                                                                    Environment.formatNumber (wordDiff)));
 
-                                org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
+                                org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (QuollChartUtils.createSparkLine (ts,
                                                                                                                          max + (diff / 2),
                                                                                                                          min - (diff / 2)));
 
@@ -967,7 +968,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
                     wordCountDiff30 = max - min;
 
-                    org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
+                    org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (QuollChartUtils.createSparkLine (ts,
                                                                                                              max + (diff / 2),
                                                                                                              min - (diff / 2)));
 

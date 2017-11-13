@@ -613,6 +613,32 @@ public class LanguageStrings
     public static final String averagesessionlength = "averagesessionlength";
     public static final String showzero = "showzero";
     public static final String averagesession = "averagesession";
+    public static final String hide = "hide";
+    public static final String rating = "rating";
+    public static final String shorttext = "shorttext";
+    public static final String sortrating = "sortrating";
+    public static final String sortdate = "sortdate";
+    public static final String sortalpha = "sortalpha";
+    public static final String newidea = "newidea";
+    public static final String noideas = "noideas";
+    public static final String header = "header";
+    public static final String defaulttypes = "defaulttypes";
+    public static final String dialogue = "dialogue";
+    public static final String none = "none";
+    public static final String clear = "clear";
+    public static final String image = "image";
+    public static final String newtypes = "newtypes";
+    public static final String newnotetype = "newnotetype";
+    public static final String selectitem = "selectitem";
+    public static final String unavailable = "unavailable";
+    public static final String affirmativevalue = "affirmativevalue";
+    public static final String notification = "notification";
+    public static final String preview = "preview";
+    public static final String nodescription = "nodescription";
+    public static final String problemcount = "problemcount";
+    public static final String spellingcount = "spellingcount";
+    public static final String emptychapter = "emptychapter";
+    public static final String notapplicable = "notapplicable";
 
     private static String ID_PART_SEP = ".";
 
@@ -850,7 +876,7 @@ public class LanguageStrings
                                                             val);
 
                     } else {
-
+/*
                         if (thisids.contains (sid))
                         {
 
@@ -858,12 +884,12 @@ public class LanguageStrings
                                                                 val);
 
                         }
-
+*/
                     }
 
                     thisids.add (sid);
 
-                    ids.add (sid);
+                    //ids.add (sid);
 
                     sv = this.getIdValue (sid);
 
@@ -939,6 +965,8 @@ public class LanguageStrings
             }
 
         }
+
+        ids.addAll (thisids);
 
         return b.toString ();
 

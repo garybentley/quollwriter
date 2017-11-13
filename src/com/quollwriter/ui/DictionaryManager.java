@@ -38,7 +38,8 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 import com.quollwriter.events.*;
 
-import com.quollwriter.exporter.*;
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
@@ -168,30 +169,21 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
     public String getNewItemsTitle ()
     {
 
-        return Environment.getUIString (LanguageStrings.dictionary,
-                                        LanguageStrings.manage,
-                                        LanguageStrings.newwords,
-                                        LanguageStrings.title);
+        return getUIString (dictionary,manage,newwords,title);
     }
 
     @Override
     public String getNewItemsHelp ()
     {
 
-        return Environment.getUIString (LanguageStrings.dictionary,
-                                        LanguageStrings.manage,
-                                        LanguageStrings.newwords,
-                                        LanguageStrings.text);
+        return getUIString (dictionary,manage,newwords,text);
     }
 
     @Override
     public String getExistingItemsTitle ()
     {
 
-        return Environment.getUIString (LanguageStrings.dictionary,
-                                        LanguageStrings.manage,
-                                        LanguageStrings.table,
-                                        LanguageStrings.title);
+        return getUIString (dictionary,manage,table,title);
 
     }
 
