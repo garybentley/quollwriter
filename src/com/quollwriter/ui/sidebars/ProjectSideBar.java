@@ -1053,7 +1053,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         return ret;
 
     }
-    
+
     private void addAddSectionMenu (final JPopupMenu m,
                                     final String     belowObjType)
     {
@@ -1203,7 +1203,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             }
 
             // Only add the section menu if there are children.
-            if (sm.getComponentCount () > 0)
+            if (sm.getMenuComponentCount () > 0)
             {
 
                 m.add (sm);

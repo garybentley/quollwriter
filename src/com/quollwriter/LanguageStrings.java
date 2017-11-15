@@ -37,7 +37,6 @@ public class LanguageStrings
     public static final String nexterror = "nexterror";
     public static final String previouserror = "previouserror";
     public static final String exportcompletepopup = "exportcompletepopup";
-    public static final String nodirselectederror = "nodirselectederror";
     public static final String sectiontitles = "sectiontitles";
     public static final String plan = "plan";
     public static final String goals = "goals";
@@ -46,11 +45,10 @@ public class LanguageStrings
     public static final String scenesoutlineitems = "scenesoutlineitems";
     public static final String chapterinfo = "chapterinfo";
     public static final String howtosave = "howtosave";
-    public static final String otheritemslabel = "otheritemslabel";
+    public static final String otheritems = "otheritems";
     public static final String onefileperitemtype = "onefileperitemtype";
     public static final String types = "types";
     public static final String singlefile = "singlefile";
-    public static final String chapterslabel = "chapterslabel";
     public static final String onefileperchapter = "onefileperchapter";
     public static final String selectitems = "selectitems";
     public static final String importproject = "importproject";
@@ -295,6 +293,7 @@ public class LanguageStrings
     public static final String invalidvalue = "invalidvalue";
     public static final String projectalreadyopen = "projectalreadyopen";
     public static final String invalidpassword = "invalidpassword";
+    public static final String invalidstate = "invalidstate";
     public static final String open = "open";
     public static final String changestatus = "changestatus";
     public static final String restore = "restore";
@@ -639,6 +638,32 @@ public class LanguageStrings
     public static final String spellingcount = "spellingcount";
     public static final String emptychapter = "emptychapter";
     public static final String notapplicable = "notapplicable";
+    public static final String apply = "apply";
+    public static final String defaults = "defaults";
+    public static final String names = "names";
+    public static final String unabletoopenfile = "unabletoopenfile";
+    public static final String unabletoopenwebpage = "unabletoopenwebpage";
+    public static final String appendix = "appendix";
+    public static final String bookdetails = "bookdetails";
+    public static final String authorname = "authorname";
+    public static final String id = "id";
+    public static final String addor = "andor";
+    public static final String time = "time";
+    public static final String timer = "timer";
+    public static final String remaining = "remaining";
+    public static final String less1min = "less1min";
+    public static final String over1min = "over1min";
+    public static final String noname = "noname";
+    public static final String adddesctochapter = "adddesctochapter";
+    public static final String chapteritems = "chapteritems";
+    public static final String mywriting = "mywriting";
+    public static final String showmessagewhentargetreached = "showmessagewhentargetreached";
+    public static final String showwarningwhenchapterexceedsmax = "showwarningwhenchapterexceedsmax";
+    public static final String chaptersovermaxtarget = "chaptersovermaxtarget";
+    public static final String chaptersoverreadabilitytarget = "chaptersoverreadabilitytarget";
+    public static final String overlimit = "overlimit";
+    public static final String maximum = "maximum";
+    public static final String unabletoperformaction = "unabletoperformaction";
 
     private static String ID_PART_SEP = ".";
 

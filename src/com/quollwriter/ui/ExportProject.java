@@ -35,6 +35,8 @@ import com.quollwriter.exporter.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class ExportProject extends Wizard<ProjectViewer>
 {
@@ -86,7 +88,7 @@ public class ExportProject extends Wizard<ProjectViewer>
                "txt");
          */
     }
-    
+
     private JComboBox                     exportOthersType = null;
     private JComboBox                     exportChaptersType = null;
     private JComboBox                     fileType = null;
@@ -97,21 +99,20 @@ public class ExportProject extends Wizard<ProjectViewer>
 
     private FileFinder      fileFind = null;
     private JLabel          fileFindError = null;
-    
+
     public ExportProject(ProjectViewer pv)
     {
 
         super (pv);
 
         this.proj = pv.getProject ();
-        
+
     }
 
     public String getFirstHelpText ()
     {
 
-        return Environment.getUIString (LanguageStrings.exportproject,
-                                        LanguageStrings.help);
+        return getUIString (exportproject,help);
         //"This wizard allows you to export the information in your {project}.";
 
     }
@@ -145,22 +146,17 @@ public class ExportProject extends Wizard<ProjectViewer>
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      Environment.getUIString (LanguageStrings.exportproject,
-                                                               LanguageStrings.actionerror));                                      
+                                      getUIString (exportproject,actionerror));
                                       //"Unable to export project.");
 
             return false;
 
         }
-        
+
         UIUtils.showMessage ((PopupsSupported) this.viewer,
-                             Environment.getUIString (LanguageStrings.exportproject,
-                                                      LanguageStrings.exportcompletepopup,
-                                                      LanguageStrings.title),
+                             getUIString (exportproject,exportcompletepopup,title),
                              //"Your {Project} has been exported",
-                             String.format (Environment.getUIString (LanguageStrings.exportproject,
-                                                                     LanguageStrings.exportcompletepopup,
-                                                                     LanguageStrings.text),
+                             String.format (getUIString (exportproject,exportcompletepopup,text),
                                             //"{Project} <b>%s</b> has been exported to:\n\n   <a href='%s'>%s</a>",
                                             this.proj.getName (),
                                             this.fileFind.getSelectedFile ().toURI ().toString (),
@@ -263,9 +259,7 @@ public class ExportProject extends Wizard<ProjectViewer>
         {
 
             UIUtils.showErrorMessage (this,
-                                      Environment.getUIString (LanguageStrings.exportproject,
-                                                               LanguageStrings.errors,
-                                                               LanguageStrings.createexporter));
+                                      getUIString (exportproject,errors,createexporter));
             //"Unable to go to next page, please contact support for assistance.");
 
             Environment.logError ("Unable to get exporter",
@@ -357,9 +351,7 @@ public class ExportProject extends Wizard<ProjectViewer>
         {
 
             UIUtils.showErrorMessage (this,
-                                      Environment.getUIString (LanguageStrings.exportproject,
-                                                               LanguageStrings.errors,
-                                                               LanguageStrings.createexporter));
+                                      getUIString (exportproject,errors,createexporter));
                                       //"Unable to go to previous page, please contact support for assistance.");
 
             Environment.logError ("Unable to get exporter",
@@ -393,7 +385,7 @@ public class ExportProject extends Wizard<ProjectViewer>
 
     private boolean checkSelectedFile ()
     {
-        
+
         if ((this.fileFind.getSelectedFile () == null)
             ||
             (!this.fileFind.getSelectedFile ().exists ())
@@ -401,37 +393,35 @@ public class ExportProject extends Wizard<ProjectViewer>
             (this.fileFind.getSelectedFile ().isFile ())
            )
         {
-            
-            this.fileFindError.setText (Environment.getUIString (LanguageStrings.exportproject,
-                                                                 LanguageStrings.errors,
-                                                                 LanguageStrings.nodirselected));
+
+            this.fileFindError.setText (getUIString (exportproject,errors,nodirselected));
             //"Please select a directory.");
             this.fileFindError.setVisible (true);
-            
+
             this.resize ();
-            return false;            
-            
+            return false;
+
         }
-        
+
         return true;
 
     }
-    
+
     public boolean handleStageChange (String oldStage,
                                       String newStage)
     {
 
         this.fileFindError.setVisible (false);
-        
+
         if (!this.checkSelectedFile ())
         {
-            
+
             return false;
-            
+
         }
-            
+
         this.resize ();
-    
+
         return true;
 
     }
@@ -460,60 +450,48 @@ public class ExportProject extends Wizard<ProjectViewer>
         if (stage.equals ("where-to-save"))
         {
 
-            ws.title = Environment.getUIString (LanguageStrings.exportproject,
-                                                LanguageStrings.stages,
-                                                LanguageStrings.wheretosave,
-                                                LanguageStrings.title);
+            ws.title = getUIString (exportproject,stages,wheretosave,title);
             //"Select the file type and directory to save to";
 
             FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
                                             "p, 6px, p");
 
             Box b = new Box (BoxLayout.Y_AXIS);
-            
-            this.fileFindError = UIUtils.createErrorLabel (Environment.getUIString (LanguageStrings.exportproject,
-                                                                                    LanguageStrings.nodirselectederror));
+
+            this.fileFindError = UIUtils.createErrorLabel (getUIString (exportproject,errors,nodirselected));
                                                            //"Please select a directory.");
             this.fileFindError.setVisible (false);
             this.fileFindError.setBorder (UIUtils.createPadding (0, 5, 5, 5));
             b.add (this.fileFindError);
-                                            
+
             PanelBuilder builder = new PanelBuilder (fl);
 
             CellConstraints cc = new CellConstraints ();
 
             this.fileFind = new FileFinder ();
-        
+
             this.fileFind.setOnSelectHandler (new ActionListener ()
             {
-                
+
                 public void actionPerformed (ActionEvent ev)
                 {
-            
+
                     _this.checkSelectedFile ();
-                    
+
                 }
-                
+
             });
-            
-            this.fileFind.setApproveButtonText (Environment.getUIString (LanguageStrings.exportproject,
-                                                                         LanguageStrings.stages,
-                                                                         LanguageStrings.wheretosave,
-                                                                         LanguageStrings.finder,
-                                                                         LanguageStrings.button));
+
+            this.fileFind.setApproveButtonText (getUIString (exportproject,stages,wheretosave,finder,button));
                                                 //"Select");
             this.fileFind.setFinderSelectionMode (JFileChooser.DIRECTORIES_ONLY);
-            this.fileFind.setFinderTitle (Environment.getUIString (LanguageStrings.exportproject,
-                                                                   LanguageStrings.stages,
-                                                                   LanguageStrings.wheretosave,
-                                                                   LanguageStrings.finder,
-                                                                   LanguageStrings.title));
+            this.fileFind.setFinderTitle (getUIString (exportproject,stages,wheretosave,finder,title));
             //"Select a directory to export to");
-                                
+
             String def = this.proj.getProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME);
 
             File defFile = FileSystemView.getFileSystemView ().getDefaultDirectory ();
-            
+
             if (def != null)
             {
 
@@ -521,16 +499,12 @@ public class ExportProject extends Wizard<ProjectViewer>
 
             }
 
-            this.fileFind.setFile (defFile);                            
-            this.fileFind.setFindButtonToolTip (Environment.getUIString (LanguageStrings.exportproject,
-                                                                         LanguageStrings.stages,
-                                                                         LanguageStrings.wheretosave,
-                                                                         LanguageStrings.finder,
-                                                                         LanguageStrings.tooltip));
+            this.fileFind.setFile (defFile);
+            this.fileFind.setFindButtonToolTip (getUIString (exportproject,stages,wheretosave,finder,tooltip));
                                                 //"Click to find a directory to export to");
             this.fileFind.setClearOnCancel (true);
             this.fileFind.init ();
-            
+
             /*
             if (this.fileField == null)
             {
@@ -550,11 +524,7 @@ public class ExportProject extends Wizard<ProjectViewer>
 
             }
 */
-            builder.addLabel (Environment.getUIString (LanguageStrings.exportproject,
-                                                       LanguageStrings.stages,
-                                                       LanguageStrings.wheretosave,
-                                                       LanguageStrings.finder,
-                                                       LanguageStrings.label),
+            builder.addLabel (getUIString (exportproject,stages,wheretosave,finder,label),
             //"Directory",
                               cc.xy (2,
                                      1));
@@ -613,11 +583,7 @@ public class ExportProject extends Wizard<ProjectViewer>
             this.fileType.setOpaque (false);
             this.fileType.setMaximumSize (this.fileType.getPreferredSize ());
 
-            builder.addLabel (Environment.getUIString (LanguageStrings.exportproject,
-                                                       LanguageStrings.stages,
-                                                       LanguageStrings.wheretosave,
-                                                       LanguageStrings.filetype,
-                                                       LanguageStrings.label),
+            builder.addLabel (getUIString (exportproject,stages,wheretosave,filetype,label),
                               //"File Type",
                               cc.xy (2,
                                      3));
@@ -638,9 +604,9 @@ public class ExportProject extends Wizard<ProjectViewer>
             p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
             b.add (p);
-            
+
             ws.panel = b;
-            
+
             return ws;
 
         }
@@ -656,8 +622,7 @@ public class ExportProject extends Wizard<ProjectViewer>
         {
 
             UIUtils.showErrorMessage (this,
-                                      Environment.getUIString (LanguageStrings.exportproject,
-                                                               LanguageStrings.actionerror));
+                                      getUIString (exportproject,actionerror));
                                       //"Unable to view, please contact support for assistance.");
 
             Environment.logError ("Unable to get exporter",

@@ -15,6 +15,13 @@
     },
     "importfile" : "Drop the file to begin the import",
     "shortcutprefix" : "Shortcut: Ctrl+Shift+",
+    "unabletoopenwebpage" : "Unable to open web page: %1$s",
+    "unabletoperformaction" : "Unable to perform action.",
+    ":comment.unabletoopenwebpage" : "%1$s is the web page that cannot be opened.",
+    ":scount.unabletoopenwebpage" : 1,
+    "unabletoopenfile" : "Unable to open web file: %1$s",
+    ":comment.unabletoopenfile" : "%1$s is the path to the file that cannot be opened.",
+    ":scount.unabletoopenfile" : 1,
     "noobjectselectedpanel" :
     {
         "title" : "No ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel selected",
@@ -358,7 +365,22 @@
             ":scount.single" : 2,
             "multiple" : "%1$s {chapters} are over the word count maximum of <b>%2$s</b> words, click to view the {chapters}.",
             ":comment.multiple" : "%1$s is the number of chapters over the maximum count.  %2$s is the maximum word count.",
-            ":scount.multiple" : 2
+            ":scount.multiple" : 2,
+            "detail" :
+            {
+                "popup" :
+                {
+                    "title" : "${objectnames.plural.chapter} over target word count",
+                    "text" : "Current maximum ${objectnames.singular.chapter} word count <b>%1$s words</b>.",
+                    ":comment.text" : "%1$s is the number of words.",
+                    ":scount.text" : 1,
+                    "overlimit" : "${objectnames.plural.chapter} in red are 25% over the target, consider splitting them into two.",
+                    "buttons" :
+                    {
+                        "close" : "${actions.close}"
+                    }
+                }
+            }
         },
         "chaptersoverreadabilitymaximum" :
         {
@@ -367,7 +389,23 @@
             ":scount.single" : 1,
             "multiple" : "%1$s {chapters} are over one of the readability targets, click to view the {chapters}.",
             ":comment.multiple" : "%1$s is the number of chapters over the readability target(s).",
-            ":scount.multiple" : 1
+            ":scount.multiple" : 1,
+            "detail" :
+            {
+                "popup" :
+                {
+                    "title" : "${objectnames.plural.chapter} over readability target",
+                    "labels" :
+                    {
+                        "fk" : "FK",
+                        "gf" : "GF"
+                    },
+                    "buttons" :
+                    {
+                        "close" : "${actions.close}"
+                    }
+                }
+            }
         },
         "popup" :
         {
@@ -427,9 +465,12 @@
         "editors" : "Editors",
         "goals" : "Goals",
         "plan" : "Plan",
-        "fk" : "Flesch Kincaid grade level",
-        "fr" : "Flesch Reading ease level",
-        "gf" : "Gunning Fog Index",
+        "fkfull" : "${names.fk} grade level",
+        "frfull" : "${names.fr} ease level",
+        "gffull" : "${names.gf} Index",
+        "fk" : "Flesch Kincaid",
+        "fr" : "Flesch Reading",
+        "gf" : "Gunning Fog",
         "achievements" : "Achievements",
         "find" : "Find",
         "options" : "Options",
@@ -446,6 +487,8 @@
         "send" : "${actions.send}",
         "open" : "${actions.open}",
         "add" : "${actions.add}",
+        "finish" : "${actions.finish}",
+        "save" : "${actions.save}",
         "__$$confirm$$__" : "Ok, got it",
         "__$$cancel$$__" : "${buttons.cancel}",
         "__$$close$$__" : "${actions.close}",
@@ -1056,6 +1099,7 @@
         "remove" : "Remove",
         "find" : "Find",
         "print" : "Print",
+        "stop" : "Stop",
         "findproblems" : "Find Problems",
         "edittextproperties" : "Edit Text Properties",
         "clicktoview" : "Click to view",
@@ -1075,6 +1119,75 @@
         "othersidebarselect" :
         {
             "tooltip" : "Click to select another sidebar"
+        }
+    },
+    "timer" :
+    {
+        "errors" :
+        {
+            "invalidstate" : "o_O  The timer can't be unlimited for both time and words."
+        },
+        "remaining" :
+        {
+            "time" :
+            {
+                "over1min" : "%1$s minutes remaining.",
+                ":comment.over1min" : "%1$s is the number of minutes remaining.",
+                ":scount.over1min" : 1,
+                "less1min" : "Less than 1 minute remaining."
+            },
+            "words" : "%1$s words remaining.",
+            ":comment.words" : "%1$s is the number of words remaining.",
+            ":scount.words" : 1
+        },
+        "complete" :
+        {
+            "time" :
+            {
+                "popup" :
+                {
+                    "title" : "Time is up",
+                    "text" : "You have completed %1$s minutes of writing.  Congratulations!",
+                    ":comment.text" : "%1$s is the number of minutes completed.",
+                    ":scount.text" : 2
+                }
+            },
+            "words" :
+            {
+                "popup" :
+                {
+                    "title" : "Word count reached",
+                    "text" : "You have written %1$s words.  Well done!",
+                    ":comment.text" : "%1$s is the number of words written.",
+                    ":scount.text" : 1
+                }
+            }
+        },
+        "labels" :
+        {
+            "andor" : "and/or"
+        },
+        "buttons" :
+        {
+            "show" :
+            {
+                "tooltip" : "Click to show the timer"
+            },
+            "start" :
+            {
+                "tooltip" : "Click to start the timer"
+            }
+        },
+        "popup" :
+        {
+            "title" : "Start the timer"
+        },
+        "popupmenu" :
+        {
+            "items" :
+            {
+                "stop" : "${actions.stop}"
+            }
         }
     },
     "manageitems" :
@@ -1197,6 +1310,41 @@
         "tooltip" : "Click to delete this %1$s",
         ":comment.tooltip" : "%1$s is the object type name of the item.",
         ":scount.tooltip" : 1
+    },
+    "chapteritems" :
+    {
+        ":comment" : "This is a general section for adding/editing outline items and scenes.  The same component is used for both types.",
+        "labels" :
+        {
+            "adddesctochapter" : "Add the description to the ${objectnames.singular.chapter}",
+            "description" :
+            {
+                "text" : "${form.labels.description}",
+                "tooltip" : "Enter the description here..."
+            }
+        },
+        "errors" :
+        {
+            "nodescription" : "Please enter a description."
+        },
+        "add" :
+        {
+            "actionerror" : "Unable to add new %1$s",
+            ":comment.actionerror" : "%1$s is the object type name.",
+            ":scount.actionerror" : 1,
+            "title" : "Add %1$s",
+            ":comment.title" : "%1$s is the object type name.",
+            ":scount.title" : 1
+        },
+        "edit" :
+        {
+            "actionerror" : "Unable to save %1$s",
+            ":comment.actionerror" : "%1$s is the object type name.",
+            ":scount.actionerror" : 1,
+            "title" : "Edit %1$s",
+            ":comment.title" : "%1$s is the object type name.",
+            ":scount.title" : 1
+        }
     },
     "formatting" :
     {
@@ -2044,15 +2192,15 @@
             },
             "paragraphreadability" :
             {
-                "fk" : "Paragraph has a ${names.fk} of: <b>%1$s</b> (Max is: %2$s)",
-                ":comment.fk" : "%1$s is the FK value for the paragraph.  %2$s is the max FK value configured.",
-                ":scount.fk" : 2,
-                "fr" : "Paragraph has a ${names.fr} of: <b>%1$s</b> (Max is: %2$s)",
-                ":comment.fr" : "%1$s is the FR value for the paragraph.  %2$s is the max FR value configured.",
-                ":scount.fr" : 2,
-                "gf" : "Paragraph has a ${names.gf} of: <b>%1$s</b> (Max is: %2$s)",
-                ":comment.gf" : "%1$s is the GF value for the paragraph.  %2$s is the max GF value configured.",
-                ":scount.gf" : 2
+                "fk" : "Paragraph has a ${names.fkfull} of: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.fkfull" : "%1$s is the FK value for the paragraph.  %2$s is the max FK value configured.",
+                ":scount.fkfull" : 2,
+                "frfull" : "Paragraph has a ${names.frfull} of: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.frfull" : "%1$s is the FR value for the paragraph.  %2$s is the max FR value configured.",
+                ":scount.frfull" : 2,
+                "gffull" : "Paragraph has a ${names.gffull} of: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.gffull" : "%1$s is the GF value for the paragraph.  %2$s is the max GF value configured.",
+                ":scount.gffull" : 2
             },
             "paragraphlength" :
             {
@@ -2155,9 +2303,9 @@
                 {
                     "labels" :
                     {
-                        "fk" : "${names.fk}",
-                        "fr" : "${names.fr}",
-                        "gf" : "${names.gf}"
+                        "fk" : "${names.fkfull}",
+                        "fr" : "${names.frfull}",
+                        "gf" : "${names.gffull}"
                     }
                 },
                 "paragraphlength" :
@@ -2654,7 +2802,10 @@
             ":comment.assets" : "%1$s is replaced with the name of the project or chapter.",
             ":scount.assets" : 1,
             "goals" : "${names.goals}",
-            "plan" : "${names.plan}"
+            "plan" : "${names.plan}",
+            "appendix" : "Appendix %1$s - %2$s",
+            ":comment.appendix" : "%1$s is the appendix id, such as A, B, C.  %2$s is the name of the appendix.",
+            ":scount.appendix" : 2
         },
         "stages" :
         {
@@ -2678,6 +2829,17 @@
                 "title" : "Select the items you wish to export",
                 "text" : "Select the items you wish to export, if you select any {chapters} then any associated {notes} and {outlineitems} will also be exported."
             },
+            "bookdetails" :
+            {
+                "title" : "Enter the details about the book",
+                "text" : "You should provide either the ISBN of your book or a unique url for the book as the ID.",
+                "labels" :
+                {
+                    "authorname" : "Author Name",
+                    "id" : "ID (ISBN/URL)",
+                    ":comment.id" : "Each EPUB publication should have a unique identifier.  This can be anything but an ISBN is standard, a URL can also be used, generally it points to the location of the work.  See: http://www.idpf.org/epub/30/spec/epub30-publications.html"
+                }
+            },
             "howtosave" :
             {
                 "title" : "How should the selected items be saved",
@@ -2688,8 +2850,11 @@
                     "onefileperchapter" : "One file per ${objectnames.singular.chapter}",
                     "onefileperitemtype" : "One file per type of item"
                 },
-                "chapterslabel" : "{Chapters}",
-                "otheritemslabel" : "Other items"
+                "labels" :
+                {
+                    "chapters" : "${objectnames.plural.chapter}",
+                    "otheritems" : "Other items"
+                }
             }
         }
     },
@@ -3370,6 +3535,20 @@
     {
         "actions" :
         {
+            "rename" :
+            {
+                "actionerror" : "Unable to rename.",
+                "title" : "${actions.rename} ${objectnames.singular.notetype}",
+                "text" : "Enter the new ${objectnames.singular.notetype} below.",
+                "buttons" :
+                {
+                    "confirm" : "${actions.change}"
+                },
+                "errors" :
+                {
+                    "novalue" : "Please enter the new ${objectnames.singular.notetype}."
+                }
+            },
             "newnotetype" :
             {
                 "title" : "New ${objectnames.singular.notetype}",
@@ -3409,8 +3588,35 @@
     },
     "tags" :
     {
+        "popupmenu" :
+        {
+            "title" : "${objectnames.plural.tag}",
+            "new" : "Add New ${objectnames.singular.tag}(s)"
+        },
         "actions" :
         {
+            "apply" :
+            {
+                "actionerror" : "Unable to add/remove ${objectnames.singular.tag}."
+            },
+            "rename" :
+            {
+                "title" : "${actions.rename} ${objectnames.singular.tag}",
+                "text" :"Enter the new ${objectnames.singular.tag} below.",
+                "actionerror" : "Unable to rename.",
+                "buttons" :
+                {
+                    "confirm" : "${actions.change}"
+                },
+                "errors" :
+                {
+                    "novalue" : "Please enter the new ${objectnames.singular.tag}.",
+                    "valueexists" : "Already have a tag called <b>%1$s</b>.",
+                    ":comment.valueexists" : "%1$s is the tag.",
+                    ":scount.valueexists" : 1,
+                    "general" : "Unable to check ${objectnames.plural.tag}"
+                }
+            },
             "manage" :
             {
                 "title" : "Manage the ${objectnames.plural.tag}",
@@ -3595,24 +3801,24 @@
             {
                 "for" : "For",
                 "forchapters" : "For these ${objectnames.plural.chapter}",
-                "showgf" : "Show Gunning Fog",
-                "showfk" : "Show Flesch-Kincaid",
+                "showgf" : "Show ${names.gf}",
+                "showfk" : "Show ${names.fk}",
                 "showaverage" : "Show Average",
                 "showtargets" : "Show Targets",
-                "fk" : "Flesch-Kincaid",
-                "gf" : "Gunning Fog",
+                "fk" : "${names.fk}",
+                "gf" : "${names.gf}",
                 "yaxis" : "${objectnames.plural.chapter}",
                 "xaxis" : "Reading Level",
-                "overtargetfk" : "%1$s ${objectnames.plural.chapter} over target Flesch-Kincaid",
+                "overtargetfk" : "%1$s ${objectnames.plural.chapter} over target ${names.fk}",
                 ":comment.overtargetfk" : "%1$s is the number of chapters over the target FK value.",
                 ":scount.overtargetfk" : 2,
-                "overtargetgf" : "%1$s ${objectnames.plural.chapter} over target Gunning Fog",
+                "overtargetgf" : "%1$s ${objectnames.plural.chapter} over target ${names.gf}",
                 ":comment.overtargetgf" : "%1$s is the number of chapters over the target GF value.",
                 ":scount.overtargetgf" : 2,
-                "averagefk" : "%1$s - Average Flesch-Kincaid",
+                "averagefk" : "%1$s - Average ${names.fk}",
                 ":comment.averagefk" : "%1$s is the average FK value.",
                 ":scount.averagefk" : 1,
-                "averagegf" : "%1$s - Average Gunning Fog",
+                "averagegf" : "%1$s - Average ${names.fk}",
                 ":comment.averagegf" : "%1$s is the average GF value.",
                 ":scount.averagegf" : 1,
                 "clicktoview" : "Click to view the ${objectnames.plural.chapter}"
@@ -3842,6 +4048,12 @@
                 {
                     "tooltip" : "Click to add a new Asset"
                 },
+                "tags" :
+                {
+                    "tooltip" : "Click to add/remove tags for this %1$s",
+                    ":comment.tooltip" : "%1$s is the asset type name.",
+                    ":scount.tooltip" : 1
+                },
                 "delete" :
                 {
                     "tooltip" : "Click to delete this %1$s",
@@ -3874,6 +4086,29 @@
                 ":comment.tooltip" : "%1$s is the asset type name.",
                 ":scount.tooltip" : 1
             },
+            "popup" :
+            {
+                "title" : "Add new %1$s",
+                ":comment.title" : "%1$s is the object type name such as Location, Research Item etc.",
+                ":scount.title" : 1,
+                "showdetail" :
+                {
+                    "text" : "Show all fields",
+                    "tooltip" : "Only the basic %1$s fields are shown here, to see all the fields for the %1$s click the link.<br />Note: the %1$s add form will be shown in a new tab.",
+                    ":comment.tooltip" : "%1$s is the asset type name.",
+                    ":scount.tooltip" : 1
+                },
+                "errors" :
+                {
+                    "showdetail" : "Unable to show add tab.",
+                    "noname" : "Please enter a %1$s",
+                    ":comment.noname" : "%1$s is the name of the 'name' field the user has specified for the asset type.",
+                    ":scount.noname" : 1,
+                    "valueexists" : "Already have a %1$s called: %2$s",
+                    ":comment.valueexists" : "%1$s is the asset type name, %2$s is the name.",
+                    ":scount.valueexists" : 2
+                }
+            },
             "panel" :
             {
                 "title" : "Add new %1$s",
@@ -3903,6 +4138,12 @@
             "actionerror" : "Unable to edit %1$s <b>%2$s</b>.",
             ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
             ":scount.actionerror" : 2,
+            "popup" :
+            {
+                "title" : "Edit %1$s",
+                ":comment.title" : "%1$s is the object type name such as Location, Research Item etc.",
+                ":scount.title" : 1
+            },
             "aboutpanel" :
             {
                 "title" : "Edit",
@@ -4541,7 +4782,33 @@
             },
             "targets" :
             {
-                "title" : "Targets"
+                "title" : "Targets",
+                "labels" :
+                {
+                    "showdetail" : "View Detail",
+                    "showmessagewhentargetreached" : "Show a message when a target is reached",
+                    "showwarningwhenchapterexceedsmax" : "Show a warning when a ${objectnames.singular.chapter} exceeds the maximum",
+                    "daily" : "${targets.types.daily}",
+                    "session" : "${targets.types.session}",
+                    "weekly" : "${targets.types.weekly}",
+                    "monthly" : "${targets.types.monthly}",
+                    "maximum" : "Maximum",
+                    "words" : "words",
+                    "fk" : "${names.fk}",
+                    "gf" : "${names.gf}",
+                    "chaptersovermaxtarget" : "%1$s ${objectnames.plural.chapter} exceeds the target, click to view them.",
+                    ":comment.chaptersovermaxtarget" : "%1$s is the number of chapters.",
+                    ":scount.chaptersovermaxtarget" : 1,
+                    "chaptersoverreadabilitytarget" : "%1$s ${objectnames.plural.chapter} exceeds the target, click to view them.",
+                    ":comment.chaptersoverreadabilitytarget" : "%1$s is the number of chapters.",
+                    ":scount.chaptersoverreadabilitytarget" : 1
+                },
+                "sectiontitles" :
+                {
+                    "mywriting" : "My Writing",
+                    "chapterwordcount" : "${objectnames.singular.chapter} Word Count",
+                    "readability" : "Readability"
+                }
             },
             "wordcount" :
             {
@@ -4564,9 +4831,9 @@
                 {
                     "edited" : "Edited",
                     "readability" : "Readability",
-                    "fk" : "Flesch-Kincaid",
-                    "fr" : "Flesch Reading",
-                    "gf" : "Gunning Fog",
+                    "fk" : "${names.fk}",
+                    "fr" : "${names.fr}",
+                    "gf" : "${names.gf}",
                     "words" : "words",
                     "chapters" : "${objectnames.plural.chapter}",
                     "a4pages" : "A4 pages",

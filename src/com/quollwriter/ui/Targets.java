@@ -22,6 +22,9 @@ import com.quollwriter.ui.components.Accordion;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.QPopup;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class Targets<E extends AbstractViewer> extends Accordion
 {
 
@@ -83,16 +86,21 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         });
 
+        java.util.List<String> prefix = Arrays.asList (project,sidebar,targets,labels);
+
+        String ws = getUIString (prefix,words);
+
         pb.add (ssp,
                cc.xy (3,
                       r));
-        pb.addLabel ("words",
+        pb.addLabel (ws,
                      cc.xy (5,
                             r));
 
         r += 2;
 
-        pb.addLabel ("Daily",
+        pb.addLabel (getUIString (prefix,daily),
+                    //"Daily",
                     cc.xy (1,
                            r));
 
@@ -125,13 +133,15 @@ public class Targets<E extends AbstractViewer> extends Accordion
         pb.add (dsp,
                cc.xy (3,
                       r));
-        pb.addLabel ("words",
+        pb.addLabel (ws,
+                    //"words",
                      cc.xy (5,
                             r));
 
         r += 2;
 
-        pb.addLabel ("Weekly",
+        pb.addLabel (getUIString (prefix,weekly),
+                    //"Weekly",
                     cc.xy (1,
                            r));
 
@@ -164,13 +174,15 @@ public class Targets<E extends AbstractViewer> extends Accordion
         pb.add (wsp,
                 cc.xy (3,
                        r));
-        pb.addLabel ("words",
+        pb.addLabel (ws,
+                    //"words",
                      cc.xy (5,
                             r));
 
         r += 2;
 
-        pb.addLabel ("Monthly",
+        pb.addLabel (getUIString (prefix,monthly),
+                    //"Monthly",
                     cc.xy (1,
                            r));
 
@@ -203,7 +215,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
         pb.add (msp,
                 cc.xy (3,
                        r));
-        pb.addLabel ("words",
+        pb.addLabel (ws,
+                    //"words",
                      cc.xy (5,
                             r));
 
@@ -216,7 +229,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         wcb.addMain (p);
 
-        final JCheckBox sessWarn = UIUtils.createCheckBox ("Show a message when a target is reached");
+        final JCheckBox sessWarn = UIUtils.createCheckBox (getUIString (prefix,showmessagewhentargetreached));
+        //"Show a message when a target is reached");
 
         wcb.addMain (sessWarn);
 
@@ -237,8 +251,9 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         });
 
-        final JLabel history = UIUtils.createClickableLabel ("View Detail",
-                                                             Environment.getIcon ("chart",
+        final JLabel history = UIUtils.createClickableLabel (getUIString (prefix,showdetail),
+                                                            //"View Detail",
+                                                             Environment.getIcon (Constants.CHART_ICON_NAME,
                                                                                   Constants.ICON_MENU),
                                                              new ActionListener ()
                                                              {
@@ -258,7 +273,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
                                                                                               e);
 
                                                                         UIUtils.showErrorMessage (_this.viewer,
-                                                                                                  "Unable to show chart.");
+                                                                                                  getUIString (charts,view,actionerror));
+                                                                                                  //"Unable to show chart.");
 
                                                                     }
 
@@ -268,14 +284,18 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         wcb.addMain (history);
 
-        Accordion.Item wo = this.add (this.createHeader ("My Writing",
+        Accordion.Item wo = this.add (this.createHeader (getUIString (project,sidebar,targets,sectiontitles,mywriting),
+                                                        //"My Writing",
                                                         Constants.EDIT_ICON_NAME),
                                        null,
                                        wcb,
-                                       UIUtils.createHelpTextPane ("Set yourself daily/weekly/session writing targets.",
+                                       UIUtils.createHelpTextPane ("",
+                                       //"Set yourself daily/weekly/session writing targets.",
                                                                    this.viewer));
 
         // Chapter Word Counts
+
+        // TODO: Fix this
 
         if (this.viewer instanceof AbstractProjectViewer)
         {
@@ -293,7 +313,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             r = 1;
 
-            pb.addLabel ("Maximum",
+            pb.addLabel (getUIString (prefix,maximum),
+                        //"Maximum",
                          cc.xy (1,
                                 r));
 
@@ -326,7 +347,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
             pb.add (mwsp,
                    cc.xy (3,
                           r));
-            pb.addLabel ("words",
+            pb.addLabel (ws,
                          cc.xy (5,
                                 r));
 
@@ -337,7 +358,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
             wcb = new OptionsBox (this.viewer);
             wcb.setBorder (UIUtils.createPadding (10, 5, 10, 0));
 
-            final JCheckBox warn = UIUtils.createCheckBox ("Show a warning when a {chapter} exceeds the maximum");
+            final JCheckBox warn = UIUtils.createCheckBox (getUIString (prefix,showwarningwhenchapterexceedsmax));
+            //"Show a warning when a {chapter} exceeds the maximum");
 
             warn.setSelected (projTargets.isShowMessageWhenMaxChapterCountExceeded ());
 
@@ -377,10 +399,10 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
                                                      });
 
-
             wcb.addMain (this.chaptersOverDisplay);
 
-            final JLabel wchistory = UIUtils.createClickableLabel ("View Detail",
+            final JLabel wchistory = UIUtils.createClickableLabel (getUIString (prefix,showdetail),
+                                                                    //"View Detail",
                                                                    Environment.getIcon ("chart",
                                                                                         Constants.ICON_MENU),
                                                                    new ActionListener ()
@@ -411,11 +433,13 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             wcb.addMain (wchistory);
 
-            Accordion.Item wc = this.add (this.createHeader ("{Chapter} Word Count",
+            Accordion.Item wc = this.add (this.createHeader (getUIString (project,sidebar,targets,sectiontitles,chapterwordcount),
+                                                            //"{Chapter} Word Count",
                                                             Chapter.OBJECT_TYPE),
                                            null,
                                            wcb,
-                                           UIUtils.createHelpTextPane ("Specify the maximum number of words a chapter should have.",
+                                           UIUtils.createHelpTextPane ("",
+                                           //"Specify the maximum number of words a chapter should have.",
                                                                        this.viewer));
 
             fl = new FormLayout ("right:80px, 5px, [p,80px], 5px, p:grow",
@@ -427,7 +451,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             r = 1;
 
-            pb.addLabel ("Flesch-Kincaid",
+            pb.addLabel (getUIString (prefix,fk),
+                        //"Flesch-Kincaid",
                          cc.xy (1,
                                 r));
 
@@ -463,7 +488,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             r += 2;
 
-            pb.addLabel ("Gunning Fog",
+            pb.addLabel (getUIString (prefix,gf),
+                        //"Gunning Fog",
                          cc.xy (1,
                                 r));
 
@@ -525,8 +551,9 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             rb.addMain (this.readabilityOverDisplay);
 
-            final JLabel rhistory = UIUtils.createClickableLabel ("View Detail",
-                                                                  Environment.getIcon ("chart",
+            final JLabel rhistory = UIUtils.createClickableLabel (getUIString (prefix,showdetail),
+                                                                //"View Detail",
+                                                                  Environment.getIcon (Constants.CHART_ICON_NAME,
                                                                                        Constants.ICON_MENU),
                                                                    new ActionListener ()
                                                                    {
@@ -546,7 +573,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
                                                                                                       e);
 
                                                                                 UIUtils.showErrorMessage (_this.viewer,
-                                                                                                          "Unable to show chart.");
+                                                                                                          getUIString (charts,view,actionerror));
+                                                                                                          //"Unable to show chart.");
 
                                                                             }
 
@@ -556,11 +584,13 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             rb.addMain (rhistory);
 
-            Accordion.Item ri = this.add (this.createHeader ("Readability",
+            Accordion.Item ri = this.add (this.createHeader (getUIString (project,sidebar,targets,sectiontitles,readability),
+                                                            //"Readability",
                                                             Constants.PROBLEM_FINDER_ICON_NAME),
                                           null,
                                           rb,
-                                          UIUtils.createHelpTextPane ("Specify the maximum readability {chapters} should have.",
+                                          UIUtils.createHelpTextPane ("",
+                                                                    //"Specify the maximum readability {chapters} should have.",
                                                                       this.viewer));
 
             this.checkReadability ();
@@ -653,8 +683,9 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
                                                      });
 
-            l.setToolTipText (String.format ("Click to view the {%s}",
-                                             Chapter.OBJECT_TYPE));
+            l.setToolTipText (getUIString (actions,clicktoview));
+            //String.format ("Click to view the {%s}",
+            //                                 Chapter.OBJECT_TYPE));
 
             ChapterCounts count = viewer.getChapterCounts (c);
 
@@ -702,7 +733,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         Box bb = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane t = UIUtils.createHelpTextPane (String.format ("Current maximum {chapter} word count <b>%s words</b>.",
+        JTextPane t = UIUtils.createHelpTextPane (String.format (getUIString (targets,chaptersoverwcmaximum,detail,popup,text),
+                                                                //"Current maximum {chapter} word count <b>%s words</b>.",
                                                                  Environment.formatNumber (tcc)),
                                                   viewer);
 
@@ -711,7 +743,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
         if (hasOver25)
         {
 
-            JTextPane helpT = UIUtils.createHelpTextPane ("{Chapters} in red are 25% over the target, consider splitting them into two.",
+            JTextPane helpT = UIUtils.createHelpTextPane (getUIString (targets,chaptersoverwcmaximum,detail,popup,overlimit),
+                                                        //"{Chapters} in red are 25% over the target, consider splitting them into two.",
                                                           viewer);
 
             bb.add (helpT);
@@ -720,7 +753,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         bb.add (p);
 
-        JButton cb = UIUtils.createButton ("Close");
+        JButton cb = UIUtils.createButton (getUIString (targets,chaptersoverwcmaximum,detail,popup,buttons,close));
+        //"Close");
 
         JButton[] buts = { cb };
 
@@ -732,7 +766,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         bb.setBorder (UIUtils.createPadding (10, 10, 10, 5));
 
-        QPopup popup = UIUtils.createPopup ("{Chapters} over target word count",
+        QPopup popup = UIUtils.createPopup (getUIString (targets,chaptersoverwcmaximum,detail, LanguageStrings.popup,title),
+                                            //"{Chapters} over target word count",
                                             Constants.WORDCOUNT_ICON_NAME,
                                             bb,
                                             true,
@@ -798,10 +833,12 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         int r = 1;
 
-        b.addLabel ("FK",
+        b.addLabel (getUIString (targets,chaptersoverreadabilitymaximum,detail,popup,labels,fk),
+                    //"FK",
                     cc.xy (3, r));
 
-        b.addLabel ("GF",
+        b.addLabel (getUIString (targets,chaptersoverreadabilitymaximum,detail,popup,labels,gf),
+                    //"GF",
                     cc.xy (7, r));
 
         r += 2;
@@ -826,8 +863,9 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
                                                      });
 
-            l.setToolTipText (String.format ("Click to view the {%s}",
-                                             Chapter.OBJECT_TYPE));
+            l.setToolTipText (getUIString (actions,clicktoview));
+            //String.format ("Click to view the {%s}",
+            //                                 Chapter.OBJECT_TYPE));
 
             ReadabilityIndices ri = viewer.getReadabilityIndices (c);
 
@@ -897,7 +935,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         bb.add (p);
 
-        JButton cb = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
+        JButton cb = UIUtils.createButton (getUIString (targets,chaptersoverreadabilitymaximum,detail,popup,buttons,close));
+        //Constants.CLOSE_BUTTON_LABEL_ID);
 
         JButton[] buts = { cb };
 
@@ -909,7 +948,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         bb.setBorder (UIUtils.createPadding (10, 10, 10, 5));
 
-        QPopup popup = UIUtils.createPopup ("{Chapters} over readability target",
+        QPopup popup = UIUtils.createPopup (getUIString (targets,chaptersoverreadabilitymaximum,detail, LanguageStrings.popup,title),
+                                            //"{Chapters} over readability target",
                                             Constants.PROBLEM_FINDER_ICON_NAME,
                                             bb,
                                             true,
@@ -967,12 +1007,13 @@ public class Targets<E extends AbstractViewer> extends Accordion
                 if (_cc > 0)
                 {
 
-                    _this.readabilityOverDisplay.setText (String.format ("%s {%s%s} exceed%s the target, click to view %s.",
-                                                                         Environment.formatNumber (_cc),
-                                                                         Chapter.OBJECT_TYPE,
-                                                                         (_cc > 1 ? "s" : ""),
-                                                                         (_cc > 1 ? "" : "s"),
-                                                                         (_cc > 1 ? "them" : "it")));
+                    _this.readabilityOverDisplay.setText (String.format (getUIString (project,sidebar,targets,labels,chaptersoverreadabilitytarget),
+                                                                        //"%s {%s%s} exceed%s the target, click to view %s.",
+                                                                         Environment.formatNumber (_cc)));
+                                                                         //Chapter.OBJECT_TYPE,
+                                                                         //(_cc > 1 ? "s" : ""),
+                                                                         //(_cc > 1 ? "" : "s"),
+                                                                         //(_cc > 1 ? "them" : "it")));
 
 
                 }
@@ -1013,12 +1054,13 @@ public class Targets<E extends AbstractViewer> extends Accordion
                 if (cc > 0)
                 {
 
-                    _this.chaptersOverDisplay.setText (String.format ("%s {%s%s} exceed%s the target, click to view %s.",
-                                                                      Environment.formatNumber (cc),
-                                                                      Chapter.OBJECT_TYPE,
-                                                                      (cc > 1 ? "s" : ""),
-                                                                      (cc > 1 ? "" : "s"),
-                                                                      (cc > 1 ? "them" : "it")));
+                    _this.chaptersOverDisplay.setText (String.format (getUIString (project,sidebar,targets,labels,chaptersovermaxtarget),
+                                                                    //"%s {%s%s} exceed%s the target, click to view %s.",
+                                                                      Environment.formatNumber (cc)));
+                                                                      //Chapter.OBJECT_TYPE));
+                                                                      //(cc > 1 ? "s" : ""),
+                                                                      //(cc > 1 ? "" : "s"),
+                                                                      //(cc > 1 ? "them" : "it")));
 
 
                 }
@@ -1033,7 +1075,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
                                  String iconType)
     {
 
-        Header h = UIUtils.createHeader (Environment.replaceObjectNames (title),
+        Header h = UIUtils.createHeader (title,
                                          Constants.SUB_PANEL_TITLE,
                                          iconType,
                                          null);

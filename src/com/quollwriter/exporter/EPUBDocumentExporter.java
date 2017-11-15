@@ -35,6 +35,8 @@ import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class EPUBDocumentExporter extends AbstractDocumentExporter
 {
@@ -67,9 +69,14 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         if (stage.equals ("select-items"))
         {
 
-            ws.title = "Select the items you wish to export";
+            ws.title = getUIString (exportproject,stages,selectitems,title);
+            //"Select the items you wish to export";
 
-            ws.helpText = "Select the items you wish to export, if you select any {chapters} then any associated {notes} and {outlineitems} will also be exported.  {Locations}, {characters}, {objects} and {researchitems} will be added as appendices.";
+            ws.helpText = getUIString (exportproject,stages,selectitems,text);
+
+            //ws.title = "Select the items you wish to export";
+
+            //ws.helpText = "Select the items you wish to export, if you select any {chapters} then any associated {notes} and {outlineitems} will also be exported.  {Locations}, {characters}, {objects} and {researchitems} will be added as appendices.";
 
             this.initItemsTree (null);
 
@@ -90,8 +97,10 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         if (stage.equals ("details"))
         {
 
-            ws.title = "Enter the details about the book";
-            ws.helpText = "You should provide either the ISBN of your book or a unique url for the book as the ID.";
+            ws.title = getUIString (exportproject,stages,bookdetails,title);
+            //"Enter the details about the book";
+            ws.helpText = getUIString (exportproject,stages,bookdetails,text);
+            //"You should provide either the ISBN of your book or a unique url for the book as the ID.";
 
             FormLayout fl = new FormLayout ("10px, right:p, 6px, 200px, fill:10px",
                                             "p, 6px, p");
@@ -102,7 +111,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             this.author = UIUtils.createTextField ();
 
-            builder.addLabel ("Author Name",
+            builder.addLabel (getUIString (exportproject,stages,bookdetails,labels,authorname),
+            //"Author Name",
                               cc.xy (2,
                                      1));
             builder.add (this.author,
@@ -111,7 +121,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             this.author.setText (this.proj.getProperty (Constants.AUTHOR_NAME_PROPERTY_NAME));
 
-            builder.addLabel ("ID (ISBN/URL)",
+            builder.addLabel (getUIString (exportproject,stages,bookdetails,labels, LanguageStrings.id),
+                            //"ID (ISBN/URL)",
                               cc.xy (2,
                                      3));
 
@@ -217,24 +228,24 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
         try
         {
-    
+
             Project p = ExportUtils.getSelectedItems (this.itemsTree,
                                                       this.proj);
-        
+
             // Create new Book
             nl.siegmann.epublib.domain.Book book = new nl.siegmann.epublib.domain.Book ();
-             
+
             // Set the title
             book.getMetadata ().addTitle (this.proj.getName ());
-             
+
             // Add an Author
             book.getMetadata ().addAuthor (new Author (this.author.getText ()));
-             
+
             // Set cover image
             //book.getMetadata().setCoverImage(new Resource(Simple1.class.getResourceAsStream("/book1/test_cover.png"), "cover.png"));
-    
+
             String css = Environment.getResourceFileAsString ("/data/export/epub/css-template.xml");
-    
+
             css = StringUtils.replaceString (css,
                                              "[[FONT_NAME]]",
                                              UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
@@ -247,58 +258,58 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             css = StringUtils.replaceString (css,
                                              "[[ALIGN]]",
                                              UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toLowerCase ());
-    
+
             String indent = "0px";
-    
+
             if (UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
             {
-    
+
                 indent = "5em";
-    
+
             }
-    
+
             css = StringUtils.replaceString (css,
                                              "[[INDENT]]",
                                              indent);
-    
+
             book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ()),
-                                                    "main.css"));        
-            
+                                                    "main.css"));
+
             Book b = p.getBook (0);
 
             String cTemp = Environment.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
-    
+
             List<Chapter> chapters = b.getChapters ();
-    
+
             int count = 0;
-            
+
             for (Chapter c : chapters)
             {
-    
+
                 count++;
 
                 String chapterText = StringUtils.replaceString (cTemp,
                                                                 "[[TITLE]]",
                                                                 c.getName ());
-                
+
                 StringWithMarkup v = c.getText ();
-                
+
                 String t = (v != null ? v.getText () : null);
-    
-                TextIterator iter = new TextIterator (t);    
-                                
+
+                TextIterator iter = new TextIterator (t);
+
                 Markup m = (c != null ? v.getMarkup () : null);
 
                 StringBuilder ct = new StringBuilder ();
 
                 for (Paragraph para : iter.getParagraphs ())
                 {
-                                            
+
                     ct.append (String.format ("<p>%s</p>",
                                               para.markupAsHTML (m)));
-                    
+
                 }
-                
+
                 chapterText = StringUtils.replaceString (chapterText,
                                                          "[[CONTENT]]",
                                                          ct.toString ());
@@ -306,42 +317,43 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                 book.addSection (c.getName (),
                                  new Resource (new ByteArrayInputStream (chapterText.getBytes ()),
                                                "chapter" + count + ".html"));
-            
+
             }
 
             String appendixTemp = Environment.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
 
             Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
-    
+
             // Capital A.
             //int apxChar = 65;
-    
+
             char apxChar = 'A';
-    
+
             for (UserConfigurableObjectType type : assetTypes)
             {
-                
+
                 Set<Asset> as = p.getAssets (type);
-            
+
                 if ((as == null)
                     ||
                     (as.size () == 0)
                    )
                 {
-                    
+
                     continue;
-                    
+
                 }
-            
+
                 String apxC = Character.toString (apxChar);
-                
+
                 apxChar = (char) ((int) apxChar + 1);
-                
+
                 String cid = String.format ("appendix-%s-%s",
                                             apxC,
                                             type.getObjectTypeNamePlural ().replace (" ", "-"));
 
-                String title = String.format ("Appendix %s - %s",
+                String title = String.format (getUIString (exportproject,sectiontitles,appendix),
+                                            //"Appendix %s - %s",
                                               apxC,
                                               type.getObjectTypeNamePlural ());
 
@@ -356,7 +368,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                 book.addSection (title,
                                  new Resource (new ByteArrayInputStream (t.getBytes ()),
                                                cid + ".html"));
-                                               
+
             }
 /*
             // Get the locations.
@@ -427,23 +439,23 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                cid + ".html"));
 
             }
-               */       
+               */
             // Create EpubWriter
             EpubWriter epubWriter = new EpubWriter ();
-             
+
             // Write the Book as Epub
             epubWriter.write (book, new FileOutputStream (new File (dir.getPath () + "/" + this.sanitizeName (this.proj.getName ()) + Constants.EPUB_FILE_EXTENSION)));
 
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to export project: " +
                                         this.proj,
-                                        e);            
-            
+                                        e);
+
         }
-        
+
     }
-    
+
     private String getAssetsPage (Set<Asset>                      assets,
                                   nl.siegmann.epublib.domain.Book epubBook)
     {
@@ -459,126 +471,126 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             // Get the handlers.
             Set<UserConfigurableObjectFieldViewEditHandler> handlers = a.getViewEditHandlers (null);
-    
+
             for (UserConfigurableObjectFieldViewEditHandler h : handlers)
             {
-                
+
                 // TODO: This has GOT to change.
                 if (h instanceof ObjectNameUserConfigurableObjectFieldViewEditHandler)
                 {
-                    
+
                     continue;
-                    
+
                 }
-                
+
                 Object val = h.getFieldValue ();
-    
+
                 if (val == null)
                 {
-                    
+
                     continue;
-                    
+
                 }
-                
+
                 buf.append ("<h3>");
                 buf.append (h.getTypeField ().getFormName ());
                 buf.append ("</h3>");
-                                 
+
                 if (h instanceof ImageUserConfigurableObjectFieldViewEditHandler)
                 {
-                    
+
                     File f = this.proj.getFile (val.toString ());
-                    
+
                     if (!f.exists ())
                     {
-                        
+
                         continue;
-                        
+
                     }
-                    
+
                     try
                     {
-                    
+
                         epubBook.getResources ().add (new Resource (new ByteArrayInputStream (UIUtils.getImageBytes (UIUtils.getImage (f))),
                                                                     f.getName ()));
 
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to get image file: " +
                                               f,
                                               e);
-                        
+
                         continue;
-                        
+
                     }
-                    
+
                     buf.append ("<p><img src=\"");
                     buf.append (f.getName ());
                     buf.append (" /></p>");
-                    
+
                     continue;
-                    
+
                 }
-    
+
                 StringWithMarkup sm = null;
-                
+
                 if (val instanceof String)
                 {
-                    
+
                     sm = new StringWithMarkup ((String) val);
-                    
+
                 }
-                
+
                 if (val instanceof Date)
                 {
-                    
+
                     sm = new StringWithMarkup (Environment.formatDate ((Date) val));
-                    
+
                 }
-    
+
                 if (val instanceof Number)
                 {
-                    
+
                     sm = new StringWithMarkup (Environment.formatNumber ((Double) val));
-                    
+
                 }
-    
+
                 if (val instanceof Set)
                 {
-                    
+
                     sm = new StringWithMarkup (Utils.joinStrings ((Set<String>) val, null));
-                    
+
                 }
-                                        
+
                 if (val instanceof StringWithMarkup)
                 {
-                    
+
                     sm = (StringWithMarkup) val;
-                    
+
                 }
-                                    
+
                 if (sm == null)
                 {
-                    
+
                     continue;
-                    
+
                 }
-                    
+
                 TextIterator iter = new TextIterator (sm.getText ());
-        
+
                 for (Paragraph p : iter.getParagraphs ())
                 {
-    
+
                     buf.append ("<p>");
-                
+
                     this.addParagraph (buf,
                                        p,
                                        sm.getMarkup ());
-        
+
                     buf.append ("</p>");
-        
+
                 }
-                
+
             }
 
         }
@@ -586,12 +598,12 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         return buf.toString ();
 
     }
-    
+
     private void addParagraph (StringBuilder buf,
                                Paragraph     para,
                                Markup        markup)
     {
-        
+
         Markup pm = new Markup (markup,
                                 para.getAllTextStartOffset (),
                                 para.getAllTextEndOffset ());
@@ -666,23 +678,23 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 if (item.bold)
                 {
-        
+
                     cl.append (" b");
-        
+
                 }
-        
+
                 if (item.italic)
                 {
-        
+
                     cl.append (" i");
-        
+
                 }
-        
+
                 if (item.underline)
                 {
-        
+
                     cl.append (" u");
-        
+
                 }
 
                 buf.append ("<span class=\"");
@@ -712,7 +724,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             buf.append (ptext);
 
         }
-        
+
     }
-    
+
 }

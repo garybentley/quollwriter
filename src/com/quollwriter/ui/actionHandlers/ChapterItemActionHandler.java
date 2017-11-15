@@ -24,10 +24,13 @@ import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.panels.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFormPopup<ProjectViewer, E>
 {
 
-    private MultiLineTextFormItem descField = null;    
+    private MultiLineTextFormItem descField = null;
     private CheckboxFormItem      addToChapter = null;
     protected Chapter        chapter = null;
     private int            showAt = -1;
@@ -48,13 +51,13 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
         this.itemViewer = itemViewer;
         this.viewer = this.itemViewer.getViewer ();
         this.chapter = item.getChapter ();
-        
+
         this.setCallCancelOnClose (true);
-        
-        final QTextEditor editor = this.itemViewer.getEditor ();        
-        
+
+        final QTextEditor editor = this.itemViewer.getEditor ();
+
         final ChapterItemActionHandler _this = this;
-        
+
         if (mode == ChapterItemActionHandler.EDIT)
         {
 
@@ -66,55 +69,55 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
             this.showAt = showAt;
 
         }
-        
+
         this.setPopupOver (this.viewer.getEditorForChapter (this.chapter));
-        
+
         if (mode == ChapterItemActionHandler.ADD)
         {
-            
+
             this.setOnShowAction (new ActionListener ()
             {
-               
+
                 @Override
                 public void actionPerformed (ActionEvent ev)
                 {
-                    
+
                     try
                     {
-        
+
                         if (_this.mode == ADD)
                         {
 
                             _this.itemViewer.addItem (_this.getChapterItem ());
-                            
+
                         }
-                
+
                     } catch (Exception e)
                     {
-        
+
                         Environment.logError ("Unable to add item: " +
                                               _this.object +
                                               " to editor panel",
                                               e);
-        
+
                     }
-                    
+
                 }
-                
+
             });
-            
+
         }
 
     }
-    
+
     public E getChapterItem ()
     {
-        
+
         // Damn compiler...
         return (E) this.object;
-        
+
     }
-    
+
     @Override
     public Point getShowAtPosition ()
     {
@@ -122,7 +125,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
         int y = 0;
 
         Point lastMousePosition = this.itemViewer.getLastMousePosition ();
-        
+
         int at = this.showAt;
 
         QTextEditor editor = this.itemViewer.getEditor ();
@@ -171,7 +174,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
             }
 
         }
-            
+
         this.object.setPosition (at);
 
         Rectangle r = null;
@@ -215,16 +218,16 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
         }
 
         y -= this.f.getPreferredSize ().height;
-  */      
+  */
         int xOffset = this.itemViewer.getIconColumnXOffset (this.object);
-            
+
         Point p = new Point (this.itemViewer.getIconColumn ().getWidth () - xOffset,
                              y);
-        
-        return p;        
-        
+
+        return p;
+
     }
-    
+
     @Override
     public JComponent getFocussedField ()
     {
@@ -249,11 +252,15 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
         if (this.mode == ChapterItemActionHandler.EDIT)
         {
 
-            return "Edit " + Environment.getObjectTypeName (this.object.getObjectType ());
+            return String.format (getUIString (chapteritems,edit,title),
+                                  Environment.getObjectTypeName (this.object.getObjectType ()));
+                                  //"Edit " + Environment.getObjectTypeName (this.object.getObjectType ());
 
         }
 
-        return "Add New " + Environment.getObjectTypeName (this.object.getObjectType ());
+        return String.format (getUIString (chapteritems,add,title),
+                              Environment.getObjectTypeName (this.object.getObjectType ()));
+        //"Add New " + Environment.getObjectTypeName (this.object.getObjectType ());
 
     }
 
@@ -261,9 +268,11 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
     public Set<FormItem> getFormItems (String      selectedText)
     {
 
-        this.descField = new MultiLineTextFormItem ("Description",
+        this.descField = new MultiLineTextFormItem (getUIString (chapteritems,labels,description,text),
+                                                    //"Description",
                                                     this.viewer,
-                                                    "Enter the description here...",
+                                                    getUIString (chapteritems,labels,description,tooltip),
+                                                    //"Enter the description here...",
                                                     5,
                                                     -1,
                                                     false,
@@ -276,19 +285,20 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
                                             this.getSaveAction ());
 
         this.addToChapter = new CheckboxFormItem (null,
-                                                  Environment.replaceObjectNames ("Add the description to the {Chapter}"));
-        
+                                                  getUIString (chapteritems,labels,adddesctochapter));
+                                                  //"Add the description to the {Chapter}"));
+
         boolean sel = true;
 
         if (this.viewer.hasTempOption ("addToChapter"))
         {
-            
+
             sel = this.viewer.isTempOption ("addToChapter");
 
         }
 
         this.addToChapter.setSelected (sel);
-    
+
         Set<FormItem> items = new LinkedHashSet ();
 
         items.add (this.descField);
@@ -306,7 +316,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
 
                 this.descField.setText (new StringWithMarkup (selectedText));
                 this.addToChapter.setSelected (false);
-                
+
             }
 
         } else
@@ -323,33 +333,34 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
     @Override
     public Set<String> getFormErrors ()
     {
-        
+
         Set<String> errs = new LinkedHashSet ();
 
         if (this.descField.getText () == null)
         {
 
-            errs.add ("Please enter a description.");
+            errs.add (getUIString (chapteritems,errors,nodescription));
+            //"Please enter a description.");
 
         }
-        
+
         return errs;
-        
+
     }
-    
+
     @Override
     public void handleCancel ()
     {
-             
+
         if (this.mode == ADD)
         {
-            
+
             this.itemViewer.removeItem (this.object);
-             
-        }             
-                
+
+        }
+
     }
-    
+
     @Override
     public boolean handleSave ()
     {
@@ -388,18 +399,18 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
                             (!d.trim ().equals (""))
                            )
                         {
-                    
+
                             String toAdd = d.trim () + "\n";
-    
+
                             // We need to append the text.
                             editor.insertText (this.object.getPosition (),
                                                toAdd);
-    
+
                             // Need to update the text position because it will have moved.
                             this.object.setTextPosition (editor.getDocument ().createPosition (this.object.getPosition () - toAdd.length () + 1));
 
                         }
-                            
+
                     }
 
                 }
@@ -407,19 +418,19 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
                 // See if we are adding at the end of the chapter.
                 if (editor.isPositionAtTextEnd (this.object.getPosition ()))
                 {
-                    
+
                     // Add a newline to the end of the chapter.
                     editor.insertText (this.object.getPosition (),
                                        "\n");
 
                     this.object.setTextPosition (editor.getDocument ().createPosition (this.object.getPosition () - 1));
-                    
+
                 }
-                
+
                 // Need to save the object first so the key is setup correctly.
                 this.viewer.saveObject (this.object,
-                                        true);                
-                
+                                        true);
+
                 if (this.object instanceof Scene)
                 {
 
@@ -437,46 +448,48 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
 
                     // Add the item to the chapter.
                     this.chapter.addChapterItem (this.object);
-                    
+
                 }
 
                 if (this.object instanceof OutlineItem)
                 {
-                    
+
                     Scene s = this.chapter.getLastScene (this.object.getPosition ());
-    
+
                     if (s != null)
                     {
-    
+
                         s.addOutlineItem ((OutlineItem) this.object);
-    
+
                     } else
                     {
-    
+
                         this.chapter.addChapterItem (this.object);
-    
+
                     }
-                    
+
                 }
-                                
+
                 // Force a save of the chapter.
                 this.viewer.saveObject (this.chapter,
                                         true);
-                                               
+
                 this.viewer.fireProjectEvent (this.object.getObjectType (),
                                               ProjectEvent.NEW,
-                                              this.object);                                               
+                                              this.object);
 
             } catch (Exception e)
             {
 
                 this.chapter.removeChapterItem (this.object);
-            
+
                 Environment.logError ("Unable to add new chapter item",
                                       e);
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to add new " + Environment.getObjectTypeName (this.object.getObjectType ()) + ".");
+                                          String.format (getUIString (chapteritems,add,actionerror),
+                                                         Environment.getObjectTypeName (this.object.getObjectType ())));
+                                                         //)"Unable to add new " + Environment.getObjectTypeName (this.object.getObjectType ()) + ".");
 
                 return false;
 
@@ -484,7 +497,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
 
         } else
         {
-        
+
             // Update.
             try
             {
@@ -495,7 +508,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
                 this.viewer.fireProjectEvent (this.object.getObjectType (),
                                               ProjectEvent.EDIT,
                                               this.object);
-                                               
+
             } catch (Exception e)
             {
 
@@ -504,7 +517,9 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
                                       e);
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to save " + Environment.getObjectTypeName (this.object.getObjectType ()).toLowerCase () + ".");
+                                          String.format (getUIString (chapteritems,edit,actionerror),
+                                                         Environment.getObjectTypeName (this.object.getObjectType ())));
+                                          //"Unable to save " + Environment.getObjectTypeName (this.object.getObjectType ()).toLowerCase () + ".");
 
                 return false;
 
@@ -514,7 +529,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
 
         // Reload the entire tree.
         this.viewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
-        
+
         editor.grabFocus ();
 
         return true;

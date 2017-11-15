@@ -5007,8 +5007,9 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
-            //XXX
-                                      "Unable to open web page: " + url);
+                                      String.format (getUIString (unabletoopenwebpage),
+                                                     url));
+                                      //"Unable to open web page: " + url);
 
             return;
 
@@ -5112,8 +5113,9 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
-            //XXX
-                                      "Unable to open: " + f);
+                                      String.format (getUIString (unabletoopenfile),
+                                                     f.getPath ()));
+                                      //"Unable to open: " + f);
 
             return;
 
@@ -5371,8 +5373,9 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
-            //XXX
-                                      "Unable to open web page: " + url);
+                                      String.format (getUIString (unabletoopenwebpage),
+                                                     url));
+                                      //"Unable to open web page: " + url);
 
         }
 
@@ -10454,18 +10457,18 @@ public class UIUtils
     public static void showAddNewObjectType (AbstractViewer viewer)
     {
 
-        UserConfigurableObjectType type = new UserConfigurableObjectType ();
+        UserConfigurableObjectType utype = new UserConfigurableObjectType ();
 
-        type.setObjectTypeName (getUIString (userobjects,type,_new,defaults,names,singular));
+        utype.setObjectTypeName (getUIString (userobjects,type,_new,defaults,names,singular));
         //"Widget");
-        type.setObjectTypeNamePlural (getUIString (userobjects,type,_new,defaults,names,plural));
+        utype.setObjectTypeNamePlural (getUIString (userobjects,type,_new,defaults,names,plural));
         //"Widgets");
-        type.setLayout (null);
-        type.setAssetObjectType (true);
-        type.setIcon24x24 (Environment.getIcon ("whats-new",
-                                                Constants.ICON_TITLE));
-        type.setIcon16x16 (Environment.getIcon ("whats-new",
-                                                Constants.ICON_SIDEBAR));
+        utype.setLayout (null);
+        utype.setAssetObjectType (true);
+        utype.setIcon24x24 (Environment.getIcon ("whats-new",
+                                                 Constants.ICON_TITLE));
+        utype.setIcon16x16 (Environment.getIcon ("whats-new",
+                                                 Constants.ICON_SIDEBAR));
 
         // Name
         ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
@@ -10473,7 +10476,7 @@ public class UIUtils
         nameF.setFormName (getUIString (userobjects,type,_new,defaults,fields,name));
         //"Name");
 
-        type.addConfigurableField (nameF);
+        utype.addConfigurableField (nameF);
 
         // Description
         ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
@@ -10482,10 +10485,10 @@ public class UIUtils
         cdescF.setFormName (getUIString (userobjects,type,_new,defaults,fields,description));
         //"Description");
 
-        type.addConfigurableField (cdescF);
+        utype.addConfigurableField (cdescF);
 
         Wizard w = UserConfigurableObjectTypeEdit.getAsWizard (viewer,
-                                                               type);
+                                                               utype);
 
         final QPopup p = UIUtils.createWizardPopup (getUIString (userobjects,type,_new,popup,title),
                                                     //"Add a new type of Object",
@@ -10517,13 +10520,13 @@ public class UIUtils
 
     }
 
-    public static void showObjectTypeEdit (UserConfigurableObjectType type,
+    public static void showObjectTypeEdit (UserConfigurableObjectType utype,
                                            AbstractViewer             viewer)
     {
 
         final QPopup p = UIUtils.createClosablePopup (String.format (getUIString (userobjects,type,edit,popup,title),
                                                                     //"Edit the %s information",
-                                                                     type.getObjectTypeName ()),
+                                                                     utype.getObjectTypeName ()),
                                                       Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                            Constants.ICON_POPUP),
                                                       null);
@@ -10534,7 +10537,7 @@ public class UIUtils
 
         JTextPane m = UIUtils.createHelpTextPane (String.format (getUIString (userobjects,type,edit,popup,text),
                                                                 //"Use this popup to add or edit the fields, layout and information for your %s.",
-                                                                 type.getObjectTypeNamePlural ()),
+                                                                 utype.getObjectTypeNamePlural ()),
                                                   viewer);
 
         m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
@@ -10546,12 +10549,12 @@ public class UIUtils
         b.add (Box.createVerticalStrut (5));
 
         b.add (UserConfigurableObjectTypeEdit.getAsTabs (viewer,
-                                                         type));
+                                                         utype));
 
-        JButton finish = new JButton (getUIString (userobjects,type,edit,popup,buttons,finish));
+        JButton finishb = new JButton (getUIString (userobjects,type,edit,popup,buttons,finish));
         //"Finish");
 
-        finish.addActionListener (new ActionAdapter ()
+        finishb.addActionListener (new ActionAdapter ()
         {
 
             public void actionPerformed (ActionEvent ev)
@@ -10563,7 +10566,7 @@ public class UIUtils
 
         });
 
-        JButton[] fbuts = new JButton[] { finish };
+        JButton[] fbuts = new JButton[] { finishb };
 
         JPanel bp = UIUtils.createButtonBar2 (fbuts,
                                               Component.CENTER_ALIGNMENT);
@@ -10592,8 +10595,7 @@ public class UIUtils
     {
 
         JButton b = UIUtils.createToolBarButton (Constants.TAG_ICON_NAME,
-                                                 String.format ("Click to add/remove tags for this %s",
-                                                                Environment.getObjectTypeName (obj)),
+                                                 null,
                                                  null,
                                                  new ActionListener ()
         {
@@ -10658,7 +10660,8 @@ public class UIUtils
                                                       e);
 
                                 UIUtils.showErrorMessage (viewer,
-                                                          "Unable to add/remove tag.");
+                                                          getUIString (tags,actions,apply,actionerror));
+                                                          //"Unable to add/remove tag.");
 
                                 return;
 
@@ -10681,7 +10684,8 @@ public class UIUtils
 
                 }
 
-                tagMenu.add (UIUtils.createMenuItem ("Add New Tag(s)",
+                tagMenu.add (UIUtils.createMenuItem (getUIString (tags,popupmenu,_new),
+                                                    //"Add New Tag(s)",
                                                     Constants.EDIT_ICON_NAME,
                                                     new ActionListener ()
                                                     {
@@ -10715,7 +10719,8 @@ public class UIUtils
                                         final AbstractProjectViewer viewer)
     {
 
-        JMenu tagMenu = new JMenu ("Tags");
+        JMenu tagMenu = new JMenu (getUIString (tags,popupmenu,title));
+        //"Tags");
 
         tagMenu.setIcon (Environment.getIcon (Constants.TAG_ICON_NAME,
                                               Constants.ICON_MENU));
@@ -10774,7 +10779,8 @@ public class UIUtils
                                               e);
 
                         UIUtils.showErrorMessage (viewer,
-                                                  "Unable to add/remove tag.");
+                                                  getUIString (tags,actions,apply,actionerror));
+                                                  //"Unable to add/remove tag.");
 
                         return;
 
@@ -10797,7 +10803,8 @@ public class UIUtils
 
         }
 
-        tagMenu.add (UIUtils.createMenuItem ("Add New Tag(s)",
+        tagMenu.add (UIUtils.createMenuItem (getUIString (tags,popupmenu,_new),
+                                            //"Add New Tag(s)",
                                             Constants.ADD_ICON_NAME,
                                             new ActionListener ()
                                             {
