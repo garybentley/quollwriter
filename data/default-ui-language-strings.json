@@ -475,7 +475,8 @@
         "find" : "Find",
         "options" : "Options",
         "name" : "Name",
-        "targets" : "Targets"
+        "targets" : "Targets",
+        "textproperties" : "text Properties"
     },
     "buttons" :
     {
@@ -1101,7 +1102,7 @@
         "print" : "Print",
         "stop" : "Stop",
         "findproblems" : "Find Problems",
-        "edittextproperties" : "Edit Text Properties",
+        "edittextproperties" : "Edit ${names.textproperties}",
         "clicktoview" : "Click to view",
         "clicktoclose" : "Click to close",
         "doubleclicktoview" : "Double click to view",
@@ -3219,6 +3220,11 @@
                 "edit" : "Edit the links"
             }
         },
+        "tree" :
+        {
+            "clicktohide" : "Click to hide the item tree",
+            "clicktoview" : "Click to link to other items"
+        },
         "nolinksedit" : "<i>No Links set, click to edit.</i>",
         ":comment.nolinksedit" : "This text is shown as a clickable link when there are no Links set for the object.  Clicking on the link will show the edit form.",
         "view" :
@@ -4809,6 +4815,10 @@
                     "chapterwordcount" : "${objectnames.singular.chapter} Word Count",
                     "readability" : "Readability"
                 }
+            },
+            "textproperties" :
+            {
+                "title" : "${names.textproperties}"
             },
             "wordcount" :
             {

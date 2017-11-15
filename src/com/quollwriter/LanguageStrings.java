@@ -255,6 +255,7 @@ public class LanguageStrings
     public static final String activetitle = "activetitle";
     public static final String headerpopupmenu = "headerpopupmenu";
     public static final String treepopupmenu = "treepopupmenu";
+    public static final String tree = "tree";
     public static final String view = "view";
     public static final String sort = "sort";
     public static final String _new = "new";
@@ -485,6 +486,7 @@ public class LanguageStrings
     public static final String status = "status";
     public static final String clicktoclose = "clicktoclose";
     public static final String clicktoview = "clicktoview";
+    public static final String clicktohide = "clicktohide";
     public static final String doubleclicktoview = "doubleclicktoview";
     public static final String readability = "readability";
     public static final String projectwords = "projectwords";
