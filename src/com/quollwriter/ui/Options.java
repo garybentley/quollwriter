@@ -60,6 +60,9 @@ import com.quollwriter.text.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class Options extends Box
 {
 
@@ -119,7 +122,8 @@ public class Options extends Box
 
         this.sectIds = new LinkedHashSet (new ArrayList ((List<Section>) Arrays.asList (sectIds)));
 
-        this.header = UIUtils.createHeader ("Options",
+        this.header = UIUtils.createHeader (getUIString (options,title),
+                                            //"Options",
                                             Constants.PANEL_TITLE,
                                             Constants.OPTIONS_ICON_NAME,
                                              null);
@@ -231,27 +235,7 @@ public class Options extends Box
                                item);
 
         }
-        /*
-        this.addProjectAndSnapshotsSection ();
 
-        this.addHowThingsLookSection ();
-
-        this.addWhatThingsAreCalledSection ();
-
-        this.addEditingChaptersSection ();
-
-        this.addEditorsSection ();
-
-        this.addItemsAndRulesSection ();
-
-        this.addWarmupsSection ();
-
-        this.addAchievementsSection ();
-
-        this.addProblemsSection ();
-
-        this.addBetasSection ();
-*/
         this.accordion.add (Box.createVerticalGlue ());
 
         this.accordion.setAllSectionsOpen (false);
@@ -464,14 +448,14 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        final JCheckBox showTips = new JCheckBox (Environment.replaceObjectNames ("Show useful tips"));
-        showTips.setOpaque (false);
+        final JCheckBox showTips = UIUtils.createCheckBox (getUIString (options,qwstart,labels,showtips));
+        //("Show useful tips"));
 
-		final JCheckBox lastCB = new JCheckBox (Environment.replaceObjectNames ("Open the last edited {project}"));
-		lastCB.setOpaque (false);
+		final JCheckBox lastCB = UIUtils.createCheckBox (getUIString (options,qwstart,labels,showlastedited));
+        // ("Open the last edited {project}"));
 
-		final JCheckBox showCB = new JCheckBox (Environment.replaceObjectNames ("Show the {Projects} window"));
-		showCB.setOpaque (false);
+		final JCheckBox showCB = UIUtils.createCheckBox (getUIString (options,qwstart,labels,showprojectswindow));
+        // ("Show the {Projects} window"));
 
         showTips.setSelected (UserProperties.getAsBoolean (Constants.SHOW_TIPS_PROPERTY_NAME));
 		lastCB.setSelected (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME));
@@ -557,9 +541,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("When {QW} starts",
+        return new SectionInfo (getUIString (options,qwstart,title),
+                                //"When {QW} starts",
                                 "start",
-                                "Want to see some tips when {QW} starts?  Or maybe open the {project} you last edited?  Look no further!",
+                                getUIString (options,qwstart,text),
+                                //"Want to see some tips when {QW} starts?  Or maybe open the {project} you last edited?  Look no further!",
                                 box);
 
     }
@@ -574,7 +560,8 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        final JCheckBox optinToBetas = UIUtils.createCheckBox ("Opt-in to beta versions (enables auto-send of errors to Quoll Writer support)");
+        final JCheckBox optinToBetas = UIUtils.createCheckBox (getUIString (options,betas,labels,optin));
+        //"Opt-in to beta versions (enables auto-send of errors to Quoll Writer support)");
         optinToBetas.setSelected (UserProperties.getAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME));
 
         optinToBetas.addActionListener (new ActionAdapter ()
@@ -587,8 +574,10 @@ public class Options extends Box
                 {
 
                     UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                         "About Betas",
-                                         "Quoll Writer betas are opt-in and are designed to elicit feedback from users.  They will be functionally complete and as bug free as possible.  However they won't be without issues, so please beware and report any problems you find.<br /><br />You can opt out at any time although this will not revert back to a previous version (that is potentially dangerous).<br /><br />Note: opting into betas will enable the <b>Send errors to Quoll Writer support</b> option, you can switch this off if you like to prevent errors being sent.");
+                                         getUIString (options,betas,about,title),
+                                         //"About Betas",
+                                         getUIString (options,betas,about,text));
+                                         //"Quoll Writer betas are opt-in and are designed to elicit feedback from users.  They will be functionally complete and as bug free as possible.  However they won't be without issues, so please beware and report any problems you find.<br /><br />You can opt out at any time although this will not revert back to a previous version (that is potentially dangerous).<br /><br />Note: opting into betas will enable the <b>Send errors to Quoll Writer support</b> option, you can switch this off if you like to prevent errors being sent.");
 
                     _this.sendErrorsToSupport.setSelected (true);
                     _this.updateUserProperty (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME,
@@ -610,9 +599,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("Beta versions",
+        return new SectionInfo (getUIString (options,betas,title),
+                                //"Beta versions",
                                 Constants.ABOUT_ICON_NAME,
-                                "Want to get ahead of the crowd?  Or maybe help improve Quoll Writer?  This section lets you opt-in to beta versions.  But be warned, betas aren't perfect.",
+                                getUIString (options,betas,text),
+                                //"Want to get ahead of the crowd?  Or maybe help improve Quoll Writer?  This section lets you opt-in to beta versions.  But be warned, betas aren't perfect.",
                                 box);
 
     }
@@ -627,7 +618,8 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        this.sendErrorsToSupport = UIUtils.createCheckBox ("Send errors to Quoll Writer support");
+        this.sendErrorsToSupport = UIUtils.createCheckBox (getUIString (options,errors,labels,send));
+        //"Send errors to Quoll Writer support");
         this.sendErrorsToSupport.setSelected (UserProperties.getAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME));
 
         this.sendErrorsToSupport.addActionListener (new ActionAdapter ()
@@ -649,9 +641,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("When something goes wrong",
+        return new SectionInfo (getUIString (options,errors,title),
+                                //"When something goes wrong",
                                 Constants.BUG_ICON_NAME,
-                                "Quoll Writer isn't perfect and it would be good to know when things cluck up.  If you open this section you'll find a single setting that will let you send errors back to the magical worker elfs at Quoll Writer Headquarters located in deepest, darkest suburban Australia.  Did you know that every error sent will prevent a Drop Bear attack.  It's a serious and very real threat to our native elves.",
+                                getUIString (options,errors,text),
+                                //"Quoll Writer isn't perfect and it would be good to know when things cluck up.  If you open this section you'll find a single setting that will let you send errors back to the magical worker elfs at Quoll Writer Headquarters located in deepest, darkest suburban Australia.  Did you know that every error sent will prevent a Drop Bear attack.  It's a serious and very real threat to our native elves.",
                                 box);
 
     }
@@ -659,16 +653,13 @@ public class Options extends Box
     private SectionInfo createAchievementsSection ()
     {
 
-        java.util.List<String> prefix = new ArrayList ();
-        prefix.add (LanguageStrings.options);
-        prefix.add (LanguageStrings.achievements);
-    
+        java.util.List<String> prefix = Arrays.asList (options,achievements);
+
         Box box = new Box (BoxLayout.Y_AXIS);
 
         final AchievementsManager man = Environment.getAchievementsManager ();
 
-        final JCheckBox achievementsOn = UIUtils.createCheckBox (Environment.getUIString (prefix,
-                                                                                          LanguageStrings.enable));
+        final JCheckBox achievementsOn = UIUtils.createCheckBox (getUIString (prefix,labels,enable));
                                                                  //"Enable achievements");
         achievementsOn.setSelected (man.isAchievementsEnabled ());
 
@@ -694,7 +685,7 @@ public class Options extends Box
                                                                                              //"Play a sound when an achievement is reached");
         achievementSounds.setSelected (man.isSoundEnabled ());
 
-        final JCheckBox fullScreenSoundsOn = Achievements.createAchievementsSoundEnabledInFullScreenCheckbox ();        
+        final JCheckBox fullScreenSoundsOn = Achievements.createAchievementsSoundEnabledInFullScreenCheckbox ();
                                                                                               //"Play the sound in full screen mode");
 
         achievementSounds.addActionListener (new ActionAdapter ()
@@ -741,12 +732,10 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo (Environment.getUIString (prefix,
-                                                         LanguageStrings.title),
+        return new SectionInfo (getUIString (prefix,title),
                                                          //"Achievements",
                                 Constants.ACHIEVEMENT_ICON_NAME,
-                                Environment.getUIString (prefix,
-                                                         LanguageStrings.text),
+                                getUIString (prefix,text),
                                 //"Are the achievements annoying you?  Use this section to switch them off and they will bug you no more you underachiever.",
                                 box);
 
@@ -767,7 +756,8 @@ public class Options extends Box
 
         JButton[] buts = new JButton[ (isAPV ? 3 : 2) ];
 
-        JButton b = new JButton (Environment.replaceObjectNames ("{Note} Types"));
+        JButton b = UIUtils.createButton (getUIString (objectnames,plural, Note.NOTE_TYPE_OBJECT_TYPE));
+        //"{Note} Types"));
 
         b.addActionListener (new ActionAdapter ()
         {
@@ -783,7 +773,8 @@ public class Options extends Box
 
         buts[0] = b;
 
-        b = new JButton ("Tags");
+        b = UIUtils.createButton (getUIString (objectnames,plural, Tag.OBJECT_TYPE));
+        //"Tags");
 
         b.addActionListener (new ActionAdapter ()
         {
@@ -802,7 +793,8 @@ public class Options extends Box
         if (isAPV)
         {
 
-            b = new JButton ("Problem Finder Rules");
+            b = UIUtils.createButton (getUIString (options,itemsandrules,labels,problemfinderrules));
+            //"Problem Finder Rules");
 
             b.addActionListener (new ActionAdapter ()
             {
@@ -830,9 +822,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("Manage Items & Rules",
+        return new SectionInfo (getUIString (options,itemsandrules,title),
+                                //"Manage Items & Rules",
                                 Constants.EDIT_ICON_NAME,
-                                "Set up the problem finder rules and manage the note and item types.  A dull description but it does exactly what it says on the tin, well screen.",
+                                getUIString (options,itemsandrules,text),
+                                //"Set up the problem finder rules and manage the note and item types.  A dull description but it does exactly what it says on the tin, well screen.",
                                 box);
 
     }
@@ -851,7 +845,8 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        final JCheckBox autoLogin = UIUtils.createCheckBox ("Automatically login/go online whenever Quoll Writer starts");
+        final JCheckBox autoLogin = UIUtils.createCheckBox (getUIString (options,editors,labels,autologin));
+        //"Automatically login/go online whenever Quoll Writer starts");
 
         autoLogin.setSelected (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME));
 
@@ -885,7 +880,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("My default status when I go online is");
+        c = this.createHelpText (getUIString (options,editors,labels,defaultstatus));
+        //"My default status when I go online is");
         this.setAsMainItem (c);
 
         box.add (c);
@@ -976,7 +972,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        final JCheckBox fullScreen = UIUtils.createCheckBox ("Set my status to <b>Busy</b> when I enter full screen mode");
+        final JCheckBox fullScreen = UIUtils.createCheckBox (getUIString (options,editors,labels,fullscreenbusystatus));
+        //"Set my status to <b>Busy</b> when I enter full screen mode");
 
         fullScreen.setSelected (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_SET_BUSY_ON_FULL_SCREEN_ENTERED_PROPERTY_NAME));
 
@@ -1072,7 +1069,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
         */
-        final JCheckBox logMessages = UIUtils.createCheckBox ("Log messages I send/receive (debug only)");
+        final JCheckBox logMessages = UIUtils.createCheckBox (getUIString (options,editors,labels,logmessages,text));
+        //"Log messages I send/receive (debug only)");
 
         logMessages.addItemListener (new ItemAdapter ()
         {
@@ -1091,14 +1089,17 @@ public class Options extends Box
 
         box.add (c);
 
-        c = this.createHelpText ("Save messages sent/received to a log file.  You should only check this box if Quoll Writer support asks you to.  Note: this value is not saved and must be activated everytime you run Quoll Writer.");
+        c = this.createHelpText (getUIString (options,editors,labels,logmessages,help));
+        //"Save messages sent/received to a log file.  You should only check this box if Quoll Writer support asks you to.  Note: this value is not saved and must be activated everytime you run Quoll Writer.");
         this.setAsSubItem (c);
 
         box.add (c);
 
-        return new SectionInfo ("{Editors} Service",
+        return new SectionInfo (getUIString (options,editors,title),
+                                //"{Editors} Service",
                                 Constants.EDITORS_ICON_NAME,
-                                "Options related to the Editors service and how you interact with your {contacts}.",
+                                getUIString (options,editors,text),
+                                //"Options related to the Editors service and how you interact with your {contacts}.",
                                 box);
 
     }
@@ -1116,15 +1117,16 @@ public class Options extends Box
         Box box = new Box (BoxLayout.Y_AXIS);
 
         Vector chapterA = new Vector ();
-        chapterA.add (Constants.MINS_5);
-        chapterA.add (Constants.MINS_10);
-        chapterA.add (Constants.MINS_20);
-        chapterA.add (Constants.MINS_30);
-        chapterA.add (Constants.HOUR_1);
+        chapterA.add (getUIString (times,mins5)); //Constants.MINS_5);
+        chapterA.add (getUIString (times,mins10)); //Constants.MINS_10);
+        chapterA.add (getUIString (times,mins20)); //Constants.MINS_20);
+        chapterA.add (getUIString (times,mins30)); //Constants.MINS_30);
+        chapterA.add (getUIString (times,hour1)); //Constants.HOUR_1);
 
         final JComboBox autosaveAmount = new JComboBox (chapterA);
 
-        final JCheckBox enableAutosave = new JCheckBox (Environment.replaceObjectNames ("Enable {Chapter} Auto-save"));
+        final JCheckBox enableAutosave = UIUtils.createCheckBox (getUIString (options,editingchapters,labels,autosave));
+        //"Enable {Chapter} Auto-save"));
         enableAutosave.setOpaque (false);
         enableAutosave.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -1138,7 +1140,40 @@ public class Options extends Box
         boolean autosaveEnabled = props.getPropertyAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME);
         enableAutosave.setSelected (autosaveEnabled);
 
-        autosaveAmount.setSelectedItem (props.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
+        long autosaveTime = Utils.getTimeAsMillis (props.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
+
+        int selInd = 0; // 5 mins
+
+        if (autosaveTime == (10 * Constants.MIN_IN_MILLIS))
+        {
+
+            selInd = 1;
+
+        }
+
+        if (autosaveTime == (20 * Constants.MIN_IN_MILLIS))
+        {
+
+            selInd = 2;
+
+        }
+
+        if (autosaveTime == (30 * Constants.MIN_IN_MILLIS))
+        {
+
+            selInd = 3;
+
+        }
+
+        if (autosaveTime == (60 * Constants.MIN_IN_MILLIS))
+        {
+
+            selInd = 4;
+
+        }
+
+        autosaveAmount.setSelectedIndex (selInd);
+        //props.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
         autosaveAmount.setEnabled (enableAutosave.isSelected ());
 
         enableAutosave.addItemListener (new ItemAdapter ()
@@ -1191,8 +1226,41 @@ public class Options extends Box
 
                 }
 
+                long time = 5 * Constants.MIN_IN_MILLIS;
+
+                int selInd = autosaveAmount.getSelectedIndex ();
+
+                if (selInd == 1)
+                {
+
+                    time = 10 * Constants.MIN_IN_MILLIS;
+
+                }
+
+                if (selInd == 2)
+                {
+
+                    time = 20 * Constants.MIN_IN_MILLIS;
+
+                }
+
+                if (selInd == 3)
+                {
+
+                    time = 30 * Constants.MIN_IN_MILLIS;
+
+                }
+
+                if (selInd == 4)
+                {
+
+                    time = 60 * Constants.MIN_IN_MILLIS;
+
+                }
+
                 _this.updateDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME,
-                                                    (String) autosaveAmount.getSelectedItem ());
+                                                    String.valueOf (time));
+                                                    //(String) autosaveAmount.getSelectedItem ());
 
                 // For all the ProjectViewers (where text is editable) update the auto save settings.
                 Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
@@ -1214,7 +1282,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("Auto-save every");
+        c = this.createHelpText (getUIString (options,editingchapters,labels,autosavewhen));
+        //"Auto-save every");
         this.setAsMainItem (c);
 
         box.add (c);
@@ -1226,12 +1295,14 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("Show an icon against a {chapter} in the {chapter} list when");
+        c = this.createHelpText (getUIString (options,editingchapters,labels,showicon));
+        //"Show an icon against a {chapter} in the {chapter} list when");
         this.setAsMainItem (c);
 
         box.add (c);
 
-        final JCheckBox showEditPos = new JCheckBox (Environment.replaceObjectNames ("it has an edit position"));
+        final JCheckBox showEditPos = UIUtils.createCheckBox (getUIString (options,editingchapters,labels,haseditposition));
+        //"it has an edit position"));
         showEditPos.setSelected (UserProperties.getAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME));
         showEditPos.setOpaque (false);
         showEditPos.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1267,7 +1338,8 @@ public class Options extends Box
 
         box.add (c);
 
-        final JCheckBox showEdited = new JCheckBox (Environment.replaceObjectNames ("it is set as edit complete"));
+        final JCheckBox showEdited = UIUtils.createCheckBox (getUIString (options,editingchapters,labels,editcomplete));
+        //new JCheckBox (Environment.replaceObjectNames ("it is set as edit complete"));
         showEdited.setSelected (UserProperties.getAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME));
         showEdited.setOpaque (false);
         showEdited.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1305,7 +1377,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        final JComponent label = UIUtils.createClickableLabel ("View an example",
+        final JComponent label = UIUtils.createClickableLabel (getUIString (actions,viewexample),
+                                                                //"View an example",
                                                                null);
 
         label.addMouseListener (new MouseEventHandler ()
@@ -1378,7 +1451,8 @@ public class Options extends Box
                                                                              null,
                                                                              false)));
 
-                    popup = UIUtils.createClosablePopup ("Example",
+                    popup = UIUtils.createClosablePopup (getUIString (names,example),
+                                                        //"Example",
                                                          null,
                                                          null);
 
@@ -1407,7 +1481,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        final JCheckBox showEditMarker = new JCheckBox (Environment.replaceObjectNames ("Show the edit position in a {chapter}"));
+        final JCheckBox showEditMarker = UIUtils.createCheckBox (getUIString (options,editingchapters,labels,showeditposition));
+        //"Show the edit position in a {chapter}"));
         showEditMarker.setSelected (UserProperties.getAsBoolean (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME));
         showEditMarker.setOpaque (false);
         showEditMarker.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1466,7 +1541,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        c = this.createHelpText ("Use the following color for the edit position indicator");
+        c = this.createHelpText (getUIString (options,editingchapters,labels,seteditpositioncolor,text));
+        //"Use the following color for the edit position indicator");
         this.setAsSubItem (c);
 
         box.add (c);
@@ -1483,7 +1559,8 @@ public class Options extends Box
             public void mouseReleased (MouseEvent ev)
             {
 
-                QPopup popup = QColorChooser.getColorChooserPopup ("Select the edit indicator color",
+                QPopup popup = QColorChooser.getColorChooserPopup (getUIString (options,editingchapters,labels,seteditpositioncolor, LanguageStrings.popup,title),
+                                                                    //"Select the edit indicator color",
                                                                    col,
                                                                    Constants.EDIT_MARKER_COLOR_PROPERTY_NAME,
                                                                    new ChangeAdapter ()
@@ -1567,7 +1644,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        final JComponent label2 = UIUtils.createClickableLabel ("View an example",
+        final JComponent label2 = UIUtils.createClickableLabel (getUIString (actions,viewexample),
+                                                                //"View an example",
                                                                 null);
 
         label2.addMouseListener (new MouseEventHandler ()
@@ -1582,7 +1660,8 @@ public class Options extends Box
                 if (popup == null)
                 {
 
-                    popup = UIUtils.createClosablePopup ("Example",
+                    popup = UIUtils.createClosablePopup (getUIString (names,example),
+                                                        //"Example",
                                                          null,
                                                          null);
 
@@ -1609,7 +1688,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        final JCheckBox markEdited = new JCheckBox (Environment.replaceObjectNames ("Set a {chapter} as edit complete when the edit position is at the end of the {chapter}"));
+        final JCheckBox markEdited = UIUtils.createCheckBox (getUIString (options,editingchapters,labels,seteditcompleteatchapterend));
+        //"Set a {chapter} as edit complete when the edit position is at the end of the {chapter}"));
         markEdited.setOpaque (false);
         markEdited.setSelected (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME));
         markEdited.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1686,7 +1766,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        final JCheckBox compressMenu = new JCheckBox (Environment.replaceObjectNames ("Compress the {chapter} right click menu"));
+        final JCheckBox compressMenu = UIUtils.createCheckBox (getUIString (options,editingchapters,labels,compressrightclickmenu));
+        //"Compress the {chapter} right click menu"));
         compressMenu.setOpaque (false);
         compressMenu.setSelected (UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME));
         compressMenu.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1711,7 +1792,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        final JLabel label3 = UIUtils.createClickableLabel ("View an example",
+        final JLabel label3 = UIUtils.createClickableLabel (getUIString (actions,viewexample),
+                                                            //"View an example",
                                                             null);
 
         label3.addMouseListener (new MouseEventHandler ()
@@ -1738,7 +1820,8 @@ public class Options extends Box
                 if (popup == null)
                 {
 
-                    popup = UIUtils.createClosablePopup ("Example",
+                    popup = UIUtils.createClosablePopup (getUIString (names,example),
+                                                        //"Example",
                                                          null,
                                                          null);
 
@@ -1768,12 +1851,14 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("Use the following language for the spellchecker");
+        c = this.createHelpText (getUIString (options,editingchapters,labels,setspellcheckerlanguage));
+        //"Use the following language for the spellchecker");
         this.setAsMainItem (c);
 
         box.add (c);
 
-        final JComponent downloadFiles = UIUtils.createClickableLabel ("Download the language files",
+        final JComponent downloadFiles = UIUtils.createClickableLabel (getUIString (options,editingchapters,labels,downloadlanguagefiles),
+                                                                        //"Download the language files",
                                                                        null);
 
         if (this.viewer instanceof AbstractProjectViewer)
@@ -1798,7 +1883,8 @@ public class Options extends Box
 
         }
 
-        final JCheckBox defLang = new JCheckBox (Environment.replaceObjectNames ("Set as default language"));
+        final JCheckBox defLang = UIUtils.createCheckBox (getUIString (options,editingchapters,labels,setasdefaultlanguage));
+        //"Set as default language"));
 
         final JComboBox spellcheckLang = new JComboBox ();
 
@@ -1963,7 +2049,8 @@ public class Options extends Box
                                                            public void actionPerformed (ActionEvent ev)
                                                            {
 
-                                                               _this.viewer.addNotification (String.format ("The language files for <b>%s</b> have been downloaded and the project language set.",
+                                                               _this.viewer.addNotification (String.format (getUIString (options,editingchapters,downloaddictionaryfiles,notification,text),
+                                                                                            //"The language files for <b>%s</b> have been downloaded and the project language set.",
                                                                                                             lang),
                                                                                              Constants.INFO_ICON_NAME,
                                                                                              30);
@@ -2024,7 +2111,8 @@ public class Options extends Box
                 {
 
                     UIUtils.showMessage (_this.viewer,
-                                         "Please note: when changing the spell check language to something other<br />than English the following features will be disabled:<ul><li>Synonym lookups</li><li>The Problem Finder</li><li>Readability Indices</li></ul>");
+                                         getUIString (options,editingchapters,labels,nonenglishwarning));
+                                         //"Please note: when changing the spell check language to something other<br />than English the following features will be disabled:<ul><li>Synonym lookups</li><li>The Problem Finder</li><li>Readability Indices</li></ul>");
 
                 }
 
@@ -2039,14 +2127,21 @@ public class Options extends Box
 
                         downloadFiles.setVisible (true);
 
+                        java.util.List<String> prefix = Arrays.asList (options,editingchapters,downloaddictionaryfiles,popup);
+
                         UIUtils.createQuestionPopup (_this.viewer,
-                                                     "Download dictionary files?",
+                                                     getUIString (prefix,title),
+                                                    //"Download dictionary files?",
                                                      Constants.DOWNLOAD_ICON_NAME,
-                                                     "The dictionary files for <b>" +
-                                                     lang +
-                                                     "</b> need to be downloaded from the Quoll Writer server.<br /><br />Would you like to download them now?",
-                                                     "Yes, download them",
-                                                     null,
+                                                     String.format (getUIString (prefix,text),
+                                                                    lang),
+                                                     //"The dictionary files for <b>" +
+                                                     //lang +
+                                                     //"</b> need to be downloaded from the Quoll Writer server.<br /><br />Would you like to download them now?",
+                                                     getUIString (prefix,buttons,confirm),
+                                                    //"Yes, download them",
+                                                     getUIString (prefix,buttons,cancel),
+                                                    //null,
                                                      new ActionListener ()
                                                      {
 
@@ -2085,7 +2180,8 @@ public class Options extends Box
                                           e);
 
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to check for dictionary files, please contact Quoll Writer support.");
+                                              getUIString (options,editingchapters,downloaddictionaryfiles,actionerror));
+                                              //"Unable to check for dictionary files, please contact Quoll Writer support.");
 
                     return;
 
@@ -2143,7 +2239,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        JButton b = new JButton ("Manage your Personal Dictionary");
+        JButton b = UIUtils.createButton (getUIString (options,editingchapters,labels,managedictionary));
+        //"Manage your Personal Dictionary");
 
         b.addActionListener (new ActionAdapter ()
         {
@@ -2162,9 +2259,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("Editing {Chapters}",
+        return new SectionInfo (getUIString (options,editingchapters,title),
+                                //"Editing {Chapters}",
                                 Chapter.OBJECT_TYPE,
-                                "Everything to do with editing {chapters}.  Manage your personal dictionary, the language for the project, set up auto save and how edit positions behave.  All this and more for the low, low price of a few clicks.",
+                                getUIString (options,editingchapters,text),
+                                //"Everything to do with editing {chapters}.  Manage your personal dictionary, the language for the project, set up auto save and how edit positions behave.  All this and more for the low, low price of a few clicks.",
                                 box);
 
     }
@@ -2183,9 +2282,9 @@ public class Options extends Box
             @Override
             public void actionPerformed (ActionEvent ev)
             {
- 
+
                 _this.viewer.showObjectTypeNameChanger ();
- 
+
             }
 
        });
@@ -3039,14 +3138,14 @@ public class Options extends Box
         this.setAsSubItem (c);
 
         box.add (c);
-                
+
         final JCheckBox highlightSPDivs = UIUtils.createCheckBox ("Highlight dividers when I move the mouse over them");
         highlightSPDivs.setToolTipText ("This is for dividers that allow you to slide panels left and right or up and down.  It allows you to more easily see the divider.");
 
         boolean highlight = UserProperties.getAsBoolean (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME);
 
         highlightSPDivs.setSelected (highlight);
-        
+
         highlightSPDivs.addItemListener (new ItemAdapter ()
         {
 
@@ -3058,15 +3157,15 @@ public class Options extends Box
 
             }
 
-        });        
-        
+        });
+
         box.add (Box.createVerticalStrut (10));
-        
+
         c = this.createWrapper (highlightSPDivs);
         this.setAsMainItem (c);
 
         box.add (c);
-        
+
         return new SectionInfo ("How things look and sound",
                                 "eye",
                                 "Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",
@@ -3083,7 +3182,7 @@ public class Options extends Box
             return null;
 
         }
-  */  
+  */
         final Options _this = this;
 
         Box box = new Box (BoxLayout.Y_AXIS);
@@ -3092,7 +3191,7 @@ public class Options extends Box
         this.setAsMainItem (c);
 
         box.add (c);
-        
+
         final JRadioButton rbAssetInPopup = UIUtils.createRadioButton ("Always use a Popup");
         rbAssetInPopup.setToolTipText ("If the Asset has more than just a name and description field then a link will be shown to add the Asset, and thus see all the fields, in a tab instead.");
         final JRadioButton rbAssetTryPopup = UIUtils.createRadioButton ("Use a Popup if possible");
@@ -3103,11 +3202,11 @@ public class Options extends Box
 
         if (addAsset == null)
         {
-            
+
             addAsset = "popup";
-            
+
         }
-        
+
         rbAssetInPopup.setSelected (addAsset.equals ("popup"));
         rbAssetTryPopup.setSelected (addAsset.equals ("trypopup"));
         rbAssetInTab.setSelected (addAsset.equals ("tab"));
@@ -3116,7 +3215,7 @@ public class Options extends Box
         g.add (rbAssetInPopup);
         g.add (rbAssetTryPopup);
         g.add (rbAssetInTab);
-        
+
         rbAssetInPopup.addItemListener (new ItemAdapter ()
         {
 
@@ -3128,8 +3227,8 @@ public class Options extends Box
 
             }
 
-        });        
-        
+        });
+
         rbAssetTryPopup.addItemListener (new ItemAdapter ()
         {
 
@@ -3141,7 +3240,7 @@ public class Options extends Box
 
             }
 
-        });        
+        });
 
         rbAssetInTab.addItemListener (new ItemAdapter ()
         {
@@ -3154,7 +3253,7 @@ public class Options extends Box
 
             }
 
-        });        
+        });
 
         c = this.createWrapper (rbAssetInPopup);
         this.setAsSubItem (c);
@@ -3164,35 +3263,35 @@ public class Options extends Box
         c = this.createWrapper (rbAssetTryPopup);
         this.setAsSubItem (c);
 
-        box.add (c);                
+        box.add (c);
 
         c = this.createWrapper (rbAssetInTab);
         this.setAsSubItem (c);
 
-        box.add (c);                
-        
+        box.add (c);
+
         box.add (Box.createVerticalStrut (15));
 
         c = this.createHelpText ("Edit the Asset configuration (Layout, Fields, Name, Icon etc)");
         this.setAsMainItem (c);
 
         box.add (c);
-        
+
         Vector v = new Vector ();
-        
+
         for (UserConfigurableObjectType t : Environment.getAssetUserConfigurableObjectTypes (true))
         {
-            
+
             v.add (t);
-            
+
         }
-        
+
         final JComboBox assetTypes = new JComboBox (v);
         assetTypes.setEditable (false);
 
         assetTypes.setRenderer (new DefaultListCellRenderer ()
         {
-           
+
             @Override
             public Component getListCellRendererComponent (JList list,
                                                            Object value,
@@ -3200,32 +3299,32 @@ public class Options extends Box
                                                            boolean isSelected,
                                                            boolean cellHasFocus)
             {
-                
+
                 super.getListCellRendererComponent (list,
                                                     value,
                                                     index,
                                                     isSelected,
                                                     cellHasFocus);
-                
+
                 UserConfigurableObjectType t = (UserConfigurableObjectType) value;
-                
+
                 this.setText (t.getObjectTypeNamePlural ());
                 this.setIcon (t.getIcon16x16 ());
                 this.setBorder (UIUtils.createPadding (3, 3, 3, 3));
-                
+
                 return this;
-                
+
             }
-            
+
         });
-        
+
         assetTypes.setMaximumSize (assetTypes.getPreferredSize ());
-        
+
         Box bb = new Box (BoxLayout.X_AXIS);
-        
+
         bb.add (assetTypes);
         bb.add (Box.createHorizontalStrut (5));
-        
+
         JButton editType = UIUtils.createButton ("Edit",
                                                  new ActionListener ()
         {
@@ -3235,24 +3334,25 @@ public class Options extends Box
             {
 
                 UserConfigurableObjectType t = (UserConfigurableObjectType) assetTypes.getSelectedItem ();
-                
+
                 UIUtils.showObjectTypeEdit (t,
                                             _this.viewer);
 
             }
 
         });
-        
+
         bb.add (editType);
         bb.add (Box.createHorizontalGlue ());
-        
+
         c = this.createWrapper (bb);
         this.setAsSubItem (c);
-        
+
         box.add (c);
-        
+
         box.add (Box.createVerticalStrut (15));
-        
+
+/*
         JButton tags = new JButton ("Manage the Tags");
 
         tags.addActionListener (new ActionAdapter ()
@@ -3266,6 +3366,7 @@ public class Options extends Box
             }
 
         });
+*/
         JButton addType = new JButton ("Add Type");
 
         addType.addActionListener (new ActionAdapter ()
@@ -3280,7 +3381,7 @@ public class Options extends Box
 
         });
 
-        JButton buts[] = new JButton[] { tags, addType };
+        JButton buts[] = new JButton[] { addType };
 
         JPanel bp = UIUtils.createButtonBar2 (buts,
                                               Component.LEFT_ALIGNMENT);
@@ -3291,64 +3392,15 @@ public class Options extends Box
         //c = this.createWrapper (mb);
         this.setAsMainItem (c);
 
-        box.add (c);        
-        
-        /*
-        final JRadioButton rbAssetInPopup = UIUtils.createRadioButton ("A Popup");
-        final JRadioButton rbAssetInTab = UIUtils.createRadioButton ("Their own tab");
-
-        boolean editAssetInPopup = UserProperties.getAsBoolean (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME);
-
-        rbAssetInPopup.setSelected (editAssetInPopup);
-        rbAssetInTab.setSelected (!editAssetInPopup);
-
-        g = new ButtonGroup ();
-        g.add (rbAssetInPopup);
-        g.add (rbAssetInTab);
-        
-        rbAssetInPopup.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
-                                    true);
-
-            }
-
-        });        
-        
-        rbAssetInTab.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
-                                    false);
-
-            }
-
-        });        
-
-        c = this.createWrapper (rbAssetInPopup);
-        this.setAsSubItem (c);
-
         box.add (c);
 
-        c = this.createWrapper (rbAssetInTab);
-        this.setAsSubItem (c);
-
-        box.add (c);        
-        */
-        return new SectionInfo ("Assets & Tags",
+        return new SectionInfo ("Assets",
                                 Constants.ASSETS_ICON_NAME,
                                 "Need to add another field to an asset?  Manage the tags?  Change the names of things, change the icons?  This section has you covered, you can also right click on the section header in the sidebar to do this stuff as well.",
                                 box);
-        
+
     }
-    
+
     private SectionInfo createProjectSection ()
     {
 
@@ -3422,22 +3474,76 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (15));
 
         Vector backupsA = new Vector ();
-        backupsA.add (Constants.HOURS_12);
-        backupsA.add (Constants.HOURS_24);
-        backupsA.add (Constants.DAYS_2);
-        backupsA.add (Constants.DAYS_5);
-        backupsA.add (Constants.WEEK_1);
+        backupsA.add (getUIString (times,hours12)); //Constants.HOURS_12);
+        backupsA.add (getUIString (times,hours24)); //Constants.HOURS_24);
+        backupsA.add (getUIString (times,days2)); //Constants.DAYS_2);
+        backupsA.add (getUIString (times,days5)); //Constants.DAYS_5);
+        backupsA.add (getUIString (times,week1)); //Constants.WEEK_1);
 
         final JComboBox backupsAmount = new JComboBox (backupsA);
 
         Vector vals = new Vector ();
-        vals.add (Constants.COUNT_10);
-        vals.add (Constants.COUNT_20);
-        vals.add (Constants.COUNT_50);
-        vals.add (Constants.COUNT_ALL);
+        vals.add (Environment.formatNumber (10)); //Constants.COUNT_10);
+        vals.add (Environment.formatNumber (20)); //Constants.COUNT_20);
+        vals.add (Environment.formatNumber (50)); //Constants.COUNT_50);
+        vals.add ("All"); //Constants.COUNT_ALL);
 
         final JComboBox backupsCount = new JComboBox (vals);
-        backupsCount.setSelectedItem (proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME));
+
+        int count = -1;
+
+        String backupsKeep = proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME);
+
+        // Pre 2.6.5
+        if ((backupsKeep != null)
+            &&
+            (backupsKeep.equals ("All"))
+           )
+        {
+
+            try
+            {
+
+                count = Integer.parseInt (backupsKeep);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to convert property: " +
+                                      Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME +
+                                      " with value: " +
+                                      backupsKeep +
+                                      " to an int.",
+                                      e);
+
+            }
+
+        }
+
+        int selInd = 3;
+
+        if (count == 10)
+        {
+
+            selInd = 0;
+
+        }
+
+        if (count == 20)
+        {
+
+            selInd = 1;
+
+        }
+
+        if (count == 50)
+        {
+
+            selInd = 2;
+
+        }
+
+        backupsCount.setSelectedIndex (selInd);
+        //proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME));
 
         backupsCount.addItemListener (new ItemAdapter ()
         {
@@ -3452,22 +3558,54 @@ public class Options extends Box
 
                 }
 
-                _this.updateDefaultProjectProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME,
-                                                    (String) backupsCount.getSelectedItem ());
+                int selInd = backupsCount.getSelectedIndex ();
 
-                try
+                int count = 10;
+
+                if (selInd == 1)
                 {
 
-                    AbstractProjectViewer pv = (AbstractProjectViewer) _this.viewer;
+                    count = 20;
 
-                    pv.getObjectManager ().pruneBackups (pv.getProject (),
-                                                         Utils.getCountAsInt ((String) backupsCount.getSelectedItem ()));
+                }
 
-                } catch (Exception e) {
+                if (selInd == 2)
+                {
 
-                    Environment.logError ("Unable to prune backups for project: " +
-                                          proj,
-                                          e);
+                    count = 50;
+
+                }
+
+                if (selInd == 3)
+                {
+
+                    count = -1;
+
+                }
+
+                _this.updateDefaultProjectProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME,
+                                                    String.valueOf (count));
+                                                    //(String) backupsCount.getSelectedItem ());
+
+                if (count > -1)
+                {
+
+                    try
+                    {
+
+                        AbstractProjectViewer pv = (AbstractProjectViewer) _this.viewer;
+
+                        pv.getObjectManager ().pruneBackups (pv.getProject (),
+                                                             count);
+                                                             //Utils.getCountAsInt ((String) backupsCount.getSelectedItem ()));
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to prune backups for project: " +
+                                              proj,
+                                              e);
+
+                    }
 
                 }
 
@@ -3488,7 +3626,40 @@ public class Options extends Box
         boolean backupsEnabled = proj.getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
         enableBackups.setSelected (backupsEnabled);
 
-        backupsAmount.setSelectedItem (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
+        long backupsTime = Utils.getTimeAsMillis (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
+
+        int btInd = 0; // 12 hours
+
+        if (backupsTime == (24 * Constants.HOUR_IN_MILLIS))
+        {
+
+            btInd = 1;
+
+        }
+
+        if (backupsTime == (2 * Constants.DAY_IN_MILLIS))
+        {
+
+            btInd = 2;
+
+        }
+
+        if (backupsTime == (5 * Constants.DAY_IN_MILLIS))
+        {
+
+            btInd = 3;
+
+        }
+
+        if (backupsTime == (7 * Constants.DAY_IN_MILLIS))
+        {
+
+            btInd = 4;
+
+        }
+
+        backupsAmount.setSelectedIndex (btInd);
+        // (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
         backupsAmount.setEnabled (backupsEnabled);
 
         backupsAmount.addItemListener (new ItemAdapter ()
@@ -3504,8 +3675,47 @@ public class Options extends Box
 
                 }
 
+                int selInd = backupsAmount.getSelectedIndex ();
+
+                long time = 0;
+
+                if (selInd == 0)
+                {
+
+                    time = 12 * Constants.HOUR_IN_MILLIS;
+
+                }
+
+                if (selInd == 1)
+                {
+
+                    time = 24 * Constants.HOUR_IN_MILLIS;
+
+                }
+
+                if (selInd == 2)
+                {
+
+                    time = 2 * Constants.DAY_IN_MILLIS;
+
+                }
+
+                if (selInd == 3)
+                {
+
+                    time = 5 * Constants.DAY_IN_MILLIS;
+
+                }
+
+                if (selInd == 4)
+                {
+
+                    time = 7 * Constants.DAY_IN_MILLIS;
+
+                }
+
                 _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME,
-                                                    (String) backupsAmount.getSelectedItem ());
+                                                    String.valueOf (time));
 
             }
 

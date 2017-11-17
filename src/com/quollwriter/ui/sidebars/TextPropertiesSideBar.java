@@ -197,7 +197,8 @@ public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer
         if (this.viewer.isInFullScreen ())
         {
 
-            this.setTitle ("Full Screen Properties");
+            this.setTitle (getUIString (project,sidebar,textproperties,fullscreentitle));
+            //"Full Screen Properties");
 
             UserProperties.removeListener (this.props);
 

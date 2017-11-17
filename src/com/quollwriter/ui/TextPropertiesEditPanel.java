@@ -26,6 +26,9 @@ import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.TextProperties;
 import com.quollwriter.ui.components.QTextEditor;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 {
 
@@ -345,7 +348,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         this.sizes = UIUtils.getFontSizesComboBox (this.textProps.getFontSize ());
 
-        this.sizes.setToolTipText ("Enter a value to set a size that is not already in the list");
+        this.sizes.setToolTipText (getUIString (project,sidebar,textproperties,fontsize,tooltip));
+        //"Enter a value to set a size that is not already in the list");
 
         this.sizes.addActionListener (new ActionAdapter ()
         {
@@ -379,7 +383,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         });
 
-        this.addItem ("Size",
+        this.addItem (getUIString (project,sidebar,textproperties,fontsize,text),
+                        //"Size",
                       this.sizes,
                       layout);
 
@@ -426,13 +431,15 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         });
 
-        this.addItem ("Alignment",
+        this.addItem (getUIString (project,sidebar,textproperties,alignment,text),
+                    //"Alignment",
                       this.align,
                       layout);
 
         this.line = UIUtils.getLineSpacingComboBox (this.textProps.getLineSpacing ());
 
-        this.line.setToolTipText ("Enter a value to set a spacing that is not already in the list");
+        this.line.setToolTipText (getUIString (project,sidebar,textproperties,linespacing,tooltip));
+        //"Enter a value to set a spacing that is not already in the list");
 
         this.line.addActionListener (new ActionAdapter ()
         {
@@ -466,7 +473,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         });
 
-        this.addItem ("Line Spacing",
+        this.addItem (getUIString (project,sidebar,textproperties,linespacing,text),
+                    //"Line Spacing",
                       this.line,
                       layout);
 
@@ -474,7 +482,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                                        0,
                                        TextPropertiesEditPanel.MAX_TEXT_BORDER_WIDTH,
                                        this.textProps.getTextBorder ());
-        this.textBorder.setToolTipText ("Drag to change the size of the border between the edge of the writing area and the text");
+        this.textBorder.setToolTipText (getUIString (project,sidebar,textproperties,textborder,tooltip));
+        //"Drag to change the size of the border between the edge of the writing area and the text");
         this.textBorder.addChangeListener (new ChangeAdapter ()
         {
 
@@ -500,11 +509,13 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
         textBorder.setOpaque (false);
         textBorder.setMaximumSize (new Dimension (150, 20));
 
-        this.addItem ("Text Border Width",
+        this.addItem (getUIString (project,sidebar,textproperties,textborder,text),
+                    //"Text Border Width",
                       textBorder,
                       layout);
 
-        this.indent = new JCheckBox ("<html>Indent the first line of each paragraph</html>");
+        this.indent = UIUtils.createCheckBox (getUIString (project,sidebar,textproperties,indentfirstline,text));
+        //"<html>Indent the first line of each paragraph</html>");
         this.indent.setVerticalTextPosition (SwingConstants.TOP);
         this.indent.setOpaque (false);
         this.indent.setSelected (this.textProps.getFirstLineIndent ());
@@ -535,7 +546,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                       this.indent,
                       layout);
 
-        this.highlightWritingLine = new JCheckBox ("Highlight the writing line");
+        this.highlightWritingLine = UIUtils.createCheckBox (getUIString (project,sidebar,textproperties,highlightwritingline,text));
+        //"Highlight the writing line");
         this.highlightWritingLine.setOpaque (false);
         this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
 
@@ -577,7 +589,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                 Color writingLineColor = _this.textProps.getWritingLineColor ();
 
-                QPopup popup = QColorChooser.getColorChooserPopup ("Select the highlight line color",
+                QPopup popup = QColorChooser.getColorChooserPopup (getUIString (project,sidebar,textproperties,highlightlinecolor, LanguageStrings.popup,title),
+                                                                    //"Select the highlight line color",
                                                                 writingLineColor,
                                                                 Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
                                                                 new ChangeAdapter ()
@@ -617,7 +630,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         });
 
-        this.addItem ("Highlight line",
+        this.addItem (getUIString (project,sidebar,textproperties,highlightlinecolor,text),
+                    //"Highlight line",
                       this.writingLineHighlightColorSwatch,
                       layout);
 
@@ -637,7 +651,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                     Color textcolor = _this.textProps.getTextColor ();
 
-                    QPopup popup = QColorChooser.getColorChooserPopup ("Select the text color",
+                    QPopup popup = QColorChooser.getColorChooserPopup (getUIString (project,sidebar,textproperties, LanguageStrings.textcolor, LanguageStrings.popup,title),
+                                                                        //"Select the text color",
                                                                     textcolor,
                                                                     Constants.EDITOR_FONT_COLOR_PROPERTY_NAME,
                                                                     new ChangeAdapter ()
@@ -672,7 +687,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
             });
 
-            this.addItem ("Text",
+            this.addItem (getUIString (project,sidebar,textproperties,textcolor,text),
+                        //"Text",
                           this.textcolorSwatch,
                           layout);
 
@@ -684,7 +700,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                     Color bgcolor = _this.textProps.getBackgroundColor ();
 
-                    QPopup popup = QColorChooser.getColorChooserPopup ("Select the background color",
+                    QPopup popup = QColorChooser.getColorChooserPopup (getUIString (project,sidebar,textproperties, LanguageStrings.bgcolor, LanguageStrings.popup,title),
+                                                                        //"Select the background color",
                                                                     bgcolor,
                                                                     Constants.EDITOR_BGCOLOR_PROPERTY_NAME,
                                                                     new ChangeAdapter ()
@@ -725,14 +742,17 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
             });
 
-            this.addItem ("Background",
+            this.addItem (getUIString (project,sidebar,textproperties,bgcolor,text),
+                            //"Background",
                           this.bgcolorSwatch,
                           layout);
 
-            final JLabel reset = UIUtils.createClickableLabel ("Reset to defaults",
+            final JLabel reset = UIUtils.createClickableLabel (getUIString (project,sidebar,textproperties, LanguageStrings.reset,text),
+                                                                //"Reset to defaults",
                                                                null);
 
-            reset.setToolTipText ("Click to reset the text properties to their default values");
+            reset.setToolTipText (getUIString (project,sidebar,textproperties, LanguageStrings.reset,tooltip));
+            //"Click to reset the text properties to their default values");
 
             reset.addMouseListener (new MouseEventHandler ()
             {

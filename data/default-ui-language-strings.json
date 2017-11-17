@@ -432,10 +432,16 @@
     "times" :
     {
         "unlimited" : "Unlimited",
+        "mins5" : "5 minutes",
         "mins10" : "10 minutes",
         "mins20" : "20 minutes",
         "mins30" : "30 minutes",
         "hour1" : "1 hour",
+        "hours12" : "12 hours",
+        "hours24" : "24 hours",
+        "days2" : "2 days",
+        "days5" : "5 days",
+        "week1" : "1 week",
         "thisweek" : "This week",
         "lastweek" : "Last week",
         "thismonth" : "This month",
@@ -476,7 +482,9 @@
         "options" : "Options",
         "name" : "Name",
         "targets" : "Targets",
-        "textproperties" : "text Properties"
+        "textproperties" : "text Properties",
+        "editorsservice" : "${objectnames.plural.editor} Service",
+        "example" : "Example"
     },
     "buttons" :
     {
@@ -1109,7 +1117,9 @@
         "showfolder" : "Show Folder",
         "managebackups" : "Manage ${objectnames.plural.backup}",
         "createbackup" : "Create a ${objectnames.singular.backup}",
-        "selectbackground" : "Select a background image/color"
+        "selectbackground" : "Select a background image/color",
+        "viewexample" : "View an example",
+        "managedictionary" : "Manage your personal Dictionary"
     },
     "sidebars" :
     {
@@ -1314,7 +1324,7 @@
     },
     "chapteritems" :
     {
-        ":comment" : "This is a general section for adding/editing outline items and scenes.  The same component is used for both types.",
+        ":comment" : "This is a general section for adding/editing/deleting outline items and scenes.  The same component is used for both types.",
         "labels" :
         {
             "adddesctochapter" : "Add the description to the ${objectnames.singular.chapter}",
@@ -1345,6 +1355,37 @@
             "title" : "Edit %1$s",
             ":comment.title" : "%1$s is the object type name.",
             ":scount.title" : 1
+        },
+        "delete" :
+        {
+            "actionerror" : "Unable to delete.",
+            "title" : "Delete %1$s",
+            ":comment.title" : "%1$s is the object type name.",
+            ":scount.title" : 1,
+            "text" : "Please confirm you wish to delete %1$s <b>%2$s</b>?",
+            ":comment.text" : "%1$s is the object type name, %2$s is the summary for the item.",
+            ":scount.text" : 2,
+            "buttons" :
+            {
+                "confirm" : "Yes, delete it",
+                "cancel" : "No, keep it"
+            }
+        },
+        "deletesceneoutlineitems" :
+        {
+            "actionerror" : "Unable to delete.",
+            ":comment" : "This is shown when a scene has one or more outline items associated with it.",
+            "title" : "Also delete %1$s ${objectnames.plural.outlineitem}?",
+            ":comment.title" : "%1$s is the number of outline items associated with the scene.",
+            ":scount.title" : 1,
+            "text" : "The ${objectnames.singular.scene} has %1$s associated ${objectnames.plural.outlineitem}.  Do you want to also delete them?",
+            ":comment.text" : "%1$s is the number of outline items.",
+            ":scount.text" : 1,
+            "buttons" :
+            {
+                "confirm" : "Yes, delete them",
+                "cancel" : "No, keep them"
+            }
         }
     },
     "formatting" :
@@ -1476,7 +1517,7 @@
         },
         "manage" :
         {
-            "title" : "Manage your personal Dictionary",
+            "title" : "${actions.managedictionary}",
             "finish" : "${actions.finish}",
             "newwords" :
             {
@@ -2892,7 +2933,15 @@
     {
         "vieweditorerror" : "Unable to show {contact}.",
         "vieweditorserror" : "Unable to show {contacts}.",
-        "showregistererror" : "Unable to show the register panel."
+        "showregistererror" : "Unable to show the register panel.",
+        "statuses" :
+        {
+            "online" : "Online",
+            "offline" : "Offline",
+            "busy" : "Busy",
+            "away" : "Away",
+            "snooze" : "Snooze"
+        }
     },
     "statistics" :
     {
@@ -2910,13 +2959,130 @@
     {
         "actionerror" : "Unable to show the options.",
         "title" : "Options",
+        "qwstart" :
+        {
+            "title" : "When {QW} starts",
+            "text" : "Want to see some tips when {QW} starts?  Or maybe open the last ${objectnames.singular.project} you edited?  Look no further!",
+            "labels" :
+            {
+                "showtips" : "Show useful tips",
+                "showlastedited" : "Open the last edited ${objectnames.singular.project}",
+                "showprojectswindow" : "Show the ${objectnames.plural.project} window"
+            }
+        },
+        "betas" :
+        {
+            "title" : "Beta versions",
+            "text" : "Want to get ahead of the crowd?  Or maybe help improve {QW}?  This section lets you opt-in to beta versions.  But be warned, betas aren't perfect.",
+            "labels" :
+            {
+                "optin" : "Opt-in to beta versions (enables auto-send of errors to {QW} support)"
+            },
+            "about" :
+            {
+                "popup" :
+                {
+                    "title" : "About Betas",
+                    "text" : "{QW} betas are opt-in and are designed to elicit feedback from users.  They will be functionally complete and as bug free as possible.  However they won't be without issues, so please beware and report any problems you find.<br /><br />You can opt out at any time although this will not revert back to a previous version (that is potentially dangerous).<br /><br />Note: opting into betas will enable the <b>Send errors to {QW} support</b> option, you can switch this off if you like to prevent errors being sent."
+                }
+            }
+        },
+        "errors" :
+        {
+            "title" : "When something goes wrong",
+            "text" : "{QW} isn't perfect and it would be good to know when things cluck up.  If you open this section you'll find a single setting that will let you send errors back to the magical worker elfs at {QW} Headquarters located in deepest, darkest suburban Australia.  Did you know that every error sent will prevent a Drop Bear attack.  It's a serious and very real threat to our native elves.",
+            "labels" :
+            {
+                "send" : "Send errors to {QW} support"
+            }
+        },
+        "itemsandrules" :
+        {
+            "title" : "Manage Items & Rules",
+            "text" : "Set up the ${names.problemfinder} rules and manage the ${objectnames.plural.notetype} and ${objectnames.plural.tag}.  A dull description but it does exactly what it says on the tin, well screen.",
+            "labels" :
+            {
+                "problemfinderrules" : "${names.problemfinder} Rules"
+            }
+        },
+        "editors" :
+        {
+            "title" : "${names.editorsservice}",
+            "text" : "Options related to the ${names.editorsservice} and how you interact with your ${objectnames.plural.contact}.",
+            "labels" :
+            {
+                "autologin" : "Automatically login/go online whenever {QW} starts",
+                "defaultstatus" : "My default status when I go online is",
+                "fullscreenbusystatus" : "Set my status to <b>${editors.statuses.busy}</b> when I enter full screen mode",
+                "logmessages" :
+                {
+                    "text" : "Log messages I send/receive (debug only)",
+                    "help" : "Save messages sent/received to a log file.  You should only check this box if {QW} support asks you to.  Note: this value is not saved and must be activated everytime you run {QW}."
+                }
+            }
+        },
+        "editingchapters" :
+        {
+            "title" : "Editing ${objectnames.plural.chapter}",
+            "text" : "Everything to do with editing ${objectnames.plural.chapter}.  Manage your personal dictionary, the language for the ${objectnames.singular.project}, set up auto save and how edit positions behave.  All this and more for the low, low price of a few clicks.",
+            "downloaddictionaryfiles" :
+            {
+                "actionerror" : "Unable to download dictionary files",
+                "popup" :
+                {
+                    "title" : "Download dictionary files?",
+                    "text" : "The dictionary files for <b>%1$s</b> need to be downloaded from the Quoll Writer server.<br /><br />Would you like to download them now?",
+                    ":comment.text" : "%1$s is the language name.",
+                    ":scount.text" : 1,
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, download them",
+                        "cancel" : "${buttons.cancel}"
+                    }
+                },
+                "notification" :
+                {
+                    "text" : "The language files for <b>%1$s</b> have been downloaded and the ${objectnames.singular.project} language set.",
+                    ":comment.text" : "%1$s is the language.",
+                    ":scount.text" : 1
+                }
+            },
+            "labels" :
+            {
+                "autosave" : "Enable ${objectnames.singular.chapter} Auto-save",
+                "autosavewhen" : "Auto-save every",
+                "showicon" : "Show an icon against a ${objectnames.singular.chapter} in the ${objectnames.singular.chapter} list when",
+                "haseditposition" : "it has an edit position",
+                "editcomplete" : "it is set as edit complete",
+                "showeditposition" : "Show the edit position in a ${objectnames.singular.chapter}",
+                "seteditpositioncolor" :
+                {
+                    "text" : "Use the following color for the edit position indicator",
+                    "popup" :
+                    {
+                        "title" : "Select the edit indicator color"
+                    }
+                },
+                "seteditcompleteatchapterend" : "Set a ${objectnames.singular.chapter} as edit complete when the edit position is at the end of the ${objectnames.singular.chapter}",
+                "compressrightclickmenu" : "Compress the ${objectnames.singular.chapter} right click menu",
+                "setspellcheckerlanguage" : "Use the following language for the spellchecker",
+                "downloadlanguagefiles" : "Download the language files",
+                "setasdefaultlanguage" : "Set as default language",
+                "nonenglishwarning" : "Please note: when changing the spell check language to something other<br />than English the following features will be disabled:<ul><li>Synonym lookups</li><li>The Problem Finder</li><li>Readability Indices</li></ul>",
+                ":comment.nonenglishwarning" : "This message is shown when a non-English language is selected for the spell check language.  Certain functions don't work for none-English languages.  Most of the Problem Finder has rules based on English and the Synonym lookup is for English as are the Readability Indices.",
+                "managedictionary" : "${actions.managedictionary}"
+            }
+        },
         "achievements" :
         {
             "title" : "Achievements",
             "text" : "Are the achievements annoying you?  Use this section to switch them off and they will bug you no more you underachiever.",
-            "enable" : "Enable achievements",
-            "playsound" : "Play a sound when an achievement is reached",
-            "playsoundinfullscreen" : "Play the sound in full screen mode"
+            "labels" :
+            {
+                "enable" : "Enable achievements",
+                "playsound" : "Play a sound when an achievement is reached",
+                "playsoundinfullscreen" : "Play the sound in full screen mode"
+            }
         },
         "testboolbarbuttonmessage" : "This button is here as a test so you can see what the toolbar looks like when you move it.",
         "toolbar" :
@@ -3142,7 +3308,84 @@
         },
         "text" : "Welcome to version <b>%1$s</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/%2$s'>full list of changes online</a>.",
         ":comment.text" : "%1$s is the version number.  %2$s is the version number but with all . (dot) replaced with _ (underscores) for use in a url.  It is recommended that you do not modify the href value.",
-        ":scount.text" : 2
+        ":scount.text" : 2,
+        "versions" :
+        {
+            "2.5" :
+            {
+                "items" :
+                {
+                    "targets" :
+                    {
+                        "title" : "${names.targets}",
+                        "text" : "You can now set certain targets to track how your writing is progressing.  Set targets for how much you write in a session, every day, week or month.  A number of new charts have been added to help you track these statistics over time.<br /><br />You can also specify targets for ${objectnames.singular.chapter} length and readability.<br /><br /><a href='action:targets'>Click here</a> to open the ${names.targets} sidebar which can be accessed from the ${objectnames.singular.project} menu."
+                    },
+                    "updatedcharts" :
+                    {
+                        "title" : "Updated Charts & some new ones",
+                        "text" : "The charts have been revamped and some new ones have been added to help keep track of your targets.<br /><br /><a href='action:statistics'>Click here</a> to open the Statistics/Charts panel."
+                    }
+                }
+            },
+            "2.5.2" :
+            {
+                "items" :
+                {
+                    "chapterpreview" :
+                    {
+                        "title" : "Improved {chapter} previews",
+                        "text" : "The popup displayed when you hold your mouse over a ${objectnames.singular.chapter} in the ${objectnames.singular.chapter} list has been improved and can be configured to display a variety of information.<br /><br />See <a href='help:chapters/overview'>for more details</a>.<br /><br /><a href='action:options.look'>Click here to change what is displayed.</a>"
+                    },
+                    "import" :
+                    {
+                        "title" : "Importing from your other ${objectnames.plural.project}",
+                        "text" : "You can now import ${objectnames.plural.asset} and ${objectnames.plural.chapter} from other ${objectnames.plural.project} into your ${objectnames.singular.project}.  <br /><br /><a href='action:import'>Click here to import now.</a>"
+                    }
+                }
+            },
+            "2.5.4" :
+            {
+                "items" :
+                {
+                    "problemfinder" :
+                    {
+                        "title" : "New way to interact with the ${names.problemfinder}",
+                        "text" : "The <a href='action:problemfinderconfig'>${names.problemfinder}</a> is great at finding all the problems within a ${objectnames.singular.chapter} but sometimes you want to hone in on a particular type of problem.  Now you can!  Either right click on a the checkbox for a found problem and select <b>${problemfinder.ignore.popupmenu.items.find}</b> or use the <a href='action:problemfinderconfig'>${names.problemfinder} rule config popup</a>."
+                    },
+                    "newrule" :
+                    {
+                        "title" : "New double word rule",
+                        "text" : "A new ${names.problemfinder} rule to find double word or double punctuation has been added."
+                    }
+                }
+            },
+            "2.6" :
+            {
+                "items" :
+                {
+                    "assets" :
+                    {
+                        "title" : "A big update to ${objectnames.plural.asset}",
+                        "text" : "You can now add your own fields to your ${objectnames.plural.asset}.  Additionally you can now create your own type of ${objectnames.plural.asset}, want to catalogue all the different types of cheeses in your stories?  Now you can and you can record as much information about them as you'd like.<br /><br />But it's a big topic, so if you want the full details <a href='http://wp.me/p1AW9p-9K'>click here</a>."
+                    },
+                    "tags" :
+                    {
+                        "title" : "Tagging",
+                        "text" : "It's now possible to tag objects (Chapters, Assets, Scenes etc) to group them together into their own section.  This way you can create logical groupings of objects and keep track of them.  You can tag an object with as many tags as you like.  For more information <a href='http://wp.me/p1AW9p-bv'>click here</a>."
+                    },
+                    "dnd" :
+                    {
+                        "title" : "Hiding sections and more drag-n-drop",
+                        "text" : "Want to move and hide, sections in the project sidebar?  Sections can now be moved around via drag-n-drop and if you never use Locations or Characters then why not hide the sections.  If you're in the early stages of development of your story why not move the Characters to the top and hide the Chapters?  You can easily add the sections back in later.<br /><br />To add a section just right click on a section header or on the background of the project sidebar and select from the <b>Add section</b> menu.<br /><br />To hide a section right click on the section header and select <b>Hide this section</b>."
+                    },
+                    "forms" :
+                    {
+                        "title" : "Form/input element layout",
+                        "text" : "The way that forms/input elements, such as text fields, are laid out and displayed has been changed to a stacked layout.  This means that the field name is above the input field, rather than being to the left.  This has pros and cons, it reduces the amount of dead space in the layout but increases the vertical size.  A future version will add in the two column layout as an option.  If you have a strong view on this then <a href='action:contact'>let me know</a>."
+                    }
+                }
+            }
+        }
     },
     "about" :
     {
@@ -3481,7 +3724,7 @@
                 "example" :
                 {
                     ":comment" : "These values are for an example project shown to the user.",
-                    "title" : "Example",
+                    "title" : "${names.example}",
                     "name" : "My ${objectnames.singular.project}",
                     "status" : "In Progress"
                 },
@@ -4816,9 +5059,92 @@
                     "readability" : "Readability"
                 }
             },
+            "fullscreenproperties" :
+            {
+                "selectbackground" :
+                {
+                    "text" : "Background image/color",
+                    "tooltip" : "Click to set the image/color used for the background"
+                },
+                "bgimagewebsites" :
+                {
+                    "text" : "List of background image websites"
+                },
+                "bgopacity" :
+                {
+                    "text" : "Background darkness",
+                    "tooltip" : "Drag to change the background darkness"
+                },
+                "areasize" :
+                {
+                    "text" : "Area size",
+                    "tooltip" : "Drag the sides of the box to change the display area size.  Double click to maximize or minimize."
+                },
+                "showtimewordcount" :
+                {
+                    "text" : "Always show the time and word count"
+                }
+            },
             "textproperties" :
             {
-                "title" : "${names.textproperties}"
+                "title" : "${names.textproperties}",
+                "fullscreentitle" : "Full Screen Properties",
+                "fontsize" :
+                {
+                    "text" : "Size",
+                    "tooltip" : "Enter a value to set a size that is not already in the list."
+                },
+                "alignment" :
+                {
+                    "text" : "Alignment"
+                },
+                "linespacing" :
+                {
+                    "text" : "Line Spacing",
+                    "tooltip" : "Enter a value to set a spacing that is not already in the list."
+                },
+                "textborder" :
+                {
+                    "text" : "Text Border Width",
+                    "tooltip" : "Drag to change the size of the border between the edge of the writing area and the text."
+                },
+                "indentfirstline" :
+                {
+                    "text" : "Indent the first line of each paragraph"
+                },
+                "highlightlinecolor" :
+                {
+                    "text" : "Highlight line",
+                    "popup" :
+                    {
+                        "title" : "Select the highlight line color"
+                    }
+                },
+                "highlightwritingline" :
+                {
+                    "text" : "Highlight the writing line"
+                },
+                "textcolor" :
+                {
+                    "text" : "Text Color",
+                    "popup" :
+                    {
+                        "title" : "Select the text color"
+                    }
+                },
+                "bgcolor" :
+                {
+                    "text" : "Background",
+                    "popup" :
+                    {
+                        "title" : "Select the background color"
+                    }
+                },
+                "reset" :
+                {
+                    "text" : "Resets to defaults",
+                    "tooltip" : "Click to reset the text properties to their default values"
+                }
             },
             "wordcount" :
             {

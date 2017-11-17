@@ -13,6 +13,7 @@ public class Note extends ChapterItem
     public static final String EDIT_NEEDED_NOTE_TYPE = "Edit Needed";
     public static final String OBJECT_TYPE = "note";
     public static final String EDIT_NEEDED_OBJECT_TYPE = "editneedednote";
+    public static final String NOTE_TYPE_OBJECT_TYPE = "notetype";
 
     private Date        due = null;
     private String      type = null;

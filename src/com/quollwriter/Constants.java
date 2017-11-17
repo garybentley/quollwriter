@@ -68,9 +68,9 @@ public class Constants
     public static final int POPUP_WINDOW_TITLE = 4;
 
     public static final String ADD_ASSETS_TRY_POPUP = "trypopup";
-    
+
     public static final String ADD_ASSETS_POPUP = "popup";
-    
+
     public static final String ADD_ASSETS_TAB = "tab";
 
     public static final String TOP = "top";
@@ -116,23 +116,21 @@ public class Constants
     public static final String QUOLLWRITER_PROTOCOL = "qw";
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
-    
+
     public static final String COPYRIGHT_PROPERTY_NAME = "copyright";
-    
+
     public static final String SOURCE_CODE_WEBSITE_PROPERTY_NAME = "sourceCodeWebsite";
-    
+
     public static final String PATREON_WEBSITE_PROPERTY_NAME = "patreonWebsite";
-    
+
     public static final String GOFUNDME_WEBSITE_PROPERTY_NAME = "gofundmeWebsite";
-    
+
     public static final String DEFAULT_UI_LANGUAGE_PROPERTY_NAME = "defaultUILanguage";
-    
+
     public static final String USER_UI_LANGUAGE_PROPERTY_NAME = "userUILanguage";
 
-    public static final String EDIT_ASSETS_IN_POPUP_PROPERTY_NAME = "editAssetsInPopup";
-
     public static final String ADD_ASSETS_PROPERTY_NAME = "addAssets";
-    
+
     public static final String UPDATER_CLASS_PROPERTY_NAME = "quollWriterUpdaterClassName";
 
     public static final String SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME = "showEachChapterFindResult";
@@ -368,7 +366,7 @@ public class Constants
     public static final String DEFAULT_PROJECTS_DIR_NAME = "projects";
 
     public static final String PROJECT_FILES_DIR_NAME = "files";
-    
+
     public static final String SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "spellCheckLanugage";
 
     public static final String DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "defaultSpellCheckLanugage";
@@ -456,7 +454,7 @@ public class Constants
 
     public static final String BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME = "backupsToKeepCount";
     public static final String DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME = "defaultProjectSidebarSections";
-    
+
     public static final String TARGET_SESSION_WRITING_PROPERTY_NAME = "targetSessionWriting";
     public static final String TARGET_DAILY_WRITING_PROPERTY_NAME = "targetDailyWriting";
     public static final String TARGET_WEEKLY_WRITING_PROPERTY_NAME = "targetWeeklyWriting";
@@ -473,7 +471,7 @@ public class Constants
     public static final String HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME = "highlightSplitpaneDividers";
 
     public static final String TAGS_PROPERTY_NAME = "tags";
-    
+
     public static final String PROMPTS_EXCLUDE_FILE = "prompts-exclude.txt";
     public static final String USER_PROMPTS_FILE = "own-prompts.xml";
 
@@ -511,7 +509,7 @@ public class Constants
     public static final String EDITOR_MESSAGES_LOG_NAME = "editor-messages.log";
 
     public static final String USER_OBJECT_TYPE_ICON_FILES_DIR = "userobjecttypeimages";
-    
+
     public static final String USER_PROMPTS_DIR = "prompts/";
 
     public static final String USER_PROBLEM_FINDER_RULES_DIR = "problem-finder-rules/";
@@ -579,20 +577,20 @@ public class Constants
     public static final String DOCUMENT_NORMAL_FILE_NAME = Constants.DATA_DIR + "document-normal.png";
     public static final String DOCUMENT_ERROR_FILE_NAME = Constants.DATA_DIR + "document-error.png";
 
-    public static final String MINS_5 = "5 mins";
-    public static final String MINS_10 = "10 mins";
-    public static final String MINS_20 = "20 mins";
-    public static final String MINS_30 = "30 mins";
-    public static final String HOUR_1 = "1 hour";
-    public static final String HOURS_12 = "12 hours";
-    public static final String HOURS_24 = "24 hours";
-    public static final String DAYS_2 = "2 days";
-    public static final String DAYS_5 = "5 days";
-    public static final String WEEK_1 = "1 week";
-    public static final String COUNT_10 = "10";
-    public static final String COUNT_20 = "20";
-    public static final String COUNT_50 = "50";
-    public static final String COUNT_ALL = "All";
+    //public static final String MINS_5 = "5 mins";
+    //public static final String MINS_10 = "10 mins";
+    //public static final String MINS_20 = "20 mins";
+    //public static final String MINS_30 = "30 mins";
+    //public static final String HOUR_1 = "1 hour";
+    //public static final String HOURS_12 = "12 hours";
+    //public static final String HOURS_24 = "24 hours";
+    //public static final String DAYS_2 = "2 days";
+    //public static final String DAYS_5 = "5 days";
+    //public static final String WEEK_1 = "1 week";
+    //public static final String COUNT_10 = "10";
+    //public static final String COUNT_20 = "20";
+    //public static final String COUNT_50 = "50";
+    //public static final String COUNT_ALL = "All";
 
     public static final String DOCX_FILE_EXTENSION = ".docx";
     public static final String DOC_FILE_EXTENSION = ".doc";
@@ -730,7 +728,7 @@ public class Constants
     public static final String ASSET_LAYOUT_6 = "asset-layout-6";
     public static final String ASSET_LAYOUT_7 = "asset-layout-7";
     public static final String ASSET_LAYOUT_8 = "asset-layout-8";
-    
+
     public static final String TAB = String.valueOf ('\t');
 
     public static final String SECTION_BREAK_FIND = "***";
@@ -745,5 +743,5 @@ public class Constants
     public static final String SPELLING_ERROR_COUNT_TAG = "{sp}";
     public static final String CHAPTER_FIRST_LINE_TAG = "{fl}";
     public static final String DESCRIPTION_FIRST_LINE_TAG = "{df}";
-    
+
 }

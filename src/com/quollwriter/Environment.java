@@ -2066,11 +2066,31 @@ public class Environment
 
         }
 
+        String backupCount = proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME);
+
+        int count = -1;
+
+        if ((backupCount != null)
+            &&
+            // Legacy, pre 2.6.5
+            (!backupCount.equals ("All"))
+           )
+        {
+
+            try
+            {
+
+                count = Integer.parseInt (backupCount);
+
+            } catch (Exception e) {}
+
+        }
+
         try
         {
 
             File f = om.createBackup (proj,
-                                      (noPrune ? -1 : Utils.getCountAsInt (proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME))));
+                                      (noPrune ? -1 : count));
 
             Environment.fireUserProjectEvent (proj,
                                               ProjectEvent.BACKUPS,

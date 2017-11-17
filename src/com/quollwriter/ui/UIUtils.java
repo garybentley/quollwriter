@@ -1305,7 +1305,7 @@ public class UIUtils
             {
 
                 super.setText (String.format ("<html>%s</html>",
-                                              Environment.replaceObjectNames (t)));
+                                              t));
 
             }
 

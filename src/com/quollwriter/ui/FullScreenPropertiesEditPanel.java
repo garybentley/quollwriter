@@ -49,112 +49,116 @@ import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.TextProperties;
 import com.quollwriter.ui.components.Accordion;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class FullScreenPropertiesEditPanel extends Box implements UserPropertyListener
 {
-    
+
     private FullScreenFrame fsf = null;
     private int                  sizeBoxMaxWidth = 150;
     private ImagePanel           sizeBox = null;
     private JComponent           sizeBoxWrapper = null;
     private Image                transparentImage = null;
-    
+
     private JSlider              backgroundOpacity = null;
     private JCheckBox            hideBorder = null;
 
     private int                  sblastX = -1;
     private int                  sblastY = -1;
-        
+
     public FullScreenPropertiesEditPanel ()
     {
-        
+
         super (BoxLayout.Y_AXIS);
-        
+
         this.add (this.createPropertiesPanel ());
-                
+
     }
-    
+
     public void setBackgroundColor (Color c)
     {
-        
+
         this.sizeBoxWrapper.setBackground (c);
-        
+
     }
-    
+
     public void setFullScreenFrame (FullScreenFrame fsf)
     {
-        
+
         this.fsf = fsf;
-        
+
         this.backgroundOpacityChanged ();
-        
+
         this.displayAreaSizeChanged ();
-        
+
     }
-    
+
     @Override
     public void propertyChanged (UserPropertyEvent ev)
     {
 
         this.backgroundOpacityChanged ();
-        
+
         this.displayAreaSizeChanged ();
-    
+
     }
-            
-    
+
+
     private JComponent createPropertiesPanel ()
     {
-        
+
         final FullScreenPropertiesEditPanel _this = this;
-                        
+
         Accordion acc = new Accordion (BoxLayout.Y_AXIS);
-                        
+
         // Create a box that will be the container for the chapters/properties.
         Box b = new Box (BoxLayout.Y_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.setBorder (UIUtils.createPadding (5, 0, 0, 0));
 
-        JLabel l = UIUtils.createLabel ("Background image/color");
+        JLabel l = UIUtils.createLabel (getUIString (project,sidebar,fullscreenproperties,selectbackground,text));
+        //"Background image/color");
         l.setBorder (UIUtils.createPadding (5, 10, 0, 0));
-        
+
         l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         b.add (l);
         b.add (Box.createVerticalStrut (10));
-                
+
         final Box imgP = new Box (BoxLayout.Y_AXIS)
         {
 
             private BufferedImage imgThumb = null;
             private BackgroundImage bgImg = null;
-        
+
             private Map<Object, Paint> thumbs = new HashMap ();
-        
+
             public void paintComponent (Graphics g)
             {
 
                 Graphics2D g2d = (Graphics2D) g;
 
                 Paint p = null;
-                
+
                 Object bg = (_this.fsf != null ? _this.fsf.getBackgroundObject () : null);
-                
+
                 if (bg != null)
                 {
 
                     if (bg instanceof BackgroundImage)
                     {
-                        
+
                         BackgroundImage bi = (BackgroundImage) bg;
-                        
+
                         p = this.thumbs.get (bi);
-                      
+
                         if (p == null)
                         {
 
                             BufferedImage im = (BufferedImage) _this.createImage (75,
                                                                                   75);
-                            
+
                             Graphics gr = im.getGraphics ();
                             gr.drawImage (bi.getThumb (),
                                           0,
@@ -166,49 +170,49 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
                                                   new Rectangle (0,
                                                                  0,
                                                                  75,
-                                                                 75));                        
-                            
+                                                                 75));
+
                             this.thumbs.put (bi,
                                              p);
-                            
+
                         }
 
                     }
 
                     if (bg instanceof File)
                     {
-                        
+
                         File f = (File) bg;
 
                         p = this.thumbs.get (bg);
-                        
+
                         if (p == null)
                         {
-                                                                        
+
                             p = new TexturePaint (UIUtils.getScaledImage (f,
                                                                           75,
                                                                           -1),
                                                   new Rectangle (0,
                                                                  0,
                                                                  75,
-                                                                 75));                        
-                            
+                                                                 75));
+
                             this.thumbs.put (bg,
                                              p);
 
                         }
-                        
+
                     }
-                    
+
                     if (bg instanceof Color)
                     {
-                        
+
                         p = (Color) bg;
-                        
+
                     }
-                    
+
                 }
-                
+
                 if (p != null)
                 {
 
@@ -226,26 +230,27 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
         imgP.setBorder (UIUtils.createLineBorder ());
         imgP.setPreferredSize (new Dimension (75, 75));
         imgP.setMaximumSize (new Dimension (75, 75));
-        imgP.setToolTipText ("Click to set the image/color used for the background");
+        imgP.setToolTipText (getUIString (project,sidebar,fullscreenproperties,selectbackground,tooltip));
+        //"Click to set the image/color used for the background");
         UIUtils.setAsButton (imgP);
 
         imgP.addMouseListener (new MouseEventHandler ()
         {
-           
+
             @Override
             public void handlePress (MouseEvent ev)
             {
-                
+
                 Point p = ev.getPoint ();
                 SwingUtilities.convertPointToScreen (p,
                                                      imgP);
-                
+
                 _this.fsf.showBackgroundSelector (p);
-                
+
             }
-            
+
         });
-                
+
         Box imgB = new Box (BoxLayout.X_AXIS);
         imgB.add (Box.createHorizontalStrut (20));
         imgB.add (imgP);
@@ -253,10 +258,11 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
         imgB.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         imgB.setMaximumSize (imgB.getPreferredSize ());
         b.add (imgB);
-        
+
         b.add (Box.createVerticalStrut (5));
 
-        l = UIUtils.createClickableLabel ("List of background image websites",
+        l = UIUtils.createClickableLabel (getUIString (project,sidebar,fullscreenproperties,bgimagewebsites,text),
+        //"List of background image websites",
                                           Environment.getIcon ("bg-select",
                                                                Constants.ICON_MENU));
 
@@ -274,28 +280,30 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
             }
 
         });
-        
+
         l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         l.setBorder (new EmptyBorder (5, 20, 0, 0));
-        
+
         b.add (l);
-        
+
         b.add (Box.createVerticalStrut (10));
 
-        l = new JLabel ("Background darkness");
+        l = new JLabel (getUIString (project,sidebar,fullscreenproperties,bgopacity,text));
+        //"Background darkness");
         l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         l.setBorder (new EmptyBorder (5, 10, 0, 0));
-        
+
         b.add (l);
 
         //b.add (Box.createVerticalStrut (10));
-        
+
         this.backgroundOpacity = new JSlider (0,
                                               100);
-        this.backgroundOpacity.setAlignmentX (JComponent.LEFT_ALIGNMENT);        
-        this.backgroundOpacity.setToolTipText ("Drag to change the background darkness");
+        this.backgroundOpacity.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        this.backgroundOpacity.setToolTipText (getUIString (project,sidebar,fullscreenproperties,bgopacity,tooltip));
+        //"Drag to change the background darkness");
         this.backgroundOpacity.addChangeListener (new ChangeAdapter ()
         {
 
@@ -311,16 +319,17 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
         this.backgroundOpacity.setOpaque (false);
         this.backgroundOpacity.setMaximumSize (new Dimension (150, 20));
         this.backgroundOpacity.setBorder (new EmptyBorder (5, 20, 0, 0));
-        
+
         b.add (this.backgroundOpacity);
 
         b.add (Box.createVerticalStrut (10));
-        
-        l = new JLabel ("Area size");
+
+        l = new JLabel (getUIString (project,sidebar,fullscreenproperties,areasize,text));
+        //"Area size");
         l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         l.setBorder (new EmptyBorder (5, 10, 0, 0));
-        
+
         b.add (l);
 
         b.add (Box.createVerticalStrut (10));
@@ -331,9 +340,10 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
                                        null);
 
         //this.setSizeBoxSize ();
-        this.sizeBox.setToolTipText ("Drag the sides of the box to change the display area size.  Double click to maximize or minimize.");
+        this.sizeBox.setToolTipText (getUIString (project,sidebar,fullscreenproperties,areasize,tooltip));
+        //"Drag the sides of the box to change the display area size.  Double click to maximize or minimize.");
         this.sizeBox.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         this.sizeBoxWrapper = new Box (BoxLayout.X_AXIS);
         this.sizeBoxWrapper.setOpaque (true);
         //this.sizeBoxWrapper.setBackground (this.fullScreenTextProperties.getBackgroundColor ());
@@ -352,9 +362,9 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
                 {
 
                     _this.fsf.toggleMaximizeDisplayArea ();
-                    
+
                     _this.setSizeBoxSize ();
-                
+
                 }
 
             }
@@ -519,7 +529,7 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
                         _this.fsf.incrementXBorderWidth (diff * 0.01f);
 
                         _this.setSizeBoxSize ();
-                        
+
                     }
 
                 }
@@ -570,7 +580,7 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
                         _this.fsf.incrementYBorderWidth (diff * 0.01f);
 
                         _this.setSizeBoxSize ();
-                        
+
                     }
 
                 }
@@ -590,8 +600,8 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
 
         Box sizeBoxW = new Box (BoxLayout.Y_AXIS);
 
-        final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();        
-        
+        final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
+
         // Work out the size of the width.
         float pixelWidth = (float) ((float) d.width / (float) this.sizeBoxMaxWidth);
 
@@ -605,36 +615,37 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
         sizeBoxW.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         sizeBoxW.setBorder (UIUtils.createPadding (0, 20, 0, 0));
         sizeBoxW.setMaximumSize (new Dimension (sizeBoxW.getPreferredSize ().width + 20,
-                                                sizeBoxW.getPreferredSize ().height));        
+                                                sizeBoxW.getPreferredSize ().height));
         b.add (sizeBoxW);
-        
+
         b.add (Box.createVerticalStrut (10));
 
-        final JCheckBox s = UIUtils.createCheckBox ("Always show the time and word count",
+        final JCheckBox s = UIUtils.createCheckBox (getUIString (project,sidebar,fullscreenproperties,showtimewordcount,text),
+        //"Always show the time and word count",
                                                     null);
 
         s.setBorder (UIUtils.createPadding (5, 10, 0, 0));
-        
+
         s.setSelected (UserProperties.getAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
-                                                               
+
         s.addActionListener (new ActionListener ()
         {
-           
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 UserProperties.set (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME,
                                     s.isSelected ());
-                                    
+
             }
-            
+
         });
-                                                               
-        b.add (s);        
-                
+
+        b.add (s);
+
         return b;
-        
+
     }
 
     private void setSizeBoxSize ()
@@ -666,7 +677,7 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
                       null);
 
         this.sizeBox.setImage (b);
-        
+
         this.sizeBox.setPreferredSize (new Dimension (xh,
                                                       yh));
 
@@ -674,21 +685,21 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
 
         this.validate ();
         this.repaint ();
-        
+
     }
-        
+
     public void backgroundOpacityChanged ()
     {
-        
+
         this.backgroundOpacity.setValue ((int) (this.fsf.getBorderOpacity () * 100));
-        
+
     }
-    
+
     public void displayAreaSizeChanged ()
     {
-        
+
         this.setSizeBoxSize ();
-        
+
     }
-    
+
 }
