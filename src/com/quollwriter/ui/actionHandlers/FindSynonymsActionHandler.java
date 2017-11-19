@@ -112,7 +112,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
     public void showItem ()
     {
 
-        final AbstractViewer viewer = UIUtils.getViewer (this.editor);
+        final AbstractProjectViewer viewer = (AbstractProjectViewer) UIUtils.getViewer (this.editor);
 
         this.highlight = this.editor.addHighlight (this.word.getAllTextStartOffset (),
                                                    this.word.getAllTextEndOffset (),
@@ -359,10 +359,11 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
         }
 
+        // TODO: Fix this mess
         Point po = SwingUtilities.convertPoint (this.editor,
                                                 r.x,
                                                 r.y,
-                                                viewer);
+                                                (viewer.getFullScreenFrame () != null ? viewer.getFullScreenFrame () : viewer));
 
         r.setLocation (po);
 
@@ -370,10 +371,21 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
         this.popup.setDraggable (viewer);
 
-        viewer.showPopupAt (this.popup,
-                            r,
-                            "above",
-                            true);
+        if (viewer.getFullScreenFrame () != null)
+        {
+
+            viewer.getFullScreenFrame ().showPopupAt (this.popup,
+                                                      r.getLocation (),
+                                                      true);
+
+        } else {
+
+            viewer.showPopupAt (this.popup,
+                                r,
+                                "above",
+                                true);
+
+       }
 
     }
 

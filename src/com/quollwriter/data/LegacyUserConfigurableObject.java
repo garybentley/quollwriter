@@ -12,7 +12,6 @@ public abstract class LegacyUserConfigurableObject extends UserConfigurableObjec
 
     public static final String NAME_LEGACY_FIELD_ID = "name";
     public static final String DESCRIPTION_LEGACY_FIELD_ID = "description";
-    //public static final String DESCRIPTION_LEGACY_FIELD_FORM_NAME = "Description";
     public static final String ALIASES_LEGACY_FIELD_ID = "aliases";
 
     public LegacyUserConfigurableObject (String objType)

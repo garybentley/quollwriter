@@ -16,6 +16,9 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class BasicInfoAddEdit extends Box implements ProjectEventListener
 {
 
@@ -82,12 +85,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
 
         buts.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        Environment.getUIString (LanguageStrings.userobjects,
-                                                                 LanguageStrings.basic,
-                                                                 LanguageStrings.view,
-                                                                 LanguageStrings.buttons,
-                                                                 LanguageStrings.edit,
-                                                                 LanguageStrings.text),
+                                        getUIString (userobjects,basic,view,buttons,edit,text),
                                                                  //"Click to edit the information",
                                         new ActionListener ()
                                         {
@@ -115,10 +113,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                                                                                   e);
 
                                                             UIUtils.showErrorMessage (_this.viewer,
-                                                                                      Environment.getUIString (LanguageStrings.userobjects,
-                                                                                                               LanguageStrings.basic,
-                                                                                                               LanguageStrings.edit,
-                                                                                                               LanguageStrings.actionerror));
+                                                                                      getUIString (userobjects,basic,edit,actionerror));
                                                                                       //"Unable to update.");
 
                                                             return;
@@ -212,10 +207,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
 
         }
 
-        this.helpText.setText (String.format (Environment.getUIString (LanguageStrings.userobjects,
-                                                                       LanguageStrings.basic,
-                                                                       LanguageStrings.view,
-                                                                       LanguageStrings.text),
+        this.helpText.setText (String.format (getUIString (userobjects,basic,view,text),
                                                                        //"Use the button below to change the general information for your %s such as the name and what icons to use.",
                                               this.type.getObjectTypeNamePlural ().toLowerCase ()));
 
@@ -228,32 +220,24 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
 
         this.basicInfoDetails.removeAll ();
 
-        java.util.List<String> prefix = new ArrayList ();
-        prefix.add (LanguageStrings.userobjects);
-        prefix.add (LanguageStrings.basic);
-        prefix.add (LanguageStrings.view);
-        prefix.add (LanguageStrings.labels);
+        java.util.List<String> prefix = Arrays.asList (userobjects,basic,view,labels);
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        items.add (new AnyFormItem (Environment.getUIString (prefix,
-                                                             LanguageStrings.name),
+        items.add (new AnyFormItem (getUIString (prefix,name),
                                                              //"Name",
                                     UIUtils.createInformationLabel (this.type.getObjectTypeName ())));
 
-        items.add (new AnyFormItem (Environment.getUIString (prefix,
-                                                             LanguageStrings.plural),
+        items.add (new AnyFormItem (getUIString (prefix,plural),
                                                              //"Plural",
                                     UIUtils.createInformationLabel (this.type.getObjectTypeNamePlural ())));
 
-        items.add (new AnyFormItem (String.format (Environment.getUIString (prefix,
-                                                                            LanguageStrings.bigicon),
+        items.add (new AnyFormItem (String.format (getUIString (prefix,bigicon),
                                                    Environment.getIconPixelWidthForType (Constants.ICON_TITLE)),
                                                              //"Header Icon (24px by 24px)",
                                     new JLabel (this.type.getIcon24x24 ())));
 
-        items.add (new AnyFormItem (String.format (Environment.getUIString (prefix,
-                                                                            LanguageStrings.smallicon),
+        items.add (new AnyFormItem (String.format (getUIString (prefix,smallicon),
                                                    Environment.getIconPixelWidthForType (-1)),
                                                    //"Sidebar/Popup Icon (16px by 16px)",
                                     new JLabel (this.type.getIcon16x16 ())));
@@ -279,26 +263,19 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                                  final boolean        showButtons)
     {
 
-        final java.util.List<String> prefix = new ArrayList ();
-        prefix.add (LanguageStrings.userobjects);
-        prefix.add (LanguageStrings.basic);
-        prefix.add (LanguageStrings.edit);
+        final java.util.List<String> prefix = Arrays.asList (userobjects,basic,edit);
 
         final BasicInfoAddEdit _this = this;
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        final TextFormItem name = new TextFormItem (Environment.getUIString (prefix,
-                                                                             LanguageStrings.labels,
-                                                                             LanguageStrings.name),
+        final TextFormItem name = new TextFormItem (getUIString (prefix,labels, LanguageStrings.name),
                                                              //"Name",
                                                     this.type.getObjectTypeName ());
 
         items.add (name);
 
-        final TextFormItem plname = new TextFormItem (Environment.getUIString (prefix,
-                                                                               LanguageStrings.labels,
-                                                                               LanguageStrings.plural),
+        final TextFormItem plname = new TextFormItem (getUIString (prefix,labels,plural),
                                                              //"Plural",
                                                       this.type.getObjectTypeNamePlural ());
 
@@ -306,9 +283,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
 
         final int headerIconWidth = Environment.getIconPixelWidthForType (Constants.ICON_TITLE);
 
-        final ImageSelectorFormItem headerIcon = new ImageSelectorFormItem (String.format (Environment.getUIString (prefix,
-                                                                                                                    LanguageStrings.labels,
-                                                                                                                    LanguageStrings.bigicon),
+        final ImageSelectorFormItem headerIcon = new ImageSelectorFormItem (String.format (getUIString (prefix,labels,bigicon),
                                                                                            headerIconWidth),
                                                                             UIUtils.imageFileFilter,
                                                                             UIUtils.iconToImage (this.type.getIcon24x24 ()),
@@ -330,20 +305,12 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                 {
 
                     UIUtils.showMessage (_this.viewer,
-                                         Environment.getUIString (prefix,
-                                                                  LanguageStrings.warnings,
-                                                                  LanguageStrings.bigicon,
-                                                                  LanguageStrings.popup,
-                                                                  LanguageStrings.title),
+                                         getUIString (prefix,warnings,bigicon,popup,title),
                                          //"Warning!",
-                                         String.format (Environment.getUIString (prefix,
-                                                                                 LanguageStrings.warnings,
-                                                                                 LanguageStrings.bigicon,
-                                                                                 LanguageStrings.popup,
-                                                                                 LanguageStrings.text),
+                                         String.format (getUIString (prefix,warnings,bigicon,popup,text),
                                                                                  //"Note: the image you have selected will be resized to: %spx by %spx when saved.",
                                                         headerIconWidth),
-                                         Constants.CONFIRM_BUTTON_LABEL_ID,
+                                         getUIString (buttons,confirm),
                                          null,
                                          SwingUtilities.convertPoint (headerIcon.getComponent (),
                                                                                                5,
@@ -360,9 +327,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
 
         final int sidebarIconWidth = Environment.getIconPixelWidthForType (-1);
 
-        final ImageSelectorFormItem sidebarIcon = new ImageSelectorFormItem (String.format (Environment.getUIString (prefix,
-                                                                                                                     LanguageStrings.labels,
-                                                                                                                     LanguageStrings.smallicon),
+        final ImageSelectorFormItem sidebarIcon = new ImageSelectorFormItem (String.format (getUIString (prefix,labels,smallicon),
                                                                                             sidebarIconWidth),
                                                                                            //"Sidebar/Popup Icon (%spx by %spx)",
                                                                              UIUtils.imageFileFilter,
@@ -386,20 +351,12 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                 {
 
                     UIUtils.showMessage (_this.viewer,
-                                         Environment.getUIString (prefix,
-                                                                  LanguageStrings.warnings,
-                                                                  LanguageStrings.smallicon,
-                                                                  LanguageStrings.popup,
-                                                                  LanguageStrings.title),
+                                         getUIString (prefix,warnings,smallicon,popup,title),
                                          //"Warning!",
-                                         String.format (Environment.getUIString (prefix,
-                                                                                 LanguageStrings.warnings,
-                                                                                 LanguageStrings.smallicon,
-                                                                                 LanguageStrings.popup,
-                                                                                 LanguageStrings.text),
+                                         String.format (getUIString (prefix,warnings,smallicon,popup,text),
                                                                                  //"Note: the image you have selected will be resized to: %spx by %spx when saved.",
                                                         sidebarIconWidth),
-                                         Constants.CONFIRM_BUTTON_LABEL_ID,
+                                         getUIString (buttons,confirm),
                                          null,
                                          SwingUtilities.convertPoint (headerIcon.getComponent (),
                                                                                                5,
@@ -489,10 +446,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                 if (name.getText () == null)
                 {
 
-                    this.showError (Environment.getUIString (prefix,
-                                                             LanguageStrings.errors,
-                                                             LanguageStrings.name,
-                                                             LanguageStrings.novalue));
+                    this.showError (getUIString (prefix,errors, LanguageStrings.name,novalue));
                                                              //"Name must be provided.");
 
                     return false;
@@ -502,10 +456,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                 if (plname.getText () == null)
                 {
 
-                    this.showError (Environment.getUIString (prefix,
-                                                             LanguageStrings.errors,
-                                                             LanguageStrings.plural,
-                                                             LanguageStrings.novalue));
+                    this.showError (getUIString (prefix,errors,plural,novalue));
 
                     return false;
 
@@ -514,10 +465,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                 if (sidebarIcon.getImage () == null)
                 {
 
-                    this.showError (Environment.getUIString (prefix,
-                                                             LanguageStrings.errors,
-                                                             LanguageStrings.smallicon,
-                                                             LanguageStrings.novalue));
+                    this.showError (getUIString (prefix,errors,smallicon,novalue));
                     //this.showError ("Sidebar/Popup icon must be provided.");
 
                     return false;
@@ -527,10 +475,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                 if (headerIcon.getImage () == null)
                 {
 
-                    this.showError (Environment.getUIString (prefix,
-                                                             LanguageStrings.errors,
-                                                             LanguageStrings.bigicon,
-                                                             LanguageStrings.novalue));
+                    this.showError (getUIString (prefix,errors,bigicon,novalue));
                     //this.showError ("Header icon must be provided.");
 
                     return false;
@@ -553,10 +498,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                     if (t.getObjectTypeName ().equalsIgnoreCase (name.getText ()))
                     {
 
-                        this.showError (String.format (Environment.getUIString (prefix,
-                                                                                LanguageStrings.errors,
-                                                                                LanguageStrings.name,
-                                                                                LanguageStrings.valueexists),
+                        this.showError (String.format (getUIString (prefix,errors, LanguageStrings.name,valueexists),
                                                        name.getText ()));
                         //this.showError ("You already have a type called: " + name.getText ());
 
@@ -567,10 +509,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                     if (t.getObjectTypeNamePlural ().equalsIgnoreCase (plname.getText ()))
                     {
 
-                        this.showError (String.format (Environment.getUIString (prefix,
-                                                                                LanguageStrings.errors,
-                                                                                LanguageStrings.plural,
-                                                                                LanguageStrings.valueexists),
+                        this.showError (String.format (getUIString (prefix,errors,plural,valueexists),
                                                        plname.getText ()));
                         //this.showError ("You already have a type called: " + plname.getText ());
 

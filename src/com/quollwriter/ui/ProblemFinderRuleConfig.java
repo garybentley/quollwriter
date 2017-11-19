@@ -18,6 +18,7 @@ import java.util.Vector;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -44,6 +45,8 @@ import com.quollwriter.ui.components.DnDTabbedPane;
 
 import org.josql.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEventListener
 {
@@ -135,17 +138,11 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
             java.util.List<JButton> buttons = new ArrayList ();
 
-            List<String> pref = new ArrayList ();
-            pref.add (LanguageStrings.problemfinder);
-            pref.add (LanguageStrings.config);
-            pref.add (LanguageStrings.rulebox);
-            pref.add (LanguageStrings.buttons);
-            
+            List<String> pref = Arrays.asList (problemfinder,config,rulebox, LanguageStrings.buttons);
+
             buttons.add (UIUtils.createButton (Constants.FIND_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               Environment.getUIString (pref,
-                                                                        LanguageStrings.find,
-                                                                        LanguageStrings.tooltip),
+                                               getUIString (pref,find,tooltip),
                                                                         //"Click to find all problems for this rule",
                                                new ActionListener ()
                                                {
@@ -162,9 +159,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
             buttons.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               Environment.getUIString (pref,
-                                                                        LanguageStrings.edit,
-                                                                        LanguageStrings.tooltip),
+                                               getUIString (pref,edit,tooltip),
                                                //"Click to edit this rule",
                                                new ActionListener ()
                                                {
@@ -182,9 +177,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
             buttons.add (UIUtils.createButton (Constants.INFO_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               Environment.getUIString (pref,
-                                                                        LanguageStrings.info,
-                                                                        LanguageStrings.tooltip),
+                                               getUIString (pref, LanguageStrings.info,tooltip),
                                                //"Click to show/hide the description of this rule",
                                                new ActionListener ()
                                                {
@@ -201,9 +194,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
             buttons.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               Environment.getUIString (pref,
-                                                                        LanguageStrings.delete,
-                                                                        LanguageStrings.tooltip),
+                                               getUIString (pref,delete,tooltip),
                                                //"Click to remove this rule",
                                                new ActionListener ()
                                                {
@@ -371,18 +362,11 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         List<JButton> buts = new ArrayList ();
 
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.addrule);
-        pref.add (LanguageStrings.sentence);
-        
+        List<String> pref = Arrays.asList (problemfinder,config,addrule,sentence);
+
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        Environment.getUIString (pref,
-                                                                 LanguageStrings.buttons,
-                                                                 LanguageStrings.add,
-                                                                 LanguageStrings.tooltip),
+                                        getUIString (pref,buttons,add,tooltip),
                                         //"Click to add a new Sentence Structure rule",
                                         new ActionListener ()
                                         {
@@ -399,10 +383,8 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                 {
 
                                                     JMenuItem mi = new JMenuItem ("<html>" + r.getSummary () + "</html>");
-                                                    mi.setActionCommand (r.getId ());                                                    
-                                                    mi.setToolTipText (Environment.getUIString (pref,
-                                                                                                LanguageStrings.rulebox,
-                                                                                                LanguageStrings.tooltip));
+                                                    mi.setActionCommand (r.getId ());
+                                                    mi.setToolTipText (getUIString (pref,rulebox,tooltip));
                                                                        //"Click to add this rule");
 
                                                     mi.addActionListener (new ActionListener ()
@@ -477,9 +459,9 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         if (this.sentenceBoxSP == null)
         {
-            
+
             return;
-            
+
         }
 
         final int val = this.sentenceBoxSP.getVerticalScrollBar ().getValue ();
@@ -574,18 +556,11 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         List<JButton> buts = new ArrayList ();
 
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.addrule);
-        pref.add (LanguageStrings.paragraph);
-        
+        List<String> pref = Arrays.asList (problemfinder,config,addrule,paragraph);
+
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        Environment.getUIString (pref,
-                                                                 LanguageStrings.buttons,
-                                                                 LanguageStrings.add,
-                                                                 LanguageStrings.tooltip),                                        
+                                        getUIString (pref,buttons,add,tooltip),
                                         //"Click to add a new Paragraph Structure rule",
                                         new ActionListener ()
                                         {
@@ -603,9 +578,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
                                                     JMenuItem mi = new JMenuItem ("<html>" + r.getSummary () + "</html>");
                                                     mi.setActionCommand (r.getId ());
-                                                    mi.setToolTipText (Environment.getUIString (pref,
-                                                                                                LanguageStrings.rulebox,
-                                                                                                LanguageStrings.tooltip));
+                                                    mi.setToolTipText (getUIString (pref,rulebox,tooltip));
                                                                        //"Click to add this rule");
 
                                                     mi.addActionListener (new ActionListener ()
@@ -680,9 +653,9 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         if (this.paragraphBoxSP == null)
         {
-            
+
             return;
-            
+
         }
 
         final int val = this.paragraphBoxSP.getVerticalScrollBar ().getValue ();
@@ -766,18 +739,11 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         List<JButton> buts = new ArrayList ();
 
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.addrule);
-        pref.add (LanguageStrings.words);
-        
+        List<String> pref = Arrays.asList (problemfinder,config,addrule,words);
+
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        Environment.getUIString (pref,
-                                                                 LanguageStrings.buttons,
-                                                                 LanguageStrings.add,
-                                                                 LanguageStrings.tooltip),                                        
+                                        getUIString (pref,buttons,add,tooltip),
                                         //"Click to add a new Words/Phrases rule",
                                         new ActionListener ()
                                         {
@@ -831,9 +797,9 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         if (this.wordsBoxSP == null)
         {
-            
+
             return;
-            
+
         }
 
           final int val = this.wordsBoxSP.getVerticalScrollBar ().getValue ();
@@ -930,38 +896,29 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         this.createWordsWrapper ();
 
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.tabtitles);
-        
-        this.tabs.add (Environment.getUIString (pref,
-                                                LanguageStrings.words),
+        List<String> pref = Arrays.asList (problemfinder,config,tabtitles);
+
+        this.tabs.add (getUIString (pref,words),
                                                 //"Words/Phrases",
                        this.wordsWrapper);
 
         this.createSentenceWrapper ();
 
-        this.tabs.add (Environment.getUIString (pref,
-                                                LanguageStrings.sentence),
+        this.tabs.add (getUIString (pref,sentence),
                        //"Sentence Structure",
                        this.sentenceWrapper);
 
         this.createParagraphWrapper ();
 
-        this.tabs.add (Environment.getUIString (pref,
-                                                LanguageStrings.paragraph),
+        this.tabs.add (getUIString (pref,paragraph),
                        //"Paragraph Structure",
                        this.paragraphWrapper);
 
-        this.tabs.setBorder (new EmptyBorder (10,
-                                              5,
-                                              0,
-                                              5));
+        this.tabs.setBorder (UIUtils.createPadding (10, 5, 0, 5));
 
         this.add (this.tabs);
 
-        JButton finish = UIUtils.createButton (Environment.getButtonLabel (Constants.FINISH_BUTTON_LABEL_ID),
+        JButton finish = UIUtils.createButton (getUIString (buttons, LanguageStrings.finish),
                                                new ActionListener ()
         {
 
@@ -1116,20 +1073,16 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         final Box _editBox = editBox;
 
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-                
+        List<String> pref = Arrays.asList (problemfinder,config);
+
         String title = r.getEditFormTitle (add);
-        
+
         if (title == null)
         {
-            
-            title = Environment.getUIString (pref,
-                                             (add ? LanguageStrings.addrule : LanguageStrings.editrule),
-                                             LanguageStrings.title);
+
+            title = getUIString (pref, (add ? addrule : editrule),title);
             //(add ? "Add Rule" : "Edit Rule");
-            
+
         }
 
         editBox.add (UIUtils.createBoldSubHeader (title,
@@ -1157,8 +1110,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                            e);
 
                      UIUtils.showErrorMessage (_this,
-                                               Environment.getUIString (pref,
-                                                                        LanguageStrings.saveruleerror));
+                                               getUIString (pref,saveruleerror));
                                                //"Unable to save rule");
 
                  }
@@ -1398,14 +1350,9 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         final Map<String, ActionListener> buttons = new LinkedHashMap ();
 
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.removerule);
-        
-        buttons.put (Environment.getUIString (pref,
-                                              LanguageStrings.buttons,
-                                              LanguageStrings.thisproject),
+        List<String> pref = Arrays.asList (problemfinder,config,removerule);
+
+        buttons.put (getUIString (pref, LanguageStrings.buttons,thisproject),
                      //"From this {project} only",
                      new ActionListener ()
         {
@@ -1432,9 +1379,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         });
 
-        buttons.put (Environment.getUIString (pref,
-                                              LanguageStrings.buttons,
-                                              LanguageStrings.allprojects),
+        buttons.put (getUIString (pref, LanguageStrings.buttons,allprojects),
                      //"All {projects}",
                      new ActionListener ()
         {
@@ -1458,17 +1403,14 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         });
 
-        buttons.put (Environment.getButtonLabel (null,
-                                                 Constants.CANCEL_BUTTON_LABEL_ID),
+        buttons.put (getUIString (LanguageStrings.buttons,cancel),
                      null);
 
           UIUtils.createQuestionPopup (parent,
-                                       Environment.getUIString (pref,
-                                                                LanguageStrings.title),
+                                       getUIString (pref,title),
                                        //"Confirm rule removal",
                                        Constants.DELETE_ICON_NAME,
-                                       String.format (Environment.getUIString (pref,
-                                                                               LanguageStrings.text),
+                                       String.format (getUIString (pref,text),
                                                       r.getSummary ()),
                                        //"Please confirm you wish to remove this rule.",
                                        buttons,

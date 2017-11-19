@@ -704,13 +704,8 @@ public class Constants
 
     public static final String BUTTON_LABEL_ID_PREFIX = "__$$";
     public static final String CANCEL_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "cancel$$__";
-    public static final String CLOSE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "close$$__";
     public static final String CONFIRM_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "confirm$$__";
-    public static final String SAVE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "save$$__";
-    public static final String SEND_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "send$$__";
     public static final String UPDATE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "update$$__";
-    public static final String FINISH_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "finish$$__";
-    public static final String CREATE_BACKUP_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "createbackup$$__";
 
     public static final String LAYOUT_PS_CH = "layout-ps-ch";
     public static final String LAYOUT_CH_PS = "layout-ch-ps";

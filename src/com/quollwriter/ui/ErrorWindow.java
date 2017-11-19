@@ -20,6 +20,8 @@ import com.quollwriter.*;
 
 import com.quollwriter.ui.components.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class ErrorWindow extends PopupWindow
 {
@@ -32,7 +34,7 @@ public class ErrorWindow extends PopupWindow
 
         super (v,
                Component.LEFT_ALIGNMENT);
-        
+
         this.message = message;
 
     }
@@ -70,7 +72,7 @@ public class ErrorWindow extends PopupWindow
                               this.message,
                               Constants.ACTION_PROTOCOL,
                               "reportbug");
-    
+
         //return this.message + "<br /><br /><a href='qw:/report-a-bug'>Contact Quoll Writer support about this problem.</a>";
 
     }
@@ -84,18 +86,18 @@ public class ErrorWindow extends PopupWindow
 
     public void setVisible (boolean v)
     {
-        
+
         super.setVisible (v);
-        
+
         if (v)
         {
-            
+
             this.toFront ();
-            
+
         }
-        
+
     }
-    
+
     public JComponent getContentPanel ()
     {
 
@@ -110,7 +112,7 @@ public class ErrorWindow extends PopupWindow
 
         final ErrorWindow _this = this;
 
-        JButton closeBut = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
+        JButton closeBut = UIUtils.createButton (getUIString (buttons,close));
 
         closeBut.addActionListener (new ActionAdapter ()
         {
@@ -123,7 +125,7 @@ public class ErrorWindow extends PopupWindow
             }
 
         });
-        
+
         JButton[] buts = new JButton[1];
         buts[0] = closeBut;
 

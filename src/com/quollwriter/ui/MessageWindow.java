@@ -20,6 +20,8 @@ import com.quollwriter.*;
 
 import com.quollwriter.ui.components.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class MessageWindow extends PopupWindow
 {
@@ -36,10 +38,9 @@ public class MessageWindow extends PopupWindow
 
         super (v,
                Component.LEFT_ALIGNMENT);
-        
+
         this.message = message;
-        this.title = (title != null ? title : Environment.getUIString (LanguageStrings.generalmessage,
-                                                                       LanguageStrings.title));
+        this.title = (title != null ? title : getUIString (generalmessage, LanguageStrings.title));
         //"Just so you know...");
 
     }
@@ -53,10 +54,9 @@ public class MessageWindow extends PopupWindow
 
         super (v,
                Component.LEFT_ALIGNMENT);
-        
+
         this.message = message;
-        this.title = (title != null ? title : Environment.getUIString (LanguageStrings.generalmessage,
-                                                                       LanguageStrings.title));
+        this.title = (title != null ? title : getUIString (generalmessage, LanguageStrings.title));
                       //"Just so you know...");
         this.confirmButtonLabel = confirmButtonLabel;
         this.onConfirm = onConfirm;
@@ -100,18 +100,18 @@ public class MessageWindow extends PopupWindow
 
     public void setVisible (boolean v)
     {
-        
+
         super.setVisible (v);
-        
+
         if (v)
         {
-            
+
             this.toFront ();
-            
+
         }
-        
+
     }
-    
+
     public JComponent getContentPanel ()
     {
 
@@ -126,7 +126,7 @@ public class MessageWindow extends PopupWindow
 
         final MessageWindow _this = this;
 
-        JButton closeBut = UIUtils.createButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
+        JButton closeBut = UIUtils.createButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUIString (buttons,confirm)),
                                                  new ActionListener ()
         {
 
@@ -136,17 +136,17 @@ public class MessageWindow extends PopupWindow
 
                 if (_this.onConfirm != null)
                 {
-                    
+
                     _this.onConfirm.actionPerformed (ev);
-                    
+
                 }
-                    
+
                 _this.close ();
 
             }
 
         });
-        
+
         JButton[] buts = new JButton[1];
         buts[0] = closeBut;
 

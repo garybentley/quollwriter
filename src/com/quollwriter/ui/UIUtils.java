@@ -2155,7 +2155,7 @@ public class UIUtils
 
                 content.add (Box.createVerticalStrut (10));
 
-                JButton close = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
+                JButton close = UIUtils.createButton (getUIString (buttons, LanguageStrings.close));
 
                 JButton[] buts = new JButton[] { close };
 
@@ -2564,7 +2564,7 @@ public class UIUtils
 
                 content.add (Box.createVerticalStrut (10));
 
-                JButton close = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : Constants.CLOSE_BUTTON_LABEL_ID),
+                JButton close = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : getUIString (buttons, LanguageStrings.close)),
                                                       onConfirm);
 
                 JButton[] buts = new JButton[] { close };
@@ -6188,6 +6188,13 @@ public class UIUtils
 
     }
 
+    public static Color hexToColor (String hexCode)
+    {
+
+        return UIUtils.getColor (hexCode);
+
+    }
+
     public static Color getColor (String hexCode)
     {
 
@@ -7176,23 +7183,21 @@ public class UIUtils
 
     }
 
+    public static JButton createButton (ImageIcon icon)
+    {
+
+        return UIUtils.createButton (icon,
+                                     null,
+                                     null);
+
+    }
+
     public static JButton createButton (ImageIcon      icon,
                                         String         toolTipText,
                                         ActionListener action)
     {
 
-        JButton b = new JButton (icon)
-        {
-
-            @Override
-            public void setToolTipText (String t)
-            {
-
-                super.setToolTipText (Environment.replaceObjectNames (t));
-
-            }
-
-        };
+        JButton b = new JButton (icon);
 
         b.setFocusPainted (false);
         b.setToolTipText (toolTipText);
@@ -7309,7 +7314,7 @@ public class UIUtils
         } else
         {
 
-            link = String.format (getUIString (warmups,prompt,view,link),
+            link = String.format (getUIString (warmups,prompt,view, LanguageStrings.link),
                                 //"<a title='Click to visit the website' href='%s'>%s by %s</a>",
                                   p.getURL (),
                                   p.getStoryName (),
@@ -7664,6 +7669,7 @@ public class UIUtils
         }
 
         c.paint (g);
+
         return image;
 
     }
@@ -8122,13 +8128,6 @@ public class UIUtils
 
     }
 
-    public static String formatForUser (String v)
-    {
-
-        return v;
-
-    }
-
     public static JMenuItem createMenuItem (String label,
                                             String icon,
                                             ActionListener action)
@@ -8452,13 +8451,13 @@ public class UIUtils
         {
 
             buttons.put (Environment.getButtonLabel (confirmButtonLabel,
-                                                     Constants.CONFIRM_BUTTON_LABEL_ID),
+                                                     getUIString (LanguageStrings.buttons,confirm)),
                          onConfirm);
 
         }
 
         buttons.put (Environment.getButtonLabel (cancelButtonLabel,
-                                                 Constants.CANCEL_BUTTON_LABEL_ID),
+                                                 getUIString (LanguageStrings.buttons,cancel)),
                      onCancel);
 
         return UIUtils.createQuestionPopup (viewer,
@@ -8601,7 +8600,7 @@ public class UIUtils
                                                  viewer));
         content.add (Box.createVerticalStrut (10));
 
-        JButton b = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
+        JButton b = UIUtils.createButton (getUIString (buttons,close));
 
         JButton[] buts = { b };
 
@@ -8762,7 +8761,7 @@ public class UIUtils
         content.add (Box.createVerticalStrut (10));
 
         JButton confirm = null;
-        JButton cancel = UIUtils.createButton ((cancelButtonLabel != null ? cancelButtonLabel : Constants.CANCEL_BUTTON_LABEL_ID),
+        JButton cancel = UIUtils.createButton ((cancelButtonLabel != null ? cancelButtonLabel : getUIString (buttons, LanguageStrings.cancel)),
                                                new ActionListener ()
         {
 
@@ -8832,7 +8831,7 @@ public class UIUtils
 
             };
 
-            confirm = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
+            confirm = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : getUIString (buttons, LanguageStrings.confirm)),
                                             confirmAction);
 
             UIUtils.addDoActionOnReturnPressed (text,

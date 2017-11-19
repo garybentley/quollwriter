@@ -72,7 +72,7 @@
             "researchitem" : "Research Item",
             "note" : "Note",
             "editneedednote" : "Edit Needed ${objectnames.singular.note}",
-            "project" : "Project",
+            "project" : "ProjectX",
             "contact" : "Contact",
             "editor" : "Editor",
             "document" : "Document",
@@ -242,20 +242,20 @@
             "newproject" :
             {
                 "title" : "${objectnames.singular.project} details",
-                "text" : "Enter the name of the ${objectnames.singular.project} below and select the directory where it should be saved."
+                "text" : "Enter the name of the ${objectnames.singular.project} below and select the folder where it should be saved."
             },
             "selectprojectdb" :
             {
-                "title" : "Select your ${objectnames.plural.project} directory",
-                "text" : "Use the finder below to find the directory where your {projects} database file is stored.  The file is called <b>%1$s</b>",
+                "title" : "Select your ${objectnames.plural.project} folder",
+                "text" : "Use the finder below to find the folder where your ${objectnames.plural.project} database file is stored.  The file is called <b>%1$s</b>",
                 ":comment.text" : "%1$s is the file name of the projects database.",
                 ":scount.text" : 1,
                 "finder" :
                 {
-                    "title" : "Select the directory",
+                    "title" : "Select the Folder",
                     "button" : "${actions.select}",
-                    "tooltip" : "Click to find a directory",
-                    "label" : "Directory"
+                    "tooltip" : "Click to find a folder",
+                    "label" : "Folder"
                 }
             },
             "existing" :
@@ -490,6 +490,7 @@
     {
         "cancel" : "${actions.cancel}",
         "showdetail" : "Show detail",
+        "edit" : "${actions.edit}",
         "savechanges" : "Yes, save the changes",
         "discardchanges" : "No, discard the changes",
         "close" : "${actions.close}",
@@ -498,14 +499,11 @@
         "add" : "${actions.add}",
         "finish" : "${actions.finish}",
         "save" : "${actions.save}",
-        "__$$confirm$$__" : "Ok, got it",
+        "confirm" : "Ok, got it",
+        "createbackup" : "${actions.createbackup}",
+        "__$$confirm$$__" : "${buttons.confirm}",
         "__$$cancel$$__" : "${buttons.cancel}",
-        "__$$close$$__" : "${actions.close}",
-        "__$$createbackup$$__" : "${actions.createbackup}",
-        "__$$save$$__" : "${actions.save}",
-        "__$$send$$__" : "${actions.send}",
-        "__$$update$$__" : "${actions.update}",
-        "__$$finish$$__" : "${actions.finish}"
+        "__$$update$$__" : "${actions.update}"
     },
     "wizard" :
     {
@@ -1697,7 +1695,7 @@
         "moveprojectdir" :
         {
             "name" : "Move out",
-            "description" : "Change the ${objectnames.singular.project} directory."
+            "description" : "Change the ${objectnames.singular.project} folder."
         },
         "renameproject" :
         {
@@ -2735,7 +2733,7 @@
             "nofileselected" : "Please select a file to import.",
             "filenotexist" : "File does not exist, please select a valid file.",
             "cantopenproject" : "Unable to open ${objectnames.singular.project}",
-            "dirselected" : "Selection is a directory, please select a file instead.",
+            "dirselected" : "Selection is a folder, please select a file instead.",
             "openfile" : "Unable to open selected file."
         },
         "help" : "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function if you are importing a file.  The import expects the file(s) to be in a certain format.",
@@ -2755,7 +2753,7 @@
             "newproject" :
             {
                 "title" : "Enter the new ${objectnames.singular.project} details",
-                "text" : "To create a new ${objectnames.singular.project} enter the name below and select the directory where it should be saved."
+                "text" : "To create a new ${objectnames.singular.project} enter the name below and select the folder where it should be saved."
             },
             "decide" :
             {
@@ -2819,7 +2817,7 @@
         },
         "errors" :
         {
-            "nodirselected" : "Please select a directory.",
+            "nodirselected" : "Please select a folder.",
             "createexporter" : "Unable to create exporter."
         },
         "exportcompletepopup" :
@@ -2853,13 +2851,13 @@
         {
             "wheretosave" :
             {
-                "title" : "Select the file type and directory to save to",
+                "title" : "Select the file type and folder to save to",
                 "finder" :
                 {
-                    "title" : "Select a directory to export to",
+                    "title" : "Select a folder to export to",
                     "button" : "${actions.select}",
-                    "tooltip" : "Click to find a directory to export to",
-                    "label" : "Directory"
+                    "tooltip" : "Click to find a folder to export to",
+                    "label" : "Folder"
                 },
                 "filetype" :
                 {
@@ -2959,6 +2957,8 @@
     {
         "actionerror" : "Unable to show the options.",
         "title" : "Options",
+        "savepropertyerror" : "Unable to save property.",
+        ":comment.savepropertyerror" : "This is the message shown when one of the user/project properties associated with an option cannot be saved.",
         "qwstart" :
         {
             "title" : "When {QW} starts",
@@ -3019,6 +3019,161 @@
                     "text" : "Log messages I send/receive (debug only)",
                     "help" : "Save messages sent/received to a log file.  You should only check this box if {QW} support asks you to.  Note: this value is not saved and must be activated everytime you run {QW}."
                 }
+            }
+        },
+        "assets" :
+        {
+            "title" : "${objectnames.plural.asset}",
+            "text" : "Need to add another field to an ${objectnames.singular.asset}?  Manage the ${objectnames.plural.tag}?  Change the names of things, change the icons?  This section has you covered, you can also right click on the section header in the sidebar to do this stuff as well.",
+            "labels" :
+            {
+                "newasset" :
+                {
+                    "text" : "Add new ${objectnames.plural.asset} (${objectnames.plural.character}, ${objectnames.plural.location}, etc) in",
+                    "options" :
+                    {
+                        "alwayspopup" :
+                        {
+                            "text" : "Always use a Popup",
+                            "tooltip" : "If the ${objectnames.singular.asset} has more than just a name and description field then a link will be shown to add the Asset, and thus see all the fields, in a tab instead."
+                        },
+                        "popupifpossible" :
+                        {
+                            "text" : "Use a Popup if possible",
+                            "tooltip" : "If the ${objectnames.singular.asset} only has a name and a description field then a popup will be used, otherwise a tab will be used."
+                        },
+                        "owntab" :
+                        {
+                            "text" : "Their own tab"
+                        }
+                    }
+                },
+                "editassetconfig" : "Edit the ${objectnames.singular.asset} configuration (Layout, Fields, Name, Icon etc)",
+                "addtype" : "Add New Type"
+            }
+        },
+        "warmups" :
+        {
+            "title" : "${objectnames.plural.warmup}",
+            "text" : "Want to flex your writing muscles everytime {QW} starts?  You'd better click the title above and get things set up while you still have time.",
+            "labels" :
+            {
+                "dofor" : "${dowarmup.dofor.title}",
+                "andor" : "${dowarmup.andor}",
+                "dowarmupatstartup" : "${dowarmup.dowarmuponstart}",
+                "whicheverfirst" : "${dowarmup.whicheverfirst}"
+            }
+        },
+        "projectandbackup" :
+        {
+            "title" : "${objectnames.singular.project} & ${objectnames.plural.backup}",
+            "text" : "Click the title above to open this section.  You can then change where your ${objectnames.singular.project} is stored and how often backups are created and where they are stored.",
+            "labels" :
+            {
+                "all" : "All",
+                ":comment.all" : "This is used for the number of backups to keep.",
+                "selectprojectdir" :
+                {
+                    "text" : "Select the folder where your ${objectnames.singular.project} is stored",
+                    "finder" :
+                    {
+                        "title" : "Select a Folder",
+                        "button" : "${actions.select}",
+                        "tooltip" : "Click to find a new ${objectnames.singular.project} folder",
+                        "label" : "${actions.change}"
+                    }
+                },
+                "autobackup" : "Automatically create backups of the ${objectnames.singular.project}",
+                "createbackupafter" : "Create a new backup after the following time between sessions or during a session",
+                "nobackupstokeep" : "Number of backups to keep (oldest are deleted first)",
+                "selectbackupdir" :
+                {
+                    "text" : "Select the directory where ${objectnames.singular.project} backups are stored",
+                    "finder" :
+                    {
+                        "title" : "Select a Folder",
+                        "button" : "${actions.select}",
+                        "tooltip" : "Click to find a new ${objectnames.singular.backup} folder",
+                        "label" : "${actions.change}"
+                    }
+                },
+                "createbackup" : "${buttons.createbackup}",
+                "managebackups" : "${actions.managebackups}"
+            }
+        },
+        "lookandsound" :
+        {
+            "title" : "How things look and sound",
+            "text" : "Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when {QW} starts?  This is the section for you.",
+            "labels" :
+            {
+                "keepprojectswindowsopen" : "Keep the ${objectnames.plural.project} window open when a ${objectnames.singular.project} is opened",
+                "showprojectswindownoopenproject" : "Show the ${objectnames.plural.project} window when I have no open ${objectnames.plural.project}",
+                "showpreview" : "Show a brief preview of the object when you mouse over its name in the ${objectnames.singular.project} sidebar",
+                "changedisplay" : "Change what is displayed",
+                "shownotes" : "Show ${objectnames.plural.note} in the ${objectnames.plural.chapter} list",
+                "interfacelayout" :
+                {
+                    "text" : "How should the interface be laid out? (Click on the image below to change)",
+                    "popup" :
+                    {
+                        "title" : "Select a layout",
+                        "tooltip" : "Click to select a layout"
+                    }
+                },
+                "showtoolbar" : "Show the toolbar",
+                "belowsidebar" : "Below the sidebar",
+                "abovesidebar" : "Above the sidebar",
+                "showtabs" : "Show the tabs",
+                "showtabsbottom" : "At the bottom",
+                "showtabstop" : "At the top",
+                "whenfind" : "When I do a find",
+                "expandall" : "Expand all ${objectnames.plural.chapter} to show all results",
+                "justchapter" : "Just show the ${objectnames.singular.chapter}",
+                "tabs" : "Tabs",
+                "other" : "Other",
+                "playtypewritersound" :
+                {
+                    "actionerror" : "The file is not a valid .wav file.",
+                    "text" : "Play a typewriter sound when editing a ${objectnames.singular.chapter}",
+                    "buttons" :
+                    {
+                        "usesound" : "Use sound",
+                        "playsound" : "Play sound"
+                    },
+                    "selectownwavfile" : "Or, select your own WAV file that will be played instead. (Note: only .wav files are supported.)",
+                    "finder" :
+                    {
+                        "title" : "Select a File",
+                        "button" : "${actions.select}",
+                        "tooltip" : "Click to find a .wav file",
+                        "filter" : "Supported Files (wav)"
+                    }
+                },
+                "highlightdividers" :
+                {
+                    "text" : "Highlight dividers when I move the mouse over them",
+                    "tooltip" : "This is for dividers that allow you to slide panels left and right or up and down.  It allows you to more easily see the divider."
+                }
+            },
+            "interfacelayouts" :
+            {
+                ":comment" : "'ps' here means 'project sidebar', i.e. the main sidebar.  'ch' means the chapter edit area, i.e. where you type the text.  'os' means 'other sidebar', i.e. the second sidebar shown for things other than the project sidebar.",
+                "layout-ps-ch" : "Only show one sidebar, always on the left. Other sidebars will display where the ${objectnames.singular.project} sidebar is.  (Default)",
+                "layout-ch-ps" : "Only show one sidebar, always on the right.  Other sidebars will display where the ${objectnames.singular.project} sidebar is.",
+                "layout-ps-ch-os" : "The ${objectnames.singular.project} sidebar is shown on the left.  Other sidebars, such as word counts, are shown on the right.",
+                "layout-os-ch-ps" : "The ${objectnames.singular.project} sidebar is shown on the right.  Other sidebars, such as ${objectnames.singular.chapter} information, are shown on the left.",
+                "layout-ps-os-ch" : "The ${objectnames.singular.project} sidebar is shown on the left with other sidebars next to it.",
+                "layout-ch-os-ps" : "The ${objectnames.singular.project} sidebar is shown on the far right with other sidebars next to it (to the left)."
+            }
+        },
+        "naming" :
+        {
+            "title" : "What things are called",
+            "text" : "Not happy with what things are called?  Want to change ${objectnames.singular.chapter} to <i>Sausage</i>?  What are you waiting for crack this section open and get changing.  Yes that's a phrase now.",
+            "labels" :
+            {
+                "changenames" : "Change names"
             }
         },
         "editingchapters" :
@@ -3194,25 +3349,30 @@
         "autobackupnotification" : "An automatic ${objectnames.singular.backup} has been created.  <a href='%1$s:%1$s'>Click to view the ${objectnames.plural.backup}.</a>",
         ":comment.autobackupnotification" : "The %1$s:%2$s is a link generated by QW to open the folder containing the backups.  It is recommended that you do not change that.",
         ":scount.autobackupnotification" : 2,
-        "text" : "Listed below are the backups you have for ${objectnames.singular.project} <b>%1$s</b>.",
+        "text" : "Listed below are the ${objectnames.plural.backup} you have for ${objectnames.singular.project} <b>%1$s</b>.",
         ":comment.text" : "%1$s is the project name.",
         ":scount.text" : 1,
-        "viewbackupsdir" : "Click to view the backups directory",
-        "nobackups" : "Click to view the backups directory",
+        "viewbackupsdir" : "Click to view the ${objectnames.singular.backup} folder",
+        "nobackups" : "You currently have no ${objectnames.plural.backup} for this ${objectnames.singular.project}.",
         "show" :
         {
             "actionerror" : "Unable to show list of backups.",
             "popup" :
             {
-                "title" : "Current Backups"
+                "title" : "Current ${objectnames.plural.backup}"
+            },
+            "buttons" :
+            {
+                "createbackup" : "${buttons.createbackup}",
+                "finish" : "${buttons.finish}"
             }
         },
         "new" :
         {
-            "actionerror" : "Unable to create a new backup.",
+            "actionerror" : "Unable to create a new ${objectnames.singular.backup}.",
             "popup" :
             {
-                "title" : "Create a backup",
+                "title" : "Create a ${objectnames.singular.backup}",
                 "text" : "Please confirm you wish to create a backup of ${objectnames.singular.project} <b>%1$s</b>.",
                 ":comment.text" : "%1$s is the name of the project.",
                 ":scount.text" : 1,
@@ -3224,24 +3384,24 @@
             },
             "confirmpopup" :
             {
-                "title" : "Backup created",
-                "text" : "A backup of the ${objectnames.singular.project} has been created and written to:\n\n  <a href='%1$s'>%2$s</a>",
+                "title" : "${objectnames.singular.backup} created",
+                "text" : "A ${objectnames.singular.backup} of the ${objectnames.singular.project} has been created and written to:\n\n  <a href='%1$s'>%2$s</a>",
                 ":comment.text" : "%1$s is the url to the folder the backup has been written to, %2$s is the path of the backup file.",
                 ":scount.text" : 2,
                 "labels" :
                 {
-                    "view" : "Click to view the backups"
+                    "view" : "Click to view the ${objectnames.plural.backup}"
                 }
             }
         },
         "restore" :
         {
-            "tooltip" : "Restore the ${objectnames.singular.project} using this backup",
-            "actionerror" : "Unable to restore backup.",
+            "tooltip" : "Restore the ${objectnames.singular.project} using this ${objectnames.singular.backup}",
+            "actionerror" : "Unable to restore ${objectnames.singular.backup}.",
             "popup" :
             {
                 "title" : "Confirm restore",
-                "text" : "Please confirm you wish to restore ${objectnames.singular.project} <b>%1$s</b> using the backup file <b>%2$s</b>.<br /><br />A backup of the ${objectnames.singular.project} will be created before the restore occurs.",
+                "text" : "Please confirm you wish to restore ${objectnames.singular.project} <b>%1$s</b> using the ${objectnames.singular.backup} file <b>%2$s</b>.<br /><br />A ${objectnames.singular.backup} of the ${objectnames.singular.project} will be created before the restore occurs.",
                 ":comment.text" : "%1$s is the project name.  %2$s is the path to the file that will be used for the restore.",
                 ":scount.text" : 2,
                 "buttons" :
@@ -3261,11 +3421,11 @@
         },
         "delete" :
         {
-            "tooltip" : "Click to delete this backup",
+            "tooltip" : "Click to delete this ${objectnames.singular.backup}",
             "confirmpopup" :
             {
                 "title" : "Confirm delete",
-                "text" : "Please confirm you wish to delete backup file <b>%1$s</b>.",
+                "text" : "Please confirm you wish to delete ${objectnames.singular.backup} file <b>%1$s</b>.",
                 ":comment.text" : "%1$s is the path to the file that will be deleted.",
                 ":scount.text" : 1,
                 "buttons" :
@@ -3403,16 +3563,16 @@
     },
     "dowarmup" :
     {
-        "dowarmuponstart" : "Do a {warmup} every time {QW} starts",
+        "dowarmuponstart" : "Do a ${objectnames.singular.warmup} every time {QW} starts",
         "createwarmupsproject" :
         {
             "title" : "{Warmups} ${objectnames.singular.project}",
-            "text" : "A {Warmups} ${objectnames.singular.project} will now be created to hold your {warmups}.",
-            "actionerror" : "Unable to create {Warmups} ${objectnames.singular.project}."
+            "text" : "A {Warmups} ${objectnames.singular.project} will now be created to hold your ${objectnames.plural.warmup}.",
+            "actionerror" : "Unable to create ${objectnames.plural.warmup} ${objectnames.singular.project}."
         },
-        "addwarmuperror" : "Unable to add {warmup}.",
-        "openwarmupsprojecterror" : "Unable to open {Warmups} ${objectnames.singular.project}.",
-        "getwarmupsprojecterror" : "Unable to get {Warmups} ${objectnames.singular.project}.",
+        "addwarmuperror" : "Unable to add ${objectnames.singular.warmup}.",
+        "openwarmupsprojecterror" : "Unable to open ${objectnames.plural.warmup} ${objectnames.singular.project}.",
+        "getwarmupsprojecterror" : "Unable to get ${objectnames.plural.warmup} ${objectnames.singular.project}.",
         "saveerror" : "Unable to save your prompt.",
         "starterror" : "o_O  The timer can't be unlimited for both time and words.",
         "allpromptsexcluded" : "You have excluded all the prompts.",
@@ -3423,7 +3583,7 @@
         },
         "dofor" :
         {
-            "title" : "And do the {warmup} for"
+            "title" : "And do the ${objectnames.singular.warmup} for"
         },
         "andor" : "and/or",
         "whicheverfirst" : "(whichever is reached first)",
@@ -3538,7 +3698,7 @@
         },
         "find" :
         {
-            "tooltip" : "Click to find the file/directory"
+            "tooltip" : "Click to find the file/folder"
         },
         "cancel" :
         {
@@ -3650,7 +3810,7 @@
                 "popup" :
                 {
                     "title" : "Find your ${objectnames.plural.project}",
-                    "text" : "This function allows you to find your ${objectnames.plural.project}.  It is useful if you are using Dropbox or another file syncing service or just need to rebuild your ${objectnames.plural.project} database.<br /><br />Use the box below to select a starting directory then press <b>${allprojects.actions.findprojects.popup.buttons.find}</b>, {QW} will then search your file system for ${objectnames.plural.project} and it will add them automatically.",
+                    "text" : "This function allows you to find your ${objectnames.plural.project}.  It is useful if you are using Dropbox or another file syncing service or just need to rebuild your ${objectnames.plural.project} database.<br /><br />Use the box below to select a starting folder then press <b>${allprojects.actions.findprojects.popup.buttons.find}</b>, {QW} will then search your file system for ${objectnames.plural.project} and it will add them automatically.",
                     "buttons" :
                     {
                         "find" : "${actions.find}",
@@ -3746,7 +3906,7 @@
         "popup" :
         {
             "title" : "Create a new ${objectnames.singular.project}",
-            "text" : "To create a new ${objectnames.singular.project} enter the name below, select the directory it should be saved to and press the ${newprojectpanel.buttons.create} button."
+            "text" : "To create a new ${objectnames.singular.project} enter the name below, select the folder it should be saved to and press the ${newprojectpanel.buttons.create} button."
         }
     },
     "newprojectpanel" :
@@ -3776,7 +3936,7 @@
         },
         "find" :
         {
-            "title" : "Select a Directory",
+            "title" : "Select a Folder",
             "confirm" : "Select"
         }
     },
@@ -4652,7 +4812,7 @@
             {
                 "actionerror" : "Unable to create new ${objectnames.singular.project} from ${objectnames.singular.warmup}.",
                 "title" : "Convert ${objectnames.singular.warmup} to a ${objectnames.singular.project}",
-                "text" : "To create the new ${objectnames.singular.warmup} enter the name below, select the directory it should be saved to and press the Create button.  Your ${objectnames.singular.warmup} text will be added as a ${objectnames.singular.chapter} to the ${objectnames.singular.project}."
+                "text" : "To create the new ${objectnames.singular.warmup} enter the name below, select the folder it should be saved to and press the Create button.  Your ${objectnames.singular.warmup} text will be added as a ${objectnames.singular.chapter} to the ${objectnames.singular.project}."
             },
             "editwarmup" :
             {
@@ -5437,12 +5597,78 @@
                     ":comment.readability" : "%1$s is the Flesch Kincaid grade level, %2$s is the Flesch Reading ease level, $3$s is the Gunning Fox Index.",
                     ":scount.readability" : 3,
                     "notapplicable" : "n/a",
-                    ":comment.notapplicable" : "This value is used when there are no readability values to show, i.e. if the chapter doesn't have enough words to generate a value."
+                    ":comment.notapplicable" : "This value is used when there are no readability values to show, i.e. if the chapter doesn't have enough words to generate a value.",
+                    "edit" :
+                    {
+                        ":comment" : "This section is used for editing the preview information displayed in the chapters sidebar.",
+                        "popup" :
+                        {
+                            "title" : "Change what is displayed",
+                            "text" : "Use the following format for ${objectnames.singular.chapter} information.  <a href='help:chapters/overview'>Click here</a> for help on the format/tags that can be used.",
+                            "tooltip" : "Enter the format here...",
+                            "usedefault" : "Use default",
+                            "examplechapter" :
+                            {
+                                "title" : "Example",
+                                "text" : "Once upon a time there was a little chapter that wanted to be written.",
+                                "description" : "This chapter will be really, really good once I actually start to write it."
+                            },
+                            "buttons" :
+                            {
+                                "save" : "${buttons.save}",
+                                "cancel" : "${buttons.cancel}"
+                            }
+                        }
+                    }
                 }
             }
         },
         "actions" :
         {
+            "changebackupdir" :
+            {
+                "actionerror" : "Unable to change backup folder.",
+                "confirmpopup" :
+                {
+                    "title" : "${objectnames.plural.backup} folder changed",
+                    "text" : "The ${objectnames.plural.backup} folder for the ${objectnames.singular.project} has been changed to <b>%1$s</b>.",
+                    ":comment.text" : "%1$s is the path to the new backup folder.",
+                    ":scount.text" : 1,
+                    "errors" :
+                    {
+                        "dirnotempty" : "New backups folder: %1$s is not empty.",
+                        ":comment.dirnotempty" : "%1$s is the path to the folder.",
+                        ":scount.dirnotempty" : 1
+                    }
+                }
+            },
+            "changeprojectdir" :
+            {
+                "actionerror" : "Unable to change ${objectnames.singular.project} folder.",
+                "errors" :
+                {
+                    "backupdirnotempty" : "New backups folder: %1$s is not empty.",
+                    ":comment.backupdirnotempty" : "%1$s is the path to the folder.",
+                    ":scount.backupdirnotempty" : 1,
+                    "dirnotempty" : "Unable to changeNew backups folder: %1$s is not empty.",
+                    ":comment.dirnotempty" : "%1$s is the path to the folder.",
+                    ":scount.dirnotempty" : 1,
+                    "reopenproject" : "Unable to reopen ${objectnames.singular.project}"
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Confirm change to ${objectnames.singular.project} folder?",
+                    "text" : "To change the folder of a ${objectnames.singular.project} it must first be saved and closed.  Once the folder has been changed the ${objectnames.singular.project} will be reopened.<br /><br />%1$sDo you wish to continue?",
+                    ":comment.text" : "%1$s is extra information about the change, usually it is about the backups folder also behing moved.",
+                    ":scount.text" : 1,
+                    "backupdirchangewarning" : "<span class='error'>Warning!  The backups folders for this ${objectnames.singular.project} will also be changed.</span><br /><br />",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, change it",
+                        "cancel" : "${buttons.cancel}"
+                    }
+                }
+            },
             "deletetag" :
             {
                 "actionerror" : "Unable to delete tag.",
@@ -5559,14 +5785,14 @@
                     ":scount.general" : 2,
                     "unspecified" : "An internal error occurred.",
                     "projectnotexist" : "${objectnames.singular.project} does not exist.",
-                    "projectdirnotexist" : "Cannot find ${objectnames.singular.project} directory <b>%1$s</b>.",
-                    ":comment.projectdirnotexist" : "%1$s is the project directory.",
+                    "projectdirnotexist" : "Cannot find ${objectnames.singular.project} folder <b>%1$s</b>.",
+                    ":comment.projectdirnotexist" : "%1$s is the project folder.",
                     ":scount.projectdirnotexist" : 1,
-                    "projectdirisfile" : "Path to ${objectnames.singular.project} <b>%1$s</b> is a file, but a directory is expected.",
-                    ":comment.projectdirisfile" : "%1$s is the expected project directory.  This error occurs when the project directory is actually a file.",
+                    "projectdirisfile" : "Path to ${objectnames.singular.project} <b>%1$s</b> is a file, but a folder is expected.",
+                    ":comment.projectdirisfile" : "%1$s is the expected project folder.  This error occurs when the project folder is actually a file.",
                     ":scount.projectdirisfile" : 1,
-                    "invalidprojectdir" : "${objectnames.singular.project} directory <b>%1$s</b> doesn't appear to be a valid {QW} ${objectnames.singular.project}.",
-                    ":comment.invalidprojectdir" : "%1$s is the project directory.",
+                    "invalidprojectdir" : "${objectnames.singular.project} folder <b>%1$s</b> doesn't appear to be a valid {QW} ${objectnames.singular.project}.",
+                    ":comment.invalidprojectdir" : "%1$s is the project folder.",
                     ":scount.invalidprojectdir" : 1,
                     "cantfindeditor" : "Unable to find ${objectnames.singular.contact}: <b>%1$s</b> you are editing the ${objectnames.singular.project} for.",
                     ":comment.cantfindeditor" : "%1$s is the email address of the contact/editor the user is editing the project for.",

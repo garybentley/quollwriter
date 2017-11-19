@@ -18,6 +18,9 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer> implements ProjectEventListener
 {
 
@@ -196,15 +199,9 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
         final TaggedObjectAccordionItem _this = this;
 
-        java.util.List<String> prefix = new ArrayList ();
-        prefix.add (LanguageStrings.project);
-        prefix.add (LanguageStrings.sidebar);
-        prefix.add (LanguageStrings.tags);
-        prefix.add (LanguageStrings.headerpopupmenu);
-        prefix.add (LanguageStrings.items);
+        java.util.List<String> prefix = Arrays.asList (project,sidebar,tags,headerpopupmenu,items);
 
-        m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
-                                                                LanguageStrings.rename),
+        m.add (UIUtils.createMenuItem (getUIString (prefix,rename),
                                        //"Rename",
                                        Constants.EDIT_ICON_NAME,
                                        new ActionListener ()
@@ -221,8 +218,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
                                        }));
 
-        m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
-                                                                LanguageStrings.delete),
+        m.add (UIUtils.createMenuItem (getUIString (prefix,delete),
                                        //"Delete this Tag",
                                        Constants.DELETE_ICON_NAME,
                                        new ActionListener ()
@@ -232,15 +228,11 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                            public void actionPerformed (ActionEvent ev)
                                            {
 
-                                                java.util.List<String> prefix = new ArrayList ();
-                                                prefix.add (LanguageStrings.project);
-                                                prefix.add (LanguageStrings.actions);
-                                                prefix.add (LanguageStrings.deletetag);
+                                                java.util.List<String> prefix = Arrays.asList (project,actions,deletetag);
 
                                                 Map<String, ActionListener> buttons = new LinkedHashMap ();
 
-                                                buttons.put (Environment.getUIString (prefix,
-                                                                                      LanguageStrings.allprojects),
+                                                buttons.put (getUIString (prefix,allprojects),
                                                              //"Delete from all {projects}",
                                                              new ActionListener ()
                                                              {
@@ -261,8 +253,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                                                               e);
 
                                                                         UIUtils.showErrorMessage (_this.viewer,
-                                                                                                  Environment.getUIString (prefix,
-                                                                                                                           LanguageStrings.actionerror));
+                                                                                                  getUIString (prefix,actionerror));
                                                                                                   //"Unable to delete tag.");
 
                                                                     }
@@ -271,8 +262,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
                                                              });
 
-                                                buttons.put (Environment.getUIString (prefix,
-                                                                                      LanguageStrings.thisproject),
+                                                buttons.put (getUIString (prefix,thisproject),
                                                 //"Just this {project}",
                                                              new ActionListener ()
                                                              {
@@ -293,8 +283,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                                                               e);
 
                                                                         UIUtils.showErrorMessage (_this.viewer,
-                                                                                                  Environment.getUIString (prefix,
-                                                                                                                           LanguageStrings.actionerror));
+                                                                                                  getUIString (prefix,actionerror));
                                                                                                   //"Unable to delete tag.");
 
                                                                     }
@@ -303,7 +292,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
                                                              });
 
-                                                buttons.put (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                buttons.put (getUIString (LanguageStrings.buttons,cancel),
                                                              new ActionListener ()
                                                              {
 
@@ -316,12 +305,10 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                              });
 
                                                 UIUtils.createQuestionPopup (_this.viewer,
-                                                                             Environment.getUIString (prefix,
-                                                                                                      LanguageStrings.title),
+                                                                             getUIString (prefix,title),
                                                 //"Remove tag",
                                                                              Constants.DELETE_ICON_NAME,
-                                                                             String.format (Environment.getUIString (prefix,
-                                                                                                                     LanguageStrings.text),
+                                                                             String.format (getUIString (prefix,text),
                                                                                             //"Do you wish to remove tag <b>%s</b> from <b>ALL</b> {projects} or just this one?",
                                                                                             _this.tag.getName ()),
                                                                              buttons,
@@ -488,19 +475,13 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
         if (tp != null)
         {
 
-            java.util.List<String> prefix = new ArrayList ();
-            prefix.add (LanguageStrings.project);
-            prefix.add (LanguageStrings.sidebar);
-            prefix.add (LanguageStrings.tags);
-            prefix.add (LanguageStrings.treepopupmenu);
-            prefix.add (LanguageStrings.items);
+            java.util.List<String> prefix = Arrays.asList (project,sidebar,tags,treepopupmenu,items);
 
             final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
             final NamedObject d = (NamedObject) node.getUserObject ();
 
-            m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
-                                                                    LanguageStrings.view),
+            m.add (UIUtils.createMenuItem (getUIString (prefix,view),
                                            //"View",
                                             Constants.VIEW_ICON_NAME,
                                             new ActionListener ()
@@ -536,8 +517,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
             m.add (UIUtils.createTagsMenu (d,
                                            this.viewer));
 
-            m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
-                                                                    LanguageStrings.remove),
+            m.add (UIUtils.createMenuItem (getUIString (prefix,remove),
                                            //"Remove",
                                             Constants.DELETE_ICON_NAME,
                                             new ActionListener ()
@@ -564,10 +544,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                                               e);
 
                                                         UIUtils.showErrorMessage (_this.viewer,
-                                                                                  Environment.getUIString (LanguageStrings.project,
-                                                                                                           LanguageStrings.actions,
-                                                                                                           LanguageStrings.deletetag,
-                                                                                                           LanguageStrings.actionerror));
+                                                                                  getUIString (project,actions,deletetag,actionerror));
                                                                                   //"Unable to remove tag.");
 
                                                     }

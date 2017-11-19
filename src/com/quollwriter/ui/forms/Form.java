@@ -19,6 +19,9 @@ import com.jgoodies.forms.layout.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class Form extends Box
 {
 
@@ -973,7 +976,7 @@ public class Form extends Box
         if (buttons.keySet ().contains (Button.save))
         {
 
-            JButton but = UIUtils.createButton (Constants.SAVE_BUTTON_LABEL_ID,
+            JButton but = UIUtils.createButton (getUIString (LanguageStrings.buttons,save),
                                                 new ActionListener ()
             {
 
@@ -1003,7 +1006,7 @@ public class Form extends Box
         if (buttons.keySet ().contains (Button.cancel))
         {
 
-            JButton but = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+            JButton but = UIUtils.createButton (getUIString (LanguageStrings.buttons,cancel),
                                                 new ActionListener ()
             {
 
@@ -1113,9 +1116,7 @@ public class Form extends Box
 
         }
 
-        this.showError (String.format (Environment.getUIString (LanguageStrings.form,
-                                                                LanguageStrings.errors,
-                                                                LanguageStrings.general),
+        this.showError (String.format (getUIString (form,errors,general),
                                        b.toString ()));
 
     }

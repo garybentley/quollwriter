@@ -224,7 +224,7 @@ public class Options extends Box
 
             this.setContentBorder (inf.content);
 
-            Accordion.Item item = this.accordion.add (this.createHeader (UIUtils.formatForUser (inf.title),
+            Accordion.Item item = this.accordion.add (this.createHeader (inf.title,
                                                                          inf.iconType),
                                                       null,
                                                       inf.content,
@@ -2275,7 +2275,8 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        final JButton b = UIUtils.createButton ("Change names",
+        final JButton b = UIUtils.createButton (getUIString (options,naming,labels,changenames),
+                                                //"Change names",
                                                 new ActionListener ()
         {
 
@@ -2295,9 +2296,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("What things are called",
+        return new SectionInfo (getUIString (options,naming,title),
+                                //"What things are called",
                                 Constants.CONFIG_ICON_NAME,
-                                "Not happy with what things are called?  Want to change {chapter} to <i>sausage</i>?  What are you waiting for crack this section open and get changing.  Yes that's a phrase now.",
+                                getUIString (options,naming,text),
+                                //"Not happy with what things are called?  Want to change {chapter} to <i>sausage</i>?  What are you waiting for crack this section open and get changing.  Yes that's a phrase now.",
                                 box);
 
     }
@@ -2312,8 +2315,8 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-		final JCheckBox keepCB = new JCheckBox (Environment.replaceObjectNames ("Keep the {Projects} window open when a {project} is opened"));
-		keepCB.setOpaque (false);
+		final JCheckBox keepCB = UIUtils.createCheckBox (getUIString (options,lookandsound,labels,keepprojectswindowsopen));
+        // ("Keep the {Projects} window open when a {project} is opened"));
 
         keepCB.setSelected (!UserProperties.getAsBoolean (Constants.CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME));
 
@@ -2337,8 +2340,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-		final JCheckBox openPWCB = new JCheckBox (Environment.replaceObjectNames ("Show the {Projects} window when I have no open {projects}"));
-		openPWCB.setOpaque (false);
+		final JCheckBox openPWCB = UIUtils.createCheckBox (getUIString (options,lookandsound,labels,showprojectswindownoopenproject));
+        //"Show the {Projects} window when I have no open {projects}"));
 
         openPWCB.setSelected (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME));
 
@@ -2362,9 +2365,9 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        final JCheckBox showPrev = new JCheckBox (Environment.replaceObjectNames ("Show a brief preview of the object when you mouse over its name in the {project} sidebar"));
+        final JCheckBox showPrev = UIUtils.createCheckBox (getUIString (options,lookandsound,labels,showpreview));
+        //"Show a brief preview of the object when you mouse over its name in the {project} sidebar"));
         showPrev.setSelected (UserProperties.getAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME));
-        showPrev.setOpaque (false);
 
         showPrev.addItemListener (new ItemAdapter ()
         {
@@ -2386,7 +2389,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        JButton but = UIUtils.createButton ("Change what is displayed",
+        JButton but = UIUtils.createButton (getUIString (options,lookandsound,labels,changedisplay),
+                                            //"Change what is displayed",
                                             new ActionListener ()
         {
 
@@ -2407,9 +2411,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        final JCheckBox showNotesInChapterList = new JCheckBox (Environment.replaceObjectNames ("Show {Notes} in the {Chapter} list"));
+        final JCheckBox showNotesInChapterList = UIUtils.createCheckBox (getUIString (options,lookandsound,labels,shownotes));
         showNotesInChapterList.setSelected (UserProperties.getAsBoolean (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME));
-        showNotesInChapterList.setOpaque (false);
 
         showNotesInChapterList.addItemListener (new ItemAdapter ()
         {
@@ -2444,14 +2447,14 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("How should the interface be laid out? (Click on the image below to change)");
+        c = this.createHelpText (getUIString (options,lookandsound,labels,interfacelayout,text));
         this.setAsMainItem (c);
 
         box.add (c);
 
         String selLayout = UserProperties.get (Constants.UI_LAYOUT_PROPERTY_NAME);
 
-        final JLabel layoutSel = new JLabel (new ImageIcon (Environment.getImage (Constants.DATA_DIR + selLayout + ".png")));
+        final JLabel layoutSel = new JLabel (new LayoutImagePanel (selLayout));
 
         UIUtils.setAsButton (layoutSel);
 
@@ -2464,7 +2467,8 @@ public class Options extends Box
 
                 String selLayout = UserProperties.get (Constants.UI_LAYOUT_PROPERTY_NAME);
 
-                final QPopup qp = UIUtils.createClosablePopup ("Select a layout",
+                final QPopup qp = UIUtils.createClosablePopup (getUIString (options,lookandsound,labels,interfacelayout,popup,title),
+                                                                //"Select a layout",
                                                                Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
                                                                null);
@@ -2484,7 +2488,8 @@ public class Options extends Box
                 layoutL.setSelectedValue (selLayout,
                                           false);
 
-                layoutL.setToolTipText ("Click to select a layout");
+                layoutL.setToolTipText (getUIString (options,lookandsound,labels,interfacelayout,popup,tooltip));
+                //"Click to select a layout");
                 layoutL.addListSelectionListener (new ListSelectionListener ()
                 {
 
@@ -2493,7 +2498,7 @@ public class Options extends Box
 
                         final String layout = layoutL.getSelectedValue ();
 
-                        layoutSel.setIcon (new ImageIcon (Environment.getImage (Constants.DATA_DIR + layout + ".png")));
+                        layoutSel.setIcon (new LayoutImagePanel (layout));
 
                         qp.removeFromParent ();
 
@@ -2524,7 +2529,7 @@ public class Options extends Box
                 layoutL.setCellRenderer (new DefaultListCellRenderer ()
                 {
 
-                    private Map<String, ImageIcon> images = new HashMap ();
+                    private Map<String, Icon> images = new HashMap ();
 
                     public Component getListCellRendererComponent (JList   list,
                                                                    Object  value,
@@ -2541,65 +2546,10 @@ public class Options extends Box
 
                         String imName = value.toString ();
 
-                        ImageIcon icon = this.images.get (imName);
-
-                        if (icon == null)
-                        {
-
-                            icon = new ImageIcon (Environment.getImage (Constants.DATA_DIR + imName + ".png"));
-
-                            this.images.put (imName,
-                                             icon);
-
-                        }
-
-                        this.setIcon (icon);
-                        String text = "";
-
-                        if (imName.equals (Constants.LAYOUT_PS_CH))
-                        {
-
-                            text = "Only show one sidebar, always on the left. Other sidebars will display where the {project} sidebar is.  (Default)";
-
-                        }
-
-                        if (imName.equals (Constants.LAYOUT_CH_PS))
-                        {
-
-                            text = "Only show one sidebar, always on the right.  Other sidebars will display where the {project} sidebar is.";
-
-                        }
-
-                        if (imName.equals (Constants.LAYOUT_PS_CH_OS))
-                        {
-
-                            text = "The {project} sidebar is shown on the left.  Other sidebars, such as word counts, are shown on the right.";
-
-                        }
-
-                        if (imName.equals (Constants.LAYOUT_OS_CH_PS))
-                        {
-
-                            text = "The {project} sidebar is shown on the right.  Other sidebars, such as {chapter} information, are shown on the left.";
-
-                        }
-
-                        if (imName.equals (Constants.LAYOUT_PS_OS_CH))
-                        {
-
-                            text = "The {project} sidebar is shown on the left with other sidebars next to it.";
-
-                        }
-
-                        if (imName.equals (Constants.LAYOUT_CH_OS_PS))
-                        {
-
-                            text = "The {project} sidebar is shown on the far right with other sidebars next to it (to the left).";
-
-                        }
-
+                        this.setIcon (new LayoutImagePanel (imName));
                         this.setText (String.format ("<html>%s</html>",
-                                                     Environment.replaceObjectNames (text)));
+                                                     getUIString (options,lookandsound,interfacelayouts,imName)));
+                                                     //Environment.replaceObjectNames (text)));
                         this.setBorder (UIUtils.createPadding (5, 3, 5, 3));
                         this.setVerticalTextPosition (SwingConstants.TOP);
 
@@ -2647,14 +2597,17 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("Show the toolbar");
+        c = this.createHelpText (getUIString (options,lookandsound,labels,showtoolbar));
+        //"Show the toolbar");
         this.setAsMainItem (c);
 
         box.add (c);
 
         Vector v = new Vector ();
-        v.add (Environment.replaceObjectNames ("Above the sidebar"));
-        v.add (Environment.replaceObjectNames ("Below the sidebar"));
+        v.add (getUIString (options,lookandsound,labels,abovesidebar));
+        //"Above the sidebar"));
+        v.add (getUIString (options,lookandsound,labels,belowsidebar));
+        //"Below the sidebar"));
 
         final JComboBox toolbarLoc = new JComboBox (v);
 
@@ -2734,14 +2687,17 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (15));
 
         // Sidebar location
-        c = this.createHelpText ("Show the tabs");
+        c = this.createHelpText (getUIString (options,lookandsound,labels,showtabs));
+        //"Show the tabs");
         this.setAsMainItem (c);
 
         box.add (c);
 
         v = new Vector ();
-        v.add (Environment.replaceObjectNames ("At the top"));
-        v.add (Environment.replaceObjectNames ("At the bottom"));
+        v.add (getUIString (options,lookandsound,labels,showtabstop));
+        // ("At the top"));
+        v.add (getUIString (options,lookandsound,labels,showtabsbottom));
+        // ("At the bottom"));
 
         final JComboBox tabsLoc = new JComboBox (v);
 
@@ -2834,13 +2790,16 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("When I do a find");
+        c = this.createHelpText (getUIString (options,lookandsound,labels,whenfind));
+        //"When I do a find");
         this.setAsMainItem (c);
 
         box.add (c);
 
-        final JRadioButton eachChap = UIUtils.createRadioButton ("Expand all {chapters} to show all results");
-        final JRadioButton justChap = UIUtils.createRadioButton ("Just show the {chapter}");
+        final JRadioButton eachChap = UIUtils.createRadioButton (getUIString (options,lookandsound,labels,expandall));
+        //"Expand all {chapters} to show all results");
+        final JRadioButton justChap = UIUtils.createRadioButton (getUIString (options,lookandsound,labels,justchapter));
+        //"Just show the {chapter}");
 
         boolean showEachChapResult = UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME);
 
@@ -2889,13 +2848,16 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (10));
 
-        final JCheckBox playSound = new JCheckBox (UIUtils.formatForUser ("Play a typewriter sound when editing a {chapter}."));
+        final JCheckBox playSound = UIUtils.createCheckBox (getUIString (options,lookandsound,labels,playtypewritersound,text));
+        //"Play a typewriter sound when editing a {chapter}."));
 
         boolean playSoundEnabled = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
 
         final FileFinder f = new FileFinder ();
-        final JButton useB = new JButton ("Use Sound");
-        final JButton testB = new JButton ("Play Sound");
+        final JButton useB = UIUtils.createButton (getUIString (options,lookandsound,labels,playtypewritersound,buttons,usesound));
+        //"Use Sound");
+        final JButton testB = UIUtils.createButton (getUIString (options,lookandsound,labels,playtypewritersound,buttons,playsound));
+        //"Play Sound");
 
         f.setEnabled (playSoundEnabled);
         playSound.setOpaque (false);
@@ -2945,7 +2907,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        c = this.createHelpText ("Or, select your own WAV file that will be played instead. (Note: only .wav files are supported.)");
+        c = this.createHelpText (getUIString (options,lookandsound,labels,playtypewritersound,selectownwavfile));
+        //"Or, select your own WAV file that will be played instead. (Note: only .wav files are supported.)");
         this.setAsSubItem (c);
 
         box.add (c);
@@ -2963,14 +2926,18 @@ public class Options extends Box
 
         f.setFile (new File (sfv));
 
-        f.setApproveButtonText ("Select");
+        f.setApproveButtonText (getUIString (options,lookandsound,labels,playtypewritersound,finder,button));
+        //"Select");
         f.setFinderSelectionMode (JFileChooser.FILES_ONLY);
-        f.setFinderTitle ("Select a File");
+        f.setFinderTitle (getUIString (options,lookandsound,labels,playtypewritersound,finder,title));
+        //"Select a File");
 
-        f.setFileFilter (new FileNameExtensionFilter ("Supported Files (wav)",
+        f.setFileFilter (new FileNameExtensionFilter (getUIString (options,lookandsound,labels,playtypewritersound,finder,filter),
+        //"Supported Files (wav)",
                                                       "wav"));
 
-        f.setFindButtonToolTip ("Click to find a wav file");
+        f.setFindButtonToolTip (getUIString (options,lookandsound,labels,playtypewritersound,finder,tooltip));
+        //"Click to find a wav file");
         f.setClearOnCancel (true);
         f.setMaximumSize (new Dimension (400,
                                          f.getPreferredSize ().height));
@@ -3040,12 +3007,13 @@ public class Options extends Box
                     } catch (Exception e)
                     {
 
-                        UIUtils.showErrorMessage (_this,
-                                                  file.getName () + " is not a valid .wav file.");
-
                         Environment.logError ("Unable to set key stroke sound file to: " +
                                               file.getPath (),
                                               e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  getUIString (options,lookandsound,labels,playtypewritersound,actionerror));
+                                                  //file.getName () + " is not a valid .wav file.");
 
                     }
 
@@ -3081,7 +3049,8 @@ public class Options extends Box
                         {
 
                             UIUtils.showErrorMessage (_this,
-                                                      file.getName () + " is not a valid .wav file.");
+                                                      getUIString (options,lookandsound,labels,playtypewritersound,actionerror));
+                                                      //file.getName () + " is not a valid .wav file.");
 
                             return;
 
@@ -3114,7 +3083,8 @@ public class Options extends Box
                                           e);
 
                     UIUtils.showErrorMessage (_this,
-                                              "Unable to play sound file.");
+                                              getUIString (options,lookandsound,labels,playtypewritersound,actionerror));
+                                              //"Unable to play sound file.");
 
                 }
 
@@ -3139,8 +3109,10 @@ public class Options extends Box
 
         box.add (c);
 
-        final JCheckBox highlightSPDivs = UIUtils.createCheckBox ("Highlight dividers when I move the mouse over them");
-        highlightSPDivs.setToolTipText ("This is for dividers that allow you to slide panels left and right or up and down.  It allows you to more easily see the divider.");
+        final JCheckBox highlightSPDivs = UIUtils.createCheckBox (getUIString (options,lookandsound,labels,highlightdividers,text));
+        //"Highlight dividers when I move the mouse over them");
+        highlightSPDivs.setToolTipText (getUIString (options,lookandsound,labels,highlightdividers,tooltip));
+        //"This is for dividers that allow you to slide panels left and right or up and down.  It allows you to more easily see the divider.");
 
         boolean highlight = UserProperties.getAsBoolean (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME);
 
@@ -3166,9 +3138,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("How things look and sound",
+        return new SectionInfo (getUIString (options,lookandsound,title),
+                                //"How things look and sound",
                                 "eye",
-                                "Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",
+                                getUIString (options,lookandsound,text),
+                                //"Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",
                                 box);
 
     }
@@ -3187,16 +3161,22 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        JComponent c = this.createHelpText ("Add new Assets ({Characters}, {Locations}, etc) in");
+        JComponent c = this.createHelpText (getUIString (options,assets,labels,newasset,text));
+        //"Add new Assets ({Characters}, {Locations}, etc) in");
         this.setAsMainItem (c);
 
         box.add (c);
 
-        final JRadioButton rbAssetInPopup = UIUtils.createRadioButton ("Always use a Popup");
-        rbAssetInPopup.setToolTipText ("If the Asset has more than just a name and description field then a link will be shown to add the Asset, and thus see all the fields, in a tab instead.");
-        final JRadioButton rbAssetTryPopup = UIUtils.createRadioButton ("Use a Popup if possible");
-        rbAssetTryPopup.setToolTipText ("If the Asset only has a name and a description field then a popup will be used, otherwise a tab will be used.");
-        final JRadioButton rbAssetInTab = UIUtils.createRadioButton ("Their own tab");
+        final JRadioButton rbAssetInPopup = UIUtils.createRadioButton (getUIString (options,assets,labels,newasset,options,alwayspopup,text));
+        //"Always use a Popup");
+        rbAssetInPopup.setToolTipText (getUIString (options,assets,labels,newasset,options,alwayspopup,tooltip));
+        //"If the Asset has more than just a name and description field then a link will be shown to add the Asset, and thus see all the fields, in a tab instead.");
+        final JRadioButton rbAssetTryPopup = UIUtils.createRadioButton (getUIString (options,assets,labels,newasset,options,popupifpossible,text));
+        //"Use a Popup if possible");
+        rbAssetTryPopup.setToolTipText (getUIString (options,assets,labels,newasset,options,popupifpossible,tooltip));
+        //"If the Asset only has a name and a description field then a popup will be used, otherwise a tab will be used.");
+        final JRadioButton rbAssetInTab = UIUtils.createRadioButton (getUIString (options,assets,labels,newasset,options,owntab,text));
+        //"Their own tab");
 
         String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
 
@@ -3272,7 +3252,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        c = this.createHelpText ("Edit the Asset configuration (Layout, Fields, Name, Icon etc)");
+        c = this.createHelpText (getUIString (options,assets,labels,editassetconfig));
+        //"Edit the Asset configuration (Layout, Fields, Name, Icon etc)");
         this.setAsMainItem (c);
 
         box.add (c);
@@ -3325,7 +3306,8 @@ public class Options extends Box
         bb.add (assetTypes);
         bb.add (Box.createHorizontalStrut (5));
 
-        JButton editType = UIUtils.createButton ("Edit",
+        JButton editType = UIUtils.createButton (getUIString (buttons,edit),
+                                                //"Edit",
                                                  new ActionListener ()
         {
 
@@ -3367,7 +3349,8 @@ public class Options extends Box
 
         });
 */
-        JButton addType = new JButton ("Add Type");
+        JButton addType = UIUtils.createButton (getUIString (options,assets,labels,addtype));
+        //"Add Type");
 
         addType.addActionListener (new ActionAdapter ()
         {
@@ -3394,9 +3377,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("Assets",
+        return new SectionInfo (getUIString (options,assets,title),
+                                //"Assets",
                                 Constants.ASSETS_ICON_NAME,
-                                "Need to add another field to an asset?  Manage the tags?  Change the names of things, change the icons?  This section has you covered, you can also right click on the section header in the sidebar to do this stuff as well.",
+                                getUIString (options,assets,text),
+                                ////"Need to add another field to an asset?  Manage the tags?  Change the names of things, change the icons?  This section has you covered, you can also right click on the section header in the sidebar to do this stuff as well.",
                                 box);
 
     }
@@ -3417,14 +3402,18 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        final JButton b = new JButton ("Change");
+        final JButton b = UIUtils.createButton (getUIString (options,projectandbackup,labels,selectprojectdir,finder,label));
+        //"Change");
 
         final FileFinder f = UIUtils.createFileFind (proj.getProjectDirectory ().getParentFile ().getPath (),
-                                                     "Select a Directory",
+                                                     getUIString (options,projectandbackup,labels,selectprojectdir,finder,title),
+                                                     //"Select a Directory",
                                                      JFileChooser.DIRECTORIES_ONLY,
-                                                     "Select",
+                                                     getUIString (options,projectandbackup,labels,selectprojectdir,finder,button),
+                                                     //"Select",
                                                      null);
-        f.setFindButtonToolTip (Environment.replaceObjectNames ("Click to find a new {project} directory"));
+        f.setFindButtonToolTip (getUIString (options,projectandbackup,labels,selectprojectdir,finder,tooltip));
+        //"Click to find a new {project} directory"));
         f.setMaximumSize (new Dimension (400,
                                          f.getPreferredSize ().height));
 
@@ -3440,7 +3429,8 @@ public class Options extends Box
 
         });
 
-        JComponent c = this.createHelpText ("Select the directory where your {project} is stored");
+        JComponent c = this.createHelpText (getUIString (options,projectandbackup,labels,selectprojectdir,text));
+        //"Select the directory where your {project} is stored");
         this.setAsMainItem (c);
 
         box.add (c);
@@ -3486,7 +3476,7 @@ public class Options extends Box
         vals.add (Environment.formatNumber (10)); //Constants.COUNT_10);
         vals.add (Environment.formatNumber (20)); //Constants.COUNT_20);
         vals.add (Environment.formatNumber (50)); //Constants.COUNT_50);
-        vals.add ("All"); //Constants.COUNT_ALL);
+        vals.add (getUIString (options,projectandbackup,labels,all)); //Constants.COUNT_ALL);
 
         final JComboBox backupsCount = new JComboBox (vals);
 
@@ -3613,7 +3603,8 @@ public class Options extends Box
 
         });
 
-        final JCheckBox enableBackups = new JCheckBox (Environment.replaceObjectNames ("Automatically create backups of the {project}"));
+        final JCheckBox enableBackups = UIUtils.createCheckBox (getUIString (options,projectandbackup,labels,autobackup));
+        //"Automatically create backups of the {project}");
         enableBackups.setOpaque (false);
 
         c = this.createWrapper (enableBackups);
@@ -3721,7 +3712,8 @@ public class Options extends Box
 
         });
 
-        c = this.createHelpText ("Create a new backup after the following time between sessions or during a session");
+        c = this.createHelpText (getUIString (options,projectandbackup,labels,createbackupafter));
+        //"Create a new backup after the following time between sessions or during a session");
         this.setAsSubItem (c);
 
         box.add (c);
@@ -3733,7 +3725,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (10));
 
-        c = this.createHelpText ("Number of backups to keep (oldest are deleted first)");
+        c = this.createHelpText (getUIString (options,projectandbackup,labels,nobackupstokeep));
+        //"Number of backups to keep (oldest are deleted first)");
         this.setAsMainItem (c);
 
         box.add (c);
@@ -3743,14 +3736,18 @@ public class Options extends Box
 
         box.add (c);
 
-        final JButton bb = new JButton ("Change");
+        final JButton bb = UIUtils.createButton (getUIString (options,projectandbackup,labels,selectbackupdir,finder,label));
+        //"Change");
 
         final FileFinder bf = UIUtils.createFileFind (proj.getBackupDirectory ().getPath (),
-                                                     "Select a Directory",
+                                                     getUIString (options,projectandbackup,labels,selectbackupdir,finder,title),
+                                                     //"Select a Directory",
                                                      JFileChooser.DIRECTORIES_ONLY,
-                                                     "Select",
+                                                     getUIString (options,projectandbackup,labels,selectbackupdir,finder,button),
+                                                     //"Select",
                                                      null);
-        bf.setFindButtonToolTip (Environment.replaceObjectNames ("Click to find a new backup directory"));
+        bf.setFindButtonToolTip (getUIString (options,projectandbackup,labels,selectbackupdir,finder,tooltip));
+        // ("Click to find a new backup directory"));
         bf.setMaximumSize (new Dimension (400,
                                           bf.getPreferredSize ().height));
 
@@ -3785,7 +3782,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (10));
 
-        c = this.createHelpText ("Select the directory where {project} backups are stored");
+        c = this.createHelpText (getUIString (options,projectandbackup,labels,selectbackupdir,text));
+        //"Select the directory where {project} backups are stored");
         this.setAsMainItem (c);
 
         box.add (c);
@@ -3818,7 +3816,8 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (10));
 
-        JButton create = UIUtils.createButton (Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
+        JButton create = UIUtils.createButton (getUIString (options,projectandbackup,labels,createbackup),
+                                                //Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
                                                new ActionListener ()
         {
 
@@ -3834,7 +3833,8 @@ public class Options extends Box
 
         });
 
-        JButton manage = UIUtils.createButton ("Manage Backups",
+        JButton manage = UIUtils.createButton (getUIString (options,projectandbackup,labels,managebackups),
+                                                //"Manage Backups",
                                                new ActionListener ()
         {
 
@@ -3862,9 +3862,11 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("{Project} & Backups",
+        return new SectionInfo (getUIString (options,projectandbackup,title),
+                                //"{Project} & Backups",
                                 Constants.PROJECT_ICON_NAME,
-                                "Click the title above to open this section.  You can then change where your {project} is stored and how often backups are created and where they are stored.",
+                                getUIString (options,projectandbackup,text),
+                                //"Click the title above to open this section.  You can then change where your {project} is stored and how often backups are created and where they are stored.",
                                 box);
 
     }
@@ -3886,7 +3888,10 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        c = this.createHelpText ("And do the {warmup} for");
+        // Use the standard warmup strings.
+
+        c = this.createHelpText (getUIString (options,warmups,labels,dofor));
+        //"And do the {warmup} for");
         this.setAsSubItem (c);
 
         box.add (c);
@@ -3904,7 +3909,8 @@ public class Options extends Box
                      cc.xy (1,
                             1));
 
-        builder.addLabel ("and/or",
+        builder.addLabel (getUIString (options,warmups,labels,andor),
+                            //"and/or",
                           cc.xy (3,
                                  1));
 
@@ -3914,7 +3920,8 @@ public class Options extends Box
                      cc.xy (5,
                             1));
 
-        builder.addLabel ("(whichever is reached first)",
+        builder.addLabel (getUIString (options,warmups,labels,whicheverfirst),
+                            //"(whichever is reached first)",
                           cc.xy (7,
                                  1));
 
@@ -3929,9 +3936,11 @@ public class Options extends Box
 
         //this.setContentBorder (box);
 
-        SectionInfo info = new SectionInfo ("{Warmups}",
+        SectionInfo info = new SectionInfo (getUIString (options,warmups,title),
+                                            //"{Warmups}",
                                             Warmup.OBJECT_TYPE,
-                                            "Want to flex your writing muscles everytime Quoll Writer starts?  You'd better click the title above and get things set up while you still have time.",
+                                            getUIString (options,warmups,text),
+                                            //"Want to flex your writing muscles everytime Quoll Writer starts?  You'd better click the title above and get things set up while you still have time.",
                                             box);
 
         return info;
@@ -4000,7 +4009,8 @@ public class Options extends Box
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to save default project properties");
+                                      getUIString (options,savepropertyerror));
+                                      //"Unable to save default project properties");
 
         }
 
@@ -4029,7 +4039,8 @@ public class Options extends Box
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to save default project properties");
+                                      getUIString (options,savepropertyerror));
+                                      //"Unable to save default project properties");
 
         }
 
@@ -4059,7 +4070,8 @@ public class Options extends Box
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to save.");
+                                      getUIString (options,savepropertyerror));
+                                      //"Unable to save.");
 
             return;
 
@@ -4067,322 +4079,6 @@ public class Options extends Box
 
     }
 
-    /*
-    private void addProjectAndSnapshotsSection ()
-    {
-
-        final OptionsPanel _this = this;
-
-        Box box = new Box (BoxLayout.Y_AXIS);
-
-        final JButton b = new JButton ("Change");
-
-        final FileFinder f = UIUtils.createFileFind (this.projectViewer.getProject ().getProjectDirectory ().getParentFile ().getPath (),
-                                                     "Select a Directory",
-                                                     JFileChooser.DIRECTORIES_ONLY,
-                                                     "Select",
-                                                     null);
-        f.setFindButtonToolTip (Environment.replaceObjectNames ("Click to find a new {project} directory"));
-        f.setMaximumSize (new Dimension (400,
-                                         f.getPreferredSize ().height));
-
-        f.setOnSelectHandler (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                b.setEnabled (!f.getSelectedFile ().getPath ().equals (_this.projectViewer.getProject ().getProjectDirectory ().getParentFile ().getPath ()));
-
-            }
-
-        });
-
-        JComponent c = this.createHelpText ("Select the directory where your {project} is stored");
-        this.setAsMainItem (c);
-
-        box.add (c);
-
-        c = this.createWrapper (f);
-        this.setAsSubItem (c);
-
-        box.add (c);
-
-        box.add (Box.createVerticalStrut (5));
-
-        b.setEnabled (false);
-
-        b.addActionListener (new ActionAdapter ()
-        {
-
-             public void actionPerformed (ActionEvent ev)
-             {
-
-                 _this.handleProjectDirChange (f);
-
-             }
-
-        });
-
-        c = this.createWrapper (b);
-        this.setAsSubItem (c);
-
-        box.add (c);
-
-        box.add (Box.createVerticalStrut (15));
-
-        Vector backupsA = new Vector ();
-        backupsA.add (Constants.HOURS_12);
-        backupsA.add (Constants.HOURS_24);
-        backupsA.add (Constants.DAYS_2);
-        backupsA.add (Constants.DAYS_5);
-        backupsA.add (Constants.WEEK_1);
-
-        final JComboBox backupsAmount = new JComboBox (backupsA);
-
-        Vector vals = new Vector ();
-        vals.add (Constants.COUNT_10);
-        vals.add (Constants.COUNT_20);
-        vals.add (Constants.COUNT_50);
-        vals.add (Constants.COUNT_ALL);
-
-        final JComboBox backupsCount = new JComboBox (vals);
-        backupsCount.setSelectedItem (this.projectViewer.getProject ().getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME));
-
-        backupsCount.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                if (ev.getStateChange () != ItemEvent.SELECTED)
-                {
-
-                    return;
-
-                }
-
-                _this.updateDefaultProjectProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME,
-                                                    (String) backupsCount.getSelectedItem ());
-
-                try
-                {
-
-                    _this.projectViewer.getObjectManager ().pruneBackups (_this.projectViewer.getProject (),
-                                                                          Utils.getCountAsInt ((String) backupsCount.getSelectedItem ()));
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to prune backups for project: " +
-                                          _this.projectViewer.getProject (),
-                                          e);
-
-                }
-
-            }
-
-        });
-
-        final JCheckBox enableBackups = new JCheckBox (Environment.replaceObjectNames ("Automatically create backups of the {project}"));
-        enableBackups.setOpaque (false);
-
-        c = this.createWrapper (enableBackups);
-        this.setAsMainItem (c);
-
-        box.add (c);
-
-        box.add (Box.createVerticalStrut (5));
-
-        boolean backupsEnabled = this.projectViewer.getProject ().getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
-        enableBackups.setSelected (backupsEnabled);
-
-        backupsCount.setEnabled (backupsEnabled);
-
-        backupsAmount.setSelectedItem (this.projectViewer.getProject ().getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
-        backupsAmount.setEnabled (backupsEnabled);
-
-        backupsAmount.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                if (ev.getStateChange () != ItemEvent.SELECTED)
-                {
-
-                    return;
-
-                }
-
-                _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME,
-                                                    (String) backupsAmount.getSelectedItem ());
-
-            }
-
-        });
-
-        backupsCount.setEnabled (enableBackups.isSelected ());
-
-        c = this.createHelpText ("Create a new backup after the following time between sessions or during a session");
-        this.setAsSubItem (c);
-
-        box.add (c);
-
-        c = this.createWrapper (backupsAmount);
-        this.setAsSubItem2 (c);
-
-        box.add (c);
-
-        box.add (Box.createVerticalStrut (10));
-
-        c = this.createHelpText ("Number of backups to keep (oldest are deleted first)");
-        this.setAsSubItem (c);
-
-        box.add (c);
-
-        c = this.createWrapper (backupsCount);
-        this.setAsSubItem2 (c);
-
-        box.add (c);
-
-        final JButton bb = new JButton ("Change");
-
-        final FileFinder bf = UIUtils.createFileFind (this.projectViewer.getProject ().getBackupDirectory ().getPath (),
-                                                     "Select a Directory",
-                                                     JFileChooser.DIRECTORIES_ONLY,
-                                                     "Select",
-                                                     null);
-        bf.setFindButtonToolTip (Environment.replaceObjectNames ("Click to find a new backup directory"));
-        bf.setMaximumSize (new Dimension (400,
-                                          bf.getPreferredSize ().height));
-
-        bf.setOnSelectHandler (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                bb.setEnabled (!bf.getSelectedFile ().getPath ().equals (_this.projectViewer.getProject ().getBackupDirectory ().getPath ()));
-
-            }
-
-        });
-
-        enableBackups.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                boolean sel = enableBackups.isSelected ();
-
-                backupsAmount.setEnabled (sel);
-
-                backupsCount.setEnabled (sel);
-
-                bf.setEnabled (sel);
-
-                _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME,
-                                                    sel);
-
-            }
-
-        });
-
-        box.add (Box.createVerticalStrut (10));
-
-        c = this.createHelpText ("Select the directory where {project} backups are stored");
-        this.setAsSubItem (c);
-
-        box.add (c);
-
-        c = this.createWrapper (bf);
-        this.setAsSubItem2 (c);
-
-        box.add (c);
-
-        box.add (Box.createVerticalStrut (5));
-
-        bb.setEnabled (false);
-
-        bb.addActionListener (new ActionAdapter ()
-        {
-
-             public void actionPerformed (ActionEvent ev)
-             {
-
-                 _this.handleBackupsDirChange (bf);
-
-             }
-
-        });
-
-        c = this.createWrapper (bb);
-        this.setAsSubItem2 (c);
-
-        box.add (c);
-
-        box.add (Box.createVerticalStrut (10));
-
-        JButton create = new JButton ("Create a Backup");
-
-        create.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.showCreateBackup (_this.projectViewer.getProject (),
-                                          null,
-                                          _this.projectViewer);
-
-            }
-
-        });
-
-        JButton manage = new JButton ("Manage Backups");
-
-        manage.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.showManageBackups (Environment.getProjectInfo (_this.projectViewer.getProject ()),
-                                           _this.projectViewer);
-
-            }
-
-        });
-
-        JButton buts[] = new JButton[] { create, manage };
-
-        JPanel bp = UIUtils.createButtonBar2 (buts,
-                                              Component.LEFT_ALIGNMENT);
-        bp.setOpaque (false);
-
-        c = this.createWrapper (bp);
-
-        //c = this.createWrapper (mb);
-        this.setAsMainItem (c);
-
-        box.add (c);
-
-        this.setContentBorder (box);
-
-        Accordion.Item item = this.accordion.add (this.createHeader (Environment.replaceObjectNames ("{Project} & Backups"),
-                                                                     Constants.PROJECT_ICON_NAME),
-                                                  null,
-                                                  box,
-                                                  UIUtils.createHelpTextPane ("Click the title above to open this section.  You can then change where your {project} is stored and how often backups are created and where they are stored.",
-                                                                              this.viewer));
-
-        this.sections.put (Section.Project,
-                           item);
-
-
-    }
-    */
     private boolean handleProjectDirChange (final FileFinder f)
     {
 
@@ -4422,7 +4118,8 @@ public class Options extends Box
                                       newProjDir);
 
                 UIUtils.showErrorMessage (null,
-                                          "Unable to change project directory, please contact Quoll Writer support for assistance.");
+                                          getUIString (project,actions,changeprojectdir,actionerror));
+                                          //"Unable to change project directory, please contact Quoll Writer support for assistance.");
 
                 return false;
 
@@ -4432,9 +4129,11 @@ public class Options extends Box
             {
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "New backups directory: " +
-                                          _newBackupDir +
-                                          " is not empty.");
+                                          String.format (getUIString (project,actions,changeprojectdir,errors,backupdirnotempty),
+                                                         _newBackupDir.getPath ()));
+                                          //"New backups directory: " +
+                                          //_newBackupDir +
+                                          //" is not empty.");
 
                 f.setFile (oldProjDir);
 
@@ -4454,9 +4153,11 @@ public class Options extends Box
             {
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to change {project} directory to: " +
-                                          newProjDir +
-                                          " directory is not empty.");
+                                          String.format (getUIString (project,actions,changeprojectdir,errors,dirnotempty),
+                                                         newProjDir.getPath ()));
+                                          //"Unable to change {project} directory to: " +
+                                          //newProjDir +
+                                          //" directory is not empty.");
 
                 f.setFile (oldProjDir);
 
@@ -4501,7 +4202,8 @@ public class Options extends Box
                                                       newProjDir);
 
                                 UIUtils.showErrorMessage (null,
-                                                          "Unable to change project directory, please contact Quoll Writer support for assistance.");
+                                                          getUIString (project,actions,changeprojectdir,actionerror));
+                                                          //"Unable to change project directory, please contact Quoll Writer support for assistance.");
 
                             } else {
 
@@ -4540,7 +4242,8 @@ public class Options extends Box
                                                       e);
 
                                 UIUtils.showErrorMessage (null,
-                                                          "Unable to reopen project, please contact Quoll Writer support for assistance.");
+                                                          getUIString (project,actions,changeprojectdir,errors,reopenproject));
+                                                          //"Unable to reopen project, please contact Quoll Writer support for assistance.");
 
                                 return;
 
@@ -4575,16 +4278,22 @@ public class Options extends Box
             if (backupIsSubDir)
             {
 
-                extra = "<span class='error'>Warning!  The backups directory for this {project} will also be changed.</span><br /><br />";
+                extra = getUIString (project,actions,changeprojectdir,confirmpopup,backupdirchangewarning);
+                //"<span class='error'>Warning!  The backups directory for this {project} will also be changed.</span><br /><br />";
 
             }
 
             UIUtils.createQuestionPopup (this.viewer,
-                                         "Confirm change to {project} directory?",
+                                         getUIString (project,actions,changeprojectdir,confirmpopup,title),
+                                         //"Confirm change to {project} directory?",
                                          Project.OBJECT_TYPE,
-                                         "To change the directory of a {project} it must first be saved and closed.  Once the directory has been changed the {project} will be reopened.<br /><br />" + extra + "Do you wish to continue?",
-                                         "Yes, change it",
-                                         null,
+                                         String.format (getUIString (project,actions,changeprojectdir,confirmpopup,text),
+                                                        extra),
+                                         //"To change the directory of a {project} it must first be saved and closed.  Once the directory has been changed the {project} will be reopened.<br /><br />" + extra + "Do you wish to continue?",
+                                         getUIString (project,actions,changeprojectdir,confirmpopup,buttons,confirm),
+                                         //"Yes, change it",
+                                         getUIString (project,actions,changeprojectdir,confirmpopup,buttons,cancel),
+                                         //null,
                                          confirmAction,
                                          onCancel,
                                          onCancel,
@@ -4617,9 +4326,11 @@ public class Options extends Box
             {
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to change backup directory to: " +
-                                          newDir +
-                                          ", directory is not empty.");
+                                          String.format (getUIString (project,actions,changebackupdir,errors,dirnotempty),
+                                                         newDir.getPath ()));
+                                          //"Unable to change backup directory to: " +
+                                          //newDir +
+                                          //", directory is not empty.");
 
                 return;
 
@@ -4638,8 +4349,9 @@ public class Options extends Box
             {
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to change backup directory to: " +
-                                          newDir);
+                                          getUIString (project,actions,changebackupdir,actionerror));
+                                          //"Unable to change backup directory to: " +
+                                          //newDir);
 
                 return;
 
@@ -4648,8 +4360,10 @@ public class Options extends Box
             proj.setBackupDirectory (newDir);
 
             UIUtils.showMessage ((PopupsSupported) this.viewer,
-                                 "Backups directory changed",
-                                 String.format ("The backups directory for the {project} has been changed to <b>%s</b>.",
+                                 getUIString (project,actions,changebackupdir,confirmpopup,title),
+                                //"Backups directory changed",
+                                 String.format (getUIString (project,actions,changebackupdir,confirmpopup,text),
+                                 //"The backups directory for the {project} has been changed to <b>%s</b>.",
                                                 newDir.getPath ()));
 
         }
@@ -4816,16 +4530,18 @@ public class Options extends Box
 		final Options _this = this;
 
         String popupName = "editchapterinfo";
-        final QPopup popup = UIUtils.createClosablePopup ("Change what is displayed",
-												    Environment.getIcon (Constants.EDIT_ICON_NAME,
-																	     Constants.ICON_POPUP),
-												    null);
+        final QPopup popup = UIUtils.createClosablePopup (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,title),
+                                                          //"Change what is displayed",
+												          Environment.getIcon (Constants.EDIT_ICON_NAME,
+																	           Constants.ICON_POPUP),
+												          null);
 
         popup.setPopupName (popupName);
 
 		OptionsBox bb = new OptionsBox (this.viewer);
 
-		final TextArea status = new TextArea ("Enter the format here...",
+		final TextArea status = new TextArea (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,tooltip),
+                                              //"Enter the format here...",
 											  3,
 											  -1);
 		status.setText (UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
@@ -4833,8 +4549,10 @@ public class Options extends Box
 
         final Chapter _bogus = new Chapter ();
         _bogus.setKey (1L);
-        _bogus.setDescription (new StringWithMarkup ("This chapter will be really, really good once I actually start to write it."));
-        _bogus.setText (new StringWithMarkup ("Once upon a time there was a little chapter that wanted to be written."));
+        _bogus.setDescription (new StringWithMarkup (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,examplechapter,description)));
+        //"This chapter will be really, really good once I actually start to write it."));
+        _bogus.setText (new StringWithMarkup (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,examplechapter,text)));
+        //"Once upon a time there was a little chapter that wanted to be written."));
 
         final ProjectViewer _bogusPV = new ProjectViewer ()
         {
@@ -4871,7 +4589,8 @@ public class Options extends Box
                                                             null,
                                                             _bogusPV);
 
-		bb.addMain ("Use the following format for {chapter} information.  <a href='help:chapters/overview'>Click here</a> for help on the format/tags that can be used.",
+		bb.addMain (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,text),
+                    //"Use the following format for {chapter} information.  <a href='help:chapters/overview'>Click here</a> for help on the format/tags that can be used.",
 					status);
 
 		Box pbb = new Box (BoxLayout.X_AXIS);
@@ -4916,7 +4635,8 @@ public class Options extends Box
 
 		});
 
-		bb.addMain (UIUtils.createBoldSubHeader ("Example",
+		bb.addMain (UIUtils.createBoldSubHeader (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,examplechapter,title),
+                                                //"Example",
 												null),
 				   pbb);
 
@@ -4928,7 +4648,7 @@ public class Options extends Box
 
 		//content.add (Box.createVerticalGlue ());
 
-		JButton save = UIUtils.createButton (Environment.getButtonLabel (Constants.SAVE_BUTTON_LABEL_ID),
+		JButton save = UIUtils.createButton (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,buttons, LanguageStrings.save),
 											 new ActionListener ()
 		{
 
@@ -4951,7 +4671,7 @@ public class Options extends Box
 
 		});
 
-		JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.FINISH_BUTTON_LABEL_ID),
+		JButton cancel = UIUtils.createButton (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,buttons, LanguageStrings.cancel),
 											   new ActionListener ()
 		{
 
@@ -4968,7 +4688,8 @@ public class Options extends Box
 
 		});
 
-		JButton reset = new JButton ("Use default");
+		JButton reset = UIUtils.createButton (getUIString (project,sidebar,chapters,preview,edit, LanguageStrings.popup,usedefault));
+        //"Use default");
 
 		reset.addActionListener (new ActionAdapter ()
 		{
@@ -5017,20 +4738,6 @@ public class Options extends Box
 							false);
 
 		popup.setDraggable (this.viewer);
-
-		// TODO: Why Swing??? Why, why, why???
-		UIUtils.doLater (new ActionListener ()
-		{
-
-			@Override
-			public void actionPerformed (ActionEvent ev)
-			{
-
-				//popup.resize ();
-
-			}
-
-		});
 
     }
 
