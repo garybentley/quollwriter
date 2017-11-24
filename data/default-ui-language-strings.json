@@ -1,10 +1,11 @@
 {
-    "_language" : "English",
-    "_nativeName" : "English",
-    "_version" : "1",
-    "_created" : "22/July/2017",
+    ":language" : "English",
+    ":nativename" : "English",
+    ":version" : "1",
+    ":created" : "22/July/2017",
     "startup" :
     {
+        ":section" : "General",
         "cantopenlastprojecterror" :
         {
             "title" : "Unable to open last ${objectnames.singular.project}",
@@ -13,22 +14,30 @@
         "unabletostarterror" : "Unable to start {QW}",
         "alreadyrunningerror" : "It appears that {QW} is already running.  Please close the other instance before starting {QW} again."
     },
-    "importfile" : "Drop the file to begin the import",
-    "shortcutprefix" : "Shortcut: Ctrl+Shift+",
-    "unabletoopenwebpage" : "Unable to open web page: %1$s",
-    "unabletoperformaction" : "Unable to perform action.",
-    ":comment.unabletoopenwebpage" : "%1$s is the web page that cannot be opened.",
-    ":scount.unabletoopenwebpage" : 1,
-    "unabletoopenfile" : "Unable to open web file: %1$s",
-    ":comment.unabletoopenfile" : "%1$s is the path to the file that cannot be opened.",
-    ":scount.unabletoopenfile" : 1,
+    "general" :
+    {
+        ":section" : "General",
+        ":comment" : "These items are used in various places and are not generally tied to a specific functional group.",
+        "importfile" : "Drop the file to begin the import",
+        "shortcutprefix" : "Shortcut: Ctrl+Shift+",
+        "unabletoopenwebpage" : "Unable to open web page: %1$s",
+        "unabletoperformaction" : "Unable to perform action.",
+        ":comment.unabletoopenwebpage" : "%1$s is the web page that cannot be opened.",
+        ":scount.unabletoopenwebpage" : 1,
+        "unabletoopenfile" : "Unable to open web file: %1$s",
+        ":comment.unabletoopenfile" : "%1$s is the path to the file that cannot be opened.",
+        ":scount.unabletoopenfile" : 1,
+        "moretextindicator" : "..."
+    },
     "noobjectselectedpanel" :
     {
+        ":section" : "Project",
         "title" : "No ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel selected",
         "text" : "<p>You are seeing this because no ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel has been selected.</p><p>This usually happens when you have just deleted the item you were viewing.</p><p>To continue, just <a href='action:projectsidebar'>select an item from the sidebar</a>.</p>"
     },
     "settingsmenu" :
     {
+        ":section" : "Project",
         ":comment" : "These items are used for the 'project' menu, the cog icon on a window, they are reused by most project 'viewers' hence the most frequently used items are defined here.",
         "items" :
         {
@@ -59,6 +68,7 @@
     },
     "objectnames" :
     {
+        ":section" : "Basics",
         ":comment" : "These are the names of objects within the interface.  The user can change most of these.  They are split into singular and plural forms.",
         "singular" :
         {
@@ -158,6 +168,7 @@
     },
     "objectfinder" :
     {
+        ":section" : "General",
         "sidebar" :
         {
             "title" : "Find"
@@ -166,6 +177,7 @@
     },
     "help" :
     {
+        ":section" : "General",
         "popup" :
         {
             "title" : "${actions.help}"
@@ -177,6 +189,8 @@
     },
     "iconcolumn" :
     {
+        ":section" : "General",
+        ":comment" : "These items apply to items displayed in the 'icon column', i.e. the column to the left of a chapter's text.",
         "doubleclickmenu" :
         {
             "items" :
@@ -205,6 +219,8 @@
     },
     "colorchooser" :
     {
+        ":section" : "General",
+        ":comment" : "Items relating to selecting a color.",
         "popup" :
         {
             "title" : "Select a Color",
@@ -306,6 +322,8 @@
     },
     "notes" :
     {
+        ":section" : "General",
+        ":comment" : "These items relate to adding and editing of notes.  The <b>addedit</b> items relate to both the add and edit parts of note creation.",
         "addedit" :
         {
             ":comment" : "These items relate to both the add and edit parts of note creation.",
@@ -343,6 +361,8 @@
     },
     "targets" :
     {
+        ":section" : "General",
+        ":comment" : "These items relate to creating Targets, such as daily writing targets.",
         "types" :
         {
             "session" : "Session",
@@ -420,17 +440,21 @@
     },
     "fontunavailable" :
     {
+        ":section" : "Basics",
         "text" : "The font <b>%1$s</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a ${objectnames.singular.chapter} tab then <a href='action:textproperties'>click here to change the text properties</a>.",
         ":comment.text" : "The %1$s is the name of the font that cannot be found.",
         ":scount.text" : 1
     },
     "functionunavailable" :
     {
+        ":section" : "General",
         "title" : "Function unavailable",
         "text" : "Sorry, this function is only available when your spellchecker language is English.<br /><br /><a href='action:contact'>Click here to contact me to help add support for your language</a>"
     },
     "times" :
     {
+        ":section" : "Basics",
+        ":comment" : "These items define the various times/durations used within the UI.",
         "unlimited" : "Unlimited",
         "mins5" : "5 minutes",
         "mins10" : "10 minutes",
@@ -451,6 +475,8 @@
     },
     "words" :
     {
+        ":section" : "Basics",
+        ":comment" : "These items define various numbers of words, usually they are used for the Warm-ups.",
         "unlimited" : "Unlimited",
         "words100" : "100 words",
         "words250" : "250 words",
@@ -459,12 +485,15 @@
     },
     "textalignments" :
     {
+        ":section" : "Basics",
         "left" : "Left",
         "right" : "Right",
         "justified" : "Justified"
     },
     "names" :
     {
+        ":section" : "Basics",
+        ":comment" : "These are various names of things within the UI.  They are re-used heavily by other items.  They are here so you can define names for things and have them change without intervention in the items that use them.",
         "ideaboard" : "Idea Board",
         "problemfinder" : "Problem Finder",
         "editor" : "Editor",
@@ -488,6 +517,8 @@
     },
     "buttons" :
     {
+        ":section" : "Basics",
+        ":comment" : "These items define the text shown on various types of button.  They often reference the {actions} items to facilitate re-use.",
         "cancel" : "${actions.cancel}",
         "showdetail" : "Show detail",
         "edit" : "${actions.edit}",
@@ -507,6 +538,7 @@
     },
     "wizard" :
     {
+        ":section" : "General",
         "nexterror" : "Unable to show next stage.",
         "buttons" :
         {
@@ -516,14 +548,14 @@
             "cancel" : "${actions.cancel}"
         }
     },
-    "moretextindicator" : "...",
     "textarea" :
     {
+        ":section" : "Basics",
         "maxchars" : "Max %1$s characters",
         ":comment.maxchars" : "%1$s is the maximum number of characters allowed.  This message is usually used for text boxes to indicate how many characters are allowed to be entered.",
         ":scount.maxchars" : 1,
         "charsremaining" : ", %1$s remaining",
-        ":comment.charsremaining" : "%1$s is the number of characters that can still be entered into the text area.  This message is appended to [maxchars] and shown below the text area.",
+        ":comment.charsremaining" : "%1$s is the number of characters that can still be entered into the text area.  This message is appended to {maxchars} and shown below the text area.",
         ":scount.charsremaining" : 1,
         "charsover" : ", %1$s over maximum",
         ":comment.charsover" : "%1$s is the number of characters over the maximum.  This message is appeded to [maxchars] and shown below the text area.",
@@ -531,6 +563,8 @@
     },
     "userobjects" :
     {
+        ":section" : "Project",
+        ":comment" : "These items relate to adding/editing/managing the custom objects that users can create.",
         "type" :
         {
             "new" :
@@ -558,7 +592,7 @@
                     "basic" :
                     {
                         "title" : "The basic details",
-                        "text" : "Enter the name and plural name (what do you call lots of your object) for your object.  For example, you might call it <b>Widget</b> and <b>Widgets</b>."
+                        "text" : "Enter the name and plural name (what do you call lots of your object) for your object.  For example, you might call it <b>${userobjects.type.new.defaults.names.singular}</b> and <b>${userobjects.type.new.defaults.names.plural}</b>."
                     },
                     "fields" :
                     {
@@ -790,6 +824,8 @@
     },
     "form" :
     {
+        ":section" : "General",
+        ":comment" : "These items relate to the various types of form items (fields users can interact with to enter information).",
         "affirmativevalue" : "Yes",
         ":comment.affirmativevalue" : "This is the word that a user should enter to confirm an action.  Some actions require this to ensure that the user cannot accidentally perform the action.  What the user enters is compared to this value in a case-insensitive manner.",
         "labels" :
@@ -1082,6 +1118,8 @@
     },
     "actions" :
     {
+        ":section" : "Basics",
+        ":comment" : "These define base-level terms that are used elsewhere, these are heavily re-used.",
         "open" : "Open",
         "new" : "New",
         "rename" : "Rename",
@@ -1121,6 +1159,7 @@
     },
     "sidebars" :
     {
+        ":section" : "General",
         "close" :
         {
             "tooltip" : "Click to close"
@@ -1132,6 +1171,7 @@
     },
     "timer" :
     {
+        ":section" : "General",
         "errors" :
         {
             "invalidstate" : "o_O  The timer can't be unlimited for both time and words."
@@ -1201,6 +1241,7 @@
     },
     "manageitems" :
     {
+        ":section" : "Project",
         ":comment" : "This is general purpose 'manage these things' actions.  It is used as the base for managing project statuses, the personal dictionary and note types.",
         "finish" : "${actions.finish}",
         "newitems" :
@@ -1227,6 +1268,8 @@
     },
     "upgrade" :
     {
+        ":section" : "General",
+        ":comment" : "These items are used when a new version of Quoll Writer is available for download.",
         "checkingfile" : "Checking the file...",
         "newversionavailable" :
         {
@@ -1273,6 +1316,7 @@
     },
     "selectitem" :
     {
+        ":section" : "General",
         ":comment" : "This is a general purpose 'Select this thing' action.",
         "popup" :
         {
@@ -1281,6 +1325,7 @@
     },
     "viewitem" :
     {
+        ":section" : "General",
         ":comment" : "This is a general purpose 'View this thing' action.  It is reused by a number of functions, such as editing a scene or outline item.",
         "actionerror" : "Unable to show %1$s.",
         ":comment.actionerror" : "%1$s is the object type name of the item that cannot be viewed.",
@@ -1289,6 +1334,7 @@
     },
     "linkitem" :
     {
+        ":section" : "General",
         ":comment" : "This is a general purpose 'Link this thing to something else' action.  It is reused by a number of functions, such as linking a scene or outline item.",
         "tooltip" : "Click to link this %1$s to other items/objects",
         ":comment.tooltip" : "%1$s is the object type name of the item.",
@@ -1296,6 +1342,7 @@
     },
     "edititem" :
     {
+        ":section" : "General",
         ":comment" : "This is a general purpose 'Edit this thing' action.  It is reused by a number of functions, such as viewing a scene or outline item.",
         "actionerror" : "Unable to show %1$s.",
         ":comment.actionerror" : "%1$s is the object type name of the item that cannot be edited.",
@@ -1306,6 +1353,7 @@
     },
     "deleteitem" :
     {
+        ":section" : "General",
         ":comment" : "This is a general purpose 'Delete this thing' action.  It is reused by a number of functions, such as deleting a chapter or warmup or project.",
         "title" : "Delete %1$s",
         ":comment.title" : "%1$s is the type of thing that is to be deleted.",
@@ -1322,6 +1370,7 @@
     },
     "chapteritems" :
     {
+        ":section" : "Project",
         ":comment" : "This is a general section for adding/editing/deleting outline items and scenes.  The same component is used for both types.",
         "labels" :
         {
@@ -1388,6 +1437,7 @@
     },
     "formatting" :
     {
+        ":section" : "General",
         "edit" :
         {
             "popupmenu" :
@@ -1451,6 +1501,7 @@
     },
     "synonyms" :
     {
+        ":section" : "Project",
         ":englishonly" : true,
         "show" :
         {
@@ -1483,6 +1534,7 @@
     },
     "dictionary" :
     {
+        ":section" : "Project",
         "download" :
         {
             "notification" : "The language files for <b>%1$s</b> are now being downloaded.",
@@ -1537,6 +1589,7 @@
     },
     "achievementspanel" :
     {
+        ":section" : "Project",
         "title" : "${names.achievements}",
         "text" : "Listed below are all the achievements you have found/reached.  Some of the achievements apply to each ${objectnames.singular.project} you create, others are just for general usage of {QW}.  There are also a number of hidden achievements, can you find them?",
         "sectiontitles" :
@@ -1552,10 +1605,13 @@
     },
     "achievementreached" :
     {
+        ":section" : "Project",
         "title" : "You've got an Achievement"
     },
     "achievements" :
     {
+        ":section" : "Project",
+        ":comment" : "These items define the achievements.",
         "swear50" :
         {
             "name" : "Language Timothy!",
@@ -2160,6 +2216,8 @@
     },
     "tips" :
     {
+        ":section" : "Project",
+        ":comment" : "These items define the tips that are displayed to the user.",
         "1" : "{QW} has a Patreon page.  If you want to help speed up development why not consider donating?  <a href='https://www.patreon.com/quollwriter?ty=h'>Click here to view the Patreon page</a>",
         "2" : "Did you know you can keep track of how much of a ${objectnames.singular.chapter} you have edited?  Just right click at any point in the chapter and select <b>[Chapter] Edit</b> then [edit-point] <b>Set Edit Point</b>.",
         "3" : "Don't like what things are called?  <a href='action:editobjectnames'>Click here to change them.</a>",
@@ -2197,6 +2255,8 @@
     },
     "problemfinder" :
     {
+        ":section" : "Project",
+        ":comment" : "These items relate to the Problem Finder and its use.",
         "ignore" :
         {
             "checkbox" : "Check the box to ignore this problem.",
@@ -2495,11 +2555,14 @@
     },
     "debugmode" :
     {
+        ":section" : "General",
         "enabled" : "Debug mode is now <b>ENabled</b>.",
         "disabled" : "Debug mode is now <b>DISabled</b>."
     },
     "selectbackground" :
     {
+        ":section" : "General",
+        ":comment" : "These items relate to selecting a background color/image.",
         "title" : "${actions.selectbackground}",
         "popupmenu" :
         {
@@ -2541,6 +2604,8 @@
     },
     "ideaboard" :
     {
+        ":section" : "Project",
+        ":comment" : "These items relate to the Idea Board.",
         "title" : "${names.ideaboard}",
         "tooltip" : "Double click to add a new ${objectnames.singular.ideatype}.  Right click to change the background.",
         "actionerror" : "Unable to view the ${names.ideaboard}.",
@@ -2642,7 +2707,7 @@
             "delete" :
             {
                 "actionerror" : "Unable to delete ${objectnames.singular.ideatype}.",
-                ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
                 "actionerror" : "Unable to delete ${objectnames.singular.ideatype}.",
                 "deletetype" : "${objectnames.singular.ideatype}",
                 "warning" : "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored."
@@ -2719,6 +2784,7 @@
     },
     "importproject" :
     {
+        ":section" : "Project",
         "title" : "Import a File or ${objectnames.singular.project}",
         "actionerror" : "Unable to show import ${objectnames.singular.project} wizard.",
         "supportedfiletypesdescription" : "Supported Files",
@@ -2737,7 +2803,7 @@
             "openfile" : "Unable to open selected file."
         },
         "help" : "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function if you are importing a file.  The import expects the file(s) to be in a certain format.",
-        "moretextindicator" : " ${moretextindicator} ",
+        "moretextindicator" : " ${general.moretextindicator} ",
         ":comment.moretextindicator" : "The ellipsis here, in English, indicates that there is more text available.  i.e. there is more to come in this ...",
         "popup" :
         {
@@ -2809,6 +2875,7 @@
     },
     "exportproject" :
     {
+        ":section" : "Project",
         "actionerror" : "Unable to export ${objectnames.singular.project}.",
         "help" : "This wizard allows you to export the information in your ${objectnames.singular.project}.",
         "popup" :
@@ -2900,6 +2967,7 @@
     },
     "closeproject" :
     {
+        ":section" : "Project",
         "actionerror" : "Unable to ${actions.save}: <b>%1$s</b>, aborting exit.",
         ":comment.actionerror" : "The %1$s is the name of the project.",
         ":scount.actionerror" : 1,
@@ -2913,6 +2981,7 @@
     },
     "closepanel" :
     {
+        ":section" : "Project",
         "actionerror" : "Unable to save.",
         "confirmpopup" :
         {
@@ -2929,6 +2998,7 @@
     },
     "editors":
     {
+        ":section" : "Editors",
         "vieweditorerror" : "Unable to show {contact}.",
         "vieweditorserror" : "Unable to show {contacts}.",
         "showregistererror" : "Unable to show the register panel.",
@@ -2943,6 +3013,7 @@
     },
     "statistics" :
     {
+        ":section" : "Project",
         "actionerror" : "Unable to view statistics panel.",
         "title" : "Statistics - %1$s",
         ":comment.title" : "%1$s is the name of the chart/statistic set being shown.",
@@ -2955,6 +3026,7 @@
     },
     "options" :
     {
+        ":section" : "Project",
         "actionerror" : "Unable to show the options.",
         "title" : "Options",
         "savepropertyerror" : "Unable to save property.",
@@ -3253,6 +3325,7 @@
     },
     "fullscreen" :
     {
+        ":section" : "Project",
         "actionerror" : "Unable to enter full screen mode.",
         "showpanelactionerror" : "Unable to show in full screen.",
         "overlay" :
@@ -3340,12 +3413,14 @@
     },
     "spellchecker" :
     {
+        ":section" : "Project",
         "unabletosetlanguage" : "Unable to set spell check language to <b>%1$s</b>.",
         ":comment.unabletosetlanguage" : "%1$s is the language name.",
         ":scount.unabletosetlanguage" : 1
     },
     "backups" :
     {
+        ":section" : "Project",
         "autobackupnotification" : "An automatic ${objectnames.singular.backup} has been created.  <a href='%1$s:%1$s'>Click to view the ${objectnames.plural.backup}.</a>",
         ":comment.autobackupnotification" : "The %1$s:%2$s is a link generated by QW to open the folder containing the backups.  It is recommended that you do not change that.",
         ":scount.autobackupnotification" : 2,
@@ -3438,6 +3513,7 @@
     },
     "tipspanel" :
     {
+        ":section" : "Project",
         "next" :
         {
             "tooltip" : "Click to view the next tip"
@@ -3459,6 +3535,7 @@
     },
     "whatsnew" :
     {
+        ":section" : "Project",
         "actionerror" : "Unable to show What's New",
         "popup" :
         {
@@ -3549,6 +3626,7 @@
     },
     "about" :
     {
+        ":section" : "Project",
         "popup" :
         {
             "title" : "About",
@@ -3563,6 +3641,7 @@
     },
     "dowarmup" :
     {
+        ":section" : "Project",
         "dowarmuponstart" : "Do a ${objectnames.singular.warmup} every time {QW} starts",
         "createwarmupsproject" :
         {
@@ -3616,6 +3695,7 @@
     },
     "linkedto" :
     {
+        ":section" : "Project",
         "headerpopupmenu" :
         {
             "items" :
@@ -3667,6 +3747,7 @@
     },
     "errormessage" :
     {
+        ":section" : "General",
         "title" : "Oops, an error has occurred...",
         "text" : "%1$s<br /><br /><a href='%2$s:%3s'>Contact {QW} support about this problem.</a>",
         ":comment.text" : "%1$s is the message being displayed.  %2$s and %3s are replaced with values that generate a url the user can click on to report the bug.",
@@ -3674,10 +3755,12 @@
     },
     "generalmessage" :
     {
+        ":section" : "General",
         "title" : "Just so you know..."
     },
     "imageselector" :
     {
+        ":section" : "General",
         "tooltip" : "Click to find an image file",
         "popupmenu" :
         {
@@ -3692,6 +3775,7 @@
     },
     "filefinder" :
     {
+        ":section" : "General",
         "text" :
         {
             "tooltip" : "Click to open the finder"
@@ -3707,6 +3791,7 @@
     },
     "notifications" :
     {
+        ":section" : "General",
         "remove" :
         {
             "tooltip" : "Click to remove this notification"
@@ -3714,6 +3799,8 @@
     },
     "allprojects" :
     {
+        ":section" : "Project",
+        ":comment" : "These items relate to the Projects window, i.e. where you see all of your projects.",
         "title" : "Your ${objectnames.plural.project} (%1$s)",
         ":comment.title" : "%1$s is the number of projects the user has.",
         ":scount.title" : 1,
@@ -3903,6 +3990,7 @@
     },
     "newproject" :
     {
+        ":section" : "Project",
         "popup" :
         {
             "title" : "Create a new ${objectnames.singular.project}",
@@ -3911,6 +3999,7 @@
     },
     "newprojectpanel" :
     {
+        ":section" : "Project",
         ":comment" : "The new project panel is used in a number of places as its own component which is why it is separate from the new project popup.",
         "actionerror" : "Unable to create ${objectnames.singular.project}.",
         "labels" :
@@ -3942,6 +4031,7 @@
     },
     "notetypes" :
     {
+        ":section" : "Project",
         "actions" :
         {
             "rename" :
@@ -3997,6 +4087,7 @@
     },
     "tags" :
     {
+        ":section" : "Project",
         "popupmenu" :
         {
             "title" : "${objectnames.plural.tag}",
@@ -4087,6 +4178,7 @@
     },
     "charts" :
     {
+        ":section" : "Project",
         "timeseries" :
         {
             "tooltip" : "%1$s, %2$s words%3$s",
@@ -4356,6 +4448,7 @@
     },
     "chapters" :
     {
+        ":section" : "Project",
         "fields" :
         {
             "description" : "${form.labels.description}",
@@ -4365,8 +4458,10 @@
     },
     "assets" :
     {
+        ":section" : "Project",
         "legacyfields" :
         {
+            ":comment" : "These are the names of legacy fields, i.e. those that were defined before QW supported customizable objects.",
             "name" : "${form.labels.name}",
             "description" : "${form.labels.description}",
             "aliases" : "${form.labels.aliases}",
@@ -4592,7 +4687,7 @@
         "deleteall" :
         {
             "actionerror" : "Unable to remove asset type.",
-            ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+            ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
             "text" : "To delete all <b>%1$s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%$1s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other {projects}.",
             ":comment.text" : "%1$s is the object type name plural for the asset type.",
             ":scount.text" : 1
@@ -4641,6 +4736,7 @@
     },
     "appearsinchapters" :
     {
+        ":section" : "Project",
         "title" : "Appears in {Chapters}",
         "showinsidebar" :
         {
@@ -4660,6 +4756,7 @@
     },
     "warmups" :
     {
+        ":section" : "Project",
         "prompt" :
         {
             "view" :
@@ -4827,7 +4924,7 @@
             },
             "deletewarmup" :
             {
-                ":comment" : "The delete warmup function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                ":comment" : "The delete warmup function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
                 "actionerror" : "Unable to delete ${objectnames.singular.warmup}.",
                 "deletetype" : "${objectnames.singular.warmup}",
                 "warning" : "Warning!  Once deleted a ${objectnames.singular.warmup} cannot be restored."
@@ -4836,6 +4933,7 @@
     },
     "project" :
     {
+        ":section" : "Project",
         "status" :
         {
             "novalue" : "No Status",
@@ -5688,7 +5786,7 @@
                 "title" : "Split ${objectnames.singular.chapter}",
                 "actionerror" : "Unable to split ${objectnames.singular.chapter}.",
                 "errorlabel" : "Please enter a ${objectnames.singular.chapter} name.",
-                "moretextindicator" : " ${moretextindicator} ",
+                "moretextindicator" : " ${general.moretextindicator} ",
                 ":comment.moretextindicator" : "The ellipsis here, in English, indicates that there is more text available.  i.e. there is more to come in this ...",
                 "labels" :
                 {
@@ -5735,7 +5833,7 @@
             },
             "deletechapter" :
             {
-                ":comment" : "The delete chapter function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                ":comment" : "The delete chapter function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
                 "actionerror" : "Unable to delete ${objectnames.singular.chapter} <b>%1$s</b>.",
                 ":comment.actionerror" : "%1$s is the name of the chapter.",
                 ":scount.actionerror" : 1,
@@ -5801,7 +5899,7 @@
             },
             "deleteproject" :
             {
-                ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
                 "actionerror" : "Unable to delete ${objectnames.singular.project} <b>%1$s</b>.",
                 ":comment.actionerror" : "%1$s is the name of the project.",
                 ":scount.actionerror" : 1,

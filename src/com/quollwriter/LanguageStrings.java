@@ -777,8 +777,16 @@ public class LanguageStrings
     private String nativeName = null;
     private int version = 1;
     private Date created = null;
-    private Map strings = null;
+    private Map<String, Object> strings = null;
     private Map<String, String> builtIds = new HashMap ();
+    private LanguageStrings parent = null;
+
+    public LanguageStrings ()
+    {
+
+        this.strings = new HashMap<> ();
+
+    }
 
     public LanguageStrings (String jsonData)
     {
@@ -792,11 +800,11 @@ public class LanguageStrings
 
         }
 
-        Map m = (Map) obj;
+        Map<String, Object> m = (Map<String, Object>) obj;
 
         this.strings = m;
 
-        this.languageName = this.getString ("_language",
+        this.languageName = this.getString (":language",
                                             this.strings);
 
         if (this.languageName == null)
@@ -806,13 +814,13 @@ public class LanguageStrings
 
         }
 
-        this.nativeName = this.getString ("_nativeName",
+        this.nativeName = this.getString (":nativename",
                                           this.strings);
 
         if (this.nativeName == null)
         {
 
-            throw new IllegalArgumentException ("No language name found.");
+            throw new IllegalArgumentException ("No native language name found.");
 
         }
 
@@ -856,6 +864,27 @@ public class LanguageStrings
 
     }
 
+    public void setParent (LanguageStrings p)
+    {
+
+        this.parent = p;
+
+    }
+
+    public LanguageStrings getParent ()
+    {
+
+        return this.parent;
+
+    }
+
+    public void setNativeName (String n)
+    {
+
+        this.nativeName = n;
+
+    }
+
     public String getNativeName ()
     {
 
@@ -863,10 +892,31 @@ public class LanguageStrings
 
     }
 
+    public boolean isEnglish ()
+    {
+
+        return Constants.ENGLISH.equalsIgnoreCase (this.languageName);
+
+    }
+
+    public void setLanguageName (String n)
+    {
+
+        this.languageName = n;
+
+    }
+
     public String getLanguageName ()
     {
 
         return this.languageName;
+
+    }
+
+    public Map<String, Object> getStrings ()
+    {
+
+        return this.strings;
 
     }
 
@@ -953,6 +1003,14 @@ public class LanguageStrings
 
     }
 
+    public String doReplacements (String val)
+    {
+
+        return this.doReplacements (val,
+                                    new ArrayList<String> ());
+
+    }
+
     private String doReplacements (String       val,
                                    List<String> ids)
     {
@@ -1029,7 +1087,19 @@ public class LanguageStrings
                 if (sv == null)
                 {
 
-                    throw new IllegalArgumentException ("Unable to find value for: " + sid);
+                    if (this.parent != null)
+                    {
+
+                        sv = this.parent.getIdValue (sid);
+
+                    }
+
+                    if (sv == null)
+                    {
+
+                        throw new IllegalArgumentException ("Unable to find value for: " + sid);
+
+                    }
 
                 }
 
@@ -1099,6 +1169,66 @@ public class LanguageStrings
 
         ids.addAll (thisids);
 
+        String s = b.toString ();
+
+        s = this.replaceSpecialValues (s);
+
+        return s;
+
+    }
+
+    private String replaceSpecialValues (String t)
+    {
+
+        if (t == null)
+        {
+
+            return t;
+
+        }
+
+        StringBuilder b = new StringBuilder (t);
+
+        int start = b.indexOf ("{");
+
+        while (start > -1)
+        {
+
+            int end = b.indexOf ("}",
+                                 start);
+
+            if (end > -1)
+            {
+
+                String ot = b.substring (start + 1,
+                                         end);
+
+                String newot = ot.toLowerCase ();
+
+                if (newot.equals ("qw"))
+                {
+
+                    newot = Constants.QUOLL_WRITER_NAME;
+
+                }
+
+                b.replace (start,
+                           end + 1,
+                           newot);
+
+                start += newot.length ();
+
+            } else {
+
+                start++;
+
+            }
+
+            start = b.indexOf ("{",
+                               start);
+
+        }
+
         return b.toString ();
 
     }
@@ -1154,6 +1284,8 @@ public class LanguageStrings
     private String getIdValue (List<String> idParts)
     {
 
+        IllegalArgumentException e = null;
+
         Map m = this.strings;
         String val = null;
 
@@ -1169,10 +1301,12 @@ public class LanguageStrings
             if (o == null)
             {
 
-                throw new IllegalArgumentException ("Unable to find part: " +
-                                                    id +
-                                                    " for id: " +
-                                                    this.toId (idParts));
+                e = new IllegalArgumentException ("Unable to find part: " +
+                                              id +
+                                              " for id: " +
+                                              this.toId (idParts));
+
+                break;
 
             }
 
@@ -1199,6 +1333,29 @@ public class LanguageStrings
             {
 
                 m = (Map) o;
+
+            }
+
+        }
+
+        if (e != null)
+        {
+
+            if (this.parent != null)
+            {
+
+                try
+                {
+
+                    return this.parent.getIdValue (idParts);
+
+                } catch (Exception ee) {
+
+                    // Can't find in parent either or there is a problem, throw our original
+                    // exception.
+                    throw e;
+
+                }
 
             }
 

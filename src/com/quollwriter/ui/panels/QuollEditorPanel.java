@@ -145,7 +145,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 // Convert the mouse position to a point in the text.
 
-                String pref = Environment.getUIString (LanguageStrings.shortcutprefix);
+                String pref = Environment.getUIString (LanguageStrings.general,LanguageStrings.shortcutprefix);
 
                 JMenuItem mi = null;
 
@@ -919,7 +919,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         } else {
 
-            String pref = Environment.getUIString (LanguageStrings.shortcutprefix);
+            String pref = Environment.getUIString (LanguageStrings.general,LanguageStrings.shortcutprefix);
 
             //"Shortcut: Ctrl+Shift+";
 

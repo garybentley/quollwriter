@@ -33,7 +33,7 @@ public class ImportTransferHandlerOverlay extends Box
 
 		bb.add (Box.createHorizontalGlue ());
 
-		this.header = UIUtils.createHeader ((displayText != null ? displayText : Environment.getUIString (LanguageStrings.importfile)),
+		this.header = UIUtils.createHeader ((displayText != null ? displayText : Environment.getUIString (LanguageStrings.general,LanguageStrings.importfile)),
         //"Drop the file to begin the import"),
 											Constants.PANEL_TITLE,
 											Constants.PROJECT_IMPORT_ICON_NAME,

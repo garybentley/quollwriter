@@ -2886,7 +2886,7 @@ public class UIUtils
                 }
 
                 super.setText (String.format ("<html><i>%s</i></html>",
-                                              Environment.replaceObjectNames (t)));
+                                              t));
 
             }
 
@@ -2911,7 +2911,7 @@ public class UIUtils
             {
 
                 super.setText (String.format ("<html>%s</html>",
-                                              Environment.replaceObjectNames ((t != null ? t : "Loading..."))));
+                                              (t != null ? t : "Loading...")));
 
             }
 
@@ -2936,7 +2936,7 @@ public class UIUtils
             {
 
                 super.setText (String.format ("<html>%s</html>",
-                                              Environment.replaceObjectNames (t)));
+                                              t));
 
             }
 
@@ -2974,15 +2974,7 @@ public class UIUtils
             {
 
                 super.setText (String.format ("<html>%s</html>",
-                                              Environment.replaceObjectNames (t)));
-
-            }
-
-            @Override
-            public void setToolTipText (String t)
-            {
-
-                super.setToolTipText (Environment.replaceObjectNames (t));
+                                              t));
 
             }
 
@@ -3852,7 +3844,7 @@ public class UIUtils
 
         }
 
-        s = Environment.replaceObjectNames (s);
+        //s = Environment.replaceObjectNames (s);
 
         s = UIUtils.markupLinks ("http://",
                                  s);
@@ -4803,7 +4795,7 @@ public class UIUtils
 
             StringBuilder buf = new StringBuilder ();
 
-            text = Environment.replaceObjectNames (text);
+            //text = Environment.replaceObjectNames (text);
 
             text = StringUtils.replaceString (text,
                                               String.valueOf ('\n'),
@@ -5007,7 +4999,7 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
-                                      String.format (getUIString (unabletoopenwebpage),
+                                      String.format (getUIString (general,unabletoopenwebpage),
                                                      url));
                                       //"Unable to open web page: " + url);
 
@@ -5113,7 +5105,7 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
-                                      String.format (getUIString (unabletoopenfile),
+                                      String.format (getUIString (general,unabletoopenfile),
                                                      f.getPath ()));
                                       //"Unable to open: " + f);
 
@@ -5373,7 +5365,7 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (parent,
-                                      String.format (getUIString (unabletoopenwebpage),
+                                      String.format (getUIString (general,unabletoopenwebpage),
                                                      url));
                                       //"Unable to open web page: " + url);
 
@@ -6541,7 +6533,7 @@ public class UIUtils
                 }
 
                 super.setText (String.format ("<html>%s</html>",
-                                              Environment.replaceObjectNames (t)));
+                                              t));
 
             }
 

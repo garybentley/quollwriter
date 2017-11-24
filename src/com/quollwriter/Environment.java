@@ -1375,6 +1375,14 @@ public class Environment
 
                 String newot = ot.toLowerCase ();
 
+                if (newot.equals ("qw"))
+                {
+
+                    newot = Constants.QUOLL_WRITER_NAME;
+
+                }
+
+/*
                 boolean an = newot.startsWith ("an ");
 
                 if (an)
@@ -1434,7 +1442,7 @@ public class Environment
                     }
 
                 }
-
+*/
                 b.replace (start,
                            end + 1,
                            newot);
@@ -4211,6 +4219,8 @@ public class Environment
             }
 
         });
+
+        new LanguageStringsEditor (null).init ();
 
     }
 
@@ -7202,6 +7212,13 @@ TODO: Add back in when appropriate.
         }
 
         return Environment.tags;
+
+    }
+
+    public static LanguageStrings getDefaultUILanguageStrings ()
+    {
+
+        return Environment.UILanguageMaps.get (Environment.defaultUILanguage.toLowerCase ());
 
     }
 
