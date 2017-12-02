@@ -4220,8 +4220,6 @@ public class Environment
 
         });
 
-        new LanguageStringsEditor (null).init ();
-
     }
 
     public static File getUserEditorsPropertiesFile ()
@@ -7313,7 +7311,7 @@ TODO: Add back in when appropriate.
 
         }
 
-        String s = strings.getValue (ids);
+        String s = strings.getString (ids);
 
         if (s == null)
         {
@@ -7323,7 +7321,7 @@ TODO: Add back in when appropriate.
         }
 
         // Do our replacements.
-        s = Environment.replaceObjectNames (s);
+        //s = Environment.replaceObjectNames (s);
 
         return s;
 

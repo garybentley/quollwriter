@@ -1843,7 +1843,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     public void setViewerTitle (String t)
     {
 
-        t = Environment.replaceObjectNames (t);
+        //t = Environment.replaceObjectNames (t);
 
         this.title.setTitle (t);
 

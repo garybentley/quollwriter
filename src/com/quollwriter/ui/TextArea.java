@@ -983,6 +983,19 @@ public class TextArea extends ScrollableBox
 
         }
 
+        this.fillPopupMenuForExtraItems (ev,
+                                         popup,
+                                         compress);
+
+    }
+
+    public void fillPopupMenuForExtraItems (MouseEvent ev,
+                                            JPopupMenu popup,
+                                            boolean    compress)
+    {
+
+        // Do nothing, just allows sub-classes to add extra items.
+
     }
 
     public void setSynonymProvider (SynonymProvider sp)

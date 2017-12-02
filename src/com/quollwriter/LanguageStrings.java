@@ -2,10 +2,8 @@ package com.quollwriter;
 
 import java.util.*;
 
-public class LanguageStrings
+public class LanguageStrings implements RefValueProvider
 {
-
-
 
     public static final String project = "project";
     public static final String settingsmenu = "settingsmenu";
@@ -772,19 +770,24 @@ public class LanguageStrings
     public static final String examplechapter = "examplechapter";
 
     private static String ID_PART_SEP = ".";
+    private static String ID_REF_START = "${";
+    private static String ID_REF_END = "}";
 
     private String languageName = null;
     private String nativeName = null;
     private int version = 1;
     private Date created = null;
-    private Map<String, Object> strings = null;
-    private Map<String, String> builtIds = new HashMap ();
+    private String _email = null;
+    private String _id = null;
     private LanguageStrings parent = null;
+    private Map<String, Node> nodes = new HashMap<> ();
 
-    public LanguageStrings ()
+    public LanguageStrings (LanguageStrings derivedFrom)
     {
 
-        this.strings = new HashMap<> ();
+        // Clone the nodes in the derivedFrom.
+        //this.nodes = derivedFrom.cloneNodes ();
+        this.parent = derivedFrom;
 
     }
 
@@ -802,10 +805,8 @@ public class LanguageStrings
 
         Map<String, Object> m = (Map<String, Object>) obj;
 
-        this.strings = m;
-
         this.languageName = this.getString (":language",
-                                            this.strings);
+                                            m);
 
         if (this.languageName == null)
         {
@@ -815,7 +816,7 @@ public class LanguageStrings
         }
 
         this.nativeName = this.getString (":nativename",
-                                          this.strings);
+                                          m);
 
         if (this.nativeName == null)
         {
@@ -823,6 +824,12 @@ public class LanguageStrings
             throw new IllegalArgumentException ("No native language name found.");
 
         }
+
+        this._email = this.getString (":email",
+                                      m);
+
+        this._id = this.getString (":id",
+                                   m);
 
         // Ensure we can resolve everything.
         Iterator iter = m.keySet ().iterator ();
@@ -843,8 +850,10 @@ public class LanguageStrings
 
                 Map om = (Map) v;
 
-                this.testMap (om,
-                              ids);
+                this.nodes.put (k,
+                                new Node (k,
+                                          null,
+                                          om));
 
                 continue;
 
@@ -855,8 +864,11 @@ public class LanguageStrings
 
                 String val = v.toString ();
 
-                this.testValue (val,
-                                ids);
+                this.nodes.put (k,
+                                new Value (k,
+                                           null,
+                                           val,
+                                           m));
 
             }
 
@@ -864,181 +876,280 @@ public class LanguageStrings
 
     }
 
-    public void setParent (LanguageStrings p)
+    public static Set<String> getRefIds (String text)
     {
 
-        this.parent = p;
+        Set<String> ids = new LinkedHashSet<> ();
+
+        int start = 0;
+
+        while ((start = text.indexOf (ID_REF_START,
+                                      start)) > -1)
+        {
+
+            int end = text.indexOf (ID_REF_END,
+                                    start);
+
+            if (end > (start + ID_REF_START.length ()))
+            {
+
+                String sid = text.substring (start + ID_REF_START.length (),
+                                             end);
+
+                sid = sid.trim ();
+
+                if (sid.length () > 0)
+                {
+
+                    ids.add (sid);
+
+                }
+
+                start = end + ID_REF_END.length ();
+
+            } else {
+
+                start += ID_REF_START.length ();
+
+            }
+
+        }
+
+        return ids;
 
     }
 
-    public LanguageStrings getParent ()
+    public static List<String> buildRefValsTree (String           text,
+                                                 String           rootId,
+                                                 RefValueProvider prov,
+                                                 List<String>     ids)
     {
 
-        return this.parent;
-
-    }
-
-    public void setNativeName (String n)
-    {
-
-        this.nativeName = n;
-
-    }
-
-    public String getNativeName ()
-    {
-
-        return this.nativeName;
-
-    }
-
-    public boolean isEnglish ()
-    {
-
-        return Constants.ENGLISH.equalsIgnoreCase (this.languageName);
-
-    }
-
-    public void setLanguageName (String n)
-    {
-
-        this.languageName = n;
-
-    }
-
-    public String getLanguageName ()
-    {
-
-        return this.languageName;
-
-    }
-
-    public Map<String, Object> getStrings ()
-    {
-
-        return this.strings;
-
-    }
-
-    private String getString (String id,
-                              Map    from)
-    {
-
-        Object o = from.get (id);
-
-        if (o == null)
+        if (text == null)
         {
 
             return null;
 
         }
 
-        return o.toString ();
+        Set<String> refids = LanguageStrings.getRefIds (text);
 
-    }
-
-    private void testValue (String       val,
-                            List<String> ids)
-    {
-
-        List<String> id = new ArrayList ();
-
-        // Convert the current ids to a single id.
-        id.add (this.toId (ids));
-
-        val = this.doReplacements (val,
-                                   id);
-
-        if (val != null)
+        for (String rid : refids)
         {
 
-            this.builtIds.put (this.toId (ids),
-                               val);
+            //Value v = strings.getValue (rid);
 
-        }
-
-    }
-
-    private void testMap (Map          m,
-                          List<String> ids)
-    {
-
-        // Ensure we can resolve everything.
-        Iterator iter = m.keySet ().iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            String k = iter.next ().toString ();
-
-            List<String> _ids = new ArrayList (ids);
-
-            _ids.add (k);
-
-            Object v = m.get (k);
-
-            if (v instanceof Map)
+            if (rid.equals (rootId))
             {
 
-                Map om = (Map) v;
-
-                this.testMap (om,
-                              _ids);
-
-                continue;
+                return ids;
 
             }
 
-            if (v instanceof String)
+            if (ids.contains (rid))
             {
 
-                String val = v.toString ();
+                // Already have this, got a loop.
+                return ids;
 
-                this.testValue (val,
-                                _ids);
+            }
+
+            ids.add (rid);
+
+            int ind = ids.size () - 1;
+
+            String rv = prov.getString (rid);
+
+            if (rv == null)
+            {
+
+                return null;
+
+            }
+
+            List<String> nids = LanguageStrings.buildRefValsTree (rv,
+                                                                  rootId,
+                                                                  prov,
+                                                                  new ArrayList (ids));
+
+            if (nids != null)
+            {
+
+                return nids;
+
+            } else {
+
+                ids = ids.subList (0, ind);
 
             }
 
         }
 
-    }
-
-    public String doReplacements (String val)
-    {
-
-        return this.doReplacements (val,
-                                    new ArrayList<String> ());
+        return null;
 
     }
 
-    private String doReplacements (String       val,
-                                   List<String> ids)
+    public static Set<String> getErrors (String           text,
+                                         String           textId,
+                                         int              scount,
+                                         RefValueProvider prov)
     {
 
-        if (val == null)
-        {
-
-            throw new IllegalArgumentException ("No value for ids: " + ids);
-
-        }
-
-        StringBuilder b = new StringBuilder (val);
-
-        List<String> thisids = new ArrayList ();
+        Set<String> errors = new LinkedHashSet<> ();
 
         int start = 0;
 
-        while ((start = b.indexOf ("${",
+        while ((start = text.indexOf (ID_REF_START,
+                                      start)) > -1)
+        {
+
+            int end = text.indexOf (ID_REF_END,
+                                    start);
+
+            if (end < 0)
+            {
+
+                errors.add (String.format ("No matching %s found for opening %s at location: %s",
+                                           ID_REF_END,
+                                           ID_REF_START,
+                                           start));
+
+                // This breaks parsing so have to return.
+                return errors;
+
+            }
+
+            if (end >= (start + ID_REF_START.length ()))
+            {
+
+                String sid = text.substring (start + ID_REF_START.length (),
+                                             end);
+
+                int bind = sid.indexOf ("|");
+                String sub = null;
+
+                if (bind > -1)
+                {
+
+                    sub = sid.substring (0, bind);
+
+                    sid = sid.substring (bind + 1);
+
+                }
+
+                sid = sid.trim ();
+
+                if (sid.length () == 0)
+                {
+
+                    errors.add ("No id provided at location: " + start);
+                    start += end + ID_REF_END.length ();
+
+                    continue;
+
+                }
+
+                if (prov.getString (sid) == null)
+                {
+
+                    errors.add ("Id: " + sid + ", referenced at location: " + start + " does not exist.");
+                    start += end + ID_REF_END.length ();
+
+                    continue;
+
+                } else {
+
+                    start += ID_REF_START.length ();
+
+                }
+
+            } else {
+
+                start += ID_REF_START.length ();
+
+            }
+
+        }
+
+        if (scount > 0)
+        {
+
+            for (int i = 0; i < scount; i++)
+            {
+
+                String sid = "%" + (i + 1) + "$s";
+
+                if (text.indexOf (sid) < 0)
+                {
+
+                    errors.add ("Expected to find value: " + sid);
+
+                }
+
+            }
+
+        }
+
+        Set<String> refids = LanguageStrings.getRefIds (text);
+
+        if (refids.contains (textId))
+        {
+
+            errors.add ("Value uses itself O_o");
+
+        }
+
+        List<String> vals = LanguageStrings.buildRefValsTree (text,
+                                                              textId,
+                                                              prov,
+                                                              new ArrayList<String> ());
+
+        if (vals != null)
+        {
+
+            StringBuilder b = new StringBuilder ();
+
+            for (String v : vals)
+            {
+
+                if (b.length () > 0)
+                {
+
+                    b.append (" -> ");
+
+                }
+
+                b.append (v);
+
+            }
+
+            errors.add ("Reference loop detected between: " + textId + " and: " + b.toString ());
+
+        }
+
+        return errors;
+
+    }
+
+    public static String buildText (String           text,
+                                    RefValueProvider prov)
+    {
+
+        StringBuilder b = new StringBuilder (text);
+
+        int start = 0;
+
+        while ((start = b.indexOf (ID_REF_START,
                                    start)) > -1)
         {
 
-            int end = b.indexOf ("}",
+            int end = b.indexOf (ID_REF_END,
                                  start);
 
-            if (end > (start + 2))
+            if (end > (start + ID_REF_START.length ()))
             {
 
-                String sid = b.substring (start + 2,
+                String sid = b.substring (start + ID_REF_START.length (),
                                           end);
 
                 int bind = sid.indexOf ("|");
@@ -1053,58 +1164,7 @@ public class LanguageStrings
 
                 }
 
-                String sv = this.builtIds.get (sid);
-
-                if (sv == null)
-                {
-
-                    if (ids.contains (sid))
-                    {
-
-                        throw new IllegalArgumentException ("Loop detected between: " + sid + ", and one of: " + ids + ", found in: " +
-                                                            val);
-
-                    } else {
-/*
-                        if (thisids.contains (sid))
-                        {
-
-                            throw new IllegalArgumentException ("Loop detected between: " + sid + ", and one of: " + thisids + ", found in: " +
-                                                                val);
-
-                        }
-*/
-                    }
-
-                    thisids.add (sid);
-
-                    //ids.add (sid);
-
-                    sv = this.getIdValue (sid);
-
-                }
-
-                if (sv == null)
-                {
-
-                    if (this.parent != null)
-                    {
-
-                        sv = this.parent.getIdValue (sid);
-
-                    }
-
-                    if (sv == null)
-                    {
-
-                        throw new IllegalArgumentException ("Unable to find value for: " + sid);
-
-                    }
-
-                }
-
-                String idv = this.doReplacements (sv,
-                                                  ids);
+                String sv = prov.getString (sid);
 
                 if (sub != null)
                 {
@@ -1144,40 +1204,29 @@ public class LanguageStrings
 
                 }
 
-                if (idv != null)
-                {
+                b.replace (start,
+                           end + ID_REF_END.length (),
+                           sv);
 
-                    b.replace (start,
-                               end + 1,
-                               idv);
-
-                    start += idv.length ();
-
-                } else {
-
-                    start += 2;
-
-                }
+                start += sv.length ();
 
             } else {
 
-                start += 2;
+                start += ID_REF_START.length ();
 
             }
 
         }
 
-        ids.addAll (thisids);
-
         String s = b.toString ();
 
-        s = this.replaceSpecialValues (s);
+        s = LanguageStrings.replaceSpecialValues (s);
 
         return s;
 
     }
 
-    private String replaceSpecialValues (String t)
+    public static String replaceSpecialValues (String t)
     {
 
         if (t == null)
@@ -1197,7 +1246,7 @@ public class LanguageStrings
             int end = b.indexOf ("}",
                                  start);
 
-            if (end > -1)
+            if (end > start)
             {
 
                 String ot = b.substring (start + 1,
@@ -1233,6 +1282,240 @@ public class LanguageStrings
 
     }
 
+    public Map<Value, Set<String>> getErrors ()
+    {
+
+        Map<Value, Set<String>> ret = new LinkedHashMap<> ();
+
+        for (Value v : this.getAllValues ())
+        {
+
+            Set<String> errors = v.getErrors (this);
+
+            if ((errors != null)
+                &&
+                (errors.size () > 0)
+               )
+            {
+
+                ret.put (v,
+                         errors);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    private String getString (String id,
+                              Map    from)
+    {
+
+        Object o = from.get (id);
+
+        if (o == null)
+        {
+
+            return null;
+
+        }
+
+        return o.toString ();
+
+    }
+
+    public Map<String, Node> cloneNodes ()
+    {
+
+        Map<String, Node> ret = new LinkedHashMap<> ();
+
+        for (String id : this.nodes.keySet ())
+        {
+
+            ret.put (id,
+                     this.nodes.get (id).cloneNode ());
+
+        }
+
+        return ret;
+
+    }
+
+    public boolean containsId (String id)
+    {
+
+        return this.containsId (LanguageStrings.getIdParts (id));
+
+    }
+
+    public boolean containsId (List<String> idparts)
+    {
+
+        if (idparts.size () < 1)
+        {
+
+            return false;
+
+        }
+
+        Node n = this.nodes.get (idparts.get (0));
+
+        if (n != null)
+        {
+
+            return n.getChild (idparts.subList (1, idparts.size ())) != null;
+
+        }
+
+        return false;
+
+    }
+
+    public Map<String, Set<Node>> getNodesInSections (String defSection)
+    {
+
+        Map<String, Set<Node>> sects = new LinkedHashMap<> ();
+
+        for (Node n : this.nodes.values ())
+        {
+
+            String s = n.getSection ();
+
+            if (s == null)
+            {
+
+                s = defSection;
+
+            }
+
+            Set<Node> nns = sects.get (s);
+
+            if (nns == null)
+            {
+
+                nns = new TreeSet<> ();
+
+                sects.put (s,
+                           nns);
+
+            }
+
+            nns.add (n);
+
+        }
+
+        return sects;
+
+    }
+
+    public Set<Value> getAllValues ()
+    {
+
+        Set<Value> vals = new LinkedHashSet<> ();
+
+        for (Node n : this.nodes.values ())
+        {
+
+            vals.addAll (n.getAllValues ());
+
+        }
+
+        return vals;
+
+    }
+
+    public Set<Value> getAllValues (String id)
+    {
+
+        List<String> idparts = LanguageStrings.getIdParts (id);
+
+        Set<Value> vals = new LinkedHashSet<> ();
+
+        if (idparts.size () < 1)
+        {
+
+            return vals;
+
+        }
+
+        Node n = this.nodes.get (idparts.get (0));
+
+        if (idparts.size () > 1)
+        {
+
+            return n.getAllValues (idparts.subList (1, idparts.size ()));
+
+        }
+
+        return n.getAllValues ();
+
+    }
+
+    public String getId ()
+    {
+
+        return this._id;
+
+    }
+
+    public void setId (String id)
+    {
+
+        this._id = id;
+
+    }
+
+    public void setEmail (String em)
+    {
+
+        this._email = em;
+
+    }
+
+    public String getEmail ()
+    {
+
+        return this._email;
+
+    }
+
+    public void setNativeName (String n)
+    {
+
+        this.nativeName = n;
+
+    }
+
+    public String getNativeName ()
+    {
+
+        return this.nativeName;
+
+    }
+
+    public boolean isEnglish ()
+    {
+
+        return Constants.ENGLISH.equalsIgnoreCase (this.languageName);
+
+    }
+
+    public void setLanguageName (String n)
+    {
+
+        this.languageName = n;
+
+    }
+
+    public String getLanguageName ()
+    {
+
+        return this.languageName;
+
+    }
+
     public static String toId (List<String> ids)
     {
 
@@ -1241,119 +1524,321 @@ public class LanguageStrings
 
     }
 
-    private String getIdValue (String id)
+    public static List<String> getIdParts (String id)
     {
 
-        return this.getIdValue (Utils.splitString (id,
-                                                   ID_PART_SEP));
+        return Utils.splitString (id,
+                                  ID_PART_SEP);
 
     }
 
-    public String getValue (List<String> idParts)
+    public TreeSet<String> getIdMatches (String id)
     {
 
-        String v = this.getIdValue (idParts);
-
-        String val = this.builtIds.get (v);
-
-        if (val != null)
+        if (id.endsWith ("."))
         {
 
-            return val;
+            id += "*";
 
         }
 
-        List ids = new ArrayList ();
-        ids.add (this.toId (idParts));
+        List<String> idparts = LanguageStrings.getIdParts (id);
 
-        v = this.doReplacements (v,
-                                 ids);
+        TreeSet<String> matches = new TreeSet<> ();
 
-        if (v != null)
+        if (idparts.size () > 1)
         {
 
-            this.builtIds.put (this.toId (idParts),
-                               v);
+            // Get the first node.
+            Node n = this.nodes.get (idparts.get (0));
 
-        }
-
-        return v;
-
-    }
-
-    private String getIdValue (List<String> idParts)
-    {
-
-        IllegalArgumentException e = null;
-
-        Map m = this.strings;
-        String val = null;
-
-        int i = 0;
-
-        for (String id : idParts)
-        {
-
-            i++;
-
-            Object o = m.get (id);
-
-            if (o == null)
+            if (n == null)
             {
 
-                e = new IllegalArgumentException ("Unable to find part: " +
-                                              id +
-                                              " for id: " +
-                                              this.toId (idParts));
-
-                break;
+                return matches;
 
             }
 
-            if (o instanceof String)
+            return n.getIdMatches (idparts.subList (1, idparts.size ()));
+
+        } else {
+
+            for (String nid : this.nodes.keySet ())
             {
 
-                if (i < idParts.size ())
+                if (nid.startsWith (id))
                 {
 
-                    throw new IllegalArgumentException ("Expected part: " +
-                                                        id +
-                                                        " to point to another map, instead is string: " +
-                                                        o +
-                                                        " for id: " +
-                                                        this.toId (idParts));
+                    matches.add (nid);
 
                 }
 
-                return o.toString ();
-
             }
 
-            if (o instanceof Map)
+            return matches;
+
+        }
+
+    }
+
+    public Node getNode (String id)
+    {
+
+        List<String> idparts = LanguageStrings.getIdParts (id);
+
+        Node n = null;
+
+        if (idparts.size () > 0)
+        {
+
+            n = this.nodes.get (idparts.get (0));
+
+        }
+
+        if ((idparts.size () > 1)
+            &&
+            (n != null)
+           )
+        {
+
+
+            return n.getChild (idparts.subList (1, idparts.size ()));
+
+        }
+
+        return n;
+
+    }
+
+    public static boolean isSpecialId (List<String> id)
+    {
+
+        for (String _id : id)
+        {
+
+            if (LanguageStrings.isSpecialId (_id))
             {
 
-                m = (Map) o;
+                return true;
 
             }
 
         }
 
-        if (e != null)
+        return false;
+
+    }
+
+    public static boolean isSpecialId (String id)
+    {
+
+        return id.startsWith (":");
+
+    }
+
+    public Value getValue (List<String> idparts)
+    {
+
+        if (idparts.size () < 1)
+        {
+
+            return null;
+
+        }
+
+        if (!this.containsId (idparts))
         {
 
             if (this.parent != null)
             {
 
-                try
+                return this.parent.getValue (idparts);
+
+            }
+
+        }
+
+        Node n = this.nodes.get (idparts.get (0));
+
+        if (n == null)
+        {
+
+            return null;
+
+        }
+
+        if (idparts.size () > 1)
+        {
+
+            n = n.getChild (idparts.subList (1, idparts.size ()));
+
+        }
+
+        if (n instanceof Value)
+        {
+
+            return (Value) n;
+
+        }
+
+        return null;
+
+    }
+
+    public String getBuiltText (String text)
+    {
+
+        return new Value (null, null, text, null, 0).getBuiltText (this);
+
+    }
+
+    public Value getValue (String id)
+    {
+
+        return this.getValue (LanguageStrings.getIdParts (id));
+
+    }
+
+    @Override
+    public String getString (String id)
+    {
+
+        return this.getString (LanguageStrings.getIdParts (id));
+
+    }
+
+    public String getString (List<String> idparts)
+    {
+
+        if (idparts.size () < 1)
+        {
+
+            return null;
+
+        }
+
+        Value v = this.getValue (idparts);
+
+        if (v != null)
+        {
+
+            return v.getBuiltText (this);
+
+        }
+
+        return null;
+
+    }
+
+    public class Node implements Comparable<Node>
+    {
+
+        protected Node parent = null;
+        private Map<String, Node> children = null;
+        protected String id = null;
+        protected String comment = null;
+        protected String section = null;
+        protected String title = null;
+
+        public Node (String id,
+                     Node   parent)
+        {
+
+            this.id = id;
+            this.parent = parent;
+
+        }
+
+        public Node (String id,
+                     Node   parent,
+                     Map    data)
+        {
+
+            this (id,
+                  parent);
+
+            Iterator iter = data.keySet ().iterator ();
+
+            while (iter.hasNext ())
+            {
+
+                Object ko = iter.next ();
+
+                if (!(ko instanceof String))
                 {
 
-                    return this.parent.getIdValue (idParts);
+                    continue;
 
-                } catch (Exception ee) {
+                }
 
-                    // Can't find in parent either or there is a problem, throw our original
-                    // exception.
-                    throw e;
+                String kid = ko.toString ();
+
+                Object o = data.get (kid);
+
+                if (o instanceof Map)
+                {
+
+                    Map m = (Map) o;
+
+                    if (this.children == null)
+                    {
+
+                        this.children = new LinkedHashMap<> ();
+
+                    }
+
+                    this.children.put (kid,
+                                       new Node (kid,
+                                                 this,
+                                                 m));
+
+                }
+
+                if (o instanceof String)
+                {
+
+                    String v = o.toString ();
+
+                    if (LanguageStrings.isSpecialId (kid))
+                    {
+
+                        if (kid.equals (":comment"))
+                        {
+
+                            this.comment = v;
+
+                        }
+
+                        if (kid.equals (":title"))
+                        {
+
+                            this.title = v;
+
+                        }
+
+                        if (kid.equals (":section"))
+                        {
+
+                            this.section = v;
+
+                        }
+
+                        continue;
+
+                    }
+
+                    if (this.children == null)
+                    {
+
+                        this.children = new LinkedHashMap<> ();
+
+                    }
+
+                    this.children.put (kid,
+                                       new Value (kid,
+                                                  this,
+                                                  v,
+                                                  data));
 
                 }
 
@@ -1361,8 +1846,687 @@ public class LanguageStrings
 
         }
 
-        return null;
+        @Override
+        public int compareTo (Node n)
+        {
 
+            return this.id.compareTo (n.id);
+
+        }
+
+        public void addNode (Node n)
+        {
+
+            if (this.children == null)
+            {
+
+                this.children = new LinkedHashMap<> ();
+
+            }
+
+            if (this.children.containsKey (n.id))
+            {
+
+                throw new IllegalArgumentException ("Node already contains child with id: " + n.id);
+
+            }
+
+            n.parent = this;
+
+            this.children.put (n.id,
+                               n);
+
+        }
+
+        public String getSection ()
+        {
+
+            return this.section;
+
+        }
+
+        public Node cloneNode ()
+        {
+
+            Node n = new Node (this.id,
+                               null);
+
+            n.comment = this.comment;
+            n.title = this.title;
+            n.section = this.section;
+
+            if (this.children != null)
+            {
+
+                for (String cid : this.children.keySet ())
+                {
+
+                    Node cn = this.children.get (cid);
+
+                    Node nn = cn.cloneNode ();
+
+                    n.addNode (nn);
+
+                }
+
+            }
+
+            return n;
+
+        }
+
+        public String getComment ()
+        {
+
+            return this.comment;
+
+        }
+
+        @Override
+        public String toString ()
+        {
+
+            return (this.getId () + "(node,children=" + (this.children != null ? this.children.size () : 0));
+
+        }
+
+        public Map<String, Node> getChildren ()
+        {
+
+            return this.children;
+
+        }
+
+        public Node getParent ()
+        {
+
+            return this.parent;
+
+        }
+
+        public Node getChild (String id)
+        {
+
+            return this.children.get (id);
+
+        }
+
+        public Node getChild (List<String> ids)
+        {
+
+            if (ids.size () < 1)
+            {
+
+                return null;
+
+            }
+
+            Node c = this.getChild (ids.get (0));
+
+            if (ids.size () > 1)
+            {
+
+                return c.getChild (ids.subList (1, ids.size ()));
+
+            }
+
+            return c;
+
+        }
+
+        public String getNodeId ()
+        {
+
+            return this.id;
+
+        }
+
+        public String getId ()
+        {
+
+            if (this.parent == null)
+            {
+
+                return this.id;
+
+            }
+
+            return this.parent.getId () + ID_PART_SEP + this.id;
+
+        }
+
+        public TreeSet<String> getIdMatches (List<String> idparts)
+        {
+
+            TreeSet<String> matches = new TreeSet<> ();
+
+            if (this.children == null)
+            {
+
+                return matches;
+
+            }
+
+            if (idparts.size () > 1)
+            {
+
+                Node n = this.children.get (idparts.get (0));
+
+                return n.getIdMatches (idparts.subList (1, idparts.size ()));
+
+            }
+
+            // Should only be one left here...
+            String id = idparts.get (0);
+
+            for (String nid : this.children.keySet ())
+            {
+
+                if ((nid.startsWith (id))
+                    ||
+                    (id.equals ("*"))
+                   )
+                {
+
+                    matches.add (nid);
+
+                }
+
+            }
+
+            return matches;
+
+        }
+
+        public Set<Value> getAllValues (List<String> idparts)
+        {
+
+            if (this.children == null)
+            {
+
+                return new LinkedHashSet<> ();
+
+            }
+
+            if (idparts.size () > 0)
+            {
+
+                Node n = this.children.get (idparts.get (0));
+
+                if (n == null)
+                {
+
+                    return new LinkedHashSet<> ();
+
+                }
+
+                return n.getAllValues (idparts.subList (1, idparts.size ()));
+
+            } else {
+
+                return this.getAllValues ();
+
+            }
+
+        }
+
+        public Set<Value> getAllValues ()
+        {
+
+            Set<Value> vals = new LinkedHashSet<> ();
+
+            if (this instanceof Value)
+            {
+
+                vals.add ((Value) this);
+
+                return vals;
+
+            }
+
+            if (this.children != null)
+            {
+
+                for (Node n : this.children.values ())
+                {
+
+                    if (n instanceof Value)
+                    {
+
+                        vals.add ((Value) n);
+                        continue;
+
+                    }
+
+                    vals.addAll (n.getAllValues ());
+
+                }
+
+            }
+
+            return vals;
+
+        }
+
+        @Override
+        public boolean equals (Object o)
+        {
+
+            if (!(o instanceof Node))
+            {
+
+                return false;
+
+            }
+
+            Node n = (Node) o;
+
+            if ((this.parent != null)
+                &&
+                (n.parent != null)
+               )
+            {
+
+                if (this.parent.equals (n.parent))
+                {
+
+                    return this.id.equals (n.id);
+
+                }
+
+            }
+
+            if ((this.parent == null)
+                &&
+                (n.parent == null)
+               )
+            {
+
+                return this.id.equals (n.id);
+
+            }
+
+            return false;
+
+        }
+
+    }
+
+    public class Value extends Node
+    {
+
+        private int scount = 0;
+        private String text = null;
+        private String builtText = null;
+
+        public Value (String id,
+                      Node   parent,
+                      String text,
+                      Map    parentData)
+        {
+
+            super (id,
+                   parent);
+
+            this.text = text;
+
+            Object co = parentData.get (":comment." + id);
+
+            String comm = null;
+
+            if (co != null)
+            {
+
+               this.comment = co.toString ();
+
+            }
+
+            Object so = parentData.get (":scount." + id);
+
+            if ((so != null)
+                &&
+                (so instanceof Number)
+               )
+            {
+
+               this.scount = ((Number) so).intValue ();
+
+            }
+
+        }
+
+        public Value (String id,
+                      Node   parent,
+                      String text,
+                      String comment,
+                      int    scount)
+        {
+
+            super (id,
+                   parent);
+
+            this.text = text;
+            this.comment = comment;
+            this.scount = scount;
+
+        }
+
+        @Override
+        public Node cloneNode ()
+        {
+
+            Value n = new Value (this.id,
+                                 null,
+                                 null,  /* no value */
+                                 this.comment,
+                                 this.scount);
+
+            n.title = this.title;
+            n.section = this.section;
+
+            return n;
+
+        }
+
+        public int getSCount ()
+        {
+
+            return this.scount;
+
+        }
+
+        @Override
+        public String toString ()
+        {
+
+            return (this.getId () + "(value,scount=" + this.scount + ",text=" + this.text + ",comment=" + this.comment + ")");
+
+        }
+
+        @Override
+        public Set<Value> getAllValues ()
+        {
+
+            return new LinkedHashSet<> ();
+
+        }
+
+        @Override
+        public Node getChild (List<String> idparts)
+        {
+
+            return null;
+
+        }
+
+        public Set<String> getErrors (RefValueProvider prov)
+        {
+
+            return LanguageStrings.getErrors (this.text,
+                                              this.getId (),
+                                              this.scount,
+                                              prov);
+
+/*
+            Set<String> errors = new LinkedHashSet<> ();
+
+            int start = 0;
+
+            while ((start = this.text.indexOf (ID_REF_START,
+                                               start)) > -1)
+            {
+
+                int end = this.text.indexOf (ID_REF_END,
+                                             start);
+
+                if (end < 0)
+                {
+
+                    errors.add (String.format ("No matching %s found for opening %s at location: %s",
+                                               ID_REF_END,
+                                               ID_REF_START,
+                                               start));
+
+                    // This breaks parsing so have to return.
+                    return errors;
+
+                }
+
+                if (end > (start + ID_REF_START.length ()))
+                {
+
+                    String sid = this.text.substring (start + ID_REF_START.length (),
+                                                      end);
+
+                    int bind = sid.indexOf ("|");
+                    String sub = null;
+
+                    if (bind > -1)
+                    {
+
+                        sub = sid.substring (0, bind);
+
+                        sid = sid.substring (bind + 1);
+
+                    }
+
+                    if (strings.getValue (sid) == null)
+                    {
+
+                        errors.add ("Id: " + sid + ", referenced at location: " + start + " does not exist.");
+                        start += end + ID_REF_END.length ();
+
+                        continue;
+
+                    } else {
+
+                        start += ID_REF_START.length ();
+
+                    }
+
+                } else {
+
+                    start += ID_REF_START.length ();
+
+                }
+
+            }
+
+            if (this.scount > 0)
+            {
+
+                for (int i = 0; i < this.scount; i++)
+                {
+
+                    String sid = "%" + (i + 1) + "$s";
+
+                    if (this.text.indexOf (sid) < 0)
+                    {
+
+                        errors.add ("Expected to find value: " + sid);
+
+                    }
+
+                }
+
+            }
+
+            Set<String> refids = this.getRefIds ();
+
+            if (refids.contains (this.getId ()))
+            {
+
+                errors.add ("Value references itself O_o");
+
+            }
+
+            Set<Value> refs = new HashSet<> ();
+            Map tree = new HashMap ();
+            List<Value> vals = this.buildRefValsTree (this,
+                                                      strings,
+                                                      new ArrayList<Value> ());
+
+            if (vals != null)
+            {
+
+                StringBuilder b = new StringBuilder ();
+
+                for (Value v : vals)
+                {
+
+                    if (b.length () > 0)
+                    {
+
+                        b.append (" -> ");
+
+                    }
+
+                    b.append (v.getId ());
+
+                }
+
+                errors.add ("Reference loop detected between: " + this.getId () + " and: " + b.toString ());
+
+            }
+
+            return errors;
+*/
+        }
+/*
+        public List<Value> buildRefValsTree (Value           root,
+                                             LanguageStrings strings,
+                                             List<Value>     ids)
+        {
+
+            Set<String> refids = this.getRefIds ();
+
+            for (String rid : refids)
+            {
+
+                Value v = strings.getValue (rid);
+
+                if (rid.equals (this.getId ()))
+                {
+
+                    return ids;
+
+                }
+
+                if (v == null)
+                {
+
+                    continue;
+
+                }
+
+                if (v.equals (root))
+                {
+
+                    return ids;
+
+                }
+
+                if (ids.contains (v))
+                {
+
+                    // Already have this, got a loop.
+                    return ids;
+
+                }
+
+                ids.add (v);
+
+                int ind = ids.size () - 1;
+
+                List<Value> nids = v.buildRefValsTree (root,
+                                                       strings,
+                                                       new ArrayList (ids));
+
+                if (nids != null)
+                {
+
+                    return nids;
+
+                } else {
+
+                    ids = ids.subList (0, ind);
+
+                }
+
+            }
+
+            return null;
+
+        }
+*/
+        public void clearBuiltText ()
+        {
+
+            this.builtText = null;
+
+        }
+
+        public String getRawText ()
+        {
+
+            return this.text;
+
+        }
+
+        public String getBuiltText (RefValueProvider prov)
+        {
+
+            if (this.builtText != null)
+            {
+
+                return this.builtText;
+
+            }
+
+            String s = LanguageStrings.buildText (this.text,
+                                                  prov);
+
+            this.builtText = s;
+
+            return this.builtText;
+
+        }
+/*
+        public Set<String> getRefIds ()
+        {
+
+            Set<String> ids = new LinkedHashSet<> ();
+
+            int start = 0;
+
+            while ((start = this.text.indexOf (ID_REF_START,
+                                               start)) > -1)
+            {
+
+                int end = this.text.indexOf (ID_REF_END,
+                                             start);
+
+                if (end > (start + ID_REF_START.length ()))
+                {
+
+                    String sid = this.text.substring (start + ID_REF_START.length (),
+                                                      end);
+
+                    ids.add (sid);
+                    start = end + ID_REF_END.length ();
+
+                } else {
+
+                    start += ID_REF_START.length ();
+
+                }
+
+            }
+
+            return ids;
+
+        }
+*/
     }
 
 }

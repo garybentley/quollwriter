@@ -3,6 +3,8 @@
     ":nativename" : "English",
     ":version" : "1",
     ":created" : "22/July/2017",
+    ":lastmodified" : "",
+    ":email" : "gary@quollwriter.com",
     "startup" :
     {
         ":section" : "General",
@@ -82,7 +84,7 @@
             "researchitem" : "Research Item",
             "note" : "Note",
             "editneedednote" : "Edit Needed ${objectnames.singular.note}",
-            "project" : "ProjectX",
+            "project" : "Project",
             "contact" : "Contact",
             "editor" : "Editor",
             "document" : "Document",
@@ -940,7 +942,7 @@
                         ":scount.novalue" : 1,
                         "valueexists" : "Already have a %1$s called: <b>%2$s</b>",
                         ":comment.valueexists" : "%1$s is the object type name, %2$s is the name of the object with the name.",
-                        ":scount.novalue" : 2
+                        ":scount.valueexists" : 2
                     }
                 },
                 "text" :
@@ -1198,7 +1200,7 @@
                     "title" : "Time is up",
                     "text" : "You have completed %1$s minutes of writing.  Congratulations!",
                     ":comment.text" : "%1$s is the number of minutes completed.",
-                    ":scount.text" : 2
+                    ":scount.text" : 1
                 }
             },
             "words" :
@@ -1358,8 +1360,8 @@
         "title" : "Delete %1$s",
         ":comment.title" : "%1$s is the type of thing that is to be deleted.",
         ":scount.title" : 1,
-        "text" : "To delete %1$s <b>%2$s</b> please enter the word <b>${deleteitem.confirmword}</b> into the box below.%3s",
-        ":comment.text" : "%1$s is the type of thing that is to be deleted.  %2$s is the name of the thing, such as chapter name.  %3s is an optional warning that some delete functions display to warn the user.  The confirmword value is the one used for confirmation of the deletion.  It should be an affirmative value, such as 'Yes' or 'Ok', i.e. short and fast to enter but indicates that the user agrees with the action.  When checked the case of the value entered will be ignored, so YES, Yes, or yes would work.",
+        "text" : "To delete %1$s <b>%2$s</b> please enter the word <b>${deleteitem.confirmword}</b> into the box below.%3$s",
+        ":comment.text" : "%1$s is the type of thing that is to be deleted.  %2$s is the name of the thing, such as chapter name.  %3$s is an optional warning that some delete functions display to warn the user.  The confirmword value is the one used for confirmation of the deletion.  It should be an affirmative value, such as 'Yes' or 'Ok', i.e. short and fast to enter but indicates that the user agrees with the action.  When checked the case of the value entered will be ignored, so YES, Yes, or yes would work.",
         ":scount.text" : 3,
         "confirmword" : "Yes",
         "errorlabel" : "Please enter the word ${deleteitem.confirmword} to confirm the deletion.",
@@ -2231,8 +2233,8 @@
         "11" : "Got writer's block?  <a href='action:warmup'>Why not try a {warmup} exercise?</a> To do a {warmup} at any time select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
         "12" : "Want to record your ideas?  <a href='action:ideaboard'>Click to open the ${names.ideaboard}.</a><br />You can open the ${names.ideaboard} at any time by selecting [idea]<b>${project.settingsmenu.items.ideaboard}</b>.",
         "13" : "Have you seen the user guide?  <a href='help:index.html'>Click to view the guide.</a> You can access the online help at any time from the ${objectnames.singular.project} menu, then select [help]<b>${project.settingsmenu.items.help}</b> then [help]<b>${project.settingsmenu.items.viewuserguide}</b>.",
-        "14.1" : "Want to know how many words you've written?  <a href='action:wordcounts'>Click to see the word counts now.</a><br />You can also use <b>Ctrl+W</b> or the [wordcount] button from the toolbar to see how many words you've written.",
-        "14.2" : "Want to know how many words you've written?  Press <b>Ctrl+W</b> when editing a chapter or use the [wordcount] button from the toolbar to see how many words you've written.",
+        "14_1" : "Want to know how many words you've written?  <a href='action:wordcounts'>Click to see the word counts now.</a><br />You can also use <b>Ctrl+W</b> or the [wordcount] button from the toolbar to see how many words you've written.",
+        "14_2" : "Want to know how many words you've written?  Press <b>Ctrl+W</b> when editing a chapter or use the [wordcount] button from the toolbar to see how many words you've written.",
         "15" : "Want to know see how many words you've written over time? <a href='action:wordcounthistory'>Click to see the word count history now.</a><br />Press <b>Ctrl+W</b> or use the [wordcount] button from the toolbar then [wordcount]<b>View Detail</b> to view the history.",
         "16" : "Want to manage the words in your personal dictionary?  <a href='action:dictionarymanager'>Click to manage your personal dictionary now.</a><br />The dictionary can be accessed from the project menu then select [edit-properties]<b>Project Options</b> and the <b>${objectnames.singular.chapter}</b> tab.",
         "17" : "Sick of those little red lines?  <a href='action:spellcheckoff'>Click to turn the spellchecker off.</a><br />Press <b>Ctrl+L</b> when editing a chapter or use the [spellchecker] button on the toolbar to turn the spellchecker on or off.",
@@ -2244,8 +2246,8 @@
         "23" : "You can use the problem finder in full screen mode.  <a href='action:fullscreen,problemfinder'>Click to view the problem finder in full screen mode now.</a><br />Full screen mode can be accessed from the toolbar by selecting [fullscreen] or pressing <b>F5</b>. The ${names.problemfinder} can be accessed from the [tools] tools menu on the toolbar then selecting [eye]<b>Find Problems</b> or using the shortcut <b>Ctrl+Shift+P</b>.",
         "24" : "Want to check how readable your prose is?  <a href='action:wordcounts'>Click to view the check the readability now.</a><br />You can also check the readability by opening the word counts via <b>Ctrl+W</b> or use the [wordcount] button on the toolbar.",
         "25" : "Don't like the font or font size?  <a href='action:textproperties'>Click to change the text properties.</a><br />The text properties can be accessed from the [tools] menu on the toolbar then select [edit-properties]<b>Edit Text Properties</b>.",
-        "26.1" : "Want to find a synonym?  Highlight a word while editing a ${objectnames.singular.chapter} and right click.",
-        "26.2" : "Want to find a synonym?  Highlight a word and right click.",
+        "26_1" : "Want to find a synonym?  Highlight a word while editing a ${objectnames.singular.chapter} and right click.",
+        "26_2" : "Want to find a synonym?  Highlight a word and right click.",
         "27" : "Missing the sound of a typewriter?  <a href='action:enabletypewritersound'>Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the <b>How things look and sound</b> section of the <a href='action:options.look'>options</a>.",
         "28" : "{Warmups} can be converted into {projects}.  <a href='action:warmup'>Click to do a {warmup} now.</a><br />You can do a {warmup} at any time, just select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
         "29" : "In full screen mode you can change the size of the writing area and how transparent the background is?  Just move your cursor to the top of the screen to see the options.",
@@ -3421,7 +3423,7 @@
     "backups" :
     {
         ":section" : "Project",
-        "autobackupnotification" : "An automatic ${objectnames.singular.backup} has been created.  <a href='%1$s:%1$s'>Click to view the ${objectnames.plural.backup}.</a>",
+        "autobackupnotification" : "An automatic ${objectnames.singular.backup} has been created.  <a href='%1$s:%2$s'>Click to view the ${objectnames.plural.backup}.</a>",
         ":comment.autobackupnotification" : "The %1$s:%2$s is a link generated by QW to open the folder containing the backups.  It is recommended that you do not change that.",
         ":scount.autobackupnotification" : 2,
         "text" : "Listed below are the ${objectnames.plural.backup} you have for ${objectnames.singular.project} <b>%1$s</b>.",
@@ -3749,8 +3751,8 @@
     {
         ":section" : "General",
         "title" : "Oops, an error has occurred...",
-        "text" : "%1$s<br /><br /><a href='%2$s:%3s'>Contact {QW} support about this problem.</a>",
-        ":comment.text" : "%1$s is the message being displayed.  %2$s and %3s are replaced with values that generate a url the user can click on to report the bug.",
+        "text" : "%1$s<br /><br /><a href='%2$s:%3$s'>Contact {QW} support about this problem.</a>",
+        ":comment.text" : "%1$s is the message being displayed.  %2$s and %3$s are replaced with values that generate a url the user can click on to report the bug.",
         ":scount.text" : 3
     },
     "generalmessage" :
@@ -4312,10 +4314,10 @@
                 "xaxis" : "Reading Level",
                 "overtargetfk" : "%1$s ${objectnames.plural.chapter} over target ${names.fk}",
                 ":comment.overtargetfk" : "%1$s is the number of chapters over the target FK value.",
-                ":scount.overtargetfk" : 2,
+                ":scount.overtargetfk" : 1,
                 "overtargetgf" : "%1$s ${objectnames.plural.chapter} over target ${names.gf}",
                 ":comment.overtargetgf" : "%1$s is the number of chapters over the target GF value.",
-                ":scount.overtargetgf" : 2,
+                ":scount.overtargetgf" : 1,
                 "averagefk" : "%1$s - Average ${names.fk}",
                 ":comment.averagefk" : "%1$s is the average FK value.",
                 ":scount.averagefk" : 1,

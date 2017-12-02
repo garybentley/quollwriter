@@ -3150,6 +3150,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		Set<String> ids = new LinkedHashSet ();
 
+        ids.add ("strings");
 		ids.add (NEW_PROJECT_HEADER_CONTROL_ID);
 		ids.add (IMPORT_PROJECT_HEADER_CONTROL_ID);
 		ids.add (CONTACTS_HEADER_CONTROL_ID);
@@ -3178,6 +3179,43 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		final Landing _this = this;
 
 		JComponent c = null;
+
+        if (id.equals ("strings"))
+        {
+
+            c = UIUtils.createButton (Constants.ADD_ICON_NAME,
+                                      Constants.ICON_TITLE_ACTION,
+                                      "Click to add a new set of langauge strings",
+                                    // ??? "Click to provide feedback/report a problem with the beta",
+                                          new ActionAdapter ()
+                                          {
+
+                                              public void actionPerformed (ActionEvent ev)
+                                              {
+
+                                                  LanguageStrings ls = new LanguageStrings (Environment.getDefaultUILanguageStrings ());
+                                                  ls.setNativeName ("French");
+
+                                                  try
+                                                  {
+
+                                                      new LanguageStringsEditor (ls).init ();
+
+                                                  } catch (Exception e) {
+
+                                                      Environment.logError ("Unable to create language strings editor",
+                                                                            e);
+
+                                                      UIUtils.showErrorMessage (_this,
+                                                                                "Unable to create strings editor.");
+
+                                                  }
+
+                                              }
+
+                                          });
+
+        }
 
 		if (id.equals (NEW_PROJECT_HEADER_CONTROL_ID))
 		{

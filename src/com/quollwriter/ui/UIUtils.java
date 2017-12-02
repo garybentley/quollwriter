@@ -10815,4 +10815,71 @@ public class UIUtils
 
     }
 
+    public static void showAddNewLanguageStringsPopup (final AbstractViewer viewer)
+    {
+
+        QPopup popup = UIUtils.createTextInputPopup (viewer,
+                                                     "Enter the language name",
+                                                     Constants.ADD_ICON_NAME,
+                                                     "Enter the name of the language you want to create the strings for.",
+                                                     "Create",
+                                                     "Cancel",
+                                                     null,
+                                                     new ValueValidator<String> ()
+                                                     {
+
+                                                         @Override
+                                                         public String isValid (String v)
+                                                         {
+
+                                                             if ((v == null)
+                                                                 ||
+                                                                 (v.trim ().length () == 0)
+                                                                )
+                                                             {
+
+                                                                 return "Please enter the language name";
+
+                                                             }
+
+                                                             return null;
+
+                                                         }
+
+                                                     },
+                                                     new ActionListener ()
+                                                     {
+
+                                                         @Override
+                                                         public void actionPerformed (ActionEvent ev)
+                                                         {
+
+                                                             String v = ev.getActionCommand ();
+
+                                                             LanguageStrings ls = new LanguageStrings (Environment.getDefaultUILanguageStrings ());
+                                                             ls.setNativeName (v);
+
+                                                             try
+                                                             {
+
+                                                                 new LanguageStringsEditor (ls).init ();
+
+                                                             } catch (Exception e) {
+
+                                                                 Environment.logError ("Unable to create language strings editor",
+                                                                                       e);
+
+                                                                 UIUtils.showErrorMessage (viewer,
+                                                                                           "Unable to create strings editor.");
+
+                                                             }
+
+                                                         }
+
+                                                     },
+                                                     null,
+                                                     null);
+
+    }
+
 }

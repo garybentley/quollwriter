@@ -5,6 +5,7 @@ import java.io.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.util.*;
+import java.text.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -47,7 +48,7 @@ import com.quollwriter.ui.components.ScrollableBox;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
 
-public class LanguageStringsEditor extends AbstractViewer
+public class LanguageStringsEditor extends AbstractViewer implements RefValueProvider
 {
 
 	public static final int DEFAULT_WINDOW_WIDTH = 800;
@@ -58,6 +59,7 @@ public class LanguageStringsEditor extends AbstractViewer
 	public static final String OPTIONS_CARD = "options";
 
     public static final String INFO_HEADER_CONTROL_ID = "info";
+    public static final String SUBMIT_HEADER_CONTROL_ID = "submit";
 
     public static int INTERNAL_SPLIT_PANE_DIVIDER_WIDTH = 2;
 
@@ -78,13 +80,21 @@ public class LanguageStringsEditor extends AbstractViewer
     private Map<String, IdsPanel> panels = new HashMap ();
 	private String currentCard = null;
     private LanguageStrings strings = null;
+    private LanguageStrings userStrings = null;
     private String toolbarLocation = null;
 
-    public LanguageStringsEditor (LanguageStrings strings)
+    public LanguageStringsEditor (LanguageStrings userStrings)
 			               throws Exception
     {
 
 		final LanguageStringsEditor _this = this;
+
+        if (userStrings == null)
+        {
+
+            throw new IllegalArgumentException ("No strings provided.");
+
+        }
 
         // Create a split pane.
         this.splitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
@@ -104,18 +114,15 @@ public class LanguageStringsEditor extends AbstractViewer
 
 		this.splitPane.setRightComponent (this.cards);
 
-        this.strings = this.strings;
+        this.strings = Environment.getDefaultUILanguageStrings ();
+        this.userStrings = userStrings;
 
-        this.strings = new LanguageStrings ();
-        this.strings.setNativeName ("English");
-        this.strings.setLanguageName (Constants.ENGLISH);
-        this.strings.setParent (Environment.getDefaultUILanguageStrings ());
-
-        this.setViewerTitle ("Edit Language Strings for: " + this.strings.getNativeName ());
+        this.updateTitle ();
 
         String defSection = "General";
 
         // Split the defaults into sections.
+        /*
         Map<String, Set<String>> sections = new HashMap<> ();
 
         Map<String, Object> defStrings = Environment.getDefaultUILanguageStrings ().getStrings ();
@@ -175,6 +182,8 @@ public class LanguageStringsEditor extends AbstractViewer
             }
 
         }
+*/
+        Map<String, Set<LanguageStrings.Node>> sections = this.strings.getNodesInSections (defSection);
 
         java.util.List<AccordionItem> items = new ArrayList<> ();
 
@@ -334,6 +343,53 @@ public class LanguageStringsEditor extends AbstractViewer
 
     }
 
+    public String getPreviewText (String t)
+    {
+
+        return LanguageStrings.buildText (t,
+                                          this);
+
+    }
+
+    @Override
+    public String getString (String id)
+    {
+
+        java.util.List<String> idparts = LanguageStrings.getIdParts (id);
+
+        // See if we have a panel.
+        if (idparts.size () > 0)
+        {
+
+            IdsPanel p = this.panels.get (idparts.get (0));
+
+            if (p != null)
+            {
+
+                String t = p.getIdValue (id);
+
+                if (t != null)
+                {
+
+                    return this.getPreviewText (t);
+
+                }
+
+            }
+
+        }
+
+        return this.userStrings.getString (id);
+
+    }
+
+    private void updateTitle ()
+    {
+
+        this.setViewerTitle ("Edit Language Strings for: " + this.userStrings.getNativeName ());
+
+    }
+
     public void setToolbarLocation (String loc)
     {
 
@@ -373,9 +429,9 @@ public class LanguageStringsEditor extends AbstractViewer
 
     }
 
-    private AccordionItem createSectionTree (String      title,
-                                             String      iconType,
-                                             Set<String> sections)
+    private AccordionItem createSectionTree (String                    title,
+                                             String                    iconType,
+                                             Set<LanguageStrings.Node> sections)
     {
 
         final LanguageStringsEditor _this = this;
@@ -402,11 +458,22 @@ public class LanguageStringsEditor extends AbstractViewer
                                                     row,
                                                     hasFocus);
 
-                String id = value.toString ();
+                DefaultMutableTreeNode tn = (DefaultMutableTreeNode) value;
+
+                if (tn.getUserObject () instanceof String)
+                {
+
+                    return this;
+
+                }
+
+                LanguageStrings.Node n = (LanguageStrings.Node) tn.getUserObject ();
+
+                String id = n.getNodeId ();
 
                 String name = String.format ("%s (%s)",
                                              id,
-                                             Environment.formatNumber (_this.getStringsCount (id)));
+                                             Environment.formatNumber (n.getAllValues ().size ()));
 
                 this.setText (name);
 
@@ -434,8 +501,9 @@ public class LanguageStringsEditor extends AbstractViewer
 
                     DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
-                    String id = n.getUserObject ().toString ();
+                    LanguageStrings.Node node  = (LanguageStrings.Node) n.getUserObject ();
 
+                    String id = node.getNodeId ();
                     IdsPanel p = _this.panels.get (id);
 
                     if (p == null)
@@ -494,101 +562,14 @@ public class LanguageStringsEditor extends AbstractViewer
 
     }
 
-    private int getStringsCount (String id)
-    {
-
-        Object o = Environment.getDefaultUILanguageStrings ().getStrings ().get (id);
-
-        return this.getStringsCount (o);
-
-    }
-
-    private boolean isIdCountable (String id)
-    {
-
-        return !((id.startsWith ("_"))
-                 ||
-                 (id.startsWith (":"))
-                );
-
-    }
-
-    private int getStringsCount (Object o)
-    {
-
-        if (o instanceof String)
-        {
-
-            if (this.isIdCountable ((String) o))
-            {
-
-                return 1;
-
-            }
-
-        }
-
-        if (o instanceof Collection)
-        {
-
-            int c = 0;
-
-            Collection col = (Collection) o;
-
-            for (Object co : col)
-            {
-
-                c+= this.getStringsCount (co);
-
-            }
-
-            return c;
-
-        }
-
-        if (o instanceof Map)
-        {
-
-            int c = 0;
-
-            Map m = (Map) o;
-
-            Iterator iter = m.keySet ().iterator ();
-
-            while (iter.hasNext ())
-            {
-
-                String k = (String) iter.next ();
-
-                if (!this.isIdCountable (k))
-                {
-
-                    continue;
-
-                }
-
-                Object v = m.get (k);
-
-                c += this.getStringsCount (v);
-
-            }
-
-            return c;
-
-        }
-
-        return 0;
-
-    }
-
-    private JTree createStringsTree (Set<String> sections)
+    private JTree createStringsTree (Set<LanguageStrings.Node> sections)
     {
 
         final LanguageStringsEditor _this = this;
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode ("_strings");
 
-        for (String k : sections)
+        for (LanguageStrings.Node k : sections)
         {
 /*
             if (!this.strings.isEnglish ())
@@ -612,13 +593,6 @@ public class LanguageStringsEditor extends AbstractViewer
 
             }
 */
-            if (!this.isIdCountable (k))
-            {
-
-                continue;
-
-            }
-
             root.add (new DefaultMutableTreeNode (k));
 
         }
@@ -1065,6 +1039,7 @@ public class LanguageStringsEditor extends AbstractViewer
 
 		Set<String> ids = new LinkedHashSet ();
 
+        ids.add (SUBMIT_HEADER_CONTROL_ID);
         ids.add (INFO_HEADER_CONTROL_ID);
         ids.add (SETTINGS_HEADER_CONTROL_ID);
 
@@ -1102,7 +1077,28 @@ public class LanguageStringsEditor extends AbstractViewer
                                         public void actionPerformed (ActionEvent ev)
                                         {
 
-                                            //_this.showWarmupPromptSelect ();
+                                            _this.showInfo ();
+
+                                        }
+
+                                      });
+
+        }
+
+        if (id.equals (SUBMIT_HEADER_CONTROL_ID))
+        {
+
+            c = UIUtils.createButton (Constants.UP_ICON_NAME,
+                                      Constants.ICON_TITLE_ACTION,
+                                      "Click to submit the strings",
+                                      new ActionListener ()
+                                      {
+
+                                        @Override
+                                        public void actionPerformed (ActionEvent ev)
+                                        {
+
+                                            _this.submit ();
 
                                         }
 
@@ -1120,6 +1116,208 @@ public class LanguageStringsEditor extends AbstractViewer
 		return super.getTitleHeaderControl (id);
 
 	}
+
+    private void submit ()
+    {
+
+        // Check for errors.
+        if (this.userStrings.getEmail () == null)
+        {
+
+            //showError = true;
+
+        }
+
+        Map<LanguageStrings.Value, Set<String>> errors = this.userStrings.getErrors ();
+System.out.println (errors);
+    }
+
+    private void showInfo ()
+    {
+
+        final LanguageStringsEditor _this = this;
+
+        final String popupName = "stringsinfo";
+        QPopup popup = this.getNamedPopup (popupName);
+
+        if (popup == null)
+        {
+
+            popup = UIUtils.createClosablePopup ("Edit the Information",
+                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+
+            final QPopup qp = popup;
+
+            Box content = new Box (BoxLayout.Y_AXIS);
+
+            JTextPane help = UIUtils.createHelpTextPane ("Use the form below to describe your set of strings.  All the values are required.<br /><br />When you are ready to submit the strings use the submission button on the header.",
+                                                         this);
+
+            help.setBorder (null);
+
+            content.add (help);
+            content.add (Box.createVerticalStrut (10));
+
+            final JLabel error = UIUtils.createErrorLabel ("");
+            error.setVisible (false);
+            error.setBorder (UIUtils.createPadding (0, 5, 5, 5));
+
+            content.add (error);
+
+            Set<FormItem> items = new LinkedHashSet ();
+
+            final TextFormItem lang = new TextFormItem ("English Name (i.e. Spanish, French, German)",
+                                                         this.userStrings.getLanguageName ());
+
+            items.add (lang);
+
+            final TextFormItem nativelang = new TextFormItem ("Native Name (i.e. Espa\u00F1ol, Fran\u00E7ais, Deutsch)",
+                                                              this.userStrings.getNativeName ());
+
+            items.add (nativelang);
+
+            final TextFormItem email = new TextFormItem ("Contact Email",
+                                                         this.userStrings.getEmail ());
+
+            items.add (email);
+
+            ActionListener saveAction = new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    String em = email.getValue ();
+
+                    if (em == null)
+                    {
+
+                        error.setText ("Please enter a valid email.");
+                        error.setVisible (true);
+                        qp.resize ();
+                        qp.resize ();
+
+                        return;
+
+                    }
+
+                    String l = lang.getValue ();
+
+                    if (l == null)
+                    {
+
+                        error.setText ("Please enter the English Language name.");
+                        error.setVisible (true);
+                        qp.resize ();
+
+                        return;
+
+                    }
+
+                    String nl = nativelang.getValue ();
+
+                    if (nl == null)
+                    {
+
+                        error.setText ("Please enter the Name Language name.");
+                        error.setVisible (true);
+                        qp.resize ();
+
+                        return;
+
+                    }
+
+                    _this.userStrings.setEmail (em);
+                    _this.userStrings.setLanguageName (l);
+                    _this.userStrings.setNativeName (nl);
+
+                    _this.updateTitle ();
+
+                    qp.resize ();
+                    qp.removeFromParent ();
+
+                }
+
+            };
+
+            UIUtils.addDoActionOnReturnPressed (lang.getTextField (),
+                                                saveAction);
+            UIUtils.addDoActionOnReturnPressed (nativelang.getTextField (),
+                                                saveAction);
+            UIUtils.addDoActionOnReturnPressed (email.getTextField (),
+                                                saveAction);
+
+            JButton save = UIUtils.createButton ("Save",
+                                                 saveAction);
+            JButton cancel = UIUtils.createButton ("Cancel",
+                                                   new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    qp.removeFromParent ();
+                    _this.removeNamedPopup (popupName);
+
+                }
+
+            });
+
+            Set<JButton> buttons = new LinkedHashSet ();
+            buttons.add (save);
+            buttons.add (cancel);
+
+            Form f = new Form (Form.Layout.stacked,
+                               items,
+                               buttons);
+
+            content.add (f);
+
+            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
+            popup.setContent (content);
+
+            popup.setDraggable (this);
+
+            popup.setPopupName (popupName);
+
+            this.addNamedPopup (popupName,
+                                popup);
+
+            //popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+
+            UIUtils.doLater (new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    //desc.grabFocus ();
+                    qp.resize ();
+
+                }
+
+            });
+
+        } else {
+
+            popup.setVisible (true);
+            popup.resize ();
+
+        }
+
+    }
 
 	@Override
     public String getViewerIcon ()
@@ -1497,7 +1695,6 @@ public class LanguageStringsEditor extends AbstractViewer
         return new IdsPanel (this,
                              id,
                              null);
-                             //this.strings.get (id));
 
     }
 
@@ -1505,8 +1702,9 @@ public class LanguageStringsEditor extends AbstractViewer
     {
 
         private String parentId = null;
-        private Object ids = null;
-        private Object values = null;
+        private Set<LanguageStrings.Value> vals = null;
+        private LanguageStrings.Node node = null;
+        //private Object values = null;
         private Box content = null;
         private LanguageStringsEditor editor = null;
 
@@ -1523,11 +1721,13 @@ public class LanguageStringsEditor extends AbstractViewer
 
             this.setTitle (String.format ("%s (%s)",
                                           id,
-                                          Environment.formatNumber (ed.getStringsCount (id))));
+                                          Environment.formatNumber (ed.strings.getNode (id).getAllValues ().size ())));
+                                          //getStringsCount (id))));
 
             this.parentId = id;
-            this.ids = Environment.getDefaultUILanguageStrings ().getStrings ().get (id);
-            this.values = values;
+            //this.vals = Environment.getDefaultUILanguageStrings ().getStrings ().getAllValues (id);
+            this.node = Environment.getDefaultUILanguageStrings ().getNode (id);
+            //this.values = values;
 
             this.content = new ScrollableBox (BoxLayout.Y_AXIS);
             this.content.setAlignmentY (Component.TOP_ALIGNMENT);
@@ -1556,10 +1756,11 @@ public class LanguageStringsEditor extends AbstractViewer
         public JComponent getContent ()
         {
 
-            this.buildForm (this.parentId,
-                            this.ids,
+            this.buildForm (this.parentId);
+            /*
+                            this.vals
                             this.values);
-
+*/
             this.content.add (Box.createVerticalGlue ());
 
             return this.content;
@@ -1581,6 +1782,34 @@ public class LanguageStringsEditor extends AbstractViewer
 */
         }
 
+        public String getIdValue (String id)
+        {
+
+            for (int i = 0; i < this.content.getComponentCount (); i++)
+            {
+
+                Component c = this.content.getComponent (i);
+
+                if (c instanceof IdBox)
+                {
+
+                    IdBox b = (IdBox) c;
+
+                    if (b.getId ().equals (id))
+                    {
+
+                        return b.getUserValue ();
+
+                    }
+
+                }
+
+            }
+
+            return null;
+
+        }
+
         private void createComment (String comment)
         {
 
@@ -1592,37 +1821,30 @@ public class LanguageStringsEditor extends AbstractViewer
 
         }
 
-        private void addComment (Object        ids,
-                                 String        forId)
-        {
-
-            if (ids instanceof Map)
-            {
-
-                Map m = (Map) ids;
-
-                Object v = m.get (":comment");
-
-                if (v != null)
-                {
-
-                    this.createComment (v.toString ());
-
-                }
-
-            }
-
-        }
-
-        private void buildForm (String        idPrefix,
-                                Object        ids,
-                                Object        values)
+        private void buildForm (String idPrefix)
         {
 
             // Check for the section comment.
-            this.addComment (ids,
-                             null);
+            if (this.node.getComment () != null)
+            {
 
+                this.createComment (this.node.getComment ());
+
+            }
+
+            for (LanguageStrings.Value v : this.node.getAllValues ())
+            {
+
+                this.content.add (new IdBox (v,
+                                            //_idPrefix, // full id
+                                            // (String) m.get (":comment." + k),
+                                            // null, // value
+                                             null, //(String) v, // defValue
+                                            // (Number) m.get (":scount." + k),
+                                             this.editor)); // scount
+
+            }
+/*
             if (ids instanceof Map)
             {
 
@@ -1669,7 +1891,7 @@ public class LanguageStringsEditor extends AbstractViewer
 
                 }
 
-            }
+                */
 
         }
 
@@ -1678,15 +1900,17 @@ public class LanguageStringsEditor extends AbstractViewer
     private class IdBox extends Box
     {
 
-        private String id = null;
         private TextArea userValue = null;
         private LanguageStringsEditor editor = null;
+        private Box selector = null;
+        private LanguageStrings.Value value = null;
+        private JTextPane preview = null;
+        private JLabel previewLabel = null;
+        private JTextPane errors = null;
+        private JLabel errorsLabel = null;
 
-        public IdBox (final String id,
-                      final String comment,
-                      final String value,
+        public IdBox (final LanguageStrings.Value  value,
                       final String defValue,
-                      final Number scount,
                       LanguageStringsEditor editor)
         {
 
@@ -1695,9 +1919,9 @@ public class LanguageStringsEditor extends AbstractViewer
             final IdBox _this = this;
 
             this.editor = editor;
-            this.id = id;
+            this.value = value;
 
-            Header h = UIUtils.createHeader (id,
+            Header h = UIUtils.createHeader (this.value.getId (),
                                              Constants.SUB_PANEL_TITLE);
 
             h.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
@@ -1705,9 +1929,12 @@ public class LanguageStringsEditor extends AbstractViewer
 
             this.add (h);
 
+            String comment = this.value.getComment ();
+
             Box b = new Box (BoxLayout.Y_AXIS);
             FormLayout   fl = new FormLayout ("right:60px, 5px, min(150px;p):grow",
-                                              "top:p, 6px, top:p" + (comment != null ? ", 6px, top:p" : ""));
+                                              (comment != null ? "top:p, 6px," : "") + "top:p, 6px, top:p, 6px, top:p, top:p, top:p");
+            fl.setHonorsVisibility (true);
             PanelBuilder pb = new PanelBuilder (fl);
 
             CellConstraints cc = new CellConstraints ();
@@ -1722,10 +1949,10 @@ public class LanguageStringsEditor extends AbstractViewer
 
                 String c = "";
 
-                if (scount != null)
+                if (this.value.getSCount () > 0)
                 {
 
-                    for (int i = 0; i < scount.intValue (); i++)
+                    for (int i = 0; i < this.value.getSCount (); i++)
                     {
 
                         if (c.length () > 0)
@@ -1754,7 +1981,8 @@ public class LanguageStringsEditor extends AbstractViewer
                          cc.xy (1,
                                 r));
 
-            JTextArea l = new JTextArea (defValue);
+
+            JTextArea l = new JTextArea (value.getRawText ()); //defValue);
             l.setLineWrap (true);
             l.setWrapStyleWord (true);
             l.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1770,7 +1998,215 @@ public class LanguageStringsEditor extends AbstractViewer
 
             this.userValue = new TextArea (null,
                                            3,
-                                           -1);
+                                           -1)
+            {
+
+                @Override
+                public void fillPopupMenuForExtraItems (MouseEvent ev,
+                                                        JPopupMenu popup,
+                                                        boolean    compress)
+                {
+
+                    if (compress)
+                    {
+
+                        java.util.List<JComponent> buts = new java.util.ArrayList ();
+
+                        buts.add (UIUtils.createButton ("eye",
+                                                        Constants.ICON_MENU,
+                                                        "Preview your value",
+                                                        new ActionListener ()
+                                                        {
+
+                                                             public void actionPerformed (ActionEvent ev)
+                                                             {
+
+                                                                 _this.showPreview ();
+
+                                                             }
+
+                                                        }));
+
+                        popup.add (UIUtils.createPopupMenuButtonBar ("Manage",
+                                                                     //"Edit",
+                                                                     popup,
+                                                                     buts));
+
+                    } else {
+
+                        JMenuItem mi = null;
+
+                        mi = UIUtils.createMenuItem ("Preview your value",
+                                                     "eye",
+                                                     new ActionListener ()
+                                                     {
+
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+
+                                                            _this.showPreview ();
+
+                                                        }
+
+                                                     });
+                        mi.setMnemonic (KeyEvent.VK_P);
+                        popup.add (mi);
+
+                    }
+
+                }
+
+            };
+
+            if (this.editor.userStrings.containsId (this.value.getId ()))
+            {
+
+                LanguageStrings.Value uv = this.editor.userStrings.getValue (this.value.getId ());
+
+                if (uv != null)
+                {
+
+                    this.userValue.setText (uv.getRawText ());
+
+                }
+
+            }
+
+            this.userValue.setAutoGrabFocus (false);
+            InputMap im = this.userValue.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+            ActionMap am = this.userValue.getActionMap ();
+
+            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_P,
+                                            InputEvent.CTRL_MASK),
+                    "preview");
+
+            am.put ("preview",
+                    new ActionAdapter ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    _this.showPreview ();
+
+                }
+
+            });
+
+            this.userValue.addKeyListener (new KeyAdapter ()
+            {
+
+                @Override
+                public void keyPressed (KeyEvent ev)
+                {
+
+                    if (ev.getKeyCode () == KeyEvent.VK_TAB)
+                    {
+
+                        ev.consume ();
+
+                        int c = _this.userValue.getEditor ().getCaretPosition ();
+
+                        Id id = new Id (_this.userValue.getEditor ().getText (),
+                                              c);
+
+                        if (id.start < 0)
+                        {
+
+                            return;
+
+                        }
+
+                        Set<String> matches = id.getMatches ();
+
+                        if (matches.size () == 0)
+                        {
+
+                            return;
+
+                        }
+
+                        if (matches != null)
+                        {
+    System.out.println ("C: " + c + ", " + id.currentPartEnd);
+
+                            String m = matches.iterator ().next ();
+
+                            String prev = _this.userValue.getEditor ().getText ().substring (c - 1, c);
+
+                            if (prev.equals ("."))
+                            {
+
+                                _this.userValue.getEditor ().replaceText (c, c, m);
+                                _this.userValue.getEditor ().setCaretPosition (c + m.length ());
+
+                                return;
+
+                            }
+
+                            if ((c >= id.currentPartStart)
+                                &&
+                                (c <= id.currentPartEnd)
+                               )
+                            {
+System.out.println ("CP: " + id.currentPart);
+                                _this.userValue.getEditor ().replaceText (id.currentPartStart, id.currentPartEnd, m);
+
+                                _this.userValue.getEditor ().setCaretPosition (id.currentPartStart + m.length ());
+
+                                _this.selector.setVisible (false);
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                @Override
+                public void keyReleased (KeyEvent ev)
+                {
+
+                    int c = _this.userValue.getEditor ().getCaretPosition ();
+
+                    String t = _this.userValue.getEditor ().getText ();
+
+                    Id id = new Id (t,
+                                    c);
+
+                    if (id.fullId == null)
+                    {
+
+                        return;
+
+                    }
+
+                    Set<String> matches = id.getMatches ();
+
+                    try
+                    {
+
+                        Rectangle r = _this.userValue.getEditor ().modelToView (id.currentPartStart);//_this.userValue.getEditor ().getCaretPosition ());
+
+                        Point p = r.getLocation ();
+                        //p.y -= 10;
+                        //p.x -= 10;
+                        //p.y += r.height;.
+System.out.println ("PREF: " + id.idPrefix + ", " + matches);
+                        _this.showSelectionPopup (matches,
+                                                  id.idPrefix,//this.getIdPrefix (),
+                                                  p);
+
+                    } catch (Exception e) {
+
+                        e.printStackTrace ();
+
+                    }
+
+                }
+
+            });
 
             JButton insB = UIUtils.createToolBarButton (Constants.DOWN_ICON_NAME,
                                                         "Insert a reference to another string",
@@ -1830,21 +2266,7 @@ public class LanguageStringsEditor extends AbstractViewer
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    StringWithMarkup sm = _this.userValue.getEditor ().getTextWithMarkup ();
-
-                    if (!sm.hasText ())
-                    {
-
-                        UIUtils.showErrorMessage (_this.editor,
-                                                  "No value provided for: " + _this.id);
-
-                        return;
-
-                    }
-
-                    UIUtils.showMessage ((PopupsSupported) _this.editor,
-                                         _this.id + " - Preview",
-                                         _this.editor.strings.doReplacements (sm.getMarkedUpText ()));
+                    _this.showPreview ();
 
                 }
 
@@ -1854,16 +2276,45 @@ public class LanguageStringsEditor extends AbstractViewer
 
             JToolBar bBar = UIUtils.createButtonBar (buts);
 
-            Box uvBox = new Box (BoxLayout.X_AXIS);
-            this.userValue.setAlignmentY (TOP_ALIGNMENT);
-            this.userValue.setAlignmentX (LEFT_ALIGNMENT);
-            bBar.setAlignmentY (TOP_ALIGNMENT);
-            bBar.setAlignmentX (LEFT_ALIGNMENT);
-            uvBox.add (this.userValue);
-            uvBox.add (Box.createHorizontalStrut (5));
-            uvBox.add (bBar);
+            pb.add (this.userValue,
+                    cc.xy (3, r));
 
-            pb.add (uvBox,
+            r += 2;
+
+            this.errors = UIUtils.createHelpTextPane ("",
+                                                      this.editor);
+            this.errors.setVisible (false);
+            this.errors.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+
+            this.errorsLabel = UIUtils.createErrorLabel ("Errors");
+            this.errorsLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+            this.errorsLabel.setVisible (false);
+            this.errorsLabel.setIcon (null);
+
+            pb.add (this.errorsLabel,
+                    cc.xy (1, r));
+            pb.add (this.errors,
+                    cc.xy (3, r));
+
+            r += 1;
+
+            this.preview = UIUtils.createHelpTextPane ("",
+                                                       this.editor);
+            this.preview.setVisible (false);
+            this.preview.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+
+            this.previewLabel = UIUtils.createInformationLabel ("Preview");
+            this.previewLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+            this.previewLabel.setVisible (false);
+
+            pb.add (this.previewLabel,
+                    cc.xy (1, r));
+            pb.add (this.preview,
+                    cc.xy (3, r));
+
+            r += 1;
+
+            pb.add (bBar,
                     cc.xy (3, r));
 
             JPanel p = pb.getPanel ();
@@ -1879,6 +2330,253 @@ public class LanguageStringsEditor extends AbstractViewer
 
         }
 
+        public String getId ()
+        {
+
+            return this.value.getId ();
+
+        }
+
+        public String getUserValue ()
+        {
+
+            StringWithMarkup sm = this.userValue.getTextWithMarkup ();
+
+            if (sm != null)
+            {
+
+                if (!sm.hasText ())
+                {
+
+                    return null;
+
+                }
+
+                return sm.getMarkedUpText ();
+
+            }
+
+            return null;
+
+        }
+
+        public void showPreview ()
+        {
+
+            String s = this.getUserValue ();
+
+            if (s == null)
+            {
+
+                UIUtils.showErrorMessage (this.editor,
+                                          "No value provided for: " + this.value.getId ());
+
+                return;
+
+            }
+
+            this.errorsLabel.setVisible (false);
+            this.errors.setVisible (false);
+
+            Set<String> errs = LanguageStrings.getErrors (s,
+                                                          this.value.getId (),
+                                                          this.value.getSCount (),
+                                                          this.editor);
+
+            if (errs.size () > 0)
+            {
+
+                StringBuilder b = new StringBuilder ();
+
+                for (String e : errs)
+                {
+
+                    if (b.length () > 0)
+                    {
+
+                        b.append ("<br />");
+
+                    }
+
+                    b.append ("- " + e);
+
+                }
+
+                this.errors.setText ("<span class='error'>" + b.toString () + "</span>");
+                this.errorsLabel.setVisible (true);
+                this.errors.setVisible (true);
+
+                return;
+
+            }
+
+            String t = this.editor.getPreviewText (s);
+
+            this.previewLabel.setVisible (true);
+            this.preview.setText (t);
+            this.preview.setVisible (true);
+
+            this.validate ();
+            this.repaint ();
+/*
+            UIUtils.showMessage ((PopupsSupported) this.editor,
+                                 this.value.getId () + " - Preview",
+                                 t);
+*/
+        }
+
+        public void showSelectionPopup (Set<String> matches,
+                                        String      idprefix,
+                                        Point       point)
+        {
+
+            if (this.selector == null)
+            {
+
+                this.selector = new Box (BoxLayout.Y_AXIS);
+
+                this.selector.setOpaque (true);
+                this.selector.setBackground (UIUtils.getComponentColor ());
+                this.selector.setBorder (UIUtils.createLineBorder ());
+
+            }
+
+            if ((matches == null)
+                ||
+                (matches.size () == 0)
+               )
+            {
+
+                this.selector.setVisible (false);
+
+                return;
+
+            }
+
+            this.userValue.getEditor ().setFocusTraversalKeysEnabled (false);
+            this.userValue.getEditor ().setFocusTraversalKeys (KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+            this.userValue.getEditor ().setFocusTraversalKeys (KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+
+            this.selector.removeAll ();
+
+            DefaultListModel<String> m = new DefaultListModel<> ();
+
+            for (String o : matches)
+            {
+
+                m.addElement (o);
+
+            }
+
+            final JList l = new JList ();
+            l.setModel (m);
+            l.setLayoutOrientation (JList.VERTICAL);
+            l.setVisibleRowCount (0);
+            l.setOpaque (true);
+            l.setBackground (UIUtils.getComponentColor ());
+            l.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                             Short.MAX_VALUE));
+            UIUtils.setAsButton (l);
+
+            l.setCellRenderer (new DefaultListCellRenderer ()
+            {
+
+                public Component getListCellRendererComponent (JList   list,
+                                                               Object  value,
+                                                               int     index,
+                                                               boolean isSelected,
+                                                               boolean cellHasFocus)
+                {
+
+                    String obj = (String) value;
+
+                    JLabel l = (JLabel) super.getListCellRendererComponent (list,
+                                                                            value,
+                                                                            index,
+                                                                            isSelected,
+                                                                            cellHasFocus);
+
+                    l.setText (obj);//.getName ());
+
+                    l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (10)).deriveFont (Font.PLAIN));
+/*
+                    l.setIcon (Environment.getObjectIcon (obj,
+                                                          Constants.ICON_NOTIFICATION));
+*/
+                    l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+/*
+                    if (cellHasFocus)
+                    {
+
+                        l.setBackground (Environment.getHighlightColor ());
+
+                    }
+*/
+                    return l;
+
+                }
+
+            });
+
+            int rowHeight = 31;
+
+            l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+
+            JScrollPane sp = new JScrollPane (l);
+
+            sp.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            sp.getVerticalScrollBar ().setUnitIncrement (rowHeight);
+            sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+            sp.setOpaque (false);
+/*
+            sp.getViewport ().setPreferredSize (new Dimension (300,
+                                                               rowHeight * (matches.size () > 10 ? 10 : matches.size ())));
+*/
+            sp.setBorder (null);
+
+            this.selector.add (sp);
+
+            l.addListSelectionListener (new ListSelectionListener ()
+            {
+
+                @Override
+                public void valueChanged (ListSelectionEvent ev)
+                {
+/*
+                    if (onSelect != null)
+                    {
+
+                        NamedObject obj = (NamedObject) l.getSelectedValue ();
+
+                        onSelect.actionPerformed (new ActionEvent (l,
+                                                                   0,
+                                                                   obj.getObjectReference ().asString ()));
+
+                        if (closeOnSelect)
+                        {
+
+                            ep.removeFromParent ();
+
+                        }
+
+                    }
+*/
+                }
+
+            });
+
+            this.selector.setPreferredSize (new Dimension (300,
+                                                           rowHeight * (matches.size () > 10 ? 10 : matches.size ())));
+                                                //this.selector.getPreferredSize ().height));
+
+            this.editor.showPopupAt (this.selector,
+                                     SwingUtilities.convertPoint (this.userValue,
+                                                                  point,
+                                                                  this.editor),
+                                     false);
+
+        }
+
         @Override
         public Dimension getMaximumSize ()
         {
@@ -1886,6 +2584,166 @@ public class LanguageStringsEditor extends AbstractViewer
             return new Dimension (Short.MAX_VALUE,//super.getMaximumSize ().width,
                                   this.getPreferredSize ().height);
 
+        }
+
+        public class Id
+        {
+
+            public int start = -1;
+            public String fullId = null;
+            public java.util.List<String> parts = null;
+            public String currentPart = null;
+            public int currentPartStart = -1;
+            public int currentPartEnd = -1;
+            public String idPrefix = null;
+
+            public Id (String text,
+                       int    caret)
+            {
+
+                if (text.length () < 3)
+                {
+
+                    return;
+
+                }
+
+                String idstart = "${";
+
+                int ind = text.lastIndexOf (idstart, caret);
+
+                int ind2 = text.lastIndexOf ("}", caret);
+
+                if (ind2 > ind)
+                {
+
+                    return;
+
+                }
+
+                if (ind > -1)
+                {
+
+                    ind += idstart.length ();
+
+                    this.start = ind;
+
+                    String pref = text.substring (ind);
+
+                    int idendind = text.indexOf (" ", ind);
+
+                    if (idendind < 0)
+                    {
+
+                        idendind = text.indexOf ('\n', ind);
+
+                    }
+
+                    if (idendind < 0)
+                    {
+
+                        idendind = text.indexOf ("}", ind);
+
+                    }
+
+                    if (idendind < 0)
+                    {
+
+                        idendind = text.length ();
+
+                    }
+
+                    if (idendind < ind)
+                    {
+
+                        return;
+
+                    }
+
+                    this.fullId = text.substring (ind, idendind);
+
+                    this.parts = Utils.splitString (this.fullId,
+                                                    ".");
+
+                    int pind = caret - this.start;
+
+                    int sind = this.start;
+                    int cind = sind;
+
+                    String idpref = "";
+
+                    for (String idp : this.parts)
+                    {
+
+                        if (idpref.length () > 0)
+                        {
+
+                            idpref += ".";
+                            cind++;
+
+                        }
+
+                        this.currentPartStart = cind;
+                        this.currentPartEnd = cind + idp.length ();
+
+                        idpref += idp;
+
+                        cind += idp.length ();
+
+                        if ((pind > sind)
+                            &&
+                            (pind < cind)
+                           )
+                        {
+
+                            this.currentPart = idp;
+
+                            this.idPrefix = idpref;
+                            break;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            public Set<String> getMatches ()
+            {
+
+                return Environment.getDefaultUILanguageStrings ().getIdMatches (this.fullId);
+
+            }
+
+            public Set<String> getCurrentPartMatches ()
+            {
+
+                return Environment.getDefaultUILanguageStrings ().getIdMatches (this.idPrefix);
+
+            }
+
+/*
+            private int getIdPrefixLastPartEnd ()
+            {
+
+                int idPrefStart = this.getIdPrefixStart ();
+
+                String idPref = this.getIdPrefix ();
+
+                int lind = idPref.lastIndexOf (".");
+
+                if (lind > 0)
+                {
+
+                    idPrefStart += lind;
+
+                }
+
+                return idPrefStart;
+
+            }
+*/
         }
 
     }
