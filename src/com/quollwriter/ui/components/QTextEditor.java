@@ -20,7 +20,7 @@ import javax.swing.undo.*;
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.StringWithMarkup;
-import com.quollwriter.DictionaryProvider;
+import com.quollwriter.DictionaryProvider2;
 
 import com.quollwriter.text.*;
 
@@ -55,8 +55,8 @@ public class QTextEditor extends JTextPane implements TextStylable
     private boolean               canCopy = true;
     private boolean               canFormat = true;
 
-    public QTextEditor(DictionaryProvider prov,
-                       boolean            spellCheckerEnabled)
+    public QTextEditor(DictionaryProvider2 prov,
+                       boolean             spellCheckerEnabled)
     {
 
         this.setCaret (new QCaret ());
@@ -633,7 +633,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
-    public void setDictionaryProvider (DictionaryProvider dp)
+    public void setDictionaryProvider (DictionaryProvider2 dp)
     {
 
         this.spellChecker.setDictionaryProvider (dp);
@@ -1229,8 +1229,7 @@ public class QTextEditor extends JTextPane implements TextStylable
         if (this.spellChecker != null)
         {
 
-            this.spellChecker.addWord (word,
-                                       "user");
+            this.spellChecker.addWord (word);
 
         }
 

@@ -37,6 +37,9 @@ import com.quollwriter.achievements.ui.*;
 import com.quollwriter.ui.charts.*;
 import com.quollwriter.ui.actionHandlers.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 // TODO: Create a PopupFrame that supports popups.
 
 public class Landing extends AbstractViewer implements ProjectInfoChangedListener
@@ -3150,6 +3153,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		Set<String> ids = new LinkedHashSet ();
 
+        ids.add ("newstrings");
         ids.add ("strings");
 		ids.add (NEW_PROJECT_HEADER_CONTROL_ID);
 		ids.add (IMPORT_PROJECT_HEADER_CONTROL_ID);
@@ -3181,6 +3185,53 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		JComponent c = null;
 
         if (id.equals ("strings"))
+        {
+
+            c = UIUtils.createButton (Constants.FIND_ICON_NAME,
+                                      Constants.ICON_TITLE_ACTION,
+                                      "Click to open a set of langauge strings",
+                                    // ??? "Click to provide feedback/report a problem with the beta",
+                                          new ActionAdapter ()
+                                          {
+
+                                              public void actionPerformed (ActionEvent ev)
+                                              {
+
+                                                  UIUtils.showLanguageStringsSelectorPopup (_this,
+                                                                                            getUIString (uilanguage,select,edit,popup,LanguageStrings.title),
+                                                                                            new ActionListener ()
+                                                                                            {
+
+                                                                                                @Override
+                                                                                                public void actionPerformed (ActionEvent ev)
+                                                                                                {
+
+                                                                                                    try
+                                                                                                    {
+
+                                                                                                        new LanguageStringsEditor ((LanguageStrings) ev.getSource ()).init ();
+
+                                                                                                    } catch (Exception e) {
+
+                                                                                                        Environment.logError ("Unable to create language strings editor",
+                                                                                                                              e);
+
+                                                                                                        UIUtils.showErrorMessage (_this,
+                                                                                                                                  "Unable to create strings editor.");
+
+                                                                                                    }
+
+                                                                                                }
+
+                                                                                            });
+
+                                                }
+
+                                          });
+
+        }
+
+        if (id.equals ("newstrings"))
         {
 
             c = UIUtils.createButton (Constants.ADD_ICON_NAME,

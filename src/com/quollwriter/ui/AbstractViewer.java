@@ -3212,7 +3212,24 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (popup == null)
         {
 
-            DictionaryManager dictMan = new DictionaryManager (this);
+            DictionaryManager dictMan = null;
+
+            try
+            {
+
+                dictMan = new DictionaryManager (this);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to create dictionary maanger.",
+                                      e);
+
+                UIUtils.showErrorMessage (this,
+                                          "Unable to show personal dictionary.");
+
+                return;
+
+            }
 
             dictMan.init ();
 

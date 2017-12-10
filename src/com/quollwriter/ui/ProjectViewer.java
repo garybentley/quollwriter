@@ -2677,10 +2677,10 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
             this.proj.removeObject (a);
 
-            this.removeWordFromDictionary (a.getName (),
-                                           "project");
-            this.removeWordFromDictionary (a.getName () + "'s",
-                                           "project");
+            this.removeWordFromDictionary (a.getName ());
+                                           //"project");
+            //this.removeWordFromDictionary (a.getName () + "'s",
+            //                               "project");
 
             this.refreshObjectPanels (otherObjects);
 

@@ -109,7 +109,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     protected Project             proj = null;
     private DnDTabbedPane         tabs = null;
-    private DictionaryProvider    dictProv = null;
+    private ProjectDictionaryProvider   projDict = null;
+    private String projectLanguage = null;
     private SynonymProvider       synProv = null;
     private JSplitPane            splitPane = null;
     private JSplitPane            splitPane2 = null;
@@ -1537,6 +1538,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
+        if (this.projDict != null)
+        {
+
+            this.projDict.removeObjectNames (oldNames);
+            this.projDict.addNamedObject (object);
+
+        }
+/*
         for (String nn : oldNames)
         {
 
@@ -1557,10 +1566,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             try
             {
 
-                this.removeWordFromDictionary (nn,
-                                               "project");
-                this.removeWordFromDictionary (nn + "'s",
-                                               "project");
+                this.removeWordFromDictionary (nn);
+                                               //"project");
+                //this.removeWordFromDictionary (nn + "'s");
+                                               //"project");
 
             } catch (Exception e) {}
 
@@ -1573,46 +1582,42 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             try
             {
 
-                this.addWordToDictionary (nn,
-                                          "project");
-                this.addWordToDictionary (nn + "'s",
-                                          "project");
+                this.addWordToDictionary (nn);
+                                          //"project");
+                //this.addWordToDictionary (nn + "'s");
+                                          //"project");
 
             } catch (Exception e) {}
 
         }
-
+*/
     }
 
-    public void removeWordFromDictionary (String w,
-                                          String type)
+    public void removeWordFromDictionary (String w)
     {
 
-        if (this.dictProv != null)
+        if (this.projDict != null)
         {
 
-            this.dictProv.removeWord (w,
-                                      type);
+            this.projDict.removeWord (w);
 
         }
 
     }
 
-    public void addWordToDictionary (String w,
-                                     String type)
+    public void addWordToDictionary (String w)
     {
 
-        if (this.dictProv != null)
+        if (this.projDict != null)
         {
 
-            this.dictProv.addWord (w,
-                                   type);
+            this.projDict.addWord (w);
 
         }
 
     }
 
-    public void setDictionaryProvider (DictionaryProvider dp)
+    public void setDictionaryProvider (DictionaryProvider2 dp)
     {
 
         throw new UnsupportedOperationException ("Not supported.");
@@ -1793,8 +1798,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                 throws Exception
     {
 
-        if ((this.dictProv != null) &&
-            (this.dictProv.getLanguage ().equals (lang))
+        if ((this.projectLanguage != null)
+            &&
+            (this.projectLanguage.equals (lang))
            )
         {
 
@@ -1803,11 +1809,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
+        this.projectLanguage = lang;
+
         if (lang == null)
         {
 
             // Basically turning off spellchecking.
-            this.dictProv = null;
+            this.projDict = null;
 
             this.doForPanels (SpellCheckSupported.class,
                               new DefaultQuollPanelAction ()
@@ -1827,15 +1835,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                               });
 
             return;
-
-        }
-
-        File userDict = Environment.getUserDictionaryFile ();
-
-        if (!userDict.exists ())
-        {
-
-            userDict.createNewFile ();
 
         }
 
@@ -1868,9 +1867,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
-        this.dictProv = new DictionaryProvider (lang,
-                                                names,
-                                                userDict);
+        this.projDict = new ProjectDictionaryProvider (names,
+                                                       new UserDictionaryProvider (this.projectLanguage));
 
         final AbstractProjectViewer _this = this;
 
@@ -1886,7 +1884,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                                         AbstractEditorPanel s = (AbstractEditorPanel) panel;
 
-                                        s.setDictionaryProvider (_this.dictProv);
+                                        s.setDictionaryProvider (_this.projDict);
 
                                         try
                                         {
@@ -2030,10 +2028,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     }
 
-    public DictionaryProvider getDictionaryProvider ()
+    public ProjectDictionaryProvider getDictionaryProvider ()
     {
 
-        return this.dictProv;
+        return this.projDict;
 
     }
 
@@ -7378,7 +7376,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         if (ct != null)
         {
 
-            DictionaryProvider dp = this.getDictionaryProvider ();
+            DictionaryProvider2 dp = this.getDictionaryProvider ();
 
             if (dp != null)
             {

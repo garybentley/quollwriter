@@ -15,23 +15,39 @@ import com.softcorporation.suggester.Suggestion;
 import com.softcorporation.suggester.dictionary.BasicDictionary;
 import com.softcorporation.suggester.BasicSuggester;
 
-public class DictionaryProvider
+public class LanguageDictionaryProvider implements DictionaryProvider2
 {
 
-    private List                           listeners = new ArrayList ();
-    //private List<QWSpellDictionaryHashMap> dicts = new ArrayList ();
-    private QWSpellDictionaryHashMap       projDict = null;
-    private SpellChecker                   checker = null;
-    private com.swabunga.spell.event.SpellChecker projectSpellChecker = null;
+    private static Map<String, LanguageDictionaryProvider> langProvs = new HashMap<> ();
 
-    private static File                           userDictFile = null;
-    private static QWSpellDictionaryHashMap       userDict = null;
-    private static com.swabunga.spell.event.SpellChecker userSpellChecker = null;
+    private List                           listeners = new ArrayList ();
+    private SpellChecker                   checker = null;
     private String language = null;
 
-    public DictionaryProvider (String       lang,
-                               List<String> projWords)
-                               throws       Exception
+    public static LanguageDictionaryProvider getInstance (String lang)
+                                                   throws Exception
+    {
+
+        LanguageDictionaryProvider p = LanguageDictionaryProvider.langProvs.get (lang);
+
+        if (p != null)
+        {
+
+            return p;
+
+        }
+
+        p = new LanguageDictionaryProvider (lang);
+
+        LanguageDictionaryProvider.langProvs.put (lang,
+                                                  p);
+
+        return p;
+
+    }
+
+    private LanguageDictionaryProvider (String       lang)
+                                throws Exception
     {
 
         this.language = lang;
@@ -53,7 +69,7 @@ public class DictionaryProvider
         final BasicSuggester suggester = new BasicSuggester (config);
         suggester.attach (dict);
 
-        final DictionaryProvider _this = this;
+        final LanguageDictionaryProvider _this = this;
 
         this.checker = new SpellChecker ()
         {
@@ -93,20 +109,6 @@ public class DictionaryProvider
 
                 try
                 {
-
-                    if (_this.projectSpellChecker.isCorrect (w))
-                    {
-
-                        return true;
-
-                    }
-
-                    if (DictionaryProvider.userSpellChecker.isCorrect (w))
-                    {
-
-                        return true;
-
-                    }
 
                     if (suggester.hasExactWord (w))
                     {
@@ -164,36 +166,6 @@ public class DictionaryProvider
 
                 List suggestions = null;
 
-                List jsuggestions = _this.projectSpellChecker.getSuggestions (wt,
-                                                                              1);
-
-                if (jsuggestions != null)
-                {
-
-                    for (int i = 0; i < jsuggestions.size (); i++)
-                    {
-
-                        ret.add (((com.swabunga.spell.engine.Word) jsuggestions.get (i)).getWord ());
-
-                    }
-
-                }
-
-                jsuggestions = DictionaryProvider.userSpellChecker.getSuggestions (wt,
-                                                                                   1);
-
-                if (jsuggestions != null)
-                {
-
-                    for (int i = 0; i < jsuggestions.size (); i++)
-                    {
-
-                        ret.add (((com.swabunga.spell.engine.Word) jsuggestions.get (i)).getWord ());
-
-                    }
-
-                }
-
                 try
                 {
 
@@ -240,51 +212,6 @@ public class DictionaryProvider
 
         };
 
-        this.projectSpellChecker = new com.swabunga.spell.event.SpellChecker ();
-
-        if (projWords != null)
-        {
-
-            StringBuilder b = new StringBuilder ();
-
-            for (String i : projWords)
-            {
-
-                b.append (i);
-                b.append ('\n');
-
-            }
-
-            this.projDict = new QWSpellDictionaryHashMap (new StringReader (b.toString ()));
-
-            this.projectSpellChecker.addDictionary (this.projDict);
-
-            //this.dicts.add (this.projDict);
-
-        }
-
-        if (DictionaryProvider.userDict == null)
-        {
-
-            File userDictFile = Environment.getUserDictionaryFile ();
-
-            if (!userDictFile.exists ())
-            {
-
-                userDictFile.createNewFile ();
-
-            }
-
-            DictionaryProvider.userDict = new QWSpellDictionaryHashMap (userDictFile);
-
-            DictionaryProvider.userDictFile = userDictFile;
-
-            DictionaryProvider.userSpellChecker = new com.swabunga.spell.event.SpellChecker ();
-
-            DictionaryProvider.userSpellChecker.setUserDictionary (DictionaryProvider.userDict);
-
-        }
-
     }
 
     public String getLanguage ()
@@ -322,6 +249,7 @@ public class DictionaryProvider
      * @param dir The directory to check.
      * @return If the checks pass.
      */
+     /*
     private boolean isIndexedDictionaryDirectory (File dir)
     {
 
@@ -359,7 +287,8 @@ public class DictionaryProvider
         return true;
 
     }
-
+*/
+    @Override
     public void addDictionaryChangedListener (DictionaryChangedListener l)
     {
 
@@ -374,6 +303,7 @@ public class DictionaryProvider
 
     }
 
+    @Override
     public void removeDictionaryChangedListener (DictionaryChangedListener l)
     {
 
@@ -395,13 +325,14 @@ public class DictionaryProvider
 
     }
 
+    @Override
     public SpellChecker getSpellChecker ()
     {
 
         return this.checker;
 
     }
-
+/*
     public static void addUserWord (String word)
     {
 
@@ -409,15 +340,12 @@ public class DictionaryProvider
         {
 
             DictionaryProvider.userDict.addWord (word);
-/*
-            this.fireDictionaryEvent (new DictionaryChangedEvent (this,
-                                                                  DictionaryChangedEvent.WORD_ADDED,
-                                                                  word));
-*/
+
         }
 
     }
-
+*/
+/*
     public static void removeUserWord (String word)
     {
 
@@ -439,117 +367,24 @@ public class DictionaryProvider
 
             }
 
-            /*
-            this.fireDictionaryEvent (new DictionaryChangedEvent (this,
-                                                                  DictionaryChangedEvent.WORD_REMOVED,
-                                                                  word));
+
+        }
+
+    }
 */
-        }
+    @Override
+    public void removeWord (String word)
+    {
+
+        throw new IllegalArgumentException ("Not supported for a language dictionary provider.");
 
     }
 
-    public void removeWord (String word,
-                            String type)
+    @Override
+    public void addWord (String word)
     {
 
-        if (type.equals ("project"))
-        {
-
-            if (this.projDict != null)
-            {
-
-                this.projDict.removeWord (word);
-
-                this.fireDictionaryEvent (new DictionaryChangedEvent (this,
-                                                                      DictionaryChangedEvent.WORD_REMOVED,
-                                                                      word));
-
-            }
-
-        }
-
-        if (type.equals ("user"))
-        {
-
-            if (DictionaryProvider.userDict != null)
-            {
-
-                DictionaryProvider.userDict.removeWord (word);
-
-                try
-                {
-
-                    DictionaryProvider.userDict.saveDictionaryToFile (DictionaryProvider.userDictFile);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to save user dictionary file",
-                                          e);
-
-                }
-
-                this.fireDictionaryEvent (new DictionaryChangedEvent (this,
-                                                                      DictionaryChangedEvent.WORD_REMOVED,
-                                                                      word));
-
-            }
-
-        }
-
-    }
-
-    public void addWord (String word,
-                         String type)
-    {
-
-        if (type.equals ("project"))
-        {
-
-            if (this.projDict == null)
-            {
-
-                try
-                {
-
-                    this.projDict = new QWSpellDictionaryHashMap (new StringReader (""));
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to create project dictionary for word: " +
-                                          word,
-                                          e);
-
-                    return;
-
-                }
-
-            }
-
-            this.projDict.addWord (word);
-
-            this.fireDictionaryEvent (new DictionaryChangedEvent (this,
-                                                                  DictionaryChangedEvent.WORD_ADDED,
-                                                                  word));
-
-        }
-
-        if (type.equals ("user"))
-        {
-
-            if (!DictionaryProvider.userDict.isCorrect (word))
-            {
-
-                DictionaryProvider.userDict.addWord (word);
-
-                this.fireDictionaryEvent (new DictionaryChangedEvent (this,
-                                                                      DictionaryChangedEvent.WORD_ADDED,
-                                                                      word));
-
-            }
-
-        }
+        throw new IllegalArgumentException ("Not supported for a language dictionary provider.");
 
     }
 

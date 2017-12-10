@@ -67,6 +67,8 @@ public class Constants
 
     public static final int POPUP_WINDOW_TITLE = 4;
 
+    public static final String JSON_FILE_EXT = ".json";
+
     public static final String ADD_ASSETS_TRY_POPUP = "trypopup";
 
     public static final String ADD_ASSETS_POPUP = "popup";
@@ -174,6 +176,8 @@ public class Constants
     public static final String AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME = "enableAutoSnapshots";
 
     public static final String AUTO_SNAPSHOTS_TIME_PROPERTY_NAME = "autoSnapshotsTime";
+
+    public static final String UI_LANGUAGES_DIR_NAME = "ui/language";
 
     public static final String DATE_FORMAT_PROPERTY_NAME = "dateFormat";
 
@@ -501,7 +505,7 @@ public class Constants
 
     public static final String LEGACY_OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names.xml";
 
-    public static final String OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names.json";
+    public static final String OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names" + JSON_FILE_EXT;
 
     public static final String SQL_LOG_NAME = "sql.log";
     public static final String ERROR_LOG_NAME = "error.log";
@@ -524,7 +528,7 @@ public class Constants
     public static final String NO_AVATAR_IMAGE_FILE_NAME = "noavatar.png";
 
     public static final String DATA_DIR = "/data/";
-    public static final String DEFAULT_UI_LANGUAGE_STRINGS_FILE = Constants.DATA_DIR + "default-ui-language-strings.json";
+    public static final String DEFAULT_UI_LANGUAGE_STRINGS_FILE = Constants.DATA_DIR + "default-ui-language-strings" + JSON_FILE_EXT;
     public static final String TIPS_FILE = Constants.DATA_DIR + "tips.xml";
     public static final String PROBLEM_FINDER_RULES_FILE = Constants.DATA_DIR + "problem-finder-rules.xml";
     public static final String PROMPT_WEBSITES_FILE = Constants.DATA_DIR + "prompt-websites.xml";

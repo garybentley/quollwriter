@@ -255,6 +255,13 @@ public class UIUtils
 
         }
 
+        if (nObj.equals (o))
+        {
+
+            return new TreePath (node.getPath ());
+
+        }
+
         if (nObj == o)
         {
 
@@ -2360,6 +2367,62 @@ public class UIUtils
                                               final Point                      showAt)
     {
 
+        UIUtils.showObjectSelectPopup (objs,
+                                       parent,
+                                       popupTitle,
+                                       new DefaultListCellRenderer ()
+                                       {
+
+                                           @Override
+                                           public Component getListCellRendererComponent (JList   list,
+                                                                                          Object  value,
+                                                                                          int     index,
+                                                                                          boolean isSelected,
+                                                                                          boolean cellHasFocus)
+                                           {
+
+                                               NamedObject obj = (NamedObject) value;
+
+                                               JLabel l = (JLabel) super.getListCellRendererComponent (list,
+                                                                                                       value,
+                                                                                                       index,
+                                                                                                       isSelected,
+                                                                                                       cellHasFocus);
+
+                                               l.setText (obj.getName ());
+
+                                               l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+                                               l.setIcon (Environment.getObjectIcon (obj,
+                                                                                     Constants.ICON_NOTIFICATION));
+                                               l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+
+                                               if (cellHasFocus)
+                                               {
+
+                                                   l.setBackground (Environment.getHighlightColor ());
+
+                                               }
+
+                                               return l;
+
+                                           }
+
+                                       },
+                                       onSelect,
+                                       closeOnSelect,
+                                       showAt);
+
+    }
+
+    public static void showObjectSelectPopup (final Set<? extends NamedObject> objs,
+                                              final AbstractViewer             parent,
+                                              final String                     popupTitle,
+                                              final ListCellRenderer           renderer,
+                                              final ActionListener             onSelect,
+                                              final boolean                    closeOnSelect,
+                                              final Point                      showAt)
+    {
+
         if (popupTitle == null)
         {
 
@@ -2397,7 +2460,9 @@ public class UIUtils
                                                  Short.MAX_VALUE));
                 UIUtils.setAsButton (l);
 
-                l.setCellRenderer (new DefaultListCellRenderer ()
+                l.setCellRenderer (renderer);
+/*
+                new DefaultListCellRenderer ()
                 {
 
                     public Component getListCellRendererComponent (JList   list,
@@ -2434,7 +2499,7 @@ public class UIUtils
                     }
 
                 });
-
+*/
                 int rowHeight = 37;
 
                 l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
@@ -2475,7 +2540,7 @@ public class UIUtils
 
                             NamedObject obj = (NamedObject) l.getSelectedValue ();
 
-                            onSelect.actionPerformed (new ActionEvent (l,
+                            onSelect.actionPerformed (new ActionEvent (obj,
                                                                        0,
                                                                        obj.getObjectReference ().asString ()));
 
@@ -10812,6 +10877,77 @@ public class UIUtils
                                             }));
 
         return tagMenu;
+
+    }
+
+    public static void showLanguageStringsSelectorPopup (final AbstractViewer viewer,
+                                                         final String         title,
+                                                         final ActionListener onSelect)
+    {
+
+        Set<LanguageStrings> objs = null;
+
+        try
+        {
+
+            objs = Environment.getAllUserLanguageStrings ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get all user language strings.",
+                                  e);
+
+            UIUtils.showErrorMessage (viewer,
+                                      getUIString (uilanguage,select,actionerror));
+
+            return;
+
+        }
+
+        UIUtils.showObjectSelectPopup (objs,
+                                       viewer,
+                                       title,
+                                       new DefaultListCellRenderer ()
+                                       {
+
+                                           @Override
+                                           public Component getListCellRendererComponent (JList   list,
+                                                                                          Object  value,
+                                                                                          int     index,
+                                                                                          boolean isSelected,
+                                                                                          boolean cellHasFocus)
+                                           {
+
+                                               LanguageStrings obj = (LanguageStrings) value;
+
+                                               JLabel l = (JLabel) super.getListCellRendererComponent (list,
+                                                                                                       value,
+                                                                                                       index,
+                                                                                                       isSelected,
+                                                                                                       cellHasFocus);
+
+                                               l.setText (obj.getName ());
+
+                                               l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+                                               l.setIcon (Environment.getObjectIcon (obj,
+                                                                                     Constants.ICON_NOTIFICATION));
+                                               l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+
+                                               if (cellHasFocus)
+                                               {
+
+                                                   l.setBackground (Environment.getHighlightColor ());
+
+                                               }
+
+                                               return l;
+
+                                           }
+
+                                       },
+                                       onSelect,
+                                       true,
+                                       null);
 
     }
 

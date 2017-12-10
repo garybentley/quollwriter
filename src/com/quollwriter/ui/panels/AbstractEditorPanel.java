@@ -82,7 +82,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         final AbstractEditorPanel _this = this;
 
-        DictionaryProvider dp = null;
+        DictionaryProvider2 dp = null;
 
         try
         {
@@ -1236,7 +1236,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
     }
 
-    public void setDictionaryProvider (DictionaryProvider dp)
+    public void setDictionaryProvider (DictionaryProvider2 dp)
     {
 
         this.editor.setDictionaryProvider (dp);

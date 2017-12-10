@@ -49,11 +49,15 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
 
     private FileWatcher watcher = null;
     private Set<PropertyChangedListener> listeners = new HashSet<> ();
+    private UserDictionaryProvider userDict = null;
 
     public DictionaryManager (final AbstractViewer pv)
+                       throws Exception
     {
 
         super (pv);
+
+        this.userDict = new UserDictionaryProvider ();
 
     }
 
@@ -77,7 +81,7 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
                                boolean reload)
     {
 
-        DictionaryProvider.removeUserWord (type);
+        this.userDict.removeWord (type);
 
         this.viewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
                                       ProjectEvent.REMOVE_WORD,
@@ -92,7 +96,7 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
                          boolean reload)
     {
 
-        DictionaryProvider.addUserWord (t);
+        this.userDict.addWord (t);
 
         this.viewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
                                       ProjectEvent.ADD_WORD,

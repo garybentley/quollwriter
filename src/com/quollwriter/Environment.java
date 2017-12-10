@@ -128,7 +128,7 @@ public class Environment
     private static Map<String, String> objectTypeNamesPlural = new HashMap ();
 
     private static Map<String, SynonymProvider> synonymProviders = new WeakHashMap ();
-    private static DictionaryProvider defaultDictProv = null;
+    //private static DictionaryProvider defaultDictProv = null;
 
     private static List<PropertyChangedListener> startupProgressListeners = new ArrayList ();
     private static int startupProgress = 0;
@@ -2912,6 +2912,94 @@ public class Environment
 
     }
 
+    private static File getUILanguageStringsDir ()
+    {
+
+        File d = new File (Environment.getUserQuollWriterDir (),
+                           Constants.UI_LANGUAGES_DIR_NAME);
+
+        if (!d.exists ())
+        {
+
+            d.mkdirs ();
+
+        }
+
+        return d;
+
+    }
+
+    public static LanguageStrings getUILanguageStrings (String id)
+                                                 throws Exception
+    {
+
+        if (id.equals (":English"))
+        {
+
+            return Environment.getDefaultUILanguageStrings ();
+
+        }
+
+        File f = Environment.getUILanguageStringsFile (id);
+
+        if (!f.exists ())
+        {
+
+            return null;
+
+        }
+
+        LanguageStrings s = new LanguageStrings (IOUtils.getFile (f));
+
+        return s;
+
+    }
+
+    public static Set<LanguageStrings> getAllUserLanguageStrings ()
+                                                           throws GeneralException
+    {
+
+        Set<LanguageStrings> s = new TreeSet<> ();
+
+        File d = Environment.getUILanguageStringsDir ();
+
+        File[] files = d.listFiles (new FileFilter ()
+        {
+
+            @Override
+            public boolean accept (File f)
+            {
+
+                return f.getName ().endsWith (Constants.JSON_FILE_EXT);
+
+            }
+
+        });
+
+        if (files != null)
+        {
+
+            for (int i = 0; i < files.length; i++)
+            {
+
+                s.add (new LanguageStrings (files[i]));
+
+            }
+
+        }
+
+        return s;
+
+    }
+
+    public static File getUILanguageStringsFile (String id)
+    {
+
+        return new File (Environment.getUILanguageStringsDir (),
+                         id + Constants.JSON_FILE_EXT);
+
+    }
+
     private static File getUserDefaultProjectPropertiesFile ()
     {
 
@@ -4344,10 +4432,22 @@ public class Environment
 
     }
 
-    public static DictionaryProvider getDefaultDictionaryProvider ()
-                                                            throws Exception
+    public static DictionaryProvider2 getDefaultDictionaryProvider ()
+                                                             throws Exception
     {
 
+        String lang = UserProperties.get (Constants.DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+
+        if (lang == null)
+        {
+
+            lang = Constants.ENGLISH;
+
+        }
+
+        return new UserDictionaryProvider (lang);
+
+/*
         if (Environment.defaultDictProv == null)
         {
 
@@ -4360,23 +4460,13 @@ public class Environment
 
             }
 
-            File userDict = Environment.getUserDictionaryFile ();
-
-            if (!userDict.exists ())
-            {
-
-                userDict.createNewFile ();
-
-            }
-
             Environment.defaultDictProv = new DictionaryProvider (lang,
-                                                                  null,
-                                                                  userDict);
+                                                                  null);
 
         }
 
         return Environment.defaultDictProv;
-
+*/
     }
 
     public static SynonymProvider getSynonymProvider (String language)
@@ -7221,6 +7311,7 @@ TODO: Add back in when appropriate.
     }
 
     public static void registerUILanguage (String jsonData)
+                                    throws GeneralException
     {
 
         LanguageStrings s = new LanguageStrings (jsonData);

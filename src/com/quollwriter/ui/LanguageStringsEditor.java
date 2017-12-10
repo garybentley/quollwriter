@@ -44,6 +44,7 @@ import com.quollwriter.ui.charts.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.components.ScrollableBox;
+import com.quollwriter.ui.components.SpellChecker;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
@@ -73,15 +74,16 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private Map<String, AbstractSideBar> sideBars = new HashMap ();
     private Stack<AbstractSideBar>  activeSideBars = new Stack ();
     private java.util.List<SideBarListener> sideBarListeners = new ArrayList ();
+    private java.util.List<MainPanelListener> mainPanelListeners = new ArrayList ();
 	private JPanel                cards = null;
 	private CardLayout            cardsLayout = null;
 	private JLabel                importError = null;
     private ImportTransferHandlerOverlay   importOverlay = null;
     private Map<String, IdsPanel> panels = new HashMap ();
 	private String currentCard = null;
-    private LanguageStrings strings = null;
     private LanguageStrings userStrings = null;
     private String toolbarLocation = null;
+    private Map<String, JTree> sectionTrees = new LinkedHashMap<> ();
 
     public LanguageStringsEditor (LanguageStrings userStrings)
 			               throws Exception
@@ -114,7 +116,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
 		this.splitPane.setRightComponent (this.cards);
 
-        this.strings = Environment.getDefaultUILanguageStrings ();
         this.userStrings = userStrings;
 
         this.updateTitle ();
@@ -183,7 +184,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 */
-        Map<String, Set<LanguageStrings.Node>> sections = this.strings.getNodesInSections (defSection);
+        Map<String, Set<LanguageStrings.Node>> sections = Environment.getDefaultUILanguageStrings ().getNodesInSections (defSection);
 
         java.util.List<AccordionItem> items = new ArrayList<> ();
 
@@ -202,7 +203,20 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         // Create the sidebar.
         this.currentSideBar = new AccordionItemsSideBar (this,
-                                                         items);
+                                                         items)
+        {
+
+            @Override
+            public void panelShown (MainPanelEvent ev)
+            {
+
+                _this.setIdSelectedInSidebar (ev.getPanel ().getPanelId ());
+
+            }
+
+        };
+
+        this.addMainPanelListener (this.currentSideBar);
 
         this.currentSideBar.init (null);
 
@@ -343,6 +357,57 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
     }
 
+    private void save ()
+                throws Exception
+    {
+
+        // Cycle over all the id boxes and set the values if present.
+        for (IdsPanel p : this.panels.values ())
+        {
+
+            p.saveValues ();
+
+        }
+
+        File f = Environment.getUILanguageStringsFile (this.userStrings.getId ());
+
+        String json = JSONEncoder.encode (this.userStrings.getAsJSON ());
+
+        IOUtils.writeStringToFile (f,
+                                   json,
+                                   false);
+
+    }
+
+    private void fireMainPanelShownEvent (QuollPanel p)
+    {
+
+        MainPanelEvent ev = new MainPanelEvent (this,
+                                                p);
+
+        for (MainPanelListener l : this.mainPanelListeners)
+        {
+
+            l.panelShown (ev);
+
+        }
+
+    }
+
+    public void removeMainPanelListener (MainPanelListener l)
+    {
+
+        this.mainPanelListeners.remove (l);
+
+    }
+
+    public void addMainPanelListener (MainPanelListener l)
+    {
+
+        this.mainPanelListeners.add (l);
+
+    }
+
     public String getPreviewText (String t)
     {
 
@@ -471,9 +536,28 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                 String id = n.getNodeId ();
 
-                String name = String.format ("%s (%s)",
-                                             id,
-                                             Environment.formatNumber (n.getAllValues ().size ()));
+                // See if there are any errors for this id.
+                int errCount = _this.userStrings.getErrors (id).size ();
+
+                String name = null;
+
+                if (errCount > 0)
+                {
+
+                    name = String.format ("%s (%s/%s)",
+                                          id,
+                                          Environment.formatNumber (errCount),
+                                          Environment.formatNumber (n.getAllValues ().size ()));
+
+                    this.setForeground (Color.red);
+
+                } else {
+
+                    name = String.format ("%s (%s)",
+                                          id,
+                                          Environment.formatNumber (n.getAllValues ().size ()));
+
+                }
 
                 this.setText (name);
 
@@ -504,6 +588,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     LanguageStrings.Node node  = (LanguageStrings.Node) n.getUserObject ();
 
                     String id = node.getNodeId ();
+
+                    _this.showIds (id);
+                    /*
+
                     IdsPanel p = _this.panels.get (id);
 
                     if (p == null)
@@ -537,7 +625,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     }
 
                     _this.showCard (id);
-
+*/
                 }
 
             }
@@ -558,7 +646,75 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         };
 
+        this.sectionTrees.put (title,
+                               tree);
+
         return acc;
+
+    }
+
+    public void showIds (String idPrefix)
+    {
+
+        //String id = node.getNodeId ();
+        IdsPanel p = this.panels.get (idPrefix);
+
+        if (p == null)
+        {
+
+            p = this.createIdsPanel (idPrefix);
+
+            try
+            {
+
+                p.init ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to show ids for id: " +
+                                      idPrefix,
+                                      e);
+
+                UIUtils.showErrorMessage (this,
+                                          "Unable to show panel.");
+
+                return;
+
+            }
+
+            this.panels.put (idPrefix,
+                             p);
+
+            this.cards.add (p, idPrefix);
+
+        }
+
+        this.showCard (idPrefix);
+
+        this.fireMainPanelShownEvent (p);
+
+    }
+
+    public void setIdSelectedInSidebar (String id)
+    {
+
+        for (JTree t : this.sectionTrees.values ())
+        {
+
+            t.clearSelection ();
+
+            // See how many children there are.
+            TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) t.getModel ().getRoot (),
+                                                            Environment.getDefaultUILanguageStrings ().createNode (id));
+
+            if (tp != null)
+            {
+
+                t.setSelectionPath (tp);
+
+            }
+
+        }
 
     }
 
@@ -1129,7 +1285,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         }
 
         Map<LanguageStrings.Value, Set<String>> errors = this.userStrings.getErrors ();
-System.out.println (errors);
+
     }
 
     private void showInfo ()
@@ -1439,6 +1595,24 @@ System.out.println (errors);
                           final ActionListener afterClose)
 	{
 
+        try
+        {
+
+            this.save ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save language strings: " +
+                                  this.userStrings,
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to save language strings.");
+
+            return false;
+
+        }
+
 		this.setVisible (false);
 
 		// Save state.
@@ -1721,7 +1895,7 @@ System.out.println (errors);
 
             this.setTitle (String.format ("%s (%s)",
                                           id,
-                                          Environment.formatNumber (ed.strings.getNode (id).getAllValues ().size ())));
+                                          Environment.formatNumber (Environment.getDefaultUILanguageStrings ().getNode (id).getAllValues ().size ())));
                                           //getStringsCount (id))));
 
             this.parentId = id;
@@ -1740,7 +1914,7 @@ System.out.println (errors);
         public String getPanelId ()
         {
 
-            return "ids-" + this.parentId;
+            return this.parentId;
 
         }
 
@@ -1780,6 +1954,28 @@ System.out.println (errors);
 
             return this.form;
 */
+        }
+
+        public void saveValues ()
+                         throws GeneralException
+        {
+
+            for (int i = 0; i < this.content.getComponentCount (); i++)
+            {
+
+                Component c = this.content.getComponent (i);
+
+                if (c instanceof IdBox)
+                {
+
+                    IdBox b = (IdBox) c;
+
+                    b.saveValue ();
+
+                }
+
+            }
+
         }
 
         public String getIdValue (String id)
@@ -1836,62 +2032,10 @@ System.out.println (errors);
             {
 
                 this.content.add (new IdBox (v,
-                                            //_idPrefix, // full id
-                                            // (String) m.get (":comment." + k),
-                                            // null, // value
-                                             null, //(String) v, // defValue
-                                            // (Number) m.get (":scount." + k),
+                                             (this.editor.userStrings.containsId (v.getId ()) ? this.editor.userStrings.getValue (v.getId ()) : null),
                                              this.editor)); // scount
 
             }
-/*
-            if (ids instanceof Map)
-            {
-
-                Map m = (Map) ids;
-
-                Iterator iter = m.keySet ().iterator ();
-
-                while (iter.hasNext ())
-                {
-
-                    String k = iter.next ().toString ();
-
-                    if (!(this.viewer.isIdCountable (k)))
-                    {
-
-                        continue;
-
-                    }
-
-                    Object v = m.get (k);
-
-                    String _idPrefix = ((idPrefix != null) ? idPrefix + "." : "") + k;
-
-                    if (v instanceof Map)
-                    {
-
-                        this.buildForm (_idPrefix,
-                                        v,
-                                        null);
-
-                    }
-
-                    if (v instanceof String)
-                    {
-
-                        this.content.add (new IdBox (_idPrefix, // full id
-                                                     (String) m.get (":comment." + k),
-                                                     null, // value
-                                                     (String) v, // defValue
-                                                     (Number) m.get (":scount." + k),
-                                                     this.editor)); // scount
-
-                    }
-
-                }
-
-                */
 
         }
 
@@ -1903,15 +2047,18 @@ System.out.println (errors);
         private TextArea userValue = null;
         private LanguageStringsEditor editor = null;
         private Box selector = null;
-        private LanguageStrings.Value value = null;
+        private JList<String> selections = null;
+        private LanguageStrings.Value baseValue = null;
+        private LanguageStrings.Value stringsValue = null;
+
         private JTextPane preview = null;
         private JLabel previewLabel = null;
         private JTextPane errors = null;
         private JLabel errorsLabel = null;
 
-        public IdBox (final LanguageStrings.Value  value,
-                      final String defValue,
-                      LanguageStringsEditor editor)
+        public IdBox (final LanguageStrings.Value baseValue,
+                      final LanguageStrings.Value stringsValue,
+                      final LanguageStringsEditor editor)
         {
 
             super (BoxLayout.Y_AXIS);
@@ -1919,9 +2066,10 @@ System.out.println (errors);
             final IdBox _this = this;
 
             this.editor = editor;
-            this.value = value;
+            this.baseValue = baseValue;
+            this.stringsValue = stringsValue;
 
-            Header h = UIUtils.createHeader (this.value.getId (),
+            Header h = UIUtils.createHeader (this.baseValue.getId (),
                                              Constants.SUB_PANEL_TITLE);
 
             h.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
@@ -1929,11 +2077,11 @@ System.out.println (errors);
 
             this.add (h);
 
-            String comment = this.value.getComment ();
+            String comment = this.baseValue.getComment ();
 
             Box b = new Box (BoxLayout.Y_AXIS);
             FormLayout   fl = new FormLayout ("right:60px, 5px, min(150px;p):grow",
-                                              (comment != null ? "top:p, 6px," : "") + "top:p, 6px, top:p, 6px, top:p, top:p, top:p");
+                                              (comment != null ? "top:p, 6px," : "") + "top:p, 6px, top:p:grow, 6px, top:p, top:p, top:p");
             fl.setHonorsVisibility (true);
             PanelBuilder pb = new PanelBuilder (fl);
 
@@ -1949,10 +2097,10 @@ System.out.println (errors);
 
                 String c = "";
 
-                if (this.value.getSCount () > 0)
+                if (this.baseValue.getSCount () > 0)
                 {
 
-                    for (int i = 0; i < this.value.getSCount (); i++)
+                    for (int i = 0; i < this.baseValue.getSCount (); i++)
                     {
 
                         if (c.length () > 0)
@@ -1981,8 +2129,7 @@ System.out.println (errors);
                          cc.xy (1,
                                 r));
 
-
-            JTextArea l = new JTextArea (value.getRawText ()); //defValue);
+            JTextArea l = new JTextArea (baseValue.getRawText ()); //defValue);
             l.setLineWrap (true);
             l.setWrapStyleWord (true);
             l.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -2058,21 +2205,113 @@ System.out.println (errors);
 
             };
 
-            if (this.editor.userStrings.containsId (this.value.getId ()))
+            //this.userValue.setBorder (UIUtils.createLineBorder ());
+
+            try
             {
 
-                LanguageStrings.Value uv = this.editor.userStrings.getValue (this.value.getId ());
-
-                if (uv != null)
+                this.userValue.setDictionaryProvider (new UserDictionaryProvider ("English")
                 {
 
-                    this.userValue.setText (uv.getRawText ());
+                    @Override
+                    public SpellChecker getSpellChecker ()
+                    {
+
+                        final SpellChecker sp = super.getSpellChecker ();
+
+                        return new SpellChecker ()
+                        {
+
+                            @Override
+                            public boolean isCorrect (Word word)
+                            {
+
+                                int offset = word.getAllTextStartOffset ();
+
+                                Id id = _this.getIdAtOffset (offset);
+
+                                if (id != null)
+                                {
+System.out.println ("V: " + id.isIdValid () + ", " + id.fullId);
+                                    return id.isIdValid ();
+
+                                }
+
+                                return sp.isCorrect (word);
+
+                            }
+
+                            @Override
+                            public boolean isIgnored (Word word)
+                            {
+
+                                return false;
+
+                            }
+
+                            @Override
+                            public java.util.List<String> getSuggestions (Word word)
+                            {
+
+                                return null;
+
+                            }
+
+                        };
+
+                    }
+
+                });
+
+                this.userValue.setSpellCheckEnabled (true);
+
+            } catch (Exception e) {
+
+                e.printStackTrace ();
+
+            }
+
+            final Action defSelect = this.userValue.getEditor ().getActionMap ().get (DefaultEditorKit.selectWordAction);
+
+            this.userValue.getEditor ().getActionMap ().put (DefaultEditorKit.selectWordAction,
+                                                             new TextAction (DefaultEditorKit.selectWordAction)
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    int c = _this.userValue.getEditor ().getCaretPosition ();
+
+                    Id id = _this.getIdAtCaret ();
+
+                    if (id != null)
+                    {
+System.out.println ("FFFID: " + id.fullId);
+                        _this.userValue.getEditor ().setSelectionStart (id.getPart (c).start);
+                        _this.userValue.getEditor ().setSelectionEnd (id.getPart (c).end);
+
+                    } else {
+
+                        System.out.println ("CALLED");
+
+                        defSelect.actionPerformed (ev);
+
+                    }
 
                 }
+
+            });
+
+            if (stringsValue != null)
+            {
+
+                this.userValue.setText (stringsValue.getRawText ());
 
             }
 
             this.userValue.setAutoGrabFocus (false);
+
             InputMap im = this.userValue.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
             ActionMap am = this.userValue.getActionMap ();
 
@@ -2100,6 +2339,20 @@ System.out.println (errors);
                 public void keyPressed (KeyEvent ev)
                 {
 
+                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
+                    {
+
+                        if (_this.isSelectorVisible ())
+                        {
+
+                            ev.consume ();
+
+                            return;
+
+                        }
+
+                    }
+
                     if (ev.getKeyCode () == KeyEvent.VK_TAB)
                     {
 
@@ -2109,56 +2362,17 @@ System.out.println (errors);
 
                         Id id = new Id (_this.userValue.getEditor ().getText (),
                                               c);
-
-                        if (id.start < 0)
+/*
+                        if (id.hasErrors ())
                         {
+
+                            _this.hideSelector ();
 
                             return;
 
                         }
-
-                        Set<String> matches = id.getMatches ();
-
-                        if (matches.size () == 0)
-                        {
-
-                            return;
-
-                        }
-
-                        if (matches != null)
-                        {
-    System.out.println ("C: " + c + ", " + id.currentPartEnd);
-
-                            String m = matches.iterator ().next ();
-
-                            String prev = _this.userValue.getEditor ().getText ().substring (c - 1, c);
-
-                            if (prev.equals ("."))
-                            {
-
-                                _this.userValue.getEditor ().replaceText (c, c, m);
-                                _this.userValue.getEditor ().setCaretPosition (c + m.length ());
-
-                                return;
-
-                            }
-
-                            if ((c >= id.currentPartStart)
-                                &&
-                                (c <= id.currentPartEnd)
-                               )
-                            {
-System.out.println ("CP: " + id.currentPart);
-                                _this.userValue.getEditor ().replaceText (id.currentPartStart, id.currentPartEnd, m);
-
-                                _this.userValue.getEditor ().setCaretPosition (id.currentPartStart + m.length ());
-
-                                _this.selector.setVisible (false);
-
-                            }
-
-                        }
+*/
+                        _this.fillMatch ();//m);
 
                     }
 
@@ -2168,6 +2382,65 @@ System.out.println ("CP: " + id.currentPart);
                 public void keyReleased (KeyEvent ev)
                 {
 
+                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
+                    {
+
+                        if (_this.isSelectorVisible ())
+                        {
+
+                            ev.consume ();
+
+                            _this.fillMatch ();
+
+                            return;
+
+                        }
+
+                    }
+
+                    if (ev.getKeyCode () == KeyEvent.VK_UP)
+                    {
+
+                        if (_this.selector.isVisible ())
+                        {
+
+                            ev.consume ();
+
+                            _this.updateSelectedMatch (-1);
+
+                            return;
+
+                        }
+
+                    }
+
+                    if (ev.getKeyCode () == KeyEvent.VK_DOWN)
+                    {
+
+                        if (_this.selector.isVisible ())
+                        {
+
+                            ev.consume ();
+
+                            _this.updateSelectedMatch (1);
+
+                            return;
+
+                        }
+
+                    }
+
+                    if (ev.getKeyCode () == KeyEvent.VK_ESCAPE)
+                    {
+
+                        ev.consume ();
+
+                        _this.hideSelector ();
+
+                        return;
+
+                    }
+
                     int c = _this.userValue.getEditor ().getCaretPosition ();
 
                     String t = _this.userValue.getEditor ().getText ();
@@ -2175,28 +2448,72 @@ System.out.println ("CP: " + id.currentPart);
                     Id id = new Id (t,
                                     c);
 
-                    if (id.fullId == null)
+                    if (id.getFullId () == null)
                     {
 
                         return;
 
                     }
+System.out.println ("XFID: " + id.getFullId ());
+                    Set<String> matches = id.getPartMatches (c);
 
-                    Set<String> matches = id.getMatches ();
+                    if ((matches == null)
+                        ||
+                        (matches.size () == 0)
+                       )
+                    {
+
+                        _this.hideSelector ();
+
+                        return;
+
+                    }
+
+                    if (matches.size () == 1)
+                    {
+
+                        Id.Part p = id.getPart (c);
+
+                        if (p == null)
+                        {
+
+                            p = id.getLastPart ();
+
+                        }
+
+                        if (p.part.equals (matches.iterator ().next ()))
+                        {
+
+                            _this.hideSelector ();
+                            return;
+
+                        }
+
+                    }
 
                     try
                     {
 
-                        Rectangle r = _this.userValue.getEditor ().modelToView (id.currentPartStart);//_this.userValue.getEditor ().getCaretPosition ());
+                        int ind = c;
 
-                        Point p = r.getLocation ();
+                        Id.Part pa = id.getPart (c);
+
+                        if (pa != null)
+                        {
+
+                            ind = pa.start;
+
+                        }
+
+                        Rectangle r = _this.userValue.getEditor ().modelToView (ind);
+
+                        //Point p = r.getLocation ();
                         //p.y -= 10;
                         //p.x -= 10;
                         //p.y += r.height;.
-System.out.println ("PREF: " + id.idPrefix + ", " + matches);
+
                         _this.showSelectionPopup (matches,
-                                                  id.idPrefix,//this.getIdPrefix (),
-                                                  p);
+                                                  r.getLocation ());
 
                     } catch (Exception e) {
 
@@ -2218,7 +2535,7 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
                public void actionPerformed (ActionEvent ev)
                {
 
-                   _this.userValue.setText (defValue);
+                   //_this.userValue.setText (defValue);
 
                }
 
@@ -2234,7 +2551,9 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    _this.userValue.setText (defValue);
+                    _this.userValue.setText (baseValue.getRawText ());//defValue);
+                    _this.validate ();
+                    _this.repaint ();
 
                 }
 
@@ -2317,6 +2636,7 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
             pb.add (bBar,
                     cc.xy (3, r));
 
+
             JPanel p = pb.getPanel ();
             p.setOpaque (false);
             p.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -2330,10 +2650,60 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
 
         }
 
+        public void saveValue ()
+                        throws GeneralException
+        {
+
+            String uv = this.getUserValue ();
+
+            if (uv != null)
+            {
+
+                if (this.stringsValue != null)
+                {
+
+                    this.stringsValue.setRawText (uv);
+
+                } else {
+
+                    this.stringsValue = this.editor.userStrings.insertValue (this.baseValue.getId ());
+
+                    this.stringsValue.setRawText (uv);
+
+                }
+
+            }
+
+        }
+
+        public Id getIdAtOffset (int offset)
+        {
+
+            Id id = new Id (this.userValue.getEditor ().getText (),
+                            offset);
+
+            if (id.fullId == null)
+            {
+
+                return null;
+
+            }
+
+            return id;
+
+        }
+
+        public Id getIdAtCaret ()
+        {
+
+            return this.getIdAtOffset (this.userValue.getEditor ().getCaretPosition ());
+
+        }
+
         public String getId ()
         {
 
-            return this.value.getId ();
+            return this.baseValue.getId ();
 
         }
 
@@ -2369,7 +2739,7 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
             {
 
                 UIUtils.showErrorMessage (this.editor,
-                                          "No value provided for: " + this.value.getId ());
+                                          "No value provided for: " + this.baseValue.getId ());
 
                 return;
 
@@ -2379,8 +2749,8 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
             this.errors.setVisible (false);
 
             Set<String> errs = LanguageStrings.getErrors (s,
-                                                          this.value.getId (),
-                                                          this.value.getSCount (),
+                                                          this.baseValue.getId (),
+                                                          this.baseValue.getSCount (),
                                                           this.editor);
 
             if (errs.size () > 0)
@@ -2425,8 +2795,186 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
 */
         }
 
+        private void fillMatch ()
+        {
+
+            QTextEditor editor = this.userValue.getEditor ();
+
+            int c = editor.getCaretPosition ();
+
+            Id id = new Id (editor.getText (),
+                            c);
+
+            String m = this.selections.getSelectedValue ();
+
+            //m = id.getNewFullId (m);
+
+            Id.Part part = id.getPart (c);
+
+            if (part != null)
+            {
+
+                editor.replaceText (part.start, part.end, m);
+                editor.setCaretPosition (part.start + m.length ());
+
+            } else {
+
+                // Is the previous character a . if so append.
+                if ((editor.getText ().substring (c - 1, c).equals ("."))
+                    ||
+                    (c == id.getEnd ())
+                   )
+                {
+System.out.println ("APPENDING: " + m);
+                    editor.replaceText (c, c, m);
+                    editor.setCaretPosition (c + m.length ());
+
+                } else {
+
+                    part = id.getLastPart ();
+System.out.println ("LAST: " + m);
+                    editor.replaceText (part.start, part.start + part.end, m);
+                    editor.setCaretPosition (part.start + m.length ());
+
+                }
+
+            }
+
+            c = editor.getCaretPosition ();
+
+            id = this.getIdAtCaret ();
+
+            // We may be inserting into the middle of an id, check to see if it's valid.
+/*
+            if (id.hasErrors ())
+            {
+
+                this.hideSelector ();
+
+                // Update the view to "spell check" the ids.
+                return;
+
+            }
+*/
+            // Check to see if the id maps to a string.
+            if (Environment.getDefaultUILanguageStrings ().getString (id.fullId) != null)
+            {
+
+                if (!id.hasClosingBrace)
+                {
+
+                    editor.replaceText (id.getEnd () + 1, id.getEnd () + 1, "}");
+                    editor.setCaretPosition (c + 1);
+
+                }
+
+                this.hideSelector ();
+
+                return;
+
+            }
+
+System.out.println ("FID: " + id.fullId);
+            // Check to see if there are more matches further down the tree.
+            String nid = id.fullId + ".";
+
+            Set<String> matches = Environment.getDefaultUILanguageStrings ().getIdMatches (nid);
+
+            if (matches.size () > 0)
+            {
+
+                c = editor.getCaretPosition ();
+
+                editor.replaceText (c, c, ".");
+                editor.setCaretPosition (c + 1);
+
+                try
+                {
+
+                    this.showSelectionPopup (matches,
+                                             editor.modelToView (id.getPart (c).start).getLocation ());
+
+                } catch (Exception e) {
+
+                    e.printStackTrace ();
+
+                }
+
+                return;
+
+            } else {
+
+                c = editor.getCaretPosition ();
+
+                editor.replaceText (c, c, "}");
+                editor.setCaretPosition (c + 1);
+
+                this.hideSelector ();
+
+                return;
+
+            }
+
+        }
+
+        private String updateSelectedMatch (int incr)
+        {
+
+            int i = this.selections.getSelectedIndex ();
+
+            i += incr;
+
+            int s = this.selections.getModel ().getSize ();
+
+            if (i < 0)
+            {
+
+                i = s + i;
+
+            }
+
+            if (i > s - 1)
+            {
+
+                i -= s;
+
+            }
+
+            this.selections.setSelectedIndex (i);
+
+            return this.selections.getSelectedValue ();
+
+        }
+
+        public boolean isSelectorVisible ()
+        {
+
+            if (this.selector != null)
+            {
+
+                return this.selector.isVisible ();
+
+            }
+
+            return false;
+
+        }
+
+        public void hideSelector ()
+        {
+
+            if (this.selector != null)
+            {
+
+                this.selector.setVisible (false);
+
+            }
+
+            this.userValue.getEditor ().setFocusTraversalKeysEnabled (true);
+
+        }
+
         public void showSelectionPopup (Set<String> matches,
-                                        String      idprefix,
                                         Point       point)
         {
 
@@ -2447,15 +2995,13 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
                )
             {
 
-                this.selector.setVisible (false);
+                this.hideSelector ();
 
                 return;
 
             }
 
             this.userValue.getEditor ().setFocusTraversalKeysEnabled (false);
-            this.userValue.getEditor ().setFocusTraversalKeys (KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
-            this.userValue.getEditor ().setFocusTraversalKeys (KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
 
             this.selector.removeAll ();
 
@@ -2468,7 +3014,8 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
 
             }
 
-            final JList l = new JList ();
+            this.selections = new JList<String> ();
+            final JList<String> l = this.selections;
             l.setModel (m);
             l.setLayoutOrientation (JList.VERTICAL);
             l.setVisibleRowCount (0);
@@ -2504,6 +3051,7 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
                                                           Constants.ICON_NOTIFICATION));
 */
                     l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+                    l.setPreferredSize (new Dimension (l.getPreferredSize ().width, 29));
 /*
                     if (cellHasFocus)
                     {
@@ -2518,7 +3066,9 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
 
             });
 
-            int rowHeight = 31;
+            l.setSelectedIndex (0);
+
+            int rowHeight = 30;
 
             l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
@@ -2589,16 +3139,18 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
         public class Id
         {
 
-            public int start = -1;
-            public String fullId = null;
-            public java.util.List<String> parts = null;
-            public String currentPart = null;
-            public int currentPartStart = -1;
-            public int currentPartEnd = -1;
-            public String idPrefix = null;
+            private int _start = -1;
+            private String fullId = null;
+            private boolean hasClosingBrace = false;
+            //private java.util.List<String> parts = null;
+            //public String currentPart = null;
+            //public int currentPartStart = -1;
+            //public int currentPartEnd = -1;
+            private java.util.List<Part> parts = new ArrayList<> ();
+            public boolean hasErrors = false;
 
             public Id (String text,
-                       int    caret)
+                       int    offset)
             {
 
                 if (text.length () < 3)
@@ -2610,39 +3162,31 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
 
                 String idstart = "${";
 
-                int ind = text.lastIndexOf (idstart, caret);
-
-                int ind2 = text.lastIndexOf ("}", caret);
-
-                if (ind2 > ind)
-                {
-
-                    return;
-
-                }
+                int ind = text.lastIndexOf (idstart, offset);
 
                 if (ind > -1)
                 {
 
                     ind += idstart.length ();
+                    this._start = ind;
 
-                    this.start = ind;
+                    int idendind = text.indexOf ("}", ind);
 
-                    String pref = text.substring (ind);
-
-                    int idendind = text.indexOf (" ", ind);
-
-                    if (idendind < 0)
+                    if (idendind > -1)
                     {
 
-                        idendind = text.indexOf ('\n', ind);
+                        this.hasClosingBrace = true;
 
-                    }
+                    } else {
 
-                    if (idendind < 0)
-                    {
+                        idendind = text.indexOf (" ", ind);
 
-                        idendind = text.indexOf ("}", ind);
+                        if (idendind < 0)
+                        {
+
+                            idendind = text.indexOf ('\n', ind);
+
+                        }
 
                     }
 
@@ -2660,48 +3204,102 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
 
                     }
 
-                    this.fullId = text.substring (ind, idendind);
-
-                    this.parts = Utils.splitString (this.fullId,
-                                                    ".");
-
-                    int pind = caret - this.start;
-
-                    int sind = this.start;
-                    int cind = sind;
-
-                    String idpref = "";
-
-                    for (String idp : this.parts)
+                    if (!this.hasClosingBrace)
                     {
 
-                        if (idpref.length () > 0)
+                        this.hasErrors = true;
+
+                    }
+
+                    this.fullId = text.substring (ind, idendind);
+
+                    if (this.fullId.trim ().equals (""))
+                    {
+
+                        this.hasErrors = true;
+                        this.fullId = null;
+
+                        return;
+
+                    }
+
+                    if (!Character.isLetterOrDigit (this.fullId.charAt (0)))
+                    {
+
+                        this.hasErrors = true;
+
+                    }
+
+                    if (this.hasClosingBrace)
+                    {
+
+                        // Check to make sure there is no space between the id and the closing brace.
+                        if (!Character.isLetterOrDigit (this.fullId.charAt (this.fullId.length () - 1)))
                         {
 
-                            idpref += ".";
+                            this.hasErrors = true;
+
+                        }
+
+                    }
+
+                    int start = ind;
+
+                    for (int i = start; i < idendind; i++)
+                    {
+
+                        if (Character.isLetterOrDigit (text.charAt (i)))
+                        {
+
+                            start = i;
+                            break;
+
+                        }
+
+                    }
+
+                    if (start > ind)
+                    {
+
+                        this.hasErrors = true;
+
+                    }
+
+                    java.util.List<String> parts = Utils.splitString (this.fullId,
+                                                                      ".");
+
+                    int cind = start;
+
+                    Part prevp = null;
+
+                    for (int i = 0; i < parts.size (); i++)
+                    {
+
+                        if (i > 0)
+                        {
+
                             cind++;
 
                         }
 
-                        this.currentPartStart = cind;
-                        this.currentPartEnd = cind + idp.length ();
+                        String ps = parts.get (i);
 
-                        idpref += idp;
-
-                        cind += idp.length ();
-
-                        if ((pind > sind)
-                            &&
-                            (pind < cind)
-                           )
+                        if (ps.trim ().length () != ps.length ())
                         {
 
-                            this.currentPart = idp;
-
-                            this.idPrefix = idpref;
-                            break;
+                            this.hasErrors = true;
 
                         }
+
+                        Part p = new Part (this,
+                                           cind,
+                                           ps,
+                                           prevp);
+
+                        prevp = p;
+                        cind += ps.length ();
+
+                        this.parts.add (p);
 
                     }
 
@@ -2709,17 +3307,203 @@ System.out.println ("PREF: " + id.idPrefix + ", " + matches);
 
             }
 
-            public Set<String> getMatches ()
+            public int getEnd ()
             {
 
+                if (this.parts.size () == 0)
+                {
+
+                    return this._start;
+
+                }
+
+                return this.parts.get (this.parts.size () - 1).end;
+
+            }
+
+            public Part getPart (int offset)
+            {
+
+                for (int i = 0; i < this.parts.size (); i++)
+                {
+
+                    Part p = this.parts.get (i);
+
+                    if ((offset >= p.start)
+                        &&
+                        (offset <= p.end)
+                       )
+                    {
+
+                        return p;
+
+                    }
+
+                }
+
+                return null;
+
+            }
+
+            public String getFullId ()
+            {
+
+                return this.fullId;
+
+            }
+
+            public boolean isIdValid ()
+            {
+
+                if (this.fullId == null)
+                {
+
+                    return false;
+
+                }
+
+                return Environment.getDefaultUILanguageStrings ().isIdValid (this.fullId);
+
+            }
+
+            public boolean hasErrors ()
+            {
+
+                return this.hasErrors;
+
+            }
+
+            public String getNewFullId (String suffix)
+            {
+
+                if (this.fullId.endsWith ("."))
+                {
+
+                    return this.fullId + suffix;
+
+                }
+
+                String pref = this.getIdPrefix ();
+
+                if (pref == null)
+                {
+
+                    return suffix;
+
+                }
+
+                return pref + "." + suffix;
+
+            }
+
+            public String getIdPrefix ()
+            {
+
+                StringBuilder b = new StringBuilder ();
+
+                for (int i = 0; i < this.parts.size () - 1; i++)
+                {
+
+                    if (i > 0)
+                    {
+
+                        b.append (".");
+
+                    }
+
+                    b.append (this.parts.get (i).part);
+
+                }
+
+                if (b.length () == 0)
+                {
+
+                    return null;
+
+                }
+
+                return b.toString ();
+
+            }
+
+            public Part getLastPart ()
+            {
+
+                if (this.parts.size () == 0)
+                {
+
+                    return null;
+
+                }
+
+                return this.parts.get (this.parts.size () - 1);
+
+            }
+
+            public Set<String> getPartMatches (int offset)
+            {
+
+                Part p = this.getPart (offset);
+
+                if (p != null)
+                {
+System.out.println ("PP: " + p.getFullId ());
+                    return Environment.getDefaultUILanguageStrings ().getIdMatches (p.getFullId ());
+
+                }
+
+                return this.getMatches ();
+
+            }
+
+            public Set<String> getMatches ()
+            {
+System.out.println ("FID: " + this.fullId);
                 return Environment.getDefaultUILanguageStrings ().getIdMatches (this.fullId);
 
             }
 
-            public Set<String> getCurrentPartMatches ()
+            public class Part
             {
 
-                return Environment.getDefaultUILanguageStrings ().getIdMatches (this.idPrefix);
+                public int start = -1;
+                public int end = -1;
+                public String part = null;
+                public Id parent = null;
+                public Part previous = null;
+
+                public Part (Id     parent,
+                             int    start,
+                             String part,
+                             Part   prev)
+                {
+
+                    this.start = start;
+                    this.end = this.start + part.length ();
+                    this.parent = parent;
+                    this.part = part;
+                    this.previous = prev;
+
+                }
+
+                public String getFullId ()
+                {
+
+                    StringBuilder b = new StringBuilder (this.part);
+
+                    Part prev = this.previous;
+
+                    while (prev != null)
+                    {
+
+                        b.insert (0, prev.part + ".");
+                        prev = prev.previous;
+
+                    }
+
+                    return b.toString ();
+
+                }
 
             }
 

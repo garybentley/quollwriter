@@ -49,10 +49,24 @@ public class TextArea extends ScrollableBox
                      int    maxChars)
     {
 
+        this (placeholder,
+              rows,
+              maxChars,
+              true);
+
+    }
+
+    public TextArea (String  placeholder,
+                     int     rows,
+                     int     maxChars,
+                     boolean wrapInScrollPane)
+    {
+
         super (BoxLayout.Y_AXIS);
 
         this.text = new QTextEditor (null,
                                      false);
+
         this.text.setCanFormat (false);
 
         JLabel l = new JLabel ();
@@ -166,8 +180,6 @@ public class TextArea extends ScrollableBox
                                                                            LanguageStrings.maxchars),
                                                   Environment.formatNumber (maxChars)));
         this.maxText.setForeground (UIUtils.getHintTextColor ());
-
-        this.scrollPane = UIUtils.createScrollPane (this.text);
 
         this.text.addKeyListener (new KeyAdapter ()
         {
@@ -300,22 +312,18 @@ public class TextArea extends ScrollableBox
 
         });
 
-        this.add (this.scrollPane);
-
-        if (rows > 0)
+        if (wrapInScrollPane)
         {
-/*
-            //this.scrollPane.setPreferredSize (this.text.getPreferredSize ());
-            this.scrollPane.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                           this.text.getPreferredSize ().height));
-            this.scrollPane.setMinimumSize (new Dimension (250,
-                                                           this.text.getPreferredSize ().height));
-*/
-        }
 
-        //this.scrollPane.setPreferredSize (this.getPreferredSize ());
-        //this.scrollPane.setMaximumSize (this.getMaximumSize ());
-        //this.scrollPane.setMinimumSize (this.getMinimumSize ());
+            this.scrollPane = UIUtils.createScrollPane (this.text);
+            this.add (this.scrollPane);
+            this.scrollPane.setMinimumSize (this.getMinimumSize ());
+
+        } else {
+
+            this.add (this.text);
+
+        }
 
         this.add (this.maxText);
 
@@ -333,32 +341,6 @@ public class TextArea extends ScrollableBox
     {
 
         this.text.setToolTipText (t);
-
-    }
-
-    @Override
-    public Dimension getPreferredSize ()
-    {
-
-        Dimension p = super.getPreferredSize ();
-
-        if (this.rows > 0)
-        {
-
-            int ph = this.text.getLineHeight () * (int) (this.rows + 0.8);
-
-            p.height = ph;
-            /*
-            if (p.height < ph)
-            {
-
-                p.height = ph;
-
-            }
-*/
-        }
-
-        return p;
 
     }
 
@@ -381,6 +363,15 @@ public class TextArea extends ScrollableBox
         Dimension p = this.getPreferredSize ();
 
         p.width = 250;
+
+        if (this.rows > 0)
+        {
+
+            int ph = this.text.getLineHeight () * (int) (this.rows + 0.8);
+
+            p.height = ph;
+
+        }
 
         return p;
 
@@ -1005,7 +996,7 @@ public class TextArea extends ScrollableBox
 
     }
 
-    public void setDictionaryProvider (DictionaryProvider dp)
+    public void setDictionaryProvider (DictionaryProvider2 dp)
     {
 
         this.text.setDictionaryProvider (dp);
@@ -1297,7 +1288,16 @@ public class TextArea extends ScrollableBox
     public void setBorder (Border b)
     {
 
-        this.scrollPane.setBorder (b);
+        if (this.scrollPane != null)
+        {
+
+            this.scrollPane.setBorder (b);
+
+        } else {
+
+            this.text.setBorder (b);
+
+        }
 
     }
 

@@ -15,7 +15,7 @@ import javax.swing.text.*;
 
 import com.quollwriter.text.*;
 import com.quollwriter.BlankTimerTask;
-import com.quollwriter.DictionaryProvider;
+import com.quollwriter.DictionaryProvider2;
 import com.quollwriter.synonyms.SynonymProvider;
 
 import com.quollwriter.ui.events.DictionaryChangedEvent;
@@ -35,11 +35,11 @@ public class QSpellChecker implements DocumentListener,
     private boolean            enabled = false;
     private int                lastCaret = -1;
     private char               lastCharacterOver = QSpellChecker.NULL_CHAR;
-    private DictionaryProvider dictProvider = null;
+    private DictionaryProvider2 dictProvider = null;
     private SynonymProvider    synonymProvider = null;
 
-    public QSpellChecker(QTextEditor        text,
-                         DictionaryProvider prov)
+    public QSpellChecker(QTextEditor         text,
+                         DictionaryProvider2 prov)
     {
 
         this.text = text;
@@ -65,7 +65,7 @@ public class QSpellChecker implements DocumentListener,
 
     }
 
-    public void setDictionaryProvider (DictionaryProvider dp)
+    public void setDictionaryProvider (DictionaryProvider2 dp)
     {
 
         if (this.dictProvider != null)
@@ -216,12 +216,10 @@ public class QSpellChecker implements DocumentListener,
 */
     }
 
-    public void addWord (String w,
-                         String type)
+    public void addWord (String w)
     {
 
-        this.dictProvider.addWord (w,
-                                   type);
+        this.dictProvider.addWord (w);
 
     }
 

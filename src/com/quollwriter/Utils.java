@@ -1321,7 +1321,7 @@ public class Utils
 
         IOUtils.writeStringToFile (new File (d.getPath () + "/" + Constants.QUOLLWRITER_DIR_FILE_NAME),
                                    "This file indicates to quollwriter that the parent directory can be safely deleted or copied.",
-                                   true);
+                                   false);
 
     }
 

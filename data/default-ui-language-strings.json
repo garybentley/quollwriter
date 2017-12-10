@@ -2,8 +2,8 @@
     ":language" : "English",
     ":nativename" : "English",
     ":version" : "1",
-    ":created" : "22/July/2017",
-    ":lastmodified" : "",
+    ":id" : ":English",
+    ":created" : 0,
     ":email" : "gary@quollwriter.com",
     "startup" :
     {
@@ -36,6 +36,24 @@
         ":section" : "Project",
         "title" : "No ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel selected",
         "text" : "<p>You are seeing this because no ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel has been selected.</p><p>This usually happens when you have just deleted the item you were viewing.</p><p>To continue, just <a href='action:projectsidebar'>select an item from the sidebar</a>.</p>"
+    },
+    "uilanguage" :
+    {
+        "select" :
+        {
+            "edit" :
+            {
+                "popup" :
+                {
+                    "title" : "Select a set of strings to edit"
+                }
+            },
+            "popup" :
+            {
+                "title" : "Select a Language"
+            },
+            "actionerror" : "Unable to select a set of language strings."
+        }
     },
     "settingsmenu" :
     {
