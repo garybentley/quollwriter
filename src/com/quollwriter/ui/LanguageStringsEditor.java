@@ -5,7 +5,9 @@ import java.io.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.text.*;
+import java.net.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -59,7 +61,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 	public static final String MAIN_CARD = "main";
 	public static final String OPTIONS_CARD = "options";
 
-    public static final String INFO_HEADER_CONTROL_ID = "info";
     public static final String SUBMIT_HEADER_CONTROL_ID = "submit";
 
     public static int INTERNAL_SPLIT_PANE_DIVIDER_WIDTH = 2;
@@ -84,6 +85,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private LanguageStrings userStrings = null;
     private String toolbarLocation = null;
     private Map<String, JTree> sectionTrees = new LinkedHashMap<> ();
+    private LanguageStrings baseStrings = null;
 
     public LanguageStringsEditor (LanguageStrings userStrings)
 			               throws Exception
@@ -95,6 +97,15 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         {
 
             throw new IllegalArgumentException ("No strings provided.");
+
+        }
+
+        this.baseStrings = Environment.getUserUIEnglishLanguageStrings (userStrings.getQuollWriterVersion ());
+
+        if (this.baseStrings == null)
+        {
+
+            throw new IllegalArgumentException ("Unable to find English strings for version: " + userStrings.getQuollWriterVersion ());
 
         }
 
@@ -122,69 +133,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         String defSection = "General";
 
-        // Split the defaults into sections.
-        /*
-        Map<String, Set<String>> sections = new HashMap<> ();
-
-        Map<String, Object> defStrings = Environment.getDefaultUILanguageStrings ().getStrings ();
-
-        for (String l : defStrings.keySet ())
-        {
-
-            Object o = defStrings.get (l);
-
-            if (o instanceof String)
-            {
-
-                Set<String> sect = sections.get (defSection);
-
-                if (sect == null)
-                {
-
-                    sect = new TreeSet<String> ();
-
-                    sections.put (defSection,
-                                  sect);
-
-                }
-
-                sect.add (l);
-
-            }
-
-            if (o instanceof Map)
-            {
-
-                Map m = (Map) o;
-
-                String s = (String) m.get (":section");
-
-                if (s == null)
-                {
-
-                    s = defSection;
-
-                }
-
-                Set<String> sect = sections.get (s);
-
-                if (sect == null)
-                {
-
-                    sect = new TreeSet<String> ();
-
-                    sections.put (s,
-                                  sect);
-
-                }
-
-                sect.add (l);
-
-            }
-
-        }
-*/
-        Map<String, Set<LanguageStrings.Node>> sections = Environment.getDefaultUILanguageStrings ().getNodesInSections (defSection);
+        Map<String, Set<LanguageStrings.Node>> sections = this.baseStrings.getNodesInSections (defSection);
 
         java.util.List<AccordionItem> items = new ArrayList<> ();
 
@@ -197,6 +146,9 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         items.add (this.createSectionTree ("Project",
                                            Project.OBJECT_TYPE,
                                            sections.get ("Project")));
+        items.add (this.createSectionTree ("Achievements",
+                                           Constants.ACHIEVEMENT_ICON_NAME,
+                                           sections.get ("Achievements")));
         items.add (this.createSectionTree ("Editors",
                                            Constants.EDITORS_ICON_NAME,
                                            sections.get ("Editors")));
@@ -229,7 +181,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         this.sideBar = new Box (BoxLayout.Y_AXIS);
         this.sideBar.add (this.sideBarWrapper);
-        this.sideBar.add (this.toolbarPanel);
+        //this.sideBar.add (this.toolbarPanel);
 
         this.setToolbarLocation (null);
 
@@ -293,8 +245,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         });
 
-		this.setMinimumSize (new Dimension (500, 500));
-
 		this.setTransferHandler (new ImportTransferHandler (new ActionListener ()
 		{
 
@@ -355,6 +305,145 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
 		}));
 
+        this.setMinimumSize (new Dimension (500, 500));
+
+        // Check to see if a new version of the default strings is available.
+        Environment.schedule (new Runnable ()
+        {
+
+            @Override
+            public void run ()
+            {
+
+                String url = Environment.getProperty (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+
+                url = StringUtils.replaceString (url,
+                                                 Constants.VERSION_TAG,
+                                                 _this.baseStrings.getQuollWriterVersion ().toString ());
+                url = StringUtils.replaceString (url,
+                                                 Constants.ID_TAG,
+                                                 _this.baseStrings.getId ());
+
+                url = StringUtils.replaceString (url,
+                                                 Constants.LAST_MOD_TAG,
+                                                 "0");
+
+                url += "&newer=true";
+
+                try
+                {
+
+                     String data = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + url));
+
+                     if (data.startsWith (Constants.JSON_RETURN_PREFIX))
+                     {
+
+                         data = data.substring (Constants.JSON_RETURN_PREFIX.length ());
+
+                     }
+
+                     Object obj = JSONDecoder.decode (data);
+
+                     if (obj == null)
+                     {
+
+                         return;
+
+                     }
+
+                     LanguageStrings newls = new LanguageStrings (data);
+
+                     Box content = new Box (BoxLayout.Y_AXIS);
+
+                     content.add (UIUtils.createHelpTextPane (String.format ("A new version of the <b>%s</b> language strings is available.  This is for version <b>%s</b>, of {QW}.<br />You can view the changes and submit an update to your strings.",
+                                                                             newls.getNativeName (),
+                                                                             newls.getQuollWriterVersion ().toString ()),
+                                                              _this));
+
+                     content.add (Box.createVerticalStrut (5));
+
+                     JButton b = UIUtils.createButton ("View the changes");
+
+                     content.add (b);
+
+                     // Add a notification.
+                     final Notification n = _this.addNotification (content,
+                                                                   Constants.INFO_ICON_NAME,
+                                                                   -1);
+
+                      b.addActionListener (new ActionListener ()
+                      {
+
+                           @Override
+                           public void actionPerformed (ActionEvent ev)
+                           {
+
+                               _this.showChanges (newls);
+
+                               _this.removeNotification (n);
+
+                           }
+
+                      });
+
+                 } catch (Exception e) {
+
+                     Environment.logError ("Unable to get new user interface strings",
+                                           e);
+
+                }
+
+            }
+
+        },
+        5,
+        -1);
+
+    }
+
+    private void showChanges (LanguageStrings newls)
+    {
+
+        Version v = this.userStrings.getQuollWriterVersion ();
+
+        try
+        {
+
+            Environment.saveUserUILanguageStrings (newls);
+
+            this.userStrings.setQuollWriterVersion (newls.getQuollWriterVersion ());
+
+            Environment.saveUserUILanguageStrings (this.userStrings);
+
+            LanguageStrings uls = Environment.getUserUILanguageStrings (newls.getQuollWriterVersion (),
+                                                                        this.userStrings.getId ());
+
+            // Get a diff of the default to this new.
+            new LanguageStringsEditor (uls).init ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to show strings editor for: " +
+                                  newls,
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to show strings.");
+
+        } finally {
+
+            this.userStrings.setQuollWriterVersion (v);
+
+        }
+
+    }
+
+    private void saveToFile ()
+                      throws Exception
+    {
+
+        Environment.saveUserUILanguageStrings (this.userStrings);
+
     }
 
     private void save ()
@@ -369,13 +458,9 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 
-        File f = Environment.getUILanguageStringsFile (this.userStrings.getId ());
+        this.userStrings.setQuollWriterVersion (this.baseStrings.getQuollWriterVersion ());
 
-        String json = JSONEncoder.encode (this.userStrings.getAsJSON ());
-
-        IOUtils.writeStringToFile (f,
-                                   json,
-                                   false);
+        this.saveToFile ();
 
     }
 
@@ -451,7 +536,9 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private void updateTitle ()
     {
 
-        this.setViewerTitle ("Edit Language Strings for: " + this.userStrings.getNativeName ());
+        this.setViewerTitle (String.format ("Edit Language Strings for: %s (%s)",
+                                            this.userStrings.getNativeName (),
+                                            this.baseStrings.getQuollWriterVersion ().toString ()));
 
     }
 
@@ -464,7 +551,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             loc = Constants.BOTTOM;
 
         }
-
+/*
         if (loc.equals (Constants.TOP))
         {
 
@@ -489,7 +576,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.sideBar.add (this.toolbarPanel);
 
         }
-
+*/
         this.toolbarLocation = loc;
 
     }
@@ -532,37 +619,65 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                 }
 
+                this.setIcon (null);
+
                 LanguageStrings.Node n = (LanguageStrings.Node) tn.getUserObject ();
+
+                int c = _this.userStrings.getAllValues (n.getId ()).size ();
 
                 String id = n.getNodeId ();
 
+                String title = (n.getTitle () != null ? n.getTitle () : id);
+
                 // See if there are any errors for this id.
-                int errCount = _this.userStrings.getErrors (id).size ();
+                int errCount = _this.userStrings.getErrors (n.getId ()).size ();
 
                 String name = null;
 
                 if (errCount > 0)
                 {
 
-                    name = String.format ("%s (%s/%s)",
-                                          id,
-                                          Environment.formatNumber (errCount),
-                                          Environment.formatNumber (n.getAllValues ().size ()));
+                    name = String.format ("%s (%s/%s) [%s errors]",
+                                          title,
+                                          Environment.formatNumber (c),
+                                          Environment.formatNumber (n.getAllValues ().size ()),
+                                          Environment.formatNumber (errCount));
 
-                    this.setForeground (Color.red);
+                    this.setIcon (Environment.getIcon (Constants.ERROR_ICON_NAME,
+                                                       Constants.ICON_SIDEBAR));
 
                 } else {
 
-                    name = String.format ("%s (%s)",
-                                          id,
-                                          Environment.formatNumber (n.getAllValues ().size ()));
+                    int alls = n.getAllValues ().size ();
+
+                    name = String.format ("%s (%s/%s)",
+                                          title,
+                                          Environment.formatNumber (c),
+                                          Environment.formatNumber (alls));
+
+                    if (alls == c)
+                    {
+
+                        this.setIcon (Environment.getIcon (Constants.SAVE_ICON_NAME,
+                                                           Constants.ICON_SIDEBAR));
+
+                    } else {
+
+                        if (c > 0)
+                        {
+
+                            this.setIcon (Environment.getIcon (Constants.NEXT_ICON_NAME,
+                                                               Constants.ICON_SIDEBAR));
+
+                        }
+
+                    }
 
                 }
 
                 this.setText (name);
 
                 this.setBorder (new EmptyBorder (2, 2, 2, 2));
-                this.setIcon (null);
 
                 return this;
 
@@ -705,7 +820,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             // See how many children there are.
             TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) t.getModel ().getRoot (),
-                                                            Environment.getDefaultUILanguageStrings ().createNode (id));
+                                                            this.baseStrings.createNode (id));
 
             if (tp != null)
             {
@@ -962,6 +1077,26 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
 		this.showViewer ();
 
+        String lastId = UserProperties.get ("languagestringseditor-stringsid-lasteditingid-" + this.userStrings.getId ());
+
+        if (lastId != null)
+        {
+
+            this.showIds (lastId);
+
+        }
+
+        if (lastId != null)
+        {
+
+            this.showIds (lastId);
+
+            //int lastScroll = UserProperties.get ("languagestringseditor-stringsid-scrolloffset-" + this.userStrings.getId ());
+
+            //this.
+
+        }
+
     }
 
     public void showSideBar (String name)
@@ -1196,7 +1331,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 		Set<String> ids = new LinkedHashSet ();
 
         ids.add (SUBMIT_HEADER_CONTROL_ID);
-        ids.add (INFO_HEADER_CONTROL_ID);
         ids.add (SETTINGS_HEADER_CONTROL_ID);
 
 		return ids;
@@ -1219,27 +1353,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 		final LanguageStringsEditor _this = this;
 
 		JComponent c = null;
-
-        if (id.equals (INFO_HEADER_CONTROL_ID))
-        {
-
-            c = UIUtils.createButton (Constants.INFO_ICON_NAME,
-                                      Constants.ICON_TITLE_ACTION,
-                                      "Click to view/edit the information about these strings",
-                                      new ActionListener ()
-                                      {
-
-                                        @Override
-                                        public void actionPerformed (ActionEvent ev)
-                                        {
-
-                                            _this.showInfo ();
-
-                                        }
-
-                                      });
-
-        }
 
         if (id.equals (SUBMIT_HEADER_CONTROL_ID))
         {
@@ -1276,31 +1389,47 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private void submit ()
     {
 
-        // Check for errors.
-        if (this.userStrings.getEmail () == null)
+        final LanguageStringsEditor _this = this;
+
+        try
         {
 
-            //showError = true;
+            this.save ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save: " + this.userStrings,
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to save strings.");
+
+            return;
 
         }
 
         Map<LanguageStrings.Value, Set<String>> errors = this.userStrings.getErrors ();
 
-    }
+        if (errors.size () > 0)
+        {
 
-    private void showInfo ()
-    {
+            UIUtils.showMessage ((PopupsSupported) this,
+                                 "Errors found in strings",
+                                 String.format ("Sorry, there are <b>%s</b> errors that must be corrected before you can submit the strings.",
+                                                Environment.formatNumber (errors.size ())));
 
-        final LanguageStringsEditor _this = this;
+            return;
 
-        final String popupName = "stringsinfo";
+        }
+
+        final String popupName = "submit";
         QPopup popup = this.getNamedPopup (popupName);
 
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Edit the Information",
-                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
+            popup = UIUtils.createClosablePopup ("Submit your strings",
+                                                 Environment.getIcon (Constants.UP_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
 
@@ -1308,7 +1437,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             Box content = new Box (BoxLayout.Y_AXIS);
 
-            JTextPane help = UIUtils.createHelpTextPane ("Use the form below to describe your set of strings.  All the values are required.<br /><br />When you are ready to submit the strings use the submission button on the header.",
+            JTextPane help = UIUtils.createHelpTextPane ("Complete the form below to submit your strings.  All the values are required.",
                                                          this);
 
             help.setBorder (null);
@@ -1324,15 +1453,15 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             Set<FormItem> items = new LinkedHashSet ();
 
+            final TextFormItem nativelang = new TextFormItem ("Native Name (i.e. Espa\u00F1ol, Fran\u00E7ais, Deutsch)",
+                                                             this.userStrings.getNativeName ());
+
+            items.add (nativelang);
+
             final TextFormItem lang = new TextFormItem ("English Name (i.e. Spanish, French, German)",
                                                          this.userStrings.getLanguageName ());
 
             items.add (lang);
-
-            final TextFormItem nativelang = new TextFormItem ("Native Name (i.e. Espa\u00F1ol, Fran\u00E7ais, Deutsch)",
-                                                              this.userStrings.getNativeName ());
-
-            items.add (nativelang);
 
             final TextFormItem email = new TextFormItem ("Contact Email",
                                                          this.userStrings.getEmail ());
@@ -1386,14 +1515,193 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                     }
 
+                    if (_this.userStrings.getAllValues ().size () == 0)
+                    {
+
+                        error.setText ("No strings provided.  Please provide at least 1 string for your translation.");
+                        error.setVisible (true);
+                        qp.resize ();
+
+                        return;
+
+                    }
+
                     _this.userStrings.setEmail (em);
                     _this.userStrings.setLanguageName (l);
                     _this.userStrings.setNativeName (nl);
 
                     _this.updateTitle ();
 
-                    qp.resize ();
-                    qp.removeFromParent ();
+                    try
+                    {
+
+                        _this.save ();
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to save strings: " + _this.userStrings,
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to save strings.");
+
+                        return;
+
+                    }
+
+                    // Get the file, then send.
+                    String t = null;
+
+                    try
+                    {
+
+                        t = JSONEncoder.encode (_this.userStrings.getAsJSON ());
+
+                    } catch (Exception e)
+                    {
+
+                        Environment.logError ("Unable to upload strings: " + _this.userStrings,
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to upload strings.");
+
+                        return;
+
+                    }
+
+                    Map<String, String> headers = new HashMap<> ();
+
+                    String submitterid = UserProperties.get (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
+
+                    if (submitterid != null)
+                    {
+
+                        headers.put (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
+                                     submitterid);
+
+                    }
+
+                    URL u = null;
+
+                    try
+                    {
+
+                        u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.SUBMIT_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to construct the url for submitting the ui language strings.",
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to upload strings.");
+
+                        return;
+
+                    }
+
+                    Utils.postToURL (u,
+                                     headers,
+                                     t,
+                                     // On success
+                                     new ActionListener ()
+                                     {
+
+                                         @Override
+                                         public void actionPerformed (ActionEvent ev)
+                                         {
+
+                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                             String res = (String) m.get ("result");
+
+                                             String sid = (String) m.get ("submitterid");
+
+                                             UserProperties.set (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME,
+                                                                 sid);
+
+                                             //_this.userStrings.setSubmitterId (sid);
+                                             _this.userStrings.setStringsVersion (((Number) m.get ("version")).intValue ());
+
+                                             try
+                                             {
+
+                                                 _this.saveToFile ();
+
+                                             } catch (Exception e) {
+
+                                                 Environment.logError ("Unable to save strings file: " +
+                                                                       _this.userStrings,
+                                                                       e);
+
+                                                 UIUtils.showErrorMessage (_this,
+                                                                           "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
+
+                                                 return;
+
+                                             }
+
+                                             if (_this.userStrings.getStringsVersion () == 1)
+                                             {
+
+                                                 UIUtils.showMessage ((PopupsSupported) _this,
+                                                                      "Strings submitted",
+                                                                      String.format ("Your strings have been submitted to Quoll Writer support for review.<br /><br />A confirmation email has been sent to <b>%s</b>.  Please click on the link in that email to confirm your email address.<br /><br />Thank you for taking the time and the effort to create the strings, it is much appreciated!",
+                                                                                     _this.userStrings.getEmail ()));
+
+                                             } else {
+
+                                                 UIUtils.showMessage ((PopupsSupported) _this,
+                                                                      "Strings submitted",
+                                                                      String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to Quoll Writer users.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
+                                                                                     Environment.formatNumber (_this.userStrings.getStringsVersion ())));
+
+                                             }
+
+                                             qp.resize ();
+                                             qp.removeFromParent ();
+
+                                         }
+
+                                     },
+                                     // On error
+                                     new ActionListener ()
+                                     {
+
+                                         @Override
+                                         public void actionPerformed (ActionEvent ev)
+                                         {
+
+                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                             String res = (String) m.get ("reason");
+
+                                             // Get the errors.
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                         }
+
+                                     },
+                                     new ActionListener ()
+                                     {
+
+                                         @Override
+                                         public void actionPerformed (ActionEvent ev)
+                                         {
+
+                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                             String res = (String) m.get ("reason");
+
+                                             // Get the errors.
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                         }
+
+                                     });
 
                 }
 
@@ -1406,7 +1714,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             UIUtils.addDoActionOnReturnPressed (email.getTextField (),
                                                 saveAction);
 
-            JButton save = UIUtils.createButton ("Save",
+            JButton save = UIUtils.createButton ("Submit",
                                                  saveAction);
             JButton cancel = UIUtils.createButton ("Cancel",
                                                    new ActionListener ()
@@ -1623,6 +1931,9 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
 		UserProperties.set ("languagestringseditor-window-width",
 							this.splitPane.getSize ().width);
+
+        UserProperties.set ("languagestringseditor-stringsid-lasteditingid-" + this.userStrings.getId (),
+                            this.currentCard);
 
 		// Close and remove all sidebars.
         for (AbstractSideBar sb : new ArrayList<AbstractSideBar> (this.activeSideBars))
@@ -1893,15 +2204,16 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             this.editor = ed;
 
+            this.node = this.editor.baseStrings.getNode (id);
+
+            String title = (this.node.getTitle () != null ? this.node.getTitle () : id);
+
             this.setTitle (String.format ("%s (%s)",
-                                          id,
-                                          Environment.formatNumber (Environment.getDefaultUILanguageStrings ().getNode (id).getAllValues ().size ())));
+                                          title,
+                                          Environment.formatNumber (this.node.getAllValues ().size ())));
                                           //getStringsCount (id))));
 
             this.parentId = id;
-            //this.vals = Environment.getDefaultUILanguageStrings ().getStrings ().getAllValues (id);
-            this.node = Environment.getDefaultUILanguageStrings ().getNode (id);
-            //this.values = values;
 
             this.content = new ScrollableBox (BoxLayout.Y_AXIS);
             this.content.setAlignmentY (Component.TOP_ALIGNMENT);
@@ -2069,7 +2381,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.baseValue = baseValue;
             this.stringsValue = stringsValue;
 
-            Header h = UIUtils.createHeader (this.baseValue.getId (),
+            Header h = UIUtils.createHeader (LanguageStrings.toId (this.baseValue.getId ()),
                                              Constants.SUB_PANEL_TITLE);
 
             h.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
@@ -2132,6 +2444,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             JTextArea l = new JTextArea (baseValue.getRawText ()); //defValue);
             l.setLineWrap (true);
             l.setWrapStyleWord (true);
+            l.setEditable (false);
+            l.setBackground (UIUtils.getComponentColor ());
             l.setAlignmentX (Component.LEFT_ALIGNMENT);
             //l.setMinimumSize (new Dimension (200, 20));
 
@@ -2159,6 +2473,21 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                         java.util.List<JComponent> buts = new java.util.ArrayList ();
 
+                        buts.add (UIUtils.createButton (Constants.COPY_ICON_NAME,
+                                                        Constants.ICON_MENU,
+                                                        "Use the English value",
+                                                        new ActionListener ()
+                                                        {
+
+                                                             public void actionPerformed (ActionEvent ev)
+                                                             {
+
+                                                                 _this.useEnglishValue ();
+
+                                                             }
+
+                                                        }));
+
                         buts.add (UIUtils.createButton ("eye",
                                                         Constants.ICON_MENU,
                                                         "Preview your value",
@@ -2183,6 +2512,22 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                         JMenuItem mi = null;
 
+                        mi = UIUtils.createMenuItem ("Use the English value",
+                                                     Constants.COPY_ICON_NAME,
+                                                     new ActionListener ()
+                                                     {
+
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+
+                                                            _this.useEnglishValue ();
+
+                                                        }
+
+                                                     });
+                        mi.setMnemonic (KeyEvent.VK_P);
+                        popup.add (mi);
+
                         mi = UIUtils.createMenuItem ("Preview your value",
                                                      "eye",
                                                      new ActionListener ()
@@ -2204,6 +2549,74 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 }
 
             };
+
+            this.userValue.addKeyListener (new KeyAdapter ()
+            {
+
+                private ScheduledFuture task = null;
+
+                private void update ()
+                {
+
+                    if (this.task != null)
+                    {
+
+                        this.task.cancel (false);
+
+                    }
+
+                    this.task = _this.editor.schedule (new Runnable ()
+                    {
+
+                        @Override
+                        public void run ()
+                        {
+
+                            UIUtils.doLater (new ActionListener ()
+                            {
+
+                                @Override
+                                public void actionPerformed (ActionEvent ev)
+                                {
+
+                                    _this.showErrors (false);
+
+                                    if (_this.preview.isVisible ())
+                                    {
+
+                                        _this.showPreview ();
+
+                                    }
+
+                                }
+
+                            });
+
+                        }
+
+                    },
+                    750,
+                    0);
+
+                }
+
+                @Override
+                public void keyPressed (KeyEvent ev)
+                {
+
+                    this.update ();
+
+                }
+
+                @Override
+                public void keyReleased (KeyEvent ev)
+                {
+
+                    this.update ();
+
+                }
+
+            });
 
             //this.userValue.setBorder (UIUtils.createLineBorder ());
 
@@ -2232,8 +2645,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                                 if (id != null)
                                 {
-System.out.println ("V: " + id.isIdValid () + ", " + id.fullId);
-                                    return id.isIdValid ();
+
+                                    return id.isIdValid (_this.editor.baseStrings);
 
                                 }
 
@@ -2287,13 +2700,11 @@ System.out.println ("V: " + id.isIdValid () + ", " + id.fullId);
 
                     if (id != null)
                     {
-System.out.println ("FFFID: " + id.fullId);
+
                         _this.userValue.getEditor ().setSelectionStart (id.getPart (c).start);
                         _this.userValue.getEditor ().setSelectionEnd (id.getPart (c).end);
 
                     } else {
-
-                        System.out.println ("CALLED");
 
                         defSelect.actionPerformed (ev);
 
@@ -2312,7 +2723,7 @@ System.out.println ("FFFID: " + id.fullId);
 
             this.userValue.setAutoGrabFocus (false);
 
-            InputMap im = this.userValue.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+            InputMap im = this.userValue.getInputMap (JComponent.WHEN_FOCUSED);
             ActionMap am = this.userValue.getActionMap ();
 
             im.put (KeyStroke.getKeyStroke (KeyEvent.VK_P,
@@ -2358,10 +2769,6 @@ System.out.println ("FFFID: " + id.fullId);
 
                         ev.consume ();
 
-                        int c = _this.userValue.getEditor ().getCaretPosition ();
-
-                        Id id = new Id (_this.userValue.getEditor ().getText (),
-                                              c);
 /*
                         if (id.hasErrors ())
                         {
@@ -2454,8 +2861,9 @@ System.out.println ("FFFID: " + id.fullId);
                         return;
 
                     }
-System.out.println ("XFID: " + id.getFullId ());
-                    Set<String> matches = id.getPartMatches (c);
+
+                    Set<String> matches = id.getPartMatches (c,
+                                                             _this.editor.baseStrings);
 
                     if ((matches == null)
                         ||
@@ -2525,6 +2933,7 @@ System.out.println ("XFID: " + id.getFullId ());
 
             });
 
+/*
             JButton insB = UIUtils.createToolBarButton (Constants.DOWN_ICON_NAME,
                                                         "Insert a reference to another string",
                                                         "insert",
@@ -2594,7 +3003,7 @@ System.out.println ("XFID: " + id.getFullId ());
             java.util.List<JButton> buts = Arrays.asList (insB, useB, infB, preB);
 
             JToolBar bBar = UIUtils.createButtonBar (buts);
-
+*/
             pb.add (this.userValue,
                     cc.xy (3, r));
 
@@ -2631,12 +3040,6 @@ System.out.println ("XFID: " + id.getFullId ());
             pb.add (this.preview,
                     cc.xy (3, r));
 
-            r += 1;
-
-            pb.add (bBar,
-                    cc.xy (3, r));
-
-
             JPanel p = pb.getPanel ();
             p.setOpaque (false);
             p.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -2647,6 +3050,8 @@ System.out.println ("XFID: " + id.getFullId ());
             this.setBorder (UIUtils.createPadding (0, 10, 20, 10));
             this.setAlignmentX (Component.LEFT_ALIGNMENT);
             this.setAlignmentY (Component.TOP_ALIGNMENT);
+
+            this.showErrors (false);
 
         }
 
@@ -2703,7 +3108,7 @@ System.out.println ("XFID: " + id.getFullId ());
         public String getId ()
         {
 
-            return this.baseValue.getId ();
+            return LanguageStrings.toId (this.baseValue.getId ());
 
         }
 
@@ -2730,28 +3135,50 @@ System.out.println ("XFID: " + id.getFullId ());
 
         }
 
-        public void showPreview ()
+        public void useEnglishValue ()
         {
 
-            String s = this.getUserValue ();
+            this.userValue.updateText (this.baseValue.getRawText ());
+            this.validate ();
+            this.repaint ();
 
-            if (s == null)
-            {
+        }
 
-                UIUtils.showErrorMessage (this.editor,
-                                          "No value provided for: " + this.baseValue.getId ());
-
-                return;
-
-            }
+        public boolean showErrors (boolean requireUserValue)
+        {
 
             this.errorsLabel.setVisible (false);
             this.errors.setVisible (false);
 
-            Set<String> errs = LanguageStrings.getErrors (s,
-                                                          this.baseValue.getId (),
-                                                          this.baseValue.getSCount (),
-                                                          this.editor);
+            String s = this.getUserValue ();
+
+            if ((s == null)
+                &&
+                (!requireUserValue)
+               )
+            {
+
+                return false;
+
+            }
+
+            Set<String> errs = null;
+
+            if (s == null)
+            {
+
+                errs = new LinkedHashSet<> ();
+
+                errs.add ("Cannot show a preview, no value provided.");
+
+            } else {
+
+                errs = LanguageStrings.getErrors (s,
+                                                  LanguageStrings.toId (this.baseValue.getId ()),
+                                                  this.baseValue.getSCount (),
+                                                  this.editor);
+
+            }
 
             if (errs.size () > 0)
             {
@@ -2776,9 +3203,25 @@ System.out.println ("XFID: " + id.getFullId ());
                 this.errorsLabel.setVisible (true);
                 this.errors.setVisible (true);
 
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        public void showPreview ()
+        {
+
+            if (this.showErrors (true))
+            {
+
                 return;
 
             }
+
+            String s = this.getUserValue ();
 
             String t = this.editor.getPreviewText (s);
 
@@ -2788,11 +3231,7 @@ System.out.println ("XFID: " + id.getFullId ());
 
             this.validate ();
             this.repaint ();
-/*
-            UIUtils.showMessage ((PopupsSupported) this.editor,
-                                 this.value.getId () + " - Preview",
-                                 t);
-*/
+
         }
 
         private void fillMatch ()
@@ -2825,14 +3264,14 @@ System.out.println ("XFID: " + id.getFullId ());
                     (c == id.getEnd ())
                    )
                 {
-System.out.println ("APPENDING: " + m);
+
                     editor.replaceText (c, c, m);
                     editor.setCaretPosition (c + m.length ());
 
                 } else {
 
                     part = id.getLastPart ();
-System.out.println ("LAST: " + m);
+
                     editor.replaceText (part.start, part.start + part.end, m);
                     editor.setCaretPosition (part.start + m.length ());
 
@@ -2857,7 +3296,7 @@ System.out.println ("LAST: " + m);
             }
 */
             // Check to see if the id maps to a string.
-            if (Environment.getDefaultUILanguageStrings ().getString (id.fullId) != null)
+            if (this.editor.baseStrings.getString (id.fullId) != null)
             {
 
                 if (!id.hasClosingBrace)
@@ -2874,11 +3313,10 @@ System.out.println ("LAST: " + m);
 
             }
 
-System.out.println ("FID: " + id.fullId);
             // Check to see if there are more matches further down the tree.
             String nid = id.fullId + ".";
 
-            Set<String> matches = Environment.getDefaultUILanguageStrings ().getIdMatches (nid);
+            Set<String> matches = this.editor.baseStrings.getIdMatches (nid);
 
             if (matches.size () > 0)
             {
@@ -3117,7 +3555,6 @@ System.out.println ("FID: " + id.fullId);
 
             this.selector.setPreferredSize (new Dimension (300,
                                                            rowHeight * (matches.size () > 10 ? 10 : matches.size ())));
-                                                //this.selector.getPreferredSize ().height));
 
             this.editor.showPopupAt (this.selector,
                                      SwingUtilities.convertPoint (this.userValue,
@@ -3131,7 +3568,7 @@ System.out.println ("FID: " + id.fullId);
         public Dimension getMaximumSize ()
         {
 
-            return new Dimension (Short.MAX_VALUE,//super.getMaximumSize ().width,
+            return new Dimension (Short.MAX_VALUE,
                                   this.getPreferredSize ().height);
 
         }
@@ -3142,10 +3579,6 @@ System.out.println ("FID: " + id.fullId);
             private int _start = -1;
             private String fullId = null;
             private boolean hasClosingBrace = false;
-            //private java.util.List<String> parts = null;
-            //public String currentPart = null;
-            //public int currentPartStart = -1;
-            //public int currentPartEnd = -1;
             private java.util.List<Part> parts = new ArrayList<> ();
             public boolean hasErrors = false;
 
@@ -3352,7 +3785,7 @@ System.out.println ("FID: " + id.fullId);
 
             }
 
-            public boolean isIdValid ()
+            public boolean isIdValid (LanguageStrings baseStrings)
             {
 
                 if (this.fullId == null)
@@ -3362,7 +3795,7 @@ System.out.println ("FID: " + id.fullId);
 
                 }
 
-                return Environment.getDefaultUILanguageStrings ().isIdValid (this.fullId);
+                return baseStrings.isIdValid (this.fullId);
 
             }
 
@@ -3440,26 +3873,27 @@ System.out.println ("FID: " + id.fullId);
 
             }
 
-            public Set<String> getPartMatches (int offset)
+            public Set<String> getPartMatches (int             offset,
+                                               LanguageStrings baseStrings)
             {
 
                 Part p = this.getPart (offset);
 
                 if (p != null)
                 {
-System.out.println ("PP: " + p.getFullId ());
-                    return Environment.getDefaultUILanguageStrings ().getIdMatches (p.getFullId ());
+
+                    return baseStrings.getIdMatches (p.getFullId ());
 
                 }
 
-                return this.getMatches ();
+                return this.getMatches (baseStrings);
 
             }
 
-            public Set<String> getMatches ()
+            public Set<String> getMatches (LanguageStrings baseStrings)
             {
-System.out.println ("FID: " + this.fullId);
-                return Environment.getDefaultUILanguageStrings ().getIdMatches (this.fullId);
+
+                return baseStrings.getIdMatches (this.fullId);
 
             }
 

@@ -20,6 +20,9 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class FirstUseWizard extends PopupWizard
 {
 
@@ -30,6 +33,7 @@ public class FirstUseWizard extends PopupWizard
     private static final String NEW_PROJECT_STAGE = "newproject";
     private static final String IMPORT_STAGE = "import";
     private static final String SELECT_PROJECT_DB_STAGE = "select-project-db";
+    private static final String SPELL_CHECK_LANG_STAGE = "spell-check-lang";
 
     private ImportTransferHandlerOverlay   importOverlay = null;
     private ImportProject importProject = null;
@@ -44,6 +48,8 @@ public class FirstUseWizard extends PopupWizard
     private JRadioButton findProjects = null;
     private FileFinder projDBFind = null;
     private JLabel projDBFindError = null;
+    private JLabel dlUILangFile = null;
+    private JLabel dlUILangError = null;
 
     private FileFinder      fileFind = null;
     private JLabel          fileFindError = null;
@@ -191,8 +197,7 @@ public class FirstUseWizard extends PopupWizard
     public String getHeaderTitle ()
     {
 
-        return Environment.getUIString (LanguageStrings.firstusewizard,
-                                        LanguageStrings.title);
+        return Environment.getUIString (firstusewizard,title);
         //return "Welcome to Quoll Writer";
 
     }
@@ -209,8 +214,7 @@ public class FirstUseWizard extends PopupWizard
     public String getHelpText ()
     {
 
-        return Environment.getUIString (LanguageStrings.firstusewizard,
-                                        LanguageStrings.text);
+        return Environment.getUIString (firstusewizard,text);
         //"Welcome to Quoll Writer, this page will help you get started.  Don't worry, there are only a couple of questions and then you can get started on your first {project}.";
 
     }
@@ -252,6 +256,13 @@ public class FirstUseWizard extends PopupWizard
     {
 
         if (START_STAGE.equals (currStage))
+        {
+
+            return SPELL_CHECK_LANG_STAGE;
+
+        }
+
+        if (SPELL_CHECK_LANG_STAGE.equals (currStage))
         {
 
             return DECIDE_STAGE;
@@ -315,6 +326,13 @@ public class FirstUseWizard extends PopupWizard
 
         }
 
+        if (SPELL_CHECK_LANG_STAGE.equals (currStage))
+        {
+
+            return START_STAGE;
+
+        }
+
         if (START_STAGE.equals (currStage))
         {
 
@@ -360,7 +378,7 @@ public class FirstUseWizard extends PopupWizard
         if (DECIDE_STAGE.equals (currStage))
         {
 
-            return START_STAGE;
+            return SPELL_CHECK_LANG_STAGE;
 
         }
 
@@ -372,6 +390,8 @@ public class FirstUseWizard extends PopupWizard
     public boolean handleStageChange (String oldStage,
                                       String newStage)
     {
+
+        final FirstUseWizard _this = this;
 
         if (SELECT_FILE_STAGE.equals (oldStage))
         {
@@ -435,6 +455,100 @@ public class FirstUseWizard extends PopupWizard
 
         if ((START_STAGE.equals (oldStage))
             &&
+            (SPELL_CHECK_LANG_STAGE.equals (newStage))
+           )
+        {
+
+            this.enableButton ("next",
+                               true);
+
+            String lsid = UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
+
+            try
+            {
+
+                if (Environment.getUILanguageStrings (lsid) == null)
+                {
+
+                    this.enableButton ("next",
+                                       false);
+
+                    // Show the downloading message.
+                    this.dlUILangFile.setVisible (true);
+
+                    Environment.downloadUILanguageFile (lsid,
+                                                        new ActionListener ()
+                                                        {
+
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                                // Set the language.
+                                                                try
+                                                                {
+
+                                                                    Environment.setUILanguage (lsid);
+
+                                                                } catch (Exception e) {
+
+                                                                    Environment.logError ("Unable to set ui language to: " + lsid,
+                                                                                          e);
+
+                                                                    _this.dlUILangError.setVisible (true);
+                                                                    _this.dlUILangFile.setVisible (false);
+
+                                                                    return;
+
+                                                                }
+
+                                                                _this.dlUILangFile.setVisible (true);
+                                                                _this.showStage (SPELL_CHECK_LANG_STAGE);
+
+                                                            }
+
+                                                        },
+                                                        // On error
+                                                        new ActionListener ()
+                                                        {
+
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                                _this.dlUILangFile.setVisible (false);
+
+                                                                _this.dlUILangError.setVisible (true);
+
+                                                            }
+
+                                                        });
+
+                    this.validate ();
+                    this.repaint ();
+
+                    //this.xxx
+
+                    return false;
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get ui language strings for: " + lsid,
+                                      e);
+
+                UIUtils.showErrorMessage (this,
+                                          getUIString (firstusewizard,stages,start,actionerror));
+
+                return false;
+
+            }
+
+        }
+
+        if ((SPELL_CHECK_LANG_STAGE.equals (oldStage))
+            &&
             (DECIDE_STAGE.equals (newStage))
            )
         {
@@ -490,17 +604,14 @@ public class FirstUseWizard extends PopupWizard
         if (NEW_PROJECT_STAGE.equals (stage))
         {
 
-            java.util.List<String> prefix = new ArrayList<> ();
-            prefix.add (LanguageStrings.firstusewizard);
-            prefix.add (LanguageStrings.stages);
-            prefix.add (LanguageStrings.newproject);
+            java.util.List<String> prefix = Arrays.asList (firstusewizard,stages,newproject);
 
             ws.title = Environment.getUIString (prefix,
-                                                LanguageStrings.title);
+                                                title);
                         //"{Project} details";
 
             ws.helpText = Environment.getUIString (prefix,
-                                                   LanguageStrings.text);
+                                                   text);
                         //"Enter the name of the {project} below and select the directory where it should be saved.";
 
             ws.panel = this.newProjectPanel.createPanel (this,
@@ -516,16 +627,13 @@ public class FirstUseWizard extends PopupWizard
         if (SELECT_PROJECT_DB_STAGE.equals (stage))
         {
 
-            java.util.List<String> prefix = new ArrayList<> ();
-            prefix.add (LanguageStrings.firstusewizard);
-            prefix.add (LanguageStrings.stages);
-            prefix.add (LanguageStrings.selectprojectdb);
+            java.util.List<String> prefix = Arrays.asList (firstusewizard,stages,selectprojectdb);
 
             ws.title = Environment.getUIString (prefix,
-                                                LanguageStrings.title);
+                                                title);
                         //"Select your {projects} directory";
             ws.helpText = String.format (Environment.getUIString (prefix,
-                                                                  LanguageStrings.text),
+                                                                  text),
                                         //"Use the finder below to find the directory where your {projects} database file is stored.  The file is called <b>%s%s</b>",
                                          Environment.getProjectInfoDBFile ().getName () + Constants.H2_DB_FILE_SUFFIX);
 
@@ -560,20 +668,20 @@ public class FirstUseWizard extends PopupWizard
             });
 
             this.projDBFind.setApproveButtonText (Environment.getUIString (prefix,
-                                                                           LanguageStrings.finder,
-                                                                           LanguageStrings.button));
+                                                                           finder,
+                                                                           button));
                                                 //"Select");
             this.projDBFind.setFinderSelectionMode (JFileChooser.DIRECTORIES_ONLY);
             this.projDBFind.setFinderTitle (Environment.getUIString (prefix,
-                                                                     LanguageStrings.finder,
-                                                                     LanguageStrings.title));
+                                                                     finder,
+                                                                     title));
                                                                            //"Select the directory");
 
             this.projDBFind.setFile (Environment.getUserQuollWriterDir ());
 
             this.projDBFind.setFindButtonToolTip (Environment.getUIString (prefix,
-                                                                           LanguageStrings.finder,
-                                                                           LanguageStrings.tooltip));
+                                                                           finder,
+                                                                           tooltip));
                                                 //"Click to find a directory");
             this.projDBFind.setClearOnCancel (true);
             this.projDBFind.init ();
@@ -994,22 +1102,20 @@ public class FirstUseWizard extends PopupWizard
 
         }
 
-        if (START_STAGE.equals (stage))
+        if (SPELL_CHECK_LANG_STAGE.equals (stage))
         {
 
-            java.util.List<String> prefix = new ArrayList<> ();
-            prefix.add (LanguageStrings.firstusewizard);
-            prefix.add (LanguageStrings.stages);
-            prefix.add (LanguageStrings.start);
+            java.util.List<String> prefix = Arrays.asList (firstusewizard,stages,spellcheck);
 
             ws.title = Environment.getUIString (prefix,
-                                                LanguageStrings.title);
+                                                title);
                                     //"Select the spell checker language";
 
             ws.helpText = Environment.getUIString (prefix,
-                                                   LanguageStrings.text);
+                                                   text);
                             //"Welcome to Quoll Writer, this wizard will help you get started.<br /><br />First, select the language you would like to use for the spell checker.  You can download additional languages in the Options panel later.";
 
+            Box b = new Box (BoxLayout.Y_AXIS);
             JComboBox lb = UIUtils.getSpellCheckLanguagesSelector (new ActionListener ()
                                                                    {
 
@@ -1037,9 +1143,71 @@ public class FirstUseWizard extends PopupWizard
             wrap.setAlignmentX (JComponent.LEFT_ALIGNMENT);
             wrap.setAlignmentY (JComponent.TOP_ALIGNMENT);
 
+            b.add (wrap);
+            b.add (Box.createVerticalGlue ());
+
+            ws.panel = b;
+
+            return ws;
+
+        }
+
+        if (START_STAGE.equals (stage))
+        {
+
+            java.util.List<String> prefix = Arrays.asList (firstusewizard,stages,start);
+
+            ws.title = getUIString (prefix,title);
+
+            ws.helpText = getUIString (prefix,text);
+
             Box b = new Box (BoxLayout.Y_AXIS);
 
+            JComboBox ub = UIUtils.getUILanguagesSelector (new ActionListener ()
+                                                               {
+
+                                                                    @Override
+                                                                    public void actionPerformed (ActionEvent ev)
+                                                                    {
+
+                                                                        // Set the property.
+                                                                        String uilid = ev.getActionCommand ();
+
+																		UserProperties.set (Constants.USER_UI_LANGUAGE_PROPERTY_NAME,
+																							uilid);
+
+                                                                    }
+
+                                                               },
+                                                               UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME));
+
+            ub.setMaximumSize (ub.getPreferredSize ());
+
+            Box wrap = new Box (BoxLayout.X_AXIS);
+
+            wrap.add (ub);
+            wrap.add (Box.createHorizontalGlue ());
+            wrap.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+            wrap.setAlignmentY (JComponent.TOP_ALIGNMENT);
+
             b.add (wrap);
+
+            this.dlUILangFile = UIUtils.createInformationLabel (getUIString (prefix,downloading));
+            this.dlUILangFile.setVisible (false);
+
+            this.dlUILangFile.setBorder (UIUtils.createPadding (10, 0, 0, 5));
+            this.dlUILangFile.setIcon (Environment.getIcon (Constants.INFO_ICON_NAME,
+                                                            Constants.ICON_MENU));
+
+            b.add (this.dlUILangFile);
+
+            this.dlUILangError = UIUtils.createErrorLabel (getUIString(firstusewizard,stages,start,actionerror));
+            this.dlUILangError.setVisible (false);
+
+            this.dlUILangError.setBorder (UIUtils.createPadding (10, 0, 0, 5));
+
+            b.add (this.dlUILangError);
+
             b.add (Box.createVerticalGlue ());
 
             ws.panel = b;

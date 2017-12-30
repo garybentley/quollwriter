@@ -920,6 +920,34 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public void replaceText (String replace)
+    {
+
+        if (this.getText ().length () == 0)
+        {
+
+            this.setTextWithMarkup (new StringWithMarkup (replace));
+
+            return;
+
+        }
+
+        int caret = this.getCaret ().getDot ();
+
+        this.startCompoundEdit ();
+
+        this.select (0,
+                     this.getText ().length ());
+
+        this.replaceSelection (replace);
+
+        this.endCompoundEdit ();
+
+        this.getCaret ().setDot (caret);
+
+
+    }
+
     public void replaceText (int    start,
                              int    end,
                              String replace)

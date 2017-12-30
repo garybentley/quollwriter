@@ -76,6 +76,8 @@ import com.quollwriter.achievements.rules.*;
 
 import com.quollwriter.editors.ui.*;
 
+import static com.quollwriter.LanguageStrings.*;
+
 import org.jdom.*;
 
 public class Environment
@@ -163,9 +165,8 @@ public class Environment
 
     private static Set<Tag> tags = null;
 
-    private static String UILanguage = null;
-    private static String defaultUILanguage = Constants.ENGLISH;
-    private static Map<String, LanguageStrings> UILanguageMaps = new HashMap ();
+    private static LanguageStrings uiLanguageStrings = null;
+    private static LanguageStrings defaultUILanguageStrings = null;
 
     static
     {
@@ -2912,6 +2913,26 @@ public class Environment
 
     }
 
+    public static void setUILanguage (String id)
+                               throws Exception
+    {
+
+        LanguageStrings ls = Environment.getUILanguageStrings (id);
+
+        if (ls == null)
+        {
+
+            throw new GeneralException ("No language strings found for id: " +
+                                        id);
+
+        }
+
+        Environment.uiLanguageStrings = ls;
+
+        UserProperties.set (Constants.USER_UI_LANGUAGE_PROPERTY_NAME, id);
+
+    }
+
     private static File getUILanguageStringsDir ()
     {
 
@@ -2926,6 +2947,82 @@ public class Environment
         }
 
         return d;
+
+    }
+
+    private static File getUserUILanguageStringsDir (Version v)
+    {
+
+        File d = new File (Environment.getUserQuollWriterDir (),
+                           Constants.USER_UI_LANGUAGES_DIR_NAME + "/" + v.toString ());
+
+        if (!d.exists ())
+        {
+
+            d.mkdirs ();
+
+        }
+
+        return d;
+
+    }
+
+    public static LanguageStrings getUserUILanguageStrings (Version v,
+                                                            String  id)
+                                                     throws Exception
+    {
+
+        File f = Environment.getUserUILanguageStringsFile (v,
+                                                           id);
+
+        if (f.exists ())
+        {
+
+            return new LanguageStrings (f);
+
+        }
+
+        return null;
+
+    }
+
+    public static LanguageStrings getUserUIEnglishLanguageStrings (Version v)
+                                                            throws Exception
+    {
+
+        // Our order here is...
+
+        // See if there is a user strings file.
+        File f = Environment.getUserUILanguageStringsFile (v,
+                                                           LanguageStrings.ENGLISH_ID);
+
+        if (f.exists ())
+        {
+
+            return new LanguageStrings (f);
+
+        }
+
+        // If the version is the same as the QW version the user is running then
+        if (v.equals (Environment.getQuollWriterVersion ()))
+        {
+
+            LanguageStrings def = Environment.getDefaultUILanguageStrings ();
+
+            Environment.saveUserUILanguageStrings (def);
+
+            return Environment.getUserUIEnglishLanguageStrings (v);
+
+        }
+
+        return null;
+
+    }
+
+    public static LanguageStrings getDefaultUILanguageStrings ()
+    {
+
+        return Environment.defaultUILanguageStrings;
 
     }
 
@@ -2949,7 +3046,9 @@ public class Environment
 
         }
 
-        LanguageStrings s = new LanguageStrings (IOUtils.getFile (f));
+        String data = IOUtils.getFile (f);
+
+        LanguageStrings s = new LanguageStrings (data);
 
         return s;
 
@@ -2961,20 +3060,10 @@ public class Environment
 
         Set<LanguageStrings> s = new TreeSet<> ();
 
-        File d = Environment.getUILanguageStringsDir ();
+        File d = new File (Environment.getUserQuollWriterDir (),
+                           Constants.USER_UI_LANGUAGES_DIR_NAME);
 
-        File[] files = d.listFiles (new FileFilter ()
-        {
-
-            @Override
-            public boolean accept (File f)
-            {
-
-                return f.getName ().endsWith (Constants.JSON_FILE_EXT);
-
-            }
-
-        });
+        File[] files = d.listFiles ();
 
         if (files != null)
         {
@@ -2982,7 +3071,21 @@ public class Environment
             for (int i = 0; i < files.length; i++)
             {
 
-                s.add (new LanguageStrings (files[i]));
+                File fd = files[i];
+
+                File[] dfiles = fd.listFiles ();
+
+                if (dfiles != null)
+                {
+
+                    for (int j = 0; j < dfiles.length; j++)
+                    {
+
+                        s.add (new LanguageStrings (dfiles[j]));
+
+                    }
+
+                }
 
             }
 
@@ -2992,11 +3095,186 @@ public class Environment
 
     }
 
+    public static void saveUserUILanguageStrings (LanguageStrings ls)
+                                           throws Exception
+    {
+
+        File f = Environment.getUserUILanguageStringsFile (ls);
+
+        f.getParentFile ().mkdirs ();
+
+        String json = JSONEncoder.encode (ls.getAsJSON ());
+
+        IOUtils.writeStringToFile (f,
+                                   json,
+                                   false);
+
+    }
+
+    public static void downloadUILanguageFile (final String         id,
+                                               final ActionListener onComplete,
+                                               final ActionListener onError)
+    {
+
+        Environment.schedule (new Runnable ()
+        {
+
+            @Override
+            public void run ()
+            {
+
+                String lastMod = "";
+
+                LanguageStrings ls = null;
+
+                try
+                {
+
+                    ls = Environment.getUILanguageStrings (id);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get language strings: " + id,
+                                          e);
+
+                    onError.actionPerformed (new ActionEvent (getUIString (uilanguage,download,actionerror), 0, "error"));
+
+                    return;
+
+                }
+
+                if (ls != null)
+                {
+
+                    Date d = ls.getLastModified ();
+
+                    if (d == null)
+                    {
+
+                        d = ls.getDateCreated ();
+
+                    }
+
+                    lastMod = d.getTime () + "";
+
+                }
+
+                String url = Environment.getProperty (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+
+                url = StringUtils.replaceString (url,
+                                                 Constants.VERSION_TAG,
+                                                 Environment.getQuollWriterVersion ().toString ());
+
+                url = StringUtils.replaceString (url,
+                                                 Constants.ID_TAG,
+                                                 id);
+
+                url = StringUtils.replaceString (url,
+                                                 Constants.LAST_MOD_TAG,
+                                                 lastMod);
+
+                try
+                {
+
+                    String data = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + url));
+
+                    if (data.startsWith (Constants.JSON_RETURN_PREFIX))
+                    {
+
+                        data = data.substring (Constants.JSON_RETURN_PREFIX.length ());
+
+                    }
+
+                    if (data.trim ().length () == 0)
+                    {
+
+                        Environment.logError ("No language strings data available for: " + id + ", " + Environment.getQuollWriterVersion ());
+
+                        onError.actionPerformed (new ActionEvent (getUIString (uilanguage,download,actionerror), 0, "error"));
+
+                        return;
+
+                    }
+
+                    // Will be a collection.
+                    Collection col = (Collection) JSONDecoder.decode (data);
+
+                    Iterator iter = col.iterator ();
+
+                    int updated = 0;
+
+                    while (iter.hasNext ())
+                    {
+
+                        Map m = (Map) iter.next ();
+
+                        String id = (String) m.get (":id");
+
+                        if (id == null)
+                        {
+
+                            throw new GeneralException ("No id found.");
+
+                        }
+
+                        updated++;
+
+                        File f = Environment.getUILanguageStringsFile (id);
+
+                        IOUtils.writeStringToFile (f,
+                                                   JSONEncoder.encode (m),
+                                                   false);
+
+                    }
+
+                    onComplete.actionPerformed (new ActionEvent (this, updated, "success"));
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get user interface files for: " + id + ", " + Environment.getQuollWriterVersion (),
+                                          e);
+
+                    onError.actionPerformed (new ActionEvent (getUIString (uilanguage,download,actionerror), 0, "error"));
+
+                }
+
+            }
+
+        },
+        1 * Constants.SEC_IN_MILLIS,
+        -1);
+
+    }
+
     public static File getUILanguageStringsFile (String id)
     {
 
         return new File (Environment.getUILanguageStringsDir (),
-                         id + Constants.JSON_FILE_EXT);
+                         id);
+
+    }
+
+    public static File getUserUILanguageStringsFile (Version qwVersion,
+                                                     String  id)
+    {
+
+        if (id.equals (LanguageStrings.ENGLISH_ID))
+        {
+
+            id = id.substring (1);
+
+        }
+
+        return new File (Environment.getUserUILanguageStringsDir (qwVersion),
+                         id);
+
+    }
+
+    public static File getUserUILanguageStringsFile (LanguageStrings ls)
+    {
+
+        return Environment.getUserUILanguageStringsFile (ls.getQuollWriterVersion (),
+                                                         ls.getId ());
 
     }
 
@@ -3463,6 +3741,28 @@ public class Environment
                       throws Exception
     {
 
+        // Start the timer, it is done here so that any other code that needs it can start running things
+        // straightaway.
+        Environment.generalTimer = new ScheduledThreadPoolExecutor (5,
+                                                                    new ThreadFactory ()
+        {
+
+            @Override
+            public Thread newThread (Runnable r)
+            {
+
+                Thread t = new Thread (r);
+
+                t.setDaemon (true);
+                t.setPriority (Thread.MIN_PRIORITY);
+                t.setName ("Environment-general-" + t.getId ());
+
+                return t;
+
+            }
+
+        });
+
         File f = Environment.getErrorLogFile ();
 
         f.delete ();
@@ -3614,28 +3914,9 @@ public class Environment
 
         Environment.incrStartupProgress ();
 
-        // Load the default UI language map.
-        Environment.registerUILanguage (Environment.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
+        Environment.defaultUILanguageStrings = new LanguageStrings (Environment.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
 
-        Environment.defaultUILanguage = Environment.getProperty (Constants.DEFAULT_UI_LANGUAGE_PROPERTY_NAME);
-
-        // XXX For now
-        Environment.UILanguage = Environment.defaultUILanguage;
-
-        // Load the user default, if appropriate.
-        String uilang = UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
-
-        if (uilang != null)
-        {
-        /*
-            // Get the file.
-            String text = JSONDecoder.decode (Environment.getUserFile ("ui/languages/" + uilang + ".json"));
-
-            Environment.registerUILanguage (text);
-
-            Environment.UILanguage = uilang;
-        */
-        }
+        Environment.uiLanguageStrings = Environment.defaultUILanguageStrings;
 
         // Load the default object type names.
         // Object type names may be needed when initing the legacy object types.
@@ -3652,40 +3933,6 @@ public class Environment
 
         }
 */
-        try
-        {
-
-            Environment.loadUserObjectTypeNames ();
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to load user object type names.",
-                                  e);
-
-        }
-
-        // Add a property listener for name changes to user config object types.
-        Environment.userConfigurableObjectTypeNameListener = new PropertyChangedListener ()
-        {
-
-            @Override
-            public void propertyChanged (PropertyChangedEvent ev)
-            {
-
-                UserConfigurableObjectType type = (UserConfigurableObjectType) ev.getSource ();
-
-                String id = type.getObjectTypeId ();
-
-                Environment.objectTypeNamesSingular.put (id,
-                                                         type.getObjectTypeName ());
-
-                Environment.objectTypeNamesPlural.put (id,
-                                                       type.getObjectTypeNamePlural ());
-
-            }
-
-        };
-
         // See if this is first use.
         Environment.isFirstUse = (Environment.getProjectInfoSchemaVersion () == 0);
 
@@ -3781,6 +4028,164 @@ public class Environment
 
         }
 
+        // Load the user default, if appropriate.
+        final String uilangid = UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
+
+        if (uilangid != null)
+        {
+
+            LanguageStrings ls = Environment.getUILanguageStrings (uilangid);
+
+            if ((ls == null)
+                ||
+                // Have we updated QW and need to get newer versions?
+                ((ls != null)
+                 &&
+                 (Environment.getQuollWriterVersion ().isNewer (ls.getQuollWriterVersion ()))
+                )
+               )
+            {
+
+                // Something has gone wrong, try and download again.
+                Environment.downloadUILanguageFile (uilangid,
+                                                    new ActionListener ()
+                                                    {
+
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+
+                                                            try
+                                                            {
+
+                                                                Environment.setUILanguage (uilangid);
+
+                                                            } catch (Exception e) {
+
+                                                                Environment.logError ("Unable to set ui language to: " + uilangid,
+                                                                                      e);
+
+                                                                UIUtils.showErrorMessage (null,
+                                                                                          "Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+
+                                                            }
+
+                                                            UIUtils.showMessage (null,
+                                                                                 "Language strings re-downloaded",
+                                                                                 "Quoll Writer has re-downloaded the User Interface language strings you are using because they were missing from your local system.  In the interim the User Interface has fallen back to using English.<br /><br />To return to using your selected language Quoll Writer must be restarted.",
+                                                                                 null,
+                                                                                 null);
+
+                                                        }
+
+                                                    },
+                                                    // On error.
+                                                    new ActionListener ()
+                                                    {
+
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+
+                                                            UIUtils.showErrorMessage (null,
+                                                                                      "Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+
+                                                        }
+
+                                                    });
+
+            } else {
+
+                Environment.uiLanguageStrings = ls;
+
+                // See if there is an update to the strings.
+                Environment.downloadUILanguageFile (uilangid,
+                                                    new ActionListener ()
+                                                    {
+
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+
+                                                            if (ev.getID () > 0)
+                                                            {
+
+                                                                try
+                                                                {
+
+                                                                    Environment.setUILanguage (uilangid);
+
+                                                                } catch (Exception e) {
+
+                                                                    Environment.logError ("Unable to set ui language to: " + uilangid,
+                                                                                          e);
+
+                                                                    UIUtils.showErrorMessage (null,
+                                                                                              "Warning!  Quoll Writer has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+
+                                                                }
+
+                                                                UIUtils.showMessage (null,
+                                                                                     "Language strings updated",
+                                                                                     "Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
+                                                                                     null,
+                                                                                     null);
+
+                                                            }
+
+                                                        }
+
+                                                    },
+                                                    // On error.
+                                                    new ActionListener ()
+                                                    {
+
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+
+                                                        }
+
+                                                    });
+
+            }
+
+        }
+
+        try
+        {
+
+            Environment.loadUserObjectTypeNames ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to load user object type names.",
+                                  e);
+
+        }
+
+        // Add a property listener for name changes to user config object types.
+        Environment.userConfigurableObjectTypeNameListener = new PropertyChangedListener ()
+        {
+
+            @Override
+            public void propertyChanged (PropertyChangedEvent ev)
+            {
+
+                UserConfigurableObjectType type = (UserConfigurableObjectType) ev.getSource ();
+
+                String id = type.getObjectTypeId ();
+
+                Environment.objectTypeNamesSingular.put (id,
+                                                         type.getObjectTypeName ());
+
+                Environment.objectTypeNamesPlural.put (id,
+                                                       type.getObjectTypeNamePlural ());
+
+            }
+
+        };
+
         // Init our legacy object types, if needed.
         Environment.projectInfoManager.initLegacyObjectTypes ();
 
@@ -3824,28 +4229,6 @@ public class Environment
         Environment.projectTextProps = new ProjectTextProperties ();
 
         Environment.fullScreenTextProps = new FullScreenTextProperties ();
-
-        // Start the timer, it is done here so that any other code that needs it can start running things
-        // straightaway.
-        Environment.generalTimer = new ScheduledThreadPoolExecutor (5,
-                                                                    new ThreadFactory ()
-        {
-
-            @Override
-            public Thread newThread (Runnable r)
-            {
-
-                Thread t = new Thread (r);
-
-                t.setDaemon (true);
-                t.setPriority (Thread.MIN_PRIORITY);
-                t.setName ("Environment-general-" + t.getId ());
-
-                return t;
-
-            }
-
-        });
 
         Environment.playSoundOnKeyStroke = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
 
@@ -7303,49 +7686,6 @@ TODO: Add back in when appropriate.
 
     }
 
-    public static LanguageStrings getDefaultUILanguageStrings ()
-    {
-
-        return Environment.UILanguageMaps.get (Environment.defaultUILanguage.toLowerCase ());
-
-    }
-
-    public static void registerUILanguage (String jsonData)
-                                    throws GeneralException
-    {
-
-        LanguageStrings s = new LanguageStrings (jsonData);
-
-        Environment.UILanguageMaps.put (s.getLanguageName ().toLowerCase (),
-                                        s);
-
-    }
-
-    public static String getUIString (List<String> ids)
-    {
-
-        String s = Environment.getUIString (Environment.UILanguage,
-                                            ids);
-
-        if (s == null)
-        {
-
-            s = Environment.getUIString (Environment.defaultUILanguage,
-                                         ids);
-
-        }
-
-        if (s == null)
-        {
-
-            return LanguageStrings.toId (ids);
-
-        }
-
-        return s;
-
-    }
-
     public static String getUIString (String... ids)
     {
 
@@ -7382,37 +7722,17 @@ TODO: Add back in when appropriate.
 
     }
 
-    private static String getUIString (String       language,
-                                       List<String> ids)
+    private static String getUIString (List<String> ids)
     {
 
-        if (language == null)
-        {
-
-            return null;
-
-        }
-
-        LanguageStrings strings = Environment.UILanguageMaps.get (language.toLowerCase ());
-
-        if (strings == null)
-        {
-
-            return null;
-
-        }
-
-        String s = strings.getString (ids);
+        String s = Environment.uiLanguageStrings.getString (ids);
 
         if (s == null)
         {
 
-            return null;
+            s = LanguageStrings.toId (ids);
 
         }
-
-        // Do our replacements.
-        //s = Environment.replaceObjectNames (s);
 
         return s;
 

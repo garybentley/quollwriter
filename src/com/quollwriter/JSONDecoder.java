@@ -47,41 +47,55 @@ public class JSONDecoder
 
     public static StringWithMarkup decodeToStringWithMarkup (Object v)
     {
-        
+
         if (v == null)
         {
-            
+
             return null;
-            
+
         }
 
         String s = v.toString ();
-        
+
         if (s.trim ().length () == 0)
         {
-            
+
             return null;
-            
+
         }
-        
+
         if (s.equals ("null"))
         {
-            
+
             return null;
-            
+
         }
-        
+
         Map m = (Map) JSONDecoder.decode (s);
         String markup = (String) m.get ("markup");
         String text = (String) m.get ("text");
-        
+
         return new StringWithMarkup (text,
                                      markup);
-        
+
     }
-    
+
     public static Object decode (String v)
     {
+
+        if (v == null)
+        {
+
+            return null;
+
+        }
+
+        if (v.startsWith (Constants.JSON_RETURN_PREFIX))
+        {
+
+            v = v.substring (Constants.JSON_RETURN_PREFIX.length ());
+
+        }
 
         return new JSONDecoder ().read (v);
 

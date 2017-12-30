@@ -2640,7 +2640,7 @@ public class UIUtils
                 content.add (buttons);
                 content.setBorder (new EmptyBorder (10, 10, 10, 10));
 
-                final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : getUIString (generalmessage,title)),
+                final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : getUIString (generalmessage,LanguageStrings.title)),
                                                                 //"Just so you know..."),
                                                                Environment.getIcon (Constants.INFO_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
@@ -9770,6 +9770,148 @@ public class UIUtils
 
     }
 
+    public static JComboBox getUILanguagesSelector (final ActionListener onSelect,
+                                                    final String         defLang)
+    {
+
+        final JComboBox uiLangs = new JComboBox ();
+        uiLangs.setEnabled (false);
+
+        if (onSelect != null)
+        {
+
+            uiLangs.addItemListener (new ItemAdapter ()
+            {
+
+               public void itemStateChanged (ItemEvent ev)
+               {
+
+                    if (ev.getStateChange () != ItemEvent.SELECTED)
+                    {
+
+                        return;
+
+                    }
+
+                    final String lang = uiLangs.getSelectedItem ().toString ();
+
+                    onSelect.actionPerformed (new ActionEvent (uiLangs, 1, lang));
+
+               }
+
+            });
+
+        }
+
+        // Get the languages supported by the spellchecker.
+        new Thread (new Runnable ()
+        {
+
+            public void run ()
+            {
+
+                String l = null;
+
+                Collection ls = null;
+
+                try
+                {
+
+                    l = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + Environment.getProperty (Constants.QUOLL_WRITER_AVAILABLE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME) + "?version=" + Environment.getQuollWriterVersion ().toString ()));
+
+                    ls = (Collection) JSONDecoder.decode (l);
+
+                } catch (Exception e) {
+
+                    // Something gone wrong, so just add our local langs.
+
+                    ls = new LinkedHashSet<> ();
+
+                    Map data = new HashMap ();
+                    ls.add (data);
+                    data.put ("id", ":English");
+                    data.put ("nativename", Constants.ENGLISH);
+
+                    Environment.logError ("Unable to get the ui language strings files url",
+                                          e);
+
+                }
+
+                final Map<String, Map> objs = new LinkedHashMap<> ();
+
+                final Vector langs = new Vector ();
+
+                Iterator iter = ls.iterator ();
+
+                while (iter.hasNext ())
+                {
+
+                    Map m = (Map) iter.next ();
+
+                    String id = (String) m.get ("id");
+
+                    objs.put (id, m);
+
+                    langs.add (id);
+
+                }
+
+                SwingUtilities.invokeLater (new Runnable ()
+                {
+
+                    public void run ()
+                    {
+
+                        uiLangs.setRenderer (new DefaultListCellRenderer ()
+                        {
+
+                            @Override
+                            public Component getListCellRendererComponent (JList  list,
+                                                                           Object        val,
+                                                                           int           index,
+                                                                           boolean       sel,
+                                                                           boolean       hasFocus)
+                            {
+
+                                super.getListCellRendererComponent (list,
+                                                                    val,
+                                                                    index,
+                                                                    sel,
+                                                                    hasFocus);
+
+                                if (val == null)
+                                {
+
+                                    return this;
+
+                                }
+
+                                Map m = objs.get (val.toString ());
+
+                                this.setText (m.get ("nativename").toString ());
+
+                                return this;
+
+                            }
+
+                        });
+
+                        uiLangs.setModel (new DefaultComboBoxModel (langs));
+                        uiLangs.setSelectedItem (defLang);
+                        uiLangs.setEnabled (true);
+
+                    }
+
+                });
+
+            }
+
+        }).start ();
+
+        return uiLangs;
+
+    }
+
 	public static void showManageBackups (final ProjectInfo    proj,
                                           final AbstractViewer viewer)
 	{
@@ -10880,9 +11022,7 @@ public class UIUtils
 
     }
 
-    public static void showLanguageStringsSelectorPopup (final AbstractViewer viewer,
-                                                         final String         title,
-                                                         final ActionListener onSelect)
+    public static void showEditLanguageStringsSelectorPopup (final AbstractViewer viewer)
     {
 
         Set<LanguageStrings> objs = null;
@@ -10898,7 +11038,18 @@ public class UIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      getUIString (uilanguage,select,actionerror));
+                                      getUIString (uilanguage,edit,actionerror));
+
+            return;
+
+        }
+
+        if (objs.size () == 0)
+        {
+
+            UIUtils.showMessage ((PopupsSupported) viewer,
+                                 getUIString (uilanguage,edit,novalue,title),
+                                 getUIString (uilanguage,edit,novalue,text));
 
             return;
 
@@ -10906,7 +11057,7 @@ public class UIUtils
 
         UIUtils.showObjectSelectPopup (objs,
                                        viewer,
-                                       title,
+                                       getUIString (uilanguage,edit,popup,title),
                                        new DefaultListCellRenderer ()
                                        {
 
@@ -10926,7 +11077,7 @@ public class UIUtils
                                                                                                        isSelected,
                                                                                                        cellHasFocus);
 
-                                               l.setText (obj.getName ());
+                                               l.setText (obj.getName () + " (" + obj.getQuollWriterVersion ().toString () + ")");
 
                                                l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
                                                l.setIcon (Environment.getObjectIcon (obj,
@@ -10945,7 +11096,33 @@ public class UIUtils
                                            }
 
                                        },
-                                       onSelect,
+                                       new ActionListener ()
+                                       {
+
+                                           @Override
+                                           public void actionPerformed (ActionEvent ev)
+                                           {
+
+                                               final LanguageStrings ls = (LanguageStrings) ev.getSource ();
+
+                                                try
+                                                {
+
+                                                    new LanguageStringsEditor (ls).init ();
+
+                                                } catch (Exception e) {
+
+                                                    Environment.logError ("Unable to create language strings editor",
+                                                                          e);
+
+                                                    UIUtils.showErrorMessage (viewer,
+                                                                              getUIString (uilanguage,edit,actionerror));
+
+                                                }
+
+                                           }
+
+                                       },
                                        true,
                                        null);
 
@@ -10954,12 +11131,18 @@ public class UIUtils
     public static void showAddNewLanguageStringsPopup (final AbstractViewer viewer)
     {
 
+        java.util.List<String> prefix = Arrays.asList (uilanguage,_new,popup);
+
         QPopup popup = UIUtils.createTextInputPopup (viewer,
-                                                     "Enter the language name",
+                                                     getUIString (prefix,title),
+                                                    //"Enter the language name",
                                                      Constants.ADD_ICON_NAME,
-                                                     "Enter the name of the language you want to create the strings for.",
-                                                     "Create",
-                                                     "Cancel",
+                                                     getUIString (prefix,text),
+                                                     //"Enter the name of the language you want to create the strings for.",
+                                                     getUIString (prefix,buttons,create),
+                                                     //"Create",
+                                                     getUIString (prefix,buttons,cancel),
+                                                     //"Cancel",
                                                      null,
                                                      new ValueValidator<String> ()
                                                      {

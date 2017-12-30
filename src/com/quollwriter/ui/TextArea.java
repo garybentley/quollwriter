@@ -1200,7 +1200,7 @@ public class TextArea extends ScrollableBox
 
     }
 
-    public void setText (String t)
+    public void setText (String  t)
     {
 
         this.setText (new StringWithMarkup (t));
@@ -1215,6 +1215,20 @@ public class TextArea extends ScrollableBox
         this.text.setFontColor (new JLabel ().getForeground ());
 
         this.setSpellCheckEnabled (this.spellCheckEnabled);
+
+    }
+
+    public void updateText (String t)
+    {
+
+        this.updateText (new StringWithMarkup (t));
+
+    }
+
+    public void updateText (StringWithMarkup t)
+    {
+
+        this.text.replaceText (t.getText ());
 
     }
 

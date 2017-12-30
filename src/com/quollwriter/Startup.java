@@ -43,6 +43,15 @@ public class Startup
 
             Environment.init ();
 
+Environment.setDebugModeEnabled (true);
+/*
+new FirstUseWizard ().init ();
+
+if (true)
+{
+    return;
+}
+*/
             if (Environment.isFirstUse ())
             {
 

@@ -2315,6 +2315,157 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
+        final JComboBox uiLangSel = UIUtils.getUILanguagesSelector (new ActionListener ()
+                                                                    {
+
+                                                                        @Override
+                                                                        public void actionPerformed (ActionEvent ev)
+                                                                        {
+
+                                                                            final String uid = ev.getActionCommand ();
+
+                                                                            if (uid.equals (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME)))
+                                                                            {
+
+                                                                                return;
+
+                                                                            }
+
+                                                                            LanguageStrings ls = null;
+
+                                                                            try
+                                                                            {
+
+                                                                                ls = Environment.getUILanguageStrings (uid);
+
+                                                                            } catch (Exception e) {
+
+                                                                                Environment.logError ("Unable to get ui language for: " + uid,
+                                                                                                      e);
+
+                                                                                UIUtils.showErrorMessage (_this,
+                                                                                                          getUIString (uilanguage,set,actionerror));
+
+                                                                                return;
+
+                                                                            }
+
+                                                                            ActionListener setLang = new ActionListener ()
+                                                                            {
+
+                                                                                @Override
+                                                                                public void actionPerformed (ActionEvent ev)
+                                                                                {
+
+                                                                                    try
+                                                                                    {
+
+                                                                                        Environment.setUILanguage (uid);
+
+                                                                                        UIUtils.showMessage ((PopupsSupported) _this.viewer,
+                                                                                                             getUIString (uilanguage,set,restartwarning,title),
+                                                                                                             getUIString (uilanguage,set,restartwarning,text));
+
+                                                                                    } catch (Exception e) {
+
+                                                                                        Environment.logError ("Unable to set ui language to: " + uid,
+                                                                                                              e);
+
+                                                                                        UIUtils.showErrorMessage (_this,
+                                                                                                                  getUIString (uilanguage,set,actionerror));
+
+                                                                                    }
+
+                                                                                }
+
+                                                                            };
+
+                                                                            if (ls == null)
+                                                                            {
+
+                                                                                UIUtils.showMessage ((PopupsSupported) _this.viewer,
+                                                                                                     getUIString (uilanguage,set,downloading,title),
+                                                                                                     getUIString (uilanguage,set,downloading,text));
+
+                                                                                Environment.downloadUILanguageFile (uid,
+                                                                                                                    setLang,
+                                                                                                                    new ActionListener ()
+                                                                                                                    {
+
+                                                                                                                        @Override
+                                                                                                                        public void actionPerformed (ActionEvent ev)
+                                                                                                                        {
+
+                                                                                                                            UIUtils.showErrorMessage (_this,
+                                                                                                                                                      getUIString (uilanguage,set,actionerror));
+
+                                                                                                                        }
+
+                                                                                                                    });
+
+                                                                            } else {
+
+                                                                                setLang.actionPerformed (new ActionEvent (_this, 0, "set"));
+
+                                                                            }
+
+                                                                        }
+
+                                                                    },
+                                                                    UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME));
+
+        JComponent c = this.createHelpText (getUIString (options,lookandsound,labels,uilanguage));
+        this.setAsMainItem (c);
+
+        box.add (c);
+
+        c = this.createWrapper (uiLangSel);
+
+        box.add (Box.createVerticalStrut (5));
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        JButton createTrans = UIUtils.createButton (getUIString (options,lookandsound,labels,createtranslation),
+                                                    new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.showAddNewLanguageStringsPopup (_this.viewer);
+
+            }
+
+        });
+
+        box.add (Box.createVerticalStrut (10));
+
+        JButton editTrans = UIUtils.createButton (getUIString (options,lookandsound,labels,edittranslation),
+                                                  new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.showEditLanguageStringsSelectorPopup (_this.viewer);
+
+            }
+
+        });
+
+        JButton[] tbuts = { createTrans, editTrans };
+
+        c = this.createWrapper (UIUtils.createButtonBar2 (tbuts,
+                                                          JComponent.LEFT_ALIGNMENT));
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        box.add (Box.createVerticalStrut (15));
+
 		final JCheckBox keepCB = UIUtils.createCheckBox (getUIString (options,lookandsound,labels,keepprojectswindowsopen));
         // ("Keep the {Projects} window open when a {project} is opened"));
 
@@ -2333,7 +2484,7 @@ public class Options extends Box
 
         });
 
-        JComponent c = this.createWrapper (keepCB);
+        c = this.createWrapper (keepCB);
         this.setAsMainItem (c);
 
         box.add (c);

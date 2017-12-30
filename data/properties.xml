@@ -311,13 +311,23 @@ Removed so that the full screen properties will inherit from the standard editor
   </property>
 
   <property id="quollWriterLanguageFilesUrl" type="string">
-    <description>The url to use for downloading the language files for quoll writer.</description>
+    <description>The url to use for downloading the spell check/synonym language files for quoll writer.</description>
     <value>language-files/[[LANG]].zip</value>
   </property>
 
   <property id="quollWriterSupportedLanguagesUrl" type="string">
-    <description>The url to use for downloading the list of supported languages for quoll writer.</description>
+    <description>The url to use for downloading the list of supported spellchecker languages for quoll writer.</description>
     <value>language-files/supported-languages.txt</value>
+  </property>
+
+  <property id="quollWriterAvailableUILanguageStringsUrl" type="string">
+    <description>The url to use for downloading the list of available ui strings available for quoll writer.</description>
+    <value>available-ui-language-strings.html</value>
+  </property>
+
+  <property id="quollWriterGetUILanguageStringsUrl" type="string">
+    <description>The url to use for downloading the ui strings for quoll writer.</description>
+    <value>get-ui-language-strings.html?version=[[VERSION]]&amp;id=[[ID]]&amp;lastModified=[[LAST_MOD]]</value>
   </property>
 
   <property id="quollWriterReleaseNotesUrl" type="string">
@@ -333,6 +343,11 @@ Removed so that the full screen properties will inherit from the standard editor
   <property id="quollWriterAcknowledgmentsURL" type="string">
     <description>The acknowledgments url.</description>
     <value><property id="quollWriterWebsite" />/acknowledgments.html</value>
+  </property>
+
+  <property id="quollWriterSubmitUILanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of ui language strings to quoll writer.</description>
+    <value>/submit-ui-language-strings.html</value>
   </property>
 
   <property id="reportBugMessage" type="string">
@@ -627,7 +642,7 @@ This message will only be shown once during your current session using Quoll Wri
 
   <property id="defaultUILanguage" type="string">
     <description>The default language for the UI.</description>
-    <value>English</value>
+    <value>:English</value>
   </property>
 
   <property id="copyright" type="string">

@@ -490,6 +490,166 @@ public class Utils
 
     }
 
+    public static void getContentFromURL (final URL     url,
+                                          final Map<String, String> headers,
+                                          final ActionListener      onSuccess,
+                                          final ActionListener      onError,
+                                          final ActionListener      onFailure)
+    {
+
+        new Thread (new Runnable ()
+        {
+
+            public void run ()
+            {
+
+                try
+                {
+
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection ();
+
+                    if (headers != null)
+                    {
+
+                        Iterator<String> iter = headers.keySet ().iterator ();
+
+                        while (iter.hasNext ())
+                        {
+
+                            String n = iter.next ();
+
+                            conn.setRequestProperty (n,
+                                                     headers.get (n));
+
+                        }
+
+                    }
+
+                    conn.setRequestMethod ("GET");
+
+                    conn.setDoInput (true);
+                    conn.setDoOutput (true);
+                    conn.connect ();
+
+                    // Try and get input stream, not all responses allow it.
+                    InputStream in = null;
+
+                    final int resCode = conn.getResponseCode ();
+
+                    if (resCode != HttpURLConnection.HTTP_OK)
+                    {
+
+                        in = conn.getErrorStream ();
+
+                    } else {
+
+                        in = conn.getInputStream ();
+
+                    }
+
+                    byte[] content = null;
+
+                    if (in != null)
+                    {
+
+                        ByteArrayOutputStream bout = new ByteArrayOutputStream ();
+
+                        // Read everything.
+                        byte[] buf = new byte[8192];
+
+                        int count = 0;
+
+                        while ((count = in.read (buf,
+                                                 0,
+                                                 8192)) != -1)
+                        {
+
+                            bout.write (buf,
+                                        0,
+                                        count);
+
+                        }
+
+                        bout.flush ();
+                        bout.close ();
+                        in.close ();
+
+                        content = bout.toByteArray ();
+
+                    }
+
+                    final byte[] ret = content;
+
+                    conn.disconnect ();
+
+                    if (resCode != HttpURLConnection.HTTP_OK)
+                    {
+
+                        if (onError != null)
+                        {
+
+                            UIUtils.doLater (new ActionListener ()
+                                             {
+
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+
+                                                    onError.actionPerformed (new ActionEvent (ret, resCode, "error"));
+
+                                                }
+
+                                             });
+
+                        }
+
+                    } else {
+
+                        if (onSuccess != null)
+                        {
+
+                            UIUtils.doLater (new ActionListener ()
+                                             {
+
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+
+                                                    onSuccess.actionPerformed (new ActionEvent (ret, resCode, "success"));
+
+                                                }
+
+                                             });
+
+                        }
+
+                    }
+
+                } catch (final Exception e) {
+
+                    if (onFailure != null)
+                    {
+
+                        UIUtils.doLater (new ActionListener ()
+                                         {
+
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+
+                                                onFailure.actionPerformed (new ActionEvent (e, 0, "exception"));
+
+                                            }
+
+                                         });
+
+                    }
+
+                }
+
+            }
+
+        }).start ();
+
+    }
+
     public static void postToURL (final URL                 url,
                                   final Map<String, String> headers,
                                   final String              content,
@@ -585,7 +745,7 @@ public class Utils
 
                         String s = b.toString ();
 
-                        String pref = "for(;;);";
+                        String pref = Constants.JSON_RETURN_PREFIX; //"for(;;);";
 
                         if (s.startsWith (pref))
                         {

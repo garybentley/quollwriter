@@ -67,6 +67,8 @@ public class Constants
 
     public static final int POPUP_WINDOW_TITLE = 4;
 
+    public static final String JSON_RETURN_PREFIX = "for(;;);";
+
     public static final String JSON_FILE_EXT = ".json";
 
     public static final String ADD_ASSETS_TRY_POPUP = "trypopup";
@@ -94,6 +96,10 @@ public class Constants
     public static final String QUOLL_WRITER_NAME = "Quoll Writer";
 
     public static final String CONTACT_EMAIL = "support@quollwriter.com";
+
+    public static final String LAST_MOD_TAG = "[[LAST_MOD]]";
+
+    public static final String ID_TAG = "[[ID]]";
 
     public static final String OS_TAG = "[[OS]]";
 
@@ -161,6 +167,8 @@ public class Constants
 
     public static final String SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME = "showNotesInChapterList";
 
+    public static final String SUBMIT_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterSubmitUILanguageStringsURL";
+
     public static final String EDIT_MARKER_COLOR_PROPERTY_NAME = "editMarkerColor";
 
     public static final String COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME = "compressChapterContextMenu";
@@ -178,6 +186,8 @@ public class Constants
     public static final String AUTO_SNAPSHOTS_TIME_PROPERTY_NAME = "autoSnapshotsTime";
 
     public static final String UI_LANGUAGES_DIR_NAME = "ui/language";
+
+    public static final String USER_UI_LANGUAGES_DIR_NAME = Constants.UI_LANGUAGES_DIR_NAME + "/user";
 
     public static final String DATE_FORMAT_PROPERTY_NAME = "dateFormat";
 
@@ -293,6 +303,12 @@ public class Constants
 
     public static final String QUOLL_WRITER_ACKNOWLEDGMENTS_URL_PROPERTY_NAME = "quollWriterAcknowledgmentsURL";
 
+    public static final String QUOLL_WRITER_AVAILABLE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterAvailableUILanguageStringsUrl";
+
+    public static final String QUOLL_WRITER_GET_NEW_VERSION_BASE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterGetNewVersionBaseUILanguageStringsUrl";
+
+    public static final String QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterGetUILanguageStringsUrl";
+
     public static final String WRITING_GENRES_PROPERTY_NAME = "writingGenres";
 
     //public static final String BUG_REPORT_MAILTO_URI_PROPERTY_NAME = "bugReportMailtoURI";
@@ -337,7 +353,7 @@ public class Constants
 
     public static final String FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME = "fullScreenEditorFontBGColor";
 
-    public static final String FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME = "fullScreenEditorFont";
+    public static final String FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME = "fullScreenEdiorFont";
 
     public static final String FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME = "fullScreenEditorFontSize";
 
@@ -517,6 +533,9 @@ public class Constants
     public static final String USER_PROMPTS_DIR = "prompts/";
 
     public static final String USER_PROBLEM_FINDER_RULES_DIR = "problem-finder-rules/";
+
+    public static final String UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME = "ui-language-strings-submitter-id";
+    public static final String UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME = "qw-ui-language-strings-submitter-id";
 
     public static final String IMGS_DIR = "/imgs/";
 

@@ -12,6 +12,7 @@ import com.quollwriter.data.*;
 public class LanguageStrings extends NamedObject implements RefValueProvider, Comparable<LanguageStrings>
 {
 
+    public static final String ENGLISH_ID = ":" + Constants.ENGLISH;
     public static final String OBJECT_TYPE = "languagestrings";
 
     private static String ID_PART_SEP = ".";
@@ -21,15 +22,19 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     private String languageName = null;
     private int version = 1;
     private Date created = null;
+    private Date lastModified = null;
     private String _email = null;
     private LanguageStrings parent = null;
     private Map<String, Node> nodes = new HashMap<> ();
+    private Version qwVersion = null;
 
     private LanguageStrings ()
     {
 
         super (OBJECT_TYPE,
                null);
+
+        this.qwVersion = Environment.getQuollWriterVersion ();
 
     }
 
@@ -92,10 +97,68 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
+    public void setQuollWriterVersion (Version v)
+    {
+
+        this.qwVersion = v;
+
+    }
+
+    public Version getQuollWriterVersion ()
+    {
+
+        return this.qwVersion;
+
+    }
+
+    public int getStringsVersion ()
+    {
+
+        return this.version;
+
+    }
+
+    public void setStringsVersion (int v)
+    {
+
+        this.version = v;
+
+    }
+
+    public boolean isEnglish ()
+    {
+
+        return this.id.equals (ENGLISH_ID);
+
+    }
+
     public int compareTo (LanguageStrings obj)
     {
 
-        return this.getName ().compareTo (obj.getName ());
+        if (obj == null)
+        {
+
+            return -1;
+
+        }
+
+        if (this.id.equals (obj.id))
+        {
+
+            return this.qwVersion.compareTo (obj.qwVersion);
+
+        }
+
+        int v = this.qwVersion.compareTo (obj.qwVersion);
+
+        if (v == 0)
+        {
+
+            return this.getName ().compareTo (obj.getName ());
+
+        }
+
+        return v;
 
     }
 
@@ -112,7 +175,25 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 
+        this.init ((Map) obj);
+
+    }
+
+    private void init (Map obj)
+                throws GeneralException
+    {
+
+        if (obj == null)
+        {
+
+            throw new IllegalArgumentException ("No object provided.");
+
+        }
+
         Map<String, Object> m = (Map<String, Object>) obj;
+
+        this.setId (this.getString (":id",
+                                    m));
 
         String did = this.getString (":derivedfrom",
                                      m);
@@ -136,6 +217,17 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 
+        String qwv = (String) m.get (":qwversion");
+
+        if (qwv == null)
+        {
+
+            throw new GeneralException ("Expected to find a QW version.");
+
+        }
+
+        this.qwVersion = new Version (qwv);
+
         Number n = (Number) m.get (":created");
 
         if (n == null)
@@ -156,7 +248,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
             Date d = new Date ();
             d.setTime (n.longValue ());
 
-            this.setLastModified (d);
+            this.lastModified = d;
 
         }
 
@@ -175,9 +267,6 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         this._email = this.getString (":email",
                                       m);
-
-        this.setId (this.getString (":id",
-                                    m));
 
         // Ensure we can resolve everything.
         Iterator iter = m.keySet ().iterator ();
@@ -238,6 +327,14 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
+    @Override
+    public Date getLastModified ()
+    {
+
+        return this.lastModified;
+
+    }
+
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -264,12 +361,14 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
                this.getId ());
         m.put (":created",
                this.created.getTime ());
+        m.put (":qwversion",
+               this.qwVersion.getVersion ());
 
-        if (this.getLastModified () != null)
+        if (this.lastModified != null)
         {
 
             m.put (":lastmodified",
-                   this.getLastModified ().getTime ());
+                   this.lastModified.getTime ());
 
         }
 
@@ -477,7 +576,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
                 if (prov.getString (sid) == null)
                 {
 
-                    errors.add ("Id: " + sid + ", referenced at location: " + start + " does not exist.");
+                    errors.add ("Id: " + ID_REF_START + sid + ID_REF_END + ", referenced at location: " + start + " does not exist.");
                     start += end + ID_REF_END.length ();
 
                     continue;
@@ -734,7 +833,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
-    public Map<Value, Set<String>> getErrors (String id)
+    public Map<Value, Set<String>> getErrors (List<String> id)
     {
 
         Map<Value, Set<String>> ret = new LinkedHashMap<> ();
@@ -825,6 +924,47 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
+    /**
+     * Return a list of values that this set contains but the old does not or if the old
+     * has the value then is the raw text value different.
+     *
+     * @return The set of new or raw text different values.
+     */
+    public Set<Value> diff (LanguageStrings old)
+    {
+
+        Set<Value> ret = new LinkedHashSet<> ();
+
+        Set<Value> allVals = this.getAllValues ();
+
+        for (Value v : allVals)
+        {
+
+            Value ov = old.getValue (v.getId ());
+
+            if (ov == null)
+            {
+System.out.println ("NEW: " + v);
+                // This is a new value.
+                ret.add (v);
+
+            } else {
+
+                if (!v.getRawText ().equals (ov.getRawText ()))
+                {
+System.out.println ("CHANGED: " + v);
+                    ret.add (v);
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
     public Map<String, Set<Node>> getNodesInSections (String defSection)
     {
 
@@ -878,10 +1018,8 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
-    public Set<Value> getAllValues (String id)
+    public Set<Value> getAllValues (List<String> idparts)
     {
-
-        List<String> idparts = LanguageStrings.getIdParts (id);
 
         Set<Value> vals = new LinkedHashSet<> ();
 
@@ -937,13 +1075,6 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     {
 
         return this.getName ();
-
-    }
-
-    public boolean isEnglish ()
-    {
-
-        return Constants.ENGLISH.equalsIgnoreCase (this.languageName);
 
     }
 
@@ -1130,23 +1261,14 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
-    public Value insertValue (String id)
+    public Value insertValue (List<String> idparts)
                        throws GeneralException
     {
 
-        if ((id == null)
+        if ((idparts == null)
             ||
-            (id.trim ().length () == 0)
+            (idparts.size () == 0)
            )
-        {
-
-            throw new IllegalArgumentException ("No id provided.");
-
-        }
-
-        List<String> idparts = this.getIdParts (id);
-
-        if (idparts.size () == 0)
         {
 
             throw new IllegalArgumentException ("No id provided.");
@@ -1180,11 +1302,15 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         } else {
 
+            if (n == null)
+            {
 
-            n = new Node (f,
-                          null);
+                n = new Node (f,
+                              null);
 
-            this.nodes.put (f, n);
+                this.nodes.put (f, n);
+
+            }
 
         }
 
@@ -1531,6 +1657,13 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 
+        public String getTitle ()
+        {
+
+            return this.title;
+
+        }
+
         public Node cloneNode ()
         {
 
@@ -1572,7 +1705,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
         public String toString ()
         {
 
-            return (this.getId () + "(node,children=" + (this.children != null ? this.children.size () : 0));
+            return (this.getId () + "(node,children=" + (this.children != null ? this.children.size () : 0) + ")");
 
         }
 
@@ -1641,17 +1774,24 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 
-        public String getId ()
+        public List<String> getId ()
         {
 
             if (this.parent == null)
             {
 
-                return this.id;
+                List<String> r = new ArrayList<> ();
+                r.add (this.id);
+
+                return r;
 
             }
 
-            return this.parent.getId () + ID_PART_SEP + this.id;
+            List<String> r = this.parent.getId ();
+
+            r.add (this.id);
+
+            return r;
 
         }
 
@@ -1930,7 +2070,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
         {
 
             return LanguageStrings.getErrors (this.text,
-                                              this.getId (),
+                                              LanguageStrings.toId (this.getId ()),
                                               this.scount,
                                               prov);
 
@@ -2968,6 +3108,11 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     public static final String usedefault = "usedefault";
     public static final String examplechapter = "examplechapter";
     public static final String uilanguage = "uilanguage";
-    public static final String select = "select";
+    //public static final String select = "select";
+    public static final String downloading = "downloading";
+    public static final String restartwarning = "restartwarning";
+    public static final String set = "set";
+    public static final String createtranslation = "createtranslation";
+    public static final String edittranslation = "edittranslation";
 
 }
