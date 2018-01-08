@@ -6,6 +6,34 @@
     ":qwversion" : "2.6.5",
     ":created" : 0,
     ":email" : "gary@quollwriter.com",
+    ":sections" :
+    [
+        {
+            "id" : "Basics",
+            "icon" : "settings",
+            "name" : "Basics"
+        },
+        {
+            "id" : "General",
+            "icon" : "tools",
+            "name" : "General"
+        },
+        {
+            "id" : "Project",
+            "icon" : "project",
+            "name" : "Project"
+        },
+        {
+            "id" : "Achievements",
+            "icon" : "achievement",
+            "name" : "Achievements"
+        },
+        {
+            "id" : "Editors",
+            "icon" : "editors",
+            "name" : "Editors"
+        }
+    ],
     "startup" :
     {
         ":section" : "General",
@@ -50,7 +78,7 @@
             "restartwarning" :
             {
                 "title" : "Restart recommended",
-                "text" : "Note: to make full use of the selected User Interface language you must restart {QW}."
+                "text" : "The User Interface language has been changed.<br /><br />Note: to make full use of the selected User Interface language you must restart {QW}."
             },
             "downloading" :
             {
@@ -63,7 +91,7 @@
             "popup" :
             {
                 "title" : "Enter the language name",
-                "text" : "Enter the name of the language you want to create the strings for.  This should be the name that a native speaker of the language user would use, such as Espa\u00F1ol, Fran\u00E7ais or Deutsch.",
+                "text" : "Enter the name of the language you want to create the strings for.  This should be the name that a native speaker of the language user would use, such as Español, Français or Deutsch.",
                 "buttons" :
                 {
                     "create" : "${actions.create}",
@@ -102,6 +130,37 @@
         "download" :
         {
             "actionerror" : "Unable to download language strings."
+        },
+        "feedback" :
+        {
+            "actionerror" : "Unable to send message.",
+            "popup" :
+            {
+                "title" : "Contact Translation Creator",
+                "text" : "Use the form below to contact the creator of the %1$s translation.  If you wish to receive a response then please provide an email address.<br /><br />Please be polite in your message, the creator has put their time and effort into the translation for free!",
+                ":comment.text" : "%1$s is the name of the translation.",
+                ":scount.text" : 1,
+                "errorlabel" : "Please enter a message.",
+                "message" :
+                {
+                    "text" : "${form.labels.message}",
+                    "tooltip" : "Enter your message here."
+                },
+                "email" :
+                {
+                    "text" : "${form.labels.email}"
+                },
+                "buttons" :
+                {
+                    "send" : "${buttons.send}",
+                    "cancel" : "${buttons.cancel}"
+                }
+            },
+            "confirmpopup" :
+            {
+                "title" : "Message sent",
+                "text" : "Your message has been sent to the translation creator."
+            }
         }
     },
     "settingsmenu" :
@@ -3312,6 +3371,7 @@
                 "uilanguage" : "Use the following language for the User Interface",
                 "createtranslation" : "Create a translation",
                 "edittranslation" : "Edit one of your translations",
+                "feedback" : "Send feedback",
                 "interfacelayout" :
                 {
                     "text" : "How should the interface be laid out? (Click on the image below to change)",

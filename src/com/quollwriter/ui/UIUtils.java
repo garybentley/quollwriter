@@ -9899,6 +9899,7 @@ public class UIUtils
                         uiLangs.setModel (new DefaultComboBoxModel (langs));
                         uiLangs.setSelectedItem (defLang);
                         uiLangs.setEnabled (true);
+                        uiLangs.setMaximumSize (uiLangs.getPreferredSize ());
 
                     }
 

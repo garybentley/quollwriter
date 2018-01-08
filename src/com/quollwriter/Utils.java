@@ -8,6 +8,7 @@ import java.net.*;
 import java.util.*;
 import java.util.zip.*;
 import java.nio.file.*;
+import java.nio.charset.*;
 
 import javax.swing.*;
 
@@ -22,6 +23,46 @@ import com.quollwriter.data.*;
 
 public class Utils
 {
+
+    public static String getStreamAsString (InputStream in,
+                                            Charset     ch)
+                                     throws Exception
+    {
+
+        BufferedInputStream _in = new BufferedInputStream (in);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream ();
+
+        int r = -1;
+
+        byte[] bytes = new byte[65536];
+
+        while ((r = _in.read (bytes, 0, 65536)) > 0)
+        {
+
+            out.write (bytes,
+                       0,
+                       r);
+
+        }
+
+        out.flush ();
+        out.close ();
+        _in.close ();
+
+        return (ch != null ? new String (bytes, ch) : new String (bytes));
+
+    }
+
+    public static String getFileAsString (File    f,
+                                          Charset ch)
+                                   throws Exception
+    {
+
+        return Utils.getStreamAsString (new FileInputStream (f),
+                                        ch);
+
+    }
 
     public static String keyStrokeToString (KeyStroke k)
     {
@@ -696,8 +737,8 @@ public class Utils
                     conn.setDoOutput (true);
                     conn.connect ();
 
-                    OutputStream out = conn.getOutputStream ();
-                    out.write (cb);
+                    BufferedWriter out = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream (), StandardCharsets.UTF_8));
+                    out.write (content);
 
                     out.flush ();
                     out.close ();

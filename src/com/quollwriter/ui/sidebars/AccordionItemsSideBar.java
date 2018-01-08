@@ -166,6 +166,13 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
 
     }
 
+    public JScrollPane getScrollPane ()
+    {
+
+        return this.scrollPane;
+
+    }
+
     public List<AccordionItem> getItems ()
     {
 

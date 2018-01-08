@@ -75,23 +75,21 @@ public class TextArea extends ScrollableBox
         this.text.setFontFamily (l.getFont ().getName ());
         this.text.setFontSize (l.getFont ().getSize ());
         this.rows = rows;
-/*
+
         if (rows > 0)
         {
 
             //this.text.setPreferredSize (new Dimension (0, (int) (this.text.getLineHeight () * (rows + 0.8))));
 
-        this.text.setMinimumSize (new Dimension (200,
-                                                 this.text.getLineHeight () * (int) (rows + 0.8)));
-        this.text.setPreferredSize (new Dimension (200,
-                                                 this.text.getLineHeight () * (int) (rows + 0.8)));
+            this.text.setMinimumSize (new Dimension (200,
+                                                     this.text.getLineHeight () * (int) (rows + 0.8)));
 
         } else {
 
             this.text.setMinimumSize (new Dimension (300, this.text.getLineHeight () * 1));
 
         }
-  */
+
         if (placeholder != null)
         {
 
@@ -315,6 +313,9 @@ public class TextArea extends ScrollableBox
         if (wrapInScrollPane)
         {
 
+            this.text.setPreferredSize (new Dimension (200,
+                                                     this.text.getLineHeight () * (int) (rows + 0.8)));
+
             this.scrollPane = UIUtils.createScrollPane (this.text);
             this.add (this.scrollPane);
             this.scrollPane.setMinimumSize (this.getMinimumSize ());
@@ -322,6 +323,7 @@ public class TextArea extends ScrollableBox
         } else {
 
             this.add (this.text);
+            this.setBorder (UIUtils.createLineBorderWithPadding (3, 3, 3, 3));
 
         }
 

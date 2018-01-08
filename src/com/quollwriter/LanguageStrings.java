@@ -2,6 +2,7 @@ package com.quollwriter;
 
 import java.io.*;
 import java.util.*;
+import java.nio.charset.*;
 
 import org.jdom.*;
 
@@ -20,13 +21,15 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     private static String ID_REF_END = "}";
 
     private String languageName = null;
-    private int version = 1;
+    private int version = 0;
     private Date created = null;
     private Date lastModified = null;
     private String _email = null;
     private LanguageStrings parent = null;
     private Map<String, Node> nodes = new HashMap<> ();
     private Version qwVersion = null;
+    private Set<Section> sections = null;
+    private boolean isUser = false;
 
     private LanguageStrings ()
     {
@@ -74,7 +77,20 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
         try
         {
 
-            v = IOUtils.getFile (f);
+            Reader in = new BufferedReader (new InputStreamReader (new FileInputStream (f),
+                                                                   StandardCharsets.UTF_8));
+
+            long length = f.length ();
+
+            char[] chars = new char[(int) length];
+
+            in.read (chars,
+    		         0,
+    		         (int) length);
+
+        	in.close ();
+
+            v = new String (chars);
 
         } catch (Exception e) {
 
@@ -94,6 +110,20 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
         this ();
 
         this.init (jsonData);
+
+    }
+
+    public void setUser (boolean v)
+    {
+
+        this.isUser = v;
+
+    }
+
+    public boolean isUser ()
+    {
+
+        return this.isUser;
 
     }
 
@@ -125,10 +155,24 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
+    public static boolean isEnglish (String id)
+    {
+
+        return id.equals (ENGLISH_ID);
+
+    }
+
     public boolean isEnglish ()
     {
 
-        return this.id.equals (ENGLISH_ID);
+        return isEnglish (this.getId ());
+
+    }
+
+    public Set<Section> getSections ()
+    {
+
+        return this.sections;
 
     }
 
@@ -142,7 +186,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 
-        if (this.id.equals (obj.id))
+        if (this.getId ().equals (obj.getId ()))
         {
 
             return this.qwVersion.compareTo (obj.qwVersion);
@@ -252,6 +296,15 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 
+        Boolean b = (Boolean) m.get (":user");
+
+        if (b != null)
+        {
+
+            this.isUser = b.booleanValue ();
+
+        }
+
         this.languageName = this.getString (":language",
                                             m);
 
@@ -267,6 +320,31 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         this._email = this.getString (":email",
                                       m);
+
+        Collection s = (Collection) m.get (":sections");
+
+        if (s != null)
+        {
+
+            this.sections = new LinkedHashSet<> ();
+
+            Iterator iter = ((Collection) s).iterator ();
+
+            while (iter.hasNext ())
+            {
+
+                Object o = iter.next ();
+
+                if (o instanceof Map)
+                {
+
+                    this.sections.add (new Section ((Map) o));
+
+                }
+
+            }
+
+        }
 
         // Ensure we can resolve everything.
         Iterator iter = m.keySet ().iterator ();
@@ -363,6 +441,8 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
                this.created.getTime ());
         m.put (":qwversion",
                this.qwVersion.getVersion ());
+        m.put (":user",
+               this.isUser);
 
         if (this.lastModified != null)
         {
@@ -377,6 +457,32 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
             m.put (":derivedfrom",
                    this.parent.getId ());
+
+        }
+
+        if (this.sections != null)
+        {
+
+            List<Map<String, String>> sects = new ArrayList<> ();
+
+            m.put (":sections",
+                   sects);
+
+            for (Section s : this.sections)
+            {
+
+                Map<String, String> ms = new HashMap<> ();
+
+                ms.put ("id",
+                        s.id);
+                ms.put ("name",
+                        s.name);
+                ms.put ("icon",
+                        s.icon);
+
+                sects.add (ms);
+
+            }
 
         }
 
@@ -1367,6 +1473,53 @@ System.out.println ("CHANGED: " + v);
         }
 
         return null;
+
+    }
+
+    public class Section
+    {
+
+        public String id = null;
+        public String icon = null;
+        public String name = null;
+
+        public Section (Map data)
+        {
+
+            Object id = data.get ("id");
+
+            if (id == null)
+            {
+
+                throw new IllegalArgumentException ("Expected to find an id.");
+
+            }
+
+            this.id = id.toString ();
+
+            Object icon = data.get ("icon");
+
+            if (icon == null)
+            {
+
+                throw new IllegalArgumentException ("Expected to find an icon.");
+
+            }
+
+            this.icon = icon.toString ();
+
+            Object name = data.get ("name");
+
+            if (name == null)
+            {
+
+                throw new IllegalArgumentException ("Expected to find a name.");
+
+            }
+
+            this.name = name.toString ();
+
+        }
 
     }
 
@@ -3114,5 +3267,6 @@ System.out.println ("CHANGED: " + v);
     public static final String set = "set";
     public static final String createtranslation = "createtranslation";
     public static final String edittranslation = "edittranslation";
+    public static final String feedback = "feedback";
 
 }

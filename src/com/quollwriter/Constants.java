@@ -103,6 +103,8 @@ public class Constants
 
     public static final String OS_TAG = "[[OS]]";
 
+    public static final String ALL_TAG = "[[ALL]]";
+
     public static final String VERSION_TAG = "[[VERSION]]";
 
     public static final String HTTP_PROTOCOL = "http";
@@ -168,6 +170,8 @@ public class Constants
     public static final String SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME = "showNotesInChapterList";
 
     public static final String SUBMIT_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterSubmitUILanguageStringsURL";
+
+    public static final String DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterDeleteUILanguageStringsURL";
 
     public static final String EDIT_MARKER_COLOR_PROPERTY_NAME = "editMarkerColor";
 

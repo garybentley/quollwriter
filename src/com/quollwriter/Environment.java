@@ -15,6 +15,7 @@ import java.nio.channels.*;
 import java.beans.*;
 
 import java.io.*;
+import java.nio.charset.*;
 
 import java.net.*;
 
@@ -86,7 +87,8 @@ public class Environment
     public static String GZIP_EXTENSION = ".gz";
 
     private static Landing landingViewer = null;
-    private static Map<ProjectInfo, AbstractProjectViewer> openProjects = new HashMap ();
+    private static Map<ProjectInfo, AbstractProjectViewer> openProjects = new HashMap<> ();
+    private static Set<AbstractViewer> openViewers = new HashSet<> ();
 
     public static Map defaultObjectProperties = new HashMap ();
 
@@ -234,6 +236,34 @@ public class Environment
             }
 
         });
+
+    }
+
+    public static void unregisterViewer (AbstractViewer v)
+    {
+
+        Environment.openViewers.remove (v);
+
+        if (v == Environment.landingViewer)
+        {
+
+            Environment.landingViewer = null;
+
+        }
+
+        if (Environment.openViewers.size () == 0)
+        {
+
+            Environment.closeDown ();
+
+        }
+
+    }
+
+    public static void registerViewer (AbstractViewer v)
+    {
+
+        Environment.openViewers.add (v);
 
     }
 
@@ -392,16 +422,10 @@ public class Environment
 
         URLConnection c = url.openConnection ();
 
-        BufferedInputStream bin = new BufferedInputStream (c.getInputStream ());
+        InputStream bin = c.getInputStream ();
 
-        ByteArrayOutputStream bout = new ByteArrayOutputStream ();
-
-        IOUtils.streamTo (bin,
-                          bout,
-                          4096);
-
-        // This "should" be ok.
-        return new String (bout.toByteArray ());
+        return Utils.getStreamAsString (bin,
+                                        StandardCharsets.UTF_8);
 
     }
 
@@ -1126,21 +1150,14 @@ public class Environment
     public static void closeDown ()
     {
 
-        if (Environment.openProjects.size () > 0)
+        if (Environment.openViewers.size () > 0)
         {
 
-            throw new IllegalStateException ("Cannot closedown when there are open projects.");
+            throw new IllegalStateException ("Cannot closedown when there are open viewers.");
 
         }
 
         Environment.generalTimer.shutdown ();
-
-        if (Environment.landingViewer != null)
-        {
-
-            Environment.removeProjectInfoChangedListener (Environment.landingViewer);
-
-        }
 
         // Go offline from the editors service (if logged in).
         EditorsEnvironment.closeDown ();
@@ -1240,7 +1257,7 @@ public class Environment
 
                 }
 
-            } else {
+            } /*else {
 
                 // Any more open projects?
                 if (Environment.getOpenProjects ().size () == 0)
@@ -1273,7 +1290,7 @@ public class Environment
                     }
 
                 }
-            }
+            }*/
 
         }
 
@@ -2917,7 +2934,9 @@ public class Environment
                                throws Exception
     {
 
-        LanguageStrings ls = Environment.getUILanguageStrings (id);
+        LanguageStrings ls = null;
+
+        ls = Environment.getUILanguageStrings (id);
 
         if (ls == null)
         {
@@ -2978,7 +2997,10 @@ public class Environment
         if (f.exists ())
         {
 
-            return new LanguageStrings (f);
+            LanguageStrings ls = new LanguageStrings (f);
+            ls.setUser (true);
+
+            return ls;
 
         }
 
@@ -2986,11 +3008,101 @@ public class Environment
 
     }
 
+    private static void deleteUserUILanguageStrings (final LanguageStrings ls)
+    {
+
+        ActionListener remFile = new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                File f = Environment.getUserUILanguageStringsFile (ls.getQuollWriterVersion (),
+                                                                   ls.getId ());
+
+                if (f.exists ())
+                {
+
+                    f.delete ();
+
+                }
+
+            }
+
+        };
+
+        Set<AbstractViewer> viewers = new HashSet<> (Environment.openViewers);
+
+        for (AbstractViewer v : viewers)
+        {
+
+            if (v instanceof LanguageStringsEditor)
+            {
+
+                LanguageStringsEditor lse = (LanguageStringsEditor) v;
+
+                if ((lse.getUserLanguageStrings ().getId ().equals (ls.getId ()))
+                    &&
+                    (lse.getUserLanguageStrings ().getQuollWriterVersion ().equals (ls.getQuollWriterVersion ()))
+                   )
+                {
+
+                    lse.close (false,
+                               remFile);
+
+                    return;
+
+                }
+
+            }
+
+        }
+
+        remFile.actionPerformed (new ActionEvent (ls, 0, "do"));
+
+    }
+
+    public static void deleteUserUILanguageStrings (LanguageStrings ls,
+                                                    boolean         allVersions)
+                                             throws Exception
+    {
+
+        if (!ls.isUser ())
+        {
+
+            throw new IllegalArgumentException ("Can only delete user language strings.");
+
+        }
+
+        if (allVersions)
+        {
+
+            Set<LanguageStrings> allLs = Environment.getAllUserLanguageStrings ();
+
+            for (LanguageStrings _ls : allLs)
+            {
+
+                if (_ls.getId ().equals (ls.getId ()))
+                {
+
+                    Environment.deleteUserUILanguageStrings (_ls);
+
+                }
+
+            }
+
+        } else {
+
+            Environment.deleteUserUILanguageStrings (ls);
+
+        }
+
+    }
+
     public static LanguageStrings getUserUIEnglishLanguageStrings (Version v)
                                                             throws Exception
     {
-
-        // Our order here is...
 
         // See if there is a user strings file.
         File f = Environment.getUserUILanguageStringsFile (v,
@@ -3026,9 +3138,26 @@ public class Environment
 
     }
 
+    public static LanguageStrings getCurrentUILanguageStrings ()
+    {
+
+        return Environment.uiLanguageStrings;
+
+    }
+
     public static LanguageStrings getUILanguageStrings (String id)
                                                  throws Exception
     {
+
+        if (id.startsWith ("user-"))
+        {
+
+            id = id.substring ("user-".length ());
+
+            return Environment.getUserUILanguageStrings (Environment.getQuollWriterVersion (),
+                                                         id);
+
+        }
 
         if (id.equals (":English"))
         {
@@ -3046,7 +3175,8 @@ public class Environment
 
         }
 
-        String data = IOUtils.getFile (f);
+        String data = Utils.getFileAsString (f,
+                                             StandardCharsets.UTF_8);
 
         LanguageStrings s = new LanguageStrings (data);
 
@@ -3081,7 +3211,16 @@ public class Environment
                     for (int j = 0; j < dfiles.length; j++)
                     {
 
-                        s.add (new LanguageStrings (dfiles[j]));
+                        LanguageStrings ls = new LanguageStrings (dfiles[j]);
+
+                        if (ls.isEnglish ())
+                        {
+
+                            continue;
+
+                        }
+
+                        s.add (ls);
 
                     }
 
@@ -3105,9 +3244,14 @@ public class Environment
 
         String json = JSONEncoder.encode (ls.getAsJSON ());
 
-        IOUtils.writeStringToFile (f,
-                                   json,
-                                   false);
+        Writer out = new BufferedWriter (new OutputStreamWriter (new FileOutputStream (f),
+                                                                 "utf-8"));
+
+        char[] chars = json.toCharArray ();
+
+        out.write (chars, 0, chars.length);
+    	out.flush ();
+    	out.close ();
 
     }
 
@@ -3197,7 +3341,23 @@ public class Environment
                     }
 
                     // Will be a collection.
-                    Collection col = (Collection) JSONDecoder.decode (data);
+                    Collection col = null;
+
+                    try
+                    {
+
+                        col = (Collection) JSONDecoder.decode (data);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to decode language strings data for id: " + id + ", " + Environment.getQuollWriterVersion (),
+                                              e);
+
+                        onError.actionPerformed (new ActionEvent (getUIString (uilanguage,download,actionerror), 0, "error"));
+
+                        return;
+
+                    }
 
                     Iterator iter = col.iterator ();
 
@@ -3221,9 +3381,14 @@ public class Environment
 
                         File f = Environment.getUILanguageStringsFile (id);
 
-                        IOUtils.writeStringToFile (f,
-                                                   JSONEncoder.encode (m),
-                                                   false);
+                        Writer out = new BufferedWriter (new OutputStreamWriter (new FileOutputStream (f),
+                                                                                 StandardCharsets.UTF_8));
+
+                        char[] chars = JSONEncoder.encode (m).toCharArray ();
+
+                        out.write (chars, 0, chars.length);
+                    	out.flush ();
+                    	out.close ();
 
                     }
 
@@ -5880,12 +6045,14 @@ public class Environment
 
         }
 
-        BufferedReader r = new BufferedReader (new InputStreamReader (is));
-
         StringBuilder b = new StringBuilder ();
+
+        BufferedReader r = null;
 
         try
         {
+
+            r = new BufferedReader (new InputStreamReader (is, "utf-8"));
 
             String line = r.readLine ();
 
@@ -5913,7 +6080,12 @@ public class Environment
             try
             {
 
-                r.close ();
+                if (r != null)
+                {
+
+                    r.close ();
+
+                }
 
             } catch (Exception e)
             {
@@ -6826,8 +6998,6 @@ TODO: Add back in when appropriate.
                 Environment.landingViewer.init ();
 
                 Environment.landingViewer.addProjectEventListener (Environment.achievementsManager);
-
-                Environment.addProjectInfoChangedListener (Environment.landingViewer);
 
                 Environment.userPropertyHandlers.get (Constants.PROJECT_STATUSES_PROPERTY_NAME).addPropertyChangedListener (new PropertyChangedListener ()
                 {

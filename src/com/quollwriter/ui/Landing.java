@@ -1310,7 +1310,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 				if (UserProperties.getAsBoolean (Constants.CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME))
 				{
 
-					_this.setVisible (false);
+                    _this.close (true, null);
+					//_this.setVisible (false);
 
 				}
 
@@ -1651,6 +1652,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                                         height));
 
 		this.showProjects ();
+
+        Environment.addProjectInfoChangedListener (this);
 
 		this.setTitleHeaderControlsVisible (true);
 
@@ -4168,14 +4171,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	{
 
 		this.setVisible (false);
-
-		if (Environment.getOpenProjects ().size () > 0)
+/*
+		if (Environment.getOpenViewers ().size () > 0)
 		{
 
 			return true;
 
 		}
-
+*/
 		// No more projects open and we have been closed so exit properly.
 		if (this.notifications != null)
 		{
@@ -4231,10 +4234,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         }
 
+        Environment.removeProjectInfoChangedListener (this);
+
 		super.close (true,
 					 null);
-
-		Environment.closeDown ();
 
 		return true;
 

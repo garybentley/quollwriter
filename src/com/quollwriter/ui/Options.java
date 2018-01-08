@@ -41,6 +41,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.components.Header;
@@ -2315,6 +2316,36 @@ public class Options extends Box
 
         Box box = new Box (BoxLayout.Y_AXIS);
 
+        final JButton feedback = UIUtils.createButton (getUIString (options,lookandsound,labels,LanguageStrings.feedback),
+                                                       new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.showSendFeedbackToUIStringsCreator ();
+
+            }
+
+        });
+
+        boolean showFeedbackB = true;
+
+        LanguageStrings currUIL = Environment.getCurrentUILanguageStrings ();
+
+        if ((currUIL.isEnglish ())
+            ||
+            (currUIL.isUser ())
+           )
+        {
+
+            showFeedbackB = false;
+
+        }
+
+        feedback.setVisible (showFeedbackB);
+
         final JComboBox uiLangSel = UIUtils.getUILanguagesSelector (new ActionListener ()
                                                                     {
 
@@ -2323,6 +2354,8 @@ public class Options extends Box
                                                                         {
 
                                                                             final String uid = ev.getActionCommand ();
+
+                                                                            feedback.setVisible (!LanguageStrings.isEnglish (uid));
 
                                                                             if (uid.equals (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME)))
                                                                             {
@@ -2419,7 +2452,17 @@ public class Options extends Box
 
         box.add (c);
 
-        c = this.createWrapper (uiLangSel);
+        Box lb = new Box (BoxLayout.X_AXIS);
+
+        uiLangSel.setMaximumSize (uiLangSel.getPreferredSize ());
+
+        lb.add (uiLangSel);
+        lb.add (Box.createHorizontalStrut (10));
+
+        lb.add (feedback);
+        lb.add (Box.createHorizontalGlue ());
+
+        c = this.createWrapper (lb);
 
         box.add (Box.createVerticalStrut (5));
         this.setAsSubItem (c);
@@ -4889,6 +4932,218 @@ public class Options extends Box
 							false);
 
 		popup.setDraggable (this.viewer);
+
+    }
+
+    private void showSendFeedbackToUIStringsCreator ()
+    {
+
+        final Options _this = this;
+
+        java.util.List<String> prefix = Arrays.asList (uilanguage,feedback);
+
+        String popupName = "contactuilangstrings-" + UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
+        QPopup popup = this.viewer.getNamedPopup (popupName);
+
+        if (popup == null)
+        {
+
+            popup = UIUtils.createClosablePopup (getUIString (prefix, LanguageStrings.popup, LanguageStrings.title),
+                                                 Environment.getIcon (Constants.EMAIL_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+
+            final QPopup qp = popup;
+
+            popup.setPopupName (popupName);
+
+            this.viewer.addNamedPopup (popupName,
+                                       popup);
+
+            Box content = new Box (BoxLayout.Y_AXIS);
+
+            JTextPane help = UIUtils.createHelpTextPane (String.format (getUIString (prefix, LanguageStrings.popup,text),
+                                                                                     Environment.getCurrentUILanguageStrings ().getNativeName ()),
+                                                         this.viewer);
+
+            help.setBorder (null);
+
+            content.add (help);
+            content.add (Box.createVerticalStrut (10));
+
+            String errText = getUIString (prefix, LanguageStrings.popup,errorlabel);
+
+            final JLabel error = UIUtils.createErrorLabel (errText);
+            error.setVisible (false);
+            error.setBorder (UIUtils.createPadding (0, 0, 5, 5));
+
+            content.add (error);
+
+            final MultiLineTextFormItem desc = new MultiLineTextFormItem (getUIString (prefix, LanguageStrings.popup,message,text),
+                                                                          getUIString (prefix, LanguageStrings.popup,message,tooltip),
+                                                                          10,
+                                                                          10000,
+                                                                          false,
+                                                                          null);
+
+            final TextFormItem email = new TextFormItem (getUIString (prefix, LanguageStrings.popup, LanguageStrings.email,text),
+                                                         null);
+
+            Set<FormItem> items = new LinkedHashSet ();
+
+            items.add (desc);
+            items.add (email);
+
+            ActionListener sendAction = new ActionListener ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    error.setVisible (false);
+
+                    String emErr = Utils.checkEmail (email.getText ());
+
+                    if (emErr != null)
+                    {
+
+                        error.setText (emErr);
+
+                        error.setVisible (true);
+
+                        qp.resize ();
+
+                        return;
+
+                    }
+
+                    if (desc.getText ().trim ().equals (""))
+                    {
+
+                        error.setText (errText);
+                        error.setVisible (true);
+
+                        qp.resize ();
+
+                        return;
+
+                    }
+
+                    qp.resize ();
+
+                    // Send the message.
+                    Map details = new HashMap ();
+                    details.put ("details",
+                                 desc.getText ());
+                    details.put ("email",
+                                 email.getText ());
+                    details.put ("uilanguageid",
+                                 Environment.getCurrentUILanguageStrings ().getId ());
+
+                    try
+                    {
+
+                        Environment.sendMessageToSupport ("uilanguage",
+                                                          details,
+                                                          new ActionListener ()
+                        {
+
+                            @Override
+                            public void actionPerformed (ActionEvent ev)
+                            {
+
+								desc.setText ("");
+
+                                UIUtils.showMessage ((PopupsSupported) _this.viewer,
+                                                     getUIString (prefix,confirmpopup, LanguageStrings.title),
+                                                     getUIString (prefix,confirmpopup,text));
+
+                            }
+
+                        });
+
+                    } catch (Exception e)
+                    {
+
+                        Environment.logError ("Unable to send message to support",
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  getUIString (prefix,actionerror));
+                                                  //"Unable to send message.");
+
+                    }
+
+                    qp.removeFromParent ();
+
+                }
+
+            };
+
+            UIUtils.addDoActionOnReturnPressed (desc.getTextArea (),
+                                                sendAction);
+            UIUtils.addDoActionOnReturnPressed (email.getTextField (),
+                                                sendAction);
+
+            JButton send = UIUtils.createButton (getUIString (prefix, LanguageStrings.popup, LanguageStrings.buttons, LanguageStrings.send),
+                                                 sendAction);
+            JButton cancel = UIUtils.createButton (getUIString (prefix, LanguageStrings.popup, LanguageStrings.buttons, LanguageStrings.cancel),
+                                                   new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    qp.removeFromParent ();
+
+                }
+
+            });
+
+            Set<JButton> buttons = new LinkedHashSet ();
+            buttons.add (send);
+            buttons.add (cancel);
+
+            Form f = new Form (Form.Layout.stacked,
+                               items,
+                               buttons);
+
+            content.add (f);
+
+            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
+            popup.setContent (content);
+
+            popup.setDraggable (this);
+
+            popup.resize ();
+            this.viewer.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this.viewer,
+                                                             popup),
+                              false);
+
+            UIUtils.doLater (new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    desc.grabFocus ();
+
+                }
+
+            });
+
+        } else {
+
+            popup.setVisible (true);
+
+
+        }
 
     }
 

@@ -350,6 +350,11 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>/submit-ui-language-strings.html</value>
   </property>
 
+  <property id="quollWriterDeleteUILanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of ui language strings to quoll writer.</description>
+    <value>/delete-ui-language-strings.html?id=[[ID]]&amp;all=[[ALL]]&amp;version=[[VERSION]]</value>
+  </property>
+
   <property id="reportBugMessage" type="string">
     <description>The message displayed to the user about bug/problem reporting.</description>
     <value>Thanks for reporting any bugs/problems you find!

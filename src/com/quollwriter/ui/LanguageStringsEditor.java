@@ -62,6 +62,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 	public static final String OPTIONS_CARD = "options";
 
     public static final String SUBMIT_HEADER_CONTROL_ID = "submit";
+    public static final String USE_HEADER_CONTROL_ID = "use";
+    public static final String HELP_HEADER_CONTROL_ID = "help";
 
     public static int INTERNAL_SPLIT_PANE_DIVIDER_WIDTH = 2;
 
@@ -72,6 +74,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private Box                   sideBarWrapper = null;
     private Box                   toolbarPanel = null;
     private AbstractSideBar       currentSideBar = null;
+    private AccordionItemsSideBar mainSideBar = null;
     private Map<String, AbstractSideBar> sideBars = new HashMap ();
     private Stack<AbstractSideBar>  activeSideBars = new Stack ();
     private java.util.List<SideBarListener> sideBarListeners = new ArrayList ();
@@ -137,25 +140,18 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         java.util.List<AccordionItem> items = new ArrayList<> ();
 
-        items.add (this.createSectionTree ("Basics",
-                                           Constants.SETTINGS_ICON_NAME,
-                                           sections.get ("Basics")));
-        items.add (this.createSectionTree (defSection,
-                                           "tools",
-                                           sections.get (defSection)));
-        items.add (this.createSectionTree ("Project",
-                                           Project.OBJECT_TYPE,
-                                           sections.get ("Project")));
-        items.add (this.createSectionTree ("Achievements",
-                                           Constants.ACHIEVEMENT_ICON_NAME,
-                                           sections.get ("Achievements")));
-        items.add (this.createSectionTree ("Editors",
-                                           Constants.EDITORS_ICON_NAME,
-                                           sections.get ("Editors")));
+        for (LanguageStrings.Section sect : this.baseStrings.getSections ())
+        {
+
+            items.add (this.createSectionTree (sect.name,
+                                               Constants.SETTINGS_ICON_NAME,
+                                               sections.get (sect.id)));
+
+        }
 
         // Create the sidebar.
-        this.currentSideBar = new AccordionItemsSideBar (this,
-                                                         items)
+        this.mainSideBar = new AccordionItemsSideBar (this,
+                                                      items)
         {
 
             @Override
@@ -168,11 +164,11 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         };
 
+        this.currentSideBar = this.mainSideBar;
+
         this.addMainPanelListener (this.currentSideBar);
 
         this.currentSideBar.init (null);
-
-        //this.currentSideBar.setBorder (UIUtils.createPadding (0, 5, 5, 0));
 
         this.sideBarWrapper = new Box (BoxLayout.Y_AXIS);
         this.toolbarPanel = new Box (BoxLayout.Y_AXIS);
@@ -435,6 +431,14 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.userStrings.setQuollWriterVersion (v);
 
         }
+
+    }
+
+    private void updateSideBar ()
+    {
+
+        this.sideBar.validate ();
+        this.sideBar.repaint ();
 
     }
 
@@ -1040,6 +1044,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
 		super.init ();
 
+        final LanguageStringsEditor _this = this;
+
 		int width = 0;
 		int height = 0;
 
@@ -1073,6 +1079,26 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         this.splitPane.setPreferredSize (new Dimension (width,
                                                         height));
 
+        int scroll = 0;
+
+        try
+		{
+
+			scroll = UserProperties.getAsInt ("languagestringseditor-sidebar-scroll");
+
+		} catch (Exception e) {
+
+			// Ignore.
+
+		}
+
+        if (scroll > 0)
+        {
+
+            this.mainSideBar.scrollVerticalTo (scroll);
+
+        }
+
 		this.setTitleHeaderControlsVisible (true);
 
 		this.showViewer ();
@@ -1091,9 +1117,38 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             this.showIds (lastId);
 
-            //int lastScroll = UserProperties.get ("languagestringseditor-stringsid-scrolloffset-" + this.userStrings.getId ());
+        }
 
-            //this.
+        scroll = 0;
+
+        try
+        {
+
+            scroll = UserProperties.getAsInt ("languagestringseditor-stringsid-lasteditingscroll");
+
+        } catch (Exception e) {
+
+            // Ignore.
+
+        }
+
+        if (scroll > 0)
+        {
+
+            final int _scroll = scroll;
+
+            UIUtils.doLater (new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    _this.panels.get (_this.currentCard).getScrollPane ().getVerticalScrollBar ().setValue (_scroll);
+
+                }
+
+            });
 
         }
 
@@ -1276,8 +1331,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 	public void doSaveState ()
 	{
 
-		// Save the width/height of the split pane.
-
         // Get the state from the sidebars.
         for (AbstractSideBar sb : this.sideBars.values ())
         {
@@ -1331,6 +1384,9 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 		Set<String> ids = new LinkedHashSet ();
 
         ids.add (SUBMIT_HEADER_CONTROL_ID);
+        ids.add (USE_HEADER_CONTROL_ID);
+        ids.add (REPORT_BUG_HEADER_CONTROL_ID);
+        ids.add (HELP_HEADER_CONTROL_ID);
         ids.add (SETTINGS_HEADER_CONTROL_ID);
 
 		return ids;
@@ -1368,6 +1424,49 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                         {
 
                                             _this.submit ();
+
+                                        }
+
+                                      });
+
+        }
+
+        if (id.equals (USE_HEADER_CONTROL_ID))
+        {
+
+            c = UIUtils.createButton (Constants.PLAY_ICON_NAME,
+                                      Constants.ICON_TITLE_ACTION,
+                                      "Click to try out your strings",
+                                      new ActionListener ()
+                                      {
+
+                                        @Override
+                                        public void actionPerformed (ActionEvent ev)
+                                        {
+
+                                            _this.tryOut ();
+
+                                        }
+
+                                      });
+
+        }
+
+        if (id.equals (HELP_HEADER_CONTROL_ID))
+        {
+
+            c = UIUtils.createButton (Constants.HELP_ICON_NAME,
+                                      Constants.ICON_TITLE_ACTION,
+                                      "Click to view the help about editing your strings",
+                                      new ActionListener ()
+                                      {
+
+                                        @Override
+                                        public void actionPerformed (ActionEvent ev)
+                                        {
+
+                                            UIUtils.openURL (_this,
+                                                             "help://uilanguages/index");
 
                                         }
 
@@ -1791,18 +1890,57 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
     }
 
+    private void tryOut ()
+    {
+
+        try
+        {
+
+            this.save ();
+
+            Environment.setUILanguage ("user-" + this.userStrings.getId ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to update ui language for: " + this.userStrings.getId (),
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to set strings.");
+
+            return;
+
+        }
+
+        UIUtils.showMessage ((PopupsSupported) this,
+                             "Restart recommended",
+                             "To make full use of your strings it is recommended that you restart {QW}.");
+
+    }
+
 	@Override
     public void fillSettingsPopup (JPopupMenu popup)
 	{
 
-        java.util.List<String> prefix = Arrays.asList (allprojects,settingsmenu,items);
+        //java.util.List<String> prefix = Arrays.asList (allprojects,settingsmenu,items);
 
 		final LanguageStringsEditor _this = this;
 
-		// Add?
-        popup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                 LanguageStrings.newproject),
-                                        //"New {Project}",
+        popup.add (this.createMenuItem ("Submit your strings",
+                                        Constants.UP_ICON_NAME,
+                                        new ActionAdapter ()
+                                        {
+
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+
+                                                    _this.submit ();
+
+                                                }
+
+                                            }));
+
+        popup.add (this.createMenuItem ("Create a new translation",
                                         Constants.NEW_ICON_NAME,
 										new ActionListener ()
 											 {
@@ -1811,33 +1949,383 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 												public void actionPerformed (ActionEvent ev)
 												{
 
-													UIUtils.showAddNewProject (_this,
-																			   null,
-																			   null);
+                                                    UIUtils.showAddNewLanguageStringsPopup (_this);
 
 												}
 
 											 }));
 
-        popup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                 importfile),
-                                        //"Import File/{Project}",
-                                        Constants.PROJECT_IMPORT_ICON_NAME,
+        if (this.baseStrings.getQuollWriterVersion ().equals (Environment.getQuollWriterVersion ()))
+        {
+
+            popup.add (this.createMenuItem ("Try out your strings",
+                                            Constants.PLAY_ICON_NAME,
+    										new ActionListener ()
+    											 {
+
+    												@Override
+    												public void actionPerformed (ActionEvent ev)
+    												{
+
+                                                        _this.tryOut ();
+
+    												}
+
+    											 }));
+
+        }
+
+        popup.add (this.createMenuItem ("Delete",
+                                     Constants.DELETE_ICON_NAME,
+										new ActionListener ()
+											 {
+
+												@Override
+												public void actionPerformed (ActionEvent ev)
+												{
+
+                                                 _this.showDelete ();
+
+												}
+
+											 }));
+
+         popup.add (this.createMenuItem ("Close",
+                                      Constants.CLOSE_ICON_NAME,
+ 										new ActionListener ()
+ 											 {
+
+ 												@Override
+ 												public void actionPerformed (ActionEvent ev)
+ 												{
+
+                                                  _this.close (true,
+                                                               null);
+
+ 												}
+
+ 											 }));
+
+        popup.addSeparator ();
+
+        popup.add (this.createMenuItem ("Open Project",
+                                        Constants.UP_ICON_NAME,
                                         new ActionAdapter ()
                                         {
 
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    _this.showImport ();
+                                                    Environment.showLanding ();
 
                                                 }
 
                                             }));
 
-		popup.addSeparator ();
 
 	}
+
+    public LanguageStrings getUserLanguageStrings ()
+    {
+
+        return this.userStrings;
+
+    }
+
+    public void showDelete ()
+    {
+
+        final LanguageStringsEditor _this = this;
+
+        QPopup qp = UIUtils.createPopup ("Delete the strings",
+                                         Constants.DELETE_ICON_NAME,
+                                         null,
+                                         true,
+                                         null);
+
+        final Box content = new Box (BoxLayout.Y_AXIS);
+
+        JComponent mess = UIUtils.createHelpTextPane ("Please confirm you wish to delete your strings.  Enter <b>Yes</b> in the box below to confirm deletion.<br /><br />To delete <b>all</b> versions of the strings please check the box below.<br /><br /><span class='warning'>Warning!  This is an irreverisble operation and cannot be undone.  This will make your strings unavailable to {QW} users but will not remove it from anyone who has already downloaded the strings.",
+                                                      this);
+        mess.setBorder (null);
+        mess.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                     mess.getPreferredSize ().height));
+
+        content.add (mess);
+
+        content.add (Box.createVerticalStrut (10));
+
+        final JCheckBox delAll = UIUtils.createCheckBox ("Delete all versions");
+
+        content.add (delAll);
+
+        content.add (Box.createVerticalStrut (10));
+
+        final JLabel error = UIUtils.createErrorLabel ("Please enter the word Yes.");
+        //"Please enter a value.");
+
+        error.setVisible (false);
+        error.setBorder (UIUtils.createPadding (0, 0, 5, 0));
+
+        final JTextField text = UIUtils.createTextField ();
+
+        text.setMinimumSize (new Dimension (300,
+                                            text.getPreferredSize ().height));
+        text.setPreferredSize (new Dimension (300,
+                                              text.getPreferredSize ().height));
+        text.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                            text.getPreferredSize ().height));
+        text.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        error.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        content.add (error);
+        content.add (text);
+
+        content.add (Box.createVerticalStrut (10));
+
+        JButton confirm = null;
+        JButton cancel = UIUtils.createButton ("No, keep them",
+                                               new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                qp.removeFromParent ();
+
+            }
+
+        });
+
+        ActionListener confirmAction = new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                String mess = UIUtils.getYesValueValidator ().isValid (text.getText ().trim ());
+
+                if (mess != null)
+                {
+
+                    // Should probably wrap this in a
+                    error.setText (mess);
+
+                    error.setVisible (true);
+
+                    // Got to be an easier way of doing this.
+                    content.setPreferredSize (null);
+
+                    content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                             content.getPreferredSize ().height));
+
+                    _this.showPopupAt (qp,
+                                       qp.getLocation (),
+                                       false);
+
+                    return;
+
+                }
+
+                String submitterid = UserProperties.get (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
+
+                if ((submitterid != null)
+                    &&
+                    // Has they been submitted?
+                    (_this.userStrings.getStringsVersion () > 0)
+                   )
+                {
+
+                    URL u = null;
+
+                    try
+                    {
+
+                        String p = Environment.getProperty (Constants.DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+
+                        p = StringUtils.replaceString (p,
+                                                       Constants.ID_TAG,
+                                                       _this.userStrings.getId ());
+
+                        p = StringUtils.replaceString (p,
+                                                       Constants.VERSION_TAG,
+                                                       Environment.getQuollWriterVersion ().toString ());
+
+                        p = StringUtils.replaceString (p,
+                                                       Constants.ALL_TAG,
+                                                       (delAll.isSelected () ? "true" : ""));
+
+                        u = new URL (Environment.getQuollWriterWebsite () + p);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to construct the url for submitting the ui language strings.",
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to upload strings.");
+
+                        return;
+
+                    }
+
+                    Map<String, String> headers = new HashMap<> ();
+
+                    headers.put (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
+                                 submitterid);
+
+                    Utils.postToURL (u,
+                                     headers,
+                                     "bogus",
+                                     // On success
+                                     new ActionListener ()
+                                     {
+
+                                         @Override
+                                         public void actionPerformed (ActionEvent ev)
+                                         {
+
+                                             String r = (String) JSONDecoder.decode ((String) ev.getSource ());
+
+                                             // Delete our local versions.
+                                             try
+                                             {
+
+                                                 Environment.deleteUserUILanguageStrings (_this.userStrings,
+                                                                                          delAll.isSelected ());
+
+                                             } catch (Exception e) {
+
+                                                 Environment.logError ("Unable to delete user strings: " + _this.userStrings,
+                                                                       e);
+
+                                                 UIUtils.showErrorMessage (_this,
+                                                                           "Unable to delete the strings.");
+
+                                                  qp.removeFromParent ();
+
+                                                  return;
+
+                                             }
+
+                                             UIUtils.showMessage ((PopupsSupported) null,
+                                                                  "Strings deleted",
+                                                                  "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
+
+                                         }
+
+                                     },
+                                     // On error
+                                     new ActionListener ()
+                                     {
+
+                                         @Override
+                                         public void actionPerformed (ActionEvent ev)
+                                         {
+
+                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                             String res = (String) m.get ("reason");
+
+                                             // Get the errors.
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                         }
+
+                                     },
+                                     new ActionListener ()
+                                     {
+
+                                         @Override
+                                         public void actionPerformed (ActionEvent ev)
+                                         {
+
+                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                             String res = (String) m.get ("reason");
+
+                                             // Get the errors.
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to delete the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                         }
+
+                                     });
+
+                } else {
+
+                    // Not been submitted.
+                    // Delete our local versions.
+                    try
+                    {
+
+                        Environment.deleteUserUILanguageStrings (_this.userStrings,
+                                                                 delAll.isSelected ());
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to delete user strings: " + _this.userStrings,
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to delete the strings.");
+
+                         qp.removeFromParent ();
+
+                         return;
+
+                    }
+
+                    UIUtils.showMessage ((Component) null,
+                                         "Strings deleted",
+                                         "Your strings have been deleted.");
+
+                }
+
+            }
+
+        };
+
+        confirm = UIUtils.createButton ("Yes, delete them",
+                                        confirmAction);
+
+        UIUtils.addDoActionOnReturnPressed (text,
+                                            confirmAction);
+
+        JButton[] buts = null;
+
+        if (confirm != null)
+        {
+
+            buts = new JButton[] { confirm, cancel };
+
+        } else {
+
+            buts = new JButton[] { cancel };
+
+        }
+
+        JComponent buttons = UIUtils.createButtonBar2 (buts,
+                                                       Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
+        buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
+        content.add (buttons);
+        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                 content.getPreferredSize ().height));
+
+        qp.setContent (content);
+
+        this.showPopupAt (qp,
+                          UIUtils.getCenterShowPosition (this,
+                                                         qp),
+                          false);
+
+    }
 
     public void showImport ()
     {
@@ -1935,6 +2423,11 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         UserProperties.set ("languagestringseditor-stringsid-lasteditingid-" + this.userStrings.getId (),
                             this.currentCard);
 
+        UserProperties.set ("languagestringseditor-stringsid-lasteditingscroll",
+                            this.panels.get (this.currentCard).getScrollPane ().getVerticalScrollBar ().getValue ());
+        UserProperties.set ("languagestringseditor-sidebar-scroll",
+                            this.mainSideBar.getScrollPane ().getVerticalScrollBar ().getValue ());
+
 		// Close and remove all sidebars.
         for (AbstractSideBar sb : new ArrayList<AbstractSideBar> (this.activeSideBars))
         {
@@ -1942,12 +2435,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.removeSideBar (sb);
 
         }
-/*
-		super.close (true,
-					 null);
 
-		Environment.closeDown ();
-*/
+		super.close (true,
+					 afterClose);
+
 		return true;
 
 	}
@@ -2242,30 +2733,43 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         public JComponent getContent ()
         {
 
+            final IdsPanel _this = this;
+
             this.buildForm (this.parentId);
-            /*
-                            this.vals
-                            this.values);
-*/
+
             this.content.add (Box.createVerticalGlue ());
 
+            this.editor.schedule (new Runnable ()
+            {
+
+                @Override
+                public void run ()
+                {
+
+                    for (int i = 0; i < _this.content.getComponentCount (); i++)
+                    {
+
+                        Component c = _this.content.getComponent (i);
+
+                        if (c instanceof IdBox)
+                        {
+
+                            IdBox b = (IdBox) c;
+
+                            b.showPreview ();
+
+                        }
+
+                    }
+
+                }
+
+            },
+            1000,
+            -1);
+
             return this.content;
-/*
-            Set<FormItem> items = new LinkedHashSet<> ();
 
-            this.buildForm (items,
-                            this.parentId,
-                            null,
-                            this.ids,
-                            this.values);
-
-            this.form = new Form (Form.Layout.stacked,
-                                  items);
-
-            this.form.setBorder (UIUtils.createPadding (5, 10, 5, 10));
-
-            return this.form;
-*/
         }
 
         public void saveValues ()
@@ -2364,8 +2868,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         private LanguageStrings.Value stringsValue = null;
 
         private JTextPane preview = null;
+        private Box previewWrapper = null;
         private JLabel previewLabel = null;
         private JTextPane errors = null;
+        private Box errorsWrapper = null;
         private JLabel errorsLabel = null;
 
         public IdBox (final LanguageStrings.Value baseValue,
@@ -2459,7 +2965,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             this.userValue = new TextArea (null,
                                            3,
-                                           -1)
+                                           -1,
+                                           false)
             {
 
                 @Override
@@ -2488,21 +2995,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                                                         }));
 
-                        buts.add (UIUtils.createButton ("eye",
-                                                        Constants.ICON_MENU,
-                                                        "Preview your value",
-                                                        new ActionListener ()
-                                                        {
-
-                                                             public void actionPerformed (ActionEvent ev)
-                                                             {
-
-                                                                 _this.showPreview ();
-
-                                                             }
-
-                                                        }));
-
                         popup.add (UIUtils.createPopupMenuButtonBar ("Manage",
                                                                      //"Edit",
                                                                      popup,
@@ -2525,23 +3017,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                                         }
 
                                                      });
-                        mi.setMnemonic (KeyEvent.VK_P);
-                        popup.add (mi);
-
-                        mi = UIUtils.createMenuItem ("Preview your value",
-                                                     "eye",
-                                                     new ActionListener ()
-                                                     {
-
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            _this.showPreview ();
-
-                                                        }
-
-                                                     });
-                        mi.setMnemonic (KeyEvent.VK_P);
                         popup.add (mi);
 
                     }
@@ -2579,14 +3054,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                 public void actionPerformed (ActionEvent ev)
                                 {
 
-                                    _this.showErrors (false);
-
-                                    if (_this.preview.isVisible ())
-                                    {
-
-                                        _this.showPreview ();
-
-                                    }
+                                    _this.showPreview ();
 
                                 }
 
@@ -2933,86 +3401,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             });
 
-/*
-            JButton insB = UIUtils.createToolBarButton (Constants.DOWN_ICON_NAME,
-                                                        "Insert a reference to another string",
-                                                        "insert",
-                                                        new ActionListener ()
-           {
-
-               @Override
-               public void actionPerformed (ActionEvent ev)
-               {
-
-                   //_this.userValue.setText (defValue);
-
-               }
-
-           });
-
-            JButton useB = UIUtils.createToolBarButton (Constants.COPY_ICON_NAME,
-                                                        "Use the English value",
-                                                        "use",
-                                                        new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    _this.userValue.setText (baseValue.getRawText ());//defValue);
-                    _this.validate ();
-                    _this.repaint ();
-
-                }
-
-            });
-
-            JButton infB = UIUtils.createToolBarButton (Constants.FIND_ICON_NAME,
-                                                        "Show the strings that use this one, i.e. those affected by any changes to this string",
-                                                        "info",
-                                                        new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    //_this.userValue.setText (defValue);
-
-                }
-
-            });
-
-            JButton preB = UIUtils.createToolBarButton ("eye",
-                                                        "Preview your string",
-                                                        "preview",
-                                                        new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    _this.showPreview ();
-
-                }
-
-            });
-
-            java.util.List<JButton> buts = Arrays.asList (insB, useB, infB, preB);
-
-            JToolBar bBar = UIUtils.createButtonBar (buts);
-*/
             pb.add (this.userValue,
                     cc.xy (3, r));
 
             r += 2;
 
-            this.errors = UIUtils.createHelpTextPane ("",
-                                                      this.editor);
-            this.errors.setVisible (false);
-            this.errors.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+            // Needed to prevent the performance hit
+            this.errorsWrapper = new Box (BoxLayout.Y_AXIS);
 
             this.errorsLabel = UIUtils.createErrorLabel ("Errors");
             this.errorsLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
@@ -3021,15 +3416,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             pb.add (this.errorsLabel,
                     cc.xy (1, r));
-            pb.add (this.errors,
+            pb.add (this.errorsWrapper,
                     cc.xy (3, r));
 
             r += 1;
 
-            this.preview = UIUtils.createHelpTextPane ("",
-                                                       this.editor);
-            this.preview.setVisible (false);
-            this.preview.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+            // Needed to prevent the performance hit
+            this.previewWrapper = new Box (BoxLayout.Y_AXIS);
 
             this.previewLabel = UIUtils.createInformationLabel ("Preview");
             this.previewLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
@@ -3037,7 +3430,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             pb.add (this.previewLabel,
                     cc.xy (1, r));
-            pb.add (this.preview,
+            pb.add (this.previewWrapper,
                     cc.xy (3, r));
 
             JPanel p = pb.getPanel ();
@@ -3050,8 +3443,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.setBorder (UIUtils.createPadding (0, 10, 20, 10));
             this.setAlignmentX (Component.LEFT_ALIGNMENT);
             this.setAlignmentY (Component.TOP_ALIGNMENT);
-
-            this.showErrors (false);
 
         }
 
@@ -3148,7 +3539,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         {
 
             this.errorsLabel.setVisible (false);
-            this.errors.setVisible (false);
+            this.errorsWrapper.setVisible (false);
 
             String s = this.getUserValue ();
 
@@ -3183,6 +3574,18 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             if (errs.size () > 0)
             {
 
+                if (this.errors == null)
+                {
+
+                    this.errors = UIUtils.createHelpTextPane ("",
+                                                              this.editor);
+                    this.errors.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+                    this.errorsWrapper.add (this.errors);
+
+                }
+
+                this.editor.updateSideBar ();
+
                 StringBuilder b = new StringBuilder ();
 
                 for (String e : errs)
@@ -3201,7 +3604,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                 this.errors.setText ("<span class='error'>" + b.toString () + "</span>");
                 this.errorsLabel.setVisible (true);
-                this.errors.setVisible (true);
+                this.errorsWrapper.setVisible (true);
 
                 return true;
 
@@ -3214,7 +3617,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         public void showPreview ()
         {
 
-            if (this.showErrors (true))
+            if (this.showErrors (false))
             {
 
                 return;
@@ -3223,11 +3626,29 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             String s = this.getUserValue ();
 
+            if (s == null)
+            {
+
+                return;
+
+            }
+
+            if (this.preview == null)
+            {
+
+                this.preview = UIUtils.createHelpTextPane ("",
+                                                           this.editor);
+                this.preview.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+
+                this.previewWrapper.add (this.preview);
+
+            }
+
             String t = this.editor.getPreviewText (s);
 
             this.previewLabel.setVisible (true);
             this.preview.setText (t);
-            this.preview.setVisible (true);
+            this.previewWrapper.setVisible (true);
 
             this.validate ();
             this.repaint ();

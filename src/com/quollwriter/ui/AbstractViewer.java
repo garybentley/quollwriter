@@ -290,6 +290,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.updateForDebugMode ();
 
+        Environment.registerViewer (this);
+
     }
 
     public void setTitleHeaderControlsVisible (boolean v)
@@ -854,10 +856,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             UIUtils.addDoActionOnReturnPressed (email.getTextField (),
                                                 sendAction);
 
-            JButton send = UIUtils.createButton (getUIString (prefix, LanguageStrings.popup, LanguageStrings.buttons, LanguageStrings.end),
+            JButton send = UIUtils.createButton (getUIString (prefix, LanguageStrings.popup, LanguageStrings.buttons, LanguageStrings.send),
                                                  //"Send",
                                                  sendAction);
-            JButton cancel = UIUtils.createButton (getUIString (prefix, LanguageStrings.popup, LanguageStrings.buttons, LanguageStrings.send),
+            JButton cancel = UIUtils.createButton (getUIString (prefix, LanguageStrings.popup, LanguageStrings.buttons, LanguageStrings.cancel),
                                                    //Constants.CANCEL_BUTTON_LABEL_ID,
                                                    new ActionListener ()
             {
@@ -2561,6 +2563,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.dispose ();
 
         this.generalTimer.shutdown ();
+
+        Environment.unregisterViewer (this);
 
 		UIUtils.doLater (afterClose);
 
