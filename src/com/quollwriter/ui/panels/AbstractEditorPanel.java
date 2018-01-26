@@ -47,6 +47,9 @@ import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<AbstractProjectViewer, Chapter> implements SpellCheckSupported, TextStylable, UserPropertyListener
 {
 
@@ -1258,7 +1261,8 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         String type = (v ? "off" : "on");
 
         this.setToolBarButtonIcon ("toggle-spellcheck",
-                                   "Click to turn the spell checker " + type,
+                                   getUIString (dictionary,spellcheck,buttons,(v ? off : on),tooltip),
+                                   //"Click to turn the spell checker " + type,
                                    "spellchecker-turn-" + type);
 
     }

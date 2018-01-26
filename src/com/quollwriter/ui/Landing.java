@@ -979,12 +979,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         } else
         {
-
+/*
             mi = new JButton ();
             UIUtils.setAsButton (mi);
             mi.setOpaque (false);
             mi.setToolTipText ("Click to show/hide the background image/color selector");
-
+*/
         }
 
         mi.setIcon (Environment.getIcon ("bg-select",
@@ -2522,7 +2522,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			text = StringUtils.replaceString (text,
 											  STATUS_TAG,
-											  (this.project.getStatus () != null ? this.project.getStatus () : "No status"));
+											  (this.project.getStatus () != null ? this.project.getStatus () : getUIString (LanguageStrings.project,status,novalue)));
+                                              //"No status"));
 
 			text = StringUtils.replaceString (text,
 											  WORDS_TAG,
@@ -3118,12 +3119,13 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
                 } catch (Exception e) {
 
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to show Editor");
-
                     Environment.logError ("Unable to show editor: " +
                                           ed,
                                           e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              getUIString (editors,vieweditorerror));
+                                              //"Unable to show Editor");
 
                 }
 

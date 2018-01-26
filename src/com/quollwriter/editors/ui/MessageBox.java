@@ -17,57 +17,60 @@ import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public abstract class MessageBox<E extends EditorMessage> extends Box implements EditorMessageListener
 {
-    
+
     protected AbstractViewer viewer = null;
     protected E message = null;
     protected boolean showAttentionBorder = true;
     private Box content = null;
     private PropertyChangedListener updateListener = null;
     private AbstractViewer childViewer = null;
-    
+
     public MessageBox (E              mess,
                        AbstractViewer viewer)
     {
-        
+
         super (BoxLayout.Y_AXIS);
 
         this.content = new Box (BoxLayout.Y_AXIS);
-        
+
         final MessageBox _this = this;
-        
+
         final Timer update = new Timer (750,
                                         new ActionListener ()
                                         {
-                                            
+
                                             public void actionPerformed (ActionEvent ev)
                                             {
-                                            
+
                                                 _this.message.setDealtWith (true);
-                                                
+
                                                 try
                                                 {
-                                                    
+
                                                     EditorsEnvironment.updateMessage (_this.message);
-                                                    
+
                                                 } catch (Exception e) {
-                                                    
+
                                                     Environment.logError ("Unable to update message: " +
                                                                           _this.message,
                                                                           e);
-                                                    
-                                                } 
-                                                
+
+                                                }
+
                                             }
-                                            
+
                                         });
-        
+
         update.setRepeats (false);
-                
+
         this.add (new JLayer<JComponent> (this.content, new LayerUI<JComponent> ()
         {
-            
+
             @Override
             public void installUI(JComponent c) {
                 super.installUI(c);
@@ -81,213 +84,215 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
                 // reset the layer event mask
                 ((JLayer) c).setLayerEventMask(0);
             }
-             
+
             @Override
             public void processMouseEvent (MouseEvent                   ev,
                                            JLayer<? extends JComponent> l)
             {
-                
+
                 if ((ev.isPopupTrigger ())
                     &&
                     (!_this.message.isSentByMe ())
                    )
                 {
-                    
+
                     ev.consume ();
-                    
+
                     JPopupMenu popup = new JPopupMenu ();
-                    
-                    popup.add (UIUtils.createMenuItem ("Report this message",
+
+                    popup.add (UIUtils.createMenuItem (getUIString (editors,messages,report,popupmenu,items,report),
+                                                       //"Report this message",
                                                        Constants.ERROR_ICON_NAME,
                                                        new ActionListener ()
                                                        {
-                                                
+
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
-                                                
+
                                                                 EditorsUIUtils.showReportMessage (_this,
                                                                                                   _this.viewer);
-                                                
+
                                                             }
-                                                
+
                                                         }));
-                                                        
+
                     popup.show (_this,
                                 ev.getX (),
                                 ev.getY ());
-                    
+
                     return;
-                    
+
                 }
-                
+
                 if ((!_this.message.isDealtWith ())
                     &&
                     (_this.isAutoDealtWith ())
                    )
                 {
-                
+
                     if (ev.getID () == MouseEvent.MOUSE_EXITED)
                     {
-                        
+
                         Point p = SwingUtilities.convertPoint ((Component) ev.getSource (),
                                                                ev.getPoint (),
                                                                _this);
-                
+
                         if (!SwingUtilities.getLocalBounds (_this).contains (p))
                         {
-    
+
                             update.stop ();
-                            
+
                         }
-                        
+
                         return;
-                        
+
                     }
-                
+
                     if (ev.getID () == MouseEvent.MOUSE_ENTERED)
                     {
-                        
+
                         update.start ();
-                               
+
                         return;
-                                                
+
                     }
-                    
+
                 }
-             
+
             }
-            
+
         }));
-                             
+
         this.setOpaque (false);
         this.setBackground (null);
-                
+
         this.content.setBackground (UIUtils.getComponentColor ());
 
         this.message = mess;
         this.viewer = viewer;
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        this.content.setToolTipText (String.format ("%s %s",
-                                            this.message.isSentByMe () ? "Sent" : "Received",
-                                            Environment.formatDateTime (this.message.getWhen ())));
-                
+        this.content.setToolTipText (String.format (getUIString (editors,messages,view,tooltip,(this.message.isSentByMe () ? sent : received)),
+                                                    //"%s %s",
+                                                    //this.message.isSentByMe () ? "Sent" : "Received",
+                                                    Environment.formatDateTime (this.message.getWhen ())));
+
     }
-    
+
     public abstract boolean isAutoDealtWith ();
-    
+
     public AbstractViewer getChildViewer ()
     {
-        
+
         return this.childViewer;
-        
+
     }
-    
+
     public void setChildViewer (AbstractViewer v)
     {
-        
+
         this.childViewer = v;
-        
+
     }
-    
+
     @Override
     public Component add (Component c)
     {
 
         if (c instanceof JLayer)
         {
-            
+
             return super.add (c);
-            
+
         }
-    
+
         return this.content.add (c);
-        
+
     }
-    
+
     public void setShowAttentionBorder (boolean v)
     {
-        
-        this.showAttentionBorder = v;        
-        
+
+        this.showAttentionBorder = v;
+
     }
-    
+
     public boolean isShowAttentionBorder ()
     {
-        
+
         return this.showAttentionBorder;
-        
+
     }
-    
+
     public EditorMessage getMessage ()
     {
-        
+
         return this.message;
-        
+
     }
-    
+
     public boolean isDealtWith ()
     {
-        
+
         return this.message.isDealtWith ();
-        
+
     }
 
     public abstract void doUpdate ();
-    
+
     public abstract void doInit ()
                           throws GeneralException;
-    
+
     public String getOpenMessageLink (EditorMessage m,
                                       String        link)
     {
-        
+
         return String.format ("<a href='%s:%s'>%s</a>",
                               Constants.OPENEDITORMESSAGE_PROTOCOL,
                               m.getKey (),
-                              Environment.replaceObjectNames (link));
-        
+                              link);
+
     }
-    
+
     public void update ()
     {
-        
+
         this.doUpdate ();
-        
+
         if (this.message.isDealtWith ())
         {
-            
+
             this.setToolTipText (null);
             this.setBorder (null);
-            
+
         }
-        
+
     }
-        
+
     public void init ()
                throws GeneralException
     {
-        
+
         this.doInit ();
-        
+
         if ((!this.message.isDealtWith ())
             &&
             (this.isShowAttentionBorder ())
            )
         {
-            
-            this.setToolTipText ("This message needs your attention!");
-            
+
+            this.setToolTipText (getUIString (editors,messages,view,attention,tooltip));//"This message needs your attention!");
+
             this.setBorder (new CompoundBorder (new MatteBorder (0, 2, 0, 0, UIUtils.getColor ("#ff0000")),
                                                 UIUtils.createPadding (0, 5, 0, 0)));
-                        
+
         }
-        
+
         // Add ourselves as a message listener in case our message gets updated in a different context.
         EditorsEnvironment.addEditorMessageListener (this);
-                                    
+
     }
-    
+
     @Override
     /**
      * Listens for message events relating to the underlying message this box is displaying.
@@ -304,75 +309,75 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
             (ev.getType () == EditorMessageEvent.MESSAGE_CHANGED)
            )
         {
-            
+
             this.update ();
-            
+
         }
-        
+
     }
-    
+
     protected JComponent getMessageQuoteComponent (String message)
     {
-        
+
         Box b = new Box (BoxLayout.X_AXIS);
-        
+
         ImagePanel ip = new ImagePanel (Environment.getIcon (Constants.MESSAGE_ICON_NAME,
                                                              Constants.ICON_POPUP),
                                         null);
-        
+
         ip.setAlignmentY (Component.TOP_ALIGNMENT);
-        
+
         //b.add (ip);
         //b.add (Box.createHorizontalStrut (5));
-        
+
         JComponent t = UIUtils.createHelpTextPane (message,
                                                    this.viewer);
         t.setAlignmentY (Component.TOP_ALIGNMENT);
 
         t.setBorder (null);
         t.setOpaque (false);
-                
+
         b.add (t);
 
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
-        return b;        
-        
+
+        return b;
+
     }
-    
+
     protected JComponent getMessageComponent (String message,
                                               String iconName)
     {
-        
+
         Box b = new Box (BoxLayout.X_AXIS);
-        
+
         if (iconName != null)
         {
-        
+
             ImagePanel ip = new ImagePanel (Environment.getIcon (iconName,
                                                                  Constants.ICON_EDITOR_MESSAGE),
                                             null);
-            
+
             ip.setAlignmentY (Component.TOP_ALIGNMENT);
-            
+
             b.add (ip);
             b.add (Box.createHorizontalStrut (5));
 
         }
-        
+
         JComponent t = UIUtils.createHelpTextPane (message,
                                                    this.viewer);
         t.setAlignmentY (Component.TOP_ALIGNMENT);
 
         t.setBorder (null);
         t.setOpaque (false);
-        
+
         b.add (t);
 
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
-        return b;        
+
+        return b;
 
     }
-    
+
 }

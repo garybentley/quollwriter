@@ -22,6 +22,9 @@ import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 // Use an annotation?
 //@MessageBox(messageClass=InviteResponseMessage)
 public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
@@ -63,8 +66,9 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
 
             this.add (this.responseBox);
 
-            JComponent l = UIUtils.createBoldSubHeader (String.format ("%s the invitation",
-                                                                       (this.message.isAccepted () ? "Accepted" : "Rejected")),
+            JComponent l = UIUtils.createBoldSubHeader (getUIString (editors,messages,inviteresponse,undealtwith,(this.message.isAccepted () ? accepted : rejected),title),
+                                                        //String.format ("%s the invitation",
+                                                        //               (this.message.isAccepted () ? "Accepted" : "Rejected")),
                                                         (this.message.isAccepted () ? Constants.ACCEPTED_ICON_NAME : Constants.REJECTED_ICON_NAME));
 
             this.responseBox.add (l);
@@ -79,7 +83,8 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
                    )
                 {
 
-                    JTextPane desc = UIUtils.createHelpTextPane ("Additionally they provided the following name/avatar.",
+                    JTextPane desc = UIUtils.createHelpTextPane (getUIString (editors,messages,inviteresponse,undealtwith,accepted,text),
+                                                                //"Additionally they provided the following name/avatar.",
                                                                  this.viewer);
 
                     this.responseBox.add (Box.createVerticalStrut (5));
@@ -134,7 +139,8 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
 
             final EditorEditor ed = this.message.getEditor ();
 
-            JButton ok = new JButton ("Ok, got it");
+            JButton ok = UIUtils.createButton (getUIString (editors,messages,inviteresponse,undealtwith,buttons,confirm));
+            //"Ok, got it");
 
             ok.addActionListener (new ActionAdapter ()
             {
@@ -199,7 +205,8 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,editor,edit,actionerror));
+                                                  //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -226,12 +233,14 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
         boolean accepted = this.message.isAccepted ();
         String iconName = (accepted ? Constants.ACCEPTED_ICON_NAME : Constants.REJECTED_ICON_NAME);
 
-        String message = "Accepted invitation to be {an editor}";
+        String message = getUIString (editors,messages,inviteresponse,dealtwith,LanguageStrings.accepted,title);
+        //"Accepted invitation to be {an editor}";
 
         if (!accepted)
         {
 
-            message = "Rejected invitation to be {an editor}";
+            message = getUIString (editors,messages,inviteresponse,dealtwith,rejected,title);
+            //"Rejected invitation to be {an editor}";
 
         }
 

@@ -74,9 +74,13 @@ public class FirstUseWizard extends PopupWizard
         this.importProject.init ();
 
         this.projDBFind = new FileFinder ();
-        this.projDBFindError = UIUtils.createErrorLabel ("Please select a directory.");
 
-        this.fileFindError = UIUtils.createErrorLabel ("Please select a file to import.");
+        // This doesn't appear to ever be visible...
+        this.projDBFindError = UIUtils.createErrorLabel ("");
+        //Please select a directory.");
+
+        this.fileFindError = UIUtils.createErrorLabel (getUIString (firstusewizard,stages,selectfile,errors,novalue));
+        //"Please select a file to import.");
         this.fileFind = new FileFinder ();
         this.fileFind.setFileFilter (ImportProject.fileFilter);
         this.fileFind.setClearOnCancel (true);

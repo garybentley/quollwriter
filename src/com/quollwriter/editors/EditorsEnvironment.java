@@ -25,6 +25,9 @@ import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class EditorsEnvironment
 {
 
@@ -198,7 +201,8 @@ public class EditorsEnvironment
                                 if (viewer != null)
                                 {
 
-                                    _n = viewer.addNotification ("Logging in to the Editors service...",
+                                    _n = viewer.addNotification (getUIString (LanguageStrings.editors,login,auto,notification),
+                                                                //"Logging in to the Editors service...",
                                                                  Constants.EDITORS_ICON_NAME,
                                                                  30);
 
@@ -262,7 +266,8 @@ public class EditorsEnvironment
 
                                                                     }
 
-                                                                    EditorsUIUtils.showLoginError ("Unable to automatically login, please check your email and password.",
+                                                                    EditorsUIUtils.showLoginError (getUIString (LanguageStrings.editors,login,auto,actionerror),
+                                                                                                    //"Unable to automatically login, please check your email and password.",
                                                                                                    new ActionListener ()
                                                                                                    {
 
@@ -947,7 +952,8 @@ public class EditorsEnvironment
 
         }
 
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_AUTHOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
+        File f = new File (Environment.getUserQuollWriterDir (),
+                           Constants.EDITORS_AUTHOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
 
         f.getParentFile ().mkdirs ();
 
@@ -990,7 +996,8 @@ public class EditorsEnvironment
     public static File getEditorsAuthorFile ()
     {
 
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_AUTHOR_FILE_NAME);
+        File f = new File (Environment.getUserQuollWriterDir (),
+                           Constants.EDITORS_AUTHOR_FILE_NAME);
 
         f.getParentFile ().mkdirs ();
 
@@ -1008,7 +1015,8 @@ public class EditorsEnvironment
 
         }
 
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_EDITOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
+        File f = new File (Environment.getUserQuollWriterDir (),
+                           Constants.EDITORS_EDITOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
 
         f.getParentFile ().mkdirs ();
 
@@ -1051,7 +1059,8 @@ public class EditorsEnvironment
     public static File getEditorsEditorFile ()
     {
 
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_EDITOR_FILE_NAME);
+        File f = new File (Environment.getUserQuollWriterDir (),
+                           Constants.EDITORS_EDITOR_FILE_NAME);
 
         f.getParentFile ().mkdirs ();
 
@@ -1127,15 +1136,16 @@ public class EditorsEnvironment
 
                 } catch (Exception e) {
 
-                    AbstractViewer viewer = Environment.getFocusedViewer ();
-
-                    UIUtils.showErrorMessage (viewer,
-                                              "Unable to update {editor} information in local database.");
-
                     Environment.logError ("Unable to update editor: " +
                                           editor +
                                           " to accepted",
                                           e);
+
+                    AbstractViewer viewer = Environment.getFocusedViewer ();
+
+                    UIUtils.showErrorMessage (viewer,
+                                              getUIString (LanguageStrings.editors,LanguageStrings.editor,edit,actionerror));
+                                              //"Unable to update {editor} information in local database.");
 
                     return;
 
@@ -1182,7 +1192,8 @@ public class EditorsEnvironment
                     AbstractViewer viewer = Environment.getFocusedViewer ();
 
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to update {editor} information in local database.");
+                                              getUIString (LanguageStrings.editors,LanguageStrings.editor,edit,actionerror));
+                                              //"Unable to update {editor} information in local database.");
 
                     Environment.logError ("Unable to update editor: " +
                                           editor +
@@ -1259,7 +1270,8 @@ public class EditorsEnvironment
                     AbstractViewer viewer = Environment.getFocusedViewer ();
 
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to update {editor} information in local database.");
+                                              getUIString (LanguageStrings.editors,editor,edit,actionerror));
+                                              //"Unable to update {editor} information in local database.");
 
                     Environment.logError ("Unable to update editor: " +
                                           email +
@@ -1339,7 +1351,8 @@ public class EditorsEnvironment
             {
 
                 UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                          "Unable to update your password, please contact Quoll Writer support for assistance.");
+                                          getUIString (LanguageStrings.editors,user,edit,password,actionerror));
+                                          //"Unable to update your password, please contact Quoll Writer support for assistance.");
 
             }
 
@@ -1362,8 +1375,10 @@ public class EditorsEnvironment
                                                                       {
 
                                                                         UIUtils.showMessage ((PopupsSupported) Environment.getFocusedViewer (),
-                                                                                             "Password updated",
-                                                                                             "Your password has been updated.");
+                                                                                             getUIString (LanguageStrings.editors,user,edit,password,confirmpopup,title),
+                                                                                             //"Password updated",
+                                                                                             getUIString (LanguageStrings.editors,user,edit,password,confirmpopup,text));
+                                                                                             //"Your password has been updated.");
 
                                                                       }
 
@@ -1422,6 +1437,7 @@ public class EditorsEnvironment
             if (c > 0)
             {
 
+/*
                 String s = "There are <b>%s</b> {Editor} messages requiring your attention.";
 
                 if (c == 1)
@@ -1430,9 +1446,10 @@ public class EditorsEnvironment
                     s = "There is <b>1</b> {Editor} message that requires your attention.";
 
                 }
-
+*/
                 //xxx get notification by name.
-                final Notification n = viewer.addNotification (String.format (s + "  <a href='action:showundealtwitheditormessages'>Click here to view the message(s).</a>",
+                final Notification n = viewer.addNotification (String.format (getUIString (LanguageStrings.editors,messages,undealtwith,notification),
+                                                                //+ "  <a href='action:showundealtwitheditormessages'>Click here to view the message(s).</a>",
                                                                               c),
                                                                Constants.EDITORS_ICON_NAME,
                                                                60);
@@ -1517,7 +1534,8 @@ public class EditorsEnvironment
 
         final AbstractViewer viewer = Environment.getFocusedViewer ();
 
-        final String reason = (loginReason != null ? loginReason : "To go online you must first login.");
+        final String reason = (loginReason != null ? loginReason : getUIString (LanguageStrings.editors,login,reasons,_default));
+        //"To go online you must first login.");
 
         ActionListener login = new ActionListener ()
         {
@@ -1551,6 +1569,8 @@ public class EditorsEnvironment
                                                                                                                                           e);
 
                                                                                                                 }
+
+                                                                                                                //EditorsEnvironment.getEditorsWebServiceHandler ().checkPendingInvites ();
 
                                                                                                                 if (EditorsEnvironment.editorAccount.getLastLogin () == null)
                                                                                                                 {
@@ -1692,7 +1712,7 @@ public class EditorsEnvironment
                                                         ActionListener        onError)
     {
 
-        String loginReason = "To send your information to your {contacts} you must first login to the Editors Service.";
+        String loginReason = getUIString (LanguageStrings.editors,login,reasons,updateinfotoall);
 
         EditorsEnvironment.sendMessageToAllEditors (loginReason,
                                                     new EditorInfoMessage (EditorsEnvironment.getUserAccount ()),
@@ -1708,7 +1728,9 @@ public class EditorsEnvironment
                                                     ActionListener        onError)
     {
 
-        EditorsEnvironment.messageHandler.sendMessage ("To send your information to <b>" + ed.getMainName () + "</b> you must first login to the Editors Service.",
+        EditorsEnvironment.messageHandler.sendMessage (String.format (getUIString (LanguageStrings.editors,login,reasons,updateinfotocontact),
+                                                                      ed.getMainName ()),
+        //"To send your information to <b>" + ed.getMainName () + "</b> you must first login to the Editors Service.",
                                                        new EditorInfoMessage (EditorsEnvironment.getUserAccount ()),
                                                        ed,
                                                        onSend,
@@ -1751,7 +1773,9 @@ public class EditorsEnvironment
                                             final ActionListener        onError)
     {
 
-        EditorsEnvironment.messageHandler.sendMessage ("To send a message to <b>" + mess.getEditor ().getMainName () + "</b> you must first login to the Editors service.",
+        EditorsEnvironment.messageHandler.sendMessage (String.format (getUIString (LanguageStrings.editors,login,reasons,sendmessagetocontact),
+                                                                      mess.getEditor ().getMainName ()),
+                                                        //"To send a message to <b>" + mess.getEditor ().getMainName () + "</b> you must first login to the Editors service.",
                                                        mess,
                                                        mess.getEditor (),
                                                        onSend,
@@ -1834,6 +1858,7 @@ public class EditorsEnvironment
 
                             private boolean inviteSent = false;
 
+                            @Override
                             public void actionPerformed (ActionEvent ev)
                             {
 
@@ -1858,13 +1883,16 @@ public class EditorsEnvironment
                                                                             public void actionPerformed (ActionEvent ev)
                                                                             {
 
+                                                                                java.util.List<String> prefix = Arrays.asList (LanguageStrings.editors,user,invitesent,popup);
+
                                                                                 AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                                                                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                                     "Invite sent",
-                                                                                                     "An invite has been sent to: <b>" + toEmail + "</b>.",
-                                                                                                     "Ok, got it",
-                                                                                                     null);
+                                                                                                     getUIString (prefix,title),
+                                                                                                     //"Invite sent",
+                                                                                                     String.format (getUIString (prefix,text),
+                                                                                                                    toEmail));
+                                                                                                     //"An invite has been sent to: <b>" + toEmail + "</b>.");
 
                                                                             }
 
@@ -1879,14 +1907,20 @@ public class EditorsEnvironment
                         if (viewer instanceof AbstractProjectViewer)
                         {
 
+                            java.util.List<String> prefix = Arrays.asList (LanguageStrings.editors,user,sendprojectoninvite,popup);
+
                             // Ask the user if they want to send the editor their project.
                             QPopup p = UIUtils.createQuestionPopup (viewer,
-                                                         "Send {project} / {chapters}?",
-                                                         Constants.SEND_ICON_NAME,
-                                                         String.format ("Would you like to send your {project}/{chapters} to <b>%s</b> now?",
-                                                                        ed.getMainName ()),
-                                                         "Yes, send it",
-                                                         "No, not now",
+                                                                    getUIString (prefix,title),
+                                                                    //"Send {project} / {chapters}?",
+                                                                    Constants.SEND_ICON_NAME,
+                                                                    String.format (getUIString (prefix,text),
+                                                                    //"Would you like to send your {project}/{chapters} to <b>%s</b> now?",
+                                                                                   ed.getMainName ()),
+                                                                    getUIString (prefix,buttons,confirm),
+                                                                    //"Yes, send it",
+                                                                    getUIString (prefix,buttons,cancel),
+                                                                    //"No, not now",
                                                          new ActionListener ()
                                                          {
 
@@ -1908,6 +1942,10 @@ public class EditorsEnvironment
 
                             return;
 
+                        } else {
+
+                            onCancel.actionPerformed (new ActionEvent ("send", 0, "send"));
+
                         }
 
                     }
@@ -1920,18 +1958,21 @@ public class EditorsEnvironment
                     // Show an error.
                     // Can't uninvite, what to do?
                     UIUtils.showErrorMessage (viewer,
-                                              "An internal error has occurred while saving the invite to local storage.  Please contact Quoll Writer support for assistance.");
+                                              getUIString (LanguageStrings.editors,user,sendinvite,actionerror));
+                                              //"An internal error has occurred while saving the invite to local storage.  Please contact Quoll Writer support for assistance.");
 
                     return;
 
                 }
 
                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                     "Invite sent",
-                                     String.format ("An invite has been sent to: <b>%s</b>.",
-                                                    toEmail),
-                                     "Ok, got it",
-                                     null);
+                                     getUIString (LanguageStrings.editors,user,invitesent,popup,title),
+                                     //"Invite sent",
+                                     String.format (getUIString (LanguageStrings.editors,user,invitesent,popup,text),
+                                                    //"An invite has been sent to: <b>%s</b>.",
+                                                    toEmail));
+                                     //"Ok, got it",
+                                     //null);
 
             }
 
@@ -2515,7 +2556,8 @@ public class EditorsEnvironment
 
             pe.setEditorTo (new java.util.Date ());
             pe.setCurrent (false);
-            pe.setStatusMessage ("Removed");
+            pe.setStatusMessage (getUIString (LanguageStrings.editors,editor,editorstatus));
+            //"Removed");
 
             EditorsEnvironment.updateProjectEditor (pe);
 
@@ -2625,7 +2667,8 @@ public class EditorsEnvironment
                 AbstractViewer viewer = Environment.getFocusedViewer ();
 
                 UIUtils.showErrorMessage (viewer,
-                                          "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                          getUIString (LanguageStrings.editors,editor,edit,actionerror));
+                                          //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                 return;
 
@@ -2669,7 +2712,8 @@ public class EditorsEnvironment
                                                             AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                                             UIUtils.showErrorMessage (viewer,
-                                                                                      "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                                                      getUIString (LanguageStrings.editors,editor,edit,actionerror));
+                                                                                      //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                                                             return;
 
@@ -2689,7 +2733,8 @@ public class EditorsEnvironment
                                                             AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                                             UIUtils.showErrorMessage (viewer,
-                                                                                      "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                                                      getUIString (LanguageStrings.editors,editor,edit,actionerror));
+                                                                                      //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                                                             return;
 
@@ -3064,10 +3109,11 @@ public class EditorsEnvironment
 
         }
 
-        return EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.EDITORS_SHOW_POPUP_WHEN_NEW_MESSAGE_RECEIVED_PROPERTY_NAME);
+        return false;
+        //return EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.EDITORS_SHOW_POPUP_WHEN_NEW_MESSAGE_RECEIVED_PROPERTY_NAME);
 
     }
-
+/*
     public static void setShowPopupWhenNewMessageReceived (boolean v)
                                                     throws Exception
     {
@@ -3078,7 +3124,7 @@ public class EditorsEnvironment
                                                prop);
 
     }
-
+*/
     public static void fullScreenEntered ()
     {
 
@@ -3163,8 +3209,10 @@ public class EditorsEnvironment
                 AbstractViewer viewer = Environment.getFocusedViewer ();
 
                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                     "{Editor} is offline",
-                                     String.format ("<b>%s</b> is currently offline.  Your message will be stored on the server (encrypted) until they log in again and retrieve the message.<br /><br />Note: this applies whenever you send a message to {an editor} that is offline.  This message won't be shown again.",
+                                     getUIString (LanguageStrings.editors,messages,editoroffline,popup,title),
+                                     //"{Editor} is offline",
+                                     String.format (getUIString (LanguageStrings.editors,messages,editoroffline,popup,text),
+                                     //"<b>%s</b> is currently offline.  Your message will be stored on the server (encrypted) until they log in again and retrieve the message.<br /><br />Note: this applies whenever you send a message to {an editor} that is offline.  This message won't be shown again.",
                                                     ed.getShortName ()));
 
                 try
@@ -3248,7 +3296,8 @@ public class EditorsEnvironment
     {
 
         // Send EditorRemoved messages for all editors (but don't remove them).
-        EditorsEnvironment.goOnline ("To delete your account you must first go online.",
+        EditorsEnvironment.goOnline (getUIString (LanguageStrings.editors,login,reasons,deleteaccount),
+                                    //"To delete your account you must first go online.",
                                      new ActionListener ()
         {
 
@@ -3336,7 +3385,8 @@ public class EditorsEnvironment
                                         } else {
 
                                             UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                                      "Unable to delete your account, please contact Quoll Writer support for assistance.");
+                                                                      getUIString (LanguageStrings.editors,user,deleteaccount,actionerror));
+                                                                      //"Unable to delete your account, please contact Quoll Writer support for assistance.");
 
                                         }
 

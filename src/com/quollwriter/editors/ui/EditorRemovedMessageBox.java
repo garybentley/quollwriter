@@ -24,6 +24,9 @@ import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 {
 
@@ -67,24 +70,34 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 
         final EditorRemovedMessageBox _this = this;
 
-        JComponent h = UIUtils.createBoldSubHeader (String.format ("Removed %sas {a contact}",
-                                                                   (this.message.isSentByMe () ? "" : "you ")),
-                                                    Constants.DELETE_ICON_NAME);
-
-        this.add (h);
-
-        String text = String.format ("<b>%s</b> has removed you as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
-                                     this.message.getEditor ().getShortName ());
+        String title = null;
+        String text = null;
 
         if (this.message.isSentByMe ())
         {
 
-            text = String.format ("You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
+            title = getUIString (editors,messages,contactremoved,sent,title);
+            text = String.format (getUIString (editors,messages,contactremoved,sent,text),
+                                  //"You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
+                                  this.message.getEditor ().getShortName ());
+
+        } else {
+
+            title = getUIString (editors,messages,contactremoved,received,title);
+            text = String.format (getUIString (editors,messages,contactremoved,received,text),
+                                  //"You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
                                   this.message.getEditor ().getShortName ());
 
         }
 
-        JTextPane desc = UIUtils.createHelpTextPane ("<html><i>" + text + "</i></html>",
+        JComponent h = UIUtils.createBoldSubHeader (title,
+                                                    //String.format ("Removed %sas {a contact}",
+                                                    //               (this.message.isSentByMe () ? "" : "you ")),
+                                                    Constants.DELETE_ICON_NAME);
+
+        this.add (h);
+
+        JTextPane desc = UIUtils.createHelpTextPane (text,
                                                      this.viewer);
 
         this.add (Box.createVerticalStrut (5));
@@ -107,7 +120,8 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 
             this.add (this.responseBox);
 
-            JTextPane rdesc = UIUtils.createHelpTextPane (String.format ("Clicking on the button below will remove <b>%s</b> from your list of current {contacts}.  You can still get access to them in the options menu of the {Contacts} sidebar via the <b>View the previous {contacts}</b> item.",
+            JTextPane rdesc = UIUtils.createHelpTextPane (String.format (getUIString (editors,messages,contactremoved,received,undealtwith,text),
+                                                                        //"Clicking on the button below will remove <b>%s</b> from your list of current {contacts}.  You can still get access to them in the options menu of the {Contacts} sidebar via the <b>View the previous {contacts}</b> item.",
                                                                          this.message.getEditor ().getShortName ()),
                                                          this.viewer);
 
@@ -127,7 +141,8 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 
             this.responseBox.setBorder (UIUtils.createPadding (5, 0, 0, 0));
 
-            JButton ok = new JButton ("Ok, got it");
+            JButton ok = UIUtils.createButton (getUIString (editors,messages,contactremoved,received,undealtwith,buttons,confirm));
+            //"Ok, got it");
 
             ok.addActionListener (new ActionListener ()
             {
@@ -167,7 +182,8 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to update {contact}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,messages,update,actionerror));
+                                                  //"Unable to update {contact}, please contact Quoll Writer support for assistance.");
 
                         return;
 

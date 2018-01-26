@@ -33,6 +33,9 @@ import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.messages.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class EditorsMessageHandler implements ChatMessageListener
 {
 
@@ -695,326 +698,6 @@ public class EditorsMessageHandler implements ChatMessageListener
 
         }
 
-/*
-        // All messages should be encrypted.
-        String body = message.getBody ();
-
-        EditorMessage mess = null;
-
-        try
-        {
-
-            mess = MessageFactory.getMessage (body,
-                                              ed,
-                                              true);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to convert message",
-                                  e);
-
-            return;
-
-        }
-
-        Environment.logDebugMessage ("<<< Received " + mess + " message from editor: " + ed);
-
-        boolean saveMessage = false;
-
-        try
-        {
-
-            if (this.messageProcessor == null)
-            {
-
-                this.messageProcessor = new DefaultEditorMessageProcessor ();
-
-            }
-
-            try
-            {
-
-                saveMessage = this.messageProcessor.processMessage (mess);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to process message: " +
-                                      mess +
-                                      ", using: " +
-                                      this.messageProcessor,
-                                      e);
-
-                return;
-
-            }
-
-        } finally {
-
-            if (saveMessage)
-            {
-
-                try
-                {
-
-                    EditorsEnvironment.addMessage (mess);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to save message: " +
-                                          mess,
-                                          e);
-
-                    return;
-
-                }
-
-            }
-
-        }
-
-        if (true)
-        {
-
-            return;
-
-        }
-
-        // TODO: ALL THIS BELOW CAN GO
-
-/*
-
-        if (ed.isPending ())
-        {
-
-            // Check the invite.
-
-            // The message type must be "publickey".
-            String body = message.getBody ();
-
-            if (body == null)
-            {
-
-                // Not good...
-                Environment.logError ("Illegal state, pending editor: " +
-                                      email +
-                                      " sent a null body message");
-
-                // Unsubscribe?
-
-                return;
-
-            }
-
-            // Check the message.
-            // This is the only time we don't check for encryption.
-
-            // Should be json.
-
-            EditorMessage mess = null;
-
-            try
-            {
-
-                mess = MessageFactory.getMessage (body,
-                                                  ed,
-                                                  false);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to convert message",
-                                      e);
-
-                return;
-
-            }
-
-            if (!(mess instanceof PublicKeyMessage))
-            {
-
-                Environment.logError ("Invalid state, expected public key message, got: " +
-                                      mess.getMessageType () +
-                                      " from editor: " +
-                                      ed);
-
-                return;
-
-            }
-
-            Environment.logDebugMessage ("<<< Received public key from editor: " + ed);
-
-            ed.setTheirPublicKey (((PublicKeyMessage) mess).getPublicKey ());
-
-            try
-            {
-
-                EditorsEnvironment.addMessage (mess);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to save message: " +
-                                      mess,
-                                      e);
-
-                return;
-
-            }
-
-            boolean showAcceptance = false;
-
-            boolean publicKeySent = false;
-
-            try
-            {
-
-                publicKeySent = EditorsEnvironment.hasMyPublicKeyBeenSentToEditor (ed);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to check whether editor has recevied public key: " +
-                                      ed,
-                                      e);
-
-                return;
-
-            }
-
-            // If the editor invited me then set them as current.
-            if ((!ed.isInvitedByMe ())
-                ||
-                // Have we already sent the public key?
-                (publicKeySent)
-               )
-            {
-
-                ed.setEditorStatus (EditorEditor.EditorStatus.current);
-
-                showAcceptance = true;
-
-            }
-
-            try
-            {
-
-                EditorsEnvironment.updateEditor (ed);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to update editor: " +
-                                      ed,
-                                      e);
-
-                return;
-
-            }
-
-            if (publicKeySent)
-            {
-
-                // Send the editor info.
-                this.sendMessage (null,
-                                  new EditorInfoMessage (EditorsEnvironment.getUserAccount ()),
-                                  ed,
-                                  null,
-                                  null);
-
-            }
-
-            if (showAcceptance)
-            {
-
-                EditorsUIUtils.showAcceptance (ed);
-
-            }
-
-            return;
-
-        }
-
-        if (ed.isCurrent ())
-        {
-
-            // All messages should be encrypted.
-            // Devlier the message to our listeners.
-
-            String body = message.getBody ();
-
-            EditorMessage mess = null;
-
-            try
-            {
-
-                mess = MessageFactory.getMessage (body,
-                                                  ed,
-                                                  true);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to convert message",
-                                      e);
-
-                return;
-
-            }
-
-            Environment.logDebugMessage ("<<< Received " + mess + " message from editor: " + ed);
-
-            boolean saveMessage = false;
-
-            try
-            {
-
-                if (this.messageProcessor == null)
-                {
-
-                    this.messageProcessor = new DefaultEditorMessageProcessor ();
-
-                }
-
-                try
-                {
-
-                    saveMessage = this.messageProcessor.processMessage (mess);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to process message: " +
-                                          mess +
-                                          ", using: " +
-                                          this.messageProcessor,
-                                          e);
-
-                    return;
-
-                }
-
-            } finally {
-
-                if (saveMessage)
-                {
-
-                    try
-                    {
-
-                        EditorsEnvironment.addMessage (mess);
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to save message: " +
-                                              mess,
-                                              e);
-
-                        return;
-
-                    }
-
-                }
-
-            }
-
-        }
-
-         */
-
     }
 
     private boolean shouldShowLogin ()
@@ -1109,7 +792,8 @@ public class EditorsMessageHandler implements ChatMessageListener
 
         final EditorsMessageHandler _this = this;
 
-        this.doLogin ("To change your password you must first login to the Editors service.",
+        this.doLogin (getUIString (editors,login,reasons,changepassword),
+                      //"To change your password you must first login to the Editors service.",
                       new ActionListener ()
                       {
 
@@ -1143,7 +827,8 @@ public class EditorsMessageHandler implements ChatMessageListener
                                 }
 
                                 UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                          "Unable to change password, please contact Quoll Writer support for assistance.");
+                                                          getUIString (editors,user,changepassword,actionerror));
+                                                          //"Unable to change password, please contact Quoll Writer support for assistance.");
 
                               }
 
@@ -1233,7 +918,8 @@ public class EditorsMessageHandler implements ChatMessageListener
 
                         } else {
 
-                            EditorsUIUtils.showLoginError ("Unable to connect to the Editors service, please contact Quoll Writer support for assistance.");
+                            EditorsUIUtils.showLoginError (getUIString (editors,login,error,other));
+                            //"Unable to connect to the Editors service, please contact Quoll Writer support for assistance.");
 
                         }
 
@@ -1242,52 +928,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                     }
 
                     _this.userJID = _this.conn.getUser ();
-/*
-                    // Get all the offline messages.
-                    OfflineMessageManager mm = new OfflineMessageManager (_this.conn);
 
-                    List<Message> messages = mm.getMessages ();
-
-                    if (messages != null)
-                    {
-
-                        // Switch off showing popups for messages.
-                        boolean showPopup = EditorsEnvironment.isShowPopupWhenNewMessageReceived ();
-
-                        try
-                        {
-
-                            EditorsEnvironment.setShowPopupWhenNewMessageReceived (false);
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to update property to",
-                                                  e);
-
-                        }
-
-                        for (Message m : messages)
-                        {
-
-                            _this.processMessage (null,
-                                                  m);
-
-                        }
-
-                        try
-                        {
-
-                            EditorsEnvironment.setShowPopupWhenNewMessageReceived (showPopup);
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to update property to: " + showPopup,
-                                                  e);
-
-                        }
-
-                    }
-*/
                     final Roster roster = Roster.getInstanceFor (_this.conn);
 
                     roster.setSubscriptionMode (Roster.SubscriptionMode.manual);
@@ -1418,7 +1059,8 @@ public class EditorsMessageHandler implements ChatMessageListener
                                               " is unable to login to editors service.",
                                               e);
 
-                        EditorsUIUtils.showLoginError ("Unable to login.  Please check your email and password.");
+                        EditorsUIUtils.showLoginError (getUIString (editors,login,error,invalidcredentials));
+                        //"Unable to login.  Please check your email and password.");
 
                         if (onError != null)
                         {
@@ -1518,7 +1160,8 @@ public class EditorsMessageHandler implements ChatMessageListener
 
                     } else {
 
-                        EditorsUIUtils.showLoginError ("Unable to login to the Editors service, please contact Quoll Writer support for assistance.");
+                        EditorsUIUtils.showLoginError (getUIString (editors,login,errors,other));
+                        //"Unable to login to the Editors service, please contact Quoll Writer support for assistance.");
 
                     }
 
@@ -1678,45 +1321,7 @@ public class EditorsMessageHandler implements ChatMessageListener
         }).start ();
 
     }
-    /*
-    private void sendMyPublicKeyToEditor (final EditorEditor toEditor)
-                                   throws Exception
-    {
 
-        final EditorsMessageHandler _this = this;
-
-        EditorAccount acc = EditorsEnvironment.getUserAccount ();
-
-        PublicKeyMessage mess = new PublicKeyMessage (EditorsEnvironment.getUserAccount ().getPublicKey ());
-
-        this.sendMessage (null,
-                          mess,
-                          toEditor,
-                          new ActionListener ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                    if (toEditor.getTheirPublicKey () != null)
-                                    {
-
-                                        // Send the editor info.
-                                        _this.sendMessage (null,
-                                                           new EditorInfoMessage (EditorsEnvironment.getUserAccount ()),
-                                                           toEditor,
-                                                           null,
-                                                           null);
-
-                                    }
-
-                              }
-
-                          },
-                          null);
-
-    }
-        */
     public void sendMessage (final String                loginReason,
                              final EditorMessage         mess,
                              final EditorEditor          to,
@@ -1862,7 +1467,9 @@ public class EditorsMessageHandler implements ChatMessageListener
                                             AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                             UIUtils.showErrorMessage (viewer,
-                                                                      "Unable to send message to <b>" + to.getName () + "</b>.  Please contact Quoll Writer support for assistance.");
+                                                                      String.format (getUIString (editors,messages,send,actionerror),
+                                                                                     to.getName ()));
+                                                //"Unable to send message to <b>" + to.getName () + "</b>.  Please contact Quoll Writer support for assistance.");
 
                                             Environment.logError ("Unable to send message to: " +
                                                                   to,

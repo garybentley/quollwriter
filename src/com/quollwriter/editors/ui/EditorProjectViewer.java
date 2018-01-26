@@ -11,6 +11,7 @@ import java.security.*;
 
 import java.text.*;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -65,6 +66,9 @@ import com.quollwriter.editors.ui.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class EditorProjectViewer extends AbstractProjectViewer
 {
 
@@ -85,44 +89,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
     {
 
         final EditorProjectViewer _this = this;
-/*
-        ObjectProvider<Note> noteProvider = new GeneralObjectProvider<Note> ()
-        {
 
-            public Set<Note> getAll ()
-            {
-
-                return (Set<Note>) _this.getAllNotes ();
-
-            }
-
-            public Note getByKey (Long key)
-            {
-
-                throw new UnsupportedOperationException ("Not supported");
-
-            }
-
-            public void save (Note   obj)
-                              throws GeneralException
-            {
-
-                _this.saveObject (obj,
-                                  true);
-
-            }
-
-            public void saveAll (java.util.List<Note> objs)
-                                 throws    GeneralException
-            {
-
-                _this.saveObjects (objs,
-                                   false);
-
-            }
-
-        };
-        */
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ()
         {
 
@@ -171,7 +138,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                 public String getTitle (Note item)
                                                                 {
 
-                                                                    return "{Comment}";
+                                                                    return getUIString (objectnames,singular,comment);
+                                                                    //"{Comment}";
 
                                                                 }
 
@@ -323,17 +291,22 @@ public class EditorProjectViewer extends AbstractProjectViewer
         JMenuItem mi = null;
 
         // Open project.
-        titlePopup.add (this.createMenuItem ("Open {Project}",
+        java.util.List<String> prefix = Arrays.asList (editors,project,settingsmenu,items);
+
+        titlePopup.add (this.createMenuItem (getUIString (prefix,openproject),
+                                            //"Open {Project}",
                                              Constants.OPEN_PROJECT_ICON_NAME,
                                              EditorProjectViewer.OPEN_PROJECT_ACTION));
 
         // Close Project
-        titlePopup.add (this.createMenuItem ("Close {Project}",
+        titlePopup.add (this.createMenuItem (getUIString (prefix,closeproject),
+                                            //"Close {Project}",
                                              Constants.CLOSE_ICON_NAME,
                                              EditorProjectViewer.CLOSE_PROJECT_ACTION));
 
         // Delete Project
-        titlePopup.add (this.createMenuItem ("Delete {Project}",
+        titlePopup.add (this.createMenuItem (getUIString (prefix,deleteproject),
+                                            //"Delete {Project}",
                                              Constants.DELETE_ICON_NAME,
                                              EditorProjectViewer.COMPLETE_EDITING_ACTION));
 
@@ -366,7 +339,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to open project at that version, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,project,actions,switchtoversion,actionerror));
+                                      //"Unable to open project at that version, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -404,7 +378,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to open project at that version, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,project,actions,switchtoversion,actionerror));
+                                      //"Unable to open project at that version, please contact Quoll Writer support for assistance.");
 
             // Need to close and reopen the project?
 
@@ -463,14 +438,18 @@ public class EditorProjectViewer extends AbstractProjectViewer
             public void actionPerformed (ActionEvent ev)
             {
 
-                final QPopup qp = UIUtils.createClosablePopup ("Delete {Project}?",
+                java.util.List<String> prefix = Arrays.asList (editors,project,actions,deleteproject,popup);
+
+                final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                                //"Delete {Project}?",
                                                                Environment.getIcon (Constants.DELETE_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
                                                                null);
 
                 Box content = new Box (BoxLayout.Y_AXIS);
 
-                JTextPane desc = UIUtils.createHelpTextPane (String.format ("To delete {Project} <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All information/{comments} associated with the {project} will be deleted.<br /><br />A message will also be sent to <b>%s</b> telling them you are no longer editing the {project}.",
+                JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,LanguageStrings.text),
+                                                                            //"To delete {Project} <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All information/{comments} associated with the {project} will be deleted.<br /><br />A message will also be sent to <b>%s</b> telling them you are no longer editing the {project}.",
                                                                             _this.proj.getName (),
                                                                             _this.proj.getForEditor ().getShortName ()),
                                                              _this);
@@ -550,10 +529,14 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
+                                                java.util.List<String> prefx = Arrays.asList (editors,project,actions,deleteproject,confirmpopup);
+
                                                 // TODO: Really must sort this mess out.
                                                 UIUtils.showMessage ((Component) null,
-                                                                     "{Project} deleted",
-                                                                     String.format ("The {project} has been deleted and a message has been sent to <b>%s</b> to let them know.",
+                                                                     getUIString (prefix,title),
+                                                                    //"{Project} deleted",
+                                                                     String.format (getUIString (prefix,LanguageStrings.text),
+                                                                                    //"The {project} has been deleted and a message has been sent to <b>%s</b> to let them know.",
                                                                                     _proj.getForEditor ().getShortName ()),
                                                                      null,
                                                                      new ActionListener ()
@@ -584,13 +567,15 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
                 };
 
-                JButton confirm = UIUtils.createButton ("Yes, delete it",
+                JButton confirm = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.confirm),
+                                                        //"Yes, delete it",
                                                         confirmAction);
 
                 UIUtils.addDoActionOnReturnPressed (text,
                                                     confirmAction);
 
-                JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                JButton cancel = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.cancel),
+                                                        //Constants.CANCEL_BUTTON_LABEL_ID,
                                                        new ActionListener ()
                 {
 
@@ -647,7 +632,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to check for unsent comments, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,project,actions,unsentcomments,actionerror));
+                                      //"Unable to check for unsent comments, please contact Quoll Writer support for assistance.");
 
             // Let things through.
 
@@ -656,61 +642,35 @@ public class EditorProjectViewer extends AbstractProjectViewer
         if (count > 0)
         {
 
-            String s = "are %s comments";
+            java.util.List<String> prefix = Arrays.asList (editors,project,actions,deleteproject,unsentcommentspopup);
 
-            if (count == 1)
-            {
+            UIUtils.createQuestionPopup (this,
+                                         getUIString (prefix,title),
+                                        //"Unsent comments",
+                                         Constants.ERROR_ICON_NAME,
+                                         String.format (getUIString (prefix,text),
+                                                        //"There are <b>%s</b> comments that you have not yet sent to <b>%s</b>.<br /><br />Do you wish to send them now?",
+                                                        count,
+                                                        this.getProject ().getForEditor ().getShortName ()),
+                                         getUIString (prefix,buttons,confirm),
+                                         //"Yes, I'll send them now",
+                                         getUIString (prefix,buttons,cancel),
+                                         //"No, don't send them",
+                                         new ActionListener ()
+                                         {
 
-                UIUtils.createQuestionPopup (this,
-                                             "Unsent comment",
-                                             Constants.ERROR_ICON_NAME,
-                                             String.format ("There is <b>1</b> {comment} that you have not yet sent to <b>%s</b>.<br /><br />Do you wish to send it now?",
-                                                            this.getProject ().getForEditor ().getShortName ()),
-                                             "Yes, I'll send it now",
-                                             "No, don't send it",
-                                             new ActionListener ()
-                                             {
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
 
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
+                                                EditorsUIUtils.showSendUnsentComments (_this,
+                                                                                       deleteProj);
 
-                                                    EditorsUIUtils.showSendUnsentComments (_this,
-                                                                                           deleteProj);
+                                            }
 
-                                                }
-
-                                             },
-                                             deleteProj,
-                                             null,
-                                             null);
-
-            } else {
-
-                UIUtils.createQuestionPopup (this,
-                                             "Unsent comments",
-                                             Constants.ERROR_ICON_NAME,
-                                             String.format ("There are <b>%s</b> comments that you have not yet sent to <b>%s</b>.<br /><br />Do you wish to send them now?",
-                                                            count,
-                                                            this.getProject ().getForEditor ().getShortName ()),
-                                             "Yes, I'll send them now",
-                                             "No, don't send them",
-                                             new ActionListener ()
-                                             {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    EditorsUIUtils.showSendUnsentComments (_this,
-                                                                                           deleteProj);
-
-                                                }
-
-                                             },
-                                             deleteProj,
-                                             null,
-                                             null);
-
-            }
+                                         },
+                                         deleteProj,
+                                         null,
+                                         null);
 
             return;
 
@@ -812,7 +772,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                       e);
 
                                 UIUtils.showErrorMessage (pv,
-                                                          "Unable to edit {Comment}");
+                                                          getUIString (editors,project,actions,editcomment,actionerror));
+                                                          //"Unable to edit {Comment}");
 
                             }
 
@@ -926,12 +887,14 @@ public class EditorProjectViewer extends AbstractProjectViewer
            )
         {
 
-            suff = String.format (" (%s)",
+            suff = String.format (getUIString (editors,project,viewertitleversionwrapper),
+                                //" (%s)",
                                   pv.getName ());
 
         }
 
-        return String.format ("Editing%s: %s",
+        return String.format (getUIString (editors,project,viewertitle),
+                                    //"Editing%s: %s",
                               suff,
                               this.proj.getName ());
 
@@ -1014,7 +977,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                 {
 
                     UIUtils.showMessage (_this,
-                                         "Note: this is a {project} for a previous {contact}.  You can no longer send {comments}.");
+                                         getUIString (editors,project,actions,openproject,openerrors,previouscontact));
+                                         //"Note: this is a {project} for a previous {contact}.  You can no longer send {comments}.");
 
                 }
 
@@ -1192,8 +1156,9 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (_this,
-                                      "Unable to edit {chapter}: " +
-                                      c.getName ());
+                                      String.format (getUIString (project,actions,editchapter,actionerror),
+                                    //"Unable to edit {chapter}: " +
+                                                     c.getName ()));
 
             return false;
 
@@ -1311,7 +1276,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                   e);
 
                             UIUtils.showErrorMessage (_this,
-                                                      "Unable to show {comment}, please contact Quoll Writer support for assistance.");
+                                                      getUIString (editors,project,actions,viewcomment,actionerror));
+                                                      //"Unable to show {comment}, please contact Quoll Writer support for assistance.");
 
                         }
 
@@ -1331,7 +1297,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to show " + Environment.getObjectTypeName (n).toLowerCase () + ".");
+                                      getUIString (editors,project,actions,viewcomment,actionerror));
 
         }
 
@@ -1605,9 +1571,6 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                           pos,
                                           e);
 
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to show snippet in context");
-
                 }
 
             }
@@ -1699,7 +1662,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
         if (snippets.size () > 0)
         {
 
-            res.add (new ChapterFindResultsBox (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+            res.add (new ChapterFindResultsBox (getUIString (objectnames,plural, Chapter.OBJECT_TYPE),
+                                                //Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
                                                 Chapter.OBJECT_TYPE,
                                                 Chapter.OBJECT_TYPE,
                                                 this,
@@ -1712,7 +1676,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
         if (notes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<Note> ("{Comments}",
+            res.add (new NamedObjectFindResultsBox<Note> (getUIString (objectnames,plural,comment),
+                                                            //"{Comments}",
                                                           Constants.COMMENT_ICON_NAME,
                                                           Note.OBJECT_TYPE,
                                                           this,

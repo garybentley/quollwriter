@@ -20,6 +20,9 @@ import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class FieldsAddEdit extends Box implements ProjectEventListener
 {
 
@@ -284,7 +287,8 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to create the field.");
+                                      getUIString (userobjects,LanguageStrings.fields,add,actionerror));
+                                      //"Unable to create the field.");
 
             return;
 
@@ -1059,11 +1063,12 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                             if (field == null)
                             {
 
-                                UIUtils.showErrorMessage (_this.viewer,
-                                                          "An internal error has occurred, unable to add/update field.");
-
                                 Environment.logError ("No field for type: " + type,
                                                       null);
+
+                                UIUtils.showErrorMessage (_this.viewer,
+                                                          getUIString (userobjects,LanguageStrings.fields,add,actionerror));
+                                                          //"An internal error has occurred, unable to add/update field.");
 
                                 return;
 

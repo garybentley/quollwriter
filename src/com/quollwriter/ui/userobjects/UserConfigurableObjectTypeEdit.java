@@ -58,6 +58,9 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QPopup;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class UserConfigurableObjectTypeEdit
 {
 
@@ -74,20 +77,23 @@ public class UserConfigurableObjectTypeEdit
         BasicInfoAddEdit basicInfoEdit = new BasicInfoAddEdit (viewer,
                                                                userObjType);
 
-        tabs.add ("General",
+        tabs.add (getUIString (userobjects,basic,title),
+                    //"General",
                   basicInfoEdit);
 
         FieldsAddEdit fieldsEdit = new FieldsAddEdit (viewer,
                                                       userObjType,
                                                       true);
 
-        tabs.add ("Fields",
+        tabs.add (getUIString (userobjects,fields,title),
+                //"Fields",
                   fieldsEdit);
 
         LayoutAddEdit layoutEdit = new LayoutAddEdit (viewer,
                                                       userObjType);
 
-        tabs.add ("Layout",
+        tabs.add (getUIString (userobjects,layout,title),
+                    //"Layout",
                   layoutEdit);
 
         basicInfoEdit.refresh ();

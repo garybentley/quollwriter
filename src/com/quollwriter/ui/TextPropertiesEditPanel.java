@@ -342,7 +342,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                                  Font.PLAIN,
                                  12));
 
-        this.addItem ("Font",
+        this.addItem (getUIString (project,sidebar,textproperties,font,text),
+                    //"Font",
                       this.fonts,
                       layout);
 

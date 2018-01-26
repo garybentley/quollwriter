@@ -28,7 +28,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
 {
 
    public static final String ID = "problemfinder";
-    private static final String TITLE_PREFIX = "Find Problems";
+    //private static final String TITLE_PREFIX = "Find Problems";
 
     private ChapterProblemResultsBox results = null;
     private Rule rule = null;
@@ -39,7 +39,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     private JLabel searchingLabel = null;
     private java.util.Timer updateTimer = null;
     private Set<Issue> ignored = null;
-    
+
     public ProblemFinderSideBar (ProjectViewer v,
                                  Rule          r)
     {
@@ -55,11 +55,11 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     @Override
     public String getId ()
     {
-      
+
          return ID;
-      
+
     }
-    
+
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
@@ -89,7 +89,6 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
                                         LanguageStrings.sidebar,
                                         LanguageStrings.problemfinder,
                                         LanguageStrings.title);
-        //TITLE_PREFIX;
 
     }
 
@@ -129,7 +128,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
         prefix.add (LanguageStrings.problemfinder);
         prefix.add (LanguageStrings.headercontrols);
         prefix.add (LanguageStrings.items);
-        
+
         List<JComponent> buts = new ArrayList ();
 
         JButton but = UIUtils.createButton ("refresh",
@@ -165,7 +164,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-               
+
                 JMenuItem mi = null;
 
                 JPopupMenu popup = new JPopupMenu ();
@@ -235,7 +234,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     {
 
         final ProblemFinderSideBar _this = this;
-    
+
         Box b = new Box (BoxLayout.Y_AXIS);
 
         this.content = new Box (BoxLayout.Y_AXIS);
@@ -279,10 +278,10 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
                 prefix.add (LanguageStrings.sidebar);
                 prefix.add (LanguageStrings.problemfinder);
                 prefix.add (LanguageStrings.unignore);
-            
+
                 int s = _this.ignored.size ();
                 String pl = (s > 1 ? "s" : "");
-            
+
                 UIUtils.createQuestionPopup (_this.viewer,
                                              Environment.getUIString (prefix,
                                                                       LanguageStrings.confirmpopup,
@@ -301,50 +300,50 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
                                              null,
                                              new ActionListener ()
                                              {
- 
+
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
- 
+
                                                     Set<Chapter> chaps = new HashSet ();
- 
+
                                                     for (Issue ig : _this.ignored)
                                                     {
- 
+
                                                         ig.getChapter ().getProblemFinderIgnores ().remove (ig);
- 
+
                                                         chaps.add (ig.getChapter ());
- 
+
                                                     }
- 
+
                                                     try
                                                     {
- 
+
                                                         for (Chapter c : chaps)
                                                         {
- 
+
                                                             _this.viewer.saveProblemFinderIgnores (c);
- 
+
                                                         }
- 
+
                                                     } catch (Exception e) {
- 
+
                                                         Environment.logError ("Unable to update problem finder ignores",
                                                                               e);
- 
+
                                                         UIUtils.showErrorMessage (_this.viewer,
                                                                                   Environment.getUIString (prefix,
                                                                                                            LanguageStrings.actionerror));
                                                                                   //"Unable to update problem finder ignores.");
- 
+
                                                     }
- 
+
                                                     _this.viewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
                                                                                    ProjectEvent.UNIGNORE);
- 
+
                                                     _this.find ();
- 
+
                                                 }
- 
+
                                              },
                                              null,
                                              null,
@@ -352,23 +351,23 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
 
             }
 
-        });        
-        
+        });
+
         this.ignoredProblemsLabel.setVisible (false);
-        
+
         b.add (this.ignoredProblemsLabel);
-        
+
         this.searchingLabel = UIUtils.createLoadingLabel (Environment.getUIString (LanguageStrings.project,
                                                                                    LanguageStrings.sidebar,
                                                                                    LanguageStrings.problemfinder,
                                                                                    LanguageStrings.loading));
                                                           //"Finding problems... please wait...");
         this.searchingLabel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
-        
+
         this.searchingLabel.setVisible (false);
-        
+
         b.add (this.searchingLabel);
-        
+
         b.add (this.noMatches);
 
         b.add (this.wrapInScrollPane (this.content,
@@ -434,7 +433,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
         final ProblemFinderSideBar _this = this;
 
          this.searchingLabel.setVisible (false);
-        
+
         boolean expandSearchResults = false;
 
         java.util.List<TreePath> openPaths = new ArrayList ();
@@ -465,38 +464,38 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
         this.content.removeAll ();
 
         this.ignored = ignored;
-        
-        this.ignoredProblemsLabel.setVisible (this.ignored.size () > 0);        
-        
+
+        this.ignoredProblemsLabel.setVisible (this.ignored.size () > 0);
+
         List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.sidebar);
         prefix.add (LanguageStrings.problemfinder);
         prefix.add (LanguageStrings.ignored);
-        
+
         if (ignored.size () > 0)
         {
 
             int s = ignored.size ();
 
             String t = "";
-            
+
             if (s == 1)
             {
-                
+
                 t = Environment.getUIString (prefix,
                                              LanguageStrings.single);
                 //"%s problem%s for this rule has been ignored, click to un-ignore it.";
-                
+
             } else {
-                
+
                 t = String.format (Environment.getUIString (prefix,
                                                             LanguageStrings.plural),
                                    Environment.formatNumber (s));
                                    //"%s problem%s for this rule have been ignored, click to un-ignore them.";
-                
+
             }
-            
+
             this.ignoredProblemsLabel.setText (t);
 
         }
@@ -590,25 +589,25 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     {
 
          boolean immediate = (this.updateTimer == null);
- 
+
          if (!immediate)
          {
- 
+
              this.updateTimer.cancel ();
- 
+
          }
- 
+
          this.searchingLabel.setVisible (true);
          this.ignoredProblemsLabel.setVisible (false);
-         
+
          if (this.results != null)
          {
-            
+
             this.results.clearHighlight ();
             this.results.setVisible (false);
-            
+
          }
-              
+
         this.updateTimer = new java.util.Timer ("problem-finder-side-bar", true);
 
         final ProblemFinderSideBar _this = this;
@@ -646,7 +645,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
                     @Override
                     public void actionPerformed (ActionEvent ev)
                     {
-                    
+
                         _this.update (probs,
                                       ignored);
 

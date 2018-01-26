@@ -31,7 +31,7 @@
         {
             "id" : "Editors",
             "icon" : "editors",
-            "name" : "Editors"
+            "name" : "Editor Mode"
         }
     ],
     "startup" :
@@ -51,7 +51,8 @@
         ":section" : "General",
         ":comment" : "These items are used in various places and are not generally tied to a specific functional group.",
         "importfile" : "Drop the file to begin the import",
-        "shortcutprefix" : "Shortcut: Ctrl+Shift+",
+        "shortcut" : "Shortcut: ",
+        "shortcutprefix" : "${general.shortcut} Ctrl+Shift+",
         "unabletoopenwebpage" : "Unable to open web page: %1$s",
         "unabletoperformaction" : "Unable to perform action.",
         ":comment.unabletoopenwebpage" : "%1$s is the web page that cannot be opened.",
@@ -59,7 +60,8 @@
         "unabletoopenfile" : "Unable to open web file: %1$s",
         ":comment.unabletoopenfile" : "%1$s is the path to the file that cannot be opened.",
         ":scount.unabletoopenfile" : 1,
-        "moretextindicator" : "..."
+        "moretextindicator" : "...",
+        "loading" : "Loading..."
     },
     "noobjectselectedpanel" :
     {
@@ -83,7 +85,29 @@
             "downloading" :
             {
                 "title" : "Download language",
-                "text" : "{QW} is downloading the selected User Interface language, please wait..."
+                "text" : "{QW} is downloading the selected User Interface language, please wait...",
+                "redownload" :
+                {
+                    "actionerror" : "Warning!  {QW} has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the {QW} server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim {QW} has fallen back to using <b>English</b>.",
+                    "confirmpopup" :
+                    {
+                        "title" : "Language strings re-downloaded",
+                        "text" : "{QW} has re-downloaded the User Interface language strings you are using because they were missing from your local system.  In the interim the User Interface has fallen back to using English.<br /><br />To return to using your selected language {QW} must be restarted."
+                    }
+                },
+                "update" :
+                {
+                    "actionerror" : "Warning!  {QW} has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart {QW} to try again or try downloading the strings from the Options panel.<br /><br />In the interim {QW} has fallen back to using <b>English</b>.",
+                    "confirmpopup" :
+                    {
+                        "title" : "Language strings updated",
+                        "text" : "{QW} has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings {QW} must be restarted."
+                    }
+                },
+                "errors" :
+                {
+                    "download" : "Warning!  {QW} has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart {QW}} to try again or try downloading the strings from the Options panel.<br /><br />In the interim {QW} has fallen back to using <b>English</b>."
+                }
             }
         },
         "new" :
@@ -178,7 +202,7 @@
             "createbackup" : "${actions.createbackup}",
             "closeproject" : "${actions.close} ${objectnames.singular.project}",
             "deleteproject" : "${actions.delete} ${objectnames.singular.project}",
-            "dowarmup" : "Do a {Warmup} exercise",
+            "dowarmup" : "Do a ${objectnames.singular.warmup} exercise",
             "options" : "${names.options}",
             "achievements" : "${names.achievements}",
             "whatsnew" : "What's New in this version",
@@ -222,7 +246,8 @@
             "book" : "Book",
             "backup" : "Backup",
             "ideatype" : "${objectnames.singular.idea} Type",
-            "notetype" : "${objectnames.singular.note} Type"
+            "notetype" : "${objectnames.singular.note} Type",
+            "comment" : "Comment"
         },
         "plural" :
         {
@@ -246,7 +271,8 @@
             "book" : "Books",
             "backup" : "Backups",
             "ideatype" : "${objectnames.singular.idea} Types",
-            "notetype" : "${objectnames.singular.note} Types"
+            "notetype" : "${objectnames.singular.note} Types",
+            "comment" : "Comments"
         },
         "changer" :
         {
@@ -404,9 +430,14 @@
                 "finder" :
                 {
                     "title" : "Select the Folder",
-                    "button" : "${actions.select}",
                     "tooltip" : "Click to find a folder",
                     "label" : "Folder"
+                },
+                "errors" :
+                {
+                    "invalidvalue" : "Sorry, that doesn't appear to be an ${objectnames.plural.editor} folder.  There should be a file called: <b>%1$s.h2.db</b> in the folder.",
+                    ":comment.invalidvalue" : "%1$s is the prefix of the file for the editors db.",
+                    ":scount.invalidvalue" : 1
                 }
             },
             "existing" :
@@ -440,6 +471,10 @@
                     "button" : "${actions.select}",
                     "tooltip" : "Click to find a file",
                     "label" : "File"
+                },
+                "errors" :
+                {
+                    "novalue" : "Please select a file to import."
                 }
             },
             "selectitems" :
@@ -527,7 +562,7 @@
             "single" : "%1$s ${objectnames.singular.chapter} is over the word count maximum of <b>%2$s</b> words, click to view the ${objectnames.singular.chapter}.",
             ":comment.single" : "%1$s is the number of chapters over the maximum. %2$s is the maximum word count.",
             ":scount.single" : 2,
-            "multiple" : "%1$s {chapters} are over the word count maximum of <b>%2$s</b> words, click to view the {chapters}.",
+            "multiple" : "%1$s ${objectnames.plural.chapter} are over the word count maximum of <b>%2$s</b> words, click to view the ${objectnames.plural.chapter}.",
             ":comment.multiple" : "%1$s is the number of chapters over the maximum count.  %2$s is the maximum word count.",
             ":scount.multiple" : 2,
             "detail" :
@@ -551,7 +586,7 @@
             "single" : "%1$s ${objectnames.singular.chapter} is over one of the readability targets, click to view the ${objectnames.singular.chapter}.",
             ":comment.single" : "%1$s is the number of chapters over the readability target(s).",
             ":scount.single" : 1,
-            "multiple" : "%1$s {chapters} are over one of the readability targets, click to view the {chapters}.",
+            "multiple" : "%1$s ${objectnames.plural.chapter} are over one of the readability targets, click to view the ${objectnames.plural.chapter}.",
             ":comment.multiple" : "%1$s is the number of chapters over the readability target(s).",
             ":scount.multiple" : 1,
             "detail" :
@@ -574,7 +609,7 @@
         "popup" :
         {
             "title" : "{Chapters} over word count target",
-            "multipleoverlimit" : "%1$s {chapters} are over the target word count, click to view them.",
+            "multipleoverlimit" : "%1$s ${objectnames.plural.chapter} are over the target word count, click to view them.",
             ":comment.multipleoverlimit" : "%1$s is the number of chapters over the limit.",
             ":scount.multipleoverlimit" : 1,
             "singleoverlimit" : "${objectnames.singular.chapter} <b>%1$s</b> is over the target word count, click to view it.",
@@ -586,7 +621,7 @@
     {
         ":title" : "Font Unavailable",
         ":section" : "Basics",
-        "text" : "The font <b>%1$s</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a ${objectnames.singular.chapter} tab then <a href='action:textproperties'>click here to change the text properties</a>.",
+        "text" : "The font <b>%1$s</b> selected for use in ${objectnames.plural.chapter} is not available on this computer.<br /><br />To select a new font, switch to a ${objectnames.singular.chapter} tab then <a href='action:textproperties'>click here to change the text properties</a>.",
         ":comment.text" : "The %1$s is the name of the font that cannot be found.",
         ":scount.text" : 1
     },
@@ -618,7 +653,9 @@
         "thismonth" : "This month",
         "lastmonth" : "Last month",
         "alltime" : "All time",
-        "now" : "Now"
+        "now" : "Now",
+        "today" : "Today",
+        "yesterday" : "Yesterday"
     },
     "words" :
     {
@@ -646,8 +683,6 @@
         ":comment" : "These are various names of things within the UI.  They are re-used heavily by other items.  They are here so you can define names for things and have them change without intervention in the items that use them.",
         "ideaboard" : "Idea Board",
         "problemfinder" : "Problem Finder",
-        "editor" : "Editor",
-        "editors" : "Editors",
         "goals" : "Goals",
         "plan" : "Plan",
         "fkfull" : "${names.fk} grade level",
@@ -681,8 +716,12 @@
         "add" : "${actions.add}",
         "finish" : "${actions.finish}",
         "save" : "${actions.save}",
+        "update" : "${actions.update}",
         "confirm" : "Ok, got it",
         "createbackup" : "${actions.createbackup}",
+        "ignore" : "${actions.ignore}",
+        "accept" : "Accept",
+        "reject" : "Reject",
         "__$$confirm$$__" : "${buttons.confirm}",
         "__$$cancel$$__" : "${buttons.cancel}",
         "__$$update$$__" : "${actions.update}"
@@ -780,6 +819,7 @@
         ":comment" : "This section relates to the adding/editing of custom objects by the user.",
         "layout" :
         {
+            "title" : "Layout",
             "edit" :
             {
                 "actionerror" : "Unable to update the object type."
@@ -805,6 +845,7 @@
         },
         "fields" :
         {
+            "title" : "Fields",
             "view" :
             {
                 "text" : "Use the button below to add a new field for your %1$s.  Drag-n-drop the fields to change the order of them.  Use the layout tab above to change how the fields are laid out and displayed.",
@@ -835,6 +876,7 @@
             "add" :
             {
                 "title" : "Add a new field",
+                "actionerror" : "Uanble to save the field.",
                 "labels" :
                 {
                     "name" : "Name",
@@ -891,6 +933,7 @@
         },
         "basic" :
         {
+            "title" : "General",
             "view" :
             {
                 "buttons" :
@@ -1301,6 +1344,7 @@
         "find" : "Find",
         "print" : "Print",
         "stop" : "Stop",
+        "ignore" : "Ignore",
         "findproblems" : "Find Problems",
         "edittextproperties" : "Edit ${names.textproperties}",
         "clicktoview" : "Click to view",
@@ -1736,6 +1780,7 @@
         },
         "manage" :
         {
+            "actionerror" : "Unable to show personal dictionary.",
             "title" : "${actions.managedictionary}",
             "finish" : "${actions.finish}",
             "newwords" :
@@ -1813,7 +1858,7 @@
         "chapter5over5000" :
         {
             "name" : "{Chapters} are for the weak",
-            "description" : "Have 5 {chapters} that are 5,000 words or more."
+            "description" : "Have 5 ${objectnames.plural.chapter} that are 5,000 words or more."
         },
         "chapterover5000" :
         {
@@ -1888,7 +1933,7 @@
         "sessionEditChapters3" :
         {
             "name" : "A little of this, a little of that",
-            "description" : "Edit 3 {chapters} in one writing session."
+            "description" : "Edit 3 ${objectnames.plural.chapter} in one writing session."
         },
         "noeditdays7" :
         {
@@ -1963,12 +2008,12 @@
         "addplotoutlineitem1" :
         {
             "name" : "So that's where it is",
-            "description" : "Add a {Outlineitem}."
+            "description" : "Add an ${objectnames.singular.outlineitem}."
         },
         "addplotoutlineitem5" :
         {
             "name" : "It's all becoming clear",
-            "description" : "Add 5 {Outlineitems}."
+            "description" : "Add 5 ${objectnames.plural.outlineitem}."
         },
         "addidea" :
         {
@@ -2008,32 +2053,32 @@
         "addlocation" :
         {
             "name" : "Home sweet home",
-            "description" : "Add {Location}."
+            "description" : "Add ${objectnames.singular.location}."
         },
         "addlocation5" :
         {
             "name" : "Building the world",
-            "description" : "Add 5 {Locations}."
+            "description" : "Add 5 ${objectnames.plural.location}."
         },
         "addlocation10" :
         {
             "name" : "Gonna need a map",
-            "description" : "Add 10 {Locations}."
+            "description" : "Add 10 ${objectnames.plural.locations}."
         },
         "addlocation20" :
         {
             "name" : "All your base are belong to us",
-            "description" : "Add 20 {Locations}."
+            "description" : "Add 20 ${objectnames.plural.location}."
         },
         "addcharacter5" :
         {
             "name" : "Quartet plus one",
-            "description" : "Add 5 {Characters}."
+            "description" : "Add 5 ${objectnames.plural.character}."
         },
         "addcharacter10" :
         {
             "name" : "I'm sorry I've completely forgotten your name",
-            "description" : "Add 10 {Characters}."
+            "description" : "Add 10 ${objectnames.plural.character}."
         },
         "addobject5" :
         {
@@ -2043,12 +2088,12 @@
         "addcharacter" :
         {
             "name" : "The name's Smith, probably",
-            "description" : "Add a {Character}."
+            "description" : "Add a ${objectnames.singular.character}."
         },
         "addobject10" :
         {
             "name" : "All the things",
-            "description" : "Add 10 {Characters}."
+            "description" : "Add 10 ${objectnames.plural.character}."
         },
         "manageitemtypes" :
         {
@@ -2368,17 +2413,17 @@
         "sendproject" :
         {
             "name" : "Projecting",
-            "description" : "Send a ${objectnames.singular.project} to {an editor}."
+            "description" : "Send a ${objectnames.singular.project} to an ${objectnames.singular.editor}."
         },
         "sendproject3" :
         {
             "name" : "Wait, what about this version",
-            "description" : "Send a ${objectnames.singular.project} update to {an editor}."
+            "description" : "Send a ${objectnames.singular.project} update to an ${objectnames.singular.editor}."
         },
         "updateproject" :
         {
             "name" : "Wait, what about this version",
-            "description" : "Send a ${objectnames.singular.project} update to {an editor}."
+            "description" : "Send a ${objectnames.singular.project} update to ${objectnames.singular.editor}."
         },
         "projectcomments" :
         {
@@ -2401,7 +2446,7 @@
         "8" : "Changing the setting of an option will take effect straight away, no need to save.",
         "9" : "Want to work in full screen mode?  <a href='action:fullscreen'>Click to enter full screen mode now.</a><br />You can also press F5 or use the [fullscreen,fullscreen] button on the toolbar to enter full screen mode.",
         "10" : "Can't remember what the awesome was added in this release?  <a href='action:whatsnew'>Click to see what's new.</a>",
-        "11" : "Got writer's block?  <a href='action:warmup'>Why not try a {warmup} exercise?</a> To do a {warmup} at any time select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
+        "11" : "Got writer's block?  <a href='action:warmup'>Why not try a ${objectnames.singular.warmup} exercise?</a> To do a ${objectnames.singular.warmup} at any time select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
         "12" : "Want to record your ideas?  <a href='action:ideaboard'>Click to open the ${names.ideaboard}.</a><br />You can open the ${names.ideaboard} at any time by selecting [idea]<b>${project.settingsmenu.items.ideaboard}</b>.",
         "13" : "Have you seen the user guide?  <a href='help:index.html'>Click to view the guide.</a> You can access the online help at any time from the ${objectnames.singular.project} menu, then select [help]<b>${project.settingsmenu.items.help}</b> then [help]<b>${project.settingsmenu.items.viewuserguide}</b>.",
         "14_1" : "Want to know how many words you've written?  <a href='action:wordcounts'>Click to see the word counts now.</a><br />You can also use <b>Ctrl+W</b> or the [wordcount] button from the toolbar to see how many words you've written.",
@@ -2420,7 +2465,7 @@
         "26_1" : "Want to find a synonym?  Highlight a word while editing a ${objectnames.singular.chapter} and right click.",
         "26_2" : "Want to find a synonym?  Highlight a word and right click.",
         "27" : "Missing the sound of a typewriter?  <a href='action:enabletypewritersound'>Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the <b>How things look and sound</b> section of the <a href='action:options.look'>options</a>.",
-        "28" : "{Warmups} can be converted into {projects}.  <a href='action:warmup'>Click to do a {warmup} now.</a><br />You can do a {warmup} at any time, just select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
+        "28" : "{Warmups} can be converted into ${objectnames.plural.project}.  <a href='action:warmup'>Click to do a ${objectnames.singular.warmup} now.</a><br />You can do a ${objectnames.singular.warmup} at any time, just select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
         "29" : "In full screen mode you can change the size of the writing area and how transparent the background is?  Just move your cursor to the top of the screen to see the options.",
         "30" : "Did you know that in full screen mode you can change the color of the text and the background of the writing area? <a href='action:fullscreen'>Click to enter full screen mode now.",
         "31" : "Did you know that in full screen mode you can set an image for the background?  <a href='action:fullscreen'>Click to enter full screen mode now.</a>",
@@ -2722,7 +2767,7 @@
                 "buttons" :
                 {
                     "thisproject" : "From this ${objectnames.singular.project} only",
-                    "allprojects" : "All {projects}"
+                    "allprojects" : "All ${objectnames.plural.project}"
                 }
             }
         }
@@ -2978,7 +3023,8 @@
             "filenotexist" : "File does not exist, please select a valid file.",
             "cantopenproject" : "Unable to open ${objectnames.singular.project}",
             "dirselected" : "Selection is a folder, please select a file instead.",
-            "openfile" : "Unable to open selected file."
+            "openfile" : "Unable to open selected file.",
+            "general" : "Unable to import."
         },
         "help" : "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function if you are importing a file.  The import expects the file(s) to be in a certain format.",
         "moretextindicator" : " ${general.moretextindicator} ",
@@ -3033,7 +3079,7 @@
             "choose" :
             {
                 "title" : "What would you like to import?",
-                "text" : "Select whether you wish to import from a file or from one of your {projects}.",
+                "text" : "Select whether you wish to import from a file or from one of your ${objectnames.plural.project}.",
                 "options" :
                 {
                     "importfromproject" : "Import from a ${objectnames.singular.project}",
@@ -3043,7 +3089,7 @@
             "selectproject" :
             {
                 "title" : "Select a ${objectnames.singular.project} to import from",
-                "getallprojectserror" : "Unable to get all the {projects}.",
+                "getallprojectserror" : "Unable to get all the ${objectnames.plural.project}.",
                 "projectslist" :
                 {
                     "tooltip" : "Click to select this ${objectnames.singular.project}."
@@ -3075,10 +3121,10 @@
         },
         "sectiontitles" :
         {
-            "notes" : "%1$s - {Notes}",
+            "notes" : "%1$s - ${objectnames.plural.note}",
             ":comment.notes" : "%1$s is replaced with the name of the project or chapter.",
             ":scount.notes" : 1,
-            "scenesoutlineitems" : "%1$s - {Scenes} and Plot Outline",
+            "scenesoutlineitems" : "%1$s - ${objectnames.plural.scene} and Plot Outline",
             ":comment.scenesoutlineitems" : "%1$s is replaced with the name of the project or chapter.",
             ":scount.scenesoutlineitems" : 1,
             "chapterinfo" : "%1$s - ${objectnames.singular.chapter} Information",
@@ -3113,7 +3159,7 @@
             "selectitems" :
             {
                 "title" : "Select the items you wish to export",
-                "text" : "Select the items you wish to export, if you select any {chapters} then any associated {notes} and {outlineitems} will also be exported."
+                "text" : "Select the items you wish to export, if you select any ${objectnames.plural.chapter} then any associated ${objectnames.plural.note} and ${objectnames.plural.outlineitem} will also be exported."
             },
             "bookdetails" :
             {
@@ -3129,7 +3175,7 @@
             "howtosave" :
             {
                 "title" : "How should the selected items be saved",
-                "text" : "The items can be saved in either a single file or in one file per type of item.  Any {notes} and {outlineitems} will be saved in separate files.",
+                "text" : "The items can be saved in either a single file or in one file per type of item.  Any ${objectnames.plural.note} and ${objectnames.plural.outlineitem} will be saved in separate files.",
                 "types" :
                 {
                     "singlefile" : "Single file",
@@ -3177,13 +3223,1340 @@
             }
         }
     },
-    "editors":
+    "comments" :
+    {
+        ":title" : "Comments",
+        ":section" : "Editors",
+        ":comment" : "These items relate to adding and editing of comments when editing a project for a contact.  The <b>addedit</b> items relate to both the add and edit parts of comment creation.",
+        "addedit" :
+        {
+            ":comment" : "These items relate to both the add and edit parts of comment creation.",
+            "labels" :
+            {
+                "comment" :
+                {
+                    "tooltip" : "Enter your comment here..."
+                }
+            },
+            "errors" :
+            {
+                "novalue" : "Please enter a comment."
+            }
+        },
+        "new" :
+        {
+            "title" : "Add ${objectnames.singular.comment}",
+            "actionerror" : "Unable to add new ${objectnames.singular.comment}."
+        },
+        "edit" :
+        {
+            "title" : "Edit ${objectnames.singular.comment}",
+            "actionerror" : "Unable to edit  ${objectnames.singular.comment}."
+        },
+        "delete" :
+        {
+            "actionerror" : "Unable to delete.",
+            "popup" :
+            {
+                "title" : "Delete ${objectnames.singular.comment}",
+                "text" : "Please confirm you wish to delete ${objectnames.singular.comment}<br />&#160;&#160;&#160;<b>%1$s</b>?",
+                ":comment.text" : "%1$s is the summary of the comment, usually the first sentence.",
+                ":scount.text" : 1,
+                "buttons" :
+                {
+                    "confirm" : "Yes, delete it",
+                    "cancel" : "${buttons.cancel}"
+                }
+            }
+        }
+    },
+    "editors" :
     {
         ":title" : "General",
         ":section" : "Editors",
-        "vieweditorerror" : "Unable to show {contact}.",
-        "vieweditorserror" : "Unable to show {contacts}.",
+        "vieweditorserror" : "Unable to show ${objectnames.plural.contact}.",
+        "viewcommentserror" : "Unable to show ${objectnames.plural.comment}.",
         "showregistererror" : "Unable to show the register panel.",
+        "sidebar" :
+        {
+            ":comment" : "This is the sidebar that allows the user to manage and interact with their contacts/editors.",
+            "headercontrols" :
+            {
+                "sendinvite" :
+                {
+                    "tooltip" : "Click to send an invite"
+                },
+                "config" :
+                {
+                    "tooltip" : "Click to view the config options",
+                    "popupmenu" :
+                    {
+                        "items" :
+                        {
+                            "previouscontacts" :
+                            {
+                                "text" : "View the previous ${objectnames.plural.contact} (%1$s)",
+                                ":comment.text" : "$1$s is the number of previous contacts.",
+                                ":scount.text" : 1
+                            },
+                            "updatenameavatar" :
+                            {
+                                "text" : "Update your name/avatar"
+                            },
+                            "changepassword" :
+                            {
+                                "text" : "Change password"
+                            },
+                            "resendaccountconfirmationemail" :
+                            {
+                                "text" : "Resend confirmation email"
+                            },
+                            "displaypassword" :
+                            {
+                                "text" : "Display your password"
+                            },
+                            "resetpassword" :
+                            {
+                                "text" : "Reset your password"
+                            },
+                            "preferences" :
+                            {
+                                "text" : "Preferences"
+                            },
+                            "help" :
+                            {
+                                "text" : "Help"
+                            },
+                            "deleteaccount" :
+                            {
+                                "text" : "Delete your account"
+                            }
+                        }
+                    }
+                },
+                "items" :
+                {
+                    "onlinestatus" :
+                    {
+                        "popupmenu" :
+                        {
+                            "items" :
+                            {
+                                "logout" : "Logout"
+                            }
+                        },
+                        "online" :
+                        {
+                            "button" :
+                            {
+                                "tooltip" : "Click to go online"
+                            },
+                            "notification" : "Logging in..."
+                        },
+                        "offline" :
+                        {
+                            "button" :
+                            {
+                                "tooltip" : "Click to go offline"
+                            },
+                            "notification" : "You have been logged out."
+                        },
+                        "update" :
+                        {
+                            "notification" : "Your status is now <b>%1$s</b>.",
+                            ":comment.notification" : "%1$s is the new status.",
+                            ":scount.notification" : 1
+                        },
+                        "button" :
+                        {
+                            "tooltip" : "%1$s, click to change your status",
+                            ":comment.tooltip" : "%1$s is the status.",
+                            ":scount.tooltip" : 1
+                        }
+                    }
+                }
+            }
+        },
+        "messages" :
+        {
+            "report" :
+            {
+                "popupmenu" :
+                {
+                    "items" :
+                    {
+                        "report" : "Report this message"
+                    }
+                }
+            },
+            "contactremoved" :
+            {
+                "sent" :
+                {
+                    "title" : "Removed as a ${objectnames.singular.contact}",
+                    "text" : "<i>You removed <b>%1$s</b> as a ${objectnames.singular.contact}.  You will no longer receive any messages from them or be able to send them messages.</i>",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1
+                },
+                "received" :
+                {
+                    "title" : "Removed you as a ${objectnames.singular.contact}",
+                    "text" : "<i><b>%1$s</b> has removed you as a ${objectnames.singular.contact}.  You will no longer receive any messages from them or be able to send them messages.</i>",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1,
+                    "undealtwith" :
+                    {
+                        "text" : "Clicking on the button below will remove <b>%1$s</b> from your list of current ${objectnames.plural.contact}.  You can still get access to them in the options menu of the ${objectnames.plural.contact} sidebar via the <b>XXXView the previous {contacts}</b> item.",
+                        ":comment.text" : "%1$s is the name/email of the contact.",
+                        ":scount.text" : 1,
+                        "buttons" :
+                        {
+                            "confirm" : "${buttons.confirm}"
+                        }
+                    }
+                }
+            },
+            "inviteresponse" :
+            {
+                "undealtwith" :
+                {
+                    ":comment" : "This section relates to the message being received but not yet dealt with by the user, i.e. they haven't acknowledged it.",
+                    "buttons" :
+                    {
+                        "confirm" : "${buttons.confirm}"
+                    },
+                    "accepted" :
+                    {
+                        "title" : "Accepted the invitation",
+                        "text" : "Additionally they provided the following name/avatar."
+                    },
+                    "rejected" :
+                    {
+                        "title" : "Rejected the invitation"
+                    }
+                },
+                "dealtwith" :
+                {
+                    "accepted" :
+                    {
+                        "title" : "Accepted invitation to be an ${objectnames.singular.editor}"
+                    },
+                    "rejected" :
+                    {
+                        "title" : "Rejected invitation to be an ${objectnames.singular.editor}"
+                    }
+                }
+            },
+            "contactinfo" :
+            {
+                ":comment" : "This message box displays information about the user (name/avatar image) that they have sent to one of their contacts or vice versa.",
+                "sent" :
+                {
+                    "title" : "Sent name/avatar"
+                },
+                "received" :
+                {
+                    "title" : "Received name/avatar update",
+                    "buttons" :
+                    {
+                        "update" : "${buttons.update}",
+                        "ignore" : "${buttons.ignore}"
+                    }
+                }
+            },
+            "view" :
+            {
+                "attention" :
+                {
+                    "tooltip" : "This message needs your attention!"
+                },
+                "tooltip" :
+                {
+                    "sent" : "Sent %1$s",
+                    ":comment.sent" : "%1$s is the date the message was sent.",
+                    ":scount.sent" : 1,
+                    "received" : "Received %1$s",
+                    ":comment.sent" : "%1$s is the date the message was received.",
+                    ":scount.sent" : 1
+                }
+            },
+            "update" :
+            {
+                "actionerror" : "Unable to update message."
+            },
+            "projectcomments" :
+            {
+                "sent" :
+                {
+                    "title" : "%1$s ${objectnames.plural.comment} sent",
+                    ":comment.title" : "%1$s is the number of comments sent.",
+                    ":scount.title" : 1
+                },
+                "received" :
+                {
+                    "title" : "%1$s ${objectnames.plural.comment} received",
+                    ":comment.title" : "%1$s is the number of comments received.",
+                    ":scount.title" : 1
+                },
+                "labels" :
+                {
+                    "project" : "<i>${objectnames.singular.project}</i>",
+                    "sent" : "<i>Sent</i>",
+                    "received" : "<i>Received</i>",
+                    "version" : "<i>Version</i>",
+                    "notes" : "<i>Notes</i>",
+                    "clicktoviewproject" : "Click to view the ${objectnames.singular.project}",
+                    "clicktoviewcomments" : "Click to view the ${objectnames.plural.comment}"
+                }
+            },
+            "newproject" :
+            {
+                "sent" :
+                {
+                    "title" : "Sent ${objectnames.singular.project}"
+                },
+                "received" :
+                {
+                    "title" : "Received an invitation to edit a ${objectnames.singular.project}",
+                    "undealtwith" :
+                    {
+                        "previouseditor" : "<b>%1$s</b> is a previous ${objectnames.singular.contact}.  This message can no longer be acted upon.",
+                        ":comment.previouseditor" : "%1$s is the name/email of the contact.",
+                        ":scount.previouseditor" : 1,
+                        "text" : "Select your response below",
+                        ":comment.text" : "%1$s is the name/email of the contact.",
+                        ":scount.text" : 1,
+                        "buttons" :
+                        {
+                            "accept" :
+                            {
+                                "text" : "${buttons.accept}",
+                                "tooltip" : "Click to accept the invitation"
+                            },
+                            "reject" :
+                            {
+                                "text" : "${buttons.reject}",
+                                "tooltip" : "Click to reject the invitation"
+                            }
+                        },
+                        "accepted" :
+                        {
+                            "actionerror" : "Uanble to save the ${objectnames.singular.project}",
+                            "openproject" :
+                            {
+                                "actionerror" : "Unable to open the ${objectnames.singular.project}",
+                                "popup" :
+                                {
+                                    "title" : "Open the ${objectnames.singular.project}?",
+                                    "text" : "Open the ${objectnames.singular.project} now?",
+                                    "buttons" :
+                                    {
+                                        "confirm" : "Yes, open it",
+                                        "cancel" : "Not now"
+                                    }
+                                }
+                            },
+                            "popup" :
+                            {
+                                ":comment" : "This popup is shown when the user accepts the invitation.",
+                                "title" : "Accept the invitation",
+                                "finder" :
+                                {
+                                    "title" : "Select a Folder to save to",
+                                    "button" : "${actions.select}",
+                                    "tooltip" : "Click to find a folder"
+                                },
+                                "buttons" :
+                                {
+                                    "save" : "Save ${objectnames.singular.project}",
+                                    "cancel" : "${buttons.cancel}"
+                                },
+                                "labels" :
+                                {
+                                    "project" : "${objectnames.singular.project}",
+                                    "save" : "Save In",
+                                    "encrypt" : "Encrypt this ${objectnames.singular.project}?  You will be prompted for a password.",
+                                    "password" : "Password",
+                                    "confirmpassword" : "Confirm",
+                                    "where" : "Where should the ${objectnames.singular.project} be saved?",
+                                    "sendmessage" :
+                                    {
+                                        "text" : "Send a message back",
+                                        "tooltip" : "You can optionally return a message to %1$s using this box.",
+                                        ":comment.tooltip" : "%1$s is the name/email of the contact.",
+                                        ":scount.tooltip" : 1
+                                    }
+                                },
+                                "errors" :
+                                {
+                                    "valueexists" : "A ${objectnames.singular.project} called <b>%1$s</b> already exists at %2$s.",
+                                    ":comment.valueexists" : "%1$s is the name of the project, %2$s is the path of the folder where the existing project is.",
+                                    ":scount.valueexists" : 2,
+                                    "nopassword" : "Please provide a password.",
+                                    "confirmpassword" : "Please confirm your password.",
+                                    "nomatch" : "The passwords do not match."
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "newprojectresponse" :
+            {
+                "sent" :
+                {
+                    "accepted" :
+                    {
+                        "title" : "Accepted ${objectnames.singular.project}"
+                    },
+                    "rejected" :
+                    {
+                        "title" : "Rejected ${objectnames.singular.project}"
+                    },
+                    "labels" :
+                    {
+                        "clicktoview" : "Click to view the ${objectnames.singular.project}"
+                    }
+                },
+                "received" :
+                {
+                    "accepted" :
+                    {
+                        "title" : "${objectnames.singular.project} accepted"
+                    },
+                    "rejected" :
+                    {
+                        "title" : "${objectnames.singular.project} rejected"
+                    },
+                    "editorstatus" :
+                    {
+                        "accepted" : "Accepted ${objectnames.singular.project}: %1$s",
+                        ":comment.accepted" : "%1$s is the date the project was accepted.",
+                        ":scount.accepted" : 1,
+                        "rejected" : "Rejected ${objectnames.singular.project}: %1$s",
+                        ":comment.rejected" : "%1$s is the date the project was rejected.",
+                        ":scount.rejected" : 1
+                    },
+                    "undealtwith" :
+                    {
+                        "buttons" :
+                        {
+                            "confirm" : "${buttons.confirm}"
+                        }
+                    }
+                },
+                "labels" :
+                {
+                    "project" : "<i>${objectnames.singular.project}</i>",
+                    "message" : "<i>Message</i>",
+                    "extra" : "Additionally they provided the following name/avatar."
+                }
+            },
+            "projecteditstop" :
+            {
+                "editorstatus" : "Stopped editing: %1$s",
+                ":comment.editorstatus" : "%1$s is the date the editing stopped.",
+                ":scount.editorstatus" : 1,
+                "sent" :
+                {
+                    "title" : "Stopped editing ${objectnames.singular.project}"
+                },
+                "received" :
+                {
+                    "title" : "Stopped editing ${objectnames.singular.project}",
+                    "undealtwith" :
+                    {
+                        "text" : "<b>%1$s</b> has stopped editing ${objectnames.singular.project} <b>%2$s</b>.",
+                        ":comment.text" : "%1$s is the name/email of the editor, %2$s is the project name.",
+                        ":scount.text" : 2,
+                        "buttons" :
+                        {
+                            "confirm" : "${buttons.confirm}"
+                        }
+                    }
+                },
+                "labels" :
+                {
+                    "project" : "<i>${objectnames.singular.project}</i>",
+                    "message" : "<i>Message</i>"
+                }
+            },
+            "updateproject" :
+            {
+                "sent" :
+                {
+                    "title" : "${objectnames.singular.project} update sent"
+                },
+                "received" :
+                {
+                    "title" : "${objectnames.singular.project} update received",
+                    "undealtwith" :
+                    {
+                        "previouseditor" : "<b>%1$s</b> is a previous ${objectnames.singular.contact}.  This message can no longer be acted upon.",
+                        ":comment.previouseditor" : "%1$s is the name/email of the contact.",
+                        ":scount.previouseditor" : 1,
+                        "text" : "Clicking on the button below will remove <b>%1$s</b> from your list of current ${objectnames.plural.contact}.  You can still get access to them in the options menu of the ${objectnames.plural.contact} sidebar via the <b>XXXView the previous {contacts}</b> item.",
+                        ":comment.text" : "%1$s is the name/email of the contact.",
+                        ":scount.text" : 1,
+                        "buttons" :
+                        {
+                            "update" : "Update the ${objectnames.singular.project}"
+                        }
+                    }
+                }
+            },
+            "invite" :
+            {
+                "sent" :
+                {
+                    "title" : "Sent invitation"
+                },
+                "received" :
+                {
+                    "title" : "Received an invitation to become an ${objectnames.singular.editor}",
+                    "response" : "Select your response below",
+                    "buttons" :
+                    {
+                        "confirm" :
+                        {
+                            "text" : "Accept",
+                            "tooltip" : "Click to accept the invitation"
+                        },
+                        "reject" :
+                        {
+                            "text" : "Reject",
+                            "tooltip" : "Click to reject the invitation"
+                        }
+                    }
+                }
+            },
+            "send" :
+            {
+                "actionerror" : "Unable to send message to <b>%1$s</b>.",
+                ":comment.actionerror" : "%1$s is the name/email of the contact.",
+                ":scount.actionerror" : 1
+            },
+            "show" :
+            {
+                ":comment" : "This section relates to the popup displayed to show various slices of the messages sent/received with a contact.",
+                "suffix" : "<br /><br />Messages with a red border require an acknowledgement or action from you.",
+                ":comment.suffix" : "This suffix is appended to the popup.text values below to indicate that certain messages are highlighted to indicate they require attention from the user.",
+                "all" :
+                {
+                    "popup" :
+                    {
+                        "title" : "All messages",
+                        "text" : "All messages you've sent to and/or received from <b>%1$s</b>.",
+                        ":comment.text" : "%1$s is the name/email of the contact.",
+                        ":scount.text" : 1
+                    }
+                },
+                "important" :
+                {
+                    "actionerror" : "Unable to show important messages for ${objectnames.singular.editor}.",
+                    "popup" :
+                    {
+                        "title" : "Important messages",
+                        "text" : "New and important messages from <b>%1$s</b>.",
+                        ":comment.text" : "%1$s is the name/email of the contact.",
+                        ":scount.text" : 1
+                    }
+                },
+                "project" :
+                {
+                    "actionerror" : "Unable to show ${objectnames.singular.project} messages for ${objectnames.singular.editor}.",
+                    "popup" :
+                    {
+                        "title" : "${objectnames.singular.project} updates sent/received",
+                        "text" : "All updates you have sent to or received from <b>%1$s</b> for ${objectnames.singular.project} <b>%2$s</b>.  The latest update is shown first.",
+                        ":comment.text" : "%1$s is the name/email of the contact.  %2$s is the name of the project.",
+                        ":scount.text" : 2
+                    }
+                },
+                "commentssent" :
+                {
+                    "popup" :
+                    {
+                        "title" : "${objectnames.plural.comment} sent",
+                        "text" : "All ${objectnames.plural.comment} you have sent to <b>%1$s</b> for ${objectnames.singular.project} <b>%2$s</b>.  The latest ${objectnames.plural.comment} are shown first.",
+                        ":comment.text" : "%1$s is the name/email of the contact.  %2$s is the name of the project.",
+                        ":scount.text" : 2
+                    }
+                },
+                "commentsreceived" :
+                {
+                    "popup" :
+                    {
+                        "title" : "${objectnames.plural.comment} received",
+                        "text" : "All ${objectnames.plural.comment} you have received from <b>%1$s</b> for ${objectnames.singular.project} <b>%2$s</b>.  The latest ${objectnames.plural.comment} are shown first.",
+                        ":comment.text" : "%1$s is the name/email of the contact.  %2$s is the name of the project.",
+                        ":scount.text" : 2
+                    }
+                }
+            },
+            "editoroffline" :
+            {
+                "popup" :
+                {
+                    "title" : "${objectnames.singular.editor} is offline",
+                    "text" : "<b>%1$s</b> is currently offline.  Your message will be stored on the server (encrypted) until they log in again and retrieve the message.<br /><br />Note: this applies whenever you send a message to an ${objectnames.singular.editor} that is offline.  This message won't be shown again.",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1
+                }
+            },
+            "undealtwith" :
+            {
+                "notification" : "There are <b>%1$s</b> ${objectnames.singular.editor} messages requiring your attention. <a href='action:showundealtwitheditormessages'>Click here to view the messages.</a>",
+                ":comment.notification" : "%1$s is the number of messages requiring the user's attention.  The message is shown as a notification when there are editor messages requiring the user's attention.  The href value in the link shouldn't be adjusted since it will display the messages for the user.",
+                ":scount.notification" : 1
+            },
+            "projectupdated" :
+            {
+                ":comment" : "This section relates to a project update being received by an author.",
+                "actionerror" : "Unable to show ${objectnames.singular.project} update.",
+                "errors" :
+                {
+                    "novalue" : "The ${objectnames.singular.project} for this update no longer exists."
+                }
+            }
+        },
+        "editor" :
+        {
+            "view" :
+            {
+                "actionerror" : "Unable to show ${objectnames.singular.contact}.",
+                "popupmenu" :
+                {
+                    "items" :
+                    {
+                        "sendmessage" : "Send message",
+                        "importantmessages" : "View new/important messages (%1$s)",
+                        ":comment.importantmessages" : "%1$s is the number of messages.",
+                        ":scount.importantmessages" : 1,
+                        "projectupdates" : "View updates you have sent/received for this ${objectnames.singular.project} (%1$s)",
+                        ":comment.projectupdates" : "%1$s is the number of messages.",
+                        ":scount.projectupdates" : 1,
+                        "projectsuserediting" : "View ${objectnames.plural.project} I'm editing for %1$s (%2$s)",
+                        ":comment.projectsuserediting" : "%1$s is the name/email of the contact, %2$s is the number of projects.",
+                        ":scount.projectsuserediting" : 2,
+                        "projectscontactediting" : "View ${objetnames.plural.project} %1$s is editing for me (%2$s)",
+                        ":comment.projectscontactediting" : "%1$s is the name/email of the contact, %2$s is the number of projects.",
+                        ":scount.projectscontactediting" : 2,
+                        "commentssent" : "View all ${objectnames.plural.comment} sent",
+                        "commentsreceived" : "View all ${objectnames.plural.comment} received",
+                        "lastcommentssent" : "View last ${objectnames.plural.comment} sent (%1$s)",
+                        ":comment.lastcommentssent" : "%1$s is the number of comments sent.",
+                        ":scount.lastcommentssent" : 1,
+                        "lastcommentsreceived" : "View last ${objectnames.plural.comment} received (%1$s)",
+                        ":comment.lastcommentsreceived" : "%1$s is the number of comments received.",
+                        ":scount.lastcommentsreceived" : 1,
+                        "sendproject" : "Send ${objectnames.singular.project}/${objectnames.plural.chapter}",
+                        "sendupdateproject" : "Update ${objectnames.singular.project}/${objectnames.plural.chapter}",
+                        "updatecontactinfo" : "Update the ${objectnames.singular.contact} information",
+                        "removecontact" : "Remove ${objectnames.singular.contact}",
+                        "allmessages" : "View ALL messages sent/received",
+                        "resendinvite" : "Resend invite"
+                    }
+                },
+                "chatmessages" :
+                {
+                    "title" : "%1$s (%2$s)",
+                    ":comment.title" : "This value is used when showing a list of chat messages between the user and one of their contacts.  %1$s is the date when the messages occurred and can be either a date value, such as 23/Jan/2018 or ${actions.today} or ${actions.yesterday}.  %2$s is the number of messages for that date.",
+                    ":scount.title" : 2,
+                    "sentbyme" : "Me",
+                    ":comment.sentbyme" : "This value is used to indicate that the message was sent by the user, it is shown when there is no avatar image for the user."
+                },
+                "info" :
+                {
+                    "tooltip" :
+                    {
+                        "previouseditor" : "Right click to see the menu",
+                        "currenteditor" : "Click to send a message to %1$s, right click to see the menu",
+                        ":comment.currenteditor" : "%1$s is the name/email of the contact.",
+                        ":scount.currenteditor" : 1,
+                        "general" : "Right click to see the menu"
+                    }
+                },
+                "other" :
+                {
+                    "pendingeditor" :
+                    {
+                        "invitesent" : "Invited: %1$s",
+                        ":comment.invitesent" : "%1$s is the date the user sent the invite.",
+                        ":scount.invitesent" : 1,
+                        "invitereceived" : "Received: %1$s",
+                        ":comment.invitereceived" : "%1$s is the date the invite was received.",
+                        ":scount.invitereceived" : 1
+                    }
+                },
+                "importantmessages" :
+                {
+                    "tooltip" : "%1$s new/important messages requiring your attention, click to view them",
+                    ":comment.tooltip" : "%1$s is the number of messages.",
+                    ":scount.tooltip" : 1
+                },
+                "previouseditor" :
+                {
+                    "onlinestatus" :
+                    {
+                        "tooltip" : "This is a previous ${objectnames.singular.contact}."
+                    }
+                },
+                "projecteditor" :
+                {
+                    ":comment" : "These items relate to the contact being an editor for one of the user's projects.",
+                    "messagecount" :
+                    {
+                        "tooltip" : "%1s ${objectnames.singular.project} messages, click to view them",
+                        ":comment.tooltip" : "%1$s is the number of messages.",
+                        ":scount.tooltip" : 1
+                    },
+                    "undealtwithmessagecount" :
+                    {
+                        "tooltip" : "%1$s ${objectnames.singular.project} messages requiring your attention, click to view them",
+                        ":comment.tooltip" : "%1$s is the number of messages.",
+                        ":scount.tooltip" : 1
+                    }
+                },
+                "projectcomments" :
+                {
+                    "received" :
+                    {
+                        "tooltip" : "%1s ${objectnames.plural.comment} from %2$s",
+                        ":comment.tooltip" : "%1$s is the number of comments received.  %2$s is the name/email of the editor.",
+                        ":scount.tooltip" : 1
+                    },
+                    "sent" :
+                    {
+                        "tooltip" : "%1s ${objectnames.plural.comment} sent to %2$s",
+                        ":comment.tooltip" : "%1$s is the number of comments sent.  %2$s is the name/email of the editor.",
+                        ":scount.tooltip" : 1
+                    }
+                },
+                "noprojectcomments" :
+                {
+                    "received" :
+                    {
+                        "tooltip" : "%1$s has not sent you any ${objectnames.plural.comment} yet.",
+                        ":comment.tooltip" : "%1$s is the name/email of the contact.",
+                        ":scount.tooltip" : 1
+                    },
+                    "sent" :
+                    {
+                        "tooltip" : "You have not sent any ${objectnames.plural.comment} to %1$s yet.",
+                        ":comment.tooltip" : "%1$s is the name/email of the contact.",
+                        ":scount.tooltip" : 1
+                    }
+                },
+                "unreadchatmessages" :
+                {
+                    "tooltip" : "%1$s unread chat message",
+                    ":comment.tooltip" : "%1$s is the number of unread chat messages.",
+                    ":scount.tooltip" : 1
+                }
+            },
+            "sendchat" :
+            {
+                "sending" : "Sending message...",
+                "contactistyping" : "%1$s is typing...",
+                ":comment.contactistyping" : "%1$s is the name/email of the contact.  The message is shown when the contact is typing.",
+                ":scount.contactistyping" : 1,
+                "box" :
+                {
+                    "tooltip" : "Enter your message here...\n\nTo send press Ctrl+Enter or use the button below.",
+                    "buttons" :
+                    {
+                        "send" :
+                        {
+                            "tooltip" : "Click to send the message"
+                        },
+                        "cancel" :
+                        {
+                            "tooltip" : "Click to clear the text"
+                        }
+                    }
+                }
+            },
+            "showprojectscontactisediting" :
+            {
+                ":comment" : "This section is for showing the projects that a contact is editing for the user.",
+                "actionerror" : "Unable to show ${objectnames.plural.project}.",
+                "popup" :
+                {
+                    "title" : "${objectnames.plural.project} being edited",
+                    "text" : "All ${objectnames.plural.project} <b>%1$s</b> is editing for you.",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1
+                }
+            },
+            "showprojectseditingforcontact" :
+            {
+                ":comment" : "This section is for showing the projects that the user is editing for a contact.",
+                "actionerror" : "Unable to show ${objectnames.plural.project}.",
+                "popup" :
+                {
+                    "title" : "${objectnames.plural.project} you are editing",
+                    "text" : "All ${objectnames.plural.project} you are editing for <b>%1$s</b>.",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1
+                }
+            },
+            "updated" :
+            {
+                "popup" :
+                {
+                    ":comment" : "This popup is shown when the contact has updated their name/avatar.",
+                    "title" : "A ${objectnames.singular.contact} has updated their information",
+                    "text" : "<b>%1$s</b> has updated their information.  To accept the changes click on the <b>${editors.editor.updated.popup.buttons.accept}</b> button below, to keep the current name and avatar click <b>${editors.editor.updated.popup.buttons.reject}</b>.",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1,
+                    "labels" :
+                    {
+                        "name" : "Their New Name",
+                        "avatar" : "Their New Avatar"
+                    },
+                    "buttons" :
+                    {
+                        "accept" : "Update",
+                        "reject" : "Reject",
+                        "cancel" : "I'll decide later"
+                    }
+                }
+            },
+            "edit" :
+            {
+                "actionerror" : "Unable to update ${objectnames.singular.contact}.",
+                "popup" :
+                {
+                    ":comment" : "This popup is shown when the user wants to update a contacts name/avatar.",
+                    "title" : "Update the ${objectnames.singular.contact} information",
+                    "text" : "Change the name/avatar for <b>%1$s</b> below.",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1,
+                    "labels" :
+                    {
+                        "reset" :
+                        {
+                            "tooltip" : "Click to reset the name to %1$s",
+                            ":comment.tooltip" : "%1$s is the original name.",
+                            ":scount.tooltip" : 1
+                        },
+                        "name" : "Name",
+                        "avatar" : "Avatar"
+                    },
+                    "errors" :
+                    {
+                        "noname" : "Name must be specified."
+                    },
+                    "buttons" :
+                    {
+                        "confirm" : "${buttons.update}",
+                        "cancel" : "${buttons.cancel}"
+                    }
+                }
+            },
+            "remove" :
+            {
+                "editorstatus" : "Removed",
+                "pending" :
+                {
+                    ":comment" : "This popup is shown when the contact has a pending status, that is the contact hasn't confirmed the invite yet.",
+                    "popup" :
+                    {
+                        "title" : "Remove ${objectnames.singular.contact}",
+                        "text" : "To confirm removal of <b>%1$s</b> as a ${objectnames.singular.contact} please enter the word <b>${form.affirmativevalue}</b> in the box below.",
+                        ":comment.text" : "%1$s is the name/email of the contact.",
+                        ":scount.text" : 1,
+                        "buttons" :
+                        {
+                            "confirm" : "Yes, remove them",
+                            "cancel" : "No, keep them"
+                        }
+                    }
+                },
+                "popup" :
+                {
+                    ":comment" : "This is the standard popup when the contact is a regular one.",
+                    "title" : "Remove ${objectnames.singular.contact}",
+                    "text" : "Please confirm you wish to remove <b>%1$s</b> as a ${objectnames.singular.contact}.<br /><br />A message will be sent to <b>%1$s</b> informing them of your decision.<br /><br />Enter <b>${form.affirmativevalue}</b> below to remove them.<br /><br /><span class='error'>Warning: you will no longer be able to receive messages from <b>%1$s</b> or send messages to them.</span>",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1,
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, remove them",
+                        "cancel" : "No, keep them"
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "${objectnames.singular.contact} removed",
+                    "text" : "<b>%1$s</b> has been removed as a ${objectnames.singular.contact}.",
+                    ":comment.text" : "%1$s is the name/email of the contact.",
+                    ":scount.text" : 1
+                }
+            }
+        },
+        "user" :
+        {
+            "register" :
+            {
+                "popup" :
+                {
+                    "title" : "Register for the ${names.editorsservice}"
+                },
+                "sectiontitles" :
+                {
+
+                },
+                "stages" :
+                {
+                    "start" :
+                    {
+                        "title" : "Getting started",
+                        "text" : "Welcome to the {QW} $[names.editorsservice}.  The registration process only takes a minute and the service is free to use (no really).<br /><br />If you've already registered don't worry just use the link at the bottom to find your ${objectnames.plural.editor} database.<br /><br /><a href='%1$s'>Find out more about the ${names.editorsservice}</a>",
+                        ":comment.text" : "%1$s is a link to information page about the Editors service.",
+                        ":scount.text" : 1,
+                        "labels" :
+                        {
+                            "viewtandc" : "View the Terms and Conditions for using the Editors service.",
+                            "agreetandc" : "I have read and agree to the Terms and Conditions of use",
+                            "alreadyregistered" : "Already registered?  Click here to find your ${objectnames.plural.editor} database folder."
+                        },
+                        "errors" :
+                        {
+                            "agreetandc" : "You must agree to the Terms and Conditions to continue."
+                        }
+                    },
+                    "exists" :
+                    {
+                        "title" : "Find an existing ${objectnames.plural.editor} database",
+                        "text" : "Use the finder below to find your existing ${objectnames.plural.editor} database.",
+                        "finder" :
+                        {
+                            "title" : "Select a Folder",
+                            "button" : "${actions.select}",
+                            "tooltip" : "Click to find a folder",
+                            "label" : "${actions.select}"
+                        }
+                    }
+                }
+            },
+            "inviteeditor" :
+            {
+                "popup" :
+                {
+                    ":comment" : "The popup is shown when the user wants to invite someone to be an editor for them.",
+                    "title" : "Send an invite",
+                    "text" : "Enter the email address of the person to invite.",
+                    "buttons" :
+                    {
+                        "invite" : "Send Invite",
+                        "cancel" : "${buttons.cancel}"
+                    },
+                    "errors" :
+                    {
+                        "noemail" : "The email address must be specified.",
+                        "invalidemail" : "Please provide a valid email address.",
+                        "self" : "Inviting yourself? O_o",
+                        "previousrejected" : "You have already invited: <b>%1$s (%2$s)</b>.  Your invitation was rejected.",
+                        ":comment.previousrejected" : "%1$s is the name of the invitee, %2$s is the email address.",
+                        ":scount.previousrejected" : 2,
+                        "alreadyinvited" : "You have already invited <b>%1$s (%2$s)</b>.",
+                        ":comment.alreadyinvited" : "%1$s is the name of the invitee, %2$s is the email address.",
+                        ":scount.alreadyinvited" : 2,
+                        "previous" : "<b>%1$s (%2$s)</b> is a previous ${objectnames.singular.contact}.",
+                        ":comment.previous" : "%1$s is the name of the invitee, %2$s is the email address.",
+                        ":scount.previous" : 2
+                    }
+                }
+            },
+            "displaypassword" :
+            {
+                "popup" :
+                {
+                    "title" : "Your ${names.editorsservice} password",
+                    "text" : "Note: your password is being displayed because you have checked the <i>XXXSave password</i> box for logging into the ${names.editorsservice}.<br /><br />Your login details are:<br /><br />Email address: <b>%1$s</b><br />Password: <b>%2$s</b>",
+                    ":comment.text" : "%1$s is the user's email address, %2$s is the user's password.",
+                    ":scount.text" : 2
+                }
+            },
+            "changepassword" :
+            {
+                "actionerror" : "Unable to change password.",
+                "popup" :
+                {
+                    "title" : "Change your password",
+                    "text" : "Enter your new password below.",
+                    "labels" :
+                    {
+                        "newpassword" : "New Password",
+                        "confirmpassword" : "Confirm Password"
+                    },
+                    "buttons" :
+                    {
+                        "confirm" : "Change it",
+                        "cancel" : "${buttons.cancel}"
+                    },
+                    "errors" :
+                    {
+                        "nopassword" : "Please provide a new password.",
+                        "confirmpassword" : "Please confirm your new password.",
+                        "nomatch" : "The passwords do not match."
+                    }
+                }
+            },
+            "sendproject" :
+            {
+                "editorstatus" : "${objectnames.singular.project} sent: %1$s",
+                ":comment.editorstatus" : "%1$s is the date the project was sent.  This value is used as the current status for the contact, it's a quick reference for the user to see what is happening with the contact.",
+                ":scount.editorstatus" : 1,
+                "popup" :
+                {
+                    "title" : "Send ${objectnames.singular.project}"
+                }
+            },
+            "updateproject" :
+            {
+                "editorstatus" : "${objectnames.singular.project} updated: %1$s",
+                ":comment.editorstatus" : "%1$s is the date the project update was sent to the contact.  This value is used as the current status for the contact, it's a quick reference for the user to see what is happening with the contact.",
+                ":scount.editorstatus" : 1,
+                "popup" :
+                {
+                    "title" : "Update ${objectnames.singular.project}",
+                    "labels" :
+                    {
+                        "firstupdatewithversion" : "You sent version <b>%1$s</b> of the ${objectnames.singular.project} on <b>%2$s</b>.",
+                        ":comment.firstupdatewithversion" : "%1$s is the version, %2$s is the date it was sent.",
+                        ":scount.firstupdatewithversion" : 2,
+                        "firstupdate" : "You sent the ${objectnames.singular.project} on <b>%1$s</b>.",
+                        ":comment.firstupdate" : "%1$s is the date the project was first sent.",
+                        ":scount.firstupdate" : 1,
+                        "lastupdatewithversion" : "You last sent version <b>%1$s</b> of the ${objectnames.singular.project} on <b>%2$s</b>.",
+                        ":comment.lastupdatewithversion" : "%1$s is the version, %2$s is the date it was sent.",
+                        ":scount.lastupdatewithversion" : 2,
+                        "lastupdate" : "You last sent the ${objectnames.singular.project} on <b>%1$s</b>.",
+                        ":comment.lastupdate" : "%1$s is the date the project was last sent.",
+                        ":scount.lastupdate" : 2,
+                        "updatesuffix" : "  The ${objectnames.plural.chapter} you previously sent have been pre-selected."
+                    }
+                }
+            },
+            "commentsreceived" :
+            {
+                "editorstatus" : "Received %1$s ${objectnames.plural.comment}: %2$s",
+                ":comment.editorstatus" : "%1$s is the number of comments received.  %2$s is the date the comments were received.  This value is used as the current status for the contact, it's a quick reference for the user to see what is happening with the contact.",
+                ":scount.editorstatus" : 2
+            },
+            "sendorupdateproject" :
+            {
+                ":comment" : "These items are used for both the sendproject and updateproject popups.",
+                "actionerror" : "Update to send/update ${objectnames.singular.project}",
+                "popup" :
+                {
+                    "text" : "Select the ${objectnames.plural.chapter} you wish to send to <b>%1$s</b>.  You can also select a date indicating when you would like the editing to be completed, remember to be reasonable, your editors have lives too!<br /><br />It is recommended that you provide a <i>Version</i> such as <b>1st Draft</b> or <b>Final edit</b> so that when you get comments back you know what they relate to.%2$s",
+                    ":comment.text" : "%1$s is the name/email of the contact.  %2$s is information about the last update or new project message sent.  See the updateproject section for details.",
+                    ":scount.text" : 2,
+                    "loading" : "Sending ${objectnames.singular.project}...",
+                    "errors" :
+                    {
+                        "nochapters" : "Please select at least 1 ${objectnames.singular.chapter}.",
+                        "unsavedchanges" : "One of the selected ${objectnames.plural.chapter} has unsaved changes, please save your work before sending the ${objectnames.singular.project}.",
+                        "maxchars" : "${editors.user.sendorupdateproject.popup.labels.notes.text} can be a maximum of 5000 characters."
+                    },
+                    "labels" :
+                    {
+                        "project" : "${objectnames.singular.project}",
+                        "version" : "Version",
+                        "dueby" : "Due by",
+                        "chapters" : "${objectnames.plural.chapter}",
+                        "notes" :
+                        {
+                            "text" : "Notes",
+                            "tooltip" : "Tell %1$s about your ${objectnames.singular.project}/book/story here.  Also add instructions/hints on what you are wanting them to do, what to look at specifically and so on.",
+                            ":comment.tooltip" : "%1$s is the name/email of the contact.",
+                            ":scount.tooltip" : 1
+                        }
+                    },
+                    "buttons" :
+                    {
+                        "send" : "Send",
+                        "cancel" : "${buttons.cancel}"
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Your ${objectnames.singular.project} has been sent",
+                    "text" : "Your ${objectnames.singular.project} <b>%1$s</b> has been sent to <b>%2$s</b>.",
+                    ":comment.text" : "%1$s is the project name, %2$s is the name/email of the contact."
+                }
+            },
+            "sendunsentcomments" :
+            {
+                "popup" :
+                {
+                    "title" : "Send ${objectnames.plural.comment} to ${objectnames.singular.editor}",
+                    "text" : "Select the ${objectnames.plural.comment} you wish to send to <b>%1$s</b> below.",
+                    ":comment.text" : "%1$s is the name/email of the contact to send the comments to.",
+                    ":scount.text" : 1,
+                    "buttons" :
+                    {
+                        "send" : "${buttons.send}",
+                        "cancel" : "${buttons.cancel}"
+                    },
+                    "labels" :
+                    {
+                        "notes" :
+                        {
+                            "text" : "Notes",
+                            "tooltip" : "Optionally, you can provide some general thoughts/comments about the ${objectnames.singular.project} here."
+                        },
+                        "comments" : "${objectnames.plural.comment}"
+
+                    },
+                    "loading" : "Sending ${objectnames.plural.comment}...",
+                    "errors" :
+                    {
+                        "novalue" : "Please select at least 1 ${objectnames.singular.comment}"
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Your ${objectnames.plural.comment} have been sent",
+                    "text" : "The selected ${objectnames.plural.comment} have been sent to <b>%1$s</b>.",
+                    ":comment.text" : "%1$s is the name/email of editor.",
+                    ":scount.text" : 1
+                },
+                "actionerror" : "Your ${objectnames.plural.comment} have been sent but {QW} is unable to update your local database."
+            },
+            "reportmessage" :
+            {
+                "actionerror" : "Unable to report message.",
+                "popup" :
+                {
+                    "title" : "Report a message",
+                    "text" : "Please describe why you are reporting the message.<br /><br />Note: when reporting a message all information known about the message, such as the text received by you, will be sent to the Quoll Writer server.<br /><br /><span class='error'>Warning: falsely reporting messages can lead to you being banned from the Editors Service.</span>",
+                    "loading" : "Sending report...",
+                    "buttons" :
+                    {
+                        "send" : "Report",
+                        "cancel" : "${buttons.cancel}"
+                    },
+                    "errors" :
+                    {
+                        "novalue" : "Please provide a reason for the report."
+                    },
+                    "sectiontitles" :
+                    {
+                        "message" : "Message you are reporting",
+                        "reason" : "Reason",
+                        "from" : "From ${objectnames.singular.editor}"
+                    },
+                    "labels" :
+                    {
+                        "reason" :
+                        {
+                            "tooltip" : "Please describe why you are reporting the message, for example does it contain inappropriate language or suggestions?"
+                        }
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Message reported",
+                    "text" : "The message has been reported to {QW} support.  Please note that you may be contacted to get other information about the message, for example if you have received an inappropriate image or text in a ${objectnames.singular.chapter}."
+                }
+            },
+            "deleteprojectsforeditor" :
+            {
+                "actionerror" : "Unable to delete ${objectnames.plural.project}.",
+                "popup" :
+                {
+                    "title" : "Delete ${objectnames.plural.project} for ${objectnames.singular.contact}",
+                    "text" : "You are currently editing <b>%1$s</b> ${objectnames.plural.project} for <b>%2$s</b>.  To remove them enter the word <b>${form.affirmativevalue}</b> below.",
+                    ":comment.text" : "%1$s is the number of projects.  %2$s is the name/email of the contact.",
+                    ":scount.text" : 2,
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, delete them",
+                        "cancel" : "No, keep them"
+                    }
+                }
+            },
+            "deletealleditorprojects" :
+            {
+                "actionerror" : "Unable to delete all ${objectnames.singular.editor} ${objectnames.plural.project}.",
+                "popup" :
+                {
+                    "title" : "Delete all ${objectnames.plural.project} for your ${objectnames.plural.contact}",
+                    "text" : "You are currently editing <b>%1$s</b> ${objectnames.plural.project} for <b>%2$s</b> ${objectnames.plural.contact}.  To remove them enter the word <b>${form.affirmativevalue}</b> below.",
+                    ":comment.text" : "%1$s is the number of projects.  %2$s is the number of contacts/editors.",
+                    ":scount.text" : 2,
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, delete them",
+                        "cancel" : "No, keep them"
+                    }
+                }
+            },
+            "deleteaccount" :
+            {
+                "actionerror" : "Unable to delete your account.",
+                "notification" : "Deleting your ${names.editorsservice} account, please wait.  This sometimes takes a little while...",
+                "popup" :
+                {
+                    "title" : "Delete your account",
+                    "text" : "To delete your account please enter the word <b>${form.affirmativevalue}</b> in the box below.<br /><br />Note: Your ${objectnames.plural.contact} database will not be deleted allowing you to keep a record of what you have sent and received.  If you create another account you will not be able to use your current database.<br /><br /><span class='error'>Warning: deleting your account means you will no longer be able to send messages to any of your ${objectnames.plural.contact} or receive messages from them.  A message will be sent to each of them telling them you have removed them.</span>",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, delete it",
+                        "cancel" : "No, keep it"
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Account deleted",
+                    "text" : "Your ${names.editorsservice} account has been deleted.<br /><br />Your ${objectnames.plural.contact} database has <b>not</b> been deleted.<br /><a href='%1$s'>Click to view the folder containing the database</a>",
+                    ":comment.text" : "%1$s is a link to the folder containing the users editors database.",
+                    ":scount.text" : 1
+                }
+            },
+            "invitesent" :
+            {
+                "popup" :
+                {
+                    "title" : "Invite sent",
+                    "text" : "An invite has been sent to: <b>%1$s</b>.",
+                    ":comment.text" : "%1$s is the email address of the person invited.",
+                    ":scount.text" : 1
+                }
+            },
+            "sendprojectoninvite" :
+            {
+                ":comment" : "This popup is shown when the user first invites someone to be an editor, the popup asks whether they would like to send the current project to the invitee.",
+                "popup" :
+                {
+                    "title" : "Send ${objectnames.singular.project} / ${objectnames.plural.chapter}?",
+                    "text" : "Would you like to send your ${objectnames.singular.project}/${objectnames.plural.chapter} to <b>%1$s</b> now?",
+                    ":comment.text" : "%1$s is the email address of the invitee.",
+                    ":scount.text" : 1,
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, send it",
+                        "cancel" : "No, don't send it"
+                    }
+                }
+            },
+            "sendinvite" :
+            {
+                "actionerror" : "Unable to send invite."
+            },
+            "edit" :
+            {
+                "info" :
+                {
+                    "actionerror" : "Unable to update your information.",
+                    "popup" :
+                    {
+                        "title" : "Update your name/avatar",
+                        "text" : "Change your name/avatar below.  Note: clicking <b>${editors.user.edit.info.popup.buttons.confirm}</b> below will send any changes to your ${objectnames.plural.contact}.",
+                        "buttons" :
+                        {
+                            "confirm" : "${buttons.update}",
+                            "cancel" : "${buttons.cancel}"
+                        },
+                        "labels" :
+                        {
+                            "name" : "Your Name",
+                            "avatar" : "Your picture/Avatar"
+                        },
+                        "errors" :
+                        {
+                            "noname" : "Please enter your name."
+                        }
+                    },
+                    "confirmpopup" :
+                    {
+                        "title" : "Details sent",
+                        "text" : "Your updated details have been sent to your ${objectnames.plural.editor}"
+                    }
+                },
+                "password" :
+                {
+                    "actionerror" : "Unable to update your password.",
+                    "confirmpopup" :
+                    {
+                        "title" : "Password updated",
+                        "text" : "Your password has been updated."
+                    }
+                }
+            }
+        },
+        "login" :
+        {
+            "popup" :
+            {
+                "title" : "Login to the ${names.editorservice}",
+                "loading" : "Logging in... please wait...",
+                "buttons" :
+                {
+                    "login" : "Login",
+                    "cancel" : "${buttons.cancel}"
+                },
+                "error" :
+                {
+                    "prefix" : "Unable to login to the ${names.editorsservice}.<br />%1$s",
+                    ":comment.prefix" : "%1$s is the reason why the login failed.",
+                    ":scount.prefix" : 1,
+                    "general" : "Please contact {QW} support for assistance, quoting error code: %1$s",
+                    ":comment.general" : "This is a general purpose message returned from the server as to why the login failed.  %1$s is the error code/reason for the failure.  Note: the reason will be in English since it is returned from the server.",
+                    ":scount.general" : 1,
+                    "invalidcredentials" : "Please check your email/password and try again.",
+                    "other" : "Unable to login to the ${names.editorsservice}.",
+                    ":comment.other" : "This is a general purpose, fall through message used when no other error applies.",
+                    "maxloginattempts" : "You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.",
+                    "inactiveaccount" : "You must activate your account (check your email) first."
+                },
+                "labels" :
+                {
+                    "youremail" : "Your Email",
+                    "password" : "Password",
+                    "autologin" : "Automatically login whenever {QW} starts"
+                }
+            },
+            "savepasswordwarningpopup" :
+            {
+                ":comment" : "This warning message is displayed when the user wants to save the password.  However there is no way to properly secure the password since any encryption key used would be available on the local machine conferring no benefit.",
+                "title" : "Warning!",
+                "text" : "It is not recommended that your password is saved.<br /><br />This is because there is no way to securely store the password on your local computer, encrypting the password would have no effect/benefit, because of this your password will be saved in clear text in your editor properties file.<br /><br />If you understand the risks and are happy for the password to be stored in an insecure manner then please enter the word <b>${form.affirmativevalue}</b> in the box below.<br /><br />Note: if you select <b>No, don't save it</b> then you will have to enter the password each time you use login to the ${names.editorsservice}.",
+                "buttons" :
+                {
+                    "confirm" : "Yes, save the password",
+                    "cancel" : "No, don't save it"
+                }
+            },
+            "reasons" :
+            {
+                "default" : "To go online you must first login.",
+                "updateinfotoall" : "To send your information to your ${objectnames.plural.contact} you must first login to the ${names.editorsservice}.",
+                "updateinfotocontact" : "To send your information to <b>%1$s</b> you must first login to the ${names.editorsservice}.",
+                ":comment.updateinfotocontact" : "%1$s is the name/email of the contact.",
+                ":scount.updateinfotocontact" : 1,
+                "sendmessagetocontact" : "To send a message to <b>%1$s</b> you must first login to the ${names.editorsservice}.",
+                ":comment.sendmessagetocontact" : "%1$s is the name/email of the contact.",
+                ":scount.sendmessagetocontact" : 1,
+                "deleteaccount" : "To delete your account you must first login.",
+                "reportmessage" : "To report a message you must first login.",
+                "changepassword" : "To change your password you must first login to the ${names.editorsservice}.",
+                "deleteinvite" : "To delete an invite you must first login to the ${names.editorsservice}.",
+                "updateinvite" : "To update an invite you must first login to the ${names.editorsservice}.",
+                "sendinvite" : "To send an invite you must first login to the ${names.editorsservice}."
+            },
+            "auto" :
+            {
+                "notification" : "Logging in to the ${names.editorsservice}...",
+                ":comment.notification" : "This message is automatically displayed as a notification in the current window when QW tries to automatically log the user into the Editors Service.",
+                "actionerror" : "Unable to automatically login, please check your email and password."
+            }
+        },
         "statuses" :
         {
             "online" : "Online",
@@ -3191,6 +4564,136 @@
             "busy" : "Busy",
             "away" : "Away",
             "snooze" : "Snooze"
+        },
+        "project" :
+        {
+            "viewertitle" : "Editing: %2$s%1$s",
+            ":comment.viewertitle" : "%1$s is replaced with the viewertitleversionwrapper which will contain the version of the project, this is optional and only present if there is a version.  %2$s is the name of the project.",
+            ":scount.viewertitle" : 2,
+            "viewertitleversionwrapper" : " (%1$s)",
+            ":comment.viewertitleversionwrapper" : "%1$s is the version of the project.",
+            ":scount.viewertitleversionwrapper" : 1,
+            "actions" :
+            {
+                "openproject" :
+                {
+                    "openerrors" :
+                    {
+                        ":comment" : "These are error messages that may be displayed when a user is unable to open an editor project.",
+                        "previouscontact" : "Note: this is a ${objectnames.singular.project} for a previous ${objectnames.singular.contact}.  You can no longer send ${objectnames.plural.comment}."
+                    }
+                },
+                "viewcomment" :
+                {
+                    "actionerror" : "Unable to show ${objectnames.singular.comment}"
+                },
+                "editcomment" :
+                {
+                    "actionerror" : "Unable to edit ${objectnames.singular.comment}"
+                },
+                "unsentcomments" :
+                {
+                    "actionerror" : "Unable to check for unsent ${objectnames.plural.comment}"
+                },
+                "switchtoversion" :
+                {
+                    "actionerror" : "Unable to open ${objectnames.singular.project} at that version."
+                },
+                "deleteproject" :
+                {
+                    "popup" :
+                    {
+                        "title" : "Delete ${objectnames.singular.project}",
+                        "text" : "To delete ${objectnames.singular.project} <b>%1$s</b> please enter the word <b>${form.affirmativevalue}</b> into the box below.<br /><br />Warning!  All information/${objectnames.plural.comment} associated with the ${objectnames.singular.project} will be deleted.<br /><br />A message will also be sent to <b>%2$s</b> telling them you are no longer editing the ${objectnames.singular.project}.",
+                        ":comment.text" : "%1$s is the name of the project to delete.  %2$s is the name/email address of the person who sent the project.",
+                        ":scount.text" : 2,
+                        "buttons" :
+                        {
+                            "confirm" : "Yes, delete it",
+                            "cancel" : "No, keep it"
+                        }
+                    },
+                    "confirmpopup" :
+                    {
+                        "title" : "${objectnames.singular.project} deleted",
+                        "text" : "The ${objectnames.singular.project} has been deleted and a message has been sent to <b>%1$s</b> to let them know.",
+                        ":comment.text" : "%1$s is the name/email address of the person who sent the project.",
+                        ":scount.text" : 1,
+                        "labels" :
+                        {
+                            "view" : "Click to view the ${objectnames.plural.backup}"
+                        }
+                    },
+                    "unsentcommentspopup" :
+                    {
+                        ":comment" : "This confirmation popup is shown if there are outstanding comments made by the user for the project that have not yet been sent to the project owner.",
+                        "title" : "Unsent ${objectnames.plural.comment}",
+                        "text" : "There are <b>%1$s</b> ${objectnames.plural.comment} that you have not yet sent to <b>%2$s</b>.<br /><br />Do you wish to send it now?",
+                        ":comment.text" : "%1$s is the number of comments not yet sent.  %2$s is the name/email address of the project owner.",
+                        ":scount.text" : 2,
+                        "buttons" :
+                        {
+                            "confirm" : "Yes, send them now",
+                            "cancel" : "No, don't send them"
+                        }
+                    }
+                }
+            },
+            "settingsmenu" :
+            {
+                "items" :
+                {
+                    "openproject" : "${settingsmenu.items.openproject}",
+                    "closeproject" : "${settingsmenu.items.closeproject}",
+                    "deleteproject" : "${settingsmenu.items.deleteproject}"
+                }
+            },
+            "sidebar" :
+            {
+                "comments" :
+                {
+                    "sent" :
+                    {
+                        "title" : "${objectnames.plural.comment} to"
+                    },
+                    "received" :
+                    {
+                        "title" : "${objectnames.plural.comment} from"
+                    },
+                    "labels" :
+                    {
+                        "sent" : "<i>Sent</i>",
+                        "received" : "<i>Received</i>",
+                        "version" : "<i>Version</i>",
+                        "notes" : "<i>Notes</i>",
+                        ":comment.notes" : "Only the first sentence of the notes is shown by default, the rest of the text is displayed in a popup when clicked.  The {more} text provides the indication to the user that there is more text to see.",
+                        "more" : "<br /><a href='#'>More, click to view all.</a>",
+                        "othercomments" : "%1$s other ${objectnames.plural.comment} are available for this version, click to select other ${objectnames.plural.comment} to view.",
+                        ":comment.othercomments" : "%1$s is the number of other comments.",
+                        ":scount.othercomments" : 1
+                    },
+                    "notes" :
+                    {
+                        "popup" :
+                        {
+                            "title" : "Notes"
+                        }
+                    },
+                    "othercomments" :
+                    {
+                        "popup" : "Select a set of ${objectnames.plural.comment} to view",
+                        "item" :
+                        {
+                            "title" : "%1$s ${objectnames.plural.comment}",
+                            ":comment.title" : "%1$s is the number of comments",
+                            ":scount.title" : 1,
+                            "received" : "Received: %1$s",
+                            "sent" : "Sent: %1$s",
+                            "tooltip" : "Click to view the ${objectnames.plural.comment}."
+                        }
+                    }
+                }
+            }
         }
     },
     "statistics" :
@@ -3763,7 +5266,7 @@
                 {
                     "chapterpreview" :
                     {
-                        "title" : "Improved {chapter} previews",
+                        "title" : "Improved ${objectnames.singular.chapter} previews",
                         "text" : "The popup displayed when you hold your mouse over a ${objectnames.singular.chapter} in the ${objectnames.singular.chapter} list has been improved and can be configured to display a variety of information.<br /><br />See <a href='help:chapters/overview'>for more details</a>.<br /><br /><a href='action:options.look'>Click here to change what is displayed.</a>"
                     },
                     "import" :
@@ -3840,8 +5343,8 @@
         "dowarmuponstart" : "Do a ${objectnames.singular.warmup} every time {QW} starts",
         "createwarmupsproject" :
         {
-            "title" : "{Warmups} ${objectnames.singular.project}",
-            "text" : "A {Warmups} ${objectnames.singular.project} will now be created to hold your ${objectnames.plural.warmup}.",
+            "title" : "${objectnames.plural.warmup} ${objectnames.singular.project}",
+            "text" : "A ${objectnames.plural.warmup} ${objectnames.singular.project} will now be created to hold your ${objectnames.plural.warmup}.",
             "actionerror" : "Unable to create ${objectnames.plural.warmup} ${objectnames.singular.project}."
         },
         "addwarmuperror" : "Unable to add ${objectnames.singular.warmup}.",
@@ -3885,7 +5388,7 @@
         },
         "popup" :
         {
-            "title" : "Do a {Warmup} Exercise"
+            "title" : "Do a ${objectnames.singular.warmup} Exercise"
         }
     },
     "linkedto" :
@@ -3961,6 +5464,10 @@
         ":title" : "Selecting an Image",
         ":section" : "General",
         "tooltip" : "Click to find an image file",
+        "view" :
+        {
+            "actionerror" : "Unable to show file"
+        },
         "popupmenu" :
         {
             "items" :
@@ -4342,7 +5849,7 @@
                 {
                     "tooltip" : "Double click to edit, press Enter when done.",
                     "title" : "${objectnames.plural.tag}",
-                    "text" : "Note: removing a tag will remove it from <b>all</b> {projects}.  You can change the tag name by editing the values below, double click on a type to edit it.",
+                    "text" : "Note: removing a tag will remove it from <b>all</b> ${objectnames.plural.project}.  You can change the tag name by editing the values below, double click on a type to edit it.",
                     "remove" : "Remove Selected",
                     "loadallerror" : "Unable to get the ${objectnames.plural.tag}.",
                     "popupmenu" :
@@ -4386,6 +5893,7 @@
     {
         ":title" : "Charts",
         ":section" : "Project",
+        "actionerror" : "Unable to show Chart.",
         "timeseries" :
         {
             "tooltip" : "%1$s, %2$s words%3$s",
@@ -4897,7 +6405,7 @@
         {
             "actionerror" : "Unable to remove asset type.",
             ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
-            "text" : "To delete all <b>%1$s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%$1s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other {projects}.",
+            "text" : "To delete all <b>%1$s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%$1s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other ${objectnames.plural.project}.",
             ":comment.text" : "%1$s is the object type name plural for the asset type.",
             ":scount.text" : 1
         },
@@ -4947,7 +6455,7 @@
     {
         ":title" : "Appears in Chapters",
         ":section" : "Project",
-        "title" : "Appears in {Chapters}",
+        "title" : "Appears in ${objectnames.plural.chapter}",
         "showinsidebar" :
         {
             "tooltip" : "Click to view these items in the sidebar",
@@ -4955,7 +6463,7 @@
         },
         "sidebar" :
         {
-            "text" : "appears in the following {chapters}.",
+            "text" : "appears in the following ${objectnames.plural.chapter}.",
             "title" : "%1$s",
             ":comment.title" : "Shown when the sidebar is active one.  %1$s is the name of the object.",
             ":scount.title" : 1,
@@ -5058,24 +6566,24 @@
         {
             "warmups" :
             {
-                "title" : "Previous {Warmups}",
+                "title" : "Previous ${objectnames.plural.warmup}",
                 "prompt" : "Prompt",
                 "headerpopupmenu" :
                 {
                     "items" :
                     {
-                        "new" : "Add New {Warmup}"
+                        "new" : "Add New ${objectnames.singular.warmup}"
                     }
                 },
                 "treepopupmenu" :
                 {
                     "items" :
                     {
-                        "edit" : "${actions.edit} {Warmup}",
+                        "edit" : "${actions.edit} ${objectnames.singular.warmup}",
                         "converttoproject" : "Convert to a ${objectnames.singular.project}",
-                        "rename" : "${actions.rename} {Warmup}",
-                        "close" : "${actions.close} {Warmup}",
-                        "delete" : "${actions.delete} {Warmup}"
+                        "rename" : "${actions.rename} ${objectnames.singular.warmup}",
+                        "close" : "${actions.close} ${objectnames.singular.warmup}",
+                        "delete" : "${actions.delete} ${objectnames.singular.warmup}"
                     }
                 }
             }
@@ -5146,6 +6654,9 @@
     {
         ":title" : "Project Window",
         ":section" : "Project",
+        "viewertitle" : "%1$s",
+        ":comment.viewertitle" : "This is the title used when a user is editing a project.  It just defaults to the name, given by the %1$s.",
+        ":scount.viewertitle" : 1,
         "status" :
         {
             "novalue" : "No Status",
@@ -5402,6 +6913,14 @@
                     },
                     "nomoreproblems" :
                     {
+                        "selected" :
+                        {
+                            "end" :
+                            {
+                                "title" : "No more problems found",
+                                "text" : "No more problems found in selected text."
+                            }
+                        },
                         "end" :
                         {
                             "title" : "No more problems found",
@@ -5464,6 +6983,7 @@
         },
         "sidebar" :
         {
+            "title" : "${objectnames.singular.project}",
             "headerpopupmenu" :
             {
                 ":comment" : "These items are added to all sections in the sidebar.",
@@ -5559,6 +7079,10 @@
             {
                 "title" : "${names.textproperties}",
                 "fullscreentitle" : "Full Screen Properties",
+                "font" :
+                {
+                    "text" : "Font"
+                },
                 "fontsize" :
                 {
                     "text" : "Size",
@@ -5983,10 +7507,10 @@
             {
                 "actionerror" : "Unable to delete tag.",
                 "title" : "Delete ${objectnames.singular.tag}",
-                "text" : "Do you wish to delete tag <b>%1$s</b> from <b>ALL</b> {projects} or just this one?",
+                "text" : "Do you wish to delete tag <b>%1$s</b> from <b>ALL</b> ${objectnames.plural.project} or just this one?",
                 ":comment.text" : "%1$s is the tag that will be removed/deleted.  For a single project the tag is just removed or made unavailable.  If removed from all projects then it is deleted completely.",
                 ":scount.text" : 1,
-                "allprojects" : "Delete from all {projects}",
+                "allprojects" : "Delete from all ${objectnames.plural.project}",
                 "thisproject" : "Just this ${objectnames.singular.project}"
             },
             "showchapterinfo" :
@@ -6106,7 +7630,8 @@
                     ":scount.invalidprojectdir" : 1,
                     "cantfindeditor" : "Unable to find ${objectnames.singular.contact}: <b>%1$s</b> you are editing the ${objectnames.singular.project} for.",
                     ":comment.cantfindeditor" : "%1$s is the email address of the contact/editor the user is editing the project for.",
-                    ":scount.cantfindeditor" : 1
+                    ":scount.cantfindeditor" : 1,
+                    "comments" : "Unable to show ${objectnames.plural.comment}."
                 }
             },
             "deleteproject" :
@@ -6169,7 +7694,7 @@
             },
             "vieweditors" :
             {
-                "actionerror" : "Unable to show the {contacts}."
+                "actionerror" : "Unable to show the ${objectnames.plural.contact}."
             },
             "reportproblem" :
             {

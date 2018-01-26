@@ -27,6 +27,9 @@ import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 //@MessageBoxFor(Message=ProjectEditStopMessage.class)
 public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage>
 {
@@ -72,7 +75,19 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
         final ProjectEditStopMessageBox _this = this;
 
-        String title = "Stopped editing {project}";
+        String title = null;
+        //"Stopped editing {project}";
+
+        if (this.message.isSentByMe ())
+        {
+
+            title = getUIString (editors,messages,projecteditstop,sent,title);
+
+        } else {
+
+            title = getUIString (editors,messages,projecteditstop,received,title);
+
+        }
 
         JComponent h = UIUtils.createBoldSubHeader (title,
                                                     Constants.CANCEL_ICON_NAME);
@@ -100,7 +115,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
         int row = 1;
 
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
+        builder.addLabel (getUIString (editors,messages,projecteditstop,labels,project),
+                            //Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
                           cc.xy (1,
                                  row));
 
@@ -150,7 +166,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
         });
 
-        openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
+        openProj.setToolTipText (getUIString (project,actions,openproject,tooltips,general));
+        //Environment.replaceObjectNames ("Click to open the {project}"));
 
         builder.add (openProj,
                      cc.xy (3,
@@ -161,7 +178,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
         if (reason != null)
         {
 
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>Message</i></html>"),
+            builder.addLabel (getUIString (editors,messages,projecteditstop,labels,project),
+                            //Environment.replaceObjectNames ("<html><i>Message</i></html>"),
                               cc.xy (1,
                                      row));
 
@@ -189,7 +207,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
             this.add (this.responseBox);
 
-            JTextPane rdesc = UIUtils.createHelpTextPane (String.format ("<b>%s</b> has stopped editing {project} <b>%s</b>.",
+            JTextPane rdesc = UIUtils.createHelpTextPane (String.format (getUIString (editors,messages,projecteditstop,received,undealtwith,text),
+                                                                        //"<b>%s</b> has stopped editing {project} <b>%s</b>.",
                                                                          this.message.getEditor ().getShortName (),
                                                                          this.message.getForProjectName ()),
                                                          this.viewer);
@@ -210,7 +229,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
             this.responseBox.setBorder (UIUtils.createPadding (5, 0, 0, 0));
 
-            JButton ok = new JButton ("Ok, got it");
+            JButton ok = new JButton (getUIString (editors,messages,projecteditstop,received,undealtwith,buttons,confirm));
+            //"Ok, got it");
 
             ok.addActionListener (new ActionListener ()
             {
@@ -229,7 +249,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
                         pe.setCurrent (false);
                         pe.setEditorTo (new Date ());
-                        pe.setStatusMessage (String.format ("Stopped editing: %s",
+                        pe.setStatusMessage (String.format (getUIString (editors,messages,projecteditstop,editorstatus),
+                                                            //"Stopped editing: %s",
                                                             Environment.formatDate (pe.getEditorTo ())));
 
                         EditorsEnvironment.updateProjectEditor (pe);
@@ -245,7 +266,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to update {contact}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,editor,edit,actionerror));
+                                                  //"Unable to update {contact}, please contact Quoll Writer support for assistance.");
 
                         return;
 

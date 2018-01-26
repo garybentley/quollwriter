@@ -379,14 +379,14 @@ public class Environment
 
         }
 
-        if (Environment.openProjects.size () == 0)
+        if (Environment.openViewers.size () == 0)
         {
 
             return null;
 
         }
 
-        for (AbstractProjectViewer viewer : Environment.openProjects.values ())
+        for (AbstractViewer viewer : Environment.openViewers)
         {
 
             if (viewer.isFocused ())
@@ -399,7 +399,7 @@ public class Environment
         }
 
         // Return the first viewer that is showing.
-        for (AbstractProjectViewer viewer : Environment.openProjects.values ())
+        for (AbstractViewer viewer : Environment.openViewers)
         {
 
             if (viewer.isShowing ())
@@ -412,7 +412,7 @@ public class Environment
         }
 
         // What the derp... Return the first.
-        return Environment.openProjects.values ().iterator ().next ();
+        return Environment.openViewers.iterator ().next ();
 
     }
 
@@ -735,6 +735,20 @@ public class Environment
 
         }
 
+        if (t instanceof Note)
+        {
+
+            Note n = (Note) t;
+
+            if (n.isEditNeeded ())
+            {
+
+                return Environment.getObjectTypeName ("editneeded" + t.getObjectType ());
+
+            }
+
+        }
+
         return Environment.getObjectTypeName (t.getObjectType ());
 
     }
@@ -800,6 +814,20 @@ public class Environment
 
         }
 
+        if (t instanceof Note)
+        {
+
+            Note n = (Note) t;
+
+            if (n.isEditNeeded ())
+            {
+
+                return Environment.getObjectTypeNamePlural ("editneeded" + t.getObjectType ());
+
+            }
+
+        }
+
         return Environment.getObjectTypeNamePlural (t.getObjectType ());
 
     }
@@ -832,7 +860,7 @@ public class Environment
         //return Environment.objectTypeNamesPlural.get (t);
 
     }
-
+/*
     public static String getObjectTypeName (NamedObject n)
     {
 
@@ -860,7 +888,7 @@ public class Environment
         return Environment.getObjectTypeNamePlural (n.getObjectType ());
 
     }
-
+*/
     public static Map<ProjectInfo, AbstractProjectViewer> getOpenProjects ()
     {
 
@@ -3159,7 +3187,7 @@ public class Environment
 
         }
 
-        if (id.equals (":English"))
+        if (id.equals (LanguageStrings.ENGLISH_ID))
         {
 
             return Environment.getDefaultUILanguageStrings ();
@@ -3181,6 +3209,28 @@ public class Environment
         LanguageStrings s = new LanguageStrings (data);
 
         return s;
+
+    }
+
+    public static Set<LanguageStrings> getAllUserLanguageStrings (Version qwVer)
+                                                           throws GeneralException
+    {
+
+        Set<LanguageStrings> ret = new LinkedHashSet<> ();
+
+        for (LanguageStrings ls : Environment.getAllUserLanguageStrings ())
+        {
+
+            if (ls.getQuollWriterVersion ().equals (qwVer))
+            {
+
+                ret.add (ls);
+
+            }
+
+        }
+
+        return ret;
 
     }
 
@@ -4231,13 +4281,16 @@ public class Environment
                                                                                       e);
 
                                                                 UIUtils.showErrorMessage (null,
-                                                                                          "Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+                                                                                          getUIString (uilanguage,set,downloading,errors,download));
+                                                                                          //"Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
 
                                                             }
 
                                                             UIUtils.showMessage (null,
-                                                                                 "Language strings re-downloaded",
-                                                                                 "Quoll Writer has re-downloaded the User Interface language strings you are using because they were missing from your local system.  In the interim the User Interface has fallen back to using English.<br /><br />To return to using your selected language Quoll Writer must be restarted.",
+                                                                                 getUIString (uilanguage,set,downloading,redownload,confirmpopup,title),
+                                                                                 //"Language strings re-downloaded",
+                                                                                 getUIString (uilanguage,set,downloading,redownload,confirmpopup,text),
+                                                                                 //"Quoll Writer has re-downloaded the User Interface language strings you are using because they were missing from your local system.  In the interim the User Interface has fallen back to using English.<br /><br />To return to using your selected language Quoll Writer must be restarted.",
                                                                                  null,
                                                                                  null);
 
@@ -4253,7 +4306,8 @@ public class Environment
                                                         {
 
                                                             UIUtils.showErrorMessage (null,
-                                                                                      "Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+                                                                                      getUIString (uilanguage,set,downloading,redownload,actionerror));
+                                                                                      //"Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
 
                                                         }
 
@@ -4286,13 +4340,16 @@ public class Environment
                                                                                           e);
 
                                                                     UIUtils.showErrorMessage (null,
-                                                                                              "Warning!  Quoll Writer has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+                                                                                              getUIString (uilanguage,set,downloading,update,actionerror));
+                                                                                              //"Warning!  Quoll Writer has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
 
                                                                 }
 
                                                                 UIUtils.showMessage (null,
-                                                                                     "Language strings updated",
-                                                                                     "Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
+                                                                                     getUIString (uilanguage,set,downloading,update,confirmpopup,title),
+                                                                                     //"Language strings updated",
+                                                                                     getUIString (uilanguage,set,downloading,update,confirmpopup,text),
+                                                                                     //"Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
                                                                                      null,
                                                                                      null);
 
@@ -7905,6 +7962,32 @@ TODO: Add back in when appropriate.
         }
 
         return s;
+
+    }
+
+    public static LanguageStringsEditor getUILanguageStringsEditor (LanguageStrings ls)
+    {
+
+        for (AbstractViewer v : Environment.openViewers)
+        {
+
+            if (v instanceof LanguageStringsEditor)
+            {
+
+                LanguageStringsEditor lse = (LanguageStringsEditor) v;
+
+                if (lse.getUserLanguageStrings ().equals (ls))
+                {
+
+                    return lse;
+
+                }
+
+            }
+
+        }
+
+        return null;
 
     }
 

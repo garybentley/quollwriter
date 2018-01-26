@@ -30,6 +30,9 @@ import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class EditorInfoBox extends Box implements EditorChangedListener, EditorMessageListener
 {
 
@@ -61,7 +64,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         final EditorInfoBox _this = this;
 
-    this.editor = ed;
+        this.editor = ed;
 
         this.showProjectInfo = showProjectInfo;
 
@@ -173,12 +176,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                 } catch (Exception e) {
 
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to show {editor}.");
-
                     Environment.logError ("Unable to show editor: " +
                                           _this.editor,
                                           e);
+
+                    UIUtils.showErrorMessage (_this.viewer,
+                                              getUIString (editors,LanguageStrings.editor,view,actionerror));
+                                              //"Unable to show {editor}.");
 
                 }
 
@@ -255,12 +259,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                                                             } catch (Exception e) {
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          "Unable to show {project} messages for {editor}.");
-
                                                                 Environment.logError ("Unable to show project messages for editor: " +
                                                                                       _this.editor,
                                                                                       e);
+
+                                                                UIUtils.showErrorMessage (_this.viewer,
+                                                                                          getUIString (editors,messages,show,project,actionerror));
+                                                                                          //"Unable to show {project} messages for {editor}.");
 
                                                             }
 
@@ -290,12 +295,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                                                             } catch (Exception e) {
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          "Unable to show important messages for {editor}.");
-
                                                                 Environment.logError ("Unable to show important messages for editor: " +
                                                                                       _this.editor,
                                                                                       e);
+
+                                                                UIUtils.showErrorMessage (_this.viewer,
+                                                                                          getUIString (editors,messages,show,important,actionerror));
+                                                                                          //"Unable to show important messages for {editor}.");
 
                                                             }
 
@@ -325,12 +331,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                                                     } catch (Exception e) {
 
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  "Unable to show {comments} for {editor}.");
-
                                                         Environment.logError ("Unable to show comments for editor: " +
                                                                               _this.editor,
                                                                               e);
+
+                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                  getUIString (editors,LanguageStrings.editor,view,actionerror));
+                                                                                  //"Unable to show {comments} for {editor}.");
 
                                                     }
 
@@ -358,12 +365,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                                                     } catch (Exception e) {
 
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  "Unable to show {editor}.");
-
                                                         Environment.logError ("Unable to show editor: " +
                                                                               _this.editor,
                                                                               e);
+
+                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                  getUIString (editors,LanguageStrings.editor,view,actionerror));
+                                                                                  //"Unable to show {editor}.");
 
                                                     }
 
@@ -693,12 +701,14 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (!this.editor.isPrevious ())
             {
 
-                this.editorInfo.setToolTipText (String.format ("Click to send a message to %s, right click to see the menu",
+                this.editorInfo.setToolTipText (String.format (getUIString (editors,LanguageStrings.editor,view,info,tooltip,currenteditor),
+                                                               //"Click to send a message to %s, right click to see the menu",
                                                                this.editor.getMainName ()));
 
             } else {
 
-                this.editorInfo.setToolTipText ("Right click to see the menu");
+                this.editorInfo.setToolTipText (getUIString (editors,LanguageStrings.editor,view,info,tooltip,previouseditor));
+                //"Right click to see the menu");
 
             }
 
@@ -707,12 +717,14 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (!this.editor.isInvitedByMe ())
             {
 
-                this.other.setText (String.format ("Received: %s",
+                this.other.setText (String.format (getUIString (editors,LanguageStrings.editor,view,LanguageStrings.other,pendingeditor,invitereceived),
+                                                   //"Received: %s",
                                                    Environment.formatDate (this.editor.getDateCreated ())));
 
             } else {
 
-                this.other.setText (String.format ("Invited: %s",
+                this.other.setText (String.format (getUIString (editors,LanguageStrings.editor,view,LanguageStrings.other,pendingeditor,invitesent),
+                                                   //"Invited: %s",
                                                    Environment.formatDate (this.editor.getDateCreated ())));
 
             }
@@ -734,10 +746,11 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
             this.importantMessages.setForeground (java.awt.Color.red);
 
-            this.importantMessages.setToolTipText (String.format ("%s new/important message%s requiring your attention, click to view them",
-                                                                  Environment.formatNumber (ms),
-                                                                  (ms == 1 ? "" : "s"),
-                                                                  (ms == 1 ? "s" : "")));
+            this.importantMessages.setToolTipText (String.format (getUIString (editors,LanguageStrings.editor,view,importantmessages,tooltip),
+                                                                  //"%s new/important message%s requiring your attention, click to view them",
+                                                                  Environment.formatNumber (ms)));
+                                                                  //(ms == 1 ? "" : "s"),
+                                                                  //(ms == 1 ? "s" : "")));
 
             this.importantMessages.setText (String.format ("%s",
                                                            Environment.formatNumber (ms)));
@@ -759,7 +772,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
             this.onlineStatus.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
                                                             Constants.ICON_MENU_INNER));
-            this.onlineStatus.setToolTipText (Environment.replaceObjectNames ("This is a previous {contact}."));
+            this.onlineStatus.setToolTipText (getUIString (editors,LanguageStrings.editor,view,previouseditor,onlinestatus,tooltip));
+            //"This is a previous {contact}."));
             this.onlineStatus.setText ("");
             this.onlineStatus.setMaximumSize (this.onlineStatus.getPreferredSize ());
 
@@ -811,17 +825,19 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                 this.projectMessages.setForeground (java.awt.Color.red);
 
-                this.projectMessages.setToolTipText (String.format ("%s {project} message%s requiring your attention, click to view them",
-                                                                    Environment.formatNumber (undealtWithCount),
-                                                                    (undealtWithCount == 1 ? "" : "s"),
-                                                                    (undealtWithCount == 1 ? "s" : "")));
+                this.projectMessages.setToolTipText (String.format (getUIString (editors,LanguageStrings.editor,view,projecteditor,undealtwithmessagecount,tooltip),
+                                                                    //"%s {project} message%s requiring your attention, click to view them",
+                                                                    Environment.formatNumber (undealtWithCount)));
+                                                                    //(undealtWithCount == 1 ? "" : "s"),
+                                                                    //(undealtWithCount == 1 ? "s" : "")));
 
             } else {
 
-                this.projectMessages.setToolTipText (String.format ("%s {project} message%s, click to view them",
-                                                                    Environment.formatNumber (ps),
-                                                                    (projMess.size () == 1 ? "" : "s"),
-                                                                    (projMess.size () == 1 ? "s" : "")));
+                this.projectMessages.setToolTipText (String.format (getUIString (editors,LanguageStrings.editor,view,projecteditor,undealtwithmessagecount,tooltip),
+                                                                    //"%s {project} message%s, click to view them",
+                                                                    Environment.formatNumber (ps)));
+                                                                    //(projMess.size () == 1 ? "" : "s"),
+                                                                    //(projMess.size () == 1 ? "s" : "")));
 
             }
 
@@ -882,10 +898,11 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                     }
 
-                    this.comments.setToolTipText (Environment.replaceObjectNames (String.format ("%s {comment%s} %s %s",
+                    this.comments.setToolTipText (Environment.replaceObjectNames (String.format (getUIString (editors,LanguageStrings.editor,view,projectcomments,(this.projEditor != null ? received : sent),tooltip),
+                                                                                                //"%s {comment%s} %s %s",
                                                                                                  Environment.formatNumber (commCount),
-                                                                                                 (commCount == 1 ? "" : "s"),
-                                                                                                 (this.projEditor != null ? "from" : "sent to"),
+                                                                                                 //(commCount == 1 ? "" : "s"),
+                                                                                                 //(this.projEditor != null ? "from" : "sent to"),
                                                                                                  this.editor.getShortName ())));
 
                 } else {
@@ -893,12 +910,14 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                     if (this.projEditor != null)
                     {
 
-                        this.comments.setToolTipText (Environment.replaceObjectNames (String.format ("%s has not sent you any {comments} yet.",
+                        this.comments.setToolTipText (Environment.replaceObjectNames (String.format (getUIString (editors,LanguageStrings.editor,view,noprojectcomments,received,tooltip),
+                                                                                                    //"%s has not sent you any {comments} yet.",
                                                                                                      this.editor.getShortName ())));
 
                     } else {
 
-                        this.comments.setToolTipText (Environment.replaceObjectNames (String.format ("You have not sent any {comments} to %s yet.",
+                        this.comments.setToolTipText (Environment.replaceObjectNames (String.format (getUIString (editors,LanguageStrings.editor,view,noprojectcomments,sent,tooltip),
+                                                                                                    //"You have not sent any {comments} to %s yet.",
                                                                                                      this.editor.getShortName ())));
 
                     }
@@ -924,9 +943,10 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
             this.chat.setForeground (java.awt.Color.red);
 
-            this.chat.setToolTipText (Environment.replaceObjectNames (String.format ("%s unread chat message%s",
-                                                                                     Environment.formatNumber (chatMessagesSize),
-                                                                                     (chatMessagesSize == 1 ? "" : "s"))));
+            this.chat.setToolTipText (Environment.replaceObjectNames (String.format (getUIString (editors,LanguageStrings.editor,view,unreadchatmessages,tooltip),
+                                                                                     //"%s unread chat message%s",
+                                                                                     Environment.formatNumber (chatMessagesSize))));
+
             this.chat.setText (Environment.formatNumber (chatMessagesSize));
 
             this.chat.setVisible (true);
@@ -974,7 +994,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 (this.proj.getProjectEditor (_this.editor) != null)
                )
             {
-        
+
                 menu.add (UIUtils.createMenuItem ("Remove {project} editor [Debug option]",
                                                   Constants.DELETE_ICON_NAME,
                                                   new ActionListener ()
@@ -995,32 +1015,32 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       UIUtils.getYesValueValidator (),
                                                                                       new ActionListener ()
                                                                                       {
-        
+
                                                                                             @Override
                                                                                             public void actionPerformed (ActionEvent ev)
                                                                                             {
 
                                                                                                 if (!_this.editor.messagesLoaded ())
                                                                                                 {
-            
+
                                                                                                     try
                                                                                                     {
-            
+
                                                                                                         EditorsEnvironment.loadMessagesForEditor (_this.editor);
-            
+
                                                                                                     } catch (Exception e) {
-            
+
                                                                                                         Environment.logError ("Unable to load messages for editor: " +
                                                                                                                               _this.editor,
                                                                                                                               e);
-            
+
                                                                                                         UIUtils.showErrorMessage (_this.viewer,
                                                                                                                                   "Unable to load messages for editor.");
-            
+
                                                                                                         return;
-            
+
                                                                                                     }
-            
+
                                                                                                 }
 
                                                                                                 final Set<EditorMessage> messages = _this.editor.getMessages (new DefaultEditorMessageFilter (_this.proj,
@@ -1029,27 +1049,27 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                                                             UpdateProjectMessage.MESSAGE_TYPE,
                                                                                                                             ProjectEditStopMessage.MESSAGE_TYPE,
                                                                                                                             ProjectCommentsMessage.MESSAGE_TYPE));
-                                                                                                
+
                                                                                                 try
                                                                                                 {
-            
+
                                                                                                     EditorsEnvironment.deleteMessages (messages);
-            
+
                                                                                                     EditorsEnvironment.removeProjectEditor (_this.proj.getProjectEditor (_this.editor));
-            
+
                                                                                                 } catch (Exception e) {
-            
+
                                                                                                     Environment.logError ("Unable to delete messages for editor: " +
                                                                                                                           _this.editor,
                                                                                                                           e);
-            
+
                                                                                                     UIUtils.showErrorMessage (_this.viewer,
                                                                                                                               "Unable to delete messages for editor.");
-            
+
                                                                                                     return;
-            
+
                                                                                                 }
-                                                                                                
+
                                                                                                 UIUtils.showMessage ((PopupsSupported) _this.viewer,
                                                                                                                      "{Project} editor removed",
                                                                                                                      "All associated {project} messages have been deleted.");
@@ -1063,7 +1083,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                             }
 
                                          }));
-                
+
             }
 
             menu.add (UIUtils.createMenuItem ("Delete all messages for types [Debug option]",
@@ -1076,9 +1096,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 {
 
                     Box b = new Box (BoxLayout.Y_AXIS);
-                    
+
                     Set<String> types = new LinkedHashSet ();
-                    
+
                     types.add (NewProjectMessage.MESSAGE_TYPE);
                     types.add (UpdateProjectMessage.MESSAGE_TYPE);
                     types.add (NewProjectResponseMessage.MESSAGE_TYPE);
@@ -1089,108 +1109,108 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                     types.add (EditorChatMessage.MESSAGE_TYPE);
                     types.add (EditorInfoMessage.MESSAGE_TYPE);
                     types.add (EditorRemovedMessage.MESSAGE_TYPE);
-                
+
                     final Map<String, JCheckBox> cbs = new HashMap ();
-                
+
                     for (String t : types)
                     {
-                        
+
                         JCheckBox cb = UIUtils.createCheckBox (t);
-                        
+
                         cbs.put (t,
                                  cb);
-                        
+
                         b.add (cb);
-                        
+
                     }
-                                        
+
                     UIUtils.showMessage (_this.viewer,
                                          "Delete types of message",
                                          b,
                                          "Delete",
                                          new ActionListener ()
                                          {
-                                            
+
                                             @Override
                                             public void actionPerformed (ActionEvent ev)
                                             {
-        
+
                                                 if (!_this.editor.messagesLoaded ())
                                                 {
-        
+
                                                     try
                                                     {
-        
+
                                                         EditorsEnvironment.loadMessagesForEditor (_this.editor);
-        
+
                                                     } catch (Exception e) {
-        
+
                                                         Environment.logError ("Unable to load messages for editor: " +
                                                                               _this.editor,
                                                                               e);
-        
+
                                                         UIUtils.showErrorMessage (_this.viewer,
                                                                                   "Unable to load messages for editor.");
-        
+
                                                         return;
-        
+
                                                     }
-        
+
                                                 }
-        
+
                                                 Set<String> selTypes = new LinkedHashSet ();
-                                                
+
                                                 for (String t : cbs.keySet ())
                                                 {
-                                                    
+
                                                     if (cbs.get (t).isSelected ())
                                                     {
-                                                        
+
                                                         selTypes.add (t);
-                                                        
+
                                                     }
-                                                    
+
                                                 }
-        
+
                                                 Set<EditorMessage> toDel = _this.editor.getMessages (null,
                                                                                                      selTypes.toArray (new String[selTypes.size ()]));
-        
+
                                                 try
                                                 {
-        
+
                                                     EditorsEnvironment.deleteMessages (toDel);
-        
+
                                                 } catch (Exception e) {
-        
+
                                                     Environment.logError ("Unable to delete messages for editor: " +
                                                                           _this.editor,
                                                                           e);
-        
+
                                                     UIUtils.showErrorMessage (_this.viewer,
                                                                               "Unable to delete messages for editor.");
-        
+
                                                     return;
-        
+
                                                 }
-                                            
+
                                                 for (EditorMessage m : toDel)
                                                 {
-                                            
+
                                                     _this.editor.removeMessage (m);
-                                            
+
                                                 }
-                                            
+
                                                 UIUtils.showMessage ((PopupsSupported) _this.viewer,
                                                                      "Selected message types deleted",
                                                                      "All message for selected types have been deleted.");
-                                            
+
                                             }
-                                            
+
                                          },
                                          null);
-                                            
+
                 }
-                
+
             }));
 
         }
@@ -1214,7 +1234,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         if (!pending)
         {
 
-            menu.add (UIUtils.createMenuItem ("Send message",
+            menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendmessage),
+                                              //"Send message",
                                                 Constants.MESSAGE_ICON_NAME,
                                                 new ActionListener ()
                                                 {
@@ -1229,12 +1250,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                                                        } catch (Exception e) {
 
-                                                           UIUtils.showErrorMessage (_this,
-                                                                                     "Unable to show {editor}.");
-
                                                            Environment.logError ("Unable to show editor: " +
                                                                                  _this.editor,
                                                                                  e);
+
+                                                           UIUtils.showErrorMessage (_this,
+                                                                                     getUIString (editors,LanguageStrings.editor,view,actionerror));
+                                                                                     //"Unable to show {editor}.");
 
                                                        }
 
@@ -1299,7 +1321,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (messages.size () > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format ("View new/important messages (%s)",
+                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,importantmessages),
+                                                                 //"View new/important messages (%s)",
                                                                  Environment.formatNumber (messages.size ())),
                                                   Constants.ERROR_ICON_NAME,
                                                   new ActionListener ()
@@ -1322,7 +1345,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       e);
 
                                                                 UIUtils.showErrorMessage (_this.viewer,
-                                                                                          "Unable to {project} messages for editor.");
+                                                                                          getUIString (editors,LanguageStrings.messages,show,important,actionerror));
+                                                                                          //"Unable to {project} messages for editor.");
 
                                                                 return;
 
@@ -1364,7 +1388,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (messages.size () > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format ("View updates you have sent/received for this {project} (%s)",
+                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,projectupdates),
+                                                                //"View updates you have sent/received for this {project} (%s)",
                                                                  Environment.formatNumber (messages.size ())),
                                                   Project.OBJECT_TYPE,
                                                   new ActionListener ()
@@ -1387,7 +1412,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       e);
 
                                                                 UIUtils.showErrorMessage (_this.viewer,
-                                                                                          "Unable to {project} messages for editor.");
+                                                                                          getUIString (editors,LanguageStrings.messages,show,project,actionerror));
+                                                                                          //"Unable to {project} messages for editor.")
 
                                                                 return;
 
@@ -1431,7 +1457,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (projCount > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format ("View {projects} I'm editing for %s (%s)",
+                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,projectsuserediting),
+                                                                //"View {projects} I'm editing for %s (%s)",
                                                                  this.editor.getShortName (),
                                                                  Environment.formatNumber (projCount)),
                                                   Project.OBJECT_TYPE,
@@ -1454,8 +1481,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       e);
 
                                                                 UIUtils.showErrorMessage (_this.viewer,
-                                                                                          String.format ("Unable to show {projects} you are editing for %s.",
-                                                                                                         _this.editor.getShortName ()));
+                                                                                          getUIString (editors,LanguageStrings.editor,showprojectscontactisediting,actionerror));
+                                                                                          //String.format ("Unable to show {projects} you are editing for %s.",
+                                                                                            //             _this.editor.getShortName ()));
 
                                                                 return;
 
@@ -1505,7 +1533,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (messages.size () > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format ("View {projects} %s is editing for me (%s)",
+                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,projectscontactediting),
+                                                                 //"View {projects} %s is editing for me (%s)",
                                                                  this.editor.getShortName (),
                                                                  Environment.formatNumber (messages.size ())),
                                                   Project.OBJECT_TYPE,
@@ -1528,8 +1557,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       e);
 
                                                                 UIUtils.showErrorMessage (_this.viewer,
-                                                                                          String.format ("Unable to show {projects} %s is editing for you.",
-                                                                                                         _this.editor.getShortName ()));
+                                                                                          getUIString (editors,LanguageStrings.editor,showprojectscontactisediting,actionerror));
+                                                                                          //String.format ("Unable to show {projects} %s is editing for you.",
+                                                                                            //             _this.editor.getShortName ()));
 
                                                                 return;
 
@@ -1588,8 +1618,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
            )
         {
 
-            menu.add (UIUtils.createMenuItem (String.format ("View all {comments} sent",
-                                                             suffix),
+            menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,commentssent),
+                                                //String.format ("View all {comments} sent",
+                                                //             suffix),
                                               Constants.COMMENT_ICON_NAME,
                                               new ActionListener ()
                                               {
@@ -1611,7 +1642,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                               e);
 
                                                         UIUtils.showErrorMessage (_this.viewer,
-                                                                                  "Unable to show {comments} from editor.");
+                                                                                  getUIString (editors,viewcommentserror));
+                                                                                  //"Unable to show {comments} from editor.");
 
                                                         return;
 
@@ -1630,9 +1662,10 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                 final ProjectCommentsMessage message = (ProjectCommentsMessage) messages.iterator ().next ();
 
-                menu.add (UIUtils.createMenuItem (String.format ("View last {comments} %s (%s)",
-                                                                 message.getComments ().size (),
-                                                                 suffix),
+                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,(this.projEditor != null ? lastcommentsreceived : lastcommentssent)),
+                                                                //"View last {comments} %s (%s)",
+                                                                 message.getComments ().size ()),
+                                                                 //suffix),
                                                   Constants.FIND_ICON_NAME,
                                                   new ActionListener ()
                                                   {
@@ -1653,8 +1686,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (messages.size () > 1)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format ("View all {comments} %s",
-                                                                 suffix),
+                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,(this.projEditor != null ? commentsreceived : commentssent)),
+                                                                //"View all {comments} %s",
+                                                                 //suffix),
                                                   Constants.COMMENT_ICON_NAME,
                                                   new ActionListener ()
                                                   {
@@ -1676,7 +1710,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                   e);
 
                                                             UIUtils.showErrorMessage (_this.viewer,
-                                                                                      "Unable to show {comments} from editor.");
+                                                                                      getUIString (editors,viewcommentserror));
+                                                                                      //"Unable to show {comments} from editor.");
 
                                                             return;
 
@@ -1736,7 +1771,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                           e);
 
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to load messages for editor.");
+                                              getUIString (editors,LanguageStrings.editor,view,actionerror));
+                                              //"Unable to load messages for editor.");
 
                     return;
 
@@ -1810,7 +1846,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (addSend)
             {
 
-                menu.add (UIUtils.createMenuItem ("Send {project}/{chapters}",
+                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendproject),
+                                                //"Send {project}/{chapters}",
                                                   Constants.SEND_ICON_NAME,
                                                   new ActionListener ()
                                                   {
@@ -1833,7 +1870,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (addUpdate)
             {
 
-                menu.add (UIUtils.createMenuItem ("Update {project}/{chapters}",
+                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendupdateproject),
+                                                //"Update {project}/{chapters}",
                                                   Constants.SEND_ICON_NAME,
                                                   new ActionListener ()
                                                   {
@@ -1851,7 +1889,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
             } else {
 
-                menu.add (UIUtils.createMenuItem ("Send {project}/{chapters}",
+                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendproject),
+                                                 //"Send {project}/{chapters}",
                                                   Constants.SEND_ICON_NAME,
                                                   new ActionListener ()
                                                   {
@@ -1883,7 +1922,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         if (!pending)
         {
 
-            menu.add (UIUtils.createMenuItem ("Update the {contact} information",
+            menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,updatecontactinfo),
+                                            //"Update the {contact} information",
                                               Constants.EDIT_ICON_NAME,
                                               new ActionListener ()
                                               {
@@ -1930,7 +1970,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         }
 
-        menu.add (UIUtils.createMenuItem ("Remove {contact}",
+        menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,removecontact),
+                                        //"Remove {contact}",
                                             Constants.DELETE_ICON_NAME,
                                             new ActionListener ()
                                             {
@@ -1955,7 +1996,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         final boolean pending = this.editor.isPending ();
 
-        menu.add (UIUtils.createMenuItem ("View ALL messages sent/received",
+        menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,allmessages),
+                                        //"View ALL messages sent/received",
                                           Constants.FIND_ICON_NAME,
                                           new ActionListener ()
                                           {
@@ -1973,6 +2015,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
     }
 
+/*
     public void addSearchMessagesMenuItem (final JPopupMenu  menu,
                                            final EditorPanel panel)
     {
@@ -2001,7 +2044,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         }
 
     }
-
+*/
     public void addFullPopupListener ()
     {
 
@@ -2035,7 +2078,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 if (_this.editor.isPending ())
                 {
 
-                    m.add (UIUtils.createMenuItem ("Resend Invite",
+                    m.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,resendinvite),
+                                                    //"Resend Invite",
                                                    Constants.NOTIFY_ICON_NAME,
                                                    new ActionListener ()
                                                    {
@@ -2058,7 +2102,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 _this.addRemoveEditorMenuItem (m);
 
                 _this.addDeleteAllMessagesMenuItem (m);
-                
+
             }
 
         });

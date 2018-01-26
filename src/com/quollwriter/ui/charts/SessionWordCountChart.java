@@ -425,7 +425,8 @@ public class SessionWordCountChart extends AbstractQuollChart<AbstractViewer>
                                   e);
 
             UIUtils.showErrorMessage (this.parent,
-                                      "Unable to sessions");
+                                      getUIString (charts,actionerror));
+                                      //"Unable to sessions");
 
             return;
 

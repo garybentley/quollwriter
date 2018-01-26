@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.Map;
 import java.util.LinkedHashSet;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -37,6 +38,9 @@ import com.quollwriter.ui.forms.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.editors.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class EditorRegister extends Wizard
 {
@@ -319,11 +323,11 @@ public class EditorRegister extends Wizard
 
         if (currStage.equals ("existing"))
         {
-            
+
             return "start";
-            
+
         }
-        
+
         if (currStage.equals ("dir"))
         {
 
@@ -645,15 +649,21 @@ public class EditorRegister extends Wizard
         if (stage.equals ("start"))
         {
 
-            ws.title = "Getting started";
+            java.util.List<String> prefix = Arrays.asList (editors,user,register,stages,start);
 
-            ws.helpText = String.format ("Welcome to the Quoll Writer Editors Service.  The registration process only takes a minute and the service is free to use (no really).<br /><br />If you've already registered don't worry just use the link at the bottom to find your {editors} database.<br /><br />%s",
+            ws.title = getUIString (prefix,title);
+            //"Getting started";
+
+            ws.helpText = String.format (getUIString (prefix,text),
+                                         //"Welcome to the Quoll Writer Editors Service.  The registration process only takes a minute and the service is free to use (no really).<br /><br />If you've already registered don't worry just use the link at the bottom to find your {editors} database.<br /><br />%s",
                                          Environment.getQuollWriterHelpLink ("editor-mode/overview",
-                                                                             "Find out more about the editor service."));
+                                                                             null));
+                                                                             //"Find out more about the editor service."));
 
             Box b = new Box (BoxLayout.Y_AXIS);
 
-            JLabel tc = UIUtils.createClickableLabel ("View the Terms and Conditions for using the Editors service.",
+            JLabel tc = UIUtils.createClickableLabel (getUIString (prefix,labels,viewtandc),
+                                                      //"View the Terms and Conditions for using the Editors service.",
                                                       Environment.getIcon (Constants.INFO_ICON_NAME,
                                                                            Constants.ICON_CLICKABLE_LABEL),
                                                       Environment.getQuollWriterHelpLink ("editor-mode/terms-and-conditions",
@@ -676,14 +686,16 @@ public class EditorRegister extends Wizard
 
             b.add (tc);
 
-            this.tcError = UIUtils.createErrorLabel ("You must agree to the Terms and Conditions to continue.");
+            this.tcError = UIUtils.createErrorLabel (getUIString (prefix,errors,agreetandc));
+            //"You must agree to the Terms and Conditions to continue.");
 
             this.tcError.setVisible (false);
             this.tcError.setBorder (new EmptyBorder (0, 0, 5, 0));
 
             b.add (this.tcError);
 
-            this.tcAgreeField = UIUtils.createCheckBox ("I have read and agree to the Terms and Conditions of use");
+            this.tcAgreeField = UIUtils.createCheckBox (getUIString (prefix,labels,agreetandc));
+            //"I have read and agree to the Terms and Conditions of use");
 
             this.tcAgreeField.addActionListener (new ActionListener ()
             {
@@ -709,7 +721,8 @@ public class EditorRegister extends Wizard
 
             b.add (Box.createVerticalGlue ());
 
-            JLabel reg = UIUtils.createClickableLabel ("Already registered?  Click here to find your {editors} database directory.",
+            JLabel reg = UIUtils.createClickableLabel (getUIString (prefix,labels,alreadyregistered),
+                                                      //"Already registered?  Click here to find your {editors} database directory.",
                                                        Environment.getIcon (Constants.EDITORS_ICON_NAME,
                                                                             Constants.ICON_CLICKABLE_LABEL),
                                                        new ActionListener ()
@@ -737,11 +750,15 @@ public class EditorRegister extends Wizard
         if (stage.equals ("existing"))
         {
 
+            java.util.List<String> prefix = Arrays.asList (editors,user,register,stages,exists);
+
             this.login = true;
 
-            ws.title = "Find an existing {editors} database";
+            ws.title = getUIString (prefix,title);
+            //"Find an existing {editors} database";
 
-            ws.helpText = "Use the finder below to find your existing {editors} database.";
+            ws.helpText = getUIString (prefix,text);
+            //"Use the finder below to find your existing {editors} database.";
 
             final JLabel message = new JLabel ("");
 
@@ -750,11 +767,14 @@ public class EditorRegister extends Wizard
             message.setBorder (UIUtils.createPadding (0, 0, 5, 0));
 
             this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
-                                                  "Select a Directory",
+                                                  getUIString (prefix,labels,LanguageStrings.finder,title),
+                                                  //"Select a Directory",
                                                   JFileChooser.DIRECTORIES_ONLY,
-                                                  "Select",
+                                                  getUIString (prefix,labels,LanguageStrings.finder,label),
+                                                  //"Select",
                                                   null);
-            this.finder.setFindButtonToolTip ("Click to find a directory");
+            this.finder.setFindButtonToolTip (getUIString (prefix,labels,LanguageStrings.finder,tooltip));
+            //,"Click to find a directory");
 
             this.finder.setOnSelectHandler (new ActionListener ()
             {
@@ -768,7 +788,9 @@ public class EditorRegister extends Wizard
                     {
 
                         // Show an error
-                        message.setText ("<html>" + Environment.replaceObjectNames ("Sorry, that doesn't look like {an editors} directory.  There should be a file called: <b>" + Constants.EDITORS_DB_FILE_NAME_PREFIX + ".h2.db</b> in the directory.") + "</html>");
+                        message.setText (getUIString (String.format (editors,user,register,stages,exists,errors,invalidvalue),
+                                                                     Constants.EDITORS_DB_FILE_NAME_PREFIX));
+                        //"<html>" + Environment.replaceObjectNames ("Sorry, that doesn't look like {an editors} directory.  There should be a file called: <b>" + Constants.EDITORS_DB_FILE_NAME_PREFIX + ".h2.db</b> in the directory.") + "</html>");
                         message.setForeground (UIUtils.getColor (Constants.ERROR_TEXT_COLOR));
                         message.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
                                                               Constants.ICON_MENU));
@@ -918,15 +940,15 @@ public class EditorRegister extends Wizard
             b.add (this.avatar);
 
             Set<FormItem> items = new LinkedHashSet ();
-                                                            
+
             items.add (new AnyFormItem ("Your name",
                                         this.nameField));
 
             items.add (new AnyFormItem ("Your picture/Avatar",
                                         b));
-            
+
             JComponent p = UIUtils.createForm (items);
-                        
+
             ws.panel = p;
 
         }
@@ -953,7 +975,7 @@ public class EditorRegister extends Wizard
             this.password2Field = new JPasswordField ();
 
             Set<FormItem> items = new LinkedHashSet ();
-            
+
             items.add (new AnyFormItem ("Email",
                                         this.emailField));
 

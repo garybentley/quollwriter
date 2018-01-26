@@ -23,32 +23,25 @@ public class NoteFormatDetails<V extends AbstractViewer> implements ChapterItemF
 
     public String getIcon (Note item)
     {
-                
+
         if (item.isEditNeeded ())
         {
-            
+
             return "edit-needed-note";
 
         }
 
         return item.getObjectType ();
-        
+
     }
-    
+
     public String getTitle (Note item)
     {
-                
-        if (item.isEditNeeded ())
-        {
-            
-            return "Edit Needed";
-            
-        }
-        
-        return Environment.getObjectTypeName (item.getObjectType ());
-        
+
+        return Environment.getObjectTypeName (item);
+
     }
-    
+
     public String getItemDescription (Note item)
     {
 
@@ -61,33 +54,33 @@ public class NoteFormatDetails<V extends AbstractViewer> implements ChapterItemF
         {
 
             summ = "<b>" + item.getType () + "</b>: " + summ;
-            
+
             if (item.getDescription () != null)
             {
-                
+
                 summ += "<br />" + item.getDescription ().getMarkedUpText ();
-                
+
             }
 
             return summ;
-            
+
         } else {
-            
+
             return item.getDescription ().getMarkedUpText ();
-            
+
         }
 
-    }    
-    
+    }
+
     @Override
     public Set<JComponent> getTools (Note                 item,
                                      ChapterItemViewer<V> ep)
     {
-        
+
         return null;
-        
+
     }
-    
+
     @Override
     public ActionListener getEditItemActionHandler (Note                 item,
                                                     ChapterItemViewer<V> ep)

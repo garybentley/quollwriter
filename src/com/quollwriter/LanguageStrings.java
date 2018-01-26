@@ -21,7 +21,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     private static String ID_REF_END = "}";
 
     private String languageName = null;
-    private int version = 0;
+    private int stringsVersion = 0;
     private Date created = null;
     private Date lastModified = null;
     private String _email = null;
@@ -144,14 +144,14 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     public int getStringsVersion ()
     {
 
-        return this.version;
+        return this.stringsVersion;
 
     }
 
     public void setStringsVersion (int v)
     {
 
-        this.version = v;
+        this.stringsVersion = v;
 
     }
 
@@ -176,6 +176,24 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
+    @Override
+    public boolean equals (Object o)
+    {
+
+        if (!(o instanceof LanguageStrings))
+        {
+
+            return false;
+
+        }
+
+        LanguageStrings ls = (LanguageStrings) o;
+
+        return this.compareTo (ls) == 0;
+
+    }
+
+    @Override
     public int compareTo (LanguageStrings obj)
     {
 
@@ -267,6 +285,15 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
         {
 
             throw new GeneralException ("Expected to find a QW version.");
+
+        }
+
+        Number sv = (Number) m.get (":version");
+
+        if (sv != null)
+        {
+
+            this.stringsVersion = sv.intValue ();
 
         }
 
@@ -443,6 +470,8 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
                this.qwVersion.getVersion ());
         m.put (":user",
                this.isUser);
+        m.put (":version",
+               this.stringsVersion);
 
         if (this.lastModified != null)
         {
@@ -3268,5 +3297,134 @@ System.out.println ("CHANGED: " + v);
     public static final String createtranslation = "createtranslation";
     public static final String edittranslation = "edittranslation";
     public static final String feedback = "feedback";
+    public static final String switchtoversion = "switchtoversion";
+    public static final String comment = "comment";
+    public static final String unsentcommentspopup = "unsentcommentspopup";
+    public static final String unsentcomments = "unsentcomments";
+    public static final String editcomment = "editcomment";
+    public static final String viewertitle = "viewertitle";
+    public static final String viewertitleversionwrapper = "viewertitleversionwrapper";
+    public static final String previouscontact = "previouscontact";
+    public static final String viewcomment = "viewcomment";
+    public static final String auto = "auto";
+    public static final String login = "login";
+    public static final String messages = "messages";
+    public static final String undealtwith = "undealtwith";
+    public static final String reasons = "reasons";
+    public static final String updateinfotoall = "updateinfotoall";
+    public static final String updateinfotocontact = "updateinfotocontact";
+    public static final String sendmessagetocontact = "sendmessagetocontact";
+    public static final String invitesent = "invitesent";
+    public static final String sendprojectoninvite = "sendprojectoninvite";
+    public static final String sendinvite = "sendinvite";
+    public static final String editoroffline = "editoroffline";
+    public static final String deleteaccount = "deleteaccount";
+    public static final String deletealleditorprojects = "deletealleditorprojects";
+    public static final String deleteprojectsforeditor = "deleteprojectsforeditor";
+    public static final String avatar = "avatar";
+    public static final String accept = "accept";
+    public static final String reject = "reject";
+    public static final String updated = "updated";
+    public static final String sendproject = "sendproject";
+    public static final String updateproject = "updateproject";
+    public static final String firstupdatewithversion = "firstupdatewithversion";
+    public static final String firstupdate = "firstupdate";
+    public static final String lastupdatewithversion = "lastupdatewithversion";
+    public static final String lastupdate = "lastupdate";
+    public static final String sendorupdateproject = "sendorupdateproject";
+    public static final String nochapters = "nochapters";
+    public static final String unsavedchanges = "unsavedchanges";
+    public static final String dueby = "dueby";
+    public static final String updatesuffix = "updatesuffix";
+    public static final String version = "version";
+    public static final String editorstatus = "editorstatus";
+    public static final String sendunsentcomments = "sendunsentcomments";
+    public static final String comments = "comments";
+    public static final String reportmessage = "reportmessage";
+    public static final String from = "from";
+    public static final String reason = "reason";
+    public static final String changepassword = "changepassword";
+    public static final String newpassword = "newpassword";
+    public static final String register = "register";
+    public static final String exists = "exists";
+    public static final String savepasswordwarningpopup = "savepasswordwarningpopup";
+    public static final String prefix = "prefix";
+    public static final String invalidcredentials = "invalidcredentials";
+    public static final String alreadyregistered = "alreadyregistered";
+    public static final String agreetandc = "agreetandc";
+    public static final String viewtandc = "viewtandc";
+    public static final String youremail = "youremail";
+    public static final String alreadyinvited = "alreadyinvited";
+    public static final String previousrejected = "previousrejected";
+    public static final String inviteeditor = "inviteeditor";
+    public static final String invite = "invite";
+    public static final String noemail = "noemail";
+    public static final String self = "self";
+    public static final String showprojectscontactisediting = "showprojectscontactisediting";
+    public static final String showprojectseditingforcontact = "showprojectseditingforcontact";
+    public static final String commentssent = "commentssent";
+    public static final String commentsreceived = "commentsreceived";
+    public static final String important = "important";
+    public static final String suffix = "suffix";
+    public static final String projectupdated = "projectupdated";
+    public static final String inactiveaccount = "inactiveaccount";
+    public static final String maxloginattempts = "maxloginattempts";
+    public static final String deleteinvite = "deleteinvite";
+    public static final String updateinvite = "updateinvite";
+    public static final String sendchat = "sendchat";
+    public static final String contactistyping = "contactistyping";
+    public static final String sending = "sending";
+    public static final String box = "box";
+    public static final String received = "received";
+    public static final String response = "response";
+    public static final String update = "update";
+    public static final String sent = "sent";
+    public static final String report = "report";
+    public static final String attention = "attention";
+    public static final String resendinvite = "resendinvite";
+    public static final String allmessages = "allmessages";
+    public static final String removecontact = "removecontact";
+    public static final String updatecontactinfo = "updatecontactinfo";
+    public static final String projectscontactediting = "projectscontactediting";
+    public static final String sendupdateproject = "sendupdateproject";
+    public static final String viewcommentserror = "viewcommentserror";
+    public static final String lastcommentssent = "lastcommentssent";
+    public static final String lastcommentsreceived = "lastcommentsreceived";
+    public static final String projectsuserediting = "projectsuserediting";
+    public static final String projectupdates = "projectupdates";
+    public static final String importantmessages = "importantmessages";
+    public static final String sendmessage = "sendmessage";
+    public static final String unreadchatmessages = "unreadchatmessages";
+    public static final String noprojectcomments = "noprojectcomments";
+    public static final String projectcomments = "projectcomments";
+    public static final String undealtwithmessagecount = "undealtwithmessagecount";
+    public static final String projecteditor = "projecteditor";
+    public static final String onlinestatus = "onlinestatus";
+    public static final String previouseditor = "previouseditor";
+    public static final String pendingeditor = "pendingeditor";
+    public static final String invitereceived = "invitereceived";
+    public static final String currenteditor = "currenteditor";
+    public static final String contactinfo = "contactinfo";
+    public static final String inviteresponse = "inviteresponse";
+    public static final String dealtwith = "dealtwith";
+    public static final String rejected = "rejected";
+    public static final String accepted = "accepted";
+    public static final String contactremoved = "contactremoved";
+    public static final String chatmessages = "chatmessages";
+    public static final String today = "today";
+    public static final String yesterday = "yesterday";
+    public static final String sentbyme = "sentbyme";
+    public static final String redownload = "redownload";
+    public static final String editneededtitle = "editneededtitle";
+    public static final String editneedednote = "editneedednote";
+    public static final String font = "font";
+    public static final String shortcut = "shortcut";
+    public static final String projecteditstop = "projecteditstop";
+    public static final String newprojectresponse = "newprojectresponse";
+    public static final String extra = "extra";
+    public static final String clicktoviewproject = "clicktoviewproject";
+    public static final String clicktoviewcomments = "clicktoviewcomments";
+    public static final String othercomments = "othercomments";
+    public static final String item = "item";
 
 }

@@ -319,6 +319,7 @@ public class TextArea extends ScrollableBox
             this.scrollPane = UIUtils.createScrollPane (this.text);
             this.add (this.scrollPane);
             this.scrollPane.setMinimumSize (this.getMinimumSize ());
+            this.setBorder (UIUtils.createPadding (3, 3, 3, 3));
 
         } else {
 
@@ -1304,10 +1305,28 @@ public class TextArea extends ScrollableBox
     public void setBorder (Border b)
     {
 
+        if (b == null)
+        {
+
+            if (this.scrollPane != null)
+            {
+
+                this.scrollPane.setBorder (null);
+
+            } else {
+
+                this.text.setBorder (null);
+
+            }
+
+            return;
+
+        }
+
         if (this.scrollPane != null)
         {
 
-            this.scrollPane.setBorder (b);
+            this.scrollPane.setBorder (new CompoundBorder (b, UIUtils.createLineBorder ()));
 
         } else {
 

@@ -379,7 +379,8 @@ public class SessionTimeChart extends AbstractQuollChart<AbstractViewer>
                                   e);
 
             UIUtils.showErrorMessage (this.parent,
-                                      "Unable to show sessions");
+                                      getUIString (charts,actionerror));
+                                      //"Unable to show sessions");
 
             return;
 

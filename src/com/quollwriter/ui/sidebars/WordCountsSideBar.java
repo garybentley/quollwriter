@@ -29,6 +29,9 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.Header;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 {
 
@@ -887,7 +890,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         this.chapterFleschReadingEase = UIUtils.createInformationLabel (null);
         this.chapterGunningFog = UIUtils.createInformationLabel (null);
 
-        this.chapterReadabilityHeader = this.createSubHeader ("Readability");
+        this.chapterReadabilityHeader = this.createSubHeader (getUIString (prefix,labels,readability));
+        //"Readability");
 
         items.add (this.chapterReadabilityHeader);
 

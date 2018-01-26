@@ -41,6 +41,9 @@ import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.text.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class EditorsUIUtils
 {
 
@@ -51,7 +54,7 @@ public class EditorsUIUtils
     static
     {
 
-        EditorsUIUtils.editorLogin = new EditorLogin ();
+        //EditorsUIUtils.editorLogin = new EditorLogin ();
 
         // Defines the messages that can be "viewed" by the user.
         Project np = null;
@@ -135,14 +138,20 @@ public class EditorsUIUtils
 
         // Remove account.
 
-        String s = "To delete your account please enter the word <b>Yes</b> in the box below.<br /><br />Note: Your {contacts} database will not be deleted allowing you to keep a record of what you have sent and received.  If you create another account you will not be able to use your current database.<br /><br /><p class='error'>Warning: deleting your account means you will no longer be able to send messages to any of your {contacts} or receive messages from them.  A message will be sent to each of them telling them you have removed them.</p>";
+        java.util.List<String> prefix = Arrays.asList (editors,user,deleteaccount,popup);
+
+        //String s = "To delete your account please enter the word <b>Yes</b> in the box below.<br /><br />Note: Your {contacts} database will not be deleted allowing you to keep a record of what you have sent and received.  If you create another account you will not be able to use your current database.<br /><br /><p class='error'>Warning: deleting your account means you will no longer be able to send messages to any of your {contacts} or receive messages from them.  A message will be sent to each of them telling them you have removed them.</p>";
 
         UIUtils.createTextInputPopup (viewer,
-                                     "Delete your account",
+                                     getUIString (prefix,title),
+                                     //"Delete your account",
                                      Constants.DELETE_ICON_NAME,
-                                     s,
-                                     "Yes, delete it",
-                                     "No, keep it",
+                                     getUIString (prefix,text),
+                                     //s,
+                                     getUIString (prefix,buttons,confirm),
+                                     //"Yes, delete it",
+                                     getUIString (prefix,buttons,cancel),
+                                     //"No, keep it",
                                      null,
                                      UIUtils.getYesValueValidator (),
                                      new ActionListener ()
@@ -153,7 +162,8 @@ public class EditorsUIUtils
 
                                             final String dbDir = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_DB_DIR_PROPERTY_NAME);
 
-                                            final Notification notify = viewer.addNotification ("Deleting your Editors Service account, please wait.  This sometimes takes a little while...",
+                                            final Notification notify = viewer.addNotification (getUIString (editors,user,deleteaccount,notification),
+                                                                                                //"Deleting your Editors Service account, please wait.  This sometimes takes a little while...",
                                                                                                 Constants.LOADING_GIF_NAME,
                                                                                                 -1);
 
@@ -187,8 +197,10 @@ public class EditorsUIUtils
                                                                                         }
 
                                                                                         UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                                             "Account deleted",
-                                                                                                             String.format ("Your Editors Service account has been deleted.<br /><br />Your {contacts} database has <b>not</b> been deleted.<br /><a href='%s'>Click to view the folder containing the database</a>",
+                                                                                                             getUIString (editors,user,deleteaccount,confirmpopup,title),
+                                                                                                             //"Account deleted",
+                                                                                                             String.format (getUIString (editors,user,deleteaccount,confirmpopup,text),
+                                                                                                                            //"Your Editors Service account has been deleted.<br /><br />Your {contacts} database has <b>not</b> been deleted.<br /><a href='%s'>Click to view the folder containing the database</a>",
                                                                                                                             url));
 
                                                                                     }
@@ -203,7 +215,8 @@ public class EditorsUIUtils
                                                                                             AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                                                                             UIUtils.showErrorMessage (viewer,
-                                                                                                                      "Unable to delete your account, please contact Quoll Writer support for assistance.");
+                                                                                                                      getUIString (editors,user,deleteaccount,actionerror));
+                                                                                                                      //"Unable to delete your account, please contact Quoll Writer support for assistance.");
 
                                                                                         }
 
@@ -242,7 +255,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to get all {projects}, please contact Quoll Support for assistance.");
+                                      getUIString (editors,user,deletealleditorprojects,actionerror));
+                                      //"Unable to get all {projects}, please contact Quoll Support for assistance.");
 
             if (onRemoveComplete != null)
             {
@@ -284,7 +298,8 @@ public class EditorsUIUtils
                                               e);
 
                         UIUtils.showErrorMessage (viewer,
-                                                  "Unable to get all {projects}, please contact Quoll Support for assistance.");
+                                                  getUIString (editors,user,deletealleditorprojects,actionerror));
+                                                  //"Unable to get all {projects}, please contact Quoll Support for assistance.");
 
                         if (onRemoveComplete != null)
                         {
@@ -313,8 +328,7 @@ public class EditorsUIUtils
                                                   e);
 
                             UIUtils.showErrorMessage (viewer,
-                                                      String.format ("Unable to get delete {project}: <b>%s</b>, please contact Quoll Support for assistance.",
-                                                                     p.getName ()));
+                                                      getUIString (editors,user,deletealleditorprojects,actionerror));
 
                         }
 
@@ -331,18 +345,22 @@ public class EditorsUIUtils
 
             };
 
-            String sb = String.format ("You are currently editing <b>%s</b> {project%s} for <b>%s</b> {contact%s}.  To remove them enter the word <b>Yes</b> below.",
+            java.util.List<String> prefix = Arrays.asList (editors,user,deletealleditorprojects,popup);
+
+            String sb = String.format (getUIString (prefix,text),
+                                        //"You are currently editing <b>%s</b> {project%s} for <b>%s</b> {contact%s}.  To remove them enter the word <b>Yes</b> below.",
                                        Environment.formatNumber (edProjs.size ()),
-                                       edProjs.size () > 1 ? "s" : "",
-                                       Environment.formatNumber (eds.size ()),
-                                       eds.size () > 1 ? "s" : "");
+                                       Environment.formatNumber (eds.size ()));
 
             UIUtils.createTextInputPopup (viewer,
-                                         "Delete all {projects} for {contact}",
-                                         Constants.DELETE_ICON_NAME,
-                                         sb,
-                                         "Yes, delete them",
-                                         "No, keep them",
+                                          getUIString (prefix,text),
+                                         //"Delete all {projects} for {contact}",
+                                          Constants.DELETE_ICON_NAME,
+                                          sb,
+                                          getUIString (prefix,buttons,confirm),
+                                          //"Yes, delete them",
+                                          getUIString (prefix,buttons,cancel),
+                                          //"No, keep them",
                                          null,
                                          UIUtils.getYesValueValidator (),
                                          deleteEditorProjs,
@@ -388,7 +406,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,user,deleteprojectsforeditor,actionerror));
+                                      //"Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -417,7 +436,8 @@ public class EditorsUIUtils
                                               e);
 
                         UIUtils.showErrorMessage (viewer,
-                                                  "Unable to get {projects} for {contact}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,user,deleteprojectsforeditor,actionerror));
+                                                  //"Unable to get {projects} for {contact}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -450,17 +470,22 @@ public class EditorsUIUtils
 
             };
 
-            String sb = String.format ("You are currently editing <b>%s</b> {project%s} for <b>%s</b>.  To remove them enter the word <b>Yes</b> below.",
+            java.util.List<String> prefix = Arrays.asList (editors,user,deleteprojectsforeditor,popup);
+
+            String sb = String.format (getUIString (prefix,text),
+                                        //"You are currently editing <b>%s</b> {project%s} for <b>%s</b>.  To remove them enter the word <b>Yes</b> below.",
                                        Environment.formatNumber (edProjs.size ()),
-                                       edProjs.size () > 1 ? "s" : "",
                                        ed.getShortName ());
 
             UIUtils.createTextInputPopup (viewer,
-                                         "Delete {projects} for {contact}",
-                                         Constants.DELETE_ICON_NAME,
-                                         sb,
-                                         "Yes, delete them",
-                                         "No, keep them",
+                                          getUIString (prefix,title),
+                                          //"Delete {projects} for {contact}",
+                                          Constants.DELETE_ICON_NAME,
+                                          sb,
+                                          getUIString (prefix,buttons,confirm),
+                                          //"Yes, delete them",
+                                          getUIString (prefix,buttons,cancel),
+                                          //"No, keep them",
                                          null,
                                          UIUtils.getYesValueValidator (),
                                          deleteEditorProjs,
@@ -489,17 +514,23 @@ public class EditorsUIUtils
         if (ed.isPending ())
         {
 
+            java.util.List<String> prefix = Arrays.asList (editors,editor,remove,popup);
+
             UIUtils.createTextInputPopup (viewer,
-                                         "Remove {contact}",
-                                         Constants.DELETE_ICON_NAME,
-                                         String.format ("To confirm removal of <b>%s</b> as {a contact} please enter the word <b>Yes</b> in the box below.",
-                                                        ed.getShortName ()),
-                                         "Yes, remove them",
-                                         "No, keep them",
-                                         null,
-                                         UIUtils.getYesValueValidator (),
-                                         new ActionListener ()
-                                         {
+                                          getUIString (prefix,title),
+                                          //"Remove {contact}",
+                                          Constants.DELETE_ICON_NAME,
+                                          String.format (getUIString (prefix,text),
+                                                         //"To confirm removal of <b>%s</b> as {a contact} please enter the word <b>Yes</b> in the box below.",
+                                                         ed.getShortName ()),
+                                          getUIString (prefix,buttons,confirm),
+                                          //"Yes, remove them",
+                                          getUIString (prefix,buttons,cancel),
+                                          //"No, keep them",
+                                          null,
+                                          UIUtils.getYesValueValidator (),
+                                          new ActionListener ()
+                                          {
 
                                             public void actionPerformed (ActionEvent ev)
                                             {
@@ -525,9 +556,13 @@ public class EditorsUIUtils
 
                 AbstractViewer viewer = Environment.getFocusedViewer ();
 
+                java.util.List<String> prefix = Arrays.asList (editors,editor,remove,confirmpopup);
+
                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                     "{Contact} removed",
-                                     String.format ("<b>%s</b> has been removed as a {contact}.",
+                                     getUIString (prefix,title),
+                                     //"{Contact} removed",
+                                     String.format (getUIString (prefix,text),
+                                                    //"<b>%s</b> has been removed as a {contact}.",
                                                     ed.getMainName ()));
 
             }
@@ -559,22 +594,26 @@ public class EditorsUIUtils
 
         };
 
-        String sb = String.format ("Please confirm you wish to remove <b>%s</b> as {a contact}.<br /><br />A message will be sent to <b>%s</b> informing them of your decision.<br /><br />Enter <b>Yes</b> below to remove them.<br /><br /><p class='error'>Warning: you will no longer be able to receive messages from <b>%s</b> or send messages to them.</p>",
-                                    ed.getMainName (),
-                                    ed.getMainName (),
+        java.util.List<String> prefix = Arrays.asList (editors,editor,remove,popup);
+
+        String sb = String.format (getUIString (prefix,text),
+                                    //"Please confirm you wish to remove <b>%s</b> as {a contact}.<br /><br />A message will be sent to <b>%s</b> informing them of your decision.<br /><br />Enter <b>Yes</b> below to remove them.<br /><br /><p class='error'>Warning: you will no longer be able to receive messages from <b>%s</b> or send messages to them.</p>",
                                     ed.getMainName ());
 
         UIUtils.createTextInputPopup (viewer,
-                                     "Remove {contact}",
-                                     Constants.DELETE_ICON_NAME,
-                                     sb,
-                                     "Yes, remove them",
-                                     "No, keep them",
-                                     null,
-                                     UIUtils.getYesValueValidator (),
-                                     removeEditor,
-                                     null,
-                                     null);
+                                      getUIString (prefix,title),
+                                      //"Remove {contact}",
+                                      Constants.DELETE_ICON_NAME,
+                                      sb,
+                                      getUIString (prefix,buttons,confirm),
+                                      //"Yes, remove them",
+                                      getUIString (prefix,buttons,cancel),
+                                      //"No, keep them",
+                                      null,
+                                      UIUtils.getYesValueValidator (),
+                                      removeEditor,
+                                      null,
+                                      null);
 
     }
 
@@ -584,14 +623,18 @@ public class EditorsUIUtils
     public static void updateYourInfo (final AbstractViewer viewer)
     {
 
-        final QPopup qp = UIUtils.createClosablePopup ("Update your name/avatar",
+        java.util.List<String> prefix = Arrays.asList (editors,user,edit,info,popup);
+
+        final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                       //"Update your name/avatar",
                                                        Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        null);
 
         Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane ("Change your name/avatar below.  Note: clicking <b>Save</b> below will send any changes to your {editors}.",
+        JTextPane desc = UIUtils.createHelpTextPane (getUIString (prefix,text),
+                                                     //"Change your name/avatar below.  Note: clicking <b>Save</b> below will send any changes to your {editors}.",
                                                      viewer);
 
         content.add (desc);
@@ -640,16 +683,18 @@ public class EditorsUIUtils
         });
 
         b.add (avatar);
-        
+
         Set<FormItem> items = new LinkedHashSet ();
-        
-        items.add (new AnyFormItem ("Your Name",
+
+        items.add (new AnyFormItem (getUIString (prefix,labels,name),
+                                    //"Your Name",
                                     nameF));
-        
-        items.add (new AnyFormItem ("Your picture/Avatar",
+
+        items.add (new AnyFormItem (getUIString (prefix,labels,LanguageStrings.avatar),
+                                    //"Your picture/Avatar",
                                     b));
 
-        final JButton updateB = UIUtils.createButton (Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
+        final JButton updateB = UIUtils.createButton (getUIString (prefix,buttons,confirm),
                                                       new ActionListener ()
         {
 
@@ -665,7 +710,7 @@ public class EditorsUIUtils
                 if (newName.length () == 0)
                 {
 
-                    error.setText ("Please provide your name.");
+                    error.setText (getUIString (prefix,errors,noname));//"Please provide your name.");
                     error.setVisible (true);
 
                     qp.resize ();
@@ -689,9 +734,13 @@ public class EditorsUIUtils
                             if (EditorsEnvironment.getEditors ().size () > 0)
                             {
 
+                                java.util.List<String> prefix = Arrays.asList (editors,user,edit,info,confirmpopup);
+
                                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                                     "Details sent",
-                                                     "Your updated details have been sent to your {editors}");
+                                                     getUIString (prefix,title),
+                                                     //"Details sent",
+                                                     getUIString (prefix,text));
+                                                     //"Your updated details have been sent to your {editors}");
 
                             }
 
@@ -707,7 +756,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to update user information, please contact Quoll Writer support for assistance.");
+                                              getUIString (editors,user,edit,info,actionerror));
+                                              //"Unable to update user information, please contact Quoll Writer support for assistance.");
 
                 }
 
@@ -717,18 +767,19 @@ public class EditorsUIUtils
 
         });
 
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+        final JButton cancelB = UIUtils.createButton (getUIString (prefix,buttons,cancel),
+                                                      //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                                                       qp.getCloseAction ());
 
         Set<JButton> buttons = new LinkedHashSet ();
         buttons.add (updateB);
         buttons.add (cancelB);
-        
+
         Form f = UIUtils.createForm (items,
                                      buttons);
-        
+
         f.setBorder (UIUtils.createPadding (10, 5, 0, 5));
-        
+
         content.add (f);
 
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
@@ -754,14 +805,19 @@ public class EditorsUIUtils
                                          final EditorEditor   ed)
     {
 
-        final QPopup qp = UIUtils.createClosablePopup ("Update the {contact} information",
+        java.util.List<String> prefix = Arrays.asList (editors,editor,edit,popup);
+
+        final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                       //"Update the {contact} information",
                                                        Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        null);
 
         Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane ("Change the name/avatar for <b>" + ed.getMainName () + "</b> below.",
+        JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,text),
+                                                                                 ed.getMainName ()),
+                                                     //"Change the name/avatar for <b>" + ed.getMainName () + "</b> below.",
                                                      viewer);
 
         content.add (desc);
@@ -786,7 +842,8 @@ public class EditorsUIUtils
 
         int row = 2;
 
-        builder.addLabel ("Name",
+        builder.addLabel (getUIString (prefix,labels,name),
+                          //"Name",
                           cc.xy (2,
                                  row));
 
@@ -808,7 +865,9 @@ public class EditorsUIUtils
         nameB.add (Box.createHorizontalStrut (3));
         nameB.add (UIUtils.createButton (Constants.RESET_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Click to reset the name to " + edOrigName,
+                                         String.format (getUIString (prefix,labels,reset,tooltip),
+                                                        edOrigName),
+                                         //"Click to reset the name to " + edOrigName,
                                          new ActionListener ()
                                          {
 
@@ -827,7 +886,8 @@ public class EditorsUIUtils
 
         row += 2;
 
-        builder.addLabel ("Avatar",
+        builder.addLabel (getUIString (prefix,labels,avatar),
+                          //"Avatar",
                           cc.xy (2,
                                  row));
 
@@ -871,7 +931,8 @@ public class EditorsUIUtils
                      cc.xy (4,
                             row));
 
-        final JButton updateB = UIUtils.createButton (Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
+        final JButton updateB = UIUtils.createButton (getUIString (prefix,buttons,confirm),
+                                                      //Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
                                                       new ActionListener ()
         {
 
@@ -887,7 +948,8 @@ public class EditorsUIUtils
                 if (newName.length () == 0)
                 {
 
-                    error.setText ("A name must be specified.");
+                    error.setText (getUIString (editors,editor,edit,popup,errors,noname));
+                    //"A name must be specified.");
                     error.setVisible (true);
 
                     qp.resize ();
@@ -913,7 +975,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                              getUIString (editors,editor,edit,actionerror));
+                                              //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                 }
 
@@ -923,7 +986,8 @@ public class EditorsUIUtils
 
         });
 
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+        final JButton cancelB = UIUtils.createButton (getUIString (prefix,buttons,cancel),
+                                                      //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                                                       qp.getCloseAction ());
 
         row += 2;
@@ -956,6 +1020,8 @@ public class EditorsUIUtils
         qp.resize ();
     }
 
+/*
+Not used.
     public static void showEditorInfoReceived (final EditorInfoMessage info)
     {
 
@@ -965,13 +1031,17 @@ public class EditorsUIUtils
             public void actionPerformed (ActionEvent ev)
             {
 
+                java.util.List<String> prefix = Arrays.asList (editors,editor,updated,popup);
+
                 final EditorEditor ed = info.getEditor ();
 
                 Box content = new Box (BoxLayout.Y_AXIS);
 
                 AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                JTextPane desc = UIUtils.createHelpTextPane ("<b>" + ed.getMainName () + "</b> has updated their information.  To accept the changes click on the <b>Update</b> button below, to keep the current name and avatar click <b>Reject</b>.",
+                JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,text),
+                                                                            ed.getMainName ()),
+                                                            //"<b>" + ed.getMainName () + "</b> has updated their information.  To accept the changes click on the <b>Update</b> button below, to keep the current name and avatar click <b>Reject</b>.",
                                                              viewer);
 
                 content.add (desc);
@@ -991,7 +1061,8 @@ public class EditorsUIUtils
 
                 int row = 2;
 
-                builder.addLabel ("Their New Name",
+                builder.addLabel (getUIString (prefix,labels,name),
+                                  //"Their New Name",
                                   cc.xy (2,
                                          row));
 
@@ -1001,7 +1072,8 @@ public class EditorsUIUtils
 
                 row += 2;
 
-                builder.addLabel ("Their New Avatar",
+                builder.addLabel (getUIString (prefix,labels,avatar),
+                                  //"Their New Avatar",
                                   cc.xy (2,
                                          row));
 
@@ -1026,7 +1098,8 @@ public class EditorsUIUtils
 
                 Map<String, ActionListener> buttons = new LinkedHashMap ();
 
-                buttons.put ("Update",
+                buttons.put (getUIString (prefix,LanguageStrings.buttons,accept),
+                            //"Update",
                              new ActionListener ()
                              {
 
@@ -1056,14 +1129,15 @@ public class EditorsUIUtils
                                         // valid.
                                         AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                                        UIUtils.showErrorMessage (viewer,
-                                                                  "Unable to update {editor} information, please contact Quoll Writer support for assistance.");
-
                                         Environment.logError ("Unable to update editor: " +
                                                               ed +
                                                               " with information: " +
                                                               info,
                                                               e);
+
+                                         UIUtils.showErrorMessage (viewer,
+                                                                   getUIString (editors,editor,edit,actionerror));
+                                                                   //"Unable to update {editor} information, please contact Quoll Writer support for assistance.");
 
                                     }
 
@@ -1071,7 +1145,8 @@ public class EditorsUIUtils
 
                              });
 
-                buttons.put ("Reject",
+                buttons.put (getUIString (prefix,LanguageStrings.buttons,reject),
+                            //"Reject",
                              new ActionListener ()
                              {
 
@@ -1091,14 +1166,15 @@ public class EditorsUIUtils
                                         // valid.
                                         AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                                        UIUtils.showErrorMessage (viewer,
-                                                                  "Unable to update {editor} information, please contact Quoll Writer support for assistance.");
-
                                         Environment.logError ("Unable to save editor info message for editor: " +
                                                               ed +
                                                               " with information: " +
                                                               info,
                                                               e);
+
+                                         UIUtils.showErrorMessage (viewer,
+                                                                   getUIString (editors,editor,edit,actionerror));
+                                                                   //"Unable to update {editor} information, please contact Quoll Writer support for assistance.");
 
                                     }
 
@@ -1106,7 +1182,8 @@ public class EditorsUIUtils
 
                              });
 
-                buttons.put ("I'll decide later",
+                buttons.put (getUIString (prefix,LanguageStrings.buttons,cancel),
+                            //"I'll decide later",
                              new ActionListener ()
                              {
 
@@ -1118,7 +1195,8 @@ public class EditorsUIUtils
                              });
 
                 UIUtils.createQuestionPopup (viewer,
-                                             "{An editor} has updated their information",
+                                             getUIString (prefix,title),
+                                             //"{An editor} has updated their information",
                                              "edit",
                                              content,
                                              buttons,
@@ -1130,7 +1208,7 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
     public static JComponent createSendProjectPanel (final AbstractProjectViewer viewer,
                                                      final EditorEditor          ed,
                                                      final ActionListener        onSend)
@@ -1149,7 +1227,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to show send {project} window, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,user,sendorupdateproject,actionerror));
+                                      //"Unable to show send {project} window, please contact Quoll Writer support for assistance.");
 
             return null;
 
@@ -1176,6 +1255,8 @@ public class EditorsUIUtils
            )
         {
 
+            java.util.List<String> prefix2 = Arrays.asList (editors,user,updateproject,popup,labels);
+
             // Get the last one.
             EditorMessage last = messages.last ();
 
@@ -1192,11 +1273,16 @@ public class EditorsUIUtils
                 if (verName != null)
                 {
 
-                    updateText = "You sent version <b>%s</b> of the {project} on <b>%s</b>.";
+                    updateText = String.format (getUIString (prefix2,firstupdatewithversion),
+                                                verName,
+                                                Environment.formatDate (last.getWhen ()));
+                    //"You sent version <b>%s</b> of the {project} on <b>%s</b>.";
 
                 } else {
 
-                    updateText = "You sent the {project} on <b>%s</b>.";
+                    updateText = String.format (getUIString (prefix2,firstupdate),
+                                                Environment.formatDate (last.getWhen ()));
+                                                //)"You sent the {project} on <b>%s</b>.";
 
                 }
 
@@ -1210,31 +1296,23 @@ public class EditorsUIUtils
                 if (verName != null)
                 {
 
-                    updateText = "You last sent version <b>%s</b> of the {project} on <b>%s</b>.";
+                    updateText = String.format (getUIString (prefix2,lastupdatewithversion),
+                                                verName,
+                                                Environment.formatDate (last.getWhen ()));
+                                                //"You last sent version <b>%s</b> of the {project} on <b>%s</b>.";
 
                 } else {
 
-                    updateText = "You last sent the {project} on <b>%s</b>.";
+                    updateText = String.format (getUIString (prefix2,lastupdate),
+                                                Environment.formatDate (last.getWhen ()));
+                                                //"You last sent the {project} on <b>%s</b>.";
 
                 }
 
             }
 
-            updateText = "<br /><br />" + updateText + "  The {chapters} you previously sent have been pre-selected.";
-
-            if (verName != null)
-            {
-
-                updateText = String.format (updateText,
-                                            verName,
-                                            Environment.formatDate (last.getWhen ()));
-
-            } else {
-
-                updateText = String.format (updateText,
-                                            Environment.formatDate (last.getWhen ()));
-
-            }
+            updateText = "<br /><br />" + updateText + getUIString (prefix2,updatesuffix);
+            //"  The {chapters} you previously sent have been pre-selected.";
 
             for (Chapter c : chaps)
             {
@@ -1280,11 +1358,15 @@ public class EditorsUIUtils
 
         }
 
+        java.util.List<String> prefix = Arrays.asList (editors,user,sendorupdateproject,popup);
+
         final boolean fupdate = update;
 
         final Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane (String.format ("Select the {chapters} you wish to send to <b>" + ed.getMainName () + "</b>.  You can also select a date indicating when you would like the editing to be completed, remember to be reasonable, {editors} have lives too!<br /><br />It is recommended that you provide a <i>Version</i> such as <b>1st Draft</b> or <b>Final edit</b> so that when you get comments back you know what they relate to.%s",
+        JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,text),
+                                                                    ed.getMainName (),
+                                                                    //"Select the {chapters} you wish to send to <b>" + ed.getMainName () + "</b>.  You can also select a date indicating when you would like the editing to be completed, remember to be reasonable, {editors} have lives too!<br /><br />It is recommended that you provide a <i>Version</i> such as <b>1st Draft</b> or <b>Final edit</b> so that when you get comments back you know what they relate to.%s",
                                                                     updateText),
                                                      viewer);
         desc.setBorder (null);
@@ -1297,15 +1379,17 @@ public class EditorsUIUtils
 
         content.add (error);
 
-        JLabel sending = UIUtils.createLoadingLabel ("Sending {project}...");
-        sending.setBorder (UIUtils.createPadding (10, 10, 0, 10));        
-        
+        JLabel sending = UIUtils.createLoadingLabel (getUIString (prefix,loading));
+        //"Sending {project}...");
+        sending.setBorder (UIUtils.createPadding (10, 10, 0, 10));
+
         content.add (sending);
-        
+
         final JTextField version = new JTextField ();
 
-        final TextArea notes = new TextArea (Environment.replaceObjectNames (String.format ("Tell %s about your {project}/book/story here.  Also add instructions/hints on what you are wanting them to do, what to look at specifically and so on.",
-                                                                                            ed.getMainName ())),
+        final TextArea notes = new TextArea (String.format (getUIString (prefix,labels,LanguageStrings.notes,tooltip),
+                                                            //"Tell %s about your {project}/book/story here.  Also add instructions/hints on what you are wanting them to do, what to look at specifically and so on.",
+                                                            ed.getMainName ()),
                                              5,
                                              5000);
         notes.setAutoGrabFocus (false);
@@ -1320,7 +1404,7 @@ public class EditorsUIUtils
         jcal.getCalendarButton ().setMargin (new java.awt.Insets (3, 3, 3, 3));
         jcal.setIcon (Environment.getIcon ("date",
                                            16));
-        
+
         JTree tree = UIUtils.createSelectableTree ();
 
         final DefaultMutableTreeNode root = UIUtils.createTreeNode (p,
@@ -1372,26 +1456,32 @@ public class EditorsUIUtils
             t = sp;
 
         }
-                
+
         Set<FormItem> items = new LinkedHashSet ();
-        
-        items.add (new AnyFormItem ("{Project}",
+
+        items.add (new AnyFormItem (getUIString (prefix,labels,project),
+                                    //"{Project}",
                                     new JLabel (p.getName ())));
 
-        items.add (new AnyFormItem ("Version",
+        items.add (new AnyFormItem (getUIString (prefix,labels,LanguageStrings.version),
+                                    //"Version",
                                     version));
 
-        items.add (new AnyFormItem ("Notes",
+        items.add (new AnyFormItem (getUIString (prefix,labels,LanguageStrings.notes,text),
+                                    //"Notes",
                                     notes));
-        
-        items.add (new AnyFormItem ("Due by",
+
+        items.add (new AnyFormItem (getUIString (prefix,labels,dueby),
+                                    //"Due by",
                                     jcal));
 
-        items.add (new AnyFormItem ("{Chapters}",
+        items.add (new AnyFormItem (getUIString (prefix,labels,chapters),
+                                    //"{Chapters}",
                                     t));
 
-        final JButton send = UIUtils.createButton ("Send");
-        
+        final JButton send = UIUtils.createButton (getUIString (prefix,LanguageStrings.buttons,LanguageStrings.send));
+        //"Send");
+
         ActionListener sendAction = new ActionListener ()
         {
 
@@ -1410,7 +1500,8 @@ public class EditorsUIUtils
                 {
 
                     // Show the error.
-                    err = "Please select at least 1 {chapter}.";
+                    err = getUIString (editors,user,sendorupdateproject,popup,errors,nochapters);
+                    //"Please select at least 1 {chapter}.";
 
                 }
 
@@ -1425,7 +1516,8 @@ public class EditorsUIUtils
                         if (qp.hasUnsavedChanges ())
                         {
 
-                            err = "One of the selected {chapters} has unsaved changes, please save your work before sending the {project}.";
+                            err = getUIString (editors,user,sendorupdateproject,popup,errors,unsavedchanges);
+                            //"One of the selected {chapters} has unsaved changes, please save your work before sending the {project}.";
 
                             break;
 
@@ -1438,7 +1530,8 @@ public class EditorsUIUtils
                 if (notes.getText ().trim ().length () > 5000)
                 {
 
-                    err = "Notes can be a maximum of 5000 characters.";
+                    err = getUIString (editors,user,sendorupdateproject,popup,errors,maxchars);
+                    //"Notes can be a maximum of 5000 characters.";
 
                 }
 
@@ -1520,7 +1613,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to send new project to {editor}, please contact Quoll Writer support for assistance.");
+                                              getUIString (editors,user,sendorupdateproject,actionerror));
+                                              //"Unable to send new project to {editor}, please contact Quoll Writer support for assistance.");
 
                     return;
 
@@ -1587,7 +1681,8 @@ public class EditorsUIUtils
 
                                                                     pe.setStatus (ProjectEditor.Status.invited);
 
-                                                                    pe.setStatusMessage (String.format ("{Project} sent: %s",
+                                                                    pe.setStatusMessage (String.format (getUIString (editors,user,sendproject,editorstatus),
+                                                                                                        //"{Project} sent: %s",
                                                                                                         Environment.formatDate (new Date ())));
 
                                                                     // Add the editor to the list of editors
@@ -1613,7 +1708,8 @@ public class EditorsUIUtils
                                                                                               e);
 
                                                                         UIUtils.showErrorMessage (viewer,
-                                                                                                  "Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
+                                                                                                  getUIString (editors,user,sendorupdateproject,actionerror));
+                                                                                                  //"Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
 
                                                                     }
 
@@ -1627,7 +1723,8 @@ public class EditorsUIUtils
                                                                         pe.setEditorFrom (new Date ());
                                                                         pe.setEditorTo (null);
 
-                                                                        pe.setStatusMessage (String.format ("{Project} updated: %s",
+                                                                        pe.setStatusMessage (String.format (getUIString (editors,user,updateproject,editorstatus),
+                                                                                                            //"{Project} updated: %s",
                                                                                                             Environment.formatDate (new Date ())));
 
                                                                         EditorsEnvironment.updateProjectEditor (pe);
@@ -1643,15 +1740,18 @@ public class EditorsUIUtils
                                                                                               e);
 
                                                                         UIUtils.showErrorMessage (viewer,
-                                                                                                  "Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
+                                                                                                  getUIString (editors,user,sendorupdateproject,actionerror));
+                                                                                                  //"Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
 
                                                                     }
 
                                                                 }
 
                                                                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                     "Your {project} has been sent",
-                                                                                     String.format ("Your {project} <b>%s</b> has been sent to <b>%s</b>",
+                                                                                     getUIString (editors,user,sendorupdateproject,confirmpopup,title),
+                                                                                     //"Your {project} has been sent",
+                                                                                     String.format (getUIString (editors,user,sendorupdateproject,confirmpopup,text),
+                                                                                                    //"Your {project} <b>%s</b> has been sent to <b>%s</b>",
                                                                                                     viewer.getProject ().getName (),
                                                                                                     ed.getMainName ()));
 
@@ -1674,7 +1774,8 @@ public class EditorsUIUtils
         UIUtils.addDoActionOnReturnPressed (notes,
                                             sendAction);
 
-        JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+        JButton cancel = UIUtils.createButton (getUIString (prefix,LanguageStrings.buttons,LanguageStrings.cancel),
+                                                //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                                                new ActionListener ()
         {
 
@@ -1701,11 +1802,11 @@ public class EditorsUIUtils
                                                                     AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                                                     UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                         "Invite sent",
-                                                                                         String.format ("An invite has been sent to: <b>%s</b>.",
-                                                                                                        ed.getEmail ()),
-                                                                                         "Ok, got it",
-                                                                                         null);
+                                                                                         getUIString (editors,user,invitesent,popup,title),
+                                                                                         //"Invite sent",
+                                                                                         String.format (getUIString (editors,user,invitesent,popup,text),
+                                                                                                        //"An invite has been sent to: <b>%s</b>.",
+                                                                                                        ed.getEmail ()));
 
                                                                 }
 
@@ -1722,13 +1823,13 @@ public class EditorsUIUtils
         });
 
         Set<JButton> buttons = new LinkedHashSet ();
-        
+
         buttons.add (send);
         buttons.add (cancel);
-        
+
         Form f = UIUtils.createForm (items,
                                      buttons);
-        
+
         f.setBorder (UIUtils.createPadding (10, 0, 0, 0));
         content.add (f);
 
@@ -1771,7 +1872,10 @@ public class EditorsUIUtils
                                         final ActionListener        onSend)
     {
 
-        final QPopup popup = UIUtils.createClosablePopup ("Send {project}",
+        java.util.List<String> prefix = Arrays.asList (editors,user,sendproject,popup);
+
+        final QPopup popup = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                          //"Send {project}",
                                                           Environment.getIcon (Constants.SEND_ICON_NAME,
                                                                                Constants.ICON_POPUP),
                                                           null);
@@ -1830,7 +1934,8 @@ public class EditorsUIUtils
 
         }
 
-        final QPopup popup = UIUtils.createClosablePopup ("Update {project}",
+        final QPopup popup = UIUtils.createClosablePopup (getUIString (editors,user,updateproject,LanguageStrings.popup,title),
+                                                          //"Update {project}",
                                                           Environment.getIcon (Constants.SEND_ICON_NAME,
                                                                                Constants.ICON_POPUP),
                                                           null);
@@ -1865,6 +1970,8 @@ public class EditorsUIUtils
 
     }
 
+/*
+Not used.
     public static void showNewProjectResponseNotification (final NewProjectResponseMessage mess)
     {
 
@@ -2065,491 +2172,7 @@ public class EditorsUIUtils
         });
 
     }
-
-    public static void handleNewProjectResponse (      AbstractViewer    viewer,
-                                                 final NewProjectMessage mess,
-                                                 final boolean           accepted)
-    {
-
-        if (viewer == null)
-        {
-
-            viewer = Environment.getFocusedViewer ();
-
-        }
-
-        if (accepted)
-        {
-
-            final QPopup qp = UIUtils.createClosablePopup ("Accept the invitation",
-                                                           Environment.getIcon (Constants.PROJECT_ICON_NAME,
-                                                                                Constants.ICON_POPUP),
-                                                           null);
-
-            String rows = "p, 6px, p, 6px, p, 6px, p";
-
-            int row = 1;
-
-            Box content = new Box (BoxLayout.Y_AXIS);
-
-            content.add (UIUtils.createBoldSubHeader ("Where should the {project} be saved?",
-                                                      null));
-
-            content.add (Box.createVerticalStrut (5));
-
-            File defDir = Environment.getDefaultSaveProjectDir ();
-
-            defDir.mkdirs ();
-
-            File nf = new File (defDir, "editor-projects/" + mess.getEditor ().getEmail ());
-
-            final FileFinder saveField = new FileFinder ();
-
-            saveField.setFile (nf);
-
-            saveField.setApproveButtonText ("Select");
-            saveField.setFinderSelectionMode (JFileChooser.DIRECTORIES_ONLY);
-            saveField.setFinderTitle ("Select a directory to save to");
-
-            saveField.setFindButtonToolTip ("Click to find a directory");
-            saveField.setClearOnCancel (true);
-            saveField.init ();
-
-            final String projName = mess.getForProjectName ();            
-            
-            final JCheckBox encryptField = UIUtils.createCheckBox ("Encrypt this {project}?  You will be prompted for a password.");
-            
-            Set<FormItem> items = new LinkedHashSet ();
-            
-            items.add (new AnyFormItem ("{Project}",
-                                        new JLabel (projName)));
-            
-            items.add (new AnyFormItem ("Save In",
-                                        saveField));
-
-            items.add (new AnyFormItem (null,
-                                        encryptField));
-
-            FormLayout pfl = new FormLayout ("right:p, 6px, 100px, 20px, p, 6px, fill:100px",
-                                             "p, 6px");
-            pfl.setHonorsVisibility (true);
-            PanelBuilder pbuilder = new PanelBuilder (pfl);
-
-            CellConstraints cc = new CellConstraints ();            
-            
-            final JPasswordField passwordField = new JPasswordField ();
-
-            pbuilder.addLabel ("Password",
-                               cc.xy (1,
-                                      1));
-
-            pbuilder.add (passwordField,
-                          cc.xy (3,
-                                 1));
-
-            final JPasswordField passwordField2 = new JPasswordField ();
-
-            pbuilder.addLabel ("Confirm",
-                               cc.xy (5,
-                                      1));
-
-            pbuilder.add (passwordField2,
-                          cc.xy (7,
-                                 1));
-                                 
-            final JPanel ppanel = pbuilder.getPanel ();
-            ppanel.setVisible (false);
-            ppanel.setOpaque (false);
-
-            items.add (new AnyFormItem (null,
-                                        ppanel));
-
-            encryptField.addActionListener (new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    ppanel.setVisible (encryptField.isSelected ());
-
-                    qp.resize ();
-
-                }
-
-            });
-
-            final JLabel error = UIUtils.createErrorLabel ("");
-            error.setVisible (false);
-            error.setBorder (UIUtils.createPadding (0, 0, 5, 0));
-
-            Form f = UIUtils.createForm (items);
-            
-            content.add (error);
-            content.add (f);
-
-            content.add (Box.createVerticalStrut (10));
-            content.add (UIUtils.createBoldSubHeader ("Send a message back",
-                                                      null));
-
-            final TextArea res = new TextArea (String.format ("You can optionally return a message to %s using this box.",
-                                                              mess.getEditor ().getMainName ()),
-                                               5,
-                                               5000);
-
-            content.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-            content.add (res);
-
-            ActionListener doSave = new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    error.setVisible (false);
-
-                    // See if the project already exists.
-                    File pf = new File (saveField.getSelectedFile (), Utils.sanitizeForFilename (projName));
-
-                    if (pf.exists ())
-                    {
-
-                        error.setText (Environment.replaceObjectNames (String.format ("A {project} called: %s already exists.",
-                                                                                      projName)));
-
-                        error.setVisible (true);
-
-                        qp.resize ();
-
-                        return;
-
-                    }
-
-                    String pwd = null;
-
-                    if (encryptField.isSelected ())
-                    {
-
-                        // Make sure a password has been provided.
-                        pwd = new String (passwordField.getPassword ()).trim ();
-
-                        String pwd2 = new String (passwordField2.getPassword ()).trim ();
-
-                        if (pwd.equals (""))
-                        {
-
-                            error.setText (Environment.replaceObjectNames ("Please provide a password for securing the {project}."));
-
-                            error.setVisible (true);
-
-                            qp.resize ();
-
-                            return;
-
-                        }
-
-                        if (pwd2.equals (""))
-                        {
-
-                            error.setText ("Please confirm your password.");
-
-                            error.setVisible (true);
-
-                            qp.resize ();
-
-                            return;
-
-                        }
-
-                        if (!pwd.equals (pwd2))
-                        {
-
-                            error.setText ("The passwords do not match.");
-
-                            error.setVisible (true);
-
-                            qp.resize ();
-
-                            return;
-
-                        }
-
-                    }
-
-                    final String responseMessage = (res.getText ().trim ().length () == 0 ? null : res.getText ().trim ());
-
-                    mess.setResponseMessage (responseMessage);
-
-                    // Create the project.
-                    Project p = null;
-
-                    try
-                    {
-
-                        p = mess.createProject ();
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to create project from message: " +
-                                              mess,
-                                              e);
-
-                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  "Unable to save {project}, please contact Quoll Writer support for assistance.");
-
-                        return;
-
-                    }
-
-                    final Project fproj = p;
-
-                    // Put it in the user's directory.
-                    try
-                    {
-
-                        // We create the project but then close the connection pool since the user
-                        // may not want to open the project yet.
-                        Environment.createProject (saveField.getSelectedFile (),
-                                                   p,
-                                                   pwd).closeConnectionPool ();
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to save editor project to: " +
-                                              saveField.getSelectedFile () +
-                                              ", message: " +
-                                              mess,
-                                              e);
-
-                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  "Unable to save {project}, please contact Quoll Writer support for assistance.");
-
-                        return;
-
-                    }
-
-                    mess.setDealtWith (true);
-
-                    ActionListener onComplete = new ActionListener ()
-                    {
-
-                       public void actionPerformed (ActionEvent ev)
-                       {
-
-                            qp.removeFromParent ();
-
-                            mess.setAccepted (accepted);
-                            mess.setDealtWith (true);
-                            mess.setResponseMessage (responseMessage);
-
-                            try
-                            {
-
-                                // Update the original message.
-                                EditorsEnvironment.updateMessage (mess);
-
-                            } catch (Exception e) {
-
-                                Environment.logError ("Unable to update message: " +
-                                                      mess,
-                                                      e);
-
-                                UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                          "Unable to update message, please contact Quoll Writer support for assistance.");
-
-                                // Should really carry on... maybe...
-
-                            }
-
-                            // Ask if they want to open the project now.
-                            UIUtils.createQuestionPopup (Environment.getFocusedViewer (),
-                                                         "Open the {project}?",
-                                                         Constants.OPEN_PROJECT_ICON_NAME,
-                                                         "Open the {project} now?",
-                                                         "Yes, open it",
-                                                         "Not now",
-                                                         new ActionListener ()
-                                                         {
-
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                                try
-                                                                {
-
-                                                                    Environment.openProject (fproj,
-                                                                                            new ActionListener ()
-                                                                                             {
-
-                                                                                                public void actionPerformed (ActionEvent ev)
-                                                                                                {
-
-                                                                                                    // Show the first chapter.
-                                                                                                    AbstractProjectViewer pv = (AbstractProjectViewer) ev.getSource ();
-
-                                                                                                    pv.viewObject (pv.getProject ().getBook (0).getChapters ().get (0));
-
-                                                                                                }
-
-                                                                                             });
-
-                                                                } catch (Exception e) {
-
-                                                                    Environment.logError ("Unable to open project: " +
-                                                                                          fproj,
-                                                                                          e);
-
-                                                                    UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                                                              "Unable to open {project}: " + fproj.getName () + " please contact Quoll Support for assistance.");
-
-                                                                }
-
-                                                            }
-
-                                                         },
-                                                         null,
-                                                         null,
-                                                         null);
-
-                       }
-
-                    };
-
-                    NewProjectResponseMessage res = new NewProjectResponseMessage (mess.getForProjectId (),
-                                                                                   true,
-                                                                                   responseMessage,
-                                                                                   mess.getEditor (),
-                                                                                   EditorsEnvironment.getUserAccount ());
-
-                    if (mess.getEditor ().isPending ())
-                    {
-
-                        EditorsEnvironment.acceptInvite (mess.getEditor (),
-                                                         res,
-                                                         onComplete);
-
-                    } else {
-
-                        EditorsEnvironment.sendMessageToEditor (res,
-                                                                onComplete,
-                                                                null,
-                                                                null);
-
-                    }
-
-               }
-
-            };
-
-            JButton save = UIUtils.createButton ("Save {project}",
-                                                 doSave);
-            
-            UIUtils.addDoActionOnReturnPressed (res,
-                                                doSave);
-
-            JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                                   new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
- 
-                     qp.removeFromParent ();
- 
-                }
-
-            });
-
-            JButton[] buts = new JButton[] { save, cancel };
-
-            JComponent bs = UIUtils.createButtonBar2 (buts,
-                                                      Component.LEFT_ALIGNMENT);
-            bs.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            content.add (Box.createVerticalStrut (10));
-            content.add (bs);
-            content.setBorder (new EmptyBorder (10, 10, 10, 10));
-
-            qp.setContent (content);
-
-            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                                     content.getPreferredSize ().height));
-
-            Point showAt = UIUtils.getCenterShowPosition (viewer,
-                                                          qp);
-
-            viewer.showPopupAt (qp,
-                                showAt,
-                                false);
-
-            qp.setDraggable (viewer);
-
-        } else {
-
-            // Ask for a response?
-            final String responseMessage = null;
-
-            mess.setDealtWith (true);
-
-            ActionListener onComplete = new ActionListener ()
-            {
-
-               public void actionPerformed (ActionEvent ev)
-               {
-
-                    mess.setAccepted (accepted);
-                    mess.setDealtWith (true);
-                    mess.setResponseMessage (responseMessage);
-
-                    try
-                    {
-
-                        // Update the original message.
-                        EditorsEnvironment.updateMessage (mess);
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to update message: " +
-                                              mess,
-                                              e);
-
-                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  "Unable to update message, please contact Quoll Writer support for assistance.");
-
-                        // Should really carry on... maybe...
-
-                    }
-
-               }
-
-            };
-
-            NewProjectResponseMessage res = new NewProjectResponseMessage (mess.getForProjectId (),
-                                                                           false,
-                                                                           responseMessage,
-                                                                           mess.getEditor (),
-                                                                           EditorsEnvironment.getUserAccount ());
-
-            if (mess.getEditor ().isPending ())
-            {
-
-                EditorsEnvironment.rejectInvite (mess.getEditor (),
-                                                 res,
-                                                 onComplete);
-
-            } else {
-
-                EditorsEnvironment.sendMessageToEditor (res,
-                                                        onComplete,
-                                                        null,
-                                                        null);
-
-            }
-
-        }
-
-    }
+*/
 
     public static void showSendUnsentComments (final AbstractProjectViewer viewer,
                                                final ActionListener        onSend)
@@ -2561,16 +2184,20 @@ public class EditorsUIUtils
             public void actionPerformed (ActionEvent ev)
             {
 
+                java.util.List<String> prefix = Arrays.asList (editors,user,sendunsentcomments,popup);
+
                 final EditorEditor ed = viewer.getProject ().getForEditor ();
 
-                final QPopup popup = UIUtils.createClosablePopup ("Send {comments} to {editor}",
+                final QPopup popup = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                                  //"Send {comments} to {editor}",
                                                                   Environment.getIcon (Constants.SEND_ICON_NAME,
                                                                                        Constants.ICON_POPUP),
                                                                   null);
 
                 Box content = new Box (BoxLayout.Y_AXIS);
 
-                JTextPane desc = UIUtils.createHelpTextPane (String.format ("Select the {comments} you wish to send to <b>%s</b> below.",
+                JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,text),
+                                                                            //"Select the {comments} you wish to send to <b>%s</b> below.",
                                                                             ed.getMainName ()),
                                                              viewer);
 
@@ -2579,19 +2206,22 @@ public class EditorsUIUtils
                 desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                              desc.getPreferredSize ().height));
 
-                final JLabel error = UIUtils.createErrorLabel ("Please select at least 1 {comment}.");
+                final JLabel error = UIUtils.createErrorLabel (getUIString (prefix,errors,novalue));
+                //"Please select at least 1 {comment}.");
                 error.setBorder (UIUtils.createPadding (10, 0, 0, 0));
                 error.setVisible (false);
                 content.add (error);
 
-                JLabel sending = UIUtils.createLoadingLabel ("Sending {comments}...");
+                JLabel sending = UIUtils.createLoadingLabel (getUIString (prefix,loading));
+                //"Sending {comments}...");
                 sending.setBorder (UIUtils.createPadding (10, 0, 0, 0));
                 sending.setVisible (false);
-                
-                final TextArea genComments = new TextArea ("Optionally, you can provide some general thoughts/comments about the {project} here.",
+
+                final TextArea genComments = new TextArea (getUIString (prefix,labels,notes,tooltip),
+                                                          //"Optionally, you can provide some general thoughts/comments about the {project} here.",
                                                            5,
                                                            5000);
-                
+
                 Set exclude = new HashSet ();
                 Set init = new HashSet ();
 
@@ -2670,13 +2300,15 @@ public class EditorsUIUtils
 
                 JScrollPane sp = UIUtils.createScrollPane (tree,
                                                            400);
-                
+
                 Set<FormItem> items = new LinkedHashSet ();
-                                                           
-                items.add (new AnyFormItem ("Notes",
+
+                items.add (new AnyFormItem (getUIString (prefix,labels,LanguageStrings.notes,text),
+                                            //"Notes",
                                             genComments));
-                                                           
-                items.add (new AnyFormItem ("{Comments}",
+
+                items.add (new AnyFormItem (getUIString (prefix,labels,comments),
+                                            //"{Comments}",
                                             sp));
 
                 ActionListener onShow = null;
@@ -2775,7 +2407,8 @@ public class EditorsUIUtils
                                                                                                   e);
 
                                                                             UIUtils.showErrorMessage (viewer,
-                                                                                                      "Your comments have been sent but Quoll Writer is unable to update the comments in your local db, please contact Quoll Writer support for assistance.");
+                                                                                                      getUIString (editors,user,sendunsentcomments,actionerror));
+                                                                                                      //"Your comments have been sent but Quoll Writer is unable to update the comments in your local db, please contact Quoll Writer support for assistance.");
 
                                                                             return;
 
@@ -2791,20 +2424,9 @@ public class EditorsUIUtils
 
                                                                         }
 
-                                                                        String title = "Your {comments} have been sent";
-                                                                        String desc = "Your {comments} have been sent to <b>%s</b>";
-
-                                                                        if (comments.size () == 1)
-                                                                        {
-
-                                                                            title = "Your {comment} has been sent";
-                                                                            desc = "Your {comment} has been sent to <b>%s</b>";
-
-                                                                        }
-
                                                                         UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                             title,
-                                                                                             String.format (desc,
+                                                                                             getUIString (editors,user,sendunsentcomments,confirmpopup,title),
+                                                                                             String.format (getUIString (editors,user,sendunsentcomments,confirmpopup,text),
                                                                                                             ed.getMainName ()));
 
                                                                         popup.removeFromParent ();
@@ -2832,24 +2454,26 @@ public class EditorsUIUtils
 
                  };
 
-                final JButton send = UIUtils.createButton ("Send",
+                final JButton send = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.send),
+                                                           //"Send",
                                                            sendAction);
-                 
+
                 UIUtils.addDoActionOnReturnPressed (genComments,
                                                     sendAction);
 
-                final JButton cancel = UIUtils.createButton ("Cancel",
+                final JButton cancel = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.cancel),
+                                                             //"Cancel",
                                                              popup.getCloseAction ());
 
                 Set<JButton> buttons = new LinkedHashSet ();
                 buttons.add (send);
                 buttons.add (cancel);
-                                                             
+
                 Form f = UIUtils.createForm (items,
                                              buttons);
-                
+
                 f.setBorder (UIUtils.createPadding (10, 0, 0, 0));
-                                                
+
                 content.add (f);
 
                 //content.add (buttons);
@@ -2872,6 +2496,8 @@ public class EditorsUIUtils
 
     }
 
+/*
+Not used.
     public static void showNewProjectReceived (final NewProjectMessage mess)
     {
 
@@ -3230,7 +2856,8 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
+/*
     public static void showProjectUpdateReceived (final UpdateProjectMessage mess)
     {
 
@@ -3436,7 +3063,8 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
+/*
     public static void showInviteAcceptance (final EditorEditor ed)
     {
 
@@ -3473,7 +3101,8 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
+/*
     public static void showInviteRejection (final EditorEditor ed)
     {
 
@@ -3510,7 +3139,8 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
+/*
     public static void showAcceptance (final EditorEditor ed)
     {
 
@@ -3562,7 +3192,7 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
     public static void showReportMessage (final MessageBox     mess,
                                           final AbstractViewer viewer)
     {
@@ -3580,7 +3210,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to show report message popup, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,user,reportmessage,actionerror));
+                                      //"Unable to show report message popup, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -3588,14 +3219,18 @@ public class EditorsUIUtils
 
         final URL reportURL = url;
 
-        final QPopup qp = UIUtils.createClosablePopup ("Report a message",
+        final java.util.List<String> prefix = Arrays.asList (editors,user,reportmessage,popup);
+
+        final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                       //"Report a message",
                                                        Environment.getIcon (Constants.ERROR_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        null);
 
         Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane ("Please describe why you are reporting the message.<br /><br />Note: when reporting a message all information known about the message, such as the text received by you, will be sent to the Quoll Writer server.<br /><br /><p class='error'>Warning: falsely reporting messages can lead to you being banned from the Editors Service.</p>",
+        JTextPane desc = UIUtils.createHelpTextPane (getUIString (prefix,text),
+                                                     //"Please describe why you are reporting the message.<br /><br />Note: when reporting a message all information known about the message, such as the text received by you, will be sent to the Quoll Writer server.<br /><br /><p class='error'>Warning: falsely reporting messages can lead to you being banned from the Editors Service.</p>",
                                                      viewer);
 
         content.add (desc);
@@ -3605,7 +3240,8 @@ public class EditorsUIUtils
 
         content.add (Box.createVerticalStrut (10));
 
-        content.add (UIUtils.createBoldSubHeader ("Message you are reporting",
+        content.add (UIUtils.createBoldSubHeader (getUIString (prefix,sectiontitles,message),
+                                                  //"Message you are reporting",
                                                   null));
 
         BufferedImage im = null;
@@ -3629,7 +3265,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to show report message popup, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,user,reportmessage,actionerror));
+                                      //"Unable to show report message popup, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -3646,7 +3283,8 @@ public class EditorsUIUtils
 
         content.add (Box.createVerticalStrut (10));
 
-        content.add (UIUtils.createBoldSubHeader ("From {Editor}",
+        content.add (UIUtils.createBoldSubHeader (getUIString (prefix,sectiontitles,from),
+                                                  //"From {Editor}",
                                                   null));
 
         EditorInfoBox edB = null;
@@ -3665,7 +3303,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to show report message popup, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,user,reportmessage,actionerror));
+                                      //"Unable to show report message popup, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -3679,7 +3318,8 @@ public class EditorsUIUtils
 
         content.add (Box.createVerticalStrut (10));
 
-        content.add (UIUtils.createBoldSubHeader ("Reason",
+        content.add (UIUtils.createBoldSubHeader (getUIString (prefix,sectiontitles,reason),
+                                                  //"Reason",
                                                   null));
 
         final JLabel error = UIUtils.createErrorLabel ("");
@@ -3689,7 +3329,8 @@ public class EditorsUIUtils
 
         content.add (error);
 
-        final TextArea notes = new TextArea (Environment.replaceObjectNames ("Please describe why you are reporting the message, for example does it contain inappropriate language or suggestions?"),
+        final TextArea notes = new TextArea (getUIString (prefix,labels,reason,tooltip),
+                                             //"Please describe why you are reporting the message, for example does it contain inappropriate language or suggestions?"),
                                              4,
                                              5000);
 
@@ -3697,13 +3338,15 @@ public class EditorsUIUtils
 
         content.add (notes);
 
-        final JLabel sending = UIUtils.createLoadingLabel ("Sending report...");
+        final JLabel sending = UIUtils.createLoadingLabel (getUIString (prefix,loading));
+                                        //"Sending report...");
         sending.setVisible (false);
         sending.setBorder (UIUtils.createPadding (10, 5, 0, 5));
 
         content.add (sending);
 
-        final JButton reportB = UIUtils.createButton ("Report",
+        final JButton reportB = UIUtils.createButton (getUIString (prefix,buttons,send),
+                                                      //"Report",
                                                       new ActionListener ()
         {
 
@@ -3718,7 +3361,8 @@ public class EditorsUIUtils
                 if (notes.getText ().trim ().length () == 0)
                 {
 
-                    error.setText ("Please provide a reason for the report.");
+                    error.setText (getUIString (prefix,errors,novalue));
+                    //"Please provide a reason for the report.");
                     error.setVisible (true);
 
                     qp.resize ();
@@ -3730,7 +3374,8 @@ public class EditorsUIUtils
                 sending.setVisible (true);
                 qp.resize ();
 
-                EditorsEnvironment.goOnline ("To report a message you must first login.",
+                EditorsEnvironment.goOnline (getUIString (editors,login,reasons,reportmessage),
+                                             //"To report a message you must first login.",
                                              new ActionListener ()
                                              {
 
@@ -3768,8 +3413,10 @@ public class EditorsUIUtils
                                                                                 qp.removeFromParent ();
 
                                                                                 UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                                     "Message reported",
-                                                                                                     "The message has been reported to Quoll Writer support.  Please note that you may be contacted to get other information about the message, for example if you have received an inappropriate image or text in a {chapter}.");
+                                                                                                     getUIString (editors,user,reportmessage,confirmpopup,title),
+                                                                                                     //"Message reported",
+                                                                                                     getUIString (editors,user,reportmessage,confirmpopup,text));
+                                                                                                     //"The message has been reported to Quoll Writer support.  Please note that you may be contacted to get other information about the message, for example if you have received an inappropriate image or text in a {chapter}.");
 
                                                                             }
 
@@ -3786,7 +3433,8 @@ public class EditorsUIUtils
                                                                                                       ev);
 
                                                                                 UIUtils.showErrorMessage (viewer,
-                                                                                                          "Unable to report the message, please contact Quoll Writer support for assistance.");
+                                                                                                          getUIString (editors,user,reportmessage,actionerror));
+                                                                                                          //"Unable to report the message, please contact Quoll Writer support for assistance.");
 
                                                                             }
 
@@ -3803,7 +3451,8 @@ public class EditorsUIUtils
                                                                                                       (Exception) ev.getSource ());
 
                                                                                 UIUtils.showErrorMessage (viewer,
-                                                                                                          "Unable to report the message, please contact Quoll Writer support for assistance.");
+                                                                                                          getUIString (editors,user,reportmessage,actionerror));
+                                                                                                          //"Unable to report the message, please contact Quoll Writer support for assistance.");
 
                                                                             }
 
@@ -3817,7 +3466,8 @@ public class EditorsUIUtils
                                                                               e);
 
                                                         UIUtils.showErrorMessage (viewer,
-                                                                                  "Unable to report the message, please contact Quoll Writer support for assistance.");
+                                                                                  getUIString (editors,user,reportmessage,actionerror));
+                                                                                  //"Unable to report the message, please contact Quoll Writer support for assistance.");
 
                                                     }
 
@@ -3831,7 +3481,8 @@ public class EditorsUIUtils
 
         });
 
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+        final JButton cancelB = UIUtils.createButton (getUIString (prefix,buttons,cancel),
+                                                      //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                                                       qp.getCloseAction ());
 
         JComponent bs = UIUtils.createButtonBar2 (new JButton[] {reportB, cancelB},
@@ -3862,7 +3513,8 @@ public class EditorsUIUtils
                               throws Exception
     {
 
-        final QPopup popup = UIUtils.createWizardPopup ("Register for the Editors service",
+        final QPopup popup = UIUtils.createWizardPopup (getUIString (editors,user,register,LanguageStrings.popup,title),
+                                                        //"Register for the Editors service",
                                                   Constants.EDITORS_ICON_NAME,
                                                   null,
                                                   new EditorRegister (viewer));
@@ -3881,6 +3533,13 @@ public class EditorsUIUtils
     public static void hideLogin ()
     {
 
+        if (EditorsUIUtils.editorLogin == null)
+        {
+
+            return;
+
+        }
+
         EditorsUIUtils.editorLogin.removeFromParent ();
 
     }
@@ -3888,14 +3547,18 @@ public class EditorsUIUtils
     public static void showChangePassword (final AbstractViewer viewer)
     {
 
-        final QPopup qp = UIUtils.createClosablePopup ("Change your password",
+        java.util.List<String> prefix = Arrays.asList (editors,user,changepassword,popup);
+
+        final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                        //"Change your password",
                                                        Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        null);
 
         Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane ("Enter your new password below.",
+        JTextPane desc = UIUtils.createHelpTextPane (getUIString (prefix,text),
+                                                    //"Enter your new password below.",
                                                      viewer);
 
         content.add (desc);
@@ -3920,7 +3583,8 @@ public class EditorsUIUtils
 
         int row = 2;
 
-        builder.addLabel ("New Password",
+        builder.addLabel (getUIString (prefix,labels,newpassword),
+                          //"New Password",
                           cc.xy (2,
                                  row));
 
@@ -3932,7 +3596,8 @@ public class EditorsUIUtils
 
         row += 2;
 
-        builder.addLabel ("Confirm Password",
+        builder.addLabel (getUIString (prefix,labels,confirmpassword),
+                          //"Confirm Password",
                           cc.xy (2,
                                  row));
 
@@ -3942,13 +3607,16 @@ public class EditorsUIUtils
                      cc.xy (4,
                             row));
 
-        final JButton updateB = UIUtils.createButton (Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
+        final JButton updateB = UIUtils.createButton (getUIString (prefix,buttons,confirm),
+                                                      //Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
                                                       new ActionListener ()
         {
 
             @Override
             public void actionPerformed (ActionEvent ev)
             {
+
+                java.util.List<String> prefix = Arrays.asList (editors,user,changepassword,errors);
 
                 error.setVisible (false);
 
@@ -3958,7 +3626,8 @@ public class EditorsUIUtils
                 if (pwd.length () == 0)
                 {
 
-                    error.setText ("Please provide a new password.");
+                    error.setText (getUIString (prefix,nopassword));
+                    //"Please provide a new password.");
                     error.setVisible (true);
 
                     qp.resize ();
@@ -3972,7 +3641,8 @@ public class EditorsUIUtils
                 if (pwd2.length () == 0)
                 {
 
-                    error.setText ("Please confirm your new password.");
+                    error.setText (getUIString (prefix,confirmpassword));
+                    //error.setText ("Please confirm your new password.");
                     error.setVisible (true);
 
                     qp.resize ();
@@ -3984,7 +3654,8 @@ public class EditorsUIUtils
                 if (!pwd.equals (pwd2))
                 {
 
-                    error.setText ("The passwords do not match.");
+                    error.setText (getUIString (prefix,nomatch));
+                    //error.setText ("The passwords do not match.");
                     error.setVisible (true);
 
                     qp.resize ();
@@ -4001,7 +3672,8 @@ public class EditorsUIUtils
 
         });
 
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+        final JButton cancelB = UIUtils.createButton (getUIString (prefix,buttons,cancel),
+                                                      //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                                                       qp.getCloseAction ());
 
         row += 2;
@@ -4047,6 +3719,13 @@ public class EditorsUIUtils
             public void actionPerformed (ActionEvent ev)
             {
 
+                if (EditorsUIUtils.editorLogin == null)
+                {
+
+                    EditorsUIUtils.editorLogin = new EditorLogin ();
+
+                }
+
                 EditorsUIUtils.editorLogin.setLoginReason (loginReason);
                 EditorsUIUtils.editorLogin.setOnLogin (onLogin);
 
@@ -4064,7 +3743,8 @@ public class EditorsUIUtils
     public static void showLoginError (EditorsWebServiceResult res)
     {
 
-        String reason = "Please contact Quoll Writer support for assistance, quoting error code: " + res.getReturnCode () + (res.getReturnCode () == 401 ? ("/" + res.getErrorType ()) : "");
+        String reason = "";
+        //"Please contact Quoll Writer support for assistance, quoting error code: " + res.getReturnCode () + (res.getReturnCode () == 401 ? ("/" + res.getErrorType ()) : "");
 
         if (res.getReturnCode () == 401)
         {
@@ -4077,15 +3757,22 @@ public class EditorsUIUtils
                 if (errType.equals ("InvalidCredentials"))
                 {
 
-                    reason = "Please check your email/password and try again.";
+                    reason = getUIString (editors,login,popup,errors,invalidcredentials);
+                    //"Please check your email/password and try again.";
 
                 }
 
             }
 
+        } else {
+
+            reason = String.format (getUIString (editors,login,popup,errors,general),
+                                    res.getReturnCode () + "/" + res.getErrorType ());
+
         }
 
-        EditorsUIUtils.showLoginError ("Unable to login to the Editors service.<br />" + reason);
+        EditorsUIUtils.showLoginError (reason);
+        //"Unable to login to the Editors service.<br />" + reason);
 
     }
 
@@ -4115,6 +3802,7 @@ public class EditorsUIUtils
 
         }
         */
+
         AbstractViewer viewer = Environment.getFocusedViewer ();
 
         EditorsUIUtils.editorLogin.show (viewer);
@@ -4149,12 +3837,18 @@ public class EditorsUIUtils
             public void actionPerformed (ActionEvent ev)
             {
 
+                final java.util.List<String> prefix = Arrays.asList (editors,user,inviteeditor,popup);
+
                 UIUtils.createTextInputPopup (viewer,
-                                              "Send an invite", //Invite {an editor}",
+                                              getUIString (prefix,title),
+                                              //"Send an invite", //Invite {an editor}",
                                               Constants.NEW_ICON_NAME,
-                                              "Enter the email address of the person to invite.",
-                                              "Invite",
-                                              null,
+                                              getUIString (prefix,text),
+                                              //"Enter the email address of the person to invite.",
+                                              getUIString (prefix,buttons,invite),
+                                              //"Invite",
+                                              getUIString (prefix,buttons,cancel),
+                                              //null,
                                               null,
                                               new ValueValidator<String> ()
                                               {
@@ -4168,21 +3862,24 @@ public class EditorsUIUtils
                                                          )
                                                       {
 
-                                                          return "The email address must be specified.";
+                                                          return getUIString (prefix,errors,noemail);
+                                                          //"The email address must be specified.";
 
                                                       }
 
                                                       if (v.indexOf ("@") < 0)
                                                       {
 
-                                                          return "Please provide a valid email address.";
+                                                          return getUIString (prefix,errors,invalidemail);
+                                                          //"Please provide a valid email address.";
 
                                                       }
 
                                                       if (v.equals (EditorsEnvironment.getUserAccount ().getEmail ()))
                                                       {
 
-                                                          return "Inviting yourself?  O_o";
+                                                          return getUIString (prefix,errors,self);
+                                                          //"Inviting yourself?  O_o";
 
                                                       }
 
@@ -4192,19 +3889,22 @@ public class EditorsUIUtils
                                                       if (ed != null)
                                                       {
 
-                                                          String other = "You have already invited <b>%s (%s)</b>.";
+                                                          String other = getUIString (prefix,errors,alreadyinvited);
+                                                          //"You have already invited <b>%s (%s)</b>.";
 
                                                           if (ed.getEditorStatus () == EditorEditor.EditorStatus.rejected)
                                                           {
 
-                                                              other = "You have already invited: <b>%s (%s)</b>.  Your invitation was rejected.";
+                                                              other = getUIString (prefix,errors,previousrejected);
+                                                              //"You have already invited: <b>%s (%s)</b>.  Your invitation was rejected.";
 
                                                           }
 
                                                           if (ed.isPrevious ())
                                                           {
 
-                                                              other = "<b>%s (%s)</b> is a previous {contact}.";
+                                                              other = getUIString (prefix,errors,previous);
+                                                              //"<b>%s (%s)</b> is a previous {contact}.";
 
                                                           }
 
@@ -4240,6 +3940,7 @@ public class EditorsUIUtils
 
     }
 
+/*
     public static void showNewEditorChatMessageNotification (final EditorChatMessage mess)
     {
 
@@ -4375,7 +4076,8 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
+/*
     public static void showInviteFromEditor (final String                from,
                                              final ActionListener        onAccept,
                                              final ActionListener        onReject)
@@ -4405,7 +4107,7 @@ public class EditorsUIUtils
         });
 
     }
-
+*/
     public static void showResultError (final EditorsWebServiceResult res)
     {
 
@@ -4413,12 +4115,6 @@ public class EditorsUIUtils
 
         UIUtils.showErrorMessage (viewer,
                                   res.getErrorMessage ());
-
-    }
-
-    public static void showCommentPopup (final Note      note,
-                                         final Component showAt)
-    {
 
     }
 
@@ -4455,7 +4151,8 @@ public class EditorsUIUtils
         });
 
         tree.setEditable (false);
-        tree.setToolTipText ("Click to view");
+        tree.setToolTipText (getUIString (actions,clicktoview));
+        //"Click to view");
         tree.addMouseListener (new MouseEventHandler ()
         {
 
@@ -4561,7 +4258,10 @@ public class EditorsUIUtils
                                                       e);
 
                                 UIUtils.showErrorMessage (viewer,
-                                                          "Unable to open project.");
+                                                          String.format (getUIString (project,actions,openproject,openerrors,general),
+                                                                         projId,
+                                                                         getUIString (project,actions,openproject,openerrors,unspecified)));
+                                                          //"Unable to open project.");
 
                                 return;
 
@@ -4584,7 +4284,10 @@ public class EditorsUIUtils
                                                           e);
 
                                     UIUtils.showErrorMessage (viewer,
-                                                              "Unable to open {project}.");
+                                                              String.format (getUIString (project,actions,openproject,openerrors,general),
+                                                                             p.getName (),
+                                                                             getUIString (project,actions,openproject,openerrors,unspecified)));
+                                                              //"Unable to open {project}.");
 
                                     return;
 
@@ -4760,7 +4463,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (parentViewer,
-                                      "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                      getUIString (project,actions,openproject,openerrors,comments));
+                                      //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -4773,7 +4477,8 @@ public class EditorsUIUtils
                                   message.getForProjectId ());
 
             UIUtils.showErrorMessage (parentViewer,
-                                      "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                      getUIString (project,actions,openproject,openerrors,comments));
+                                      //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -4815,7 +4520,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (parentViewer,
-                                              "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                              getUIString (project,actions,openproject,openerrors,comments));
+                                              //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
                     return;
 
@@ -4839,7 +4545,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (parentViewer,
-                                              "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                              getUIString (project,actions,openproject,openerrors,comments));
+                                              //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
                     return;
 
@@ -4854,7 +4561,8 @@ public class EditorsUIUtils
                                           _proj);
 
                     UIUtils.showErrorMessage (parentViewer,
-                                              "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                              getUIString (project,actions,openproject,openerrors,comments));
+                                              //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
                     return;
 
@@ -4882,22 +4590,22 @@ public class EditorsUIUtils
                     // Need to prevent an O^n performance hit here.
 
                     Map<String, Chapter> kchaps = new HashMap ();
-                    
+
                     for (Chapter c : chaps)
                     {
 
                         b.addChapter (c);
-                        
+
                         kchaps.put (c.getId (),
                                     c);
-                        
+
                         c.setEditPosition (-1);
                         c.setEditComplete (false);
 
                     }
 
                     long k = 1;
-                    
+
                     for (Note n : message.getComments ())
                     {
 
@@ -4928,7 +4636,7 @@ public class EditorsUIUtils
                     pcv.init ();
 
                     pcv.showViewer ();
-                    
+
                     if (onShow != null)
                     {
 
@@ -4943,7 +4651,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (parentViewer,
-                                              "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                              getUIString (project,actions,openproject,openerrors,comments));
+                                              //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
                     return;
 
@@ -4982,7 +4691,8 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (parentViewer,
-                                      "Unable to show {project} update, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,messages,projectupdated,actionerror));
+                                      //"Unable to show {project} update, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -4994,7 +4704,8 @@ public class EditorsUIUtils
         {
 
             UIUtils.showMessage (parentViewer,
-                                 "The {project} for this update no longer exists.");
+                                 getUIString (editors,messages,projectupdated,errors,novalue));
+                                 //"The {project} for this update no longer exists.");
 
             message.setDealtWith (true);
 
@@ -5049,7 +4760,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (parentViewer,
-                                              "Unable to update {project}, please contact Quoll Writer support for assistance.");
+                                              getUIString (editors,messages,projectupdated,actionerror));
+                                              //"Unable to update {project}, please contact Quoll Writer support for assistance.");
 
                     return;
 
@@ -5071,7 +4783,8 @@ public class EditorsUIUtils
                                               _proj);
 
                         UIUtils.showErrorMessage (parentViewer,
-                                                  "Unable to view updated {project}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,messages,projectupdated,actionerror));
+                                                  //"Unable to view updated {project}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -5095,7 +4808,8 @@ public class EditorsUIUtils
                                           e);
 
                     UIUtils.showErrorMessage (parentViewer,
-                                              "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                              getUIString (editors,messages,projectupdated,actionerror));
+                                              //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
                     return;
 
@@ -5112,13 +4826,7 @@ public class EditorsUIUtils
 
     }
 
-    public static String createFormLabel (String l)
-    {
-
-        return Environment.replaceObjectNames ("<html><i>Due by</i></html>");
-
-    }
-
+// TODO LANG
     public static JComponent getProjectVersionPanel (final ProjectVersion        pv,
                                                      final AbstractProjectViewer viewer)
     {
@@ -5294,7 +5002,8 @@ public class EditorsUIUtils
 
         Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane (help + "<br /><br />Messages with a red border require an acknowledgement or action from you.",
+        JTextPane desc = UIUtils.createHelpTextPane (help + getUIString (editors,LanguageStrings.messages,show,suffix),
+                                                     //"<br /><br />Messages with a red border require an acknowledgement or action from you.",
                                                      viewer);
 
         content.add (desc);
@@ -5325,6 +5034,7 @@ public class EditorsUIUtils
 
         Box b = new ScrollableBox (BoxLayout.Y_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
+        b.setAlignmentY (Component.TOP_ALIGNMENT);
 
         Box lastB = null;
 
@@ -5354,7 +5064,7 @@ public class EditorsUIUtils
 
             Box wb = new Box (BoxLayout.Y_AXIS);
             wb.setAlignmentX (Component.LEFT_ALIGNMENT);
-
+            wb.setAlignmentY (Component.TOP_ALIGNMENT);
             wb.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 10, 0));
             wb.add (mb);
 
@@ -5414,7 +5124,8 @@ public class EditorsUIUtils
 
         content.setBorder (new EmptyBorder (10, 10, 10, 10));
 
-        JButton finish = new JButton ("Close");
+        JButton finish = new JButton (getUIString (buttons,close));
+        //"Close");
 
         finish.addActionListener (new ActionAdapter ()
         {
@@ -5470,6 +5181,7 @@ public class EditorsUIUtils
             {
 
                 sp.getVerticalScrollBar ().setValue (0);
+                qp.resize ();
 
             }
 
@@ -5494,9 +5206,13 @@ public class EditorsUIUtils
                                                       UpdateProjectMessage.MESSAGE_TYPE,
                                                       EditorRemovedMessage.MESSAGE_TYPE));
 
-        EditorsUIUtils.showMessagesInPopup ("All messages",
+        java.util.List<String> prefix = Arrays.asList (editors,LanguageStrings.messages,show,all,popup);
+
+        EditorsUIUtils.showMessagesInPopup (getUIString (prefix,title),
+                                            //"All messages",
                                             Constants.FIND_ICON_NAME,
-                                            String.format ("All messages you've sent to and/or received from <b>%s</b>.",
+                                            String.format (getUIString (prefix,text),
+                                                           //"All messages you've sent to and/or received from <b>%s</b>.",
                                                            ed.getShortName ()),
                                             messages,
                                             false,
@@ -5514,9 +5230,13 @@ public class EditorsUIUtils
         // If there is just one then show it, otherwise show a link that will display a popup of them.
         Set<EditorMessage> undealtWith = ed.getMessages (EditorsUIUtils.importantMessageFilter);
 
-        EditorsUIUtils.showMessagesInPopup ("Important messages",
+        java.util.List<String> prefix = Arrays.asList (editors,messages,show,important,popup);
+
+        EditorsUIUtils.showMessagesInPopup (getUIString (prefix,title),
+                                            //"Important messages",
                                             Constants.ERROR_ICON_NAME,
-                                            String.format ("New and important messages from <b>%s</b> that require your attention.",
+                                            String.format (getUIString (prefix,text),
+                                                            //"New and important messages from <b>%s</b> that require your attention.",
                                                            ed.getShortName ()),
                                             undealtWith,
                                             false,
@@ -5538,9 +5258,13 @@ public class EditorsUIUtils
 
         ProjectEditor pe = viewer.getProject ().getProjectEditor (ed);
 
-        EditorsUIUtils.showMessagesInPopup ("{Project} updates sent/received",
+        java.util.List<String> prefix = Arrays.asList (editors,LanguageStrings.messages,show,project,popup);
+
+        EditorsUIUtils.showMessagesInPopup (getUIString (prefix,title),
+                                            //"{Project} updates sent/received",
                                             Project.OBJECT_TYPE,
-                                            String.format ("All {project} updates you have sent to or received from <b>%s</b> for {project} <b>%s</b>.  The latest update is shown first.",
+                                            String.format (getUIString (prefix,text),
+                                                          //"All {project} updates you have sent to or received from <b>%s</b> for {project} <b>%s</b>.  The latest update is shown first.",
                                                            ed.getShortName (),
                                                            viewer.getProject ().getName ()),
                                             messages,
@@ -5557,7 +5281,7 @@ public class EditorsUIUtils
 
         Set<EditorMessage> comments = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
                                                                                       ProjectCommentsMessage.MESSAGE_TYPE));
-
+/*
         if (comments.size () == 0)
         {
 
@@ -5568,23 +5292,27 @@ public class EditorsUIUtils
             return;
 
         }
-
+*/
         boolean sentByMe = comments.iterator ().next ().isSentByMe ();
 
-        String suffix = (sentByMe ? "sent" : "received");
-        String suffix2 = (sentByMe ? "sent to" : "received from");
+        java.util.List<String> prefix = Arrays.asList (editors,messages,show,(sentByMe ? commentssent : commentsreceived),popup);
 
-        EditorsUIUtils.showMessagesInPopup (String.format ("{Comments} %s",
-                                                suffix),
-                                 Constants.COMMENT_ICON_NAME,
-                                 String.format ("All {comments} you have %s <b>%s</b> for {project} <b>%s</b>.  The latest {comments} are shown first.",
-                                                suffix2,
+        //String suffix = (sentByMe ? "sent" : "received");
+        //String suffix2 = (sentByMe ? "sent to" : "received from");
+
+        EditorsUIUtils.showMessagesInPopup (getUIString (prefix,title),
+                                            //String.format ("{Comments} %s",
+                                            //    suffix),
+                                            Constants.COMMENT_ICON_NAME,
+                                            String.format (getUIString (prefix,text),
+                                            //"All {comments} you have %s <b>%s</b> for {project} <b>%s</b>.  The latest {comments} are shown first.",
+                                            //    suffix2,
                                                 ed.getShortName (),
                                                 viewer.getProject ().getName ()),
-                                 comments,
-                                 true,
-                                 viewer,
-                                 showAt);
+                                            comments,
+                                            true,
+                                            viewer,
+                                            showAt);
 
     }
 
@@ -5624,21 +5352,26 @@ public class EditorsUIUtils
                                   e);
 
             UIUtils.showErrorMessage (viewer,
-                                      String.format ("Unable to show {projects} you are editing for %s.",
-                                                     editor.getShortName ()));
+                                      getUIString (editors,LanguageStrings.editor,showprojectseditingforcontact,actionerror));
+                                      //String.format ("Unable to show {projects} you are editing for %s.",
+                                      //             editor.getShortName ()));
 
             return;
 
         }
 
-        final QPopup qp = UIUtils.createClosablePopup ("{Projects} you are editing",
+        java.util.List<String> prefix = Arrays.asList (editors,LanguageStrings.editor,showprojectseditingforcontact,popup);
+
+        final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                       //"{Projects} you are editing",
                                                        Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        null);
 
         Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane (String.format ("All {projects} you are editing for <b>%s</b>.",
+        JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,text),
+                                                                    //"All {projects} you are editing for <b>%s</b>.",
                                                                     editor.getShortName ()),
                                                      viewer);
 
@@ -5722,7 +5455,8 @@ public class EditorsUIUtils
 
         content.setBorder (new EmptyBorder (10, 10, 10, 10));
 
-        JButton finish = new JButton ("Close");
+        JButton finish = UIUtils.createButton (getUIString (buttons,close));
+        //"Close");
 
         finish.addActionListener (new ActionAdapter ()
         {
@@ -5829,14 +5563,18 @@ public class EditorsUIUtils
 
         });
 
-        final QPopup qp = UIUtils.createClosablePopup ("{Projects} being edited",
+        java.util.List<String> prefix = Arrays.asList (editors,LanguageStrings.editor,showprojectscontactisediting,popup);
+
+        final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
+                                                       //"{Projects} being edited",
                                                        Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        null);
 
         Box content = new Box (BoxLayout.Y_AXIS);
 
-        JTextPane desc = UIUtils.createHelpTextPane (String.format ("All {projects} <b>%s</b> is editing for you.",
+        JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,text),
+                                                                    //"All {projects} <b>%s</b> is editing for you.",
                                                                     editor.getShortName ()),
                                                      viewer);
 
@@ -5907,7 +5645,8 @@ public class EditorsUIUtils
 
         content.setBorder (new EmptyBorder (10, 10, 10, 10));
 
-        JButton finish = new JButton ("Close");
+        JButton finish = new JButton (getUIString (buttons,close));
+        //"Close");
 
         finish.addActionListener (new ActionAdapter ()
         {
@@ -5959,6 +5698,7 @@ public class EditorsUIUtils
 
     }
 
+//TODO LANG
     public static JComponent getProjectMessageDetails (final AbstractProjectMessage message,
                                                        final AbstractViewer         viewer,
                                                        final MessageBox             parentMessageBox)
@@ -6157,151 +5897,151 @@ public class EditorsUIUtils
 
         if (message.isSentByMe ())
         {
-                    
+
             JLabel viewProj = null;
-            
+
             if (proj == null)
             {
-                
+
                 viewProj = UIUtils.createErrorLabel ("{Project} has been deleted");
-                
+
             } else {
-                
+
                 viewProj = UIUtils.createClickableLabel ("Click to view what you sent",
                                                                 Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                      Constants.ICON_CLICKABLE_LABEL),
                                                                 new ActionListener ()
                                                                 {
-    
+
                 public void actionPerformed (ActionEvent ev)
                 {
                     /*
                     Project np = null;
-                    
+
                     try
                     {
-                        
+
                         np = message.createProject ();
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to get project from message: " +
                                               message,
                                               e);
-                        
+
                         UIUtils.showErrorMessage (viewer,
                                                   "Unable to view message");
-                        
+
                         return;
-                        
+
                     }
-    
+
                     ProjectSentReceivedViewer pcv = new ProjectSentReceivedViewer<AbstractProjectMessage> (np,
                                                                                                            message)
                     {
-    
+
                         public ProjectSentReceivedSideBar getSideBar ()
                         {
-    
+
                             return new ProjectSentReceivedSideBar<AbstractProjectMessage, ProjectSentReceivedViewer> (this,
                                                                                                                       this.message)
                             {
-    
+
                                 @Override
                                 public void onShow ()
                                 {
-    
+
                                 }
-    
+
                                 @Override
                                 public void onHide ()
                                 {
-    
+
                                 }
-    
+
                                 @Override
                                 public String getTitle ()
                                 {
-    
+
                                     return "Sent to";
-    
+
                                 }
-    
+
                                 @Override
                                 public String getItemsIconType ()
                                 {
-    
+
                                     return Chapter.OBJECT_TYPE;
-    
+
                                 }
-    
+
                                 @Override
                                 public String getItemsTitle ()
                                 {
-    
+
                                     return "{Chapters}";
-    
+
                                 }
-    
+
                                 @Override
                                 public int getItemCount ()
                                 {
-    
+
                                     return this.viewer.getProject ().getBook (0).getChapters ().size ();
-    
+
                                 }
-    
+
                                 @Override
                                 public JComponent getMessageDetails (AbstractProjectMessage message)
                                 {
-    
+
                                     final ProjectSentReceivedSideBar _this = this;
-    
+
                                     String rows = "p";
-    
+
                                     ProjectVersion projVer = message.getProjectVersion ();
-    
+
                                     String verName = projVer.getName ();
-    
+
                                     if (verName != null)
                                     {
-    
+
                                         rows += ", 6px, p";
-    
+
                                     }
-    
+
                                     final String notes = (projVer.getDescription () != null ? projVer.getDescription ().getText () : null);
-    
+
                                     if (notes != null)
                                     {
-    
+
                                         rows += ", 6px, top:p";
-    
+
                                     }
-    
+
                                     FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
                                                                     rows);
-    
+
                                     fl.setHonorsVisibility (true);
                                     PanelBuilder builder = new PanelBuilder (fl);
-    
+
                                     CellConstraints cc = new CellConstraints ();
-    
+
                                     int row = 1;
-    
+
                                     builder.addLabel (Environment.replaceObjectNames ("<html><i>{Sent}</i></html>"),
                                                       cc.xy (1,
                                                              row));
-    
+
                                     builder.addLabel ("<html>" + Environment.formatDateTime (message.getWhen ()) + "</html>",
                                                       cc.xy (3,
                                                              row));
-    
+
                                     row += 2;
-    
+
                                     if (verName != null)
                                     {
-    
+
                                         builder.addLabel (Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
                                                           cc.xy (1,
                                                                  row));
@@ -6309,346 +6049,346 @@ public class EditorsUIUtils
                                                                          verName),
                                                           cc.xy (3,
                                                                  row));
-    
+
                                         row += 2;
-    
+
                                     }
-    
+
                                     if (notes != null)
                                     {
-    
+
                                         builder.addLabel (Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
                                                           cc.xy (1,
                                                                  row));
-    
+
                                         String commText = notes;
-    
+
                                         TextIterator ti = new TextIterator (commText);
-    
+
                                         if (ti.getSentenceCount () > 1)
                                         {
-    
+
                                             commText = ti.getFirstSentence ().getText ();
-    
+
                                             commText += "<br /><a href='#'>More, click to view all.</a>";
-    
+
                                         }
-    
+
                                         JComponent mess = UIUtils.createHelpTextPane (commText,
                                                                                       this.viewer);
-    
+
                                         mess.addMouseListener (new MouseEventHandler ()
                                         {
-    
+
                                             @Override
                                             public void handlePress (MouseEvent ev)
                                             {
-    
+
                                                 UIUtils.showMessage ((PopupsSupported) _this.getViewer (),
                                                                      "Notes",
                                                                      notes);
-    
+
                                             }
-    
+
                                         });
-    
+
                                         mess.setBorder (null);
-    
+
                                         builder.add (mess,
                                                      cc.xy (3,
                                                             row));
-    
+
                                     }
-    
+
                                     JPanel bp = builder.getPanel ();
                                     bp.setAlignmentX (Component.LEFT_ALIGNMENT);
                                     bp.setOpaque (false);
-    
+
                                     return bp;
-    
+
                                 }
-    
+
                             };
-    
+
                         }
-    
+
                         @Override
                         public void init ()
                                    throws Exception
                         {
-    
+
                             super.init ();
-    
+
                             this.viewObject (this.proj.getBook (0).getChapters ().get (0));
-    
+
                         }
-    
+
                         @Override
                         public String getViewerIcon ()
                         {
-    
+
                             return Constants.PROJECT_ICON_NAME;
-    
+
                         }
-    
+
                         @Override
                         public String getViewerTitle ()
                         {
-    
+
                             return "{Project} sent: " + this.proj.getName ();
-    
+
                         }
-    
+
                     };
-    
+
                     try
                     {
-                    
+
                         pcv.init ();
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to view message: " +
                                               message,
                                               e);
-    
+
                         UIUtils.showErrorMessage (viewer,
                                                   "Unable to show message.");
-    
+
                         return;
-    
+
                     }
-    
+
                     parentMessageBox.setChildViewer (pcv);
-    
+
                     pcv.addWindowListener (new WindowAdapter ()
                     {
-    
+
                         public void windowClosed (WindowEvent ev)
                         {
-    
+
                             parentMessageBox.setChildViewer (null);
-    
+
                         }
-    
+
                     });
-    
+
                     pcv.showViewer ();
-                
+
                     // XXX Orig
                     if (true)
                     {
-                        
+
                         return;
-                        
+
                     }
                 */
                     AbstractViewer childViewer = parentMessageBox.getChildViewer ();
-    
+
                     if (childViewer != null)
                     {
-    
+
                         childViewer.setExtendedState (JFrame.NORMAL);
                         childViewer.toFront ();
-    
+
                         return;
-    
+
                     }
-    
+
                     // Load up the project with the specific text.
                     // See if we have a project viewer for the project.
                     ProjectInfo proj = null;
-    
+
                     try
                     {
-    
+
                         proj = Environment.getProjectById (message.getForProjectId (),
                                                            Project.NORMAL_PROJECT_TYPE);
-    
+
                     } catch (Exception e) {
-    
+
                         Environment.logError ("Unable to get project for: " +
                                               message.getForProjectId (),
                                               e);
-    
+
                         UIUtils.showErrorMessage (viewer,
                                                   "Unable to show the {project}, please contact Quoll Writer support for assistance.");
-    
+
                         return;
-    
+
                     }
-    
+
                     final ProjectInfo _proj = proj;
-    
+
                     ActionListener open = new ActionListener ()
                     {
-    
+
                         public void actionPerformed (ActionEvent ev)
                         {
-    
+
                             String pwd = ev.getActionCommand ();
-    
+
                             if (pwd.equals (""))
                             {
-    
+
                                 pwd = null;
-    
+
                             }
-    
+
                             Set<Chapter> chaps = null;
-    
+
                             try
                             {
-    
+
                                 chaps = Environment.getVersionedChapters (_proj,
                                                                           message.getChapters (),
                                                                           pwd);
-    
+
                             } catch (Exception e) {
-    
+
                                 Environment.logError ("Unable to get versioned chapters for project: " +
                                                       _proj,
                                                       e);
-    
+
                                 UIUtils.showErrorMessage (viewer,
                                                           "Unable to show {comments}, please contact Quoll Writer support for assistance.");
-    
+
                                 return;
-    
+
                             }
-    
+
                             try
                             {
-    
+
                                 // Need to "fill up" the project with the chapters and comments.
                                 // Create a new project object just to be safe (in case the getProjectById call changes in the future).
                                 Project np = new Project ();
                                 np.setName (_proj.getName ());
-    
+
                                 np.setType (Project.EDITOR_PROJECT_TYPE);
                                 np.setId (message.getForProjectId ());
                                 np.setName (message.getForProjectName ());
-    
+
                                 Book b = new Book (np,
                                                    np.getName ());
-    
+
                                 np.addBook (b);
-    
+
                                 for (Chapter c : chaps)
                                 {
-    
+
                                     b.addChapter (c);
-    
+
                                 }
-    
+
                                 final int chapterCount = chaps.size ();
-    
+
                                 ProjectSentReceivedViewer pcv = new ProjectSentReceivedViewer<AbstractProjectMessage> (np,
                                                                                                                        message)
                                 {
-    
+
                                     public ProjectSentReceivedSideBar getSideBar ()
                                     {
-    
+
                                         return new ProjectSentReceivedSideBar<AbstractProjectMessage, ProjectSentReceivedViewer> (this,
                                                                                                                                   this.message)
                                         {
-    
+
                                             @Override
                                             public void onShow ()
                                             {
-    
+
                                             }
-    
+
                                             @Override
                                             public void onHide ()
                                             {
-    
+
                                             }
-    
+
                                             @Override
                                             public String getTitle ()
                                             {
-    
+
                                                 return "Sent to";
-    
+
                                             }
-    
+
                                             @Override
                                             public String getItemsIconType ()
                                             {
-    
+
                                                 return Chapter.OBJECT_TYPE;
-    
+
                                             }
-    
+
                                             @Override
                                             public String getItemsTitle ()
                                             {
-    
+
                                                 return "{Chapters}";
-    
+
                                             }
-    
+
                                             @Override
                                             public int getItemCount ()
                                             {
-    
+
                                                 return chapterCount;
-    
+
                                             }
-    
+
                                             @Override
                                             public JComponent getMessageDetails (AbstractProjectMessage message)
                                             {
-    
+
                                                 final ProjectSentReceivedSideBar _this = this;
-    
+
                                                 String rows = "p";
-    
+
                                                 ProjectVersion projVer = message.getProjectVersion ();
-    
+
                                                 String verName = projVer.getName ();
-    
+
                                                 if (verName != null)
                                                 {
-    
+
                                                     rows += ", 6px, p";
-    
+
                                                 }
-    
+
                                                 final String notes = (projVer.getDescription () != null ? projVer.getDescription ().getText () : null);
-    
+
                                                 if (notes != null)
                                                 {
-    
+
                                                     rows += ", 6px, top:p";
-    
+
                                                 }
-    
+
                                                 FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
                                                                                 rows);
-    
+
                                                 fl.setHonorsVisibility (true);
                                                 PanelBuilder builder = new PanelBuilder (fl);
-    
+
                                                 CellConstraints cc = new CellConstraints ();
-    
+
                                                 int row = 1;
-    
+
                                                 builder.addLabel (Environment.replaceObjectNames ("<html><i>{Sent}</i></html>"),
                                                                   cc.xy (1,
                                                                          row));
-    
+
                                                 builder.addLabel ("<html>" + Environment.formatDateTime (message.getWhen ()) + "</html>",
                                                                   cc.xy (3,
                                                                          row));
-    
+
                                                 row += 2;
-    
+
                                                 if (verName != null)
                                                 {
-    
+
                                                     builder.addLabel (Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
                                                                       cc.xy (1,
                                                                              row));
@@ -6656,140 +6396,140 @@ public class EditorsUIUtils
                                                                                      verName),
                                                                       cc.xy (3,
                                                                              row));
-    
+
                                                     row += 2;
-    
+
                                                 }
-    
+
                                                 if (notes != null)
                                                 {
-    
+
                                                     builder.addLabel (Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
                                                                       cc.xy (1,
                                                                              row));
-    
+
                                                     String commText = notes;
-    
+
                                                     TextIterator ti = new TextIterator (commText);
-    
+
                                                     if (ti.getSentenceCount () > 1)
                                                     {
-    
+
                                                         commText = ti.getFirstSentence ().getText ();
-    
+
                                                         commText += "<br /><a href='#'>More, click to view all.</a>";
-    
+
                                                     }
-    
+
                                                     JComponent mess = UIUtils.createHelpTextPane (commText,
                                                                                                   this.viewer);
-    
+
                                                     mess.addMouseListener (new MouseEventHandler ()
                                                     {
-    
+
                                                         @Override
                                                         public void handlePress (MouseEvent ev)
                                                         {
-    
+
                                                             UIUtils.showMessage ((PopupsSupported) _this.getViewer (),
                                                                                  "Notes",
                                                                                  notes);
-    
+
                                                         }
-    
+
                                                     });
-    
+
                                                     mess.setBorder (null);
-    
+
                                                     builder.add (mess,
                                                                  cc.xy (3,
                                                                         row));
-    
+
                                                 }
-    
+
                                                 JPanel bp = builder.getPanel ();
                                                 bp.setAlignmentX (Component.LEFT_ALIGNMENT);
                                                 bp.setOpaque (false);
-    
+
                                                 return bp;
-    
+
                                             }
-    
+
                                         };
-    
+
                                     }
-    
+
                                     @Override
                                     public void init ()
                                                throws Exception
                                     {
-    
+
                                         super.init ();
-    
+
                                         this.viewObject (this.proj.getBook (0).getChapters ().get (0));
-    
+
                                     }
-    
+
                                     @Override
                                     public String getViewerIcon ()
                                     {
-    
+
                                         return Constants.PROJECT_ICON_NAME;
-    
+
                                     }
-    
+
                                     @Override
                                     public String getViewerTitle ()
                                     {
-    
+
                                         return "{Project} sent: " + this.proj.getName ();
-    
+
                                     }
-    
+
                                 };
-    
+
                                 pcv.init ();
-    
+
                                 parentMessageBox.setChildViewer (pcv);
-    
+
                                 pcv.addWindowListener (new WindowAdapter ()
                                 {
-    
+
                                     public void windowClosed (WindowEvent ev)
                                     {
-    
+
                                         parentMessageBox.setChildViewer (null);
-    
+
                                     }
-    
+
                                 });
-    
+
                                 pcv.showViewer ();
-    
+
                             } catch (Exception e) {
-    
+
                                 Environment.logError ("Unable to view project: " +
                                                       _proj,
                                                       e);
-    
+
                                 UIUtils.showErrorMessage (viewer,
                                                           "Unable to show {project}, please contact Quoll Writer support for assistance.");
-    
+
                                 return;
-    
+
                             }
-    
+
                         }
-    
+
                     };
-    
+
                     UIUtils.askForPasswordForProject (proj,
                                                       null,
                                                       open,
                                                       viewer);
-    
+
                 }});
-                
+
             }
 
             viewProj.setBorder (UIUtils.createPadding (0, 10, 0, 0));

@@ -31,6 +31,9 @@ import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.BlockPainter;
 import com.quollwriter.ui.renderers.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class NoteActionHandler extends ChapterItemActionHandler<Note>
 {
 
@@ -194,7 +197,8 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
         if (this.mode == NoteActionHandler.EDIT)
         {
 
-            return "Edit Note";
+            return getUIString (notes,edit,title);
+            //"Edit Note";
 
         }
 
@@ -203,11 +207,13 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
         if (editNeeded)
         {
 
-            return "Add New " + Note.EDIT_NEEDED_NOTE_TYPE + " Note";
+            return getUIString (notes,add,editneededtitle);
+            //"Add New " + Note.EDIT_NEEDED_NOTE_TYPE + " Note";
 
         }
 
-        return "Add New Note";
+        return getUIString (notes,add,title);
+        //"Add New Note";
 
     }
 

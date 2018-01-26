@@ -22,6 +22,9 @@ import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 // Use an annotation?
 //@MessageBox(class=NewProjectResponseMessage)
 public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseMessage>
@@ -122,8 +125,9 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
             this.add (this.responseBox);
 
-            JComponent l = UIUtils.createBoldSubHeader (String.format ("%s the {project}",
-                                                                       (this.message.isAccepted () ? "Accepted" : "Rejected")),
+            JComponent l = UIUtils.createBoldSubHeader (getUIString (editors,messages,newprojectresponse,received,(this.message.isAccepted () ? accepted : rejected),title),
+                                                        //String.format ("%s the {project}",
+                                                        //               (this.message.isAccepted () ? "Accepted" : "Rejected")),
                                                         (this.message.isAccepted () ? Constants.ACCEPTED_ICON_NAME : Constants.REJECTED_ICON_NAME));
 
             this.responseBox.add (l);
@@ -140,7 +144,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                    )
                 {
 
-                    JTextPane desc = UIUtils.createHelpTextPane ("Additionally they provided the following name/avatar.",
+                    JTextPane desc = UIUtils.createHelpTextPane (getUIString (editors,messages,newprojectresponse,labels,extra),
+                                                                //"Additionally they provided the following name/avatar.",
                                                                  this.viewer);
 
                     this.responseBox.add (Box.createVerticalStrut (5));
@@ -193,7 +198,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
             }
 
-            JButton ok = new JButton ("Ok, got it");
+            JButton ok = UIUtils.createButton (getUIString (editors,messages,newprojectresponse,received,undealtwith,buttons,confirm));
+            //"Ok, got it");
 
             ok.addActionListener (new ActionAdapter ()
             {
@@ -225,7 +231,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
                             EditorsEnvironment.updateEditor (ed);
 
-                            fpe.setStatusMessage (String.format ("Accepted {project}: %s",
+                            fpe.setStatusMessage (String.format (getUIString (editors,messages,newprojectresponse,received,editorstatus,accepted),
+                                                                //"Accepted {project}: %s",
                                                                  Environment.formatDate (_this.message.getWhen ())));
                             fpe.setEditorFrom (_this.message.getWhen ());
                             fpe.setCurrent (true);
@@ -272,7 +279,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,editor,edit,actionerror));
+                                                  //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -297,40 +305,52 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         }
 
         boolean accepted = this.message.isAccepted ();
-        String resMessage = this.message.getResponseMessage ();
+        //String resMessage = this.message.getResponseMessage ();
 
         String iconName = (accepted ? Constants.ACCEPTED_ICON_NAME : Constants.REJECTED_ICON_NAME);
 
-        String message = "";
+        String t = "";
 
         if (this.message.isSentByMe ())
         {
 
-            String text = "Accepted";
+            //String text = "Accepted";
 
             if (!accepted)
             {
 
-                text = "Rejected";
+                t = getUIString (editors,messages,newprojectresponse,sent,rejected,title);
+
+                //text = "Rejected";
+
+            } else {
+
+                t = getUIString (editors,messages,newprojectresponse,sent,LanguageStrings.accepted,title);
 
             }
 
-            message = text + " {project}";
+            //message = text + " {project}";
 
         } else {
 
-            message = "{Project} accepted";
+            //message = "{Project} accepted";
 
             if (!accepted)
             {
 
-                message = "{Project} rejected";
+                t = getUIString (editors,messages,newprojectresponse,received,rejected,title);
+
+                //message = "{Project} rejected";
+
+            } else {
+
+                t = getUIString (editors,messages,newprojectresponse,received,LanguageStrings.accepted,title);
 
             }
 
         }
 
-        JComponent h = UIUtils.createBoldSubHeader (message,
+        JComponent h = UIUtils.createBoldSubHeader (t,
                                                     iconName);
 
         this.add (h);
@@ -343,7 +363,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
            )
         {
 
-            JLabel viewProj = UIUtils.createClickableLabel ("Click to view the {project}",
+            JLabel viewProj = UIUtils.createClickableLabel (getUIString (editors,messages,newprojectresponse,sent,labels,clicktoview),
+                                                            //"Click to view the {project}",
                                                             Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                  Constants.ICON_CLICKABLE_LABEL),
                                                             new ActionListener ()
@@ -367,7 +388,10 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               e);
 
                         UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  "Unable to open {project}, please contact Quoll Writer support for assistance.");
+                                                  String.format (getUIString (project,actions,openproject,openerrors,general),
+                                                                 _this.message.getForProjectId (),
+                                                                 getUIString (project,actions,openproject,openerrors,unspecified)));
+                                                  //"Unable to open {project}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -385,7 +409,10 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               e);
 
                         UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  "Unable to open {project}, please contact Quoll Writer support for assistance.");
+                                                  String.format (getUIString (project,actions,openproject,openerrors,general),
+                                                                 _this.message.getForProjectId (),
+                                                                 getUIString (project,actions,openproject,openerrors,unspecified)));
+                                                  //"Unable to open {project}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -410,7 +437,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
             final Box b = new Box (BoxLayout.Y_AXIS);
             b.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-            JButton ok = new JButton ("Ok, got it");
+            JButton ok = UIUtils.createButton (getUIString (editors,messages,newprojectresponse,received,undealtwith,buttons,confirm));
+            //"Ok, got it");
 
             ok.addActionListener (new ActionAdapter ()
             {
@@ -428,7 +456,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
                             fpe.setEditorFrom (_this.message.getWhen ());
                             fpe.setCurrent (true);
-                            fpe.setStatusMessage (String.format ("Accepted {project}: %s",
+                            fpe.setStatusMessage (String.format (getUIString (editors,messages,newprojectresponse,received,editorstatus,LanguageStrings.accepted),
+                                                                //"Accepted {project}: %s",
                                                                  Environment.formatDate (_this.message.getWhen ())));
 
                             EditorsEnvironment.updateProjectEditor (fpe);
@@ -436,7 +465,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                         } else {
 
                             fpe.setCurrent (false);
-                            fpe.setStatusMessage (String.format ("Rejected {project}: %s",
+                            fpe.setStatusMessage (String.format (getUIString (editors,messages,newprojectresponse,received,editorstatus,rejected),
+                                                                //"Rejected {project}: %s",
                                                                  Environment.formatDate (_this.message.getWhen ())));
 
                             EditorsEnvironment.removeProjectEditor (fpe);
@@ -460,7 +490,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to update message, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,messages,update,actionerror));
+                                                  //"Unable to update message, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -512,7 +543,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
         int row = 1;
 
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
+        builder.addLabel ("<html>" + getUIString (editors,messages,newprojectresponse,labels,project) + "</html>",
+        //Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
                           cc.xy (1,
                                  row));
 
@@ -581,7 +613,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
             });
 
-            openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
+            openProj.setToolTipText (getUIString (project,actions,openproject,tooltips,general));
+            //Environment.replaceObjectNames ("Click to open the {project}"));
 
             builder.add (openProj,
                          cc.xy (3,
@@ -608,7 +641,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         if (resMessage != null)
         {
 
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>{Message}</i></html>"),
+            builder.addLabel ("<html>" + getUIString (editors,messages,newprojectresponse,labels,LanguageStrings.message) + "</html>",
+                                //Environment.replaceObjectNames ("<html><i>{Message}</i></html>"),
                               cc.xy (1,
                                      row));
 
@@ -625,6 +659,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         JPanel bp = builder.getPanel ();
         bp.setOpaque (false);
         bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        bp.setAlignmentY (JComponent.TOP_ALIGNMENT);
         bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));
 
         return bp;

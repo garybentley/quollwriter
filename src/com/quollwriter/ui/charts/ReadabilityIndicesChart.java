@@ -540,7 +540,8 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
                                   e);
 
             UIUtils.showErrorMessage (this.parent,
-                                      "Unable to word counts");
+                                      getUIString (charts,actionerror));
+                                      //"Unable to word counts");
 
             return;
 

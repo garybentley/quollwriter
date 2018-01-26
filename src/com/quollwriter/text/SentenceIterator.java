@@ -35,39 +35,22 @@ public class SentenceIterator implements Iterator<String>
 
     private void reinit (String text)
     {
-        
+
         this.text = text;
-        
+
         if (text == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         this.sentenceIter = BreakIterator.getSentenceInstance ();
-        
+
         this.sentenceIter.setText (text);
-        
+
         this.init (this.start);
-/*
-        if (this.start == BreakIterator.DONE)
-        {
-            
-            this.start = this.sentenceIter.first ();
-            
-        } else {
-            System.out.println ("HERE1: " + BreakIterator.DONE);
-            if (this.end != BreakIterator.DONE)
-            {
-                
-                this.end = this.sentenceIter.following (this.start);
-            System.out.println ("HERE2: " + this.end);    
-            }
-            
-        }
-        System.out.println ("START: " + this.start + ", " + this.end);
-        */
+
     }
 
     public SentenceIterator clone ()
@@ -106,14 +89,14 @@ public class SentenceIterator implements Iterator<String>
 
     public String last ()
     {
-        
+
         if (this.text == null)
         {
-            
+
             return null;
-            
+
         }
-    
+
         // Get the current, check to see if we are in dialogue.
         if (this.current != null)
         {
@@ -138,17 +121,17 @@ public class SentenceIterator implements Iterator<String>
         return this.previous ();
 
     }
-    
+
     public String next ()
     {
 
         if (this.text == null)
         {
-            
+
             return null;
-            
+
         }
-    
+
         // Get the current, check to see if we are in dialogue.
         if (this.current != null)
         {
@@ -162,11 +145,11 @@ public class SentenceIterator implements Iterator<String>
 
         if (this.end == BreakIterator.DONE)
         {
-            
+
             return null;
-            
+
         }
-        
+
         this.start = this.end;
 /*
         if (this.start == BreakIterator.DONE)
@@ -184,11 +167,11 @@ public class SentenceIterator implements Iterator<String>
 
             if (this.start == this.text.length ())
             {
-                
+
                 return null;
-                
+
             }
-        
+
             return this.text.substring (this.start);
             //return null;
 
@@ -210,11 +193,11 @@ public class SentenceIterator implements Iterator<String>
 
         if (this.text == null)
         {
-            
+
             return this.text;
-            
+
         }
-    
+
         if (this.start == BreakIterator.DONE)
         {
 
@@ -260,32 +243,32 @@ public class SentenceIterator implements Iterator<String>
 
         if (offset == BreakIterator.DONE)
         {
-            
+
             offset = 0;
-            
+
         }
-    
+
         if (offset == 0)
         {
-       
+
             this.start = this.sentenceIter.first ();
             this.end = this.start;
             return this.start;
-            
+
         }
-        
+
         if (offset >= this.text.length ())
         {
-            
+
             offset = this.text.length ();
-            
+
         }
 /*
         if (offset >= this.sentenceIter.last ())
         {
 
             return this.init (0);
-            
+
         }
 */
         int pi = this.sentenceIter.preceding (offset);
@@ -296,17 +279,17 @@ public class SentenceIterator implements Iterator<String>
             (ni > offset)
            )
         {
-            
+
             this.sentenceIter.preceding (offset);
 
         } else {
-            
+
             this.sentenceIter.following (this.sentenceIter.preceding (offset));
 
         }
-        
+
         this.start = this.sentenceIter.current ();
-        
+
         this.end = this.start;
 
         return this.start;
@@ -322,11 +305,11 @@ public class SentenceIterator implements Iterator<String>
 
     public int getEndOffset ()
     {
-        
+
         return this.end;
-        
+
     }
-    
+
     public int getOffset ()
     {
 

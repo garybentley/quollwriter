@@ -2,6 +2,7 @@ package com.quollwriter.editors.ui;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import java.awt.event.*;
 import java.awt.Component;
@@ -14,6 +15,9 @@ import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 {
@@ -58,12 +62,16 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 
         final EditorInfoMessageBox _this = this;
 
-        String text = "Sent name/avatar";
+        java.util.List<String> prefix = Arrays.asList (editors,messages,contactinfo);
+
+        String text = getUIString (prefix,sent,title);
+        //"Sent name/avatar";
 
         if (!this.message.isSentByMe ())
         {
 
-            text = "Received name/avatar update";
+            text = getUIString (prefix,received,title);
+            //"Received name/avatar update";
 
         }
 
@@ -127,7 +135,8 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 
             this.add (this.responseBox);
 
-            JButton update = new JButton ("Update");
+            JButton update = UIUtils.createButton (getUIString (prefix,received,buttons,LanguageStrings.update));
+            //"Update");
 
             update.addActionListener (new ActionListener ()
             {
@@ -172,7 +181,8 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,editor,edit,actionerror));
+                                                  //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -182,7 +192,8 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 
             });
 
-            JButton ignore = new JButton ("Ignore");
+            JButton ignore = UIUtils.createButton (getUIString (prefix,received,buttons,LanguageStrings.ignore));
+            //"Ignore");
 
             ignore.addActionListener (new ActionListener ()
             {
@@ -204,7 +215,8 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,editor,edit,actionerror));
+                                                  //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                         return;
 

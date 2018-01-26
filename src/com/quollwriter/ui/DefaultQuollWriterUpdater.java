@@ -35,6 +35,8 @@ import com.quollwriter.ui.components.*;
 
 import org.jdom.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 {
@@ -453,7 +455,8 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                                                                           LanguageStrings.title),
                                                  //"Restart Quoll Writer?",
                                                  null,
-                                                 String.format ("Version <b>%s</b> of Quoll Writer has been downloaded.  To complete the upgrade you must exit Quoll Writer, the installer will then guide you through the rest of the upgrade process.<br /><br />Would you like to exit now?",
+                                                 String.format (getUIString (upgrade,restart,text),
+                                                                //"Version <b>%s</b> of Quoll Writer has been downloaded.  To complete the upgrade you must exit Quoll Writer, the installer will then guide you through the rest of the upgrade process.<br /><br />Would you like to exit now?",
                                                                 _this.version),
                                                  buts,
                                                  null,

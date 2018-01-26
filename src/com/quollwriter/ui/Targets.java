@@ -56,7 +56,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         int r = 1;
 
-        pb.addLabel ("Session",
+        pb.addLabel (getUIString (project,sidebar,targets,labels,session),
+                    //"Session",
                     cc.xy (1,
                            r));
 
@@ -423,7 +424,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
                                                                                                       e);
 
                                                                                 UIUtils.showErrorMessage (_this.viewer,
-                                                                                                          "Unable to show chart.");
+                                                                                                          getUIString (charts,actionerror));
+                                                                                                          //"Unable to show chart.")
 
                                                                             }
 

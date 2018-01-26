@@ -1019,57 +1019,7 @@ public class Options extends Box
         box.add (c);
 
         box.add (Box.createVerticalStrut (15));
-        /*
-        final JCheckBox showPopups = UIUtils.createCheckBox ("Display a popup when I receive a new message from {an editor} (popups are never shown in full screen mode)");
 
-        showPopups.setSelected (EditorsEnvironment.isShowPopupWhenNewMessageReceived ());
-
-        c = this.createWrapper (showPopups);
-        this.setAsMainItem (c);
-
-        box.add (c);
-
-        final JComponent label = UIUtils.createClickableLabel ("View an example",
-                                                               null);
-
-        label.addMouseListener (new MouseAdapter ()
-        {
-
-            public void mousePressed (MouseEvent ev)
-            {
-
-                QPopup popup = _this.projectViewer.getPopupByName ("editors-popup-message-example-popup");
-
-                if (popup == null)
-                {
-
-                    popup = UIUtils.createClosablePopup ("Example",
-                                                         null,
-                                                         null);
-
-                    popup.setName ("editors-popup-message-example-popup");
-                    ImagePanel ip = new ImagePanel (Environment.getImage (Constants.QW_EDITORS_MESSAGE_POPUP_TEST_IMAGE),
-                                                    null);
-
-                    popup.setContent (ip);
-
-                }
-
-                _this.projectViewer.showPopupAt (popup,
-                                                 label,
-                                                 true);
-
-            }
-
-        });
-
-        c = this.createWrapper (label);
-        this.setAsSubItem (c);
-
-        box.add (c);
-
-        box.add (Box.createVerticalStrut (15));
-        */
         final JCheckBox logMessages = UIUtils.createCheckBox (getUIString (options,editors,labels,logmessages,text));
         //"Log messages I send/receive (debug only)");
 

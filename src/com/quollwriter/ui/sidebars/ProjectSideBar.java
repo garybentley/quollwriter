@@ -43,6 +43,9 @@ import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.ColorPainter;
 import com.quollwriter.ui.components.QPopup;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 {
 
@@ -211,7 +214,8 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
     public String getActiveTitle ()
     {
 
-        return "{Project}";
+        return getUIString (project,sidebar,title);
+        //"{Project}";
 
     }
 
@@ -1581,8 +1585,9 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                                                                           e);
 
                                                                     UIUtils.showErrorMessage (_this.viewer,
-                                                                                              String.format ("Unable to remove all %1$s.",
-                                                                                                             type.getObjectTypeNamePlural ()));
+                                                                                              getUIString (assets,deleteall,actionerror));
+                                                                                              //String.format ("Unable to remove all %1$s.",
+                                                                                                //             type.getObjectTypeNamePlural ()));
 
                                                                     return false;
 

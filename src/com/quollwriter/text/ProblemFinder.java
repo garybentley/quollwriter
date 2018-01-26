@@ -24,6 +24,9 @@ import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.TextUnderlinePainter;
 import com.quollwriter.ui.components.ActionAdapter;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class ProblemFinder extends Box
 {
 
@@ -421,10 +424,15 @@ public class ProblemFinder extends Box
         if (this.end > -1)
         {
 
+            java.util.List<String> prefix = Arrays.asList (project,editorpanel,actions,problemfinder,nomoreproblems,selected,LanguageStrings.end);
+
             UIUtils.showMessage (this.viewer,
-                                 "No more problems found",
-                                 "No more problems found in selected text.",
-                                 "Finish",
+                                 getUIString (prefix,title),
+                                 //"No more problems found",
+                                 getUIString (prefix,text),
+                                 //"No more problems found in selected text.",
+                                 getUIString (buttons,finish),
+                                 //"Finish",
                                  new ActionListener ()
                                  {
 
@@ -572,10 +580,15 @@ public class ProblemFinder extends Box
         if (this.end > -1)
         {
 
+            java.util.List<String> prefix = Arrays.asList (project,editorpanel,actions,problemfinder,nomoreproblems,selected,LanguageStrings.end);
+
             UIUtils.showMessage (this.viewer,
-                                 "No more problems found",
-                                 "No more problems found in selected text.",
-                                 "Finish",
+                                 getUIString (prefix,title),
+                                 //"No more problems found",
+                                 getUIString (prefix,text),
+                                 //"No more problems found in selected text.",
+                                 getUIString (buttons,finish),
+                                 //"Finish",
                                  null);
 
             return 0;

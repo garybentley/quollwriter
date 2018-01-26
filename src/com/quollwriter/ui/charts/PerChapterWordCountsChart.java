@@ -357,7 +357,8 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                   e);
 
             UIUtils.showErrorMessage (this.parent,
-                                      "Unable to show word counts");
+                                      getUIString (charts,actionerror));
+                                      //"Unable to show word counts");
 
             return;
 
@@ -396,12 +397,12 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
 
                 Number n = dsc.getValue (row,
                                          column);
-
+/*
                 StringBuilder b = new StringBuilder ();
 
                 b.append (Environment.formatNumber (n.intValue ()));
                 b.append (" words ");
-
+*/
                 return String.format (getUIString (charts, perchapter, tooltip),
                                       Environment.formatNumber (n.intValue ()));
                                       //b.toString ();
@@ -713,7 +714,8 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                   e);
 
             UIUtils.showErrorMessage (this.parent,
-                                      "Unable to show word counts");
+                                      getUIString (charts,actionerror));
+                                      //"Unable to show word counts");
 
             return;
 

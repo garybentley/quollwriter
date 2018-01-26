@@ -15,6 +15,9 @@ import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class ImageSelector extends JLabel
 {
 
@@ -204,12 +207,13 @@ public class ImageSelector extends JLabel
 
                                                             } catch (Exception e) {
 
-                                                                UIUtils.showErrorMessage (_this,
-                                                                                          "Unable to show file");
-
                                                                 Environment.logError ("Unable to show file: " +
                                                                                       _this.file,
                                                                                       e);
+
+                                                                UIUtils.showErrorMessage (_this,
+                                                                                          getUIString (imageselector,view,actionerror));
+                                                                                          //"Unable to show file");
 
                                                             }
 
@@ -238,12 +242,13 @@ public class ImageSelector extends JLabel
 
                                                             } catch (Exception e) {
 
-                                                                UIUtils.showErrorMessage (_this,
-                                                                                          "Unable to show file in folder");
-
                                                                 Environment.logError ("Unable to show file in folder: " +
                                                                                       _this.file,
                                                                                       e);
+
+                                                                UIUtils.showErrorMessage (_this,
+                                                                                          getUIString (imageselector,view,actionerror));
+                                                                                          //"Unable to show file in folder");
 
                                                             }
 

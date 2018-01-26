@@ -930,7 +930,8 @@ public class UIUtils
         if (addTitle)
         {
 
-            JLabel h = new JLabel ("Linked to");
+            JLabel h = UIUtils.createLabel (getUIString (linkedto,view,title));
+            //"Linked to");
             pa.add (h);
             pa.add (Box.createVerticalStrut (3));
 
@@ -2689,12 +2690,12 @@ public class UIUtils
                                     final Point           showAt)
     {
 
-        AbstractProjectViewer pv = null;
+        AbstractViewer pv = null;
 
-        if (parent instanceof AbstractProjectViewer)
+        if (parent instanceof AbstractViewer)
         {
 
-            pv = (AbstractProjectViewer) parent;
+            pv = (AbstractViewer) parent;
 
         }
 
@@ -2976,7 +2977,8 @@ public class UIUtils
             {
 
                 super.setText (String.format ("<html>%s</html>",
-                                              (t != null ? t : "Loading...")));
+                                              (t != null ? t : getUIString (general,loading))));
+                                              //"Loading...")));
 
             }
 
@@ -4657,7 +4659,7 @@ public class UIUtils
     }
 
     public static void addHyperLinkListener (final JEditorPane    p,
-                                             final AbstractViewer projectViewer)
+                                             final AbstractViewer viewer)
     {
 
         p.addHyperlinkListener (new HyperlinkListener ()
@@ -4672,7 +4674,7 @@ public class UIUtils
 
                     URL url = ev.getURL ();
 
-                    UIUtils.openURL (projectViewer,
+                    UIUtils.openURL (viewer,
                                      url);
 
                 }
@@ -4805,9 +4807,9 @@ public class UIUtils
 
     }
 
-    public static JPanel createHelpBox (String                helpText,
-                                        int                   iconType,
-                                        AbstractProjectViewer pv)
+    public static JPanel createHelpBox (String         helpText,
+                                        int            iconType,
+                                        AbstractViewer pv)
     {
 
         FormLayout fl = new FormLayout ("p, 3px, fill:90px:grow",
@@ -4861,6 +4863,10 @@ public class UIUtils
             StringBuilder buf = new StringBuilder ();
 
             //text = Environment.replaceObjectNames (text);
+
+            text = StringUtils.replaceString (text,
+                                              "{QW}",
+                                              Constants.QUOLL_WRITER_NAME);
 
             text = StringUtils.replaceString (text,
                                               String.valueOf ('\n'),
@@ -4977,30 +4983,6 @@ public class UIUtils
                                       viewer);
 
         return desc;
-
-    }
-
-    public static HTMLPanel createHelpTextPane2 (String text,
-                                                 AbstractProjectViewer projectViewer)
-    {
-
-        HTMLPanel p = new HTMLPanel (text,
-                                     projectViewer);
-
-        p.setOpaque (false);
-        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        p.setBorder (new EmptyBorder (5,
-                                         5,
-                                         15,
-                                         5));
-
-        p.setSize (UIUtils.getPopupWidth () - 20, 10000);
-
-        p.doDocumentLayout (p.getGraphics ());
-
-
-        return p;
 
     }
 
@@ -6086,7 +6068,8 @@ public class UIUtils
                                                     final String        desc)
     {
 
-        String pref = "Shortcut: ";
+        String pref = getUIString (general,shortcut);
+        //"Shortcut: ";
 
         Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
 
@@ -9829,7 +9812,7 @@ public class UIUtils
 
                     Map data = new HashMap ();
                     ls.add (data);
-                    data.put ("id", ":English");
+                    data.put ("id", LanguageStrings.ENGLISH_ID);
                     data.put ("nativename", Constants.ENGLISH);
 
                     Environment.logError ("Unable to get the ui language strings files url",
@@ -9837,9 +9820,29 @@ public class UIUtils
 
                 }
 
-                final Map<String, Map> objs = new LinkedHashMap<> ();
+                final Map<String, String> objs = new LinkedHashMap<> ();
 
                 final Vector langs = new Vector ();
+
+                try
+                {
+
+                    // Add in any user generated ones.
+                    for (LanguageStrings _ls : Environment.getAllUserLanguageStrings (Environment.getQuollWriterVersion ()))
+                    {
+
+                        langs.add ("user-" + _ls.getId ());
+                        objs.put ("user-" + _ls.getId (),
+                                  _ls.getNativeName () + " (Created by you)");
+
+                    }
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get the user ui language strings",
+                                          e);
+
+                }
 
                 Iterator iter = ls.iterator ();
 
@@ -9850,7 +9853,7 @@ public class UIUtils
 
                     String id = (String) m.get ("id");
 
-                    objs.put (id, m);
+                    objs.put (id, m.get ("nativename").toString ());
 
                     langs.add (id);
 
@@ -9886,9 +9889,9 @@ public class UIUtils
 
                                 }
 
-                                Map m = objs.get (val.toString ());
+                                String name = objs.get (val.toString ());
 
-                                this.setText (m.get ("nativename").toString ());
+                                this.setText (name);
 
                                 return this;
 
@@ -11081,8 +11084,10 @@ public class UIUtils
                                                l.setText (obj.getName () + " (" + obj.getQuollWriterVersion ().toString () + ")");
 
                                                l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+/*
                                                l.setIcon (Environment.getObjectIcon (obj,
                                                                                      Constants.ICON_NOTIFICATION));
+                                                                                     */
                                                l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
 
                                                if (cellHasFocus)
@@ -11106,10 +11111,23 @@ public class UIUtils
 
                                                final LanguageStrings ls = (LanguageStrings) ev.getSource ();
 
+                                               // See if we already have a viewer open for this set of strings.
+                                               LanguageStringsEditor lse = Environment.getUILanguageStringsEditor (ls);
+
+                                               if (lse != null)
+                                               {
+
+                                                   lse.toFront ();
+
+                                                   return;
+
+                                               }
+
                                                 try
                                                 {
 
-                                                    new LanguageStringsEditor (ls).init ();
+                                                    LanguageStringsEditor _ls = new LanguageStringsEditor (ls);
+                                                    _ls.init ();
 
                                                 } catch (Exception e) {
 

@@ -142,9 +142,9 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         for (LanguageStrings.Section sect : this.baseStrings.getSections ())
         {
-
+System.out.println (sect.name + ", " + sect.icon);
             items.add (this.createSectionTree (sect.name,
-                                               Constants.SETTINGS_ICON_NAME,
+                                               sect.icon,
                                                sections.get (sect.id)));
 
         }
@@ -1149,6 +1149,18 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 }
 
             });
+
+        }
+
+        if (!UserProperties.getAsBoolean (Constants.LANGUAGE_STRINGS_FIRST_USE_SEEN_PROPERTY_NAME))
+        {
+
+            UIUtils.showMessage ((PopupsSupported) this,
+                                 "Welcome to the (beta) editor!",
+                                 "Welcome to the strings editor.  This window is where you'll create your own strings for a language for the {QW} User Interface.<br /><br />It is recommended that you read the <a href='help://uilanguage/index'>strings editor guide</a> before starting out.  It describes how the editor works and the concepts used.<br /><br />Note: this is a beta release and I need your help to let me know what features you would like to see to help you create the strings.  So please <a href='action:contact'>all feedback and ideas are welcome</a>.");
+
+            UserProperties.set (Constants.LANGUAGE_STRINGS_FIRST_USE_SEEN_PROPERTY_NAME,
+                                true);
 
         }
 

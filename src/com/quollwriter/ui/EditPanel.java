@@ -24,6 +24,9 @@ import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.forms.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public abstract class EditPanel extends Box
 {
 
@@ -330,7 +333,8 @@ public abstract class EditPanel extends Box
                                                                 Constants.ICON_PANEL_SECTION),
                                                     UIUtils.createButtonBar (buttons)));
 
-        this.editError = UIUtils.createErrorLabel ("Please enter a value.");
+        this.editError = UIUtils.createErrorLabel (getUIString (form,errors,entervalue));
+        //"Please enter a value.");
         this.editError.setVisible (false);
         this.editError.setOpaque (false);
 

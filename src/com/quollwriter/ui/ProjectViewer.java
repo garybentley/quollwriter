@@ -1244,7 +1244,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public String getViewerTitle ()
     {
 
-        return this.proj.getName ();
+        return String.format (getUIString (project,viewertitle),
+                              this.proj.getName ());
 
     }
 
@@ -2013,7 +2014,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
 
     }
-
+/*
     public boolean showRegisterAsAnEditorPanel ()
     {
 
@@ -2052,7 +2053,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
 
     }
-
+*/
     public boolean viewIdeaBoard ()
     {
 

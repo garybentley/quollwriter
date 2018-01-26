@@ -3229,7 +3229,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to show personal dictionary.");
+                                          getUIString (dictionary,manage,actionerror));
+                                          //"Unable to show personal dictionary.");
 
                 return;
 

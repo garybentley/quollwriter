@@ -169,6 +169,8 @@ public class Constants
 
     public static final String SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME = "showNotesInChapterList";
 
+    public static final String LANGUAGE_STRINGS_FIRST_USE_SEEN_PROPERTY_NAME = "languageStringsFirstUseSeen";
+
     public static final String SUBMIT_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterSubmitUILanguageStringsURL";
 
     public static final String DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterDeleteUILanguageStringsURL";
@@ -461,7 +463,7 @@ public class Constants
     public static final String EDITORS_SERVICE_PORT_PROPERTY_NAME = "editorsServicePort";
     public static final String EDITORS_SERVICE_REPORT_MESSAGE_PAGE_PROPERTY_NAME = "editorsServiceReportMessagePage";
     public static final String EDITORS_JID_SUFFIX_PROPERTY_NAME = "editorsJIDSuffix";
-    public static final String EDITORS_SHOW_POPUP_WHEN_NEW_MESSAGE_RECEIVED_PROPERTY_NAME = "editorsShowPopupWhenNewMessageReceived";
+    //public static final String EDITORS_SHOW_POPUP_WHEN_NEW_MESSAGE_RECEIVED_PROPERTY_NAME = "editorsShowPopupWhenNewMessageReceived";
     public static final String EDITORS_SEEN_OFFLINE_SEND_MESSAGE_PROPERTY_NAME = "editorsSeenOfflineSendMessage";
 
     public static final String QW_EDITORS_SERVICE_EDITORS_SIDEBAR_SEEN_PROPERTY_NAME = "editorsSidebarSeen";
