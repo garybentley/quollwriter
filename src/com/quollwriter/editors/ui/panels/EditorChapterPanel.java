@@ -10,6 +10,7 @@ import java.text.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -46,6 +47,8 @@ import com.quollwriter.ui.renderers.*;
 import com.swabunga.spell.engine.*;
 import com.swabunga.spell.event.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
 
 public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements ChapterItemViewer
 {
@@ -185,7 +188,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                                             e);
 
                                       UIUtils.showErrorMessage (_this,
-                                                                Environment.replaceObjectNames ("Unable to show {chapter}."));
+                                                                getUIString (editors,project,LanguageStrings.actions,showchapterinfo,actionerror));
+                                                                //Environment.replaceObjectNames ("Unable to show {chapter}."));
 
                                   }
 
@@ -325,7 +329,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
       this.doFillToolBar (acts);
 
       acts.add (this.createToolbarButton (Constants.EDIT_PROPERTIES_ICON_NAME,
-                                          "Click to edit the text properties",
+                                          getUIString (editors,project,commentspanel,toolbar,textproperties,tooltip),
+                                          //"Click to edit the text properties",
                                           EDIT_TEXT_PROPERTIES_ACTION_NAME));
 
    }
@@ -348,7 +353,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         };
 
         final JButton b = UIUtils.createToolBarButton ("new",
-                                                       "Click to add a new {Comment}",
+                                                       getUIString (editors,project,commentspanel,toolbar,newcomment,tooltip),
+                                                       //"Click to add a new {Comment}",
                                                        "new",
                                                        null);
 
@@ -446,7 +452,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
             buts.add (this.createButton (Constants.COMMENT_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         String.format ("Add a new {Comment}"),
+                                         getUIString (editors,project,commentspanel,popupmenu,_new,items,comment,tooltip),
+                                         //String.format ("Add a new {Comment}"),
                                          NEW_COMMENT_ACTION_NAME,
                                          aa));
 
@@ -457,7 +464,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
                pm.addSeparator ();
 
-               popup.add (UIUtils.createPopupMenuButtonBar ("New",
+               popup.add (UIUtils.createPopupMenuButtonBar (getUIString (editors,project,commentspanel,popupmenu,_new,compresstext),
+                                                            //"New",
                                                             pm,
                                                             buts));
 
@@ -465,11 +473,13 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
         } else {
 
-            String pref = "Shortcut: Ctrl+Shift+";
+            String pref = getUIString (general,shortcutprefix);
+            //"Shortcut: Ctrl+Shift+";
 
             JMenuItem mi = null;
 
-            mi = this.createMenuItem ("Comment",
+            mi = this.createMenuItem (getUIString (editors,project,commentspanel,popupmenu,_new,items,comment,text),
+                                        //"Comment",
                                       Constants.COMMENT_ICON_NAME,
                                       NEW_COMMENT_ACTION_NAME,
                                       null,
@@ -652,6 +662,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         // This is needed to move to the correct character, the call above seems to get the character
         // before what was clicked on.
         // pos++;
+        java.util.List<String> prefix = Arrays.asList (editors,project,commentspanel,popupmenu,Chapter.OBJECT_TYPE);
 
         if (compress)
         {
@@ -660,7 +671,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
             buts.add (UIUtils.createButton (Constants.EDIT_IN_PROGRESS_ICON_NAME,
                                             Constants.ICON_MENU,
-                                            "Set Edit Point",
+                                            getUIString (prefix,items,seteditposition,tooltip),
+                                            //"Set Edit Point",
                                             new ActionAdapter ()
                                             {
 
@@ -678,7 +690,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
                 buts.add (this.createButton (Constants.REMOVE_EDIT_POINT_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Remove Edit Point",
+                                             getUIString (prefix,items,removeeditposition,tooltip),
+                                             //"Remove Edit Point",
                                              REMOVE_EDIT_POINT_ACTION_NAME));
 
             }
@@ -688,17 +701,20 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
                 buts.add (this.createButton (Constants.EDIT_COMPLETE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Set as Edit Complete",
+                                             getUIString (prefix,items,seteditcomplete,tooltip),
+                                             //"Set as Edit Complete",
                                              SET_EDIT_COMPLETE_ACTION_NAME));
 
             }
 
             buts.add (this.createButton (Constants.FIND_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Find",
+                                         getUIString (prefix,items,find,tooltip),
+                                         //"Find",
                                          Constants.SHOW_FIND_ACTION));
 
-            popup.add (UIUtils.createPopupMenuButtonBar ("{Chapter}",
+            popup.add (UIUtils.createPopupMenuButtonBar (getUIString (prefix,compresstext),
+                                                        //"{Chapter}",
                                                          popup,
                                                          buts));
 
@@ -711,13 +727,15 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
             // Save.
 
-            JMenu m = new JMenu (Environment.replaceObjectNames ("{Chapter} Edit"));
+            JMenu m = new JMenu (getUIString (prefix,text));
+            //Environment.replaceObjectNames ("{Chapter} Edit"));
             m.setIcon (Environment.getIcon (Constants.EDIT_ICON_NAME,
                                             Constants.ICON_MENU));
 
             popup.add (m);
 
-            mi = UIUtils.createMenuItem ("Set Edit Point",
+            mi = UIUtils.createMenuItem (getUIString (prefix,items,seteditposition,tooltip),
+                                        //"Set Edit Point",
                                          Constants.EDIT_IN_PROGRESS_ICON_NAME,
                                          new ActionAdapter ()
                                          {
@@ -736,7 +754,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             if (this.obj.getEditPosition () > 0)
             {
 
-                m.add (this.createMenuItem ("Remove Edit Point",
+                m.add (this.createMenuItem (getUIString (prefix,items,removeeditposition,tooltip),
+                                            //"Remove Edit Point",
                                             Constants.REMOVE_EDIT_POINT_ICON_NAME,
                                             REMOVE_EDIT_POINT_ACTION_NAME,
                                             null));
@@ -746,14 +765,16 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             if (!this.obj.isEditComplete ())
             {
 
-                m.add (this.createMenuItem ("Set as Edit Complete",
+                m.add (this.createMenuItem (getUIString (prefix,items,seteditcomplete,tooltip),
+                                            //"Set as Edit Complete",
                                             Constants.EDIT_COMPLETE_ICON_NAME,
                                             SET_EDIT_COMPLETE_ACTION_NAME,
                                             null));
 
             }
 
-            JMenu nm = new JMenu ("New");
+            JMenu nm = new JMenu (getUIString (editors,project,commentspanel,popupmenu,_new,text));
+            //"New");
             nm.setIcon (Environment.getIcon (Constants.NEW_ICON_NAME,
                                              Constants.ICON_MENU));
 

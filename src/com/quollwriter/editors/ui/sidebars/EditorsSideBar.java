@@ -53,6 +53,9 @@ import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.ui.events.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements EditorChangedListener,
                                                                                EditorMessageListener,
                                                                                UserOnlineStatusListener
@@ -217,7 +220,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
     public String getTitle ()
     {
 
-        return "{Contacts}";  // {Editors}
+        return getUIString (editors,sidebar,title);
+        //"{Contacts}";  // {Editors}
 
     }
 
@@ -263,7 +267,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                           e);
 
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to change your status, please contact Quoll Writer support for assistance.");
+                                              getUIString (editors,sidebar,headercontrols,items,onlinestatus,update,actionerror));
+                                              //"Unable to change your status, please contact Quoll Writer support for assistance.");
 
                 }
 
@@ -295,7 +300,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
             toolTip = getUIString (editors,sidebar,headercontrols,items,onlinestatus,online,button,tooltip);
             //"Click to go online";
 
-            info = getUIString (editors,sidebar,headercontrols,items,onlinestatus,offline,notification);
+            info = getUIString (editors,sidebar,headercontrols,items,onlinestatus,offline,LanguageStrings.notification);
             //"You have been logged out.";
 
         } else {
@@ -304,7 +309,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                      status.getName ());
             //status.getName () + ", click to change your status";
 
-            info = String.format (getUIString (editors,sidebar,headercontrols,items,onlinestatus,update,notification),
+            info = String.format (getUIString (editors,sidebar,headercontrols,items,onlinestatus,update,LanguageStrings.notification),
                                 //"Your status is now <b>%s</b>.",
                                   status.getName ());
 
@@ -402,7 +407,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                     {
 
                         np = _this.showNotification (Constants.LOADING_GIF_NAME,
-                                                     getUIString (editors,sidebar,headercontrols,items,onlinestatus,online,notification),
+                                                     getUIString (editors,sidebar,headercontrols,items,onlinestatus,online,LanguageStrings.notification),
                                                      //"Logging in...",
                                                      -1,
                                                      _this.statusButton);
@@ -644,9 +649,9 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                                         }
 
                                                         UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                                                             getUIString (editors,user,displaypassword,popup,title),
+                                                                             getUIString (editors,user,displaypassword,LanguageStrings.popup,title),
                                                                              //)"Your Editors service password",
-                                                                             String.format (getUIString (editors,user,displaypassword,popup,text) + extra,
+                                                                             String.format (getUIString (editors,user,displaypassword,LanguageStrings.popup,text) + extra,
                                                                                             //"Note: your password is being displayed because you have checked the <i>Save password</i> box for logging into the Editors service.<br /><br />Your login details are:<br /><br />Email address: <b>%s</b><br />Password: <b>%s</b>%s",
                                                                                             EditorsEnvironment.getUserAccount ().getEmail (),
                                                                                             edPass));
@@ -786,10 +791,12 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         this.firstLogin = new Box (BoxLayout.Y_AXIS);
 
-        this.firstLogin.add (UIUtils.createBoldSubHeader ("<i>Checked your email?</i>",
-                                                         null));
+        this.firstLogin.add (UIUtils.createBoldSubHeader (getUIString (LanguageStrings.editors,sidebar,firstlogin,title),
+                                                          //"<i>Checked your email?</i>",
+                                                          null));
 
-        JComponent firstLoginHelp = UIUtils.createHelpTextPane ("Once you've validated your email address click on the button below to login.",
+        JComponent firstLoginHelp = UIUtils.createHelpTextPane (getUIString (LanguageStrings.editors,sidebar,firstlogin,text),
+                                                                //"Once you've validated your email address click on the button below to login.",
                                                                 this.viewer);
         firstLoginHelp.setBorder (null);
         this.firstLogin.setBorder (new EmptyBorder (5, 5, 5, 5));
@@ -804,7 +811,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         this.firstLogin.add (Box.createVerticalStrut (10));
 
         JButton but = UIUtils.createToolBarButton (this.getStatusIconName (null),
-                                                   "Click to go online",
+                                                   getUIString (LanguageStrings.editors,sidebar,firstlogin,buttons,login,tooltip),
+                                                   //"Click to go online",
                                                    null,
                                                    new ActionListener ()
         {
@@ -835,7 +843,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (12)));
 
-        but.setText ("Click to Login");
+        but.setText (getUIString (LanguageStrings.editors,sidebar,firstlogin,buttons,login,text));
+        //"Click to Login");
         List<JButton> buts = new ArrayList ();
         buts.add (but);
 
@@ -852,10 +861,12 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         this.noEditors = new Box (BoxLayout.Y_AXIS);
 
-        this.noEditors.add (UIUtils.createBoldSubHeader ("<i>No current {contacts}</i>",
+        this.noEditors.add (UIUtils.createBoldSubHeader (getUIString (LanguageStrings.editors,sidebar,nocontacts,title),
+                                                        //"<i>No current {contacts}</i>",
                                                          null));
 
-        JComponent noedsHelp = UIUtils.createHelpTextPane ("You currently have no {contacts}.  Click on the button below to invite someone to be {an editor} for your {project}.",
+        JComponent noedsHelp = UIUtils.createHelpTextPane (getUIString (LanguageStrings.editors,sidebar,nocontacts,text),
+                                                            //"You currently have no {contacts}.  Click on the button below to invite someone to be {an editor} for your {project}.",
                                                            this.viewer);
         noedsHelp.setBorder (null);
         this.noEditors.setBorder (new EmptyBorder (5, 5, 5, 5));
@@ -870,7 +881,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         this.noEditors.add (Box.createVerticalStrut (10));
 
         but = UIUtils.createToolBarButton (Constants.NEW_ICON_NAME,
-                                           "Click to invite someone to be {an editor} for your {project}",
+                                           getUIString (LanguageStrings.editors,sidebar,nocontacts,buttons,sendinvite,tooltip),
+                                           //"Click to invite someone to be {an editor} for your {project}",
                                            null,
                                            new ActionListener ()
         {
@@ -886,7 +898,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (12)));
 
-        but.setText ("Send an invite");
+        but.setText (getUIString (LanguageStrings.editors,sidebar,nocontacts,buttons,sendinvite,text));
+        //"Send an invite");
         buts = new ArrayList ();
         buts.add (but);
 
@@ -901,8 +914,10 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         edBox.add (this.noEditors);
 
-        this.invitesForMe = new EditorsSection ("Invites from others",
-                                                "Invites I've received from other people.",
+        this.invitesForMe = new EditorsSection (getUIString (LanguageStrings.editors,sidebar,invitesfromothers,title),
+                                                //"Invites from others",
+                                                getUIString (LanguageStrings.editors,sidebar,invitesfromothers,text),
+                                                //"Invites I've received from other people.",
                                                 null,
                                                 this.viewer);
 
@@ -910,8 +925,10 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         edBox.add (this.invitesForMe);
 
-        this.invitesIveSent = new EditorsSection ("Pending invites",
-                                                  "Invites I've sent to other people.",
+        this.invitesIveSent = new EditorsSection (getUIString (LanguageStrings.editors,sidebar,pendinginvites,title),
+                                                  //"Pending invites",
+                                                  getUIString (LanguageStrings.editors,sidebar,pendinginvites,text),
+                                                  //"Invites I've sent to other people.",
                                                   null,
                                                   this.viewer);
 
@@ -919,7 +936,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         edBox.add (this.invitesIveSent);
 
-        this.otherEditors = new EditorsSection ("All {Contacts}", //Editors
+        this.otherEditors = new EditorsSection (getUIString (LanguageStrings.editors,sidebar,allcontacts,title),
+                                                //"All {Contacts}",
                                                 null,
                                                 null,
                                                 this.viewer);
@@ -1034,7 +1052,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
             this.otherEditors.setVisible (false);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to display others section, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,vieweditorserror));
+                                      //"Unable to display others section, please contact Quoll Writer support for assistance.");
 
         }
 
@@ -1054,7 +1073,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
             this.invitesForMe.setVisible (false);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to display invites from others section, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,vieweditorserror));
+                                      //"Unable to display invites from others section, please contact Quoll Writer support for assistance.");
 
         }
 
@@ -1074,7 +1094,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
             this.invitesIveSent.setVisible (false);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to display invites I've sent section, please contact Quoll Writer support for assistance.");
+                                      getUIString (editors,vieweditorserror));
+                                      //"Unable to display invites I've sent section, please contact Quoll Writer support for assistance.");
 
         }
 
@@ -1198,6 +1219,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         this.createEditorList ();
 
+/*
         // See if this is the first time the user has seen the side bar.
         if (!EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_EDITORS_SIDEBAR_SEEN_PROPERTY_NAME))
         {
@@ -1218,7 +1240,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
             this.createWelcomeTab ();
 
         }
-
+*/
         return box;
 
     }
@@ -1253,7 +1275,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                    MouseEvent ev)
             {
 
-                menu.add (UIUtils.createMenuItem ("Close",
+                menu.add (UIUtils.createMenuItem (getUIString (buttons,close),
+                                                    //"Close",
                                                   Constants.CLOSE_ICON_NAME,
                                                   new ActionListener ()
                                                   {
@@ -1292,7 +1315,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         edBox.setOpaque (true);
         edBox.setBackground (UIUtils.getComponentColor ());
 
-        JComponent nc = UIUtils.createInformationLabel ("{Contacts} you have removed or have removed you in the past.");
+        JComponent nc = UIUtils.createInformationLabel (getUIString (LanguageStrings.editors,sidebar,previouscontacts,text));
+            //"{Contacts} you have removed or have removed you in the past.");
 
         nc.setBorder (UIUtils.createPadding (0, 0, 5, 0));
 
@@ -1345,7 +1369,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to build list of previous {contacts}, please contact Quoll Writer support for assistance.");
+                                      getUIString (LanguageStrings.editors,vieweditorserror));
+                                      //"Unable to build list of previous {contacts}, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -1360,7 +1385,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
         edBox.add (Box.createVerticalGlue ());
 
-        AccordionItem prev = new AccordionItem (String.format ("Previous {contacts} (%s)",
+        AccordionItem prev = new AccordionItem (String.format (getUIString (LanguageStrings.editors,sidebar,previouscontacts,title),
+                                                                //"Previous {contacts} (%s)",
                                                                Environment.formatNumber (prevCount)))
         {
 
@@ -1387,10 +1413,13 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         this.tabs.add (sp,
                        1);
 
-        JLabel l = new JLabel (Environment.getIcon (Constants.STOP_ICON_NAME,
-                                                    Constants.ICON_EDITORS_LIST_TAB_HEADER));
+        JLabel l = UIUtils.createLabel (null,
+                                        Environment.getIcon (Constants.STOP_ICON_NAME,
+                                                             Constants.ICON_EDITORS_LIST_TAB_HEADER),
+                                        null);
 
-        l.setToolTipText (Environment.replaceObjectNames ("Previous {contacts}"));
+        l.setToolTipText (getUIString (LanguageStrings.editors,sidebar,previouscontacts,tooltip));
+        //"Previous {contacts}"));
 
         this.tabs.setTabComponentAt (1,
                                      l);
@@ -1406,7 +1435,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                               prev);
 
     }
-
+/*
     private void showMessagesInSpecialTab (Set<EditorMessage> messages,
                                            String             iconName,
                                            String             toolTipText,
@@ -1506,7 +1535,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                               sp);
 
     }
-
+*/
     public void toggleFindEditorsTab ()
     {
 
@@ -1748,7 +1777,8 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                    MouseEvent ev)
             {
 
-                menu.add (UIUtils.createMenuItem ("Close",
+                menu.add (UIUtils.createMenuItem (getUIString (buttons,close),
+                                                  //"Close",
                                                   Constants.CLOSE_ICON_NAME,
                                                   new ActionListener ()
                                                   {
@@ -1888,12 +1918,13 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
                 } catch (Exception e) {
 
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to show {editor}.");
-
                     Environment.logError ("Unable to show editor: " +
                                           ed,
                                           e);
+
+                    UIUtils.showErrorMessage (_this.viewer,
+                                              getUIString (editors,view,actionerror));
+                                              //"Unable to show {editor}.");
 
                 }
 
@@ -2045,7 +2076,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                      throws GeneralException
         {
 
-            this.setTitle (String.format ("%s (%s)",
+            this.setTitle (String.format (//"%s (%s)",
                                           this.title,
                                           Environment.formatNumber (eds.size ())));
 

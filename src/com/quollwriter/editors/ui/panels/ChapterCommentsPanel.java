@@ -45,6 +45,9 @@ import com.quollwriter.ui.components.ScrollablePanel;
 import com.quollwriter.ui.components.BlockPainter;
 import com.quollwriter.ui.renderers.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements ChapterItemViewer
 {
 
@@ -54,7 +57,7 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
      private ChapterItemTransferHandler chItemTransferHandler = null;
      private BlockPainter highlight = null;
      private boolean chapterItemEditVisible = false;
-  
+
      public ChapterCommentsPanel (ProjectSentReceivedViewer pv,
                                   Chapter                   c)
                            throws GeneralException
@@ -62,14 +65,14 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
 
         super (pv,
                c);
-        
+
         this.projectViewer = pv;
 
         final ChapterCommentsPanel _this = this;
 
         this.editor.setEditable (false);
         this.editor.setCanCopy (false);
-                
+
         this.iconColumn = new IconColumn<ProjectSentReceivedViewer> (this,
                                                                      c,
                                                                      this.projectViewer.getIconProvider (),
@@ -77,43 +80,43 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
 
         this.iconColumn.setItemMoveAllowed (false);
          this.iconColumn.setSinglePopupOnly (true);
-                
+
         this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
-        
+
         //this.setTransferHandler (this.chItemTransferHandler);
-                                                    
+
         InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // Remove ctrl+shift+O from the when_focused set since it conflicts.
         this.editor.getInputMap (JComponent.WHEN_FOCUSED).put (KeyStroke.getKeyStroke ("ctrl shift O"),
                                                                "none");
-        
-        this.highlight = new BlockPainter (Environment.getHighlightColor ());        
-                
+
+        this.highlight = new BlockPainter (Environment.getHighlightColor ());
+
     }
 
     @Override
     public void scrollCaretIntoView ()
     {
-        
+
         // Do nothing.
-                
+
     }
-    
+
     /*
     public void showDifferences (Chapter c)
     {
-      
-         BlockPainter newp = new BlockPainter (Color.GREEN);              
-         BlockPainter modp = new BlockPainter (Color.YELLOW);              
+
+         BlockPainter newp = new BlockPainter (Color.GREEN);
+         BlockPainter modp = new BlockPainter (Color.YELLOW);
          BlockPainter oldp = new BlockPainter (Color.RED);
-      
+
          String ot = TextUtilities.stripNonValidXMLCharacters (this.editor.getTextWithMarkup ().getText ());
 
-         String nt = TextUtilities.stripNonValidXMLCharacters (c.getText ().getText ());      
-         
+         String nt = TextUtilities.stripNonValidXMLCharacters (c.getText ().getText ());
+
          this.editor.setTextWithMarkup (c.getText ());
-      
+
          String[] oldText = ot.split ("\\n");
          String[] newText = nt.split ("\\n");
 System.out.println ("OT: " + ot);
@@ -140,7 +143,7 @@ System.out.println ("DIFF: " + diffs);
                      this.editor.addHighlight (d.getAddedStart (),
                                                d.getAddedEnd (),
                                                newp,
-                                               false);                                     
+                                               false);
 
                  }
 
@@ -158,7 +161,7 @@ System.out.println ("DIFF: " + diffs);
                      this.editor.addHighlight (d.getDeletedStart (),
                                                d.getDeletedEnd (),
                                                oldp,
-                                               false);                                     
+                                               false);
 
                  }
 
@@ -173,93 +176,93 @@ System.out.println ("DIFF: " + diffs);
                   this.editor.addHighlight (d.getAddedStart (),
                                             d.getAddedEnd (),
                                             modp,
-                                            false);                                     
+                                            false);
 
              }
 
-         }      
-      
+         }
+
     }
     */
     @Override
      public void setState (final Map<String, String> s,
                           boolean                   hasFocus)
      {
-          
+
         if (hasFocus)
         {
 
             this.editor.grabFocus ();
 
         }
-          
+
      }
-    
+
     public void setChapterItemEditVisible (boolean v)
     {
-      
+
          this.chapterItemEditVisible = v;
-      
+
     }
-    
+
     public boolean isChapterItemEditVisible ()
     {
-      
+
          return this.chapterItemEditVisible;
-      
+
     }
-    
+
     public int getTextPositionForMousePosition (Point p)
     {
-      
+
        Point pp = p;
-      
+
        if (this.iconColumn.getMousePosition () != null)
        {
-         
+
           pp = new Point (0,
                           p.y);
-         
+
        }
 
        return this.editor.viewToModel (pp);
-      
+
     }
-    
+
     public ActionListener getActionListenerForTextPosition (final String actionName,
                                                             final Point  p)
     {
-      
+
          final ChapterCommentsPanel _this = this;
 
          final int pos = this.getTextPositionForMousePosition (p);
-      
+
          return new ActionAdapter ()
          {
-            
+
             public void actionPerformed (ActionEvent ev)
             {
-                              
+
                _this.performAction (ev,
                                     actionName,
                                     pos);
-               
+
             }
-            
-         };      
-      
+
+         };
+
     }
-    
+
     public ChapterItemTransferHandler getChapterItemTransferHandler ()
     {
-        
+
         return this.chItemTransferHandler;
-        
+
     }
-    
+
    public int getIconColumnXOffset (ChapterItem i)
    {
-     
+
       int xOffset = 22;
 
       if (i instanceof OutlineItem)
@@ -268,11 +271,11 @@ System.out.println ("DIFF: " + diffs);
           xOffset = 22;
 
       }
-      
+
       return xOffset;
-     
+
    }
-    
+
     public JComponent getEditorWrapper (QTextEditor q)
     {
 
@@ -290,7 +293,7 @@ System.out.println ("DIFF: " + diffs);
         this.iconColumn.setMinimumSize (new Dimension (32, 200));
         this.iconColumn.setPreferredSize (new Dimension (32, 200));
         this.iconColumn.setMaximumSize (new Dimension (32, Integer.MAX_VALUE));
-        
+
         JPanel p = new ScrollablePanel (new BorderLayout ());
         p.add (b);
 
@@ -315,11 +318,12 @@ System.out.println ("DIFF: " + diffs);
       this.doFillToolBar (acts);
 
       acts.add (this.createToolbarButton (Constants.EDIT_PROPERTIES_ICON_NAME,
-                                          "Click to edit the text properties",
+                                          getUIString (editors,projectsent,commentspanel,toolbar,textproperties,tooltip),
+                                          //"Click to edit the text properties",
                                           EDIT_TEXT_PROPERTIES_ACTION_NAME));
-      
+
    }
-    
+
     public void doFillToolBar (JToolBar acts)
     {
 
@@ -364,19 +368,19 @@ System.out.println ("DIFF: " + diffs);
                             pos);
 
     }
-        
+
     public void fillPopupMenu (final MouseEvent ev,
                                final JPopupMenu popup)
     {
 
-      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);    
-      
+      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+
       this.doFillPopupMenu (ev,
                             popup,
                             compress);
-    
+
     }
-    
+
     public void doFillPopupMenu (final MouseEvent ev,
                                  final JPopupMenu popup,
                                        boolean    compress)
@@ -387,51 +391,54 @@ System.out.println ("DIFF: " + diffs);
         final QTextEditor         editor = this.editor;
 
         JMenuItem mi = null;
-        
+
         // Get the mouse position, don't get it later since the mouse could have moved.
-        Point mP = this.editor.getMousePosition ();        
-        
+        Point mP = this.editor.getMousePosition ();
+
         if (mP == null)
         {
-            
+
             mP = this.iconColumn.getMousePosition ();
-            
+
         }
-        
+
         final Point mouseP = mP;
-        
+
         int pos = this.getTextPositionForMousePosition (ev.getPoint ());
 
         // This is needed to move to the correct character, the call above seems to get the character
         // before what was clicked on.
         // pos++;
-                  
+
         if (compress)
         {
-                         
+
             List<JComponent> buts = new ArrayList ();
-                                                                                                                             
+
             buts.add (this.createButton (Constants.FIND_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Find",
+                                         getUIString (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,find,tooltip),
+                                         //"Find",
                                          Constants.SHOW_FIND_ACTION));
 
-            popup.add (UIUtils.createPopupMenuButtonBar (Environment.replaceObjectNames ("{Chapter}"),
+            popup.add (UIUtils.createPopupMenuButtonBar (getUIString (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,compresstext),
+                                                        //Environment.replaceObjectNames ("{Chapter}"),
                                                          popup,
                                                          buts));
-                                     
+
         } else {
-          
-            mi = this.createMenuItem ("Find",
+
+            mi = this.createMenuItem (getUIString (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,find,text),
+                                        //"Find",
                                       Constants.FIND_ICON_NAME,
                                       Constants.SHOW_FIND_ACTION,
                                       KeyStroke.getKeyStroke (KeyEvent.VK_F,
                                                               ActionEvent.CTRL_MASK));
             mi.setMnemonic (KeyEvent.VK_F);
-            popup.add (mi);                                                
-                    
+            popup.add (mi);
+
         }
-        
+
     }
 
     public IconColumn getIconColumn ()
@@ -468,22 +475,22 @@ System.out.println ("DIFF: " + diffs);
 
    public void removeItemHighlightTextFromEditor (ChapterItem it)
    {
-      
-      this.editor.removeAllHighlights (this.highlight);      
-    
+
+      this.editor.removeAllHighlights (this.highlight);
+
    }
-   
+
    public void highlightItemTextInEditor (ChapterItem it)
    {
-      
+
       this.editor.removeAllHighlights (this.highlight);
       this.editor.addHighlight (it.getStartPosition (),
                                 it.getEndPosition (),
                                 this.highlight,
-                                false);                    
-      
+                                false);
+
    }
-    
+
     public void scrollToNote (Note n)
                        throws GeneralException
     {
@@ -516,33 +523,33 @@ System.out.println ("DIFF: " + diffs);
 
         try
         {
-    
+
             this.iconColumn.init ();
-            
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to init icon column",
                                         e);
-            
+
         }
-        
+
     }
-    
+
     @Override
     public void init ()
                throws GeneralException
     {
-      
+
          super.init ();
 
          final ChapterCommentsPanel _this = this;
-        
+
          this.reinitIconColumn ();
 
          this.setReadyForUse (true);
-               
+
     }
-    
+
     @Override
     public void close ()
     {
@@ -581,17 +588,17 @@ System.out.println ("DIFF: " + diffs);
 
    public void removeItem (ChapterItem c)
    {
-     
-       throw new UnsupportedOperationException ("Not supported for project comments viewing.");                      
-     
+
+       throw new UnsupportedOperationException ("Not supported for project comments viewing.");
+
    }
 
    public void addItem (ChapterItem c)
                  throws GeneralException
    {
-      
-      throw new UnsupportedOperationException ("Not supported for project comments viewing.");                            
-      
+
+      throw new UnsupportedOperationException ("Not supported for project comments viewing.");
+
    }
-    
+
 }

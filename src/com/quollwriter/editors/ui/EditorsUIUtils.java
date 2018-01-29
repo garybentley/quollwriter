@@ -6482,7 +6482,9 @@ Not used.
                                     public String getViewerTitle ()
                                     {
 
-                                        return "{Project} sent: " + this.proj.getName ();
+                                        return String.format (getUIString (editors,projectsent,viewertitle),
+                                                              this.proj.getName ());
+                                        //"{Project} sent: " + this.proj.getName ();
 
                                     }
 

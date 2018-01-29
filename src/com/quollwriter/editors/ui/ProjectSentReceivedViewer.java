@@ -62,6 +62,9 @@ import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends AbstractProjectViewer
 {
 
@@ -110,7 +113,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                 public String getTitle (Note item)
                                                                 {
 
-                                                                    return "{Comment}";
+                                                                    return getUIString (editors,projectcomments,(_this.message.isSentByMe () ? sent : received),comment,view,title);
+                                                                    //)"{Comment}";
 
                                                                 }
 
@@ -165,8 +169,9 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
                                                                     final JButton but = UIUtils.createButton ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
                                                                                                               Constants.ICON_MENU,
-                                                                                                              String.format ("Click to mark the {comment} as %s with",
-                                                                                                               (item.isDealtWith () ? "undealt" : "dealt")),
+                                                                                                              getUIString (editors,projectcomments,received,comment,tools, (item.isDealtWith () ? undealtwith : dealtwith),tooltip),
+                                                                                                              //"Click to mark the {comment} as %s with",
+                                                                                                              //"undealt" : "dealt")),
                                                                                                               null);
 
                                                                     ActionListener aa = new ActionListener ()
@@ -187,8 +192,9 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
                                                                             item.setDealtWith (d);
 
-                                                                            but.setToolTipText (String.format ("Click to mark the {comment} as %s with",
-                                                                                                               (item.isDealtWith () ? "undealt" : "dealt")));
+                                                                            but.setToolTipText (getUIString (editors,projectcomments,received,comment,tools, (item.isDealtWith () ? undealtwith : dealtwith),tooltip));
+                                                                            //String.format ("Click to mark the {comment} as %s with",
+                                                                            //                                   (item.isDealtWith () ? "undealt" : "dealt")));
                                                                             but.setIcon (Environment.getIcon ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
                                                                                                               Constants.ICON_MENU));
 
@@ -443,12 +449,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
     }
 
-    public String getViewerTitle ()
-    {
-
-        return "{Comments} on: " + this.proj.getName ();
-
-    }
+    @Override
+    public abstract String getViewerTitle ();
 
     public void handleHTMLPanelAction (String v)
     {
@@ -519,6 +521,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
 	}
 
+    @Override
     public void doSaveState ()
     {
 
@@ -600,8 +603,9 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                   e);
 
             UIUtils.showErrorMessage (_this,
-                                      "Unable to edit {chapter}: " +
-                                      c.getName ());
+                                      getUIString (editors,projectsent,actions,viewchapter,actionerror));
+                                      //"Unable to edit {chapter}: " +
+                                      //c.getName ());
 
             return false;
 
@@ -680,7 +684,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                   e);
 
                             UIUtils.showErrorMessage (_this,
-                                                      "Unable to display {comment}.");
+                                                      getUIString (editors,projectsent,actions,viewcomment,actionerror));
+                                                      //"Unable to display {comment}.");
 
                         }
 
@@ -776,10 +781,10 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                     Environment.logError ("Unable to show snippet at position: " +
                                           pos,
                                           e);
-
+/*
                     UIUtils.showErrorMessage (_this,
                                               "Unable to scroll to position.");
-
+*/
                 }
 
             }
@@ -866,7 +871,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         if (notes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<Note> ("{Comments}",
+            res.add (new NamedObjectFindResultsBox<Note> (Environment.getObjectTypeNamePlural (comment),
+                                                        //"{Comments}",
                                                           Constants.COMMENT_ICON_NAME,
                                                           Note.OBJECT_TYPE,
                                                           this,

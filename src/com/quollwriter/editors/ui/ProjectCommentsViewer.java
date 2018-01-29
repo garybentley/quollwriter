@@ -61,9 +61,12 @@ import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectCommentsMessage>
 {
-    
+
     public ProjectCommentsViewer (Project                proj,
                                   ProjectCommentsMessage message)
     {
@@ -72,70 +75,70 @@ public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectComm
                message);
 
     }
-                
+
     /*
     public void switchToProjectComments (ProjectCommentsMessage pcm)
     {
-        
+
         if (pcm == null)
         {
-            
+
             throw new IllegalArgumentException ("Expected a project comments message");
-            
+
         }
-        
+
         this.message = pcm;
-                               
+
         this.initTitle ();
-        
+
         ProjectSentReceivedSideBar sb = null;
-        
+
         try
         {
-        
+
             sb = this.getSideBar ();
-            
+
             sb.init ();
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to init new editor project comments side bar",
                                   e);
-            
+
             UIUtils.showErrorMessage (this,
                                       "Unable to show comments, please contact Quoll Writer support for assistance.");
 
             // Need to close and reopen the project?
-                                      
-            return;            
-            
+
+            return;
+
         }
-        
+
         this.sideBar = sb;
 
         this.setMainSideBar (this.sideBar);
-                
+
     }
-    */            
+    */
     @Override
     public ProjectSentReceivedSideBar getSideBar ()
     {
-                        
+
         return new ProjectCommentsSideBar (this,
                                            this.message);
-        
+
     }
-            
+
     @Override
     public void init ()
                throws Exception
     {
 
         super.init ();
-            
+
         // Show the first comment in the first chapter.
         this.viewObject (this.proj.getBook (0).getChapters ().get (0).getNotes ().iterator ().next ());
-                
+
     }
 
     @Override
@@ -154,20 +157,22 @@ public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectComm
 
         if (verName != null)
         {
-            
-            verName = String.format (" (%s)",
+
+            verName = String.format (getUIString (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitleversionwrapper),
+                                    //" (%s)",
                                      verName);
-            
+
         } else {
-            
+
             verName = "";
-            
+
         }
-    
-        return String.format ("{Comments} on%s: %s",
+
+        return String.format (getUIString (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitle),
+                            //"{Comments} on%s: %s",
                               verName,
                               this.proj.getName ());
 
     }
-    
+
 }

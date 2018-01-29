@@ -59,7 +59,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
     public String getTitle ()
     {
 
-        return getUIString (editors,project,sidebar,comments,(this.message.isSentByMe () ? sent : received),title);
+        return getUIString (editors,projectcomments,sidebar,comments,(this.message.isSentByMe () ? sent : received),title);
 
         //return String.format ("{Comments} %s",
         //                      (this.message.isSentByMe () ? "to" : "from"));
@@ -132,7 +132,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
         CellConstraints cc = new CellConstraints ();
 
-        java.util.List<String> prefix = Arrays.asList (editors,project,sidebar,comments,labels);
+        java.util.List<String> prefix = Arrays.asList (editors,projectcomments,sidebar,comments,labels);
 
         int row = 1;
 
@@ -200,7 +200,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                     {
 
                         UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                             getUIString (editors,project,sidebar,comments,notes,popup,title),
+                                             getUIString (editors,projectcomments,sidebar,comments,notes,popup,title),
                                              //"Notes",
                                              genComments);
 
@@ -344,7 +344,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
                     int c = pcm.getComments ().size ();
 
-                    Header h = UIUtils.createBoldSubHeader (String.format (getUIString (editors,project,sidebar,comments,othercomments,item,title),
+                    Header h = UIUtils.createBoldSubHeader (String.format (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,title),
                                                                             //"%s {comment%s}",
                                                                            Environment.formatNumber (c)),
                                                                            //(c == 1 ? "" : "s")),
@@ -387,7 +387,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
                     }
 
-                    JLabel info = UIUtils.createInformationLabel (String.format (getUIString (editors,project,sidebar,comments,othercomments,item,(_this.getMessage ().isSentByMe () ? sent : received)),
+                    JLabel info = UIUtils.createInformationLabel (String.format (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,(_this.getMessage ().isSentByMe () ? sent : received)),
                                                                                 //"Received: %s",
                                                                                  Environment.formatDate (pcm.getWhen ())));
 
@@ -395,7 +395,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
                     b.add (info);
 
-                    b.setToolTipText (getUIString (editors,project,sidebar,comments,othercomments,item,tooltip));
+                    b.setToolTipText (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,tooltip));
                     //"<html>Click to view the {comments}.</html>");
 
                     return b;
@@ -404,7 +404,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
             });
 
-            final QPopup qp = UIUtils.createClosablePopup (getUIString (editors,project,sidebar,comments,othercomments,popup,title),
+            final QPopup qp = UIUtils.createClosablePopup (getUIString (editors,projectcomments,sidebar,comments,othercomments,popup,title),
                                                             //"Select a set of comments to view",
                                                            Environment.getIcon (Constants.COMMENT_ICON_NAME,
                                                                                 Constants.ICON_POPUP),
@@ -458,7 +458,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
         }
 
-        String l = String.format (getUIString (editors,project,sidebar,comments,labels,othercomments),
+        String l = String.format (getUIString (editors,projectcomments,sidebar,comments,labels,othercomments),
                                   Environment.formatNumber (c));
 /*
         if (c == 1)

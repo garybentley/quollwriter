@@ -137,11 +137,12 @@ public class EditorRegister extends Wizard
 
         } catch (Exception e) {
 
-            UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to init editors database");
-
             Environment.logError ("Unable to init editors database",
                                   e);
+
+            UIUtils.showErrorMessage (this.viewer,
+                                      getUIString (editors,user,register,actionerror));
+                                      //"Unable to init editors database");
 
             // Clean up db files?
 
@@ -158,11 +159,12 @@ public class EditorRegister extends Wizard
 
         } catch (Exception e) {
 
-            UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to save editors database location");
-
             Environment.logError ("Unable to save editors database location",
                                   e);
+
+            UIUtils.showErrorMessage (this.viewer,
+                                      getUIString (editors,user,register,actionerror));
+                                      //"Unable to save editors database location");
 
             return true;
 
@@ -197,11 +199,12 @@ public class EditorRegister extends Wizard
 
             } catch (Exception e) {
 
-                UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to save your details");
-
                 Environment.logError ("Unable to save user information/credentials",
                                       e);
+
+                UIUtils.showErrorMessage (this.viewer,
+                                          getUIString (editors,user,register,actionerror));
+                                          //"Unable to save your details");
 
                 return true;
 
@@ -241,7 +244,8 @@ public class EditorRegister extends Wizard
            )
         {
 
-            return "Finish";
+            return getUIString (wizard,buttons,FINISH_BUTTON_ID);
+            //"Finish";
 
         }
 
@@ -251,7 +255,8 @@ public class EditorRegister extends Wizard
            )
         {
 
-            return "Register";
+            return getUIString (editors,user,register,buttons,register);
+            //"Register";
 
         }
 
@@ -416,10 +421,12 @@ public class EditorRegister extends Wizard
             {
 
                 UIUtils.showMessage ((PopupsSupported) this.viewer,
-                                     "A gentle nudge",
-                                     String.format ("The Terms and Conditions only take a couple of minutes to read.  There is even a tl;dr of the impotant bits.<br /><br />It really is in your interests to give it a once over.  Spare a couple of minutes and save yourself some hassle later.%s",
-                                                    "<br /><br />" + Environment.getQuollWriterHelpLink ("editor-mode/terms-and-conditions",
-                                                                                                         "Click to view the Terms & Conditions")));
+                                     getUIString (editors,user,register,stages,start,reminderpopup,title),
+                                                //"A gentle nudge",
+                                     getUIString (editors,user,register,stages,start,reminderpopup,text));
+                                     //String.format ("The Terms and Conditions only take a couple of minutes to read.  There is even a tl;dr of the impotant bits.<br /><br />It really is in your interests to give it a once over.  Spare a couple of minutes and save yourself some hassle later.%s",
+                                        //            "<br /><br />" + Environment.getQuollWriterHelpLink ("editor-mode/terms-and-conditions",
+                                        //                                                                 "Click to view the Terms & Conditions")));
 
             }
 
@@ -469,7 +476,8 @@ public class EditorRegister extends Wizard
                )
             {
 
-                this.loginError.setText ("Please provide a valid email address.");
+                this.loginError.setText (getUIString (editors,user,register,stages,logindetails,errors,invalidemail));
+                //"Please provide a valid email address.");
                 this.loginError.setVisible (true);
 
                 this.resize ();
@@ -484,7 +492,8 @@ public class EditorRegister extends Wizard
             if (pwd.length () == 0)
             {
 
-                this.loginError.setText ("Please provide a password.");
+                this.loginError.setText (getUIString (editors,user,register,stages,logindetails,errors,nopassword));
+                //"Please provide a password.");
                 this.loginError.setVisible (true);
 
                 this.resize ();
@@ -496,7 +505,8 @@ public class EditorRegister extends Wizard
             if (pwd2.length () == 0)
             {
 
-                this.loginError.setText ("Please confirm your password.");
+                this.loginError.setText (getUIString (editors,user,register,stages,logindetails,errors,confirmpassword));
+                //"Please confirm your password.");
                 this.loginError.setVisible (true);
 
                 this.resize ();
@@ -508,7 +518,8 @@ public class EditorRegister extends Wizard
             if (!pwd.equals (pwd2))
             {
 
-                this.loginError.setText ("Your passwords do not match.");
+                this.loginError.setText (getUIString (editors,user,register,stages,logindetails,errors,nomatch));
+                //"Your passwords do not match.");
                 this.loginError.setVisible (true);
 
                 this.resize ();
@@ -520,7 +531,8 @@ public class EditorRegister extends Wizard
             if (pwd.length () < 8)
             {
 
-                this.loginError.setText ("Your password must be at least 8 characters long.");
+                this.loginError.setText (getUIString (editors,user,register,stages,logindetails,errors,minlength));
+                //"Your password must be at least 8 characters long.");
                 this.loginError.setVisible (true);
 
                 this.resize ();
@@ -591,7 +603,8 @@ public class EditorRegister extends Wizard
                         _this.emailField.setEnabled (true);
                         _this.passwordField.setEnabled (true);
                         _this.password2Field.setEnabled (true);
-                        _this.loginError.setText ("Unable to create account: " + res.getErrorMessage ());
+                        _this.loginError.setText (getUIString (editors,user,register,actionerror) + "  " + res.getErrorMessage ());
+                        //"Unable to create account: " + res.getErrorMessage ());
                         _this.loginError.setVisible (true);
 
                         _this.resize ();
@@ -606,7 +619,8 @@ public class EditorRegister extends Wizard
                                       e);
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to create account, please contact Quoll Writer support for assistance.");
+                                          getUIString (editors,user,register,actionerror));
+                                          //"Unable to create account, please contact Quoll Writer support for assistance.");
 
             }
 
@@ -788,7 +802,7 @@ public class EditorRegister extends Wizard
                     {
 
                         // Show an error
-                        message.setText (getUIString (String.format (editors,user,register,stages,exists,errors,invalidvalue),
+                        message.setText (String.format (getUIString (editors,user,register,stages,exists,errors,invalidvalue),
                                                                      Constants.EDITORS_DB_FILE_NAME_PREFIX));
                         //"<html>" + Environment.replaceObjectNames ("Sorry, that doesn't look like {an editors} directory.  There should be a file called: <b>" + Constants.EDITORS_DB_FILE_NAME_PREFIX + ".h2.db</b> in the directory.") + "</html>");
                         message.setForeground (UIUtils.getColor (Constants.ERROR_TEXT_COLOR));
@@ -802,7 +816,8 @@ public class EditorRegister extends Wizard
 
                         // See if the project is already in their project list.
 
-                        message.setText (Environment.replaceObjectNames ("That looks like {an editors} directory."));
+                        message.setText (getUIString (editors,user,register,stages,exists,labels,confirm));
+                        //"That looks like {an editors} directory."));
                         message.setForeground (UIUtils.getColor ("#558631"));
                         message.setIcon (Environment.getIcon ("ok-green",
                                                               Constants.ICON_MENU));
@@ -849,21 +864,29 @@ public class EditorRegister extends Wizard
         if (stage.equals ("dir"))
         {
 
-            ws.title = "Where to store editor information?";
+            java.util.List<String> prefix = Arrays.asList (editors,user,register,stages,selectfolder);
 
-            ws.helpText = "Information about your editors and chat messages is stored in a database on your local machine.  Please select the directory where the information should be stored.";
+            ws.title = getUIString (prefix,title);
+            //"Where to store editor information?";
 
-            final JLabel finderError = UIUtils.createErrorLabel ("Sorry, that looks like an existing Quoll Writer project directory.");
+            ws.helpText = getUIString (prefix,text);
+            //"Information about your editors and chat messages is stored in a database on your local machine.  Please select the directory where the information should be stored.";
+
+            final JLabel finderError = UIUtils.createErrorLabel (getUIString (prefix,errors,invalidvalue));
+            //"Sorry, that looks like an existing Quoll Writer project directory.");
 
             finderError.setVisible (false);
             finderError.setBorder (new EmptyBorder (0, 0, 5, 0));
 
             this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath () + "/editors",
-                                                  "Select a Directory",
+                                                  getUIString (prefix,LanguageStrings.finder,title),
+                                                  //"Select a Directory",
                                                   JFileChooser.DIRECTORIES_ONLY,
-                                                  "Select",
+                                                  getUIString (prefix,LanguageStrings.finder,button),
+                                                  //"Select",
                                                   null);
-            this.finder.setFindButtonToolTip ("Click to find a directory");
+            this.finder.setFindButtonToolTip (getUIString (prefix,LanguageStrings.finder,tooltip));
+            //"Click to find a directory");
 
             this.finder.setOnSelectHandler (new ActionListener ()
             {
@@ -903,20 +926,30 @@ public class EditorRegister extends Wizard
         if (stage.equals ("finish"))
         {
 
-            ws.title = "Account created, just one more step";
+            java.util.List<String> prefix = Arrays.asList (editors,user,register,stages,finish);
 
-            ws.helpText = "Your account has been created.  But there is one final step to complete the process.  A confirmation email has been sent to <b>" + this.emailField.getText ().trim () + "</b>.  Please click on the link to complete the process.";
+            ws.title = getUIString (prefix,title);
+            //"Account created, just one more step";
 
-            ws.panel = new JLabel ("Check your email and have fun!");
+            ws.helpText = String.format (getUIString (prefix,text),
+                                         this.emailField.getText ().trim ());
+            //"Your account has been created.  But there is one final step to complete the process.  A confirmation email has been sent to <b>" + this.emailField.getText ().trim () + "</b>.  Please click on the link to complete the process.";
+
+            ws.panel = new JLabel (getUIString (prefix,labels,check));
+            //"Check your email and have fun!");
 
         }
 
         if (stage.equals ("about"))
         {
 
-            ws.title = "About you";
+            java.util.List<String> prefix = Arrays.asList (editors,user,register,stages,about);
 
-            ws.helpText = "Here you can provide some information about yourself.  This will be sent to editors to let them know about you.  The information is optional.";
+            ws.title = getUIString (prefix,title);
+            //"About you";
+
+            ws.helpText = getUIString (prefix,text);
+            //"Here you can provide some information about yourself.  This will be sent to editors to let them know about you.  The information is optional.";
 
             this.nameField = UIUtils.createTextField ();
             this.nameField.setPreferredSize (new Dimension (200,
@@ -941,10 +974,12 @@ public class EditorRegister extends Wizard
 
             Set<FormItem> items = new LinkedHashSet ();
 
-            items.add (new AnyFormItem ("Your name",
+            items.add (new AnyFormItem (getUIString (prefix,labels,name),
+                                        //"Your name",
                                         this.nameField));
 
-            items.add (new AnyFormItem ("Your picture/Avatar",
+            items.add (new AnyFormItem (getUIString (prefix,labels,LanguageStrings.avatar),
+                                        //"Your picture/Avatar",
                                         b));
 
             JComponent p = UIUtils.createForm (items);
@@ -956,12 +991,17 @@ public class EditorRegister extends Wizard
         if (stage.equals ("login-details"))
         {
 
-            ws.title = "Your login details";
+            java.util.List<String> prefix = Arrays.asList (editors,user,register,stages,logindetails);
 
-            ws.helpText = "And finally.  To access the Editors service you will need to login.  Please provide an email address/password below.  Note: it is recommended that you create a separate email account for use with this service.";
+            ws.title = getUIString (prefix,title);
+            //"Your login details";
+
+            ws.helpText = getUIString (prefix,text);
+            //"And finally.  To access the Editors service you will need to login.  Please provide an email address/password below.  Note: it is recommended that you create a separate email account for use with this service.";
 
             this.saving= new JLabel (Environment.getLoadingIcon ());
-            this.saving.setText ("Creating account, please wait...");
+            this.saving.setText (getUIString (prefix,LanguageStrings.saving));
+            //"Creating account, please wait...");
             this.saving.setBorder (new EmptyBorder (5, 10, 5, 5));
 
             this.saving.setVisible (false);
@@ -976,13 +1016,16 @@ public class EditorRegister extends Wizard
 
             Set<FormItem> items = new LinkedHashSet ();
 
-            items.add (new AnyFormItem ("Email",
+            items.add (new AnyFormItem (getUIString (prefix,labels,email),
+                                        //"Email",
                                         this.emailField));
 
-            items.add (new AnyFormItem ("Password",
+            items.add (new AnyFormItem (getUIString (prefix,labels,password),
+                                        //"Password",
                                         this.passwordField));
 
-            items.add (new AnyFormItem ("Confirm Password",
+            items.add (new AnyFormItem (getUIString (prefix,labels,confirmpassword),
+                                        //"Confirm Password",
                                         this.password2Field));
 
             Box b = new Box (BoxLayout.Y_AXIS);

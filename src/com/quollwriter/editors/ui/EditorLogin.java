@@ -98,7 +98,8 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
 
         this.loginReason = UIUtils.createHelpTextPane (null);
 
-        this.error = UIUtils.createErrorLabel ("Please enter a value.");
+        this.error = UIUtils.createErrorLabel ("");
+        //"Please enter a value.");
 
         this.error.setVerticalAlignment (SwingConstants.TOP);
         this.error.setVerticalTextPosition (SwingConstants.TOP);
@@ -111,7 +112,8 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
 
         this.logginIn.setVisible (false);
 
-        this.savePwd = UIUtils.createCheckBox ("Save password");
+        this.savePwd = UIUtils.createCheckBox (getUIString (editors,login,popup,labels,savepassword));
+        //"Save password");
 
         EditorsEnvironment.addUserOnlineStatusListener (this);
 
