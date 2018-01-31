@@ -3762,6 +3762,35 @@
                     }
                 }
             },
+            "newupdateproject" :
+            {
+                ":comment" : "These items are shared by {newproject} and {updateproject} and are used to display information about the project being sent/received.",
+                "labels" :
+                {
+                    "project" : "<i>${objectnames.singular.project}</i>",
+                    "open" : "Click to open the ${objectnames.singular.project}",
+                    "sent" : "<i>Sent</i>",
+                    "received" : "<i>Received</i>",
+                    "version" : "<i>Version</i>",
+                    "detail" : "%1$s words, %2$s ${objectnames.plural.chapter}",
+                    ":comment.detail" : "%1$s is the number of words in the project, %2$s is the number of chapters.",
+                    ":scount.detail" : 2,
+                    "dueby" : "<i>Due by</i>",
+                    "notspecified" : "<i>Not specified</i>",
+                    ":comment.notspecified" : "This value is used when no due by date is provided.",
+                    "notes" : "Notes"
+                },
+                "sent" :
+                {
+                    "labels" :
+                    {
+                        ":comment" : "Labels that relate directly to the user having sent the project to a contact.",
+                        "projectdelete" : "${objectnames.singular.project} has been deleted.",
+                        ":comment.projectdelete" : "Shown when the project has been deleted by the user and thus cannot be accessed.",
+                        "clicktoview" : "Click to view what you sent"
+                    }
+                }
+            },
             "invite" :
             {
                 "sent" :
@@ -4715,6 +4744,32 @@
                 "viewcomment" :
                 {
                     "actionerror" : "Unable to view the ${objectnames.singular.comment}."
+                },
+                "openproject" :
+                {
+                    "actionerror" : "Unable to open ${objectnames.singular.project}"
+                }
+            },
+            "sidebar" :
+            {
+                "title" : "Sent to",
+                "labels" :
+                {
+                    "sent" : "<i>Sent</i>",
+                    "version" : "<i>Version</i>",
+                    "notes" : "Notes",
+                    "more" : "<br /><a href='#'>More, click to view all.</a>"
+                },
+                "notes" :
+                {
+                    "popup" :
+                    {
+                        "title" : "Notes"
+                    }
+                },
+                "chapters" :
+                {
+                    "title" : "${objectnames.plural.project}"
                 }
             },
             "commentspanel" :
@@ -4876,7 +4931,8 @@
                     "openerrors" :
                     {
                         ":comment" : "These are error messages that may be displayed when a user is unable to open an editor project.",
-                        "previouscontact" : "Note: this is a ${objectnames.singular.project} for a previous ${objectnames.singular.contact}.  You can no longer send ${objectnames.plural.comment}."
+                        "previouscontact" : "Note: this is a ${objectnames.singular.project} for a previous ${objectnames.singular.contact}.  You can no longer send ${objectnames.plural.comment}.",
+                        "general" : "Unable to open ${objectnames.singular.project}."
                     }
                 },
                 "showchapterinfo" :
@@ -5018,7 +5074,21 @@
                     {
                         "otherversions" : "%1$s other versions are available, click to select one",
                         ":comment.otherversions" : "%1$s is the number of other versions.",
-                        ":scount.otherversions" : 1
+                        ":scount.otherversions" : 1,
+                        "version" : "<i>Version</i>",
+                        "notes" : "<i>Notes</i>",
+                        "due" : "<i>Due</i>",
+                        ":comment.notes" : "Only the first sentence of the notes is shown by default, the rest of the text is displayed in a popup when clicked.  The {more} text provides the indication to the user that there is more text to see.",
+                        "more" : "<br /><a href='#'>More, click to view all.</a>",
+                        "latest" : " (latest)",
+                        ":comment.latest" : "This is shown after the version name if it's the latest version sent by the contact."
+                    },
+                    "notes" :
+                    {
+                        "popup" :
+                        {
+                            "title" : "Notes"
+                        }
                     },
                     "treepopupmenu" :
                     {
@@ -7392,6 +7462,27 @@
                 "moveitem" :
                 {
                     "actionerror" : "Unable to move."
+                }
+            },
+            "editors" :
+            {
+                "title" : "${objectnames.plural.editor}",
+                "text" : "People who are editing this ${objectnames.singular.project} for you.",
+                "previouseditors" :
+                {
+                    "title" : "<i>Previous ${objectnames.plural.editor}"
+                },
+                "headerpopupmenu" :
+                {
+                    "items" :
+                    {
+                        "invite" : "Invite someone to edit this ${objectnames.singular.project}",
+                        "vieweditors" : "Show all ${objectnames.plural.contact}",
+                        "previouseditors" : "View the previous ${objectnames.plural.editor} (%1$s)",
+                        ":comment.previouseditors" : "%1$s is the number of previous editors.",
+                        ":scount.previouseditors" : 1,
+                        "hidepreviouseditors" : "Hide the previous ${objectnames.plural.editor}"
+                    }
                 }
             },
             "targets" :

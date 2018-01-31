@@ -3452,5 +3452,12 @@ System.out.println ("CHANGED: " + v);
     public static final String selectfolder = "selectfolder";
     public static final String saving = "saving";
     public static final String newcomment = "newcomment";
+    public static final String due = "due";
+    public static final String latest = "latest";
+    public static final String newupdateproject = "newupdateproject";
+    public static final String notspecified = "notspecified";
+    public static final String projectdeleted = "projectdeleted";
+    public static final String previouseditors = "previouseditors";
+    public static final String hidepreviouseditors = "hidepreviouseditors";
 
 }

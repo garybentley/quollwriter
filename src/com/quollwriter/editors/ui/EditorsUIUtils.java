@@ -4826,7 +4826,6 @@ Not used.
 
     }
 
-// TODO LANG
     public static JComponent getProjectVersionPanel (final ProjectVersion        pv,
                                                      final AbstractProjectViewer viewer)
     {
@@ -4879,6 +4878,8 @@ Not used.
 
         }
 
+        java.util.List<String> prefix = Arrays.asList (editors,project,sidebar,comments,labels);
+
         FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
                                         rows);
 
@@ -4892,7 +4893,9 @@ Not used.
         if (ver != null)
         {
 
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
+            builder.addLabel (String.format ("<html>%s</html>",
+                                             getUIString (prefix,version)),
+                                //Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
                               cc.xy (1,
                                      row));
 
@@ -4901,7 +4904,8 @@ Not used.
             if (pv.isLatest ())
             {
 
-                latest = " (latest)";
+                latest = getUIString (prefix,LanguageStrings.latest);
+                //" (latest)";
 
             }
 
@@ -4918,7 +4922,9 @@ Not used.
         if (due != null)
         {
 
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>{Due}</i></html>"),
+            builder.addLabel (String.format ("<html>%s</html>",
+                                             getUIString (prefix,LanguageStrings.due)),
+                            //Environment.replaceObjectNames ("<html><i>{Due}</i></html>"),
                               cc.xy (1,
                                      row));
 
@@ -4934,7 +4940,9 @@ Not used.
         if (genComments != null)
         {
 
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
+            builder.addLabel (String.format ("<html>%s</html>",
+                                             getUIString (prefix,notes)),
+                                //Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
                               cc.xy (1,
                                      row));
 
@@ -4947,7 +4955,8 @@ Not used.
 
                 commText = ti.getFirstSentence ().getText ();
 
-                commText += "<br /><a href='#'>More, click to view all.</a>";
+                commText += getUIString (prefix,more);
+                //"<br /><a href='#'>More, click to view all.</a>";
 
             }
 
@@ -4961,7 +4970,8 @@ Not used.
                 {
 
                     UIUtils.showMessage ((PopupsSupported) viewer,
-                                         "Notes",
+                                         getUIString (editors,project,sidebar,comments,notes,popup,title),
+                                         //"Notes",
                                          genComments);
 
                 }
@@ -5698,13 +5708,15 @@ Not used.
 
     }
 
-//TODO LANG
+
     public static JComponent getProjectMessageDetails (final AbstractProjectMessage message,
                                                        final AbstractViewer         viewer,
                                                        final MessageBox             parentMessageBox)
     {
 
         String plural = "";
+
+        java.util.List<String> prefix = Arrays.asList (editors,messages,newupdateproject,labels);
 
         if (message.getChapters ().size () > 1)
         {
@@ -5777,7 +5789,9 @@ Not used.
 
         int row = 1;
 
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
+        builder.addLabel (String.format ("<html>%s</html>",
+                                         getUIString (prefix,Project.OBJECT_TYPE)),
+                        //Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
                           cc.xy (1,
                                  row));
 
@@ -5814,7 +5828,8 @@ Not used.
 
             });
 
-            openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
+            openProj.setToolTipText (getUIString (prefix,open));
+            //Environment.replaceObjectNames ("Click to open the {project}"));
 
             builder.add (openProj,
                          cc.xy (3,
@@ -5831,8 +5846,10 @@ Not used.
 
         row += 2;
 
-        builder.addLabel (Environment.replaceObjectNames (String.format ("<html><i>%s</i></html>",
-                                                                         message.isSentByMe () ? "Sent" : "Received")),
+        builder.addLabel (String.format ("<html>%s</html>",
+                                         getUIString (prefix,(message.isSentByMe () ? sent : received))),
+                        //Environment.replaceObjectNames (String.format ("<html><i>%s</i></html>",
+                        //                                                 message.isSentByMe () ? "Sent" : "Received")),
                           cc.xy (1,
                                  row));
 
@@ -5845,7 +5862,9 @@ Not used.
         if (verName != null)
         {
 
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>Version</i></html>"),
+            builder.addLabel (String.format ("<html>%s</html>",
+                                             getUIString (prefix,version)),
+                            //Environment.replaceObjectNames ("<html><i>Version</i></html>"),
                               cc.xy (1,
                                      row));
 
@@ -5857,20 +5876,25 @@ Not used.
 
         }
 
-        builder.addLabel (Environment.replaceObjectNames (String.format ("%s words, %s {chapter%s}",
-                                                                         Environment.formatNumber (message.getWordCount ()),
-                                                                         message.getChapters ().size (),
-                                                                         plural)),
+        builder.addLabel (String.format (getUIString (prefix,detail),
+                                         Environment.formatNumber (message.getWordCount ()),
+                                         Environment.formatNumber (message.getChapters ().size ())),
+                        //Environment.replaceObjectNames (String.format ("%s words, %s {chapter%s}",
+                        //                                                 Environment.formatNumber (message.getWordCount ()),
+                        //                                                 message.getChapters ().size (),
+                        //                                                 plural)),
                           cc.xy (3,
                                  row));
 
         row += 2;
 
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>Due by</i></html>"),
+        builder.addLabel (String.format ("<html>%s</html>",
+                                         getUIString (prefix,dueby)),
+                            //Environment.replaceObjectNames ("<html><i>Due by</i></html>"),
                           cc.xy (1,
                                  row));
 
-        builder.addLabel ("<html>" + (dueDate != null ? Environment.formatDate (dueDate) : "<i>Not specified.</i>") + "</html>",
+        builder.addLabel ("<html>" + (dueDate != null ? Environment.formatDate (dueDate) : getUIString (prefix,notspecified) /*"<i>Not specified.</i>"*/) + "</html>",
                           cc.xy (3,
                                  row));
 
@@ -5879,7 +5903,9 @@ Not used.
         if (notes != null)
         {
 
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>Notes</i></html>"),
+            builder.addLabel (String.format ("<html>%s</html>",
+                                             getUIString (prefix,notes)),
+                                             //Environment.replaceObjectNames ("<html><i>Notes</i></html>"),
                               cc.xy (1,
                                      row));
 
@@ -5903,11 +5929,13 @@ Not used.
             if (proj == null)
             {
 
-                viewProj = UIUtils.createErrorLabel ("{Project} has been deleted");
+                viewProj = UIUtils.createErrorLabel (getUIString (editors,messages,newupdateproject,sent,labels,projectdeleted));
+                //"{Project} has been deleted");
 
             } else {
 
-                viewProj = UIUtils.createClickableLabel ("Click to view what you sent",
+                viewProj = UIUtils.createClickableLabel (getUIString (editors,messages,newupdateproject,sent,labels,clicktoview),
+                                                        //"Click to view what you sent",
                                                                 Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                      Constants.ICON_CLICKABLE_LABEL),
                                                                 new ActionListener ()
@@ -5915,274 +5943,7 @@ Not used.
 
                 public void actionPerformed (ActionEvent ev)
                 {
-                    /*
-                    Project np = null;
 
-                    try
-                    {
-
-                        np = message.createProject ();
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to get project from message: " +
-                                              message,
-                                              e);
-
-                        UIUtils.showErrorMessage (viewer,
-                                                  "Unable to view message");
-
-                        return;
-
-                    }
-
-                    ProjectSentReceivedViewer pcv = new ProjectSentReceivedViewer<AbstractProjectMessage> (np,
-                                                                                                           message)
-                    {
-
-                        public ProjectSentReceivedSideBar getSideBar ()
-                        {
-
-                            return new ProjectSentReceivedSideBar<AbstractProjectMessage, ProjectSentReceivedViewer> (this,
-                                                                                                                      this.message)
-                            {
-
-                                @Override
-                                public void onShow ()
-                                {
-
-                                }
-
-                                @Override
-                                public void onHide ()
-                                {
-
-                                }
-
-                                @Override
-                                public String getTitle ()
-                                {
-
-                                    return "Sent to";
-
-                                }
-
-                                @Override
-                                public String getItemsIconType ()
-                                {
-
-                                    return Chapter.OBJECT_TYPE;
-
-                                }
-
-                                @Override
-                                public String getItemsTitle ()
-                                {
-
-                                    return "{Chapters}";
-
-                                }
-
-                                @Override
-                                public int getItemCount ()
-                                {
-
-                                    return this.viewer.getProject ().getBook (0).getChapters ().size ();
-
-                                }
-
-                                @Override
-                                public JComponent getMessageDetails (AbstractProjectMessage message)
-                                {
-
-                                    final ProjectSentReceivedSideBar _this = this;
-
-                                    String rows = "p";
-
-                                    ProjectVersion projVer = message.getProjectVersion ();
-
-                                    String verName = projVer.getName ();
-
-                                    if (verName != null)
-                                    {
-
-                                        rows += ", 6px, p";
-
-                                    }
-
-                                    final String notes = (projVer.getDescription () != null ? projVer.getDescription ().getText () : null);
-
-                                    if (notes != null)
-                                    {
-
-                                        rows += ", 6px, top:p";
-
-                                    }
-
-                                    FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
-                                                                    rows);
-
-                                    fl.setHonorsVisibility (true);
-                                    PanelBuilder builder = new PanelBuilder (fl);
-
-                                    CellConstraints cc = new CellConstraints ();
-
-                                    int row = 1;
-
-                                    builder.addLabel (Environment.replaceObjectNames ("<html><i>{Sent}</i></html>"),
-                                                      cc.xy (1,
-                                                             row));
-
-                                    builder.addLabel ("<html>" + Environment.formatDateTime (message.getWhen ()) + "</html>",
-                                                      cc.xy (3,
-                                                             row));
-
-                                    row += 2;
-
-                                    if (verName != null)
-                                    {
-
-                                        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
-                                                          cc.xy (1,
-                                                                 row));
-                                        builder.addLabel (String.format ("<html>%s</html>",
-                                                                         verName),
-                                                          cc.xy (3,
-                                                                 row));
-
-                                        row += 2;
-
-                                    }
-
-                                    if (notes != null)
-                                    {
-
-                                        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
-                                                          cc.xy (1,
-                                                                 row));
-
-                                        String commText = notes;
-
-                                        TextIterator ti = new TextIterator (commText);
-
-                                        if (ti.getSentenceCount () > 1)
-                                        {
-
-                                            commText = ti.getFirstSentence ().getText ();
-
-                                            commText += "<br /><a href='#'>More, click to view all.</a>";
-
-                                        }
-
-                                        JComponent mess = UIUtils.createHelpTextPane (commText,
-                                                                                      this.viewer);
-
-                                        mess.addMouseListener (new MouseEventHandler ()
-                                        {
-
-                                            @Override
-                                            public void handlePress (MouseEvent ev)
-                                            {
-
-                                                UIUtils.showMessage ((PopupsSupported) _this.getViewer (),
-                                                                     "Notes",
-                                                                     notes);
-
-                                            }
-
-                                        });
-
-                                        mess.setBorder (null);
-
-                                        builder.add (mess,
-                                                     cc.xy (3,
-                                                            row));
-
-                                    }
-
-                                    JPanel bp = builder.getPanel ();
-                                    bp.setAlignmentX (Component.LEFT_ALIGNMENT);
-                                    bp.setOpaque (false);
-
-                                    return bp;
-
-                                }
-
-                            };
-
-                        }
-
-                        @Override
-                        public void init ()
-                                   throws Exception
-                        {
-
-                            super.init ();
-
-                            this.viewObject (this.proj.getBook (0).getChapters ().get (0));
-
-                        }
-
-                        @Override
-                        public String getViewerIcon ()
-                        {
-
-                            return Constants.PROJECT_ICON_NAME;
-
-                        }
-
-                        @Override
-                        public String getViewerTitle ()
-                        {
-
-                            return "{Project} sent: " + this.proj.getName ();
-
-                        }
-
-                    };
-
-                    try
-                    {
-
-                        pcv.init ();
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to view message: " +
-                                              message,
-                                              e);
-
-                        UIUtils.showErrorMessage (viewer,
-                                                  "Unable to show message.");
-
-                        return;
-
-                    }
-
-                    parentMessageBox.setChildViewer (pcv);
-
-                    pcv.addWindowListener (new WindowAdapter ()
-                    {
-
-                        public void windowClosed (WindowEvent ev)
-                        {
-
-                            parentMessageBox.setChildViewer (null);
-
-                        }
-
-                    });
-
-                    pcv.showViewer ();
-
-                    // XXX Orig
-                    if (true)
-                    {
-
-                        return;
-
-                    }
-                */
                     AbstractViewer childViewer = parentMessageBox.getChildViewer ();
 
                     if (childViewer != null)
@@ -6212,7 +5973,8 @@ Not used.
                                               e);
 
                         UIUtils.showErrorMessage (viewer,
-                                                  "Unable to show the {project}, please contact Quoll Writer support for assistance.");
+                                                  getUIString (editors,projectsent,actions,openproject,actionerror));
+                                                  //"Unable to show the {project}, please contact Quoll Writer support for assistance.");
 
                         return;
 
@@ -6226,7 +5988,10 @@ Not used.
                         public void actionPerformed (ActionEvent ev)
                         {
 
-                            String pwd = ev.getActionCommand ();
+                            String pwd = _proj.getFilePassword ();
+
+/*
+                            ev.getActionCommand ();
 
                             if (pwd.equals (""))
                             {
@@ -6234,7 +5999,7 @@ Not used.
                                 pwd = null;
 
                             }
-
+*/
                             Set<Chapter> chaps = null;
 
                             try
@@ -6251,7 +6016,8 @@ Not used.
                                                       e);
 
                                 UIUtils.showErrorMessage (viewer,
-                                                          "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                                                          getUIString (editors,projectsent,actions,openproject,actionerror));
+                                                          //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
                                 return;
 
@@ -6310,7 +6076,8 @@ Not used.
                                             public String getTitle ()
                                             {
 
-                                                return "Sent to";
+                                                return getUIString (editors,projectsent,sidebar,title);
+                                                //"Sent to";
 
                                             }
 
@@ -6326,7 +6093,8 @@ Not used.
                                             public String getItemsTitle ()
                                             {
 
-                                                return "{Chapters}";
+                                                return getUIString (editors,projectsent,sidebar,chapters,title);
+                                                //"{Chapters}";
 
                                             }
 
@@ -6341,6 +6109,8 @@ Not used.
                                             @Override
                                             public JComponent getMessageDetails (AbstractProjectMessage message)
                                             {
+
+                                                java.util.List<String> prefix = Arrays.asList (editors,projectsent,sidebar,labels);
 
                                                 final ProjectSentReceivedSideBar _this = this;
 
@@ -6376,7 +6146,9 @@ Not used.
 
                                                 int row = 1;
 
-                                                builder.addLabel (Environment.replaceObjectNames ("<html><i>{Sent}</i></html>"),
+                                                builder.addLabel (String.format ("<html>%s</html>",
+                                                                                 getUIString (prefix,sent)),
+                                                                //Environment.replaceObjectNames ("<html><i>{Sent}</i></html>"),
                                                                   cc.xy (1,
                                                                          row));
 
@@ -6389,7 +6161,9 @@ Not used.
                                                 if (verName != null)
                                                 {
 
-                                                    builder.addLabel (Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
+                                                    builder.addLabel (String.format ("<html>%s</html>",
+                                                                                     getUIString (prefix,version)),
+                                                                    //Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
                                                                       cc.xy (1,
                                                                              row));
                                                     builder.addLabel (String.format ("<html>%s</html>",
@@ -6404,7 +6178,9 @@ Not used.
                                                 if (notes != null)
                                                 {
 
-                                                    builder.addLabel (Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
+                                                    builder.addLabel (String.format ("<html>%s</html>",
+                                                                                     getUIString (prefix,notes)),
+                                                                    //Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
                                                                       cc.xy (1,
                                                                              row));
 
@@ -6417,7 +6193,8 @@ Not used.
 
                                                         commText = ti.getFirstSentence ().getText ();
 
-                                                        commText += "<br /><a href='#'>More, click to view all.</a>";
+                                                        commText += getUIString (prefix,more);
+                                                        //"<br /><a href='#'>More, click to view all.</a>";
 
                                                     }
 
@@ -6432,7 +6209,8 @@ Not used.
                                                         {
 
                                                             UIUtils.showMessage ((PopupsSupported) _this.getViewer (),
-                                                                                 "Notes",
+                                                                                 getUIString (editors,projectsent,sidebar,notes,popup,title),
+                                                                                 //"Notes",
                                                                                  notes);
 
                                                         }
@@ -6515,7 +6293,8 @@ Not used.
                                                       e);
 
                                 UIUtils.showErrorMessage (viewer,
-                                                          "Unable to show {project}, please contact Quoll Writer support for assistance.");
+                                                          getUIString (editors,projectsent,actions,openproject,actionerror));
+                                                          //"Unable to show {project}, please contact Quoll Writer support for assistance.");
 
                                 return;
 
