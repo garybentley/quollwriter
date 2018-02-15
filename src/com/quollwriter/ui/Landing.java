@@ -2084,7 +2084,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 					}
 
-					return "<html>%s</html>";
+					return String.format ("<html>%s</html>",
+                                          tip);
 
 				}
 

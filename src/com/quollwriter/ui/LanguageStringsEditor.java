@@ -142,7 +142,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         for (LanguageStrings.Section sect : this.baseStrings.getSections ())
         {
-System.out.println (sect.name + ", " + sect.icon);
+
             items.add (this.createSectionTree (sect.name,
                                                sect.icon,
                                                sections.get (sect.id)));
@@ -627,11 +627,13 @@ System.out.println (sect.name + ", " + sect.icon);
 
                 LanguageStrings.Node n = (LanguageStrings.Node) tn.getUserObject ();
 
-                int c = _this.userStrings.getAllValues (n.getId ()).size ();
+                final java.util.List<String> id = n.getId ();
 
-                String id = n.getNodeId ();
+                int c = _this.userStrings.getNodes (n.getId ()).size ();
 
-                String title = (n.getTitle () != null ? n.getTitle () : id);
+                //String id = n.getNodeId ();
+
+                String title = (n.getTitle () != null ? n.getTitle () : n.getNodeId ());
 
                 // See if there are any errors for this id.
                 int errCount = _this.userStrings.getErrors (n.getId ()).size ();
@@ -846,6 +848,23 @@ System.out.println (sect.name + ", " + sect.icon);
 
         for (LanguageStrings.Node k : sections)
         {
+
+            root.add (new DefaultMutableTreeNode (k));
+
+            /*
+            // Get all the values and separate by title.
+            for (LanguageStrings.Node v : k.getAllNodes ())
+            {
+
+                if (v.getTitle () != null)
+                {
+
+                    root.add (new DefaultMutableTreeNode (v));
+
+                }
+
+            }
+*/
 /*
             if (!this.strings.isEnglish ())
             {
@@ -868,7 +887,7 @@ System.out.println (sect.name + ", " + sect.icon);
 
             }
 */
-            root.add (new DefaultMutableTreeNode (k));
+            //root.add (new DefaultMutableTreeNode (k));
 
         }
 
@@ -2223,9 +2242,21 @@ System.out.println (sect.name + ", " + sect.icon);
 
                                              }
 
-                                             UIUtils.showMessage ((PopupsSupported) null,
-                                                                  "Strings deleted",
-                                                                  "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
+                                             LanguageStringsEditor.super.close (true,
+                                                                                new ActionListener ()
+                                             {
+
+                                                 @Override
+                                                 public void actionPerformed (ActionEvent ev)
+                                                 {
+
+                                                     UIUtils.showMessage ((Component) null,
+                                                                          "Strings deleted",
+                                                                          "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
+
+                                                 }
+
+                                             });
 
                                          }
 
@@ -2292,9 +2323,22 @@ System.out.println (sect.name + ", " + sect.icon);
 
                     }
 
-                    UIUtils.showMessage ((Component) null,
-                                         "Strings deleted",
-                                         "Your strings have been deleted.");
+                    // Close without saving.
+                    LanguageStringsEditor.super.close (true,
+                                                       new ActionListener ()
+                    {
+
+                        @Override
+                        public void actionPerformed (ActionEvent ev)
+                        {
+
+                            UIUtils.showMessage ((Component) null,
+                                                 "Strings deleted",
+                                                 "Your strings have been deleted.");
+
+                        }
+
+                    });
 
                 }
 

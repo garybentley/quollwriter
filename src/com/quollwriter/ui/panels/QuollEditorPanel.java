@@ -790,9 +790,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         if (c.equals (NEW_EDIT_NEEDED_NOTE_ACTION_NAME))
         {
 
+            Note n = new Note (0, this.obj);
+            n.setType (Note.EDIT_NEEDED_NOTE_TYPE);
+
             new NoteActionHandler (this.obj,
                                    this,
-                                   Note.EDIT_NEEDED_NOTE_TYPE,
+                                   n,
                                    pos).actionPerformed (ev);
 
             return;

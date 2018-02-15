@@ -61,6 +61,21 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     }
 
     @Override
+    public void sideBarHidden (SideBarEvent ev)
+    {
+
+        super.sideBarHidden (ev);
+
+        if (this.results != null)
+        {
+
+            this.results.clearHighlight ();
+
+        }
+
+    }
+
+    @Override
     public void eventOccurred (ProjectEvent ev)
     {
 

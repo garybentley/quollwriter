@@ -163,7 +163,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                             return;
 
                         }
-                    
+
                         ws = _stages.get (prev);
 
                         if (ws == null)
@@ -240,7 +240,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                             return;
 
                         }
-                    
+
                         Map<String, WizardStep> _stages = _this.stages;
 
                         ws = _stages.get (next);
@@ -367,7 +367,6 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
         WizardStep ws = this.getStage (startStage);
         this.stages.put (startStage,
                          ws);
-
         this.current = ws;
         this.currentStage = startStage;
 
@@ -379,7 +378,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                                 this.currentStage);
 
         this.inited = true;
-        
+
     }
 
     public void showStage (String stage)
@@ -392,7 +391,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
             return;
 
         }
-    
+
         WizardStep ws = this.stages.get (stage);
 
         if ((ws == null)

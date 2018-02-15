@@ -15,6 +15,9 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public class LayoutAddEdit extends Box implements ProjectEventListener
 {
 
@@ -122,7 +125,15 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (icon == null)
                 {
 
-                    icon = new ImageIcon (Environment.getImage (Constants.DATA_DIR + imName + ".png"));
+                    java.awt.image.BufferedImage im = UIUtils.drawStringOnImage (Environment.getImage (Constants.DATA_DIR + imName + "-n.png"),
+                                                                                 String.format (getUIString (userobjects,layout,view,name),
+                                                                                                _this.type.getObjectTypeName ()),
+                                                                                 new java.awt.Font ("Segoe UI", java.awt.Font.PLAIN, 14),
+                                                                                 java.awt.Color.black,
+                                                                                 new java.awt.Point (4, -3));
+
+                    icon = new ImageIcon (im);
+                    //Environment.getImage (Constants.DATA_DIR + imName + "-n.png"));
 
                     this.images.put (imName,
                                      icon);
@@ -130,6 +141,9 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 }
 
                 this.setIcon (icon);
+
+                //this.setIcon (new UserObjectsLayoutImagePanel (imName));
+
                 String text = "";
 
                 java.util.List<String> prefix = new ArrayList ();
@@ -137,6 +151,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 prefix.add (LanguageStrings.layout);
                 prefix.add (LanguageStrings.view);
                 prefix.add (LanguageStrings.layouts);
+
+                String typeName = _this.type.getObjectTypeName ();
 
                 if (imName.equals (Constants.ASSET_LAYOUT_0))
                 {
@@ -150,8 +166,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_1))
                 {
 
-                    text = Environment.getUIString (prefix,
-                                                    LanguageStrings.layout1);
+                    text = String.format (getUIString (prefix,layout1),
+                                          typeName);
                                                     //"The object image, if present, is displayed in the top left corner and the object description is shown to the right.  Two columns of fields are displayed underneath.";
 
                 }
@@ -159,8 +175,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_2))
                 {
 
-                    text = Environment.getUIString (prefix,
-                                                    LanguageStrings.layout2);
+                    text = String.format (getUIString (prefix,layout2),
+                                          typeName);
                                                     //"The object image is shown in the top left corner with the object description underneath.  The other fields are shown in a column on the right.";
 
                 }
@@ -177,8 +193,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_4))
                 {
 
-                    text = Environment.getUIString (prefix,
-                                                    LanguageStrings.layout4);
+                    text = String.format (getUIString (prefix,layout4),
+                                          typeName);
                                                     //"The object image is shown in the top right corner with the object description underneath.  The other fields are shown in a column on the left.";
 
                 }
@@ -186,8 +202,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_5))
                 {
 
-                    text = Environment.getUIString (prefix,
-                                                    LanguageStrings.layout5);
+                    text = String.format (getUIString (prefix,layout5),
+                                          typeName);
                                                     //"The object description is shown in a column on the right, all others fields are shown in a column on the left.";
 
                 }
@@ -195,8 +211,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_6))
                 {
 
-                    text = Environment.getUIString (prefix,
-                                                    LanguageStrings.layout6);
+                    text = String.format (getUIString (prefix,layout6),
+                                          typeName);
                                                     //"The object description is shown in a column on the left, all others fields are shown in a column on the right.";
 
                 }
@@ -204,8 +220,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_7))
                 {
 
-                    text = Environment.getUIString (prefix,
-                                                    LanguageStrings.layout7);
+                    text = String.format (getUIString (prefix,layout7),
+                                          typeName);
                                                     //"The object description is shown in a column on the left, the object image is shown in the top right corner with all other fields in a column underneath.";
 
                 }
@@ -213,8 +229,8 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_8))
                 {
 
-                    text = Environment.getUIString (prefix,
-                                                    LanguageStrings.layout8);
+                    text = String.format (getUIString (prefix,layout8),
+                                          typeName);
                                                     //"The object image is shown in the top left corner with the object description in a column on the right.  The other object fields are shown underneath the object image.";
 
                 }

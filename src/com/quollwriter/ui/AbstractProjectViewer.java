@@ -4337,16 +4337,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         // Close all the db connections.
         this.dBMan.closeConnectionPool ();
 
-        super.close (false,
-                     null);
-
         try
         {
 
             Environment.projectClosed (this,
-                                       afterClose);
-
-            return true;
+                                       !(afterClose != null));
 
         } catch (Exception e)
         {
@@ -4359,6 +4354,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             return false;
 
         }
+
+        super.close (false,
+                     afterClose);
+
+        return true;
 
     }
 
@@ -5733,7 +5733,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public void removeAllSideBarsForObject (NamedObject n)
     {
 
-        for (AbstractSideBar s : this.sideBars.values ())
+        Set<AbstractSideBar> sbs = new HashSet<> ();
+
+        sbs.addAll (this.sideBars.values ());
+
+        for (AbstractSideBar s : sbs)
         {
 
             if (n == s.getForObject ())
@@ -6182,12 +6186,21 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         final AbstractProjectViewer _this = this;
 
-		final String t = this.getCurrentChapterText (c);
+        final String t = this.getCurrentChapterText (c);
 
-		final ChapterCounts cc = new ChapterCounts (t);
+        final ChapterCounts cc = new ChapterCounts (t);
 
-		this.chapterCounts.put (c,
-								cc);
+        ChapterCounts _cc = this.getChapterCounts (c);
+
+        if (_cc != null)
+        {
+
+            cc.standardPageCount = _cc.standardPageCount;
+
+        }
+
+        this.chapterCounts.put (c,
+                                cc);
 
         if (!Environment.isStartupComplete ())
         {

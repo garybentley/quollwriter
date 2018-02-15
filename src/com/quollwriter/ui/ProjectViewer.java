@@ -2648,7 +2648,16 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public void deleteAllAssetsOfType (UserConfigurableObjectType type)
     {
 
-        Set<Asset> nassets = new LinkedHashSet (this.proj.getAssets (type));
+        Set<Asset> assets = this.proj.getAssets (type);
+
+        if (assets == null)
+        {
+
+            return;
+
+        }
+
+        Set<Asset> nassets = new LinkedHashSet<> (assets);
 
         for (Asset a : nassets)
         {

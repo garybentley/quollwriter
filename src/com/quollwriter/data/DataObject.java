@@ -279,6 +279,13 @@ public abstract class DataObject
         for (PropertyChangedListener l : ls)
         {
 
+            if (l == null)
+            {
+
+                continue;
+
+            }
+
             l.propertyChanged (ev);
 
         }
@@ -612,11 +619,11 @@ public abstract class DataObject
 
         if (this.key == null)
         {
-            
+
             return super.hashCode ();
-            
+
         }
-    
+
         int hash = 7;
         hash = (31 * hash) + ((null == this.objType) ? 0 : this.objType.hashCode ());
         hash = (31 * hash) + ((null == this.key) ? 0 : key.hashCode ());
@@ -643,7 +650,7 @@ public abstract class DataObject
         {
 
             return d.hashCode () == this.hashCode ();
-        
+
             //return false;
 
         }

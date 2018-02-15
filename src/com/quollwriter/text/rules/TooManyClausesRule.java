@@ -44,6 +44,8 @@ public class TooManyClausesRule extends AbstractSentenceRule
                                boolean user)
     {
 
+        this ();
+
         this.clauseCount = clauseCount;
         this.setUserRule (user);
 
@@ -156,7 +158,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
         pref.add (LanguageStrings.rules);
         pref.add (LanguageStrings.toomanyclauses);
         pref.add (LanguageStrings.labels);
-    
+
         Set<FormItem> items = new LinkedHashSet ();
 
         this.count = new JSpinner (new SpinnerNumberModel (this.clauseCount,

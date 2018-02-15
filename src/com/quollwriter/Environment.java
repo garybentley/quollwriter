@@ -239,7 +239,8 @@ public class Environment
 
     }
 
-    public static void unregisterViewer (AbstractViewer v)
+    public static void unregisterViewer (AbstractViewer v,
+                                         ActionListener afterUnregister)
     {
 
         Environment.openViewers.remove (v);
@@ -248,6 +249,15 @@ public class Environment
         {
 
             Environment.landingViewer = null;
+
+        }
+
+        if (afterUnregister != null)
+        {
+
+            UIUtils.doLater (afterUnregister);
+
+            return;
 
         }
 
@@ -1248,7 +1258,7 @@ public class Environment
      * @throws Exception If something goes wrong (the list is long).
      */
     public static void projectClosed (AbstractProjectViewer pv,
-                                      ActionListener        onClose)
+                                      boolean               tryShowLanding)
                                throws Exception
     {
 
@@ -1266,59 +1276,13 @@ public class Environment
 
         Environment.userSession.updateCurrentSessionWordCount (pv.getSessionWordCount ());
 
-        // We assume that the caller knows what to do when the project has been
-        // closed.
-        if (onClose != null)
+        if ((tryShowLanding)
+            &&
+            (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+           )
         {
 
-            UIUtils.doLater (onClose);
-
-        } else {
-
-            if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
-            {
-
-                if (Environment.getOpenProjects ().size () == 0)
-                {
-
-                    Environment.showLanding ();
-
-                }
-
-            } /*else {
-
-                // Any more open projects?
-                if (Environment.getOpenProjects ().size () == 0)
-                {
-
-                    if ((Environment.landingViewer != null)
-                        &&
-                        (!Environment.landingViewer.isShowing ())
-                       )
-                    {
-
-                        // Exit the landing.
-                        Environment.landingViewer.close (false,
-                                                         null);
-
-                    } else {
-
-                        if ((Environment.landingViewer == null)
-                            ||
-                            (!Environment.landingViewer.isShowing ())
-                           )
-                        {
-
-                            // Only call the close down if there are no open projects
-                            // and the landing is not being shown or null.
-                            Environment.closeDown ();
-
-                        }
-
-                    }
-
-                }
-            }*/
+            Environment.showLandingIfNoOpenProjects ();
 
         }
 
@@ -3132,17 +3096,6 @@ public class Environment
                                                             throws Exception
     {
 
-        // See if there is a user strings file.
-        File f = Environment.getUserUILanguageStringsFile (v,
-                                                           LanguageStrings.ENGLISH_ID);
-
-        if (f.exists ())
-        {
-
-            return new LanguageStrings (f);
-
-        }
-
         // If the version is the same as the QW version the user is running then
         if (v.equals (Environment.getQuollWriterVersion ()))
         {
@@ -3151,7 +3104,20 @@ public class Environment
 
             Environment.saveUserUILanguageStrings (def);
 
-            return Environment.getUserUIEnglishLanguageStrings (v);
+            return def;
+
+            //return Environment.getUserUIEnglishLanguageStrings (v);
+
+        }
+
+        // See if there is a user strings file.
+        File f = Environment.getUserUILanguageStringsFile (v,
+                                                           LanguageStrings.ENGLISH_ID);
+
+        if (f.exists ())
+        {
+
+            return new LanguageStrings (f);
 
         }
 
@@ -4130,6 +4096,17 @@ public class Environment
         Environment.incrStartupProgress ();
 
         Environment.defaultUILanguageStrings = new LanguageStrings (Environment.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
+/*
+        Map<LanguageStrings.Value, Set<String>> errs = Environment.defaultUILanguageStrings.getErrors ();
+
+        for (LanguageStrings.Value v : errs.keySet ())
+        {
+
+            System.out.println (v);
+            System.out.println (errs.get (v));
+            System.out.println ();
+        }
+*/
 
         Environment.uiLanguageStrings = Environment.defaultUILanguageStrings;
 

@@ -962,6 +962,91 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
             }
 
+            // Special checks for the base strings.
+            if ((this.isEnglish ())
+                &&
+                (!this.isUser ())
+               )
+            {
+
+                int c = 0;
+                boolean invalid = false;
+
+                String rawText = v.getRawText ();
+
+                // This is a cheap check to determine whether there are strings but the scount is wrong.
+                for (int i = 0; i < 5; i++)
+                {
+
+                    if (rawText.indexOf ("%" + i + "$s") != -1)
+                    {
+
+                        c++;
+
+                    }
+
+                    if (rawText.indexOf ("%" + i + "s") != -1)
+                    {
+
+                        invalid = true;
+
+                    }
+
+                    if (rawText.indexOf ("$" + i + "$") != -1)
+                    {
+
+                        invalid = true;
+
+                    }
+
+                }
+
+                if (rawText.indexOf ("%$") != -1)
+                {
+
+                    invalid = true;
+
+                }
+
+                if (invalid)
+                {
+
+                    errors.add (String.format ("Invalid %$ or %Xs value found."));
+
+                }
+
+                if (v.getSCount () != c)
+                {
+
+                    errors.add (String.format (":scount value is incorrect or not present, expected: %s, scount is %s.",
+                                               c,
+                                               v.getSCount ()));
+
+                }
+
+                if ((c > 0)
+                    &&
+                    (v.getComment () == null)
+                   )
+                {
+
+                    errors.add (String.format ("Value contains one or more %s values but not have an associated comment.",
+                                               "%x$s"));
+
+                }
+
+                if ((v.getSCount () > 0)
+                    &&
+                    (v.getComment () == null)
+                   )
+                {
+
+                    errors.add ("S count present but no comment provided.");
+
+                }
+
+            }
+
         }
 
         return ret;
@@ -1137,9 +1222,69 @@ System.out.println ("CHANGED: " + v);
 
     }
 
+    public Set<Node> getNodes (List<String> idparts,
+                               Filter<Node> filter)
+    {
+
+        Set<Node> vals = new LinkedHashSet<> ();
+
+        if (idparts.size () < 1)
+        {
+
+            return vals;
+
+        }
+
+        Node n = this.nodes.get (idparts.get (0));
+
+        if (n == null)
+        {
+
+            return vals;
+
+        }
+
+        if (idparts.size () > 1)
+        {
+
+            return n.getNodes (idparts.subList (1, idparts.size ()),
+                               filter);
+
+        }
+
+        return n.getNodes (filter);
+
+    }
+
+    public Set<Node> getNodes (List<String> idParts)
+    {
+
+        return this.getNodes (idParts,
+                              null);
+
+    }
+
+    public Set<Node> getNodes (Filter<Node> filter)
+    {
+
+        Set<Node> vals = new LinkedHashSet<> ();
+
+        for (Node n : this.nodes.values ())
+        {
+
+            vals.addAll (n.getNodes (filter));
+
+        }
+
+        return vals;
+
+    }
+
     public Set<Value> getAllValues ()
     {
 
+        return this.getAllValues ((Filter) null);
+/*
         Set<Value> vals = new LinkedHashSet<> ();
 
         for (Node n : this.nodes.values ())
@@ -1150,10 +1295,62 @@ System.out.println ("CHANGED: " + v);
         }
 
         return vals;
+*/
+    }
+
+    public Set<Value> getAllValues (Filter<Value> filter)
+    {
+
+        Set<Value> vals = new LinkedHashSet<> ();
+
+        for (Node n : this.nodes.values ())
+        {
+
+            vals.addAll (n.getAllValues (filter));
+
+        }
+
+        return vals;
 
     }
 
     public Set<Value> getAllValues (List<String> idparts)
+    {
+
+        return this.getAllValues (idparts,
+                                  null);
+/*
+        Set<Value> vals = new LinkedHashSet<> ();
+
+        if (idparts.size () < 1)
+        {
+
+            return vals;
+
+        }
+
+        Node n = this.nodes.get (idparts.get (0));
+
+        if (n == null)
+        {
+
+            return vals;
+
+        }
+
+        if (idparts.size () > 1)
+        {
+
+            return n.getAllValues (idparts.subList (1, idparts.size ()));
+
+        }
+
+        return n.getAllValues ();
+*/
+    }
+
+    public Set<Value> getAllValues (List<String>  idparts,
+                                    Filter<Value> filter)
     {
 
         Set<Value> vals = new LinkedHashSet<> ();
@@ -1167,13 +1364,6 @@ System.out.println ("CHANGED: " + v);
 
         Node n = this.nodes.get (idparts.get (0));
 
-        if (idparts.size () > 1)
-        {
-
-            return n.getAllValues (idparts.subList (1, idparts.size ()));
-
-        }
-
         if (n == null)
         {
 
@@ -1181,7 +1371,15 @@ System.out.println ("CHANGED: " + v);
 
         }
 
-        return n.getAllValues ();
+        if (idparts.size () > 1)
+        {
+
+            return n.getAllValues (idparts.subList (1, idparts.size ()),
+                                   filter);
+
+        }
+
+        return n.getAllValues (filter);
 
     }
 
@@ -1505,6 +1703,13 @@ System.out.println ("CHANGED: " + v);
 
     }
 
+    public interface Filter<E extends Node>
+    {
+
+        public boolean accept (E n);
+
+    }
+
     public class Section
     {
 
@@ -1560,7 +1765,8 @@ System.out.println ("CHANGED: " + v);
         protected String id = null;
         protected String comment = null;
         protected String section = null;
-        protected String title = null;
+        private String title = null;
+        private String titlex = null;
 
         public Node (String id,
                      Node   parent)
@@ -1638,6 +1844,13 @@ System.out.println ("CHANGED: " + v);
 
                         }
 
+                        if (kid.equals (":titlex"))
+                        {
+
+                            this.titlex = v;
+
+                        }
+
                         if (kid.equals (":section"))
                         {
 
@@ -1665,6 +1878,82 @@ System.out.println ("CHANGED: " + v);
                 }
 
             }
+
+        }
+
+        public Set<Node> getNodes (List<String>  idparts,
+                                   Filter<Node> filter)
+        {
+
+            if (this.children == null)
+            {
+
+                return new LinkedHashSet<> ();
+
+            }
+
+            if (idparts.size () > 0)
+            {
+
+                Node n = this.children.get (idparts.get (0));
+
+                if (n == null)
+                {
+
+                    return new LinkedHashSet<> ();
+
+                }
+
+                return n.getNodes (idparts.subList (1, idparts.size ()),
+                                      filter);
+
+            } else {
+
+                return this.getNodes (filter);
+
+            }
+
+        }
+
+        public Set<Node> getAllNodes ()
+        {
+
+            return this.getNodes (null);
+
+        }
+
+        public Set<Node> getNodes (Filter<Node> filter)
+        {
+
+            Set<Node> ret = new LinkedHashSet<> ();
+
+            if (filter != null)
+            {
+
+                if (!filter.accept (this))
+                {
+
+                    return ret;
+
+                }
+
+            }
+
+            ret.add (this);
+
+            if (this.children != null)
+            {
+
+                for (Node n : this.children.values ())
+                {
+
+                    ret.addAll (n.getNodes (filter));
+
+                }
+
+            }
+
+            return ret;
 
         }
 
@@ -1887,7 +2176,7 @@ System.out.println ("CHANGED: " + v);
         public String toString ()
         {
 
-            return (this.getId () + "(node,children=" + (this.children != null ? this.children.size () : 0) + ")");
+            return (this.getId () + "(node,:titlex=" + this.titlex + ",:section=" + this.section + ",:title=" + this.title + ",:comment=" + this.comment + ",children=" + (this.children != null ? this.children.size () : 0) + ")");
 
         }
 
@@ -2030,6 +2319,15 @@ System.out.println ("CHANGED: " + v);
         public Set<Value> getAllValues (List<String> idparts)
         {
 
+            return this.getAllValues (idparts,
+                                      null);
+
+        }
+
+        public Set<Value> getAllValues (List<String>  idparts,
+                                        Filter<Value> filter)
+        {
+
             if (this.children == null)
             {
 
@@ -2049,11 +2347,12 @@ System.out.println ("CHANGED: " + v);
 
                 }
 
-                return n.getAllValues (idparts.subList (1, idparts.size ()));
+                return n.getAllValues (idparts.subList (1, idparts.size ()),
+                                       filter);
 
             } else {
 
-                return this.getAllValues ();
+                return this.getAllValues (filter);
 
             }
 
@@ -2062,12 +2361,33 @@ System.out.println ("CHANGED: " + v);
         public Set<Value> getAllValues ()
         {
 
+            return this.getAllValues ((Filter) null);
+
+        }
+
+        public Set<Value> getAllValues (Filter<Value> filter)
+        {
+
             Set<Value> vals = new LinkedHashSet<> ();
 
             if (this instanceof Value)
             {
 
-                vals.add ((Value) this);
+                Value v = (Value) this;
+
+                if (filter != null)
+                {
+
+                    if (!filter.accept (v))
+                    {
+
+                        return vals;
+
+                    }
+
+                }
+
+                vals.add (v);
 
                 return vals;
 
@@ -2082,12 +2402,27 @@ System.out.println ("CHANGED: " + v);
                     if (n instanceof Value)
                     {
 
-                        vals.add ((Value) n);
+                        Value v = (Value) n;
+
+                        if (filter != null)
+                        {
+
+                            if (!filter.accept (v))
+                            {
+
+                                continue;
+
+                            }
+
+                        }
+
+                        vals.add (v);
+
                         continue;
 
                     }
 
-                    vals.addAll (n.getAllValues ());
+                    vals.addAll (n.getAllValues (filter));
 
                 }
 
@@ -2210,8 +2545,8 @@ System.out.println ("CHANGED: " + v);
                                  this.comment,
                                  this.scount);
 
-            n.title = this.title;
-            n.section = this.section;
+            //n.title = this.title;
+            //n.section = this.section;
 
             return n;
 

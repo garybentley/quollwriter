@@ -39,7 +39,7 @@ public class Chapter extends LegacyUserConfigurableObject
     private int editPosition = -1;
     private Position textEditPos = null;
     private boolean editComplete = false;
-    private Set<Issue> problemFinderIgnores = new HashSet ();
+    private Set<Issue> problemFinderIgnores = new HashSet<> ();
 
     private ProjectVersion projVersion = null;
 

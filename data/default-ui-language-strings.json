@@ -37,6 +37,7 @@
     "startup" :
     {
         ":section" : "General",
+        ":title" : "Startup",
         "cantopenlastprojecterror" :
         {
             "title" : "Unable to open last ${objectnames.singular.project}",
@@ -696,7 +697,7 @@
         "options" : "Options",
         "name" : "Name",
         "targets" : "Targets",
-        "textproperties" : "text Properties",
+        "textproperties" : "Text Properties",
         "editorsservice" : "${objectnames.plural.editor} Service",
         "example" : "Example"
     },
@@ -808,7 +809,7 @@
                     ":scount.title" : 1,
                     "text" : "Use this popup to add or edit the fields, layout and information for your %1$s.",
                     ":comment.text" : "%1$s is the object type plural name.",
-                    "scount.text" : 1,
+                    ":scount.text" : 1,
                     "buttons" :
                     {
                         "finish" : "${buttons.finish}"
@@ -829,17 +830,34 @@
                 "text" : "The layout tells {QW} how you want to display the fields for your %1$s.  Certain fields like the object description and object image are given special locations in the layouts.  For <b>Columns of fields</b> it just means that the fields are laid out in the order given in the <b>Fields</b> tab.",
                 ":comment.text" : "%1$s is the object type plural name.",
                 ":scount.text" : 1,
+                "name" : "%1$s name",
+                ":comment.name" : "%1$s is the object type name, such as 'Character' or 'Location'.",
+                ":scount.name" : 1,
                 "layouts" :
                 {
                     "0" : "Fields are laid out in a single column.",
-                    "1" : "The object image, if present, is displayed in the top left corner and the object description is shown to the right.  Two columns of fields are displayed underneath.",
-                    "2" : "The object image is shown in the top left corner with the object description underneath.  The other fields are shown in a column on the right.",
+                    "1" : "The %1$s image, if present, is displayed in the top left corner and the %1$s description is shown to the right.  Two columns of fields are displayed underneath.",
+                    ":comment.1" : "%1$s is the object type name.",
+                    ":scount.1" : 1,
+                    "2" : "The %1$s image is shown in the top left corner with the %1$s description underneath.  The other fields are shown in a column on the right.",
+                    ":comment.2" : "%1$s is the object type name.",
+                    ":scount.2" : 1,
                     "3" : "Two columns of fields are displayed.",
-                    "4" : "The object image is shown in the top right corner with the object description underneath.  The other fields are shown in a column on the left.",
-                    "5" : "The object description is shown in a column on the right, all others fields are shown in a column on the left.",
-                    "6" : "The object description is shown in a column on the left, all others fields are shown in a column on the right.",
-                    "7" : "The object description is shown in a column on the left, the object image is shown in the top right corner with all other fields in a column underneath.",
-                    "8" : "The object image is shown in the top left corner with the object description in a column on the right.  The other object fields are shown underneath the object image."
+                    "4" : "The %1$s image is shown in the top right corner with the %1$s description underneath.  The other fields are shown in a column on the left.",
+                    ":comment.4" : "%1$s is the object type name.",
+                    ":scount.4" : 1,
+                    "5" : "The %1$s description is shown in a column on the right, all other fields are shown in a column on the left.",
+                    ":comment.5" : "%1$s is the object type name.",
+                    ":scount.5" : 1,
+                    "6" : "The %1$s description is shown in a column on the left, all other fields are shown in a column on the right.",
+                    ":comment.6" : "%1$s is the object type name.",
+                    ":scount.6" : 1,
+                    "7" : "The %1$s description is shown in a column on the left, the %1$s image is shown in the top right corner with all other fields in a column underneath.",
+                    ":comment.7" : "%1$s is the object type name.",
+                    ":scount.7" : 1,
+                    "8" : "The %1$s image is shown in the top left corner with the %1$s description in a column on the right.  The other %1$s fields are shown underneath the %1$s image.",
+                    ":comment.8" : "%1$s is the object type name.",
+                    ":scount.8" : 1
                 }
             }
         },
@@ -1693,7 +1711,7 @@
                 {
                     "bold" :
                     {
-                        "text" : "BoldX",
+                        "text" : "Bold",
                         "tooltip" : "Bold the selected text"
                     },
                     "italic" :
@@ -1736,7 +1754,7 @@
             "items" :
             {
                 "find" : "Find synonyms for: %1$s",
-                ":comment:find" : "%1$s is the word to find the synonyms for.",
+                ":comment.find" : "%1$s is the word to find the synonyms for.",
                 ":scount.find" : 1,
                 "nosynonyms" : "(No synonyms for: %1$s)",
                 ":comment.nosynonyms" : "%1$s is the word we are looking for.",
@@ -3279,6 +3297,7 @@
         "showregistererror" : "Unable to show the register panel.",
         "sidebar" :
         {
+            ":title" : "Sidebar",
             ":comment" : "This is the sidebar that allows the user to manage and interact with their contacts/editors.",
             "title" : "${objectnames.plural.contact}",
             "invitesfromothers" :
@@ -3463,7 +3482,7 @@
                     ":scount.text" : 1,
                     "undealtwith" :
                     {
-                        "text" : "Clicking on the button below will remove <b>%1$s</b> from your list of current ${objectnames.plural.contact}.  You can still get access to them in the options menu of the ${objectnames.plural.contact} sidebar via the <b>XXXView the previous {contacts}</b> item.",
+                        "text" : "Clicking on the button below will remove <b>%1$s</b> from your list of current ${objectnames.plural.contact}.  You can still get access to them in the options menu of the ${objectnames.plural.contact} sidebar via the <b>View the previous ${objectnames.plural.contact}</b> item.",
                         ":comment.text" : "%1$s is the name/email of the contact.",
                         ":scount.text" : 1,
                         "buttons" :
@@ -3581,8 +3600,6 @@
                         ":comment.previouseditor" : "%1$s is the name/email of the contact.",
                         ":scount.previouseditor" : 1,
                         "text" : "Select your response below",
-                        ":comment.text" : "%1$s is the name/email of the contact.",
-                        ":scount.text" : 1,
                         "buttons" :
                         {
                             "accept" :
@@ -3752,7 +3769,7 @@
                         "previouseditor" : "<b>%1$s</b> is a previous ${objectnames.singular.contact}.  This message can no longer be acted upon.",
                         ":comment.previouseditor" : "%1$s is the name/email of the contact.",
                         ":scount.previouseditor" : 1,
-                        "text" : "Clicking on the button below will remove <b>%1$s</b> from your list of current ${objectnames.plural.contact}.  You can still get access to them in the options menu of the ${objectnames.plural.contact} sidebar via the <b>XXXView the previous {contacts}</b> item.",
+                        "text" : "Clicking on the button below will remove <b>%1$s</b> from your list of current ${objectnames.plural.contact}.  You can still get access to them in the options menu of the ${objectnames.plural.contact} sidebar via the <b>View the previous ${objectnames.plural.contact}</b> item.",
                         ":comment.text" : "%1$s is the name/email of the contact.",
                         ":scount.text" : 1,
                         "buttons" :
@@ -3925,7 +3942,7 @@
                         "projectsuserediting" : "View ${objectnames.plural.project} I'm editing for %1$s (%2$s)",
                         ":comment.projectsuserediting" : "%1$s is the name/email of the contact, %2$s is the number of projects.",
                         ":scount.projectsuserediting" : 2,
-                        "projectscontactediting" : "View ${objetnames.plural.project} %1$s is editing for me (%2$s)",
+                        "projectscontactediting" : "View ${objectnames.plural.project} %1$s is editing for me (%2$s)",
                         ":comment.projectscontactediting" : "%1$s is the name/email of the contact, %2$s is the number of projects.",
                         ":scount.projectscontactediting" : 2,
                         "commentssent" : "View all ${objectnames.plural.comment} sent",
@@ -3993,7 +4010,7 @@
                     ":comment" : "These items relate to the contact being an editor for one of the user's projects.",
                     "messagecount" :
                     {
-                        "tooltip" : "%1s ${objectnames.singular.project} messages, click to view them",
+                        "tooltip" : "%1$s ${objectnames.singular.project} messages, click to view them",
                         ":comment.tooltip" : "%1$s is the number of messages.",
                         ":scount.tooltip" : 1
                     },
@@ -4008,15 +4025,15 @@
                 {
                     "received" :
                     {
-                        "tooltip" : "%1s ${objectnames.plural.comment} from %2$s",
+                        "tooltip" : "%1$s ${objectnames.plural.comment} from %2$s",
                         ":comment.tooltip" : "%1$s is the number of comments received.  %2$s is the name/email of the editor.",
-                        ":scount.tooltip" : 1
+                        ":scount.tooltip" : 2
                     },
                     "sent" :
                     {
-                        "tooltip" : "%1s ${objectnames.plural.comment} sent to %2$s",
+                        "tooltip" : "%1$s ${objectnames.plural.comment} sent to %2$s",
                         ":comment.tooltip" : "%1$s is the number of comments sent.  %2$s is the name/email of the editor.",
-                        ":scount.tooltip" : 1
+                        ":scount.tooltip" : 2
                     }
                 },
                 "noprojectcomments" :
@@ -4204,7 +4221,7 @@
                     "start" :
                     {
                         "title" : "Getting started",
-                        "text" : "Welcome to the {QW} $[names.editorsservice}.  The registration process only takes a minute and the service is free to use (no really).<br /><br />If you've already registered don't worry just use the link at the bottom to find your ${objectnames.plural.editor} database.<br /><br /><a href='%1$s'>Find out more about the ${names.editorsservice}</a>",
+                        "text" : "Welcome to the {QW} ${names.editorsservice}.  The registration process only takes a minute and the service is free to use (no really).<br /><br />If you've already registered don't worry just use the link at the bottom to find your ${objectnames.plural.editor} database.<br /><br /><a href='%1$s'>Find out more about the ${names.editorsservice}</a>",
                         ":comment.text" : "%1$s is a link to information page about the ${names.editorsservice}.",
                         ":scount.text" : 1,
                         "labels" :
@@ -4338,7 +4355,7 @@
                 "popup" :
                 {
                     "title" : "Your ${names.editorsservice} password",
-                    "text" : "Note: your password is being displayed because you have checked the <i>XXXSave password</i> box for logging into the ${names.editorsservice}.<br /><br />Your login details are:<br /><br />Email address: <b>%1$s</b><br />Password: <b>%2$s</b>",
+                    "text" : "Note: your password is being displayed because you have checked the <i>${editors.login.popup.labels.savepassword}</i> box for logging into the ${names.editorsservice}.<br /><br />Your login details are:<br /><br />Email address: <b>%1$s</b><br />Password: <b>%2$s</b>",
                     ":comment.text" : "%1$s is the user's email address, %2$s is the user's password.",
                     ":scount.text" : 2
                 }
@@ -4399,7 +4416,7 @@
                         ":scount.lastupdatewithversion" : 2,
                         "lastupdate" : "You last sent the ${objectnames.singular.project} on <b>%1$s</b>.",
                         ":comment.lastupdate" : "%1$s is the date the project was last sent.",
-                        ":scount.lastupdate" : 2,
+                        ":scount.lastupdate" : 1,
                         "updatesuffix" : "  The ${objectnames.plural.chapter} you previously sent have been pre-selected."
                     }
                 }
@@ -4657,7 +4674,7 @@
         {
             "popup" :
             {
-                "title" : "Login to the ${names.editorservice}",
+                "title" : "Login to the ${names.editorsservice}",
                 "loading" : "Logging in... please wait...",
                 "buttons" :
                 {
@@ -5292,7 +5309,7 @@
                 "nobackupstokeep" : "Number of backups to keep (oldest are deleted first)",
                 "selectbackupdir" :
                 {
-                    "text" : "Select the directory where ${objectnames.singular.project} backups are stored",
+                    "text" : "Select the folder where ${objectnames.singular.project} backups are stored",
                     "finder" :
                     {
                         "title" : "Select a Folder",
@@ -6579,6 +6596,7 @@
                 "chaptersovertarget" :
                 {
                     "text" : "%1$s ${objectnames.plural.chapter} over target word count",
+                    ":scount.text" : 1,
                     "tooltip" : "Click to view"
                 }
             },
@@ -6850,7 +6868,7 @@
         {
             "actionerror" : "Unable to remove asset type.",
             ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
-            "text" : "To delete all <b>%1$s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%$1s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other ${objectnames.plural.project}.",
+            "text" : "To delete all <b>%1$s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%1$s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other ${objectnames.plural.project}.",
             ":comment.text" : "%1$s is the object type name plural for the asset type.",
             ":scount.text" : 1
         },
@@ -7354,7 +7372,9 @@
                     "unignoreissues" :
                     {
                         "single" : "1 ignored problem.  Click to view.",
-                        "plural" : "%1$s ignored problems.  Click to view."
+                        "plural" : "%1$s ignored problems.  Click to view.",
+                        ":comment.plural" : "%1%s is the number of problems.",
+                        ":scount.plural" : 1
                     },
                     "nomoreproblems" :
                     {
@@ -7613,6 +7633,7 @@
                 "helplink" : "Click to find out more about<br />the Readability indices",
                 "viewdetaillink" : "View Detail",
                 ":comment.valuepercent" : "This is used whenever a 'words with percentage' value is output, such as 1,000 / 10%.  %1$s is the number of words.  %2$s is the percentage.  The %% is needed to output a single %.",
+                ":scount.valuepercent" : 2,
                 "headercontrols" :
                 {
                     "items" :
@@ -8109,7 +8130,7 @@
                 "deletetype" : "${objectnames.singular.project}",
                 "warning" :
                 {
-                    "normal" : "Warning!  Once deleted a ${objectnames.singular.chapter} cannot be restored.",
+                    "normal" : "Warning!  Once deleted a ${objectnames.singular.project} cannot be restored.",
                     ":comment.normal" : "This message is always shown.",
                     "editor" : "<br /><br />A message will also be sent to <b>%1$s</b> telling them you are no longer editing the ${objectnames.singular.project}.",
                     ":comment.editor" : "%1$s is the name/email address of the person the user is editing the project for.  This message is shown when the user is editing the project for someone else.  The normal message is always shown, so this message acts as a suffix.",

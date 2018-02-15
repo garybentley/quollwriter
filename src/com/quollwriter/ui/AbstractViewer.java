@@ -2564,9 +2564,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.generalTimer.shutdown ();
 
-        Environment.unregisterViewer (this);
-
-		UIUtils.doLater (afterClose);
+        Environment.unregisterViewer (this,
+                                      afterClose);
 
         return true;
 

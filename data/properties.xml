@@ -652,7 +652,7 @@ This message will only be shown once during your current session using Quoll Wri
 
   <property id="copyright" type="string">
     <description>The copyright notice used in the about popup.  %s1 is replaced with the current year.</description>
-    <value><![CDATA[&amp;copy;\u00A9 2009-%1s Gary Bentley]]></value>
+    <value><![CDATA[© 2009-%1s Gary Bentley]]></value>
   </property>
 
   <property id="sourceCodeWebsite" type="string">

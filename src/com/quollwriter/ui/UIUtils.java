@@ -4882,6 +4882,16 @@ public class UIUtils
                 int end = text.indexOf ("]",
                                         ind + 1);
 
+                if (end < 0)
+                {
+
+                    ind = text.indexOf ("[",
+                                        ind + 1);
+
+                    continue;
+
+                }
+
                 if (end > ind + 1)
                 {
 
@@ -9920,7 +9930,7 @@ public class UIUtils
                                           final AbstractViewer viewer)
 	{
 
-        String popupName = "managebackups";
+        String popupName = "managebackups" + proj.getId ();
         QPopup popup = viewer.getNamedPopup (popupName);
 
         if (popup == null)
@@ -11196,6 +11206,7 @@ public class UIUtils
 
                                                              LanguageStrings ls = new LanguageStrings (Environment.getDefaultUILanguageStrings ());
                                                              ls.setNativeName (v);
+                                                             ls.setUser (true);
 
                                                              try
                                                              {

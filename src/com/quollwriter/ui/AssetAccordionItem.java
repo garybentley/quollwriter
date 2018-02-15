@@ -38,27 +38,9 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         Environment.addUserProjectEventListener (this);
 
-        this.sorter = new Comparator<Asset> ()
-        {
+        this.sortField = objType.getPrimaryNameField ();
 
-            @Override
-            public boolean equals (Object o)
-            {
-
-                return this == o;
-
-            }
-
-            @Override
-            public int compare (Asset o1,
-                                Asset o2)
-            {
-
-                return NamedObjectSorter.getInstance ().compare (o1, o2);
-
-            }
-
-        };
+        this.sorter = this.getSorter (this.sortField);
 
     }
 
@@ -180,13 +162,17 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
                         Number nv2 = order.get (o2.getObjectReference ().asString ());
 
-                        if ((nv1 == null)
-                            ||
-                            (nv2 == null)
-                           )
+                        if (nv1 == null)
                         {
 
-                            return NamedObjectSorter.getInstance ().compare (o1, o2);
+                            nv1 = new Integer (Short.MAX_VALUE);
+
+                        }
+
+                        if (nv2 == null)
+                        {
+
+                            nv2 = new Integer (Short.MAX_VALUE);
 
                         }
 
@@ -353,10 +339,10 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
     }
 
-    private void sortBy (final UserConfigurableObjectTypeField f)
+    private Comparator<Asset> getSorter (final UserConfigurableObjectTypeField f)
     {
 
-        this.sorter = new Comparator<Asset> ()
+        return new Comparator<Asset> ()
         {
 
             @Override
@@ -454,6 +440,12 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         };
 
+    }
+
+    private void sortBy (final UserConfigurableObjectTypeField f)
+    {
+
+        this.sorter = this.getSorter (f);
         this.reloadTree ();
 
         this.sortField = f;
@@ -463,6 +455,66 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     @Override
     public void reloadTree ()
     {
+
+        if (this.sortField == null)
+        {
+
+            DefaultMutableTreeNode r = (DefaultMutableTreeNode) ((DefaultTreeModel) this.getTree ().getModel ()).getRoot ();
+
+            final Map<Asset, Number> objs = new HashMap<> ();
+
+            for (int i = 0; i < r.getChildCount (); i++)
+            {
+
+                DefaultMutableTreeNode n = (DefaultMutableTreeNode) r.getChildAt (i);
+
+                Asset oo = (Asset) n.getUserObject ();
+
+                objs.put (oo, i);
+
+            }
+
+            this.sorter = new Comparator<Asset> ()
+            {
+
+                @Override
+                public boolean equals (Object o)
+                {
+
+                    return this.equals (o);
+
+                }
+
+                @Override
+                public int compare (Asset o1,
+                                    Asset o2)
+                {
+
+                    Number nv1 = objs.get (o1);
+
+                    Number nv2 = objs.get (o2);
+
+                    if (nv1 == null)
+                    {
+
+                        nv1 = new Integer (Short.MAX_VALUE);
+
+                    }
+
+                    if (nv2 == null)
+                    {
+
+                        nv2 = new Integer (Short.MAX_VALUE);
+
+                    }
+
+                    return nv1.intValue () - nv2.intValue ();
+
+                }
+
+            };
+
+        }
 
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createAssetTree (this.objType,
                                                                                      this.viewer.getProject (),
@@ -521,6 +573,30 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
             {
 
                 _this.sortField = null;
+
+                QuollPanel p = _this.viewer.getCurrentlyVisibleTab ();
+
+                if (p != null)
+                {
+
+                    if (p instanceof ProjectObjectQuollPanel)
+                    {
+
+                        ProjectObjectQuollPanel pp = (ProjectObjectQuollPanel) p;
+
+                        if (pp.getForObject ().equals (object))
+                        {
+
+                            return true;
+
+                        }
+
+                    }
+
+                }
+
+                _this.getTree ().removeSelectionPath (UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) _this.getTree ().getModel ().getRoot (),
+                                                      object));
 
                 return true;
 

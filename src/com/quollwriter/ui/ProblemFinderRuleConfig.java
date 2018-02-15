@@ -1080,7 +1080,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         if (title == null)
         {
 
-            title = getUIString (pref, (add ? addrule : editrule),title);
+            title = getUIString (pref, (add ? addrule : editrule),LanguageStrings.title);
             //(add ? "Add Rule" : "Edit Rule");
 
         }

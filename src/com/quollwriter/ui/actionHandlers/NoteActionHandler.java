@@ -128,25 +128,27 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
 
         this (c,
               itemViewer,
-              null,
+              new Note (0, c),
               showAt);
 
     }
 
     public NoteActionHandler(Chapter           c,
                              ChapterItemViewer itemViewer,
-                             String            noteType,
+                             Note              note,
+                             //String            noteType,
                              int               showAt)
     {
 
-        super (new Note (0,
-                         c),
+        super (note,
+                //new Note (0,
+                //         c),
                itemViewer,
                ADD,
                showAt);
 
         this.chapter = c;
-
+/*
         if (noteType != null)
         {
 
@@ -154,7 +156,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
             n.setType (noteType);
 
         }
-
+*/
     }
 
     @Override
@@ -207,12 +209,12 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
         if (editNeeded)
         {
 
-            return getUIString (notes,add,editneededtitle);
+            return getUIString (notes,_new,editneededtitle);
             //"Add New " + Note.EDIT_NEEDED_NOTE_TYPE + " Note";
 
         }
 
-        return getUIString (notes,add,title);
+        return getUIString (notes,_new,title);
         //"Add New Note";
 
     }

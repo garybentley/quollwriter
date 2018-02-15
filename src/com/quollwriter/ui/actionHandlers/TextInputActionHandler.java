@@ -85,7 +85,7 @@ public abstract class TextInputActionHandler<E extends AbstractViewer> extends A
                                                                         e);
 
                                                   UIUtils.showErrorMessage (_this.viewer,
-                                                                            getUIString (unabletoperformaction));
+                                                                            getUIString (general,unabletoperformaction));
                                                                             //"Unable to perform command, please contact support for assistance.");
 
                                               }

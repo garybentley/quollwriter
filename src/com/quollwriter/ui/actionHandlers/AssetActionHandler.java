@@ -283,52 +283,6 @@ public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
 
             }
 
-            Set<Asset> matches = this.viewer.getProject ().getAllAssetsByName (name.toLowerCase (),
-                                                                               this.object.getUserConfigurableObjectType ());
-
-            Asset match = null;
-
-            if (this.mode == AssetActionHandler.ADD)
-            {
-
-                if (matches.size () > 0)
-                {
-
-                    match = matches.iterator ().next ();
-
-                }
-
-            } else {
-
-                if (matches.size () > 0)
-                {
-
-                    for (Asset a : matches)
-                    {
-
-                        if (!a.getKey ().equals (this.object.getKey ()))
-                        {
-
-                            match = a;
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-            if (match != null)
-            {
-
-                errs.add (String.format (getUIString (assets,add,popup,errors,valueexists),
-                                        //"Already have a {%s} called: <b>%s</b>",
-                                         this.object.getUserConfigurableObjectType ().getObjectTypeName (),
-                                         match.getName ()));
-
-            }
-
         }
 
         if (this.descHandler != null)

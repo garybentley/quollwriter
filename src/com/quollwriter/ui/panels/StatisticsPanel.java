@@ -205,6 +205,14 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
                     _this.updateChart (_this.currentChart.getChart (false),
                                        _this.currentChart.getDetail (false));
 
+                    if (_this.viewer instanceof AbstractProjectViewer)
+                    {
+
+                        ((AbstractProjectViewer) _this.viewer).setTabHeaderTitle (_this,
+                                                                                  _this.getTitle ());
+
+                    }
+
                     _this.configPanel.removeAll ();
 
                     _this.configPanel.add (_this.currentChart.getControls (false));
@@ -427,7 +435,8 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
     public String getTitle ()
     {
 
-        return getUIString (statistics,title);
+        return String.format (getUIString (statistics,title),
+                              this.currentChart.getTitle ());
         //"Statistics";
 
     }
