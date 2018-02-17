@@ -588,9 +588,14 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                                                                 {
 
                                                                                                     // Show the first chapter.
-                                                                                                    AbstractProjectViewer pv = (AbstractProjectViewer) ev.getSource ();
+                                                                                                    AbstractProjectViewer pv = Environment.getProjectViewer (fproj);
 
-                                                                                                    pv.viewObject (pv.getProject ().getBook (0).getChapters ().get (0));
+                                                                                                    if (pv != null)
+                                                                                                    {
+
+                                                                                                        pv.viewObject (pv.getProject ().getBook (0).getChapters ().get (0));
+
+                                                                                                    }
 
                                                                                                 }
 

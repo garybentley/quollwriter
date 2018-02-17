@@ -918,7 +918,7 @@ public class EditorsMessageHandler implements ChatMessageListener
 
                         } else {
 
-                            EditorsUIUtils.showLoginError (getUIString (editors,login,error,other));
+                            EditorsUIUtils.showLoginError (getUIString (editors,login,errors,other));
                             //"Unable to connect to the Editors service, please contact Quoll Writer support for assistance.");
 
                         }
@@ -1059,7 +1059,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                                               " is unable to login to editors service.",
                                               e);
 
-                        EditorsUIUtils.showLoginError (getUIString (editors,login,error,invalidcredentials));
+                        EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials));
                         //"Unable to login.  Please check your email and password.");
 
                         if (onError != null)

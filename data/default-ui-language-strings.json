@@ -3317,7 +3317,7 @@
             "previouscontacts" :
             {
                 "title" : "Previous ${objectnames.plural.contact} (%1$s)",
-                "tooltip" : "Previouc ${objectnames.plural.contact}",
+                "tooltip" : "Previous ${objectnames.plural.contact}",
                 ":comment.tooltip" : "This tooltip is shown on the tab when the user moves the mouse over it.",
                 ":comment.title" : "%1$s is the number of previous contacts.",
                 ":scount.title" : 1,
@@ -3455,6 +3455,8 @@
         },
         "messages" :
         {
+            "unknownproject" : "Unknown ${objectnames.singular.project}",
+            ":comment.unknownproject" : "The label used when a project is no longer available, for example it has been deleted.",
             "report" :
             {
                 "popupmenu" :
@@ -3802,8 +3804,8 @@
                     "labels" :
                     {
                         ":comment" : "Labels that relate directly to the user having sent the project to a contact.",
-                        "projectdelete" : "${objectnames.singular.project} has been deleted.",
-                        ":comment.projectdelete" : "Shown when the project has been deleted by the user and thus cannot be accessed.",
+                        "projectdeleted" : "${objectnames.singular.project} has been deleted.",
+                        ":comment.projectdeleted" : "Shown when the project has been deleted by the user and thus cannot be accessed.",
                         "clicktoview" : "Click to view what you sent"
                     }
                 }
@@ -4656,7 +4658,7 @@
                     "confirmpopup" :
                     {
                         "title" : "Details sent",
-                        "text" : "Your updated details have been sent to your ${objectnames.plural.editor}"
+                        "text" : "Your updated details have been sent to your ${objectnames.plural.editor}."
                     }
                 },
                 "password" :
@@ -4672,6 +4674,20 @@
         },
         "login" :
         {
+            "errors" :
+            {
+                "prefix" : "Unable to login to the ${names.editorsservice}.<br />%1$s",
+                ":comment.prefix" : "%1$s is the reason why the login failed.",
+                ":scount.prefix" : 1,
+                "general" : "Please contact {QW} support for assistance, quoting error code: %1$s",
+                ":comment.general" : "This is a general purpose message returned from the server as to why the login failed.  %1$s is the error code/reason for the failure.  Note: the reason will be in English since it is returned from the server.",
+                ":scount.general" : 1,
+                "invalidcredentials" : "Please check your email/password and try again.",
+                "other" : "Unable to login to the ${names.editorsservice}.",
+                ":comment.other" : "This is a general purpose, fall through message used when no other error applies.",
+                "maxloginattempts" : "You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.",
+                "inactiveaccount" : "You must activate your account (check your email) first."
+            },
             "popup" :
             {
                 "title" : "Login to the ${names.editorsservice}",
@@ -4680,20 +4696,6 @@
                 {
                     "login" : "Login",
                     "cancel" : "${buttons.cancel}"
-                },
-                "error" :
-                {
-                    "prefix" : "Unable to login to the ${names.editorsservice}.<br />%1$s",
-                    ":comment.prefix" : "%1$s is the reason why the login failed.",
-                    ":scount.prefix" : 1,
-                    "general" : "Please contact {QW} support for assistance, quoting error code: %1$s",
-                    ":comment.general" : "This is a general purpose message returned from the server as to why the login failed.  %1$s is the error code/reason for the failure.  Note: the reason will be in English since it is returned from the server.",
-                    ":scount.general" : 1,
-                    "invalidcredentials" : "Please check your email/password and try again.",
-                    "other" : "Unable to login to the ${names.editorsservice}.",
-                    ":comment.other" : "This is a general purpose, fall through message used when no other error applies.",
-                    "maxloginattempts" : "You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.",
-                    "inactiveaccount" : "You must activate your account (check your email) first."
                 },
                 "labels" :
                 {
@@ -4818,6 +4820,19 @@
         "projectcomments" :
         {
             ":comment" : "These strings relate to the viewing of comments created about a project OR received about a project.  As such it works in 2 modes, either sent (where the projects may not have been sent yet) or received, the strings are split accordingly.",
+            "title" :
+            {
+                "toolbar" :
+                {
+                    "buttons" :
+                    {
+                        "openproject" :
+                        {
+                            "tooltip" : "Open the ${objectnames.singular.project} associated with these ${objectnames.plural.comment}"
+                        }
+                    }
+                }
+            },
             "sidebar" :
             {
                 "comments" :
@@ -4860,7 +4875,7 @@
                         "notes" : "<i>Notes</i>",
                         ":comment.notes" : "Only the first sentence of the notes is shown by default, the rest of the text is displayed in a popup when clicked.  The {more} text provides the indication to the user that there is more text to see.",
                         "more" : "<br /><a href='#'>More, click to view all.</a>",
-                        "othercomments" : "%1$s other ${objectnames.plural.comment} are available for this version, click to select other ${objectnames.plural.comment} to view.",
+                        "othercomments" : "%1$s other ${objectnames.plural.comment} are available, click to select other ${objectnames.plural.comment} to view.",
                         ":comment.othercomments" : "%1$s is the number of other comments.",
                         ":scount.othercomments" : 1
                     },
@@ -4873,7 +4888,10 @@
                     },
                     "othercomments" :
                     {
-                        "popup" : "Select a set of ${objectnames.plural.comment} to view",
+                        "popup" :
+                        {
+                            "title" : "Select a set of ${objectnames.plural.comment} to view"
+                        },
                         "item" :
                         {
                             "title" : "%1$s ${objectnames.plural.comment}",
@@ -4881,6 +4899,9 @@
                             ":scount.title" : 1,
                             "received" : "Received: %1$s",
                             "sent" : "Sent: %1$s",
+                            "version" : "<i>Version</i> %1$s",
+                            ":comment.version" : "%1$s is the version name.",
+                            ":scount.version" : 1,
                             "tooltip" : "Click to view the ${objectnames.plural.comment}."
                         }
                     }

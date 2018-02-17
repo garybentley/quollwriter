@@ -3794,5 +3794,6 @@ System.out.println ("CHANGED: " + v);
     public static final String projectdeleted = "projectdeleted";
     public static final String previouseditors = "previouseditors";
     public static final String hidepreviouseditors = "hidepreviouseditors";
+    public static final String unknownproject = "unknownproject";
 
 }

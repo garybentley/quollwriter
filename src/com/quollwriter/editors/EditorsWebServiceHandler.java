@@ -362,7 +362,7 @@ public class EditorsWebServiceHandler
                                         // Oops?
                                         Environment.logError ("No session id returned from sessions service");
 
-                                        EditorsUIUtils.showLoginError (getUIString (editors,login,error,other));
+                                        EditorsUIUtils.showLoginError (getUIString (editors,login,errors,other));
                                         //"Sorry an unexpected error has occurred with<br />the Editors service, please try again later.");
 
                                         return;

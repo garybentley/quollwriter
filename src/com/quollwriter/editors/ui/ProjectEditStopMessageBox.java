@@ -81,11 +81,11 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
         if (this.message.isSentByMe ())
         {
 
-            title = getUIString (editors,messages,projecteditstop,sent,title);
+            title = getUIString (editors,messages,projecteditstop,sent,LanguageStrings.title);
 
         } else {
 
-            title = getUIString (editors,messages,projecteditstop,received,title);
+            title = getUIString (editors,messages,projecteditstop,received,LanguageStrings.title);
 
         }
 
@@ -115,63 +115,90 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
         int row = 1;
 
-        builder.addLabel (getUIString (editors,messages,projecteditstop,labels,project),
+        builder.addLabel ("<html>" + getUIString (editors,messages,projecteditstop,labels,project) + "</html>",
                             //Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
                           cc.xy (1,
                                  row));
 
-        JLabel openProj = UIUtils.createClickableLabel (this.message.getForProjectName (),
-                                                        null,
-                                                        new ActionListener ()
-        {
+         ProjectInfo proj = null;
 
-            public void actionPerformed (ActionEvent ev)
+         try
+         {
+
+             proj = Environment.getProjectById (_this.message.getForProjectId (),
+                                                null);
+
+         } catch (Exception e) {
+
+             Environment.logError ("Unable to get project info for project with id: " +
+                                   _this.message.getForProjectId (),
+                                   e);
+
+         }
+
+         if (proj != null)
+         {
+
+            JLabel openProj = UIUtils.createClickableLabel (this.message.getForProjectName (),
+                                                            null,
+                                                            new ActionListener ()
             {
 
-                ProjectInfo proj = null;
-
-                try
+                public void actionPerformed (ActionEvent ev)
                 {
 
-                    proj = Environment.getProjectById (_this.message.getForProjectId (),
-                                                       null);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to get project info for project with id: " +
-                                          _this.message.getForProjectId (),
-                                          e);
-
-                }
-
-                if (proj != null)
-                {
+                    ProjectInfo proj = null;
 
                     try
                     {
 
-                        Environment.openProject (proj);
+                        proj = Environment.getProjectById (_this.message.getForProjectId (),
+                                                           null);
 
                     } catch (Exception e) {
 
-                        Environment.logError ("Unable to open project: " +
-                                              proj,
+                        Environment.logError ("Unable to get project info for project with id: " +
+                                              _this.message.getForProjectId (),
                                               e);
+
+                    }
+
+                    if (proj != null)
+                    {
+
+                        try
+                        {
+
+                            Environment.openProject (proj);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to open project: " +
+                                                  proj,
+                                                  e);
+
+                        }
 
                     }
 
                 }
 
-            }
+            });
 
-        });
+            openProj.setToolTipText (getUIString (project,actions,openproject,tooltips,general));
+            //Environment.replaceObjectNames ("Click to open the {project}"));
 
-        openProj.setToolTipText (getUIString (project,actions,openproject,tooltips,general));
-        //Environment.replaceObjectNames ("Click to open the {project}"));
+            builder.add (openProj,
+                         cc.xy (3,
+                                row));
 
-        builder.add (openProj,
-                     cc.xy (3,
-                            row));
+        } else {
+
+            builder.addLabel (this.message.getForProjectName (),
+                              cc.xy (3,
+                                     row));            
+
+        }
 
         row += 2;
 

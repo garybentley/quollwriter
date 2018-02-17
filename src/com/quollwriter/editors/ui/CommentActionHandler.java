@@ -346,7 +346,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
 
         }
 
-        return getUIString (comments,add,title);
+        return getUIString (comments,_new,title);
         //"Add New Comment";
 
     }

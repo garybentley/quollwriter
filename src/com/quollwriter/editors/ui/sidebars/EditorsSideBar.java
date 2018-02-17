@@ -454,7 +454,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
 
                                                         }
 
-                                                        EditorsUIUtils.showLoginError (getUIString (editors,login,popup,error,invalidcredentials),
+                                                        EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials),
                                                                                         //"Unable to login, please check your email and password.",
                                                                                        new ActionListener ()
                                                                                        {

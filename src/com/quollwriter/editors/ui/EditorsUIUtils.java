@@ -3616,7 +3616,7 @@ Not used.
             public void actionPerformed (ActionEvent ev)
             {
 
-                java.util.List<String> prefix = Arrays.asList (editors,user,changepassword,errors);
+                java.util.List<String> prefix = Arrays.asList (editors,user,changepassword,popup,errors);
 
                 error.setVisible (false);
 
@@ -3757,7 +3757,7 @@ Not used.
                 if (errType.equals ("InvalidCredentials"))
                 {
 
-                    reason = getUIString (editors,login,popup,errors,invalidcredentials);
+                    reason = getUIString (editors,login,errors,invalidcredentials);
                     //"Please check your email/password and try again.";
 
                 }
@@ -3766,7 +3766,7 @@ Not used.
 
         } else {
 
-            reason = String.format (getUIString (editors,login,popup,errors,general),
+            reason = String.format (getUIString (editors,login,errors,general),
                                     res.getReturnCode () + "/" + res.getErrorType ());
 
         }
@@ -5904,7 +5904,7 @@ Not used.
         {
 
             builder.addLabel (String.format ("<html>%s</html>",
-                                             getUIString (prefix,notes)),
+                                             getUIString (prefix,LanguageStrings.notes)),
                                              //Environment.replaceObjectNames ("<html><i>Notes</i></html>"),
                               cc.xy (1,
                                      row));
@@ -6179,7 +6179,7 @@ Not used.
                                                 {
 
                                                     builder.addLabel (String.format ("<html>%s</html>",
-                                                                                     getUIString (prefix,notes)),
+                                                                                     getUIString (prefix,LanguageStrings.notes)),
                                                                     //Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
                                                                       cc.xy (1,
                                                                              row));

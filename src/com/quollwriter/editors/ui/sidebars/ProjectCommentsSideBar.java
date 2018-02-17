@@ -244,9 +244,9 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
         this.otherCommentsLabel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
 
-        this.showOtherCommentsLabel ();
-
         b.add (this.otherCommentsLabel);
+
+        this.showOtherCommentsLabel ();
 
         return b;
 
@@ -267,10 +267,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
             ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
 
-            if ((pcm.equals (this.getMessage ()))
-                ||
-                (!pcm.getProjectVersion ().getId ().equals (this.getMessage ().getProjectVersion ().getId ()))
-               )
+            if (pcm.equals (this.getMessage ()))
             {
 
                 continue;
@@ -355,6 +352,17 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                     h.setPreferredSize (new Dimension (Short.MAX_VALUE,
                                                        h.getPreferredSize ().height));
 
+                    if (pcm.getProjectVersion ().getName () != null)
+                    {
+
+                        JLabel l = UIUtils.createLabel (String.format (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,version),
+                                                        pcm.getProjectVersion ().getName ()));
+                        l.setBorder (UIUtils.createPadding (0, 5, 0, 5));
+
+                        b.add (l);
+
+                    }
+
                     // Get the first line of the notes, if provided.
                     String genComm = pcm.getGeneralComment ();
 
@@ -437,29 +445,24 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
         Set<EditorMessage> messages = this.getMessage ().getEditor ().getMessages (this.getMessage ().getForProjectId (),
                                                                                    ProjectCommentsMessage.MESSAGE_TYPE);
 
-        int c = 0;
+        int otherC = 0;
 
         for (EditorMessage m : messages)
         {
 
             ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
 
-            if ((pcm.equals (this.getMessage ()))
-                ||
-                (!pcm.getProjectVersion ().getId ().equals (this.getMessage ().getProjectVersion ().getId ()))
-               )
+            if (!pcm.equals (this.getMessage ()))
             {
 
-                continue;
+                otherC += pcm.getComments ().size ();
 
             }
-
-            c += pcm.getComments ().size ();
 
         }
 
         String l = String.format (getUIString (editors,projectcomments,sidebar,comments,labels,othercomments),
-                                  Environment.formatNumber (c));
+                                  Environment.formatNumber (otherC));
 /*
         if (c == 1)
         {
@@ -476,7 +479,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
         this.otherCommentsLabel.setText (l);
 
-        this.otherCommentsLabel.setVisible (c > 0);
+        this.otherCommentsLabel.setVisible (otherC > 0);
 
     }
 

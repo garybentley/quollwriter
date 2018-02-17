@@ -2444,6 +2444,13 @@ public class Environment
                               throws Exception
     {
 
+        if (p == null)
+        {
+
+            return;
+
+        }
+
         if (p.isOpening ())
         {
 
@@ -5265,6 +5272,20 @@ public class Environment
         otf.delete ();
 
         Environment.loadUserConfigurableObjectTypeNames ();
+
+        // Load the
+        UserConfigurableObjectType chapterType = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
+
+        if (chapterType != null)
+        {
+
+            Environment.objectTypeNamesPlural.put (Chapter.OBJECT_TYPE,
+                                                   getUIString (objectnames,plural,Chapter.OBJECT_TYPE));
+            Environment.objectTypeNamesSingular.put (Chapter.OBJECT_TYPE,
+                                                     getUIString (objectnames,singular,Chapter.OBJECT_TYPE));
+
+        }
+
 
     }
 

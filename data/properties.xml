@@ -670,4 +670,9 @@ This message will only be shown once during your current session using Quoll Wri
     <value>https://www.gofundme.com/quollwriter</value>
   </property>
 
+  <property id="userUILanguage" type="string">
+    <description>The user ui language.</description>
+    <value><property id="defaultUILanguage" /></value>
+  </property>
+
 </properties>

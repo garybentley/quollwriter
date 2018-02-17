@@ -173,7 +173,7 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
     public void showError (String err)
     {
 
-        err = String.format (getUIString (editors,login,popup,errors,prefix),
+        err = String.format (getUIString (editors,login,errors,prefix),
                                           err);
 
         this.error.setText (err);

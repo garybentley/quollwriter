@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -55,6 +56,7 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.Header;
+import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.editors.*;
@@ -66,6 +68,8 @@ import static com.quollwriter.Environment.getUIString;
 
 public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectCommentsMessage>
 {
+
+    public static final String OPEN_PROJECT_HEADER_CONTROL_ID = "openProject";
 
     public ProjectCommentsViewer (Project                proj,
                                   ProjectCommentsMessage message)
@@ -120,6 +124,102 @@ public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectComm
 
     }
     */
+
+    @Override
+    public Set<String> getTitleHeaderControlIds ()
+	{
+
+        Set<String> ids = new LinkedHashSet<> ();
+
+        ids.add (OPEN_PROJECT_HEADER_CONTROL_ID);
+
+        ids.addAll (super.getTitleHeaderControlIds ());
+
+        return ids;
+
+    }
+
+    @Override
+    public JComponent getTitleHeaderControl (String id)
+    {
+
+        if (id == null)
+        {
+
+            return null;
+
+        }
+
+        java.util.List<String> prefix = Arrays.asList (editors,projectcomments,title,toolbar,buttons);
+
+        final ProjectCommentsViewer _this = this;
+
+        JComponent c = null;
+
+        if (id.equals (OPEN_PROJECT_HEADER_CONTROL_ID))
+        {
+
+            return UIUtils.createButton (Constants.OPEN_PROJECT_ICON_NAME,
+                                         Constants.ICON_TITLE_ACTION,
+                                         getUIString (prefix,openproject,tooltip),
+                                              //"Click to open the find",
+                                              new ActionAdapter ()
+                                              {
+
+                                                  public void actionPerformed (ActionEvent ev)
+                                                  {
+
+                                                      ProjectInfo proj = null;
+
+                                                      try
+                                                      {
+
+                                                          proj = Environment.getProjectById (_this.message.getForProjectId (),
+                                                                                             _this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE);
+
+                                                      } catch (Exception e) {
+
+                                                          Environment.logError ("Unable to get project for: " +
+                                                                                _this.message.getForProjectId (),
+                                                                                e);
+
+                                                          UIUtils.showErrorMessage (_this,
+                                                                                    getUIString (editors,project,actions,openproject,openerrors,general));
+                                                                                    //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
+
+                                                          return;
+
+                                                      }
+
+                                                      try
+                                                      {
+
+                                                          Environment.openProject (proj);
+
+                                                      } catch (Exception e) {
+
+                                                          Environment.logError ("Unable to get project for: " +
+                                                                                _this.message.getForProjectId (),
+                                                                                e);
+
+                                                          UIUtils.showErrorMessage (_this,
+                                                                                    getUIString (editors,project,actions,openproject,openerrors,general));
+                                                                                    //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
+
+                                                          return;
+
+                                                      }
+
+                                                  }
+
+                                              });
+
+        }
+
+        return super.getTitleHeaderControl (id);
+
+    }
+
     @Override
     public ProjectSentReceivedSideBar getSideBar ()
     {

@@ -46,7 +46,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
 
                 AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                EditorsUIUtils.showLoginError (getUIString (editors,login,error,maxloginattempts));
+                EditorsUIUtils.showLoginError (getUIString (editors,login,errors,maxloginattempts));
                 //"You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.");
 
             }
@@ -75,7 +75,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
             EditorsEnvironment.clearUserPassword ();
 
             // Need to login again, probably the password has been changed.
-            EditorsUIUtils.showLoginError (getUIString (editors,login,error,invalidcredentials),
+            EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials),
                                            //"Your login details do not appear to be correct.",
                                            onLogin,
                                            onCancel);
@@ -88,7 +88,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
         {
 
             // Need to activate the account first.
-            EditorsUIUtils.showLoginError (getUIString (editors,login,error,inactiveaccount));
+            EditorsUIUtils.showLoginError (getUIString (editors,login,errors,inactiveaccount));
             //"You must activate your account (check your email) first.");
 
             return;
@@ -108,7 +108,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
             {
 
                 // How did we wind up here?
-                EditorsUIUtils.showLoginError (getUIString (editors,login,error,invalidcredentials),
+                EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials),
                                                //"Your login details do not appear to be correct.",
                                                onLogin,
                                                onCancel);
@@ -129,7 +129,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
         EditorsEnvironment.clearUserPassword ();
 
         // Something unexpected happened, just show the login again.
-        EditorsUIUtils.showLoginError (getUIString (editors,login,error,invalidcredentials),
+        EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials),
                                        //"Your login details do not appear to be correct.",
                                        onLogin,
                                        onCancel);

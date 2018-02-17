@@ -1946,6 +1946,8 @@ public class EditorsEnvironment
 
                             onCancel.actionPerformed (new ActionEvent ("send", 0, "send"));
 
+                            return;
+
                         }
 
                     }

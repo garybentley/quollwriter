@@ -1135,7 +1135,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
              {
 
                   _this.restoreToView (_editBox,
-                                       r,
+                                       null, //r,
                                        add);
 
              }
