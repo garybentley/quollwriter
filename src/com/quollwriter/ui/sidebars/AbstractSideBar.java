@@ -78,11 +78,11 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
     @Override
     public String getName ()
     {
-        
+
         return this.getId ();
-        
+
     }
-    
+
     @Override
     public void sideBarHidden (SideBarEvent ev)
     {
@@ -164,18 +164,18 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
 
     public String getId ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     public String getSaveState ()
     {
-        
+
         return null;
-        
+
     }
-        
+
     //public abstract boolean removeOnClose ();
 
     public void setTitle (String t)

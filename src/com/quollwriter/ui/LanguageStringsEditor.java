@@ -82,6 +82,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 	private JPanel                cards = null;
 	private CardLayout            cardsLayout = null;
 	private JLabel                importError = null;
+    private JLabel                forwardLabel = null;
     private ImportTransferHandlerOverlay   importOverlay = null;
     private Map<String, IdsPanel> panels = new HashMap ();
 	private String currentCard = null;
@@ -89,10 +90,29 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private String toolbarLocation = null;
     private Map<String, JTree> sectionTrees = new LinkedHashMap<> ();
     private LanguageStrings baseStrings = null;
+    private LanguageStrings.Filter<LanguageStrings.Node> nodeFilter = null;
+    private Map<LanguageStrings.Node, Set<LanguageStrings.Value>> valuesCache = new HashMap<> ();
 
     public LanguageStringsEditor (LanguageStrings userStrings)
 			               throws Exception
     {
+
+        this (userStrings,
+              Environment.getQuollWriterVersion ());
+
+    }
+
+    public LanguageStringsEditor (LanguageStrings userStrings,
+                                  Version         baseQWVersion)
+			               throws Exception
+    {
+
+        if (baseQWVersion == null)
+        {
+
+            baseQWVersion = Environment.getQuollWriterVersion ();
+
+        }
 
 		final LanguageStringsEditor _this = this;
 
@@ -103,12 +123,12 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 
-        this.baseStrings = Environment.getUserUIEnglishLanguageStrings (userStrings.getQuollWriterVersion ());
+        this.baseStrings = Environment.getUserUIEnglishLanguageStrings (baseQWVersion);
 
         if (this.baseStrings == null)
         {
 
-            throw new IllegalArgumentException ("Unable to find English strings for version: " + userStrings.getQuollWriterVersion ());
+            throw new IllegalArgumentException ("Unable to find English strings for version: " + baseQWVersion);
 
         }
 
@@ -134,25 +154,79 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         this.updateTitle ();
 
-        String defSection = "General";
+        this.forwardLabel = UIUtils.createClickableLabel ("",
+                                                          Environment.getIcon (Constants.INFO_ICON_NAME,
+                                                                               Constants.ICON_CLICKABLE_LABEL));
+        this.forwardLabel.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
 
-        Map<String, Set<LanguageStrings.Node>> sections = this.baseStrings.getNodesInSections (defSection);
-
-        java.util.List<AccordionItem> items = new ArrayList<> ();
-
-        for (LanguageStrings.Section sect : this.baseStrings.getSections ())
+        UIUtils.makeClickable (this.forwardLabel,
+                               new ActionListener ()
         {
 
-            items.add (this.createSectionTree (sect.name,
-                                               sect.icon,
-                                               sections.get (sect.id)));
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
 
-        }
+                try
+                {
+
+                    if (_this.nodeFilter != null)
+                    {
+
+                        _this.showAllStrings ();
+
+                    } else {
+
+                        _this.limitViewToPreviousVersionDiff ();
+
+                    }
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to update view",
+                                          e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to update view.");
+
+                }
+
+            }
+
+        });
 
         // Create the sidebar.
         this.mainSideBar = new AccordionItemsSideBar (this,
-                                                      items)
+                                                      null)//items)
         {
+
+            @Override
+            public JComponent getContent ()
+            {
+
+                Box b = new Box (BoxLayout.Y_AXIS);
+
+                b.add (_this.forwardLabel);
+
+                _this.forwardLabel.setVisible (Environment.getQuollWriterVersion ().isNewer (_this.userStrings.getQuollWriterVersion ()));
+
+                b.add (super.getContent ());
+
+                b.setBorder (UIUtils.createPadding (0, 0, 0, 0));
+
+                b.setPreferredSize (new Dimension (200, Short.MAX_VALUE));
+
+                return b;
+
+            }
+
+            @Override
+            public Dimension getMinimumSize ()
+            {
+
+                return new Dimension (200,
+                                      250);
+            }
 
             @Override
             public void panelShown (MainPanelEvent ev)
@@ -163,6 +237,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             }
 
         };
+
+        this.initSideBar ();
 
         this.currentSideBar = this.mainSideBar;
 
@@ -347,7 +423,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                      }
 
-                     LanguageStrings newls = new LanguageStrings (data);
+                     final LanguageStrings newls = new LanguageStrings (data);
 
                      Box content = new Box (BoxLayout.Y_AXIS);
 
@@ -374,6 +450,56 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                            public void actionPerformed (ActionEvent ev)
                            {
 
+                               LanguageStrings uls = null;
+
+                               try
+                               {
+
+                                   uls = Environment.getUserUILanguageStrings (newls.getQuollWriterVersion (),
+                                                                               _this.userStrings.getId ());
+
+                               } catch (Exception e) {
+
+                                   Environment.logError ("Unable to get user strings for version: " + newls.getQuollWriterVersion () + ", " + _this.userStrings.getId (),
+                                                         e);
+
+                                   UIUtils.showErrorMessage (null,
+                                                             getUIString (uilanguage,edit,actionerror));
+
+                                   return;
+
+                               }
+
+                               if (uls != null)
+                               {
+
+                                   // Open these instead.
+                                   LanguageStringsEditor lse = Environment.editUILanguageStrings (uls,
+                                                                                                  uls.getQuollWriterVersion ());
+
+                                   try
+                                   {
+
+                                       lse.limitViewToPreviousVersionDiff ();
+
+                                   } catch (Exception e) {
+
+                                       Environment.logError ("Unable to update view",
+                                                             e);
+
+                                       UIUtils.showErrorMessage (_this,
+                                                                 "Unable to update view");
+
+                                       return;
+
+                                   }
+
+                                   _this.removeNotification (n);
+
+                                   return;
+
+                               }
+
                                _this.showChanges (newls);
 
                                _this.removeNotification (n);
@@ -397,6 +523,159 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
     }
 
+    private int getErrorCount (LanguageStrings.Node n)
+    {
+
+        int c = 0;
+
+        // Get the card.
+        IdsPanel p = this.panels.get (n.getNodeId ());
+
+        if (p != null)
+        {
+
+            return p.getErrorCount ();
+
+        }
+
+        for (LanguageStrings.Value nv : this.valuesCache.get (n))
+        {
+
+            LanguageStrings.Value uv = this.userStrings.getValue (nv.getId ());
+
+            if (uv != null)
+            {
+
+                if (uv.getErrors (this.userStrings).size () > 0)
+                {
+
+                    c++;
+
+                }
+
+            }
+
+        }
+
+        return c;
+
+    }
+
+    private int getUserValueCount (LanguageStrings.Node n)
+    {
+
+        int c = 0;
+
+        // Get the card.
+        IdsPanel p = this.panels.get (n.getNodeId ());
+
+        if (p != null)
+        {
+
+            return p.getUserValueCount ();
+
+        }
+
+        for (LanguageStrings.Value nv : this.valuesCache.get (n))
+        {
+
+            LanguageStrings.Value uv = this.userStrings.getValue (nv.getId (),
+                                                                  true);
+
+            if (uv != null)
+            {
+
+                c++;
+
+            }
+
+        }
+
+        return c;
+
+    }
+
+    private void initSideBar ()
+    {
+
+        String defSection = "General";
+
+        Map<String, Set<LanguageStrings.Node>> sections = this.baseStrings.getNodesInSections (defSection);
+
+        java.util.List<AccordionItem> items = new ArrayList<> ();
+
+        this.valuesCache = new HashMap<> ();
+
+        for (LanguageStrings.Section sect : this.baseStrings.getSections ())
+        {
+
+            AccordionItem it = this.createSectionTree (sect.name,
+                                                       sect.icon,
+                                                       sections.get (sect.id));
+
+            if (it == null)
+            {
+
+                continue;
+
+            }
+
+            items.add (it);
+
+        }
+
+        this.mainSideBar.setItems (items);
+
+        if (this.nodeFilter == null)
+        {
+
+            this.forwardLabel.setText (String.format ("Click to show what's changed/new between version <b>%s</b> and <b>%s</b>.",
+                                                      Environment.getQuollWriterVersion ().toString (),
+                                                      this.userStrings.getQuollWriterVersion ().toString ()));
+
+        } else {
+
+            this.forwardLabel.setText (String.format ("Click to show all the strings for version <b>%s</b>.",
+                                                      this.userStrings.getQuollWriterVersion ().toString ()));
+
+        }
+
+    }
+
+    private void showAllStrings ()
+    {
+
+        try
+        {
+
+            this.save ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save",
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to update view.");
+
+            return;
+
+        }
+
+        // Clear out the panel cache.
+        this.panels = new HashMap<> ();
+
+        this.currentCard = null;
+        this.cards.removeAll ();
+
+        this.nodeFilter = null;
+        this.initSideBar ();
+
+        this.validate ();
+        this.repaint ();
+
+    }
+
     private void showChanges (LanguageStrings newls)
     {
 
@@ -411,11 +690,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             Environment.saveUserUILanguageStrings (this.userStrings);
 
-            LanguageStrings uls = Environment.getUserUILanguageStrings (newls.getQuollWriterVersion (),
-                                                                        this.userStrings.getId ());
-
             // Get a diff of the default to this new.
-            new LanguageStringsEditor (uls).init ();
+            LanguageStringsEditor lse = Environment.editUILanguageStrings (this.userStrings,
+                                                                           newls.getQuollWriterVersion ());
+            lse.limitViewToPreviousVersionDiff ();
 
         } catch (Exception e) {
 
@@ -431,6 +709,148 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.userStrings.setQuollWriterVersion (v);
 
         }
+
+    }
+
+    private void limitViewToPreviousVersionDiff ()
+                                          throws Exception
+    {
+
+        try
+        {
+
+            this.save ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save",
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to update view.");
+
+            return;
+
+        }
+
+        final LanguageStrings basels = this.baseStrings;
+
+        // Get the previous version (which will be the current QW version).
+        final LanguageStrings prevbasels = Environment.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ());
+
+        if (prevbasels == null)
+        {
+
+            // No strings.
+            return;
+
+        }
+
+        this.nodeFilter = new LanguageStrings.Filter<LanguageStrings.Node> ()
+        {
+
+            @Override
+            public boolean accept (LanguageStrings.Node n)
+            {
+
+                LanguageStrings.Node pn = prevbasels.getNode (n.getId ());
+
+                // Does the node exist in the current base strings but not the previous?
+                if (pn == null)
+                {
+
+                    // This is a new node.
+                    return true;
+
+                }
+
+                // It exists, but has it changed?
+                if ((n instanceof LanguageStrings.Value)
+                    &&
+                    (!(pn instanceof LanguageStrings.Value))
+                   )
+                {
+
+                    // Node type changed.
+                    return true;
+
+                }
+
+                if ((pn instanceof LanguageStrings.Value)
+                    &&
+                    (!(n instanceof LanguageStrings.Value))
+                   )
+                {
+
+                    // Node type changed.
+                    return true;
+
+                }
+
+                if ((pn instanceof LanguageStrings.Value)
+                    &&
+                    (n instanceof LanguageStrings.Value)
+                   )
+                {
+
+                    LanguageStrings.Value pnv = (LanguageStrings.Value) pn;
+                    LanguageStrings.Value nv = (LanguageStrings.Value) n;
+
+                    // Value changed?
+                    if (pnv.getRawText ().equals (nv.getRawText ()))
+                    {
+
+                        return false;
+
+                    }
+
+                }
+
+                return true;
+
+            }
+
+        };
+
+        this.initSideBar ();
+
+        // Clear out the panel cache.
+        this.panels = new HashMap<> ();
+
+        this.currentCard = null;
+        this.cards.removeAll ();
+
+        this.validate ();
+        this.repaint ();
+
+    }
+
+    private void updateSideBar (LanguageStrings.Node n)
+    {
+
+        for (JTree t : this.sectionTrees.values ())
+        {
+
+            // See how many children there are.
+            TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) t.getModel ().getRoot (),
+                                                            n.getRoot ());
+
+            if (tp != null)
+            {
+
+                ((DefaultTreeModel) t.getModel ()).nodeChanged ((DefaultMutableTreeNode) tp.getLastPathComponent ());
+
+                t.validate ();
+                t.repaint ();
+
+                break;
+
+            }
+
+        }
+
+        this.sideBar.validate ();
+        this.sideBar.repaint ();
 
     }
 
@@ -594,6 +1014,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         final JTree tree = this.createStringsTree (sections);
 
+        if (tree == null)
+        {
+
+            return null;
+
+        }
+
         tree.setCellRenderer (new DefaultTreeCellRenderer ()
         {
 
@@ -629,14 +1056,20 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                 final java.util.List<String> id = n.getId ();
 
-                int c = _this.userStrings.getNodes (n.getId ()).size ();
+                int c = _this.getUserValueCount (n);
+                int alls = 0;
+                int errCount = _this.getErrorCount (n);
 
-                //String id = n.getNodeId ();
+                Set<LanguageStrings.Value> vals = _this.valuesCache.get (n);
+
+                if (vals != null)
+                {
+
+                    alls = vals.size ();
+
+                }
 
                 String title = (n.getTitle () != null ? n.getTitle () : n.getNodeId ());
-
-                // See if there are any errors for this id.
-                int errCount = _this.userStrings.getErrors (n.getId ()).size ();
 
                 String name = null;
 
@@ -646,15 +1079,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     name = String.format ("%s (%s/%s) [%s errors]",
                                           title,
                                           Environment.formatNumber (c),
-                                          Environment.formatNumber (n.getAllValues ().size ()),
+                                          Environment.formatNumber (alls),
                                           Environment.formatNumber (errCount));
 
                     this.setIcon (Environment.getIcon (Constants.ERROR_ICON_NAME,
                                                        Constants.ICON_SIDEBAR));
 
                 } else {
-
-                    int alls = n.getAllValues ().size ();
 
                     name = String.format ("%s (%s/%s)",
                                           title,
@@ -777,6 +1208,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     public void showIds (String idPrefix)
     {
 
+        if (!this.valuesCache.containsKey (this.baseStrings.getNode (idPrefix)))
+        {
+
+            return;
+
+        }
+
         //String id = node.getNodeId ();
         IdsPanel p = this.panels.get (idPrefix);
 
@@ -849,45 +1287,26 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         for (LanguageStrings.Node k : sections)
         {
 
+            Set<LanguageStrings.Value> vals = k.getValues (this.nodeFilter);
+
+            if (vals.size () == 0)
+            {
+
+                continue;
+
+            }
+
+            this.valuesCache.put (k, vals);
+
             root.add (new DefaultMutableTreeNode (k));
 
-            /*
-            // Get all the values and separate by title.
-            for (LanguageStrings.Node v : k.getAllNodes ())
-            {
+        }
 
-                if (v.getTitle () != null)
-                {
+        if (root.getChildCount () == 0)
+        {
 
-                    root.add (new DefaultMutableTreeNode (v));
-
-                }
-
-            }
-*/
-/*
-            if (!this.strings.isEnglish ())
-            {
-
-                Object o = strs.get (k);
-
-                if (o instanceof Map)
-                {
-
-                    Map m = (Map) o;
-
-                    if (m.containsKey (":englishonly"))
-                    {
-
-                        continue;
-
-                    }
-
-                }
-
-            }
-*/
-            //root.add (new DefaultMutableTreeNode (k));
+            // Filtered out everything.
+            return null;
 
         }
 
@@ -1123,13 +1542,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 		this.showViewer ();
 
         String lastId = UserProperties.get ("languagestringseditor-stringsid-lasteditingid-" + this.userStrings.getId ());
-
-        if (lastId != null)
-        {
-
-            this.showIds (lastId);
-
-        }
 
         if (lastId != null)
         {
@@ -2476,11 +2888,17 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 		UserProperties.set ("languagestringseditor-window-width",
 							this.splitPane.getSize ().width);
 
-        UserProperties.set ("languagestringseditor-stringsid-lasteditingid-" + this.userStrings.getId (),
-                            this.currentCard);
+        if (this.currentCard != null)
+        {
 
-        UserProperties.set ("languagestringseditor-stringsid-lasteditingscroll",
-                            this.panels.get (this.currentCard).getScrollPane ().getVerticalScrollBar ().getValue ());
+            UserProperties.set ("languagestringseditor-stringsid-lasteditingid-" + this.userStrings.getId (),
+                                this.currentCard);
+
+            UserProperties.set ("languagestringseditor-stringsid-lasteditingscroll",
+                                this.panels.get (this.currentCard).getScrollPane ().getVerticalScrollBar ().getValue ());
+
+        }
+
         UserProperties.set ("languagestringseditor-sidebar-scroll",
                             this.mainSideBar.getScrollPane ().getVerticalScrollBar ().getValue ());
 
@@ -2724,9 +3142,11 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private IdsPanel createIdsPanel (String id)
     {
 
+        final LanguageStringsEditor _this = this;
+
         return new IdsPanel (this,
-                             id,
-                             null);
+                             this.baseStrings.getNode (id),
+                             this.valuesCache.get (this.baseStrings.getNode (id)));
 
     }
 
@@ -2735,37 +3155,36 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         private String parentId = null;
         private Set<LanguageStrings.Value> vals = null;
-        private LanguageStrings.Node node = null;
-        //private Object values = null;
+        private LanguageStrings.Node parent = null;
+        private Set<LanguageStrings.Value> values = null;
         private Box content = null;
         private LanguageStringsEditor editor = null;
 
-        public IdsPanel (LanguageStringsEditor ed,
-                         String                id,
-                         Object                values)
+        public IdsPanel (LanguageStringsEditor      ed,
+                         LanguageStrings.Node       parent,
+                         Set<LanguageStrings.Value> values)
         {
 
             super (ed,
-                   id,
+                   parent.getNodeId (),
                    null);
 
             this.editor = ed;
 
-            this.node = this.editor.baseStrings.getNode (id);
+            this.parent = parent;
+            this.values = values;
 
-            String title = (this.node.getTitle () != null ? this.node.getTitle () : id);
+            //this.node = this.editor.baseStrings.getNode (id);
+
+            String title = (this.parent.getTitle () != null ? this.parent.getTitle () : this.parent.getNodeId ());
 
             this.setTitle (String.format ("%s (%s)",
                                           title,
-                                          Environment.formatNumber (this.node.getAllValues ().size ())));
-                                          //getStringsCount (id))));
-
-            this.parentId = id;
+                                          Environment.formatNumber (this.values.size ())));
 
             this.content = new ScrollableBox (BoxLayout.Y_AXIS);
             this.content.setAlignmentY (Component.TOP_ALIGNMENT);
             this.content.setAlignmentX (Component.LEFT_ALIGNMENT);
-            //this.content.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));
 
         }
 
@@ -2773,7 +3192,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         public String getPanelId ()
         {
 
-            return this.parentId;
+            return this.parent.getNodeId ();
 
         }
 
@@ -2791,7 +3210,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             final IdsPanel _this = this;
 
-            this.buildForm (this.parentId);
+            this.buildForm (this.parent.getNodeId ());
 
             this.content.add (Box.createVerticalGlue ());
 
@@ -2878,6 +3297,66 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 
+        public int getErrorCount ()
+        {
+
+            int c = 0;
+
+            for (int i = 0; i < this.content.getComponentCount (); i++)
+            {
+
+                Component co = this.content.getComponent (i);
+
+                if (co instanceof IdBox)
+                {
+
+                    IdBox b = (IdBox) co;
+
+                    if (b.hasErrors ())
+                    {
+
+                        c++;
+
+                    }
+
+                }
+
+            }
+
+            return c;
+
+        }
+
+        public int getUserValueCount ()
+        {
+
+            int c = 0;
+
+            for (int i = 0; i < this.content.getComponentCount (); i++)
+            {
+
+                Component co = this.content.getComponent (i);
+
+                if (co instanceof IdBox)
+                {
+
+                    IdBox b = (IdBox) co;
+
+                    if (b.hasUserValue ())
+                    {
+
+                        c++;
+
+                    }
+
+                }
+
+            }
+
+            return c;
+
+        }
+
         private void createComment (String comment)
         {
 
@@ -2893,14 +3372,14 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         {
 
             // Check for the section comment.
-            if (this.node.getComment () != null)
+            if (this.parent.getComment () != null)
             {
 
-                this.createComment (this.node.getComment ());
+                this.createComment (this.parent.getComment ());
 
             }
 
-            for (LanguageStrings.Value v : this.node.getAllValues ())
+            for (LanguageStrings.Value v : this.values)
             {
 
                 this.content.add (new IdBox (v,
@@ -3009,6 +3488,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             l.setEditable (false);
             l.setBackground (UIUtils.getComponentColor ());
             l.setAlignmentX (Component.LEFT_ALIGNMENT);
+
             //l.setMinimumSize (new Dimension (200, 20));
 
             pb.add (l,
@@ -3469,6 +3949,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.errorsLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
             this.errorsLabel.setVisible (false);
             this.errorsLabel.setIcon (null);
+            this.errorsLabel.setFocusable (false);
 
             pb.add (this.errorsLabel,
                     cc.xy (1, r));
@@ -3524,6 +4005,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                 }
 
+            } else {
+
+                this.editor.userStrings.removeNode (this.baseValue.getId ());
+
             }
 
         }
@@ -3559,6 +4044,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 
+        public boolean hasUserValue ()
+        {
+
+            return this.getUserValue () != null;
+
+        }
+
         public String getUserValue ()
         {
 
@@ -3586,8 +4078,29 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         {
 
             this.userValue.updateText (this.baseValue.getRawText ());
+            this.showPreview ();
             this.validate ();
             this.repaint ();
+
+        }
+
+        public boolean hasErrors ()
+        {
+
+            String s = this.getUserValue ();
+
+            if (s == null)
+            {
+
+                return false;
+
+            }
+
+            return LanguageStrings.getErrors (s,
+                                              LanguageStrings.toId (this.baseValue.getId ()),
+                                              this.baseValue.getSCount (),
+                                              this.editor).size () > 0;
+
 
         }
 
@@ -3627,6 +4140,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             }
 
+            LanguageStrings.Node root = this.baseValue.getRoot ();
+
+            this.editor.updateSideBar (this.baseValue);
+
             if (errs.size () > 0)
             {
 
@@ -3636,11 +4153,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     this.errors = UIUtils.createHelpTextPane ("",
                                                               this.editor);
                     this.errors.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+                    this.errors.setFocusable (false);
                     this.errorsWrapper.add (this.errors);
 
                 }
-
-                this.editor.updateSideBar ();
 
                 StringBuilder b = new StringBuilder ();
 
@@ -3661,6 +4177,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 this.errors.setText ("<span class='error'>" + b.toString () + "</span>");
                 this.errorsLabel.setVisible (true);
                 this.errorsWrapper.setVisible (true);
+
+                this.editor.updateSideBar (this.baseValue);
 
                 return true;
 
@@ -3685,6 +4203,18 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             if (s == null)
             {
 
+                if (this.preview != null)
+                {
+
+                    this.preview.setText ("");
+
+                }
+
+                this.previewWrapper.setVisible (false);
+                this.previewLabel.setVisible (false);
+
+                this.editor.updateSideBar (this.baseValue);
+
                 return;
 
             }
@@ -3695,6 +4225,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 this.preview = UIUtils.createHelpTextPane ("",
                                                            this.editor);
                 this.preview.setBorder (UIUtils.createPadding (6, 0, 0, 0));
+                this.preview.setFocusable (false);
 
                 this.previewWrapper.add (this.preview);
 
@@ -3705,6 +4236,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             this.previewLabel.setVisible (true);
             this.preview.setText (t);
             this.previewWrapper.setVisible (true);
+
+            this.editor.updateSideBar (this.baseValue);
 
             this.validate ();
             this.repaint ();

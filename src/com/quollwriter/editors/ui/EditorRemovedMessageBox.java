@@ -76,15 +76,15 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
         if (this.message.isSentByMe ())
         {
 
-            title = getUIString (editors,messages,contactremoved,sent,title);
-            text = String.format (getUIString (editors,messages,contactremoved,sent,text),
+            title = getUIString (editors,messages,contactremoved,sent,LanguageStrings.title);
+            text = String.format (getUIString (editors,messages,contactremoved,sent,LanguageStrings.text),
                                   //"You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
                                   this.message.getEditor ().getShortName ());
 
         } else {
 
-            title = getUIString (editors,messages,contactremoved,received,title);
-            text = String.format (getUIString (editors,messages,contactremoved,received,text),
+            title = getUIString (editors,messages,contactremoved,received,LanguageStrings.title);
+            text = String.format (getUIString (editors,messages,contactremoved,received,LanguageStrings.text),
                                   //"You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
                                   this.message.getEditor ().getShortName ());
 
@@ -120,7 +120,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 
             this.add (this.responseBox);
 
-            JTextPane rdesc = UIUtils.createHelpTextPane (String.format (getUIString (editors,messages,contactremoved,received,undealtwith,text),
+            JTextPane rdesc = UIUtils.createHelpTextPane (String.format (getUIString (editors,messages,contactremoved,received,undealtwith,LanguageStrings.text),
                                                                         //"Clicking on the button below will remove <b>%s</b> from your list of current {contacts}.  You can still get access to them in the options menu of the {Contacts} sidebar via the <b>View the previous {contacts}</b> item.",
                                                                          this.message.getEditor ().getShortName ()),
                                                          this.viewer);

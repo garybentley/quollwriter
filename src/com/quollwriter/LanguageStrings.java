@@ -1495,6 +1495,13 @@ System.out.println ("CHANGED: " + v);
 
         List<String> idparts = LanguageStrings.getIdParts (id);
 
+        return this.getNode (idparts);
+
+    }
+
+    public Node getNode (List<String> idparts)
+    {
+
         Node n = null;
 
         if (idparts.size () > 0)
@@ -1548,6 +1555,15 @@ System.out.println ("CHANGED: " + v);
     public Value getValue (List<String> idparts)
     {
 
+        return this.getValue (idparts,
+                              false);
+
+    }
+
+    public Value getValue (List<String> idparts,
+                           boolean      thisOnly)
+    {
+
         if (idparts.size () < 1)
         {
 
@@ -1558,12 +1574,17 @@ System.out.println ("CHANGED: " + v);
         if (!this.containsId (idparts))
         {
 
-            if (this.parent != null)
+            if ((this.parent != null)
+                &&
+                (!thisOnly)
+               )
             {
 
                 return this.parent.getValue (idparts);
 
             }
+
+            return null;
 
         }
 
@@ -1591,6 +1612,45 @@ System.out.println ("CHANGED: " + v);
         }
 
         return null;
+
+    }
+
+    public Node removeNode (List<String> idparts)
+                     throws GeneralException
+    {
+
+        if ((idparts == null)
+            ||
+            (idparts.size () == 0)
+           )
+        {
+
+            throw new IllegalArgumentException ("No id provided.");
+
+        }
+
+        String f = idparts.get (0);
+
+        // See if we already have the first node.
+        Node n = this.nodes.get (f);
+
+        if (n == null)
+        {
+
+            return null;
+
+        }
+
+        if (idparts.size () == 1)
+        {
+
+            this.nodes.remove (n);
+
+            return n;
+
+        }
+
+        return n.removeNode (idparts.subList (1, idparts.size ()));
 
     }
 
@@ -1881,6 +1941,20 @@ System.out.println ("CHANGED: " + v);
 
         }
 
+        public Node getRoot ()
+        {
+
+            if (this.parent == null)
+            {
+
+                return this;
+
+            }
+
+            return this.parent.getRoot ();
+
+        }
+
         public Set<Node> getNodes (List<String>  idparts,
                                    Filter<Node> filter)
         {
@@ -1919,6 +1993,46 @@ System.out.println ("CHANGED: " + v);
         {
 
             return this.getNodes (null);
+
+        }
+
+        public Set<Value> getValues (Filter<Node> filter)
+        {
+
+            Set<Value> ret = new LinkedHashSet<> ();
+
+            if (filter != null)
+            {
+
+                if (!filter.accept (this))
+                {
+
+                    return ret;
+
+                }
+
+            }
+
+            if (this instanceof Value)
+            {
+
+                ret.add ((Value) this);
+
+            }
+
+            if (this.children != null)
+            {
+
+                for (Node n : this.children.values ())
+                {
+
+                    ret.addAll (n.getValues (filter));
+
+                }
+
+            }
+
+            return ret;
 
         }
 
@@ -2010,6 +2124,44 @@ System.out.println ("CHANGED: " + v);
             }
 
             return n.insertValue (idparts.subList (1, idparts.size ()));
+
+        }
+
+        public Node removeNode (List<String> idparts)
+                         throws GeneralException
+        {
+
+            if ((idparts == null)
+                ||
+                (idparts.size () == 0)
+               )
+            {
+
+                throw new IllegalArgumentException ("No id provided.");
+
+            }
+
+            String f = idparts.get (0);
+
+            Node n = this.getChild (f);
+
+            if (n == null)
+            {
+
+                return null;
+
+            }
+
+            if (idparts.size () == 1)
+            {
+
+                this.children.remove (idparts.get (0));
+
+                return n;
+
+            }
+
+            return n.removeNode (idparts.subList (1, idparts.size ()));
 
         }
 
@@ -2176,7 +2328,7 @@ System.out.println ("CHANGED: " + v);
         public String toString ()
         {
 
-            return (this.getId () + "(node,:titlex=" + this.titlex + ",:section=" + this.section + ",:title=" + this.title + ",:comment=" + this.comment + ",children=" + (this.children != null ? this.children.size () : 0) + ")");
+            return (this.getId () + "(node,:section=" + this.section + ",:title=" + this.title + ",:comment=" + this.comment + ",children=" + (this.children != null ? this.children.size () : 0) + ")");
 
         }
 
@@ -3795,5 +3947,6 @@ System.out.println ("CHANGED: " + v);
     public static final String previouseditors = "previouseditors";
     public static final String hidepreviouseditors = "hidepreviouseditors";
     public static final String unknownproject = "unknownproject";
+    public static final String notinlist = "notinlist";
 
 }

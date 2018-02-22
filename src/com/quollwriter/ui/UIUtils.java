@@ -2424,6 +2424,27 @@ public class UIUtils
                                               final Point                      showAt)
     {
 
+        UIUtils.showObjectSelectPopup (objs,
+                                       parent,
+                                       popupTitle,
+                                       renderer,
+                                       onSelect,
+                                       closeOnSelect,
+                                       null,
+                                       showAt);
+
+    }
+
+    public static void showObjectSelectPopup (final Set<? extends NamedObject> objs,
+                                              final AbstractViewer             parent,
+                                              final String                     popupTitle,
+                                              final ListCellRenderer           renderer,
+                                              final ActionListener             onSelect,
+                                              final boolean                    closeOnSelect,
+                                              final JComponent                 extra,
+                                              final Point                      showAt)
+    {
+
         if (popupTitle == null)
         {
 
@@ -2501,8 +2522,17 @@ public class UIUtils
 
                 });
 */
+/*
                 int rowHeight = 37;
 
+                Component t = renderer.getListCellRendererComponent (l,
+                                                                     objs.iterator ().next (),
+                                                                     0,
+                                                                     false,
+                                                                     false);
+
+                rowHeight = t.getPreferredSize ().height;
+*/
                 l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
                 /*
                 final Dimension sSize = new Dimension (this.swatchSize.width + (2 * this.borderWidth) + (2 * this.horizGap),
@@ -2511,16 +2541,28 @@ public class UIUtils
                 JScrollPane sp = new JScrollPane (l);
 
                 sp.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-                sp.getVerticalScrollBar ().setUnitIncrement (rowHeight);
+                sp.getVerticalScrollBar ().setUnitIncrement (20);//rowHeight);
                 sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
                 sp.setOpaque (false);
-
+/*
                 sp.getViewport ().setPreferredSize (new Dimension (400,
                                                                    rowHeight * (objs.size () > 3 ? 3 : objs.size ())));
+*/
+
+                l.setVisibleRowCount (Math.min (3, objs.size ()));
 
                 sp.setBorder (null);
 
                 content.add (sp);
+
+                if (extra != null)
+                {
+
+                    extra.setBorder (UIUtils.createPadding (10, 5, 10, 5));
+
+                    content.add (extra);
+
+                }
 
                 final QPopup ep = UIUtils.createClosablePopup (popupTitle,
                                                                Environment.getIcon (Constants.VIEW_ICON_NAME,
@@ -9820,11 +9862,6 @@ public class UIUtils
 
                     ls = new LinkedHashSet<> ();
 
-                    Map data = new HashMap ();
-                    ls.add (data);
-                    data.put ("id", LanguageStrings.ENGLISH_ID);
-                    data.put ("nativename", Constants.ENGLISH);
-
                     Environment.logError ("Unable to get the ui language strings files url",
                                           e);
 
@@ -9853,6 +9890,12 @@ public class UIUtils
                                           e);
 
                 }
+
+                // English is always available.
+                Map data = new HashMap ();
+                ls.add (data);
+                data.put ("id", LanguageStrings.ENGLISH_ID);
+                data.put ("nativename", Constants.ENGLISH);
 
                 Iterator iter = ls.iterator ();
 
@@ -11121,33 +11164,8 @@ public class UIUtils
 
                                                final LanguageStrings ls = (LanguageStrings) ev.getSource ();
 
-                                               // See if we already have a viewer open for this set of strings.
-                                               LanguageStringsEditor lse = Environment.getUILanguageStringsEditor (ls);
-
-                                               if (lse != null)
-                                               {
-
-                                                   lse.toFront ();
-
-                                                   return;
-
-                                               }
-
-                                                try
-                                                {
-
-                                                    LanguageStringsEditor _ls = new LanguageStringsEditor (ls);
-                                                    _ls.init ();
-
-                                                } catch (Exception e) {
-
-                                                    Environment.logError ("Unable to create language strings editor",
-                                                                          e);
-
-                                                    UIUtils.showErrorMessage (viewer,
-                                                                              getUIString (uilanguage,edit,actionerror));
-
-                                                }
+                                               Environment.editUILanguageStrings (ls,
+                                                                                  ls.getQuollWriterVersion ());
 
                                            }
 

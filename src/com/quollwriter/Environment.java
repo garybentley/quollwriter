@@ -4233,84 +4233,28 @@ public class Environment
         if (uilangid != null)
         {
 
-            LanguageStrings ls = Environment.getUILanguageStrings (uilangid);
-
-            if ((ls == null)
-                ||
-                // Have we updated QW and need to get newer versions?
-                ((ls != null)
-                 &&
-                 (Environment.getQuollWriterVersion ().isNewer (ls.getQuollWriterVersion ()))
-                )
-               )
+            if (!LanguageStrings.isEnglish (uilangid))
             {
 
-                // Something has gone wrong, try and download again.
-                Environment.downloadUILanguageFile (uilangid,
-                                                    new ActionListener ()
-                                                    {
+                LanguageStrings ls = Environment.getUILanguageStrings (uilangid);
 
-                                                        @Override
-                                                        public void actionPerformed (ActionEvent ev)
+                if ((ls == null)
+                    ||
+                    // Have we updated QW and need to get newer versions?
+                    ((ls != null)
+                     &&
+                     (Environment.getQuollWriterVersion ().isNewer (ls.getQuollWriterVersion ()))
+                    )
+                   )
+                {
+
+                    // Something has gone wrong, try and download again.
+                    Environment.downloadUILanguageFile (uilangid,
+                                                        new ActionListener ()
                                                         {
 
-                                                            try
-                                                            {
-
-                                                                Environment.setUILanguage (uilangid);
-
-                                                            } catch (Exception e) {
-
-                                                                Environment.logError ("Unable to set ui language to: " + uilangid,
-                                                                                      e);
-
-                                                                UIUtils.showErrorMessage (null,
-                                                                                          getUIString (uilanguage,set,downloading,errors,download));
-                                                                                          //"Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
-
-                                                            }
-
-                                                            UIUtils.showMessage (null,
-                                                                                 getUIString (uilanguage,set,downloading,redownload,confirmpopup,title),
-                                                                                 //"Language strings re-downloaded",
-                                                                                 getUIString (uilanguage,set,downloading,redownload,confirmpopup,text),
-                                                                                 //"Quoll Writer has re-downloaded the User Interface language strings you are using because they were missing from your local system.  In the interim the User Interface has fallen back to using English.<br /><br />To return to using your selected language Quoll Writer must be restarted.",
-                                                                                 null,
-                                                                                 null);
-
-                                                        }
-
-                                                    },
-                                                    // On error.
-                                                    new ActionListener ()
-                                                    {
-
-                                                        @Override
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            UIUtils.showErrorMessage (null,
-                                                                                      getUIString (uilanguage,set,downloading,redownload,actionerror));
-                                                                                      //"Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
-
-                                                        }
-
-                                                    });
-
-            } else {
-
-                Environment.uiLanguageStrings = ls;
-
-                // See if there is an update to the strings.
-                Environment.downloadUILanguageFile (uilangid,
-                                                    new ActionListener ()
-                                                    {
-
-                                                        @Override
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            if (ev.getID () > 0)
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
                                                             {
 
                                                                 try
@@ -4324,35 +4268,96 @@ public class Environment
                                                                                           e);
 
                                                                     UIUtils.showErrorMessage (null,
-                                                                                              getUIString (uilanguage,set,downloading,update,actionerror));
-                                                                                              //"Warning!  Quoll Writer has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+                                                                                              getUIString (uilanguage,set,downloading,errors,download));
+                                                                                              //"Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
 
                                                                 }
 
                                                                 UIUtils.showMessage (null,
-                                                                                     getUIString (uilanguage,set,downloading,update,confirmpopup,title),
-                                                                                     //"Language strings updated",
-                                                                                     getUIString (uilanguage,set,downloading,update,confirmpopup,text),
-                                                                                     //"Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
+                                                                                     getUIString (uilanguage,set,downloading,redownload,confirmpopup,title),
+                                                                                     //"Language strings re-downloaded",
+                                                                                     getUIString (uilanguage,set,downloading,redownload,confirmpopup,text),
+                                                                                     //"Quoll Writer has re-downloaded the User Interface language strings you are using because they were missing from your local system.  In the interim the User Interface has fallen back to using English.<br /><br />To return to using your selected language Quoll Writer must be restarted.",
                                                                                      null,
                                                                                      null);
 
                                                             }
 
-                                                        }
-
-                                                    },
-                                                    // On error.
-                                                    new ActionListener ()
-                                                    {
-
-                                                        @Override
-                                                        public void actionPerformed (ActionEvent ev)
+                                                        },
+                                                        // On error.
+                                                        new ActionListener ()
                                                         {
 
-                                                        }
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
 
-                                                    });
+                                                                UIUtils.showErrorMessage (null,
+                                                                                          getUIString (uilanguage,set,downloading,redownload,actionerror));
+                                                                                          //"Warning!  Quoll Writer has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+
+                                                            }
+
+                                                        });
+
+                } else {
+
+                    Environment.uiLanguageStrings = ls;
+
+                    // See if there is an update to the strings.
+                    Environment.downloadUILanguageFile (uilangid,
+                                                        new ActionListener ()
+                                                        {
+
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                                if (ev.getID () > 0)
+                                                                {
+
+                                                                    try
+                                                                    {
+
+                                                                        Environment.setUILanguage (uilangid);
+
+                                                                    } catch (Exception e) {
+
+                                                                        Environment.logError ("Unable to set ui language to: " + uilangid,
+                                                                                              e);
+
+                                                                        UIUtils.showErrorMessage (null,
+                                                                                                  getUIString (uilanguage,set,downloading,update,actionerror));
+                                                                                                  //"Warning!  Quoll Writer has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+
+                                                                    }
+
+                                                                    UIUtils.showMessage (null,
+                                                                                         getUIString (uilanguage,set,downloading,update,confirmpopup,title),
+                                                                                         //"Language strings updated",
+                                                                                         getUIString (uilanguage,set,downloading,update,confirmpopup,text),
+                                                                                         //"Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
+                                                                                         null,
+                                                                                         null);
+
+                                                                }
+
+                                                            }
+
+                                                        },
+                                                        // On error.
+                                                        new ActionListener ()
+                                                        {
+
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                            }
+
+                                                        });
+
+                }
 
             }
 
@@ -7960,6 +7965,44 @@ TODO: Add back in when appropriate.
         }
 
         return s;
+
+    }
+
+    public static LanguageStringsEditor editUILanguageStrings (LanguageStrings userStrings,
+                                                               Version         baseQWVersion)
+    {
+
+        LanguageStringsEditor lse = Environment.getUILanguageStringsEditor (userStrings);
+
+        if (lse != null)
+        {
+
+            lse.toFront ();
+
+            return lse;
+
+        }
+
+         try
+         {
+
+             LanguageStringsEditor _ls = new LanguageStringsEditor (userStrings,
+                                                                    baseQWVersion);
+             _ls.init ();
+
+             return _ls;
+
+         } catch (Exception e) {
+
+             Environment.logError ("Unable to create language strings editor",
+                                   e);
+
+             UIUtils.showErrorMessage (null,
+                                       getUIString (uilanguage,edit,actionerror));
+
+            return null;
+
+         }
 
     }
 

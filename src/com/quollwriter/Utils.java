@@ -50,7 +50,7 @@ public class Utils
         out.close ();
         _in.close ();
 
-        return (ch != null ? new String (bytes, ch) : new String (bytes));
+        return (ch != null ? new String (out.toByteArray (), ch) : new String (out.toByteArray ()));
 
     }
 

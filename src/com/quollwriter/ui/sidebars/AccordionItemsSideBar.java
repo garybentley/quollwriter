@@ -23,6 +23,7 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
 
     private List<AccordionItem> items = new ArrayList ();
     private JScrollPane scrollPane = null;
+    private Box contentBox = null;
 
     public AccordionItemsSideBar (E                   v,
                                   List<AccordionItem> items)
@@ -31,6 +32,18 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
         super (v);
 
         this.items = items;
+
+        this.contentBox = new ScrollableBox (BoxLayout.Y_AXIS)
+        {
+
+            public Dimension getMinimumSize ()
+            {
+
+                return this.getPreferredSize ();
+
+            }
+
+        };
 
     }
 
@@ -118,17 +131,7 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
     public JComponent getContent ()
     {
 
-        Box b = new ScrollableBox (BoxLayout.Y_AXIS)
-        {
-
-            public Dimension getMinimumSize ()
-            {
-
-                return this.getPreferredSize ();
-
-            }
-
-        };
+        Box b = this.contentBox;
 
         b.setOpaque (false);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -140,19 +143,7 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
 
         }
 
-        if (this.items != null)
-        {
-
-            for (AccordionItem it : this.items)
-            {
-
-                b.add (it);
-
-            }
-
-        }
-
-        b.add (Box.createVerticalGlue ());
+        this.fillContent ();
 
         b.setMinimumSize (new Dimension (300,
                                          250));
@@ -170,6 +161,38 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
     {
 
         return this.scrollPane;
+
+    }
+
+    private void fillContent ()
+    {
+
+        this.contentBox.removeAll ();
+
+        if (this.items != null)
+        {
+
+            for (AccordionItem it : this.items)
+            {
+
+                it.init ();
+                this.contentBox.add (it);
+
+            }
+
+        }
+
+        this.contentBox.add (Box.createVerticalGlue ());
+
+    }
+
+    public void setItems (List<AccordionItem> items)
+    {
+
+        this.items = items;
+        this.fillContent ();
+        this.validate ();
+        this.repaint ();
 
     }
 
@@ -199,10 +222,15 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
 
         super.init (saveState);
 
-        for (AccordionItem it : this.items)
+        if (this.items != null)
         {
 
-            it.init ();
+            for (AccordionItem it : this.items)
+            {
+
+                it.init ();
+
+            }
 
         }
         /*

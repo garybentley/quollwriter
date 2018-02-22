@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.Arrays;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -581,7 +582,91 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    EditorsUIUtils.showInviteEditor (_this.viewer);
+                                                    Set<EditorEditor> eds = new LinkedHashSet<> (EditorsEnvironment.getEditors ());
+
+                                                    java.util.List<ProjectEditor> projEds = null;
+
+                                                    try
+                                                    {
+
+                                                        projEds = EditorsEnvironment.getProjectEditors (_this.viewer.getProject ().getId ());
+
+                                                    } catch (Exception e) {
+
+                                                        Environment.logError ("Unable to get project editors for project: " +
+                                                                              _this.viewer.getProject ().getId (),
+                                                                              e);
+
+                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                  getUIString (project,sidebar,editors,sendinvite,actionerror));
+                                                                                  //"Unable to show contacts.");
+
+                                                        return;
+
+                                                    }
+
+                                                    for (ProjectEditor pe : projEds)
+                                                    {
+
+                                                        eds.remove (pe.getEditor ());
+
+                                                    }
+
+                                                    java.util.Iterator<EditorEditor> iter = eds.iterator ();
+
+                                                    while (iter.hasNext ())
+                                                    {
+
+                                                        EditorEditor ed = iter.next ();
+
+                                                        if (ed.isPending ())
+                                                        {
+
+                                                            iter.remove ();
+
+                                                        }
+
+                                                    }
+
+                                                    final JLabel l = UIUtils.createClickableLabel (getUIString (project,sidebar,editors,sendinvite,popup,labels,notinlist),
+                                                                                                    //"Not in the list?  Click here to invite someone using their email address.",
+                                                                                                   Environment.getIcon (Constants.EMAIL_ICON_NAME,
+                                                                                                                        Constants.ICON_MENU));
+
+                                                    UIUtils.makeClickable (l,
+                                                                           new ActionListener ()
+                                                    {
+
+                                                       @Override
+                                                       public void actionPerformed (ActionEvent ev)
+                                                       {
+
+                                                           EditorsUIUtils.showInviteEditor (_this.viewer);
+
+                                                            UIUtils.closePopupParent (l);
+
+                                                       }
+
+                                                    });
+
+                                                    EditorsUIUtils.showContacts (eds,
+                                                                                 getUIString (project,sidebar,editors,sendinvite,popup,title),
+                                                                                 _this.viewer,
+                                                                                 new ActionListener ()
+                                                    {
+
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+
+                                                            EditorsUIUtils.showSendProject (_this.viewer,
+                                                                                            (EditorEditor) ev.getSource (),
+                                                                                            null);
+
+                                                        }
+
+                                                    },
+                                                    l);
 
                                                 }
 

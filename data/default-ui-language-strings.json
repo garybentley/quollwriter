@@ -722,10 +722,7 @@
         "createbackup" : "${actions.createbackup}",
         "ignore" : "${actions.ignore}",
         "accept" : "Accept",
-        "reject" : "Reject",
-        "__$$confirm$$__" : "${buttons.confirm}",
-        "__$$cancel$$__" : "${buttons.cancel}",
-        "__$$update$$__" : "${actions.update}"
+        "reject" : "Reject"
     },
     "wizard" :
     {
@@ -1061,7 +1058,7 @@
             "general" : "Please correct the following errors:<ul>%1$s</ul>",
             ":comment.general" : "%1$s is the list of errors that need to be corrected by the user.  Each error is wrapped in a html li tag.",
             ":scount.general" : 1,
-            "affirmativevalue" : "Please enter the word ${form.affirmativevalue} below."
+            "affirmativevalue" : "Please enter the word <b>${form.affirmativevalue}</b> below."
         },
         "types" :
         {
@@ -7523,6 +7520,19 @@
                         ":comment.previouseditors" : "%1$s is the number of previous editors.",
                         ":scount.previouseditors" : 1,
                         "hidepreviouseditors" : "Hide the previous ${objectnames.plural.editor}"
+                    }
+                },
+                "sendinvite" :
+                {
+                    ":comment" : "This popup is shown when the user selects the {invite} options from the header popup menu.",
+                    "actionerror" : "Unable to get ${objectnames.plural.contact}.",
+                    "popup" :
+                    {
+                        "title" : "Select a ${objectnames.singular.contact}",
+                        "labels" :
+                        {
+                            "notinlist" : "Not in the list?  Click here to invite someone using their email address."
+                        }
                     }
                 }
             },

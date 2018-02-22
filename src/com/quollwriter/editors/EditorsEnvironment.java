@@ -2558,7 +2558,7 @@ public class EditorsEnvironment
 
             pe.setEditorTo (new java.util.Date ());
             pe.setCurrent (false);
-            pe.setStatusMessage (getUIString (LanguageStrings.editors,editor,editorstatus));
+            pe.setStatusMessage (getUIString (LanguageStrings.editors,editor,remove,editorstatus));
             //"Removed");
 
             EditorsEnvironment.updateProjectEditor (pe);

@@ -29,6 +29,7 @@ public class Startup
             }
 
         }
+        Environment.setDebugModeEnabled (true);
 
         SplashScreen ss = null;
 

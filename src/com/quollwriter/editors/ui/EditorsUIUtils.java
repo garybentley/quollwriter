@@ -353,7 +353,7 @@ public class EditorsUIUtils
                                        Environment.formatNumber (eds.size ()));
 
             UIUtils.createTextInputPopup (viewer,
-                                          getUIString (prefix,text),
+                                          getUIString (prefix,title),
                                          //"Delete all {projects} for {contact}",
                                           Constants.DELETE_ICON_NAME,
                                           sb,
@@ -3825,6 +3825,68 @@ Not used.
         }
 
         EditorsUIUtils.editorLogin.resize ();
+
+    }
+
+    public static void showContacts (      Set<EditorEditor>     editors,
+                                           String                title,
+                                     final AbstractProjectViewer viewer,
+                                           ActionListener        onSelect,
+                                           JComponent            extra)
+    {
+
+        UIUtils.showObjectSelectPopup (editors,
+                                       viewer,
+                                       title,
+                                       new DefaultListCellRenderer ()
+                                       {
+
+                                           @Override
+                                           public Component getListCellRendererComponent (JList   list,
+                                                                                          Object  value,
+                                                                                          int     index,
+                                                                                          boolean isSelected,
+                                                                                          boolean cellHasFocus)
+                                           {
+
+                                               EditorEditor obj = (EditorEditor) value;
+
+                                               JLabel l = (JLabel) super.getListCellRendererComponent (list,
+                                                                                                       value,
+                                                                                                       index,
+                                                                                                       isSelected,
+                                                                                                       cellHasFocus);
+
+                                               l.setText (obj.getMainName ());
+                                               l.setFont (l.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (java.awt.Font.PLAIN));
+                                               //l.setFont (l.getFont ().deriveFont (14f));
+
+                                               if (obj.getAvatar () != null)
+                                               {
+
+                                                   l.setIcon (new ImageIcon (UIUtils.getScaledImage (obj.getMainAvatar (),
+                                                                                                     50)));
+
+                                               }
+
+                                               l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+
+                                               if (cellHasFocus)
+                                               {
+
+                                                   l.setBackground (Environment.getHighlightColor ());
+
+                                               }
+
+                                               return l;
+
+                                            }
+
+                                       },
+                                       onSelect,
+                                       true,
+                                       extra,
+                                       null);
 
     }
 
