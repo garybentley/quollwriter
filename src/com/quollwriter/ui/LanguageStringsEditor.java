@@ -64,6 +64,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     public static final String SUBMIT_HEADER_CONTROL_ID = "submit";
     public static final String USE_HEADER_CONTROL_ID = "use";
     public static final String HELP_HEADER_CONTROL_ID = "help";
+    public static final String FIND_HEADER_CONTROL_ID = "find";
 
     public static int INTERNAL_SPLIT_PANE_DIVIDER_WIDTH = 2;
 
@@ -86,6 +87,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     private ImportTransferHandlerOverlay   importOverlay = null;
     private Map<String, IdsPanel> panels = new HashMap ();
 	private String currentCard = null;
+    ///private Finder                finder = null;
     private LanguageStrings userStrings = null;
     private String toolbarLocation = null;
     private Map<String, JTree> sectionTrees = new LinkedHashMap<> ();
@@ -239,7 +241,11 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         };
 
         this.initSideBar ();
+/*
+        this.finder = new Finder (this);
 
+        this.addSideBar (this.finder);
+*/
         this.currentSideBar = this.mainSideBar;
 
         this.addMainPanelListener (this.currentSideBar);
@@ -541,12 +547,16 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         for (LanguageStrings.Value nv : this.valuesCache.get (n))
         {
 
-            LanguageStrings.Value uv = this.userStrings.getValue (nv.getId ());
+            LanguageStrings.Value uv = this.userStrings.getValue (nv.getId (),
+                                                                  true);
 
             if (uv != null)
             {
 
-                if (uv.getErrors (this.userStrings).size () > 0)
+                if (LanguageStrings.getErrors (uv.getRawText (),
+                                                  LanguageStrings.toId (nv.getId ()),
+                                                  nv.getSCount (),
+                                                  this).size () > 0)
                 {
 
                     c++;
@@ -690,8 +700,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             Environment.saveUserUILanguageStrings (this.userStrings);
 
+            this.userStrings.setQuollWriterVersion (v);
+
+            LanguageStrings uls = Environment.getUserUILanguageStrings (newls.getQuollWriterVersion (),
+                                                                        this.userStrings.getId ());
+
             // Get a diff of the default to this new.
-            LanguageStringsEditor lse = Environment.editUILanguageStrings (this.userStrings,
+            LanguageStringsEditor lse = Environment.editUILanguageStrings (uls,
                                                                            newls.getQuollWriterVersion ());
             lse.limitViewToPreviousVersionDiff ();
 
@@ -703,10 +718,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             UIUtils.showErrorMessage (this,
                                       "Unable to show strings.");
-
-        } finally {
-
-            this.userStrings.setQuollWriterVersion (v);
 
         }
 
@@ -954,6 +965,38 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         }
 
         return this.userStrings.getString (id);
+
+    }
+
+    @Override
+    public String getRawText (String id)
+    {
+
+        java.util.List<String> idparts = LanguageStrings.getIdParts (id);
+
+        // See if we have a panel.
+        if (idparts.size () > 0)
+        {
+
+            IdsPanel p = this.panels.get (idparts.get (0));
+
+            if (p != null)
+            {
+
+                String t = p.getIdValue (id);
+
+                if (t != null)
+                {
+
+                    return t;
+
+                }
+
+            }
+
+        }
+
+        return this.userStrings.getRawText (id);
 
     }
 
@@ -1827,6 +1870,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 		Set<String> ids = new LinkedHashSet ();
 
         ids.add (SUBMIT_HEADER_CONTROL_ID);
+        ids.add (FIND_HEADER_CONTROL_ID);
         ids.add (USE_HEADER_CONTROL_ID);
         ids.add (REPORT_BUG_HEADER_CONTROL_ID);
         ids.add (HELP_HEADER_CONTROL_ID);
@@ -1852,7 +1896,27 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 		final LanguageStringsEditor _this = this;
 
 		JComponent c = null;
+/*
+        if (id.equals (FIND_HEADER_CONTROL_ID))
+        {
 
+            return UIUtils.createButton (Constants.FIND_ICON_NAME,
+                                         Constants.ICON_TITLE_ACTION,
+                                         "Find",
+                                          new ActionAdapter ()
+                                          {
+
+                                              public void actionPerformed (ActionEvent ev)
+                                              {
+
+                                                  _this.showFind ();
+
+                                              }
+
+                                          });
+
+        }
+*/
         if (id.equals (SUBMIT_HEADER_CONTROL_ID))
         {
 
@@ -1886,6 +1950,17 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                         @Override
                                         public void actionPerformed (ActionEvent ev)
                                         {
+
+                                            if (!_this.userStrings.getQuollWriterVersion ().equals (Environment.getQuollWriterVersion ()))
+                                            {
+
+                                                UIUtils.showMessage ((PopupsSupported) _this,
+                                                                     "Unable to try out",
+                                                                     "Sorry, you can only try out a set of strings if the version matches the currently installed {QW} version.");
+
+                                                return;
+
+                                            }
 
                                             _this.tryOut ();
 
@@ -1950,15 +2025,40 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 
-        Map<LanguageStrings.Value, Set<String>> errors = this.userStrings.getErrors ();
+        Set<LanguageStrings.Value> vals = this.userStrings.getAllValues ();
 
-        if (errors.size () > 0)
+        if (vals.size () == 0)
+        {
+
+            UIUtils.showMessage ((PopupsSupported) this,
+                                 "No strings provided",
+                                 "Sorry, you must provide at least 1 string.");
+
+            return;
+
+        }
+
+        int c = 0;
+
+        for (LanguageStrings.Value uv : vals)
+        {
+
+            LanguageStrings.Value nv = this.baseStrings.getValue (uv.getId ());
+
+            c += LanguageStrings.getErrors (uv.getRawText (),
+                                            LanguageStrings.toId (nv.getId ()),
+                                            nv.getSCount (),
+                                            this).size ();
+
+        }
+
+        if (c > 0)
         {
 
             UIUtils.showMessage ((PopupsSupported) this,
                                  "Errors found in strings",
                                  String.format ("Sorry, there are <b>%s</b> errors that must be corrected before you can submit the strings.",
-                                                Environment.formatNumber (errors.size ())));
+                                                Environment.formatNumber (c)));
 
             return;
 
@@ -2357,7 +2457,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         UIUtils.showMessage ((PopupsSupported) this,
                              "Restart recommended",
-                             "To make full use of your strings it is recommended that you restart {QW}.");
+                             "{QW} has been updated to make use of your strings.  To make full use of them it is recommended that you restart {QW}.");
 
     }
 
@@ -2397,6 +2497,21 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 												}
 
 											 }));
+
+        popup.add (this.createMenuItem ("Edit a translation",
+                                        Constants.EDIT_ICON_NAME,
+ 			    						new ActionListener ()
+ 										{
+
+											@Override
+											public void actionPerformed (ActionEvent ev)
+											{
+
+                                                UIUtils.showEditLanguageStringsSelectorPopup (_this);
+
+											}
+
+										}));
 
         if (this.baseStrings.getQuollWriterVersion ().equals (Environment.getQuollWriterVersion ()))
         {
@@ -3124,7 +3239,20 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 					}
 
 				});
+/*
+        am.put (Constants.SHOW_FIND_ACTION,
+                new ActionAdapter ()
+                {
 
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.showFind ();
+
+                    }
+
+                });
+*/
 	}
 
     @Override
@@ -3137,8 +3265,32 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                         0),
                 "show-main");
 
-	}
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
+                                        0),
+                Constants.SHOW_FIND_ACTION);
 
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                        Event.CTRL_MASK),
+                Constants.SHOW_FIND_ACTION);
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_N,
+                                        Event.CTRL_MASK),
+                "new-project");
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_O,
+                                        Event.CTRL_MASK),
+                "open-project");
+
+	}
+/*
+    public void showFind ()
+    {
+
+        this.showSideBar ("find");
+
+        this.finder.onShow ();
+
+    }
+*/
     private IdsPanel createIdsPanel (String id)
     {
 
@@ -3645,7 +3797,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                                 int offset = word.getAllTextStartOffset ();
 
-                                Id id = _this.getIdAtOffset (offset);
+                                LanguageStrings.Id id = _this.getIdAtOffset (offset);
 
                                 if (id != null)
                                 {
@@ -3754,7 +3906,12 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 public void keyPressed (KeyEvent ev)
                 {
 
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
+                    if ((ev.getKeyCode () == KeyEvent.VK_ENTER)
+                        ||
+                        (ev.getKeyCode () == KeyEvent.VK_UP)
+                        ||
+                        (ev.getKeyCode () == KeyEvent.VK_DOWN)
+                       )
                     {
 
                         if (_this.isSelectorVisible ())
@@ -3793,6 +3950,18 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 public void keyReleased (KeyEvent ev)
                 {
 
+                    if ((ev.getKeyCode () == KeyEvent.VK_CLOSE_BRACKET)
+                        &&
+                        (ev.isShiftDown ())
+                       )
+                    {
+
+                        _this.hideSelector ();
+
+                        return;
+
+                    }
+
                     if (ev.getKeyCode () == KeyEvent.VK_ENTER)
                     {
 
@@ -3812,7 +3981,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     if (ev.getKeyCode () == KeyEvent.VK_UP)
                     {
 
-                        if (_this.selector.isVisible ())
+                        if (_this.isSelectorVisible ())
                         {
 
                             ev.consume ();
@@ -3828,7 +3997,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     if (ev.getKeyCode () == KeyEvent.VK_DOWN)
                     {
 
-                        if (_this.selector.isVisible ())
+                        if (_this.isSelectorVisible ())
                         {
 
                             ev.consume ();
@@ -3856,11 +4025,12 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                     String t = _this.userValue.getEditor ().getText ();
 
-                    Id id = new Id (t,
-                                    c);
+                    LanguageStrings.Id id = LanguageStrings.getId (t, c);
 
-                    if (id.getFullId () == null)
+                    if (id == null)
                     {
+
+                        _this.hideSelector ();
 
                         return;
 
@@ -3884,7 +4054,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     if (matches.size () == 1)
                     {
 
-                        Id.Part p = id.getPart (c);
+                        LanguageStrings.Id.Part p = id.getPart (c);
 
                         if (p == null)
                         {
@@ -3908,7 +4078,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                         int ind = c;
 
-                        Id.Part pa = id.getPart (c);
+                        LanguageStrings.Id.Part pa = id.getPart (c);
 
                         if (pa != null)
                         {
@@ -4001,6 +4171,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                     this.stringsValue = this.editor.userStrings.insertValue (this.baseValue.getId ());
 
+                    //this.stringsValue.setSCount (this.baseValue.getSCount ());
                     this.stringsValue.setRawText (uv);
 
                 }
@@ -4013,9 +4184,12 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 
-        public Id getIdAtOffset (int offset)
+        public LanguageStrings.Id getIdAtOffset (int offset)
         {
 
+            return LanguageStrings.getId (this.userValue.getEditor ().getText (),
+                                          offset);
+/*
             Id id = new Id (this.userValue.getEditor ().getText (),
                             offset);
 
@@ -4027,10 +4201,10 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             }
 
             return id;
-
+*/
         }
 
-        public Id getIdAtCaret ()
+        public LanguageStrings.Id getIdAtCaret ()
         {
 
             return this.getIdAtOffset (this.userValue.getEditor ().getCaretPosition ());
@@ -4251,14 +4425,21 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             int c = editor.getCaretPosition ();
 
-            Id id = new Id (editor.getText (),
-                            c);
+            LanguageStrings.Id id = LanguageStrings.getId (editor.getText (),
+                                                           c);
+
+            if (id == null)
+            {
+
+                return;
+
+            }
 
             String m = this.selections.getSelectedValue ();
 
             //m = id.getNewFullId (m);
 
-            Id.Part part = id.getPart (c);
+            LanguageStrings.Id.Part part = id.getPart (c);
 
             if (part != null)
             {
@@ -4306,13 +4487,13 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             }
 */
             // Check to see if the id maps to a string.
-            if (this.editor.baseStrings.getString (id.fullId) != null)
+            if (this.editor.baseStrings.getString (id.getId ()) != null)
             {
 
-                if (!id.hasClosingBrace)
+                if (id.isPartial ())
                 {
 
-                    editor.replaceText (id.getEnd () + 1, id.getEnd () + 1, "}");
+                    editor.replaceText (id.getEnd (), id.getEnd (), "}");
                     editor.setCaretPosition (c + 1);
 
                 }
@@ -4324,7 +4505,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             }
 
             // Check to see if there are more matches further down the tree.
-            String nid = id.fullId + ".";
+            String nid = id.getId () + ".";
 
             Set<String> matches = this.editor.baseStrings.getIdMatches (nid);
 
@@ -4582,7 +4763,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                   this.getPreferredSize ().height);
 
         }
-
+/*
         public class Id
         {
 
@@ -4603,7 +4784,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                 }
 
-                String idstart = "${";
+                String idstart = LanguageStrings.ID_REF_START;
 
                 int ind = text.lastIndexOf (idstart, offset);
 
@@ -4613,100 +4794,68 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     ind += idstart.length ();
                     this._start = ind;
 
-                    int idendind = text.indexOf ("}", ind);
+                    int idendind = text.indexOf (LanguageStrings.ID_REF_END, ind);
 
                     if (idendind > -1)
                     {
 
-                        this.hasClosingBrace = true;
+                        if (idendind < offset)
+                        {
+
+                            return;
+
+                        }
+
+                        // We have an end, see if it's on the same line.
+                        int leind = text.indexOf ("\n", ind);
+
+                        if (leind < 0)
+                        {
+
+                            leind = text.length ();
+
+                        }
+
+                        if (idendind < leind)
+                        {
+
+                            this.hasClosingBrace = true;
+                            this.fullId = text.substring (ind, leind - 1);
+
+                        }
 
                     } else {
+System.out.println ("ELSE");
+                        StringBuilder b = new StringBuilder ();
 
-                        idendind = text.indexOf (" ", ind);
-
-                        if (idendind < 0)
+                        for (int i = ind; i < text.length (); i++)
                         {
 
-                            idendind = text.indexOf ('\n', ind);
+                            char c = text.charAt (i);
+
+                            if (Character.isWhitespace (c))
+                            {
+
+                                break;
+
+                            }
+
+                            b.append (c);
 
                         }
 
-                    }
-
-                    if (idendind < 0)
-                    {
-
-                        idendind = text.length ();
+                        this.fullId = b.toString ();
 
                     }
-
-                    if (idendind < ind)
+System.out.println ("ID: " + this.fullId);
+                    if (this.fullId.equals (""))
                     {
 
-                        return;
-
-                    }
-
-                    if (!this.hasClosingBrace)
-                    {
-
-                        this.hasErrors = true;
-
-                    }
-
-                    this.fullId = text.substring (ind, idendind);
-
-                    if (this.fullId.trim ().equals (""))
-                    {
-
-                        this.hasErrors = true;
                         this.fullId = null;
-
-                        return;
-
-                    }
-
-                    if (!Character.isLetterOrDigit (this.fullId.charAt (0)))
-                    {
-
-                        this.hasErrors = true;
-
-                    }
-
-                    if (this.hasClosingBrace)
-                    {
-
-                        // Check to make sure there is no space between the id and the closing brace.
-                        if (!Character.isLetterOrDigit (this.fullId.charAt (this.fullId.length () - 1)))
-                        {
-
-                            this.hasErrors = true;
-
-                        }
 
                     }
 
                     int start = ind;
-
-                    for (int i = start; i < idendind; i++)
-                    {
-
-                        if (Character.isLetterOrDigit (text.charAt (i)))
-                        {
-
-                            start = i;
-                            break;
-
-                        }
-
-                    }
-
-                    if (start > ind)
-                    {
-
-                        this.hasErrors = true;
-
-                    }
 
                     java.util.List<String> parts = Utils.splitString (this.fullId,
                                                                       ".");
@@ -4951,28 +5100,8 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             }
 
-/*
-            private int getIdPrefixLastPartEnd ()
-            {
-
-                int idPrefStart = this.getIdPrefixStart ();
-
-                String idPref = this.getIdPrefix ();
-
-                int lind = idPref.lastIndexOf (".");
-
-                if (lind > 0)
-                {
-
-                    idPrefStart += lind;
-
-                }
-
-                return idPrefStart;
-
-            }
-*/
         }
+*/
 
     }
 

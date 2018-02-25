@@ -3060,6 +3060,33 @@ public class Environment
 
         remFile.actionPerformed (new ActionEvent (ls, 0, "do"));
 
+        if (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME).equals ("user-" + ls.getId ()))
+        {
+
+            try
+            {
+
+                // Need to set the language back to English.
+                Environment.setUILanguage (LanguageStrings.ENGLISH_ID);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set UI strings.",
+                                      e);
+
+                UIUtils.showErrorMessage (null,
+                                          "Unable to reset user interface language to " + Constants.ENGLISH);
+
+                return;
+
+            }
+
+            UIUtils.showMessage ((Component) null,
+                                 "Restart recommended",
+                                 "The user interface language has been reset to " + Constants.ENGLISH + ", a restart is recommended.");
+
+        }
+
     }
 
     public static void deleteUserUILanguageStrings (LanguageStrings ls,

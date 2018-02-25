@@ -16,9 +16,9 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     public static final String ENGLISH_ID = ":" + Constants.ENGLISH;
     public static final String OBJECT_TYPE = "languagestrings";
 
-    private static String ID_PART_SEP = ".";
-    private static String ID_REF_START = "${";
-    private static String ID_REF_END = "}";
+    public static String ID_PART_SEP = ".";
+    public static String ID_REF_START = "${";
+    public static String ID_REF_END = "}";
 
     private String languageName = null;
     private int stringsVersion = 0;
@@ -535,6 +535,112 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
+    public static Id getId (String text,
+                            int    offset)
+    {
+
+        Set<Id> ids = LanguageStrings.getIds (text);
+
+        for (Id id : ids)
+        {
+
+            if ((id.getStart () <= offset)
+                &&
+                (id.getEnd () >= offset)
+               )
+            {
+
+                return id;
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    public static Set<Id> getIds (String text)
+    {
+
+        Set<Id> ret = new LinkedHashSet<> ();
+
+        if ((text == null)
+            ||
+            (text.trim ().length () == 0)
+           )
+        {
+
+            return ret;
+
+        }
+
+        java.util.List<String> lines = Utils.splitString (text,
+                                                          "\n");
+
+        for (String l : lines)
+        {
+
+            int start = 0;
+
+            while ((start = l.indexOf (LanguageStrings.ID_REF_START, start)) != -1)
+            {
+
+                String id = null;
+                boolean partial = false;
+
+                start += LanguageStrings.ID_REF_START.length ();
+
+                int ind = start;
+
+                int idendind = l.indexOf (LanguageStrings.ID_REF_END, start);
+
+                if (idendind > -1)
+                {
+
+                    id = l.substring (start, idendind);
+
+                    partial = false;
+                    //hasClosingBrace = true;
+                    start += id.length ();
+                    start += LanguageStrings.ID_REF_END.length ();
+
+                } else {
+
+                    StringBuilder b = new StringBuilder ();
+
+                    for (int i = start; i < l.length (); i++)
+                    {
+
+                        char c = text.charAt (i);
+
+                        if (Character.isWhitespace (c))
+                        {
+
+                            break;
+
+                        }
+
+                        b.append (c);
+
+                    }
+
+                    id = b.toString ();
+                    start += id.length ();
+                    partial = true;
+
+                }
+
+                ret.add (new Id (ind, id, partial));
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
     public static Set<String> getRefIds (String text)
     {
 
@@ -581,7 +687,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
     public static List<String> buildRefValsTree (String           text,
                                                  String           rootId,
                                                  RefValueProvider prov,
-                                                 List<String>     ids)
+                                                 List<String>         ids)
     {
 
         if (text == null)
@@ -591,21 +697,27 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 
-        Set<String> refids = LanguageStrings.getRefIds (text);
+        Set<Id> refids = LanguageStrings.getIds (text);
 
-        for (String rid : refids)
+        for (Id rid : refids)
         {
 
+            if (rid.isPartial ())
+            {
+
+                continue;
+
+            }
             //Value v = strings.getValue (rid);
 
-            if (rid.equals (rootId))
+            if (rid.getId ().equals (rootId))
             {
 
                 return ids;
 
             }
 
-            if (ids.contains (rid))
+            if (ids.contains (rid.getId ().trim ()))
             {
 
                 // Already have this, got a loop.
@@ -613,11 +725,11 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
             }
 
-            ids.add (rid);
+            ids.add (rid.getId ().trim ());
 
             int ind = ids.size () - 1;
 
-            String rv = prov.getString (rid);
+            String rv = prov.getRawText (rid.getId ().trim ());//getString (rid);
 
             if (rv == null)
             {
@@ -627,9 +739,9 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
             }
 
             List<String> nids = LanguageStrings.buildRefValsTree (rv,
-                                                                  rootId,
-                                                                  prov,
-                                                                  new ArrayList (ids));
+                                                              rootId,
+                                                              prov,
+                                                              new ArrayList<> (ids));
 
             if (nids != null)
             {
@@ -656,6 +768,79 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         Set<String> errors = new LinkedHashSet<> ();
 
+        List<String> vals = LanguageStrings.buildRefValsTree (text,
+                                                              textId,
+                                                              prov,
+                                                              new ArrayList<String> ());
+
+        if (vals != null)
+        {
+
+            StringBuilder b = new StringBuilder ();
+
+            for (String v : vals)
+            {
+
+                if (b.length () > 0)
+                {
+
+                    b.append (" -> ");
+
+                }
+
+                b.append (v);
+
+            }
+
+            errors.add ("Reference loop detected between: " + textId + " and: " + b.toString ());
+
+            return errors;
+
+        }
+
+        Set<Id> ids = LanguageStrings.getIds (text);
+
+        for (Id id : ids)
+        {
+
+            if (id.isPartial ())
+            {
+
+                errors.add (String.format ("No matching %s found for opening %s at location: %s",
+                                           ID_REF_END,
+                                           ID_REF_START,
+                                           id.getStart ()));
+
+            }
+
+            if (!id.getId ().trim ().equals (id.getId ()))
+            {
+
+                errors.add (String.format ("Id %s at location: %s contains invalid characters",
+                                           id.getId (),
+                                           id.getStart ()));
+
+            }
+
+            if (id.getId ().trim ().equals (""))
+            {
+
+                errors.add (String.format ("No id provided at location: %s",
+                                           id.getStart ()));
+
+            }
+
+            if (prov.getRawText (id.getId ()) == null)
+            {
+
+                errors.add (String.format ("Id: %s, referenced at location: %s does not exist.",
+                            id.getId (),
+                            id.getStart ()));
+
+            }
+
+        }
+/*
         int start = 0;
 
         while ((start = text.indexOf (ID_REF_START,
@@ -708,7 +893,17 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
                 }
 
-                if (prov.getString (sid) == null)
+                if (sid.equals (textId))
+                {
+
+                    errors.add ("Id: " + ID_REF_START + sid + ID_REF_END + ", referenced at location: " + start + " refers to itself.");
+                    start += end + ID_REF_END.length ();
+
+                    continue;
+
+                }
+
+                if (prov.getRawText (sid) == null)
                 {
 
                     errors.add ("Id: " + ID_REF_START + sid + ID_REF_END + ", referenced at location: " + start + " does not exist.");
@@ -729,7 +924,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
             }
 
         }
-
+*/
         if (scount > 0)
         {
 
@@ -748,7 +943,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
             }
 
         }
-
+/*
         Set<String> refids = LanguageStrings.getRefIds (text);
 
         if (refids.contains (textId))
@@ -757,34 +952,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
             errors.add ("Value uses itself O_o");
 
         }
-
-        List<String> vals = LanguageStrings.buildRefValsTree (text,
-                                                              textId,
-                                                              prov,
-                                                              new ArrayList<String> ());
-
-        if (vals != null)
-        {
-
-            StringBuilder b = new StringBuilder ();
-
-            for (String v : vals)
-            {
-
-                if (b.length () > 0)
-                {
-
-                    b.append (" -> ");
-
-                }
-
-                b.append (v);
-
-            }
-
-            errors.add ("Reference loop detected between: " + textId + " and: " + b.toString ());
-
-        }
+*/
 
         return errors;
 
@@ -863,11 +1031,20 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
                 }
 
-                b.replace (start,
-                           end + ID_REF_END.length (),
-                           sv);
+                if (sv != null)
+                {
 
-                start += sv.length ();
+                    b.replace (start,
+                               end + ID_REF_END.length (),
+                               sv);
+
+                    start += sv.length ();
+
+                } else {
+
+                    start = end + 1;
+
+                }
 
             } else {
 
@@ -1733,6 +1910,14 @@ System.out.println ("CHANGED: " + v);
     }
 
     @Override
+    public String getRawText (String id)
+    {
+
+        return this.getRawText (LanguageStrings.getIdParts (id));
+
+    }
+
+    @Override
     public String getString (String id)
     {
 
@@ -1756,6 +1941,29 @@ System.out.println ("CHANGED: " + v);
         {
 
             return v.getBuiltText (this);
+
+        }
+
+        return null;
+
+    }
+
+    public String getRawText (List<String> idparts)
+    {
+
+        if (idparts.size () < 1)
+        {
+
+            return null;
+
+        }
+
+        Value v = this.getValue (idparts);
+
+        if (v != null)
+        {
+
+            return v.getRawText ();
 
         }
 
@@ -2168,7 +2376,7 @@ System.out.println ("CHANGED: " + v);
         public Map getAsJSON ()
         {
 
-            Map m = new HashMap ();
+            Map m = new LinkedHashMap ();
 
             if (this.comment != null)
             {
@@ -2704,6 +2912,13 @@ System.out.println ("CHANGED: " + v);
 
         }
 
+        public void setSCount (int s)
+        {
+
+            this.scount = s;
+
+        }
+
         public int getSCount ()
         {
 
@@ -2967,6 +3182,13 @@ System.out.println ("CHANGED: " + v);
 
             }
 
+            if (this.getErrors (prov).size () > 0)
+            {
+
+                return this.text;
+
+            }
+
             String s = LanguageStrings.buildText (this.text,
                                                   prov);
 
@@ -3011,6 +3233,215 @@ System.out.println ("CHANGED: " + v);
 
         }
 */
+    }
+
+    public static class Id
+    {
+
+        private int start = -1;
+        private boolean partial = false;
+        private String id = null;
+        private List<Part> parts = null;
+
+        public Id (int     start,
+                   String  id,
+                   boolean partial)
+        {
+
+            this.start = start;
+            this.id = id;
+            this.partial = partial;
+
+            java.util.List<String> parts = Utils.splitString (this.id,
+                                                              LanguageStrings.ID_PART_SEP);
+
+            this.parts = new ArrayList<> ();
+
+            int cind = start;
+
+            Part prevp = null;
+
+            for (int i = 0; i < parts.size (); i++)
+            {
+
+                if (i > 0)
+                {
+
+                    cind++;
+
+                }
+
+                String ps = parts.get (i);
+
+                if (ps.trim ().length () != ps.length ())
+                {
+
+                    //this.hasErrors = true;
+
+                }
+
+                Part p = new Part (this,
+                                   cind,
+                                   ps,
+                                   prevp);
+
+                prevp = p;
+                cind += ps.length ();
+
+                this.parts.add (p);
+
+            }
+
+        }
+
+        public String getId ()
+        {
+
+            return this.id;
+
+        }
+
+        public boolean isIdValid (LanguageStrings baseStrings)
+        {
+
+            return baseStrings.isIdValid (this.id);
+
+        }
+
+        public boolean isPartial ()
+        {
+
+            return this.partial;
+
+        }
+
+        public int getStart ()
+        {
+
+            return this.start;
+
+        }
+
+        public int getEnd ()
+        {
+
+            return this.getStart () + this.id.length ();
+
+        }
+
+        public Part getLastPart ()
+        {
+
+            if (this.parts.size () == 0)
+            {
+
+                return null;
+
+            }
+
+            return this.parts.get (this.parts.size () - 1);
+
+        }
+
+        public Set<String> getPartMatches (int             offset,
+                                           LanguageStrings baseStrings)
+        {
+
+            Part p = this.getPart (offset);
+
+            if (p != null)
+            {
+
+                return baseStrings.getIdMatches (p.getFullId ());
+
+            }
+
+            return this.getMatches (baseStrings);
+
+        }
+
+        public String toString ()
+        {
+
+            return "id[start=" + this.start + ",text=" + this.id + ",partial=" + this.partial + "]";
+
+        }
+
+        public Set<String> getMatches (LanguageStrings baseStrings)
+        {
+
+            return baseStrings.getIdMatches (this.id);
+
+        }
+
+        public Part getPart (int offset)
+        {
+
+            for (int i = 0; i < this.parts.size (); i++)
+            {
+
+                Part p = this.parts.get (i);
+
+                if ((offset >= p.start)
+                    &&
+                    (offset <= p.end)
+                   )
+                {
+
+                    return p;
+
+                }
+
+            }
+
+            return null;
+
+        }
+
+        public class Part
+        {
+
+            public int start = -1;
+            public int end = -1;
+            public String part = null;
+            public Id parent = null;
+            public Part previous = null;
+
+            public Part (Id     parent,
+                         int    start,
+                         String part,
+                         Part   prev)
+            {
+
+                this.start = start;
+                this.end = this.start + part.length ();
+                this.parent = parent;
+                this.part = part;
+                this.previous = prev;
+
+            }
+
+            public String getFullId ()
+            {
+
+                StringBuilder b = new StringBuilder (this.part);
+
+                Part prev = this.previous;
+
+                while (prev != null)
+                {
+
+                    b.insert (0, prev.part + ".");
+                    prev = prev.previous;
+
+                }
+
+                return b.toString ();
+
+            }
+
+        }
+
     }
 
     public static final String project = "project";

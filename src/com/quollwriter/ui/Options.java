@@ -2305,7 +2305,7 @@ public class Options extends Box
 
                                                                             final String uid = ev.getActionCommand ();
 
-                                                                            feedback.setVisible (!LanguageStrings.isEnglish (uid));
+                                                                            feedback.setVisible ((!LanguageStrings.isEnglish (uid)) && (!uid.startsWith ("user-")));
 
                                                                             if (uid.equals (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME)))
                                                                             {
