@@ -3461,6 +3461,51 @@ public class Environment
 
     }
 
+    public static Set<LanguageStrings> getAllUILanguageStrings ()
+    {
+
+        Set<LanguageStrings> ret = new LinkedHashSet<> ();
+
+        File[] files = Environment.getUILanguageStringsDir ().listFiles ();
+
+        if (files == null)
+        {
+
+            return ret;
+
+        }
+
+        for (int i = 0; i < files.length; i++)
+        {
+
+            File f = files[i];
+
+            if (f.isFile ())
+            {
+
+                try
+                {
+
+                    ret.add (new LanguageStrings (f));
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to create strings from: " + f,
+                                          e);
+
+                    // Delete the file.
+                    f.delete ();
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
     public static File getUILanguageStringsFile (String id)
     {
 

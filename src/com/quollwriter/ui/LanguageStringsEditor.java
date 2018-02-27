@@ -2710,7 +2710,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
                         p = StringUtils.replaceString (p,
                                                        Constants.VERSION_TAG,
-                                                       Environment.getQuollWriterVersion ().toString ());
+                                                       _this.userStrings.getQuollWriterVersion ().toString ());
 
                         p = StringUtils.replaceString (p,
                                                        Constants.ALL_TAG,
@@ -3356,6 +3356,27 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
         }
 
+        public void updatePreviews ()
+        {
+
+            for (int i = 0; i < this.content.getComponentCount (); i++)
+            {
+
+                Component c = this.content.getComponent (i);
+
+                if (c instanceof IdBox)
+                {
+
+                    IdBox b = (IdBox) c;
+
+                    b.showPreview ();
+
+                }
+
+            }
+
+        }
+
         @Override
         public JComponent getContent ()
         {
@@ -3366,34 +3387,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             this.content.add (Box.createVerticalGlue ());
 
-            this.editor.schedule (new Runnable ()
-            {
-
-                @Override
-                public void run ()
-                {
-
-                    for (int i = 0; i < _this.content.getComponentCount (); i++)
-                    {
-
-                        Component c = _this.content.getComponent (i);
-
-                        if (c instanceof IdBox)
-                        {
-
-                            IdBox b = (IdBox) c;
-
-                            b.showPreview ();
-
-                        }
-
-                    }
-
-                }
-
-            },
-            1000,
-            -1);
+            this.updatePreviews ();
 
             return this.content;
 
@@ -4281,9 +4275,6 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
         public boolean showErrors (boolean requireUserValue)
         {
 
-            this.errorsLabel.setVisible (false);
-            this.errorsWrapper.setVisible (false);
-
             String s = this.getUserValue ();
 
             if ((s == null)
@@ -4291,6 +4282,9 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 (!requireUserValue)
                )
             {
+
+                this.errorsLabel.setVisible (false);
+                this.errorsWrapper.setVisible (false);
 
                 return false;
 
@@ -4355,6 +4349,11 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                 this.editor.updateSideBar (this.baseValue);
 
                 return true;
+
+            } else {
+
+                this.errorsLabel.setVisible (false);
+                this.errorsWrapper.setVisible (false);
 
             }
 

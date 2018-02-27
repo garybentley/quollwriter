@@ -9838,7 +9838,6 @@ public class UIUtils
 
         }
 
-        // Get the languages supported by the spellchecker.
         new Thread (new Runnable ()
         {
 
@@ -9891,6 +9890,17 @@ public class UIUtils
 
                 }
 
+                // Add our local ones.
+                Set<LanguageStrings> uistrs = Environment.getAllUILanguageStrings ();
+
+                for (LanguageStrings uistr : uistrs)
+                {
+
+                    langs.add (uistr.getId ());
+                    objs.put (uistr.getId (), uistr.getNativeName () + " (" + uistr.getLanguageName () + ")");
+
+                }
+
                 // English is always available.
                 Map data = new HashMap ();
                 ls.add (data);
@@ -9906,7 +9916,7 @@ public class UIUtils
 
                     String id = (String) m.get ("id");
 
-                    objs.put (id, m.get ("nativename").toString ());
+                    objs.put (id, m.get ("nativename").toString () + (!id.equals (LanguageStrings.ENGLISH_ID) ? " (" + m.get ("languagename") + ")" : ""));
 
                     langs.add (id);
 
