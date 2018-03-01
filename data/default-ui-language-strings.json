@@ -192,7 +192,7 @@
     {
         ":title" : "Settings Menu",
         ":section" : "Project",
-        ":comment" : "These items are used for the 'project' menu, the cog icon on a window, they are reused by most project 'viewers' hence the most frequently used items are defined here.",
+        ":comment" : "These items are used for the 'project' menu, the cog icon on a window, they are used by most project 'viewers' hence the most frequently used items are defined here.",
         "items" :
         {
             "openproject" : "${actions.open} ${objectnames.singular.project}",
@@ -1547,7 +1547,7 @@
     {
         ":title" : "Viewing Items",
         ":section" : "General",
-        ":comment" : "This is a general purpose 'View this thing' action.  It is reused by a number of functions, such as editing a scene or outline item.",
+        ":comment" : "This is a general purpose 'View this thing' action.  It is used by a number of functions, such as editing a scene or outline item.",
         "actionerror" : "Unable to show %1$s.",
         ":comment.actionerror" : "%1$s is the object type name of the item that cannot be viewed.",
         ":scount.actionerror" : 1,
@@ -1557,7 +1557,7 @@
     {
         ":title" : "Linking Items",
         ":section" : "General",
-        ":comment" : "This is a general purpose 'Link this thing to something else' action.  It is reused by a number of functions, such as linking a scene or outline item.",
+        ":comment" : "This is a general purpose 'Link this thing to something else' action.  It is used by a number of functions, such as linking a scene or outline item.",
         "tooltip" : "Click to link this %1$s to other items/objects",
         ":comment.tooltip" : "%1$s is the object type name of the item.",
         ":scount.tooltip" : 1
@@ -1566,7 +1566,7 @@
     {
         ":title" : "Editing Items",
         ":section" : "General",
-        ":comment" : "This is a general purpose 'Edit this thing' action.  It is reused by a number of functions, such as viewing a scene or outline item.",
+        ":comment" : "This is a general purpose 'Edit this thing' action.  It is used by a number of functions, such as viewing a scene or outline item.",
         "actionerror" : "Unable to show %1$s.",
         ":comment.actionerror" : "%1$s is the object type name of the item that cannot be edited.",
         ":scount.actionerror" : 1,
@@ -1578,7 +1578,7 @@
     {
         ":title" : "Deleting Items",
         ":section" : "General",
-        ":comment" : "This is a general purpose 'Delete this thing' action.  It is reused by a number of functions, such as deleting a chapter or warmup or project.",
+        ":comment" : "This is a general purpose 'Delete this thing' action.  It is used by a number of functions, such as deleting a chapter or warmup or project.",
         "title" : "Delete %1$s",
         ":comment.title" : "%1$s is the type of thing that is to be deleted.",
         ":scount.title" : 1,

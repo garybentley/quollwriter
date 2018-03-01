@@ -942,7 +942,32 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
             }
 
+
         }
+
+        // Check for values beyond the scount.
+        for (int i = 0; i < 10; i++)
+        {
+
+            if ((scount < 1)
+                ||
+                (i > scount)
+               )
+            {
+
+                String sid = "%" + (i + 1) + "$s";
+
+                if (text.indexOf (sid) > -1)
+                {
+
+                    errors.add ("Invalid value used: " + sid);
+
+                }
+
+            }
+
+        }
+
 /*
         Set<String> refids = LanguageStrings.getRefIds (text);
 

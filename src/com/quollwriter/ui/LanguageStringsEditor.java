@@ -1984,7 +1984,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                         {
 
                                             UIUtils.openURL (_this,
-                                                             "help://uilanguages/index");
+                                                             "help://uilanguages/overview");
 
                                         }
 
@@ -2110,6 +2110,22 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             items.add (email);
 
+            final JLabel tc = UIUtils.createClickableLabel ("View the Terms and Conditions for creating a translation",
+                                                            Environment.getIcon (Constants.INFO_ICON_NAME,
+                                                                                 Constants.ICON_CLICKABLE_LABEL),
+                                                            Environment.getQuollWriterHelpLink ("uilanguages/terms-and-conditions",
+                                                                                                null));
+
+            final CheckboxFormItem tandc = new CheckboxFormItem (null, "I have read and agree to the Terms and Conditions");
+
+            if (this.userStrings.getStringsVersion () == 0)
+            {
+
+                items.add (new AnyFormItem (null, tc));
+                items.add (tandc);
+
+            }
+
             ActionListener saveAction = new ActionListener ()
             {
 
@@ -2161,6 +2177,20 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                     {
 
                         error.setText ("No strings provided.  Please provide at least 1 string for your translation.");
+                        error.setVisible (true);
+                        qp.resize ();
+
+                        return;
+
+                    }
+
+                    if ((_this.userStrings.getStringsVersion () == 0)
+                        &&
+                        (!tandc.isSelected ())
+                       )
+                    {
+
+                        error.setText ("To submit your strings you must agree to the Terms & Conditions, and please give them a quick read ;)");
                         error.setVisible (true);
                         qp.resize ();
 
@@ -2902,6 +2932,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                                                  content.getPreferredSize ().height));
 
         qp.setContent (content);
+        qp.setDraggable (this);
 
         this.showPopupAt (qp,
                           UIUtils.getCenterShowPosition (this,
