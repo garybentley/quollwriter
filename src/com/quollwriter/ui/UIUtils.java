@@ -9868,7 +9868,7 @@ public class UIUtils
 
                 final Map<String, String> objs = new LinkedHashMap<> ();
 
-                final Vector langs = new Vector ();
+                Set<String> langIds = new LinkedHashSet<> ();
 
                 try
                 {
@@ -9877,7 +9877,7 @@ public class UIUtils
                     for (LanguageStrings _ls : Environment.getAllUserLanguageStrings (Environment.getQuollWriterVersion ()))
                     {
 
-                        langs.add ("user-" + _ls.getId ());
+                        langIds.add ("user-" + _ls.getId ());
                         objs.put ("user-" + _ls.getId (),
                                   _ls.getNativeName () + " (Created by you)");
 
@@ -9896,7 +9896,7 @@ public class UIUtils
                 for (LanguageStrings uistr : uistrs)
                 {
 
-                    langs.add (uistr.getId ());
+                    langIds.add (uistr.getId ());
                     objs.put (uistr.getId (), uistr.getNativeName () + " (" + uistr.getLanguageName () + ")");
 
                 }
@@ -9918,9 +9918,11 @@ public class UIUtils
 
                     objs.put (id, m.get ("nativename").toString () + (!id.equals (LanguageStrings.ENGLISH_ID) ? " (" + m.get ("languagename") + ")" : ""));
 
-                    langs.add (id);
+                    langIds.add (id);
 
                 }
+
+                final Vector langs = new Vector (langIds);                
 
                 SwingUtilities.invokeLater (new Runnable ()
                 {
