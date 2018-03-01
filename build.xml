@@ -189,12 +189,6 @@
         <include name="data/none-compressed-chapter-context-menu.png" />
         <include name="data/default-find-image.png" />
         <include name="data/qw-editors-message-popup.png" />
-        <include name="data/layout-ps-ch.png" />
-        <include name="data/layout-ch-ps.png" />
-        <include name="data/layout-ch-os-ps.png" />
-        <include name="data/layout-os-ch-ps.png" />
-        <include name="data/layout-ps-ch-os.png" />
-        <include name="data/layout-ps-os-ch.png" />
         <include name="data/editor-no-avatar.png" />
         <include name="data/editors-schema-version.txt" />
         <include name="data/editor-schema/**" />
@@ -212,7 +206,9 @@
         <include name="data/asset-layout-6.png" />
         <include name="data/asset-layout-7.png" />
         <include name="data/asset-layout-8.png" />
+        <include name="data/asset-layout-*" />
         <include name="data/default-ui-language-strings.json" />
+        <include name="data/ui-language-strings/**" />
       </fileset>
       <manifest>
         <attribute name="Built-By" value="${projectName}" />
@@ -388,7 +384,7 @@
            debug="on"
            deprecation="on"
            nowarn="off"
-           excludes="**/svn/**,**/*_fx*">
+           excludes="**/svn/**,**/ui/fx/**,**/*_fx*">
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
