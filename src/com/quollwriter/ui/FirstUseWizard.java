@@ -493,11 +493,14 @@ public class FirstUseWizard extends PopupWizard
                                                                 {
 
                                                                     Environment.setUILanguage (lsid);
-
+System.out.println ("V: " + getUIString (buttons,cancel));
                                                                 } catch (Exception e) {
 
                                                                     Environment.logError ("Unable to set ui language to: " + lsid,
                                                                                           e);
+
+                                                                    UIUtils.showErrorMessage (_this,
+                                                                                              getUIString (uilanguage,set,actionerror));
 
                                                                     _this.dlUILangError.setVisible (true);
                                                                     _this.dlUILangFile.setVisible (false);
@@ -520,6 +523,9 @@ public class FirstUseWizard extends PopupWizard
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
 
+                                                                UIUtils.showErrorMessage (_this,
+                                                                                          getUIString (uilanguage,set,actionerror));
+
                                                                 _this.dlUILangFile.setVisible (false);
 
                                                                 _this.dlUILangError.setVisible (true);
@@ -534,6 +540,32 @@ public class FirstUseWizard extends PopupWizard
                     //this.xxx
 
                     return false;
+
+                } else {
+
+                    // Set the language.
+                    try
+                    {
+
+                        Environment.setUILanguage (lsid);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to set ui language to: " + lsid,
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  getUIString (uilanguage,set,actionerror));
+
+                        _this.dlUILangError.setVisible (true);
+                        _this.dlUILangFile.setVisible (false);
+
+                        return false;
+
+                    }
+
+                    _this.dlUILangFile.setVisible (true);
+                    _this.showStage (SPELL_CHECK_LANG_STAGE);
 
                 }
 

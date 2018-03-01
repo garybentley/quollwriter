@@ -62,7 +62,9 @@ public class WhatsNew extends Wizard //PopupWizard
             wn = "0";
 
         }
-wn = "2.4.2";
+
+        wn = "2.4.2";
+        
         // Get the current whats new version (i.e. old).
         Version lastWhatsNewVersion = new Version (wn);
 

@@ -5797,6 +5797,17 @@
                         "text" : "The way that forms/input elements, such as text fields, are laid out and displayed has been changed to a stacked layout.  This means that the field name is above the input field, rather than being to the left.  This has pros and cons, it reduces the amount of dead space in the layout but increases the vertical size.  A future version will add in the two column layout as an option.  If you have a strong view on this then <a href='action:contact'>let me know</a>."
                     }
                 }
+            },
+            "2.6.5" :
+            {
+                "items" :
+                {
+                    "uilanguages" :
+                    {
+                        "title" : "User Interface Languages",
+                        "text" : "It's finally here.  Support for other languages for the User Interface.  At the time this was written there wasn't any non-English languages added, but there may be now, check the <a href='action:options.look'>${options.lookandsound.title}</a> section in the <b>${options.title}</b> panel to see what languages are available.<br /><br />And if you fancy taking a crack at creating a translation yourself, check out the <a href='help://uilanguages/overview'>Selecting a User Interface Language</a> help page for details on how to get started."
+                    }
+                }
             }
         }
     },

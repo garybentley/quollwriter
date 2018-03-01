@@ -1,10 +1,7 @@
 <whatsnew>
 
     <version id="2.6.5">
-      <item onlyIfCurrentVersion="true">
-        <title>TODO</title>
-        <description><![CDATA[TODO.]]></description>
-      </item>
+      <item id="uilanguages" />
     </version>
 
     <version id="2.6.4">
