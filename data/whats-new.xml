@@ -1,5 +1,12 @@
 <whatsnew>
 
+    <version id="2.6.6">
+      <item onlyIfCurrentVersion="true">
+         <title>Bug fix relating to custom types</title>
+         <description><![CDATA[Fixed a bug with missing images preventing editing/addition of custom types.]]></description>
+      </item>
+    </version>
+
     <version id="2.6.5">
       <item id="uilanguages" />
     </version>
