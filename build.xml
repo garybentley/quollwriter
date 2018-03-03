@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.6.5" />
+  <property name="currVersion" value="2.6.6" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -197,15 +197,15 @@
         <include name="data/project-info-schema/**" />
         <include name="data/project-info-schema-version.txt" />
         <include name="data/default-style.css" />
-        <include name="data/asset-layout-0.png" />
-        <include name="data/asset-layout-1.png" />
-        <include name="data/asset-layout-2.png" />
-        <include name="data/asset-layout-3.png" />
-        <include name="data/asset-layout-4.png" />
-        <include name="data/asset-layout-5.png" />
-        <include name="data/asset-layout-6.png" />
-        <include name="data/asset-layout-7.png" />
-        <include name="data/asset-layout-8.png" />
+        <include name="data/asset-layout-0-n.png" />
+        <include name="data/asset-layout-1-n.png" />
+        <include name="data/asset-layout-2-n.png" />
+        <include name="data/asset-layout-3-n.png" />
+        <include name="data/asset-layout-4-n.png" />
+        <include name="data/asset-layout-5-n.png" />
+        <include name="data/asset-layout-6-n.png" />
+        <include name="data/asset-layout-7-n.png" />
+        <include name="data/asset-layout-8-n.png" />
         <include name="data/asset-layout-*" />
         <include name="data/default-ui-language-strings.json" />
         <include name="data/ui-language-strings/**" />
