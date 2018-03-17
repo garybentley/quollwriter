@@ -1167,7 +1167,7 @@ public class TextArea extends ScrollableBox
             if (this.text.getText ().equals (this.placeholder))
             {
 
-                return "";
+                return null;
 
             }
 

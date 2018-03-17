@@ -18,34 +18,48 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene, Proje
 
     public String getIcon (Scene item)
     {
-        
+
         return item.getObjectType ();
-        
+
     }
-    
+
     public String getTitle (Scene item)
     {
-        
+
         return Environment.getObjectTypeName (item.getObjectType ());
-        
+
     }
 
     public String getItemDescription (Scene item)
     {
 
+        if (item == null)
+        {
+
+            return null;
+
+        }
+
+        if (item.getDescription () == null)
+        {
+
+            return null;
+
+        }
+
         return item.getDescription ().getMarkedUpText ();
 
     }
-    
+
     @Override
     public Set<JComponent> getTools (Scene                            item,
                                      ChapterItemViewer<ProjectViewer> qep)
     {
-        
+
         return null;
-        
-    }    
-    
+
+    }
+
     public ActionListener getEditItemActionHandler (Scene                            item,
                                                     ChapterItemViewer<ProjectViewer> ep)
     {
