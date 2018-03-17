@@ -2674,6 +2674,9 @@ public class Environment
 
             } catch (Exception e) {
 
+                pv.close (false,
+                          null);
+
                 if (ObjectManager.isDatabaseAlreadyInUseException (e))
                 {
 
