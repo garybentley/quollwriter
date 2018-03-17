@@ -1048,6 +1048,21 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
         final IconColumn _this = this;
 
+        // TODO: Change this to use a Map
+        for (int i = 0; i < this.structureItems.size (); i++)
+        {
+
+            StructureItemWrapper w = this.structureItems.get (i);
+
+            if (w.item == item)
+            {
+
+                return w.imagePanel;
+
+            }
+
+        }
+
         // Placeholder
         Image      img = null;
         ImagePanel p = new ImagePanel (img,
