@@ -524,6 +524,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                                 //"Enter your {Idea} here...",
                                                 5,
                                                 -1);
+            this.text.getScrollPane ().setMaximumSize (this.text.getMaximumSize ());
+            this.text.getScrollPane ().setPreferredSize (this.text.getPreferredSize ());
             this.text.setCanFormat (true);
             this.text.setAutoGrabFocus (true);
             this.text.setBorder (null);
