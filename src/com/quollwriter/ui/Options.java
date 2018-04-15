@@ -4688,6 +4688,7 @@ public class Options extends Box
                                               //"Enter the format here...",
 											  3,
 											  -1);
+        status.setMaximumSize (new Dimension (Short.MAX_VALUE, 100));
 		status.setText (UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
                                             Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT));
 

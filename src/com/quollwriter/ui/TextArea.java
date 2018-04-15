@@ -312,13 +312,17 @@ public class TextArea extends ScrollableBox
 
         if (wrapInScrollPane)
         {
-
+/*
             this.text.setPreferredSize (new Dimension (200,
                                                      this.text.getLineHeight () * (int) (rows + 0.8)));
-
+*/
             this.scrollPane = UIUtils.createScrollPane (this.text);
             this.add (this.scrollPane);
-            this.scrollPane.setMinimumSize (this.getMinimumSize ());
+            this.scrollPane.setPreferredSize (new Dimension (200,
+                                                     this.text.getLineHeight () * (int) (rows + 1)));
+
+            //this.scrollPane.setMinimumSize (this.getMinimumSize ());
+            //this.scrollPane.setMaximumSize (this.getMaximumSize ());
             this.setBorder (UIUtils.createPadding (3, 3, 3, 3));
 
         } else {
