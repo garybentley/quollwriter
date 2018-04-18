@@ -1,5 +1,12 @@
 <whatsnew>
 
+    <version id="2.6.8">
+      <item onlyIfCurrentVersion="true">
+         <title>Bug fix relating to text boxes</title>
+         <description><![CDATA[Fixed a bug that caused some text boxes to behave strangely when adding/removing text.]]></description>
+      </item>
+    </version>
+
     <version id="2.6.7">
       <item onlyIfCurrentVersion="true">
          <title>Bug fix relating to adding/editing an Idea</title>
