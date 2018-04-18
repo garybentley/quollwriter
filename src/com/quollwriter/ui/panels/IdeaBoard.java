@@ -551,7 +551,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             this.setVisible (false);
 
-            this.add (Box.createVerticalStrut (5));
+            //this.add (Box.createVerticalStrut (5));
 
             JButton save = UIUtils.createButton (Constants.SAVE_ICON_NAME,
                                                  Constants.ICON_MENU,
