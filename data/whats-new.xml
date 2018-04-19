@@ -2,8 +2,8 @@
 
     <version id="2.6.9">
       <item onlyIfCurrentVersion="true">
-         <title>Updates to User Interface strings</title>
-         <description><![CDATA[Added a new feature that allows you to upgrade your User Interface strings to the current version of {QW}.  Just edit one of your older version strings and it {QW} will offer to update the strings to the current version.  This won't affect the old version.]]></description>
+         <title>Bug fix</title>
+         <description><![CDATA[The built-in User Interface strings version has been set to match the {QW} version.  (My apologies for the fixes and updates, the User Interface strings functionality is new and still in beta with the bugs still being shaken out of box.)]]></description>
       </item>
     </version>
 

@@ -11175,7 +11175,7 @@ public class UIUtils
                                            {
 
                                                final LanguageStrings ls = (LanguageStrings) ev.getSource ();
-
+/*
                                                // Check to see if this version is the same as the current QW version.
                                                if (ls.getQuollWriterVersion ().isNewer (Environment.getQuollWriterVersion ()))
                                                {
@@ -11305,7 +11305,7 @@ public class UIUtils
                                                    }
 
                                                }
-
+*/
                                                Environment.editUILanguageStrings (ls,
                                                                                   ls.getQuollWriterVersion ());
 

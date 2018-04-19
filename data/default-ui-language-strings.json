@@ -137,19 +137,6 @@
                 "text" : "You currently have no translations."
             }
         },
-        "update" :
-        {
-            "popup" :
-            {
-                "title" : "Update your strings to the current {QW} version?",
-                "text" : "Do you want to update your strings to the current {QW} version?  This will not affect the old version of the strings.",
-                "buttons" :
-                {
-                    "confirm" : "Yes, update them",
-                    "cancel" : "No, leave them"
-                }
-            }
-        },
         "select" :
         {
             "edit" :
