@@ -9922,7 +9922,7 @@ public class UIUtils
 
                 }
 
-                final Vector langs = new Vector (langIds);                
+                final Vector langs = new Vector (langIds);
 
                 SwingUtilities.invokeLater (new Runnable ()
                 {
@@ -11175,6 +11175,136 @@ public class UIUtils
                                            {
 
                                                final LanguageStrings ls = (LanguageStrings) ev.getSource ();
+
+                                               // Check to see if this version is the same as the current QW version.
+                                               if (ls.getQuollWriterVersion ().isNewer (Environment.getQuollWriterVersion ()))
+                                               {
+
+                                                   // It's not, so see if the user has a version for the current QW version.
+                                                   LanguageStrings lscurr = null;
+
+                                                   try
+                                                   {
+
+                                                       lscurr = Environment.getUserUILanguageStrings (Environment.getQuollWriterVersion (),
+                                                                                                      ls.getId ());
+
+                                                   } catch (Exception e) {
+
+                                                       Environment.logError ("Unable to get strings: " + ls.getId (),
+                                                                             e);
+
+                                                       UIUtils.showErrorMessage (viewer,
+                                                                                 "Unable to edit strings.");
+
+                                                       return;
+
+                                                   }
+
+                                                   if (lscurr == null)
+                                                   {
+
+                                                       // Offer to update the strings to the current version.
+                                                       UIUtils.createQuestionPopup (viewer,
+                                                                                    getUIString (uilanguage,update,popup,title),
+                                                                                    //"Update your strings to the current {QW} version?",
+                                                                                    Constants.SAVE_ICON_NAME,
+                                                                                    getUIString (uilanguage,update,popup,text),
+                                                                                    //"Do you want to update your strings to the current {QW} version?  This will not affect the old version.",
+                                                                                    getUIString (uilanguage,update,popup,buttons,confirm),
+                                                                                    //"Yes, update them",
+                                                                                    getUIString (uilanguage,update,popup,buttons,cancel),
+                                                                                    //"No, leave them",
+                                                                                    // On confirm
+                                                                                    new ActionListener ()
+                                                                                    {
+
+                                                                                        @Override
+                                                                                        public void actionPerformed (ActionEvent ev)
+                                                                                        {
+
+                                                                                            ls.setQuollWriterVersion (Environment.getQuollWriterVersion ());
+
+                                                                                            // Save it.
+                                                                                            try
+                                                                                            {
+
+                                                                                                Environment.saveUserUILanguageStrings (ls);
+
+                                                                                            } catch (Exception e) {
+
+                                                                                                Environment.logError ("Unable to update strings: " + ls.getId (),
+                                                                                                                      e);
+
+                                                                                                UIUtils.showErrorMessage (viewer,
+                                                                                                                          "Unable to update strings.");
+
+                                                                                                return;
+
+                                                                                            }
+
+                                                                                            LanguageStrings lscurr = null;
+
+                                                                                            // Now open it.
+                                                                                            try
+                                                                                            {
+
+                                                                                                lscurr = Environment.getUserUILanguageStrings (Environment.getQuollWriterVersion (),
+                                                                                                                                               ls.getId ());
+
+                                                                                                Environment.editUILanguageStrings (lscurr,
+                                                                                                                                   lscurr.getQuollWriterVersion ());
+
+                                                                                            } catch (Exception e) {
+
+                                                                                                Environment.logError ("Unable to edit strings: " + ls.getId (),
+                                                                                                                      e);
+
+                                                                                                UIUtils.showErrorMessage (viewer,
+                                                                                                                          "Unable to edit strings.");
+
+                                                                                                return;
+
+                                                                                            }
+
+                                                                                        }
+
+                                                                                    },
+                                                                                    // On cancel
+                                                                                    new ActionListener ()
+                                                                                    {
+
+                                                                                        @Override
+                                                                                        public void actionPerformed (ActionEvent ev)
+                                                                                        {
+
+                                                                                            Environment.editUILanguageStrings (ls,
+                                                                                                                               ls.getQuollWriterVersion ());
+
+                                                                                        }
+
+                                                                                    },
+                                                                                    // On close
+                                                                                    new ActionListener ()
+                                                                                    {
+
+                                                                                        @Override
+                                                                                        public void actionPerformed (ActionEvent ev)
+                                                                                        {
+
+                                                                                            Environment.editUILanguageStrings (ls,
+                                                                                                                               ls.getQuollWriterVersion ());
+
+                                                                                        }
+
+                                                                                    },
+                                                                                    null);
+
+                                                        return;
+
+                                                   }
+
+                                               }
 
                                                Environment.editUILanguageStrings (ls,
                                                                                   ls.getQuollWriterVersion ());
