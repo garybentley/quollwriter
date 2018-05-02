@@ -4058,7 +4058,7 @@ public class UIUtils
                 try
                 {
 
-                    w = "<a href='" + urlPrefix + URLEncoder.encode (st, "utf-8") + "'>" + urlPrefix + st + "</a>";
+                    w = "<a href='" + urlPrefix + st /*URLEncoder.encode (st, "utf-8")*/ + "'>" + urlPrefix + st + "</a>";
 
                 } catch (Exception e) {
 
