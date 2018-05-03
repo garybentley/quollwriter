@@ -27,35 +27,43 @@ public class UserPropertyHandler implements TypesHandler
     private String sep = null;
     private Set<String> types = new TreeSet ();
     private ObjectProvider<QObject> objectProvider = null;
-    private Map<PropertyChangedListener, Object> listeners = null;    
+    private Map<PropertyChangedListener, Object> listeners = null;
     // Just used in the maps above as a placeholder for the listeners.
     private final Object listenerFillObj = new Object ();
-    
+
     public UserPropertyHandler (String propName,
+                                String def,
                                 String sep)
 
     {
 
         this.propName = propName;
         this.sep = (sep != null ? sep : DEFAULT_SEPARATOR);
-    
-        this.listeners = Collections.synchronizedMap (new WeakHashMap ());        
-        
+
+        this.listeners = Collections.synchronizedMap (new WeakHashMap ());
+
         String nt = UserProperties.get (this.propName);
+
+        if (nt == null)
+        {
+
+            nt = def;
+
+        }
 
         if (nt != null)
         {
 
             StringTokenizer t = new StringTokenizer (nt,
                                                      this.sep);
-    
+
             while (t.hasMoreTokens ())
             {
-    
+
                 String tok = t.nextToken ().trim ();
-                
+
                 this.types.add (tok);
-    
+
             }
 
         }
@@ -64,92 +72,92 @@ public class UserPropertyHandler implements TypesHandler
 
     public boolean hasType (String t)
     {
-        
+
         for (String type : this.types)
         {
-            
+
             if (t.equalsIgnoreCase (type))
             {
-                
+
                 return true;
-                
+
             }
-            
+
         }
-        
+
         return false;
-        
+
     }
-    
+
     protected void firePropertyChangedEvent (final PropertyChangedEvent ev)
     {
-                
+
         final UserPropertyHandler _this = this;
-                
+
         UIUtils.doActionLater (new ActionListener ()
         {
-        
+
             public void actionPerformed (ActionEvent aev)
             {
-                
+
                 Set<PropertyChangedListener> ls = null;
-                                
+
                 // Get a copy of the current valid listeners.
                 synchronized (_this.listeners)
                 {
-                                    
+
                     ls = new LinkedHashSet (_this.listeners.keySet ());
-                    
+
                 }
-                    
+
                 for (PropertyChangedListener l : ls)
                 {
-                    
+
                     try
                     {
-                    
+
                         l.propertyChanged (ev);
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to update listener: " +
                                               l +
                                               " with change to user property type: " +
                                               _this.propName,
                                               e);
-                        
+
                     }
 
                 }
 
             }
-            
+
         });
-                        
+
     }
-    
+
     public void removePropertyChangedListener (PropertyChangedListener l)
     {
-        
+
         this.listeners.remove (l);
-        
+
     }
-    
+
     public void addPropertyChangedListener (PropertyChangedListener l)
     {
-        
+
         this.listeners.put (l,
                             this.listenerFillObj);
-        
-    }        
-    
+
+    }
+
     public boolean typesEditable ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     public boolean removeType (String  type,
                                boolean reload)
     {
@@ -162,9 +170,9 @@ public class UserPropertyHandler implements TypesHandler
                                                             VALUE_DELETED,
                                                             type,
                                                             null);
-        
+
         this.firePropertyChangedEvent (ev);
-        
+
         return true;
 
     }
@@ -188,7 +196,7 @@ public class UserPropertyHandler implements TypesHandler
                                                             VALUE_ADDED,
                                                             null,
                                                             t);
-        
+
         this.firePropertyChangedEvent (ev);
 
     }
@@ -233,7 +241,7 @@ public class UserPropertyHandler implements TypesHandler
                                                             VALUE_CHANGED,
                                                             oldType,
                                                             newType);
-        
+
         this.firePropertyChangedEvent (ev);
 
         this.removeType (oldType,

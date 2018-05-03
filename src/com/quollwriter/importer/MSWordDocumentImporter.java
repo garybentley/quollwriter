@@ -169,7 +169,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
             // Add a single chapter.
             Chapter c = this.p.getBooks ().get (0).createChapterAfter (null,
-                                                                       Environment.getProperty (Constants.DEFAULT_CHAPTER_NAME_PROPERTY_NAME));
+                                                                       Environment.getDefaultChapterName ());
 
             c.setText (new StringWithMarkup (chapterText.toString ()));
 
@@ -179,7 +179,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
     private void createItem ()
     {
-        
+
         if (this.n instanceof Chapter)
         {
 
@@ -194,115 +194,115 @@ public class MSWordDocumentImporter implements DocumentImporter
         {
 
             this.p.addAsset ((Asset) this.n);
-            
+
             String ct = chapterText.toString ().trim ();
-                                    
+
             // Check the chapterText to see if there is an "Aliases:" prefix to the start
             // of the text.
             int aliasesInd = ct.indexOf ("Aliases: ");
-            
+
             if (aliasesInd == 0)
             {
-                
+
                 Asset as = (Asset) this.n;
-                                            
+
                 int lineInd = ct.indexOf (String.valueOf ('\n'));
-                
+
                 String aliases = ct;
-                
+
                 if (lineInd > 0)
                 {
-                
+
                     aliases = ct.substring (0,
                                             lineInd);
 
                     ct = ct.substring (lineInd).trim ();
-                
+
                 } else {
-                    
+
                     ct = "";
-                    
+
                 }
-                
+
                 aliases = aliases.substring ("Aliases: ".length ());
-                
+
                 as.setAliases (aliases);
-                
+
             }
 
             if (this.n instanceof QObject)
             {
-                
+
                 int typeInd = ct.indexOf ("Type: ");
-                
+
                 if (typeInd == 0)
                 {
-                    
+
                     QObject qo = (QObject) this.n;
-                                                
+
                     int lineInd = ct.indexOf (String.valueOf ('\n'));
-                    
+
                     String type = ct;
-                    
+
                     if (lineInd > 0)
                     {
-                    
+
                         type = ct.substring (0,
                                              lineInd);
-    
+
                         ct = ct.substring (lineInd).trim ();
-                    
+
                     }
-                    
+
                     type = type.substring ("Type: ".length ());
-                    
+
                     qo.setType (type);
-                    
-                }                
-               
+
+                }
+
             }
-            
+
             if (this.n instanceof ResearchItem)
             {
-                
+
                 // Get the first line.
                 int lineInd = ct.indexOf (String.valueOf ('\n'));
-                
+
                 String url = ct;
-                
+
                 if (lineInd > 0)
                 {
-                
+
                     url = ct.substring (0,
                                         lineInd);
-                
+
                 }
-                
+
                 if ((url.startsWith ("http://"))
                     ||
                     (url.startsWith ("https://"))
                    )
                 {
-                
+
                     ResearchItem ri = (ResearchItem) this.n;
-                    
+
                     ri.setUrl (url.trim ());
 
                     if (lineInd > 0)
                     {
 
                         ct = ct.substring (lineInd).trim ();
-                        
+
                     }
-                                                    
+
                 }
-                
+
             }
-            
+
             this.n.setDescription (new StringWithMarkup (ct));
 
         }
-                
+
     }
 
     private void addItem (String style,
@@ -318,7 +318,7 @@ public class MSWordDocumentImporter implements DocumentImporter
         }
 
         text = TextUtilities.sanitizeText (text);
-        
+
         if (style != null)
         {
 
@@ -393,7 +393,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
                 if (this.n == null)
                 {
-                
+
                     this.n = new Chapter (this.p.getBooks ().get (0),
                                           text);
 

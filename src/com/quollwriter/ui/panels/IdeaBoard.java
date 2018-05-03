@@ -1501,7 +1501,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             for (UserConfigurableObjectType type : Environment.getAssetUserConfigurableObjectTypes (true))
             {
 
-                this.addNewType (type.getObjectTypeNamePlural (),
+                this.addNewType (Environment.getObjectTypeNamePlural (type),
+                                //type.getObjectTypeNamePlural (),
                                  type.getObjectTypeId (), //getIcon16x16 (),
                                  false);
 

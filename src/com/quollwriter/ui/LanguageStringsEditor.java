@@ -969,6 +969,14 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
     }
 
     @Override
+    public int getSCount (String id)
+    {
+
+        return this.baseStrings.getSCount (id);
+
+    }
+
+    @Override
     public String getRawText (String id)
     {
 

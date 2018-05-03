@@ -852,7 +852,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                                                           //"words, total",
                                  this.totalSessionWordCount));
 
-        AccordionItem it = this.getItems ("This session",
+        AccordionItem it = this.getItems (getUIString (prefix,sectiontitles,session),
+                                        //"This session",
                                           Constants.CLOCK_ICON_NAME,
                                           items);
 

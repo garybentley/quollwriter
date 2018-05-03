@@ -9128,6 +9128,28 @@ public class UIUtils
 
     }
 
+    public static int getMaxStringLength (Font      f,
+                                          String... strs)
+    {
+
+        int maxl = 0;
+
+        java.awt.font.FontRenderContext frc = new java.awt.font.FontRenderContext (new java.awt.geom.AffineTransform (), true, true);
+
+        for (String s : strs)
+        {
+
+            // We add 1 to prevent issues with half rounding when the cast is performed.
+            maxl = Math.max ((int) f.getStringBounds (s,
+                                                      frc).getWidth () + 1,
+                             maxl);
+
+        }
+
+        return maxl;
+
+    }
+
     public static EmptyBorder createPadding (int top,
                                              int left,
                                              int bottom,

@@ -62,7 +62,8 @@
         ":comment.unabletoopenfile" : "%1$s is the path to the file that cannot be opened.",
         ":scount.unabletoopenfile" : 1,
         "moretextindicator" : "...",
-        "loading" : "Loading..."
+        "loading" : "Loading...",
+        "defaultchaptername" : "${objectnames.singular.chapter} 1"
     },
     "noobjectselectedpanel" :
     {
@@ -814,7 +815,6 @@
                 }
             }
         },
-        ":comment" : "This section relates to the adding/editing of custom objects by the user.",
         "layout" :
         {
             "title" : "Layout",
@@ -2526,7 +2526,7 @@
             },
             "paragraphreadability" :
             {
-                "fk" : "Paragraph has a ${names.fkfull} of: <b>%1$s</b> (Max is: %2$s)",
+                "fkfull" : "Paragraph has a ${names.fkfull} of: <b>%1$s</b> (Max is: %2$s)",
                 ":comment.fkfull" : "%1$s is the FK value for the paragraph.  %2$s is the max FK value configured.",
                 ":scount.fkfull" : 2,
                 "frfull" : "Paragraph has a ${names.frfull} of: <b>%1$s</b> (Max is: %2$s)",
@@ -2683,10 +2683,10 @@
                     {
                         "anywhere" : "anywhere in a sentence%1$s",
                         ":comment.anywhere" : "The %1$s is replaced with one of the dialogue suffixes.",
-                        "scount.anywhere" : 1,
+                        ":scount.anywhere" : 1,
                         "insentence" : "at the %1$s of a sentence%2$s",
                         ":comment.insentence" : "%1$s is replaced with either start or end, %2$s is replaced with one of the dialogue suffixes.",
-                        "scount.insentence" : 2,
+                        ":scount.insentence" : 2,
                         "suffixes" :
                         {
                             "onlyindialogue" : ", but only in dialogue",
@@ -2945,7 +2945,6 @@
             {
                 "actionerror" : "Unable to delete ${objectnames.singular.ideatype}.",
                 ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
-                "actionerror" : "Unable to delete ${objectnames.singular.ideatype}.",
                 "deletetype" : "${objectnames.singular.ideatype}",
                 "warning" : "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored."
             }
@@ -3075,8 +3074,8 @@
             {
                 "title" : "Select the items you wish to import",
                 "text" : "Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item.%1$s",
-                ":comment.help" : "The %1$s is replaced with the {textextra} text if the user has selected 'Add to ${objectnames.singular.project} for importing.  If new project is selected then blank text is used.",
-                ":scount.help" : 1,
+                ":comment.text" : "The %1$s is replaced with the {textextra} text if the user has selected 'Add to ${objectnames.singular.project} for importing.  If new project is selected then blank text is used.",
+                ":scount.text" : 1,
                 "textextra" : "  Only items not already in the ${objectnames.singular.project} will be listed."
             },
             "selectfile" :
@@ -3551,8 +3550,8 @@
                     ":comment.sent" : "%1$s is the date the message was sent.",
                     ":scount.sent" : 1,
                     "received" : "Received %1$s",
-                    ":comment.sent" : "%1$s is the date the message was received.",
-                    ":scount.sent" : 1
+                    ":comment.received" : "%1$s is the date the message was received.",
+                    ":scount.received" : 1
                 }
             },
             "update" :
@@ -4466,7 +4465,8 @@
                 {
                     "title" : "Your ${objectnames.singular.project} has been sent",
                     "text" : "Your ${objectnames.singular.project} <b>%1$s</b> has been sent to <b>%2$s</b>.",
-                    ":comment.text" : "%1$s is the project name, %2$s is the name/email of the contact."
+                    ":comment.text" : "%1$s is the project name, %2$s is the name/email of the contact.",
+                    ":scount.text" : 2
                 }
             },
             "sendunsentcomments" :
@@ -4895,7 +4895,11 @@
                             ":comment.title" : "%1$s is the number of comments",
                             ":scount.title" : 1,
                             "received" : "Received: %1$s",
+                            ":comment.received" : "%1$s is the number of comments received.",
+                            ":scount.received" : 1,
                             "sent" : "Sent: %1$s",
+                            ":comment.sent" : "%1$s is the number of comments sent.",
+                            ":scount.sent" : 1,
                             "version" : "<i>Version</i> %1$s",
                             ":comment.version" : "%1$s is the version name.",
                             ":scount.version" : 1,
@@ -5159,6 +5163,8 @@
                                 ":comment" : "The {dueby}, {comments}, {unsent} and {sent} labels are used to construct a string that the user sees about the version.  It is presented as a sentence taking the form: '{dueby}{comments}[{unsent}|{sent}]', an example might be: Due by: 12 Nov 2018.  10 comments, all sent.  This is the reason why there are extra spaces at the end and commas at the start.",
                                 "noversion" : "No version",
                                 "dueby" : "Due by: %1$s.  ",
+                                ":comment.dueby" : "%1$s is the date.",
+                                ":scount.dueby" : 1,
                                 "comments" : "%1$s comments",
                                 ":comment.comments" : "%1$s is the number of comments.",
                                 ":scount.comments" : 1,
@@ -6007,6 +6013,8 @@
         "actionerror" : "Unable to show all ${objectnames.plural.project}.",
         "noprojects" : "You currently have no ${objectnames.plural.project}",
         "tooltip" : "Double click to add a new ${objectnames.singular.project}.",
+        "defaultstatuses" : "In Progress|Complete|Editing|On Hold|Waiting for feedback",
+        ":comment.defaultstatuses" : "The default statuses used for projects, the user can apply one of these statuses to each of their projects.  Separate each status with a | character.",
         "headercontrols" :
         {
             "items" :
@@ -6235,6 +6243,8 @@
     {
         ":title" : "Note Types",
         ":section" : "Project",
+        "defaulttypes" : "Information|To Do",
+        ":comment.defaulttypes" : "Separate each type with a | character.",
         "actions" :
         {
             "rename" :
@@ -6883,6 +6893,8 @@
             "confirmpopup" :
             {
                 "title" : "Delete %1$s",
+                ":comment.title" : "%1$s is the object type name of the asset.",
+                ":scount.title" : 1,
                 "text" : "Please confirm you wish to delete %1$s <b>%2$s</b>?",
                 ":comment.text" : "%1$s is the object type name of the asset.  %2$s is the name of the asset.",
                 ":scount.text" : 2,
@@ -6929,8 +6941,8 @@
                 ":comment.edit" : "%1$s is the name of the object type, i.e. Character, Location etc.",
                 ":scount.edit" : 1,
                 "sort" : "Sort the %1$s by",
-                ":comment.edit" : "%1$s is the plural name of the object type, i.e. Characters, Locations etc.",
-                ":scount.edit" : 1
+                ":comment.sort" : "%1$s is the plural name of the object type, i.e. Characters, Locations etc.",
+                ":scount.sort" : 1
             }
         },
         "treepopupmenu" :
@@ -7699,8 +7711,8 @@
                     "totalwords" : "words, total",
                     "projectwords" : "words, this ${objectnames.singular.project}",
                     "sparkline" : "past %1$s days, <b>%2$s%3$s</b> words",
-                    ":comment.sparkline7days" : "%1$s is the number of days the sparkline is showing.  %2$s is a +/- indicator showing whether the word count has gone up or down.  %3$s is the number of words.",
-                    ":scount.sparkline7days" : 3,
+                    ":comment.sparkline" : "%1$s is the number of days the sparkline is showing.  %2$s is a +/- indicator showing whether the word count has gone up or down.  %3$s is the number of words.",
+                    ":scount.sparkline" : 3,
                     "sparkline30days" : "past 30 days, <b>%1$s%2$s</b> words",
                     ":comment.sparkline30days" : "%1$s is a +/- indicator showing whether the word count has gone up or down.  %2$s is the number of words.",
                     ":scount.sparkline30days" : 2
@@ -7792,7 +7804,7 @@
                     "items" :
                     {
                         "edit" : "Edit the %1$s",
-                        "comment.edit" : "%1$s is the field name.",
+                        ":comment.edit" : "%1$s is the field name.",
                         ":scount.edit" : 1
                     }
                 },

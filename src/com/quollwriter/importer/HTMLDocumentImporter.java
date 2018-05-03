@@ -65,7 +65,7 @@ public class HTMLDocumentImporter implements DocumentImporter
 
             // Add a single chapter.
             Chapter c = this.p.getBooks ().get (0).createChapterAfter (null,
-                                                                       Environment.getProperty (Constants.DEFAULT_CHAPTER_NAME_PROPERTY_NAME));
+                                                                       Environment.getDefaultChapterName ());
 
             c.setText (new StringWithMarkup (chapterText.toString ()));
 

@@ -815,12 +815,31 @@ public class Environment
 
         }
 
-        if (t instanceof UserConfigurableObject)
+        if (t instanceof UserConfigurableObjectType)
+        {
+
+            UserConfigurableObjectType ut = (UserConfigurableObjectType) t;
+
+            if (ut.isLegacyObjectType ())
+            {
+
+                return Environment.getObjectTypeNamePlural (ut.getUserObjectType ());
+
+            }
+
+            return ut.getObjectTypeNamePlural ();
+
+        }
+
+        if ((t instanceof UserConfigurableObject)
+            &&
+            (!(t instanceof LegacyUserConfigurableObject))
+           )
         {
 
             UserConfigurableObject ut = (UserConfigurableObject) t;
 
-            return ut.getObjectTypeName ();
+            return ut.getObjectTypePluralName ();
 
         }
 
@@ -2952,6 +2971,8 @@ public class Environment
 
         UserProperties.set (Constants.USER_UI_LANGUAGE_PROPERTY_NAME, id);
 
+        Environment.loadUserObjectTypeNames ();
+
     }
 
     private static File getUILanguageStringsDir ()
@@ -4379,58 +4400,63 @@ public class Environment
 
                     Environment.uiLanguageStrings = ls;
 
-                    // See if there is an update to the strings.
-                    Environment.downloadUILanguageFile (uilangid,
-                                                        new ActionListener ()
-                                                        {
+                    if (!ls.isUser ())
+                    {
 
-                                                            @Override
-                                                            public void actionPerformed (ActionEvent ev)
+                        // See if there is an update to the strings.
+                        Environment.downloadUILanguageFile (uilangid,
+                                                            new ActionListener ()
                                                             {
 
-                                                                if (ev.getID () > 0)
+                                                                @Override
+                                                                public void actionPerformed (ActionEvent ev)
                                                                 {
 
-                                                                    try
+                                                                    if (ev.getID () > 0)
                                                                     {
 
-                                                                        Environment.setUILanguage (uilangid);
+                                                                        try
+                                                                        {
 
-                                                                    } catch (Exception e) {
+                                                                            Environment.setUILanguage (uilangid);
 
-                                                                        Environment.logError ("Unable to set ui language to: " + uilangid,
-                                                                                              e);
+                                                                        } catch (Exception e) {
 
-                                                                        UIUtils.showErrorMessage (null,
-                                                                                                  getUIString (uilanguage,set,downloading,update,actionerror));
-                                                                                                  //"Warning!  Quoll Writer has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+                                                                            Environment.logError ("Unable to set ui language to: " + uilangid,
+                                                                                                  e);
+
+                                                                            UIUtils.showErrorMessage (null,
+                                                                                                      getUIString (uilanguage,set,downloading,update,actionerror));
+                                                                                                      //"Warning!  Quoll Writer has been unable to update the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the Quoll Writer server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim Quoll Writer has fallen back to using <b>English</b>.");
+
+                                                                        }
+
+                                                                        UIUtils.showMessage (null,
+                                                                                             getUIString (uilanguage,set,downloading,update,confirmpopup,title),
+                                                                                             //"Language strings updated",
+                                                                                             getUIString (uilanguage,set,downloading,update,confirmpopup,text),
+                                                                                             //"Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
+                                                                                             null,
+                                                                                             null);
 
                                                                     }
 
-                                                                    UIUtils.showMessage (null,
-                                                                                         getUIString (uilanguage,set,downloading,update,confirmpopup,title),
-                                                                                         //"Language strings updated",
-                                                                                         getUIString (uilanguage,set,downloading,update,confirmpopup,text),
-                                                                                         //"Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
-                                                                                         null,
-                                                                                         null);
+                                                                }
+
+                                                            },
+                                                            // On error.
+                                                            new ActionListener ()
+                                                            {
+
+                                                                @Override
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
 
                                                                 }
 
-                                                            }
+                                                            });
 
-                                                        },
-                                                        // On error.
-                                                        new ActionListener ()
-                                                        {
-
-                                                            @Override
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                            }
-
-                                                        });
+                    }
 
                 }
 
@@ -4551,12 +4577,15 @@ public class Environment
 */
         Environment.userPropertyHandlers.put (Constants.NOTE_TYPES_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME,
+                                                                       getUIString (notetypes,defaulttypes),
                                                                        null));
         Environment.userPropertyHandlers.put (Constants.PROJECT_STATUSES_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME,
+                                                                       getUIString (allprojects,defaultstatuses),
                                                                        null));
         Environment.userPropertyHandlers.put (Constants.TAGS_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.TAGS_PROPERTY_NAME,
+                                                                       null,
                                                                        null));
 
         try
@@ -5419,13 +5448,13 @@ public class Environment
 
             if (t.getUserObjectType () != null)
             {
-
+/*
                 plural.put (t.getUserObjectType (),
                             t.getObjectTypeNamePlural ());
 
                 singular.put (t.getUserObjectType (),
                               t.getObjectTypeName ());
-
+*/
             } else {
 
                 if (t.isAssetObjectType ())
@@ -5441,19 +5470,20 @@ public class Environment
             }
 
         }
-
+/*
         // TODO: Fix this, special for now.
         UserConfigurableObjectType chapterType = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
 
         if (chapterType != null)
         {
-
+xxx
             plural.put (Chapter.OBJECT_TYPE,
                         chapterType.getObjectTypeNamePlural ());
             singular.put (Chapter.OBJECT_TYPE,
                           chapterType.getObjectTypeName ());
 
         }
+*/
 
     }
 
@@ -7794,11 +7824,16 @@ TODO: Add back in when appropriate.
 
         String id = type.getObjectTypeId ();
 
-        Environment.objectTypeNamesSingular.put (id,
-                                                 type.getObjectTypeName ());
+        if (!type.isLegacyObjectType ())
+        {
 
-        Environment.objectTypeNamesPlural.put (id,
-                                               type.getObjectTypeNamePlural ());
+            Environment.objectTypeNamesSingular.put (id,
+                                                     type.getObjectTypeName ());
+
+            Environment.objectTypeNamesPlural.put (id,
+                                                   type.getObjectTypeNamePlural ());
+
+        }
 
         // Tell all projects about it.
         Environment.fireUserProjectEvent (type,
@@ -7988,6 +8023,20 @@ TODO: Add back in when appropriate.
         }
 
         return Environment.tags;
+
+    }
+
+    public static String getDefaultTextAlignment ()
+    {
+
+        return getUIString (textalignments,left);
+
+    }
+
+    public static String getDefaultChapterName ()
+    {
+
+        return getUIString (general,defaultchaptername);
 
     }
 

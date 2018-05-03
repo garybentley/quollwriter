@@ -1,9 +1,4 @@
 <properties>
-  <property id="defaultChapterName" type="string">
-    <description>The name of the default chapter (first chapter when a project is created).</description>
-    <value>Chapter 1</value>
-  </property>
-
   <property id="compactMenus" type="boolean">
     <description>Whether compact menus should be used.</description>
     <value>false</value>
@@ -92,11 +87,6 @@
   <property id="defaultEditorFont" type="string">
     <description>The default font for the editor.</description>
     <value>Georgia</value>
-  </property>
-
-  <property id="defaultEditorAlignment" type="string">
-    <description>The default text alignment for the editor.</description>
-    <value>Left</value>
   </property>
 
   <property id="defaultEditorLineSpacing" type="number">
@@ -234,12 +224,12 @@ Removed so that the full screen properties will inherit from the standard editor
     <description>In full screen mode hide the icon column for the editor.</description>
     <value>false</value>
   </property>
-
+<!--
   <property id="noteTypes" type="string">
     <description>The default note types.</description>
     <value>Information|To Do</value>
   </property>
-
+-->
   <property id="quollWriterUpdaterClassName" type="string">
     <description>The class that will check for updates.</description>
     <value>com.quollwriter.ui.DefaultQuollWriterUpdater</value>
@@ -353,28 +343,6 @@ Removed so that the full screen properties will inherit from the standard editor
   <property id="quollWriterDeleteUILanguageStringsURL" type="string">
     <description>The url prefix for submitting a set of ui language strings to quoll writer.</description>
     <value>/delete-ui-language-strings.html?id=[[ID]]&amp;all=[[ALL]]&amp;version=[[VERSION]]</value>
-  </property>
-
-  <property id="reportBugMessage" type="string">
-    <description>The message displayed to the user about bug/problem reporting.</description>
-    <value>Thanks for reporting any bugs/problems you find!
-
-Until the website is up and running I'm afraid I have to do this via email,
-your email client will be displayed (or should be) once you click "OK".  If you
-could fill in the blanks that would be appreciated.  In general the more
-information I have the easier the problem will be to find/fix.
-
-Could you also attach the log files:
-   [[GENERAL_LOG_FILE]]
-
-and:
-   [[ERROR_LOG_FILE]]
-
-to the email if you struck an error or something that you think is a bug.
-
-Please check the details within the email before sending :)
-
-This message will only be shown once during your current session using Quoll Writer.</value>
   </property>
 
   <property id="contactSupportMailtoURI" type="string">
@@ -554,12 +522,12 @@ This message will only be shown once during your current session using Quoll Wri
     <description>The number of backups to keep, the oldest backups are pruned.</description>
     <value>-1</value>
   </property>
-
+<!--
   <property id="projectStatuses" type="string">
     <description>The default project statuses.</description>
     <value>In Progress|Complete|Editing|On Hold|Waiting for feedback</value>
   </property>
-
+-->
   <property id="closeProjectsWindowWhenProjectOpened" type="boolean">
     <description>Close the projects window when a project is opened.</description>
     <value>true</value>

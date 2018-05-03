@@ -56,8 +56,13 @@ public class ChapterDescriptionAccordionItem extends ChapterFieldAccordionItem
     @Override
     public String getFieldName ()
     {
-        
-        return this.chapter.getLegacyTypeField (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID).getFormName ();
+
+        // TODO: For now we get the ui string, but later we'll need to set it appropriately.
+        return Environment.getUIString (LanguageStrings.chapters,
+                                        LanguageStrings.fields,
+                                        LanguageStrings.description);
+
+        //return this.chapter.getLegacyTypeField (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID).getFormName ();
         //"Description";
 
     }

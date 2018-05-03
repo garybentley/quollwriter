@@ -48,7 +48,15 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         final TargetsData userTargets = Environment.getUserTargets ();
 
-        FormLayout   fl = new FormLayout ("right:55px, 5px, [p,80px], 5px, p:grow",
+        int maxl = UIUtils.getMaxStringLength (new JLabel ().getFont (),
+                                               getUIString (project,sidebar,targets,labels,session),
+                                               getUIString (project,sidebar,targets,labels,daily),
+                                               getUIString (project,sidebar,targets,labels,weekly),
+                                               getUIString (project,sidebar,targets,labels,monthly));
+
+        maxl = Math.max (55, maxl);
+
+        FormLayout   fl = new FormLayout ("right:" + maxl + "px, 5px, [p,80px], 5px, p:grow",
                                           "p, 6px, p, 6px, p, 6px, p");
         PanelBuilder pb = new PanelBuilder (fl);
 

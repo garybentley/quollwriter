@@ -446,6 +446,42 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
     }
 
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+
+        this.addToStringProperties (props,
+                                    "language",
+                                    this.languageName);
+        this.addToStringProperties (props,
+                                    "nativename",
+                                    this.getName ());
+        this.addToStringProperties (props,
+                                    "email",
+                                    this._email);
+        this.addToStringProperties (props,
+                                    "created",
+                                    this.created);
+        this.addToStringProperties (props,
+                                    "qwversion",
+                                    this.qwVersion.getVersion ());
+        this.addToStringProperties (props,
+                                    "stringsversion",
+                                    this.stringsVersion);
+
+        if (this.parent != null)
+        {
+
+            this.addToStringProperties (props,
+                                        "derivedfrom",
+                                        this.parent.getId ());
+
+        }
+
+    }
+
     /**
      * Returns a data structure that is suitable for JSON encoding.
      *
@@ -925,6 +961,9 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
         }
 */
+
+        scount = prov.getSCount (textId);
+
         if (scount > 0)
         {
 
@@ -960,7 +999,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
                 if (text.indexOf (sid) > -1)
                 {
 
-                    errors.add ("Invalid value used: " + sid);
+                    errors.add ("Invalid value used: " + sid + ", scount: " + scount);
 
                 }
 
@@ -1366,7 +1405,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
             if (ov == null)
             {
-System.out.println ("NEW: " + v);
+
                 // This is a new value.
                 ret.add (v);
 
@@ -1374,7 +1413,7 @@ System.out.println ("NEW: " + v);
 
                 if (!v.getRawText ().equals (ov.getRawText ()))
                 {
-System.out.println ("CHANGED: " + v);
+
                     ret.add (v);
 
                 }
@@ -1935,6 +1974,14 @@ System.out.println ("CHANGED: " + v);
     }
 
     @Override
+    public int getSCount (String id)
+    {
+
+        return this.getSCount (LanguageStrings.getIdParts (id));
+
+    }
+
+    @Override
     public String getRawText (String id)
     {
 
@@ -1947,6 +1994,37 @@ System.out.println ("CHANGED: " + v);
     {
 
         return this.getString (LanguageStrings.getIdParts (id));
+
+    }
+
+    public int getSCount (List<String> idparts)
+    {
+
+        if (this.parent != null)
+        {
+
+            // Defer to our parent.
+            return this.parent.getSCount (idparts);
+
+        }
+
+        if (idparts.size () < 1)
+        {
+
+            return 0;
+
+        }
+
+        Value v = this.getValue (idparts);
+
+        if (v != null)
+        {
+
+            return v.getSCount ();
+
+        }
+
+        return 0;
 
     }
 
@@ -2059,7 +2137,6 @@ System.out.println ("CHANGED: " + v);
         protected String comment = null;
         protected String section = null;
         private String title = null;
-        private String titlex = null;
 
         public Node (String id,
                      Node   parent)
@@ -2134,13 +2211,6 @@ System.out.println ("CHANGED: " + v);
                         {
 
                             this.title = v;
-
-                        }
-
-                        if (kid.equals (":titlex"))
-                        {
-
-                            this.titlex = v;
 
                         }
 
@@ -3209,7 +3279,7 @@ System.out.println ("CHANGED: " + v);
 
             if (this.getErrors (prov).size () > 0)
             {
-
+System.out.println ("ERR: " + this.getId () + ", " + this.getErrors (prov));
                 return this.text;
 
             }
@@ -4404,5 +4474,10 @@ System.out.println ("CHANGED: " + v);
     public static final String hidepreviouseditors = "hidepreviouseditors";
     public static final String unknownproject = "unknownproject";
     public static final String notinlist = "notinlist";
+    public static final String fkfull = "fkfull";
+    public static final String frfull = "frfull";
+    public static final String gffull = "gffull";
+    public static final String defaultchaptername = "defaultchaptername";
+    public static final String defaultstatuses = "defaultstatuses";
 
 }

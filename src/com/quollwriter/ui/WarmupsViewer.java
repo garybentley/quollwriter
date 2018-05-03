@@ -265,7 +265,7 @@ public class WarmupsViewer extends AbstractProjectViewer
 
                 // Create a new chapter for the book.
                 Chapter c = new Chapter (b,
-                                         Environment.getProperty (Constants.DEFAULT_CHAPTER_NAME_PROPERTY_NAME));
+                                         Environment.getDefaultChapterName ());
 
                 b.addChapter (c);
 

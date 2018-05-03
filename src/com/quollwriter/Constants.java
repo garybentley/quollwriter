@@ -243,8 +243,6 @@ public class Constants
 
     public static final String DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME = "defaultEditorLineSpacing";
 
-    public static final String DEFAULT_EDITOR_ALIGNMENT_PROPERTY_NAME = "defaultEditorAlignment";
-
     public static final String DEFAULT_EDITOR_TEXT_BORDER_PROPERTY_NAME = "defaultEditorTextBorder";
 
     public static final String EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME = "editorWritingLineColor";
@@ -293,8 +291,6 @@ public class Constants
 
     public static final String WINDOW_NAME_PREFIX_PROPERTY_NAME = "windowNamePrefix";
 
-    public static final String DEFAULT_CHAPTER_NAME_PROPERTY_NAME = "defaultChapterName";
-
     public static final String QUOLL_WRITER_WEBSITE_PROPERTY_NAME = "quollWriterWebsite";
 
     public static final String QUOLL_WRITER_DEBUG_WEBSITE_PROPERTY_NAME = "quollWriterDebugWebsite";
@@ -320,8 +316,6 @@ public class Constants
     //public static final String BUG_REPORT_MAILTO_URI_PROPERTY_NAME = "bugReportMailtoURI";
 
     //public static final String CONTACT_SUPPORT_MAILTO_URI_PROPERTY_NAME = "contactSupportMailtoURI";
-
-    public static final String REPORT_BUG_MESSAGE_PROPERTY_NAME = "reportBugMessage";
 
     public static final String DB_USERNAME_PROPERTY_NAME = "dbUsername";
 

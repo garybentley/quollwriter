@@ -38,7 +38,12 @@ public class ChapterPlanAccordionItem extends ChapterFieldAccordionItem
     public String getFieldName ()
     {
 
-        return this.chapter.getLegacyTypeField (Chapter.PLAN_LEGACY_FIELD_ID).getFormName ();
+        // TODO: For now we get the ui string, but later we'll need to set it appropriately.
+        return Environment.getUIString (LanguageStrings.chapters,
+                                        LanguageStrings.fields,
+                                        LanguageStrings.plan);
+
+        //return this.chapter.getLegacyTypeField (Chapter.PLAN_LEGACY_FIELD_ID).getFormName ();
         //return "Plan";
 
     }

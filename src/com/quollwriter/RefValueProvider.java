@@ -7,4 +7,6 @@ public interface RefValueProvider
 
     public String getRawText (String id);
 
+    public int getSCount (String id);
+
 }

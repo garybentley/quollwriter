@@ -46,7 +46,7 @@ public abstract class PopupWizard extends PopupWindow
 
     public void init ()
     {
-    
+
         this.contentBox = new Box (BoxLayout.Y_AXIS);
 
         this.contentPanel = new Box (BoxLayout.X_AXIS);
@@ -70,7 +70,7 @@ public abstract class PopupWizard extends PopupWindow
                                                                     0,
                                                                     2,
                                                                     0)));
-        
+
         this.header.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         this.contentBox.add (Box.createVerticalStrut (10));
         this.contentBox.add (this.header);
@@ -96,7 +96,7 @@ public abstract class PopupWizard extends PopupWindow
                     WizardStep ws = null;
 
                     String prev = _this.getPreviousStage (_this.currentStage);
-                    
+
                     if (prev != null)
                     {
 
@@ -123,7 +123,7 @@ public abstract class PopupWizard extends PopupWindow
                                               ws);
 
                         }
-                        
+
                         if (!_this.handleStageChange (_this.currentStage,
                                                       prev))
                         {
@@ -134,16 +134,16 @@ public abstract class PopupWizard extends PopupWindow
 
                         if (_this.current.panel != null)
                         {
-                        
+
                             _this.contentPanel.remove (_this.current.panel);
-                            
+
                         }
 
                         _this.current = ws;
                         _this.currentStage = prev;
 
                         _this.enableButtons (_this.currentStage);
-                        
+
                         _this.initUI ();
 
                     }
@@ -173,7 +173,7 @@ public abstract class PopupWizard extends PopupWindow
                     WizardStep ws = null;
 
                     String next = _this.getNextStage (_this.currentStage);
-                    
+
                     if (next != null)
                     {
 
@@ -184,7 +184,7 @@ public abstract class PopupWizard extends PopupWindow
                             return;
 
                         }
-                        
+
                         ws = _this.stages.get (next);
 
                         if (ws == null)
@@ -213,7 +213,7 @@ public abstract class PopupWizard extends PopupWindow
                             }
 
                         }
-                        
+
                         if (ws == null)
                         {
 
@@ -227,18 +227,18 @@ public abstract class PopupWizard extends PopupWindow
 
                             return;
 
-                        }                        
-                        
+                        }
+
                         if (_this.current.panel != null)
                         {
-                            
+
                             _this.contentPanel.remove (_this.current.panel);
-                            
+
                         }
-                        
+
                         _this.current = ws;
                         _this.currentStage = next;
-                        
+
                         _this.enableButtons (_this.currentStage);
 
                         _this.initUI ();
@@ -274,7 +274,7 @@ _this.resize ();
         this.cancelBut = new JButton ();
         this.cancelBut.setText (Environment.getUIString (LanguageStrings.wizard,
                                                          LanguageStrings.buttons,
-                                                         CANCEL_BUTTON_ID));        
+                                                         CANCEL_BUTTON_ID));
         //this.cancelBut.setText ("Cancel");
 
         final ActionAdapter cancel = new ActionAdapter ()
@@ -293,14 +293,14 @@ _this.resize ();
 
         this.addWindowListener (new WindowAdapter ()
         {
-           
+
             public void windowClosing (WindowEvent ev)
             {
-                
+
                 cancel.actionPerformed (null);
-                
+
             }
-            
+
         });
 
         this.cancelBut.addActionListener (cancel);
@@ -326,22 +326,22 @@ _this.resize ();
 
         UIUtils.doLater (new ActionListener ()
         {
-            
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-            
+
                 _this.toFront ();
-                
+
             }
-            
+
         });
 
     }
 
     public void showStage (String stage)
     {
-        
+
         WizardStep ws = this.stages.get (stage);
 
         if (ws == null)
@@ -368,20 +368,20 @@ _this.resize ();
 
         if (this.current.panel != null)
         {
-        
+
             this.contentPanel.remove (this.current.panel);
-            
+
         }
 
         this.current = ws;
         this.currentStage = stage;
 
         this.enableButtons (this.currentStage);
-        
+
         this.initUI ();
-        
+
     }
-    
+
     public JComponent getContentPanel ()
     {
 
@@ -429,6 +429,9 @@ _this.resize ();
     {
 
         this.header.setTitle (this.current.title);
+        this.setHeaderTitle (this.getWindowTitle ());
+        UIUtils.setFrameTitle (this,
+                               this.getWindowTitle ());
 
         if (this.current.helpText == null)
         {
@@ -444,12 +447,12 @@ _this.resize ();
 
         if (this.current.panel != null)
         {
-        
+
             this.current.panel.setOpaque (false);
             this.contentPanel.add (this.current.panel);
 
         }
-            
+
     }
 
     public abstract int getMaximumContentHeight ();
@@ -468,7 +471,7 @@ _this.resize ();
     public abstract void handleCancel ();
 
     public abstract WizardStep getStage (String stage);
-    
+
     public String getNextButtonLabel (String currStage)
     {
 
@@ -490,7 +493,7 @@ _this.resize ();
         //return "Next >";
 
     }
-    
+
     protected void enableButtons (String currentStage)
     {
 
@@ -511,8 +514,14 @@ _this.resize ();
             this.nextBut.setEnabled (true);
 
         }
-        
+
         this.nextBut.setText (this.getNextButtonLabel (currentStage));
+        this.prevBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                       LanguageStrings.buttons,
+                                                       PREVIOUS_BUTTON_ID));
+        this.cancelBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                         LanguageStrings.buttons,
+                                                         CANCEL_BUTTON_ID));
 
     }
 

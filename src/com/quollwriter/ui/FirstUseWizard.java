@@ -347,13 +347,6 @@ public class FirstUseWizard extends PopupWizard
         if (NEW_PROJECT_STAGE.equals (currStage))
         {
 
-            if (this.importFile.isSelected ())
-            {
-
-                return IMPORT_STAGE;
-
-            }
-
             return DECIDE_STAGE;
 
         }
@@ -434,6 +427,8 @@ public class FirstUseWizard extends PopupWizard
 
             }
 
+            return true;
+/*
             if (this.importFile.isSelected ())
             {
 
@@ -454,7 +449,7 @@ public class FirstUseWizard extends PopupWizard
                 return false;
 
             }
-
+*/
         }
 
         if ((START_STAGE.equals (oldStage))
@@ -493,7 +488,7 @@ public class FirstUseWizard extends PopupWizard
                                                                 {
 
                                                                     Environment.setUILanguage (lsid);
-System.out.println ("V: " + getUIString (buttons,cancel));
+
                                                                 } catch (Exception e) {
 
                                                                     Environment.logError ("Unable to set ui language to: " + lsid,

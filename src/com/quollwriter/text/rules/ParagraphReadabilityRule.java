@@ -146,7 +146,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
             pref.add (LanguageStrings.problemfinder);
             pref.add (LanguageStrings.issues);
             pref.add (LanguageStrings.paragraphreadability);
-        
+
             ReadabilityIndices ri = new ReadabilityIndices ();
             ri.add (paragraph.getText ());
 
@@ -157,7 +157,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
             {
 
                 Issue iss = new Issue (String.format (Environment.getUIString (pref,
-                                                                               LanguageStrings.fk),
+                                                                               LanguageStrings.fkfull),
                                                       Environment.formatNumber (ri.getFleschKincaidGradeLevel ()),
                                                       Environment.formatNumber (this.fleschKincaid)),
                                                       //"Paragraph has a Flesch Kincaid grade level of: <b>" + Environment.formatNumber (ri.getFleschKincaidGradeLevel ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschKincaid) + ")",
@@ -176,7 +176,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
             {
 
                 Issue iss = new Issue (String.format (Environment.getUIString (pref,
-                                                                               LanguageStrings.fr),
+                                                                               LanguageStrings.frfull),
                                                       Environment.formatNumber (ri.getFleschReadingEase ()),
                                                       Environment.formatNumber (this.fleschReading)),
                                                       //"Paragraph has a Flesch Reading ease level of: <b>" + Environment.formatNumber (ri.getFleschReadingEase ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschReading) + ")",
@@ -195,7 +195,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
             {
 
                 Issue iss = new Issue (String.format (Environment.getUIString (pref,
-                                                                               LanguageStrings.gf),
+                                                                               LanguageStrings.gffull),
                                                       Environment.formatNumber (ri.getGunningFogIndex ()),
                                                       Environment.formatNumber (this.gunningFog)),
                                                       //"Paragraph has a Gunning Fog index of: <b>" + Environment.formatNumber (ri.getGunningFogIndex ()) + "</b>.  (Max is: " + Environment.formatNumber (this.gunningFog) + ")",
@@ -231,7 +231,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         pref.add (LanguageStrings.rules);
         pref.add (LanguageStrings.paragraphreadability);
         pref.add (LanguageStrings.labels);
-    
+
         Set<FormItem> items = new LinkedHashSet ();
 
         this.fkF = new JSpinner (new SpinnerNumberModel (this.fleschKincaid,
