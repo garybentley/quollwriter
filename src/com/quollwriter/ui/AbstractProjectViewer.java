@@ -7007,7 +7007,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         if (this.proj.getPropertyAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME))
         {
 
-            final long autoSaveInt = Utils.getTimeAsMillis (this.proj.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
+            Properties props = Environment.getDefaultProperties (Project.OBJECT_TYPE);
+
+            final long autoSaveInt = Long.parseLong (/*this.proj*/props.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
 
             if (autoSaveInt > 0)
             {
