@@ -79,7 +79,7 @@ public class FirstUseWizard extends PopupWizard
         this.projDBFindError = UIUtils.createErrorLabel ("");
         //Please select a directory.");
 
-        this.fileFindError = UIUtils.createErrorLabel (getUIString (firstusewizard,stages,selectfile,errors,novalue));
+        this.fileFindError = UIUtils.createErrorLabel ("");
         //"Please select a file to import.");
         this.fileFind = new FileFinder ();
         this.fileFind.setFileFilter (ImportProject.fileFilter);
@@ -407,6 +407,7 @@ public class FirstUseWizard extends PopupWizard
             if (!f.isFile ())
             {
 
+                this.fileFindError.setText (getUIString (firstusewizard,stages,selectfile,errors,novalue));
                 this.fileFindError.setVisible (true);
 
                 return false;
