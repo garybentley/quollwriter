@@ -1859,7 +1859,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         boolean showWhatsNew = false;
 
-        String whatsNewVersion = Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
+        String whatsNewVersion = UserProperties.get (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
+        //Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
 
         if (whatsNewVersion != null)
         {
@@ -1872,10 +1873,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 showWhatsNew = true;
 
             }
-
-        } else {
-
-            showWhatsNew = true;
 
         }
 

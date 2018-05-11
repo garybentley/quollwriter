@@ -4279,6 +4279,8 @@ public class Environment
 
                 }
 
+                pf.delete ();
+
             }
 
         }
@@ -4577,16 +4579,17 @@ public class Environment
 */
         Environment.userPropertyHandlers.put (Constants.NOTE_TYPES_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME,
-                                                                       getUIString (notetypes,defaulttypes),
-                                                                       null));
+                                                                       null,
+                                                                       notetypes,defaulttypes));
         Environment.userPropertyHandlers.put (Constants.PROJECT_STATUSES_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME,
-                                                                       getUIString (allprojects,defaultstatuses),
-                                                                       null));
+                                                                       null,
+                                                                       allprojects,defaultstatuses));
         Environment.userPropertyHandlers.put (Constants.TAGS_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.TAGS_PROPERTY_NAME,
                                                                        null,
-                                                                       null));
+                                                                       // Prevents the compiler whining...
+                                                                       (String[]) null));
 
         try
         {

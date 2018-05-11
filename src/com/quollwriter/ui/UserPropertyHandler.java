@@ -25,29 +25,48 @@ public class UserPropertyHandler implements TypesHandler
 
     private String propName = null;
     private String sep = null;
-    private Set<String> types = new TreeSet ();
+    private String[] defaultUIString = null;
+    private Set<String> types = null;
     private ObjectProvider<QObject> objectProvider = null;
     private Map<PropertyChangedListener, Object> listeners = null;
     // Just used in the maps above as a placeholder for the listeners.
     private final Object listenerFillObj = new Object ();
 
-    public UserPropertyHandler (String propName,
-                                String def,
-                                String sep)
+    public UserPropertyHandler (String    propName,
+                                String    sep,
+                                String... def)
 
     {
 
         this.propName = propName;
         this.sep = (sep != null ? sep : DEFAULT_SEPARATOR);
+        this.defaultUIString = def;
 
         this.listeners = Collections.synchronizedMap (new WeakHashMap ());
+
+    }
+
+    private void initTypes ()
+    {
+
+        if (this.types != null)
+        {
+
+            return;
+
+        }
+
+        this.types = new TreeSet ();
 
         String nt = UserProperties.get (this.propName);
 
         if (nt == null)
         {
 
-            nt = def;
+            if (this.defaultUIString != null)
+            {}
+
+            nt = Environment.getUIString (this.defaultUIString);
 
         }
 
@@ -72,6 +91,8 @@ public class UserPropertyHandler implements TypesHandler
 
     public boolean hasType (String t)
     {
+
+        this.initTypes ();
 
         for (String type : this.types)
         {
@@ -162,6 +183,8 @@ public class UserPropertyHandler implements TypesHandler
                                boolean reload)
     {
 
+        this.initTypes ();
+
         this.types.remove (type);
 
         this.saveTypes ();
@@ -180,6 +203,8 @@ public class UserPropertyHandler implements TypesHandler
     public void addType (String  t,
                          boolean reload)
     {
+
+        this.initTypes ();
 
         if (this.types.contains (t))
         {
@@ -204,12 +229,16 @@ public class UserPropertyHandler implements TypesHandler
     public Set<String> getTypes ()
     {
 
+        this.initTypes ();
+
         return new TreeSet<String> (this.types);
 
     }
 
     private void saveTypes ()
     {
+
+        this.initTypes ();
 
         StringBuilder sb = new StringBuilder ();
 

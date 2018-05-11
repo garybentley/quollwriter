@@ -8,12 +8,15 @@ import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.userobjects.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 public abstract class UserConfigurableObjectTypeField extends NamedObject
 {
-    
+
     public enum Type
     {
-        
+
         text ("text"),
         multitext ("multitext"),
         image ("image"),
@@ -25,26 +28,26 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         objectname ("objectname"),
         objectdesc ("objectdesc"),
         objectimage ("objectimage");
-        
+
         private String type = null;
-        
+
         Type (String type)
         {
-            
+
             this.type = type;
-            
+
         }
-        
+
         public String getType ()
         {
-            
+
             return this.type;
-            
+
         }
-        
+
         public static UserConfigurableObjectTypeField getNewFieldForType (Type t)
         {
-            
+
             switch (t)
             {
                 case text : return new TextUserConfigurableObjectTypeField ();
@@ -59,43 +62,43 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
                 case objectdesc : return new ObjectDescriptionUserConfigurableObjectTypeField ();
                 case objectimage : return new ObjectImageUserConfigurableObjectTypeField ();
                 default : return null;
-                
-            }            
-            
-        }            
+
+            }
+
+        }
 
         public String getName ()
         {
-            
+
             java.util.List<String> prefix = new ArrayList ();
             prefix.add (LanguageStrings.form);
             prefix.add (LanguageStrings.types);
 
             return Environment.getUIString (prefix,
                                             this.type);
-            
+
         }
-        
+
     }
-    
+
     public static final String OBJECT_TYPE = "userconfigobjfield";
-    
+
     private String formName = null;
     private Type type = null;
     private UserConfigurableObjectType userConfigType = null;
     private Map<String, Object> definition = new HashMap ();
     private String defValue = null;
     private int order = -1;
-    
+
     protected UserConfigurableObjectTypeField (Type type)
     {
-        
+
         super (OBJECT_TYPE);
-        
+
         this.type = type;
-        
+
     }
-           
+
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {
@@ -117,7 +120,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         this.addToStringProperties (props,
                                     "definition",
                                     this.definition);
-                        
+
     }
 
     /**
@@ -130,7 +133,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     public abstract UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                                    UserConfigurableObjectField field,
                                                                                    AbstractProjectViewer       viewer);
-                      
+
     /**
      * The config handler is used for editing/configuration of this field.
      *
@@ -138,159 +141,233 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
      *
      * @return The config handler for this field.
      */
-    public abstract UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ();           
-           
+    public abstract UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ();
+
     public boolean isSortable ()
     {
-        
+
         return false;
-           
+
     }
-    
+
     public boolean canEdit ()
     {
-        
+
         return true;
-           
+
     }
-    
+
     public boolean canDelete ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     public void setDefinitionValue (String id,
                                     Object v)
     {
-        
+
         this.definition.put (id,
                              v);
-                        
+
     }
-    
+
     public void setDefinitionValue (String id,
                                     Date   v)
     {
-        
+
         this.definition.put (id,
                              Environment.formatDate (v));
-        
+
     }
-    
+
     public void setDefinitionValue (String id,
                                     Double v)
     {
-    
+
         this.definition.put (id,
                              (v != null ? Environment.formatNumber (v) : null));
-        
+
     }
-    
+
     public Double getDoubleDefinitionValue (String id)
                                      throws GeneralException
     {
-        
+
         Object o = this.getDefinitionValue (id);
-        
+
         if (o == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return Environment.parseToDouble (o.toString ());
-        
+
     }
-    
+
     public Date getDateDefinitionValue (String id)
     {
-        
+
         Object v = this.getDefinitionValue (id);
-        
+
         if (v == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return Environment.parseDate (v.toString ());
-        
+
     }
-    
+
     public boolean getBooleanDefinitionValue (String id)
     {
-        
+
         Boolean b = (Boolean) this.getDefinitionValue (id);
-        
+
         if (b == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return b;
-        
+
     }
-    
+
     public Object getDefinitionValue (String id)
     {
-        
+
         return this.definition.get (id);
-        
+
     }
-    
+
     public void removeDefinitionValue (String id)
     {
-        
+
         this.definition.remove (id);
-        
+
     }
-        
+
     public boolean isLegacyField ()
     {
-        
+
         return this.getLegacyFieldId () != null;
-                        
+
     }
-    
+
     public boolean isSearchable ()
     {
-        
+
         return this.getBooleanDefinitionValue ("searchable");
-                        
+
     }
-    
+
     public void setSearchable (boolean v)
     {
-                
+
         this.setDefinitionValue ("searchable", true);
-        
+
     }
-    
+
+    public String getLegacyFieldFormName ()
+    {
+
+        UserConfigurableObjectType ot = this.getUserConfigurableObjectType ();
+
+        String ut = ot.getUserObjectType ();
+
+        String id = this.getLegacyFieldId ();
+
+        if (ut.equals (Chapter.OBJECT_TYPE))
+        {
+
+            if (id.equals (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID))
+            {
+
+                return getUIString (chapters,fields,description);
+
+            }
+
+            if (id.equals (Chapter.PLAN_LEGACY_FIELD_ID))
+            {
+
+                return getUIString (chapters,fields,plan);
+
+            }
+
+            if (id.equals (Chapter.GOALS_LEGACY_FIELD_ID))
+            {
+
+                return getUIString (chapters,fields,goals);
+
+            }
+
+        }
+
+        if (id.equals (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID))
+        {
+
+            return getUIString (assets,legacyfields,name);
+
+        }
+
+        if (id.equals (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID))
+        {
+
+            return getUIString (assets,legacyfields,aliases);
+
+        }
+
+        if (id.equals (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID))
+        {
+
+            return getUIString (assets,legacyfields,description);
+
+        }
+
+        if (id.equals (QObject.TYPE_LEGACY_FIELD_ID))
+        {
+
+            return getUIString (assets,legacyfields,LanguageStrings.type);
+
+        }
+
+        if (id.equals (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID))
+        {
+
+            return getUIString (assets,legacyfields,webpage);
+
+        }
+
+        throw new IllegalArgumentException ("Unsupported field id: " + id);
+
+    }
+
     public void setLegacyFieldId (String i)
     {
-        
+
         this.setDefinitionValue ("legacyFieldId", i);
-                        
+
     }
-    
+
     public String getLegacyFieldId ()
     {
-        
+
         return (String) this.getDefinitionValue ("legacyFieldId");
-        
+
     }
-    
+
     public void setOrder (int i)
     {
-        
+
         int c = this.order;
-        
+
         this.order = i;
         /*
         if ((this.userConfigType != null)
@@ -298,126 +375,137 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
             (i != c)
            )
         {
-            
+
             this.userConfigType.reorderFields ();
-            
+
         }
-          */              
+          */
     }
-    
+
     public int getOrder ()
     {
-        
+
         return this.order;
-        
+
     }
-    
+
     public Map getDefinition ()
     {
-        
+
         return this.definition;
-                        
+
     }
-    
+
     public void setDefinition (Map m)
     {
-        
+
         this.definition = m;
-        
+
     }
-    
+
     public String getDefaultValue ()
     {
-        
+
         return (String) this.getDefinitionValue ("default");
-        
+
     }
-    
+
     public void setDefaultValue (String v)
     {
-        
+
         this.setDefinitionValue ("default", v);
-        
+
     }
-    
+
     public void setUserConfigurableObjectType (UserConfigurableObjectType t)
     {
-        
+
         this.userConfigType = t;
-        
+
         this.setParent (t);
-            
+
     }
-    
+
     public UserConfigurableObjectType getUserConfigurableObjectType ()
     {
-        
+
         return this.userConfigType;
-        
+
     }
-    
+
     public Set<NamedObject> getAllNamedChildObjects ()
     {
-        
+
         return null;
-        
+
     }
 
     public void getChanges (NamedObject old,
                             Element     root)
     {
-        
+
     }
 
     public boolean isNameField ()
     {
-        
+
         Object o = this.getDefinitionValue ("nameField");
-        
+
         if (o == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return (Boolean) o;
-            
+
     }
-    
+
     public void setNameField (boolean v)
     {
-        
+
         this.setDefinitionValue ("nameField", v);
-        
+
     }
-                                
+
     public DataObject getObjectForReference (ObjectReference ref)
     {
-        
+
         return null;
-        
+
     }
-    
+
     public void setFormName (String n)
     {
-        
+
         super.setName (n);
-        
+
     }
-    
+
     public String getFormName ()
     {
-        
-        return this.getName ();
-        
+
+        String n = this.getName ();
+
+        if (n != null)
+        {
+
+            return n;
+
+        }
+
+        return this.getLegacyFieldFormName ();
+
+        //return this.getName ();
+
     }
-            
+
     public Type getType ()
     {
-        
+
         return this.type;
-        
+
     }
-    
+
 }

@@ -514,8 +514,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Create the chapter type.
         UserConfigurableObjectType chapterType = new UserConfigurableObjectType ();
 
-        chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
-        chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+        //chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
+        //chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
         chapterType.setLayout (null);
         chapterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift H"));
         chapterType.setIcon24x24 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
@@ -532,9 +532,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         ObjectDescriptionUserConfigurableObjectTypeField descF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
         descF.setSearchable (true);
+        /*
         descF.setFormName (Environment.getUIString (LanguageStrings.chapters,
                                                     LanguageStrings.fields,
                                                     LanguageStrings.description));
+        */
                         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         descF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
@@ -545,9 +547,11 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         planF.setSearchable (true);
         planF.setDisplayAsBullets (true);
+        /*
         planF.setFormName (Environment.getUIString (LanguageStrings.chapters,
                                                     LanguageStrings.fields,
                                                     LanguageStrings.plan));
+        */
                         //Chapter.PLAN_LEGACY_FIELD_FORM_NAME);
         planF.setLegacyFieldId (Chapter.PLAN_LEGACY_FIELD_ID);
 
@@ -557,9 +561,11 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         goalsF.setSearchable (true);
         goalsF.setDisplayAsBullets (true);
+        /*
         goalsF.setFormName (Environment.getUIString (LanguageStrings.chapters,
                                                      LanguageStrings.fields,
                                                      LanguageStrings.goals));
+        */
                             //Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
         goalsF.setLegacyFieldId (Chapter.GOALS_LEGACY_FIELD_ID);
 
@@ -570,8 +576,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Now characters.
         UserConfigurableObjectType characterType = new UserConfigurableObjectType ();
 
-        characterType.setObjectTypeName (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE));
-        characterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
+        //characterType.setObjectTypeName (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE));
+        //characterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
         characterType.setLayout (null);
         characterType.setAssetObjectType (true);
         characterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift C"));
@@ -584,9 +590,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
+        /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
+        */
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
 
@@ -597,9 +605,11 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         aliasesF.setNameField (true);
         aliasesF.setSearchable (true);
+        /*
         aliasesF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                        LanguageStrings.legacyfields,
                                                        LanguageStrings.aliases));
+        */
         //LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
         aliasesF.setLegacyFieldId (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID);
 
@@ -610,9 +620,11 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
         cdescF.setSearchable (true);
+        /*
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
+        */
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
 
         characterType.addConfigurableField (cdescF);
@@ -622,8 +634,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Now locations.
         UserConfigurableObjectType locType = new UserConfigurableObjectType ();
 
-        locType.setObjectTypeName (Environment.getObjectTypeName (Location.OBJECT_TYPE));
-        locType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
+        //locType.setObjectTypeName (Environment.getObjectTypeName (Location.OBJECT_TYPE));
+        //locType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
         locType.setLayout (null);
         locType.setAssetObjectType (true);
         locType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift L"));
@@ -636,9 +648,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
+        /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
+        */
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
 
@@ -648,9 +662,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
         cdescF.setSearchable (true);
+        /*
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
+        */
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
@@ -661,8 +677,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Now qobjects.
         UserConfigurableObjectType qobjType = new UserConfigurableObjectType ();
 
-        qobjType.setObjectTypeName (Environment.getObjectTypeName (QObject.OBJECT_TYPE));
-        qobjType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
+        //qobjType.setObjectTypeName (Environment.getObjectTypeName (QObject.OBJECT_TYPE));
+        //qobjType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
         qobjType.setLayout (null);
         qobjType.setAssetObjectType (true);
         qobjType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift I"));
@@ -675,9 +691,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
+        /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
+        */
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
 
@@ -687,9 +705,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
 
         typeF.setLegacyFieldId (QObject.TYPE_LEGACY_FIELD_ID);
+        /*
         typeF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.type));
+        */
         //QObject.TYPE_LEGACY_FIELD_FORM_NAME);
 
         // Get the pre-defined types, they are stored in the user prefs.
@@ -729,9 +749,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
         cdescF.setSearchable (true);
+        /*
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
+        */
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
@@ -742,8 +764,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Research items
         UserConfigurableObjectType riType = new UserConfigurableObjectType ();
 
-        riType.setObjectTypeName (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE));
-        riType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
+        //riType.setObjectTypeName (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE));
+        //riType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
         riType.setLayout (null);
         riType.setAssetObjectType (true);
         riType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift R"));
@@ -756,9 +778,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
+        /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
+        */
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
 
@@ -768,9 +792,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
 
         webF.setLegacyFieldId (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID);
+        /*
         webF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                    LanguageStrings.legacyfields,
                                                    LanguageStrings.webpage));
+        */
                           //ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
 
         riType.addConfigurableField (webF);
@@ -779,9 +805,11 @@ public class ProjectInfoObjectManager extends ObjectManager
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
         cdescF.setSearchable (true);
+        /*
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
+        */
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 

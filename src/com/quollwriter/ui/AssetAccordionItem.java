@@ -48,7 +48,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public String getTitle ()
     {
 
-        return Environment.getObjectTypeNamePlural (this.objType);
+        return this.objType.getObjectTypeNamePlural ();
 
     }
 
