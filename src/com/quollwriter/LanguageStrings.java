@@ -4479,5 +4479,6 @@ System.out.println ("ERR: " + this.getId () + ", " + this.getErrors (prov));
     public static final String gffull = "gffull";
     public static final String defaultchaptername = "defaultchaptername";
     public static final String defaultstatuses = "defaultstatuses";
+    public static final String editneededtype = "editneededtype";
 
 }

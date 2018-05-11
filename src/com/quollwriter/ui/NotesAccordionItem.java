@@ -29,6 +29,14 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     }
 
     @Override
+    public String getTitle ()
+    {
+
+        return Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE);
+
+    }
+
+    @Override
     public String getId ()
     {
 

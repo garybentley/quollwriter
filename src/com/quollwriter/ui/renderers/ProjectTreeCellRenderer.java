@@ -78,6 +78,14 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
             String n = ((NamedObject) value).getName ();
 
+            if (n.equals (Note.EDIT_NEEDED_NOTE_TYPE))
+            {
+
+                n = Environment.getUIString (LanguageStrings.notetypes,
+                                             LanguageStrings.editneededtype);
+
+            }
+
             if (value instanceof TreeParentNode)
             {
 

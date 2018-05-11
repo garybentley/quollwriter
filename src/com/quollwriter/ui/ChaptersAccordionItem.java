@@ -31,6 +31,14 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     }
 
     @Override
+    public String getTitle ()
+    {
+
+        return Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE);
+
+    }
+
+    @Override
     public String getId ()
     {
 

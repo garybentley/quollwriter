@@ -1370,7 +1370,8 @@
         "createbackup" : "Create a ${objectnames.singular.backup}",
         "selectbackground" : "Select a background image/color",
         "viewexample" : "View an example",
-        "managedictionary" : "Manage your personal Dictionary"
+        "managedictionary" : "Manage your personal Dictionary",
+        "editneeded" : "Edit Needed"
     },
     "sidebars" :
     {
@@ -6244,6 +6245,7 @@
         ":title" : "Note Types",
         ":section" : "Project",
         "defaulttypes" : "Information|To Do",
+        "editneededtype" : "${actions.editneeded}",
         ":comment.defaulttypes" : "Separate each type with a | character.",
         "actions" :
         {
