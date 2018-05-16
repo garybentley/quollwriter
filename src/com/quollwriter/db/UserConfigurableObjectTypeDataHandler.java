@@ -24,8 +24,8 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
      * A cache, since the same type can be used in multiple places
      * we need a single object so that we have one object -> multiple uses.
      */
-    private Map<Long, UserConfigurableObjectType> cache = new HashMap ();    
-    
+    private Map<Long, UserConfigurableObjectType> cache = new HashMap ();
+
     public UserConfigurableObjectTypeDataHandler (ObjectManager om)
     {
 
@@ -47,14 +47,14 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             long key = rs.getLong (ind++);
 
             UserConfigurableObjectType t = this.cache.get (key);
-            
+
             if (t != null)
             {
-                
+
                 return t;
-                
-            }                        
-            
+
+            }
+
             t = new UserConfigurableObjectType ();
             t.setKey (key);
             t.setUserObjectType (rs.getString (ind++));
@@ -62,30 +62,30 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             t.setObjectTypeNamePlural (rs.getString (ind++));
             t.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
-            
+
             t.setIcon24x24 (new ImageIcon (UIUtils.getImage (rs.getBytes (ind++))));
             t.setIcon16x16 (new ImageIcon (UIUtils.getImage (rs.getBytes (ind++))));
             t.setLayout (rs.getString (ind++));
-            t.setAssetObjectType (rs.getBoolean (ind++));            
+            t.setAssetObjectType (rs.getBoolean (ind++));
             t.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke (rs.getString (ind++)));
             t.setLastModified (rs.getTimestamp (ind++));
             t.setDateCreated (rs.getTimestamp (ind++));
             t.setPropertiesAsString (rs.getString (ind++));
             t.setId (rs.getString (ind++));
-            t.setVersion (rs.getString (ind++));            
-            
-            Connection conn = rs.getStatement ().getConnection ();                        
-            
+            t.setVersion (rs.getString (ind++));
+
+            Connection conn = rs.getStatement ().getConnection ();
+
             this.objectManager.getObjects (UserConfigurableObjectTypeField.class,
                                            t,
                                            conn,
                                            true);
-            
+
             Environment.addUserConfigurableObjectType (t);
 
             this.cache.put (key,
                             t);
-            
+
             return t;
 
         } catch (Exception e)
@@ -204,13 +204,13 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
         List params = new ArrayList ();
         params.add (t.getKey ());
         params.add (t.getUserObjectType ());
-        params.add (t.getObjectTypeNamePlural ());
+        params.add (t.getActualObjectTypeNamePlural ());
         params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())));
         params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())));
         params.add (t.getLayout ());
         params.add (t.isAssetObjectType ());
         params.add (Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ()));
-        
+
         this.objectManager.executeStatement ("INSERT INTO userobjecttype (dbkey, userobjtype, pluralname, icon24x24, icon16x16, layout, assetobjtype, createshortcutkey) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                              params,
                                              conn);
@@ -218,11 +218,11 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
         // Save the fields.
         this.objectManager.saveObjects (t.getConfigurableFields (),
                                         conn);
-                                             
+
     }
 
     public void deleteObject (UserConfigurableObjectType t,
-                              boolean                    deleteChildObjects,                              
+                              boolean                    deleteChildObjects,
                               Connection                 conn)
                        throws GeneralException
     {
@@ -230,7 +230,7 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
         // Delete the fields first.
         this.objectManager.deleteObjects (t.getConfigurableFields (),
                                           conn);
-    
+
         List params = new ArrayList ();
         params.add (t.getKey ());
 
@@ -246,7 +246,7 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
     {
 
         List params = new ArrayList ();
-        params.add (t.getObjectTypeNamePlural ());
+        params.add (t.getActualObjectTypeNamePlural ());
         params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())));
         params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())));
         params.add (t.getLayout ());

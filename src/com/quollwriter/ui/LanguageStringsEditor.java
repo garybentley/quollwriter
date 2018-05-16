@@ -3812,7 +3812,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
             try
             {
 
-                this.userValue.setDictionaryProvider (new UserDictionaryProvider ("English")
+                this.userValue.setDictionaryProvider (new UserDictionaryProvider (UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME))
                 {
 
                     @Override
@@ -3855,7 +3855,7 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
                             public java.util.List<String> getSuggestions (Word word)
                             {
 
-                                return null;
+                                return sp.getSuggestions (word);
 
                             }
 

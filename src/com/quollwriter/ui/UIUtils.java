@@ -9913,7 +9913,7 @@ public class UIUtils
                 }
 
                 // Add our local ones.
-                Set<LanguageStrings> uistrs = Environment.getAllUILanguageStrings ();
+                Set<LanguageStrings> uistrs = Environment.getAllUILanguageStrings (Environment.getQuollWriterVersion ());
 
                 for (LanguageStrings uistr : uistrs)
                 {

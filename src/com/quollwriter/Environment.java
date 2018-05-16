@@ -3488,6 +3488,13 @@ public class Environment
     public static Set<LanguageStrings> getAllUILanguageStrings ()
     {
 
+        return Environment.getAllUILanguageStrings (null);
+
+    }
+
+    public static Set<LanguageStrings> getAllUILanguageStrings (Version ver)
+    {
+
         Set<LanguageStrings> ret = new LinkedHashSet<> ();
 
         File[] files = Environment.getUILanguageStringsDir ().listFiles ();
@@ -3510,7 +3517,21 @@ public class Environment
                 try
                 {
 
-                    ret.add (new LanguageStrings (f));
+                    LanguageStrings ls = new LanguageStrings (f);
+
+                    if (ver != null)
+                    {
+
+                        if (!ls.getQuollWriterVersion ().equals (ver))
+                        {
+
+                            continue;
+
+                        }
+
+                    }
+
+                    ret.add (ls);
 
                 } catch (Exception e) {
 

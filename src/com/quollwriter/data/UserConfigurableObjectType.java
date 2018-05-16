@@ -28,6 +28,8 @@ public class UserConfigurableObjectType extends NamedObject
     private String userObjectType = null;
     private boolean isAsset = false;
     private KeyStroke createShortcutKeyStroke = null;
+    private boolean pluralNameSet = false;
+    private boolean singularNameSet = false;
 
     public UserConfigurableObjectType ()
     {
@@ -422,28 +424,37 @@ public class UserConfigurableObjectType extends NamedObject
                                        oldName,
                                        n);
 
+        this.singularNameSet = (n != null);
+
     }
 
     public String getObjectTypeName ()
     {
 
-        if (this.getName () != null)
+        if (this.singularNameSet)
         {
 
-            return this.getName ();
+            return super.getName ();
 
         }
 
-        return Environment.getUIString (objectnames,plural,this.userObjectType);
+        return Environment.getUIString (objectnames,singular,this.userObjectType);
 
         //return this.getName ();
+
+    }
+
+    public String getActualObjectTypeName ()
+    {
+
+        return this.getName ();
 
     }
 
     public String getObjectTypeNamePlural ()
     {
 
-        if (this.objectTypeNamePlural != null)
+        if (this.pluralNameSet)
         {
 
             return this.objectTypeNamePlural;
@@ -453,6 +464,13 @@ public class UserConfigurableObjectType extends NamedObject
         return Environment.getUIString (objectnames,plural,this.userObjectType);
 
         //return this.objectTypeNamePlural;
+
+    }
+
+    public String getActualObjectTypeNamePlural ()
+    {
+
+        return this.objectTypeNamePlural;
 
     }
 
@@ -466,6 +484,8 @@ public class UserConfigurableObjectType extends NamedObject
         this.firePropertyChangedEvent (OBJECT_TYPE_NAME_PLURAL,
                                        oldName,
                                        n);
+
+        this.pluralNameSet = (n != null);
 
     }
 
