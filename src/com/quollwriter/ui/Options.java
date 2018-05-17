@@ -575,9 +575,9 @@ public class Options extends Box
                 {
 
                     UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                         getUIString (options,betas,about,title),
+                                         getUIString (options,betas,about,popup,title),
                                          //"About Betas",
-                                         getUIString (options,betas,about,text));
+                                         getUIString (options,betas,about,popup,text));
                                          //"Quoll Writer betas are opt-in and are designed to elicit feedback from users.  They will be functionally complete and as bug free as possible.  However they won't be without issues, so please beware and report any problems you find.<br /><br />You can opt out at any time although this will not revert back to a previous version (that is potentially dangerous).<br /><br />Note: opting into betas will enable the <b>Send errors to Quoll Writer support</b> option, you can switch this off if you like to prevent errors being sent.");
 
                     _this.sendErrorsToSupport.setSelected (true);

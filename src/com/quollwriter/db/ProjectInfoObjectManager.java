@@ -388,8 +388,11 @@ public class ProjectInfoObjectManager extends ObjectManager
 
                 String p = rs.getString (ind++);
 
-                com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties (new ByteArrayInputStream (p.getBytes ()),
-                                                                                                     null);
+                com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties (JDOMUtils.getStringAsElement (p));
+
+
+                //new ByteArrayInputStream (p.getBytes ()),
+                //                                                                                     null);
 
                 props.setId ("user");
 

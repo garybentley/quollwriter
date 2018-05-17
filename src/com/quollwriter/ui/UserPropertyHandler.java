@@ -64,9 +64,11 @@ public class UserPropertyHandler implements TypesHandler
         {
 
             if (this.defaultUIString != null)
-            {}
+            {
 
-            nt = Environment.getUIString (this.defaultUIString);
+                nt = Environment.getUIString (this.defaultUIString);
+
+            }
 
         }
 

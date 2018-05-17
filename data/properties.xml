@@ -643,4 +643,14 @@ Removed so that the full screen properties will inherit from the standard editor
     <value><property id="defaultUILanguage" /></value>
   </property>
 
+  <property id="achievementsEnabled" type="boolean">
+    <description>Whether achievements are enabled.</description>
+    <value>true</value>
+  </property>
+
+  <property id="achievementsSoundEnabled" type="boolean">
+    <description>Whether the achievement sound in normal mode is enabled.</description>
+    </value>true<value>
+  </property>
+
 </properties>

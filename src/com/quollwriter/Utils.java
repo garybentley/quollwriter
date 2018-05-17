@@ -13,6 +13,7 @@ import java.nio.charset.*;
 import javax.swing.*;
 
 import org.jdom.*;
+import org.jdom.output.*;
 
 import com.gentlyweb.xml.*;
 
@@ -23,6 +24,28 @@ import com.quollwriter.data.*;
 
 public class Utils
 {
+
+    public static String getElementAsString (Element el)
+	                                     throws  IOException
+    {
+
+	StringWriter sout = new StringWriter ();
+	PrintWriter pout = new PrintWriter (new BufferedWriter (sout));
+
+	// Output the rule to the string...
+	XMLOutputter xout = new XMLOutputter ();
+
+	xout.setFormat (org.jdom.output.Format.getPrettyFormat ());
+	System.out.println ("T: " + xout.getFormat ().getEncoding ());
+	xout.output (el,
+		     pout);
+
+	pout.flush ();
+	pout.close ();
+
+	return sout.toString ();
+
+    }
 
     public static String getStreamAsString (InputStream in,
                                             Charset     ch)

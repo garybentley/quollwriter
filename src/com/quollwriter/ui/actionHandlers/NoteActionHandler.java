@@ -559,7 +559,16 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
         // Need to reindex the chapter to ensure that things are in the right order.
         this.object.getChapter ().reindex ();
 
-        Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).addType (type,
+        String t = type;
+
+        if (this.object.isEditNeeded ())
+        {
+
+            t = getUIString (notetypes,editneededtype);
+
+        }
+
+        Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).addType (t,
                                                                                          true);
 
         // Expand the note type.
