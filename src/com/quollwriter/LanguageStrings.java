@@ -3279,7 +3279,7 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
 
             if (this.getErrors (prov).size () > 0)
             {
-System.out.println ("ERR: " + this.getId () + ", " + this.getErrors (prov));
+
                 return this.text;
 
             }
