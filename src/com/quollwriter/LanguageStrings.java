@@ -876,91 +876,6 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
             }
 
         }
-/*
-        int start = 0;
-
-        while ((start = text.indexOf (ID_REF_START,
-                                      start)) > -1)
-        {
-
-            int end = text.indexOf (ID_REF_END,
-                                    start);
-
-            if (end < 0)
-            {
-
-                errors.add (String.format ("No matching %s found for opening %s at location: %s",
-                                           ID_REF_END,
-                                           ID_REF_START,
-                                           start));
-
-                // This breaks parsing so have to return.
-                return errors;
-
-            }
-
-            if (end >= (start + ID_REF_START.length ()))
-            {
-
-                String sid = text.substring (start + ID_REF_START.length (),
-                                             end);
-
-                int bind = sid.indexOf ("|");
-                String sub = null;
-
-                if (bind > -1)
-                {
-
-                    sub = sid.substring (0, bind);
-
-                    sid = sid.substring (bind + 1);
-
-                }
-
-                sid = sid.trim ();
-
-                if (sid.length () == 0)
-                {
-
-                    errors.add ("No id provided at location: " + start);
-                    start += end + ID_REF_END.length ();
-
-                    continue;
-
-                }
-
-                if (sid.equals (textId))
-                {
-
-                    errors.add ("Id: " + ID_REF_START + sid + ID_REF_END + ", referenced at location: " + start + " refers to itself.");
-                    start += end + ID_REF_END.length ();
-
-                    continue;
-
-                }
-
-                if (prov.getRawText (sid) == null)
-                {
-
-                    errors.add ("Id: " + ID_REF_START + sid + ID_REF_END + ", referenced at location: " + start + " does not exist.");
-                    start += end + ID_REF_END.length ();
-
-                    continue;
-
-                } else {
-
-                    start += ID_REF_START.length ();
-
-                }
-
-            } else {
-
-                start += ID_REF_START.length ();
-
-            }
-
-        }
-*/
 
         scount = prov.getSCount (textId);
 
@@ -1004,6 +919,36 @@ public class LanguageStrings extends NamedObject implements RefValueProvider, Co
                 }
 
             }
+
+        }
+
+        try
+        {
+
+            if (scount > 0)
+            {
+
+                Object[] test = new String[scount];
+
+                for (int i = 0; i < scount; i++)
+                {
+
+                    test[i] = "test";
+
+                }
+
+                String.format (text,
+                               test);
+
+            } else {
+
+                //String.format (text);
+
+            }
+
+        } catch (Exception e) {
+
+            errors.add ("Invalid value used: " + e.getMessage ());
 
         }
 
