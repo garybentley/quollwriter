@@ -93,6 +93,7 @@ public class Environment
     public static Map defaultObjectProperties = new HashMap ();
 
     //public static com.gentlyweb.properties.Properties userProperties = new com.gentlyweb.properties.Properties ();
+    public static PrintStream out = null;
 
     private static Logger generalLog = null;
     private static Logger errorLog = null;
@@ -183,6 +184,18 @@ public class Environment
         Environment.projectInfoChangedListeners = Collections.synchronizedMap (new WeakHashMap ());
 
         Environment.userProjectEventListeners = Collections.synchronizedMap (new WeakHashMap ());
+
+        try
+        {
+
+            // Put a wrapper around System.out to ensure that non ascii characters show up correctly when debugging.
+            Environment.out = new java.io.PrintStream (System.out, true, "utf-8");
+
+        } catch (Exception e) {
+
+            Environment.out = System.out;
+
+        }
 
     }
 
@@ -4231,7 +4244,6 @@ public class Environment
             System.out.println ();
         }
 */
-
         Environment.uiLanguageStrings = Environment.defaultUILanguageStrings;
 
         // Load the default object type names.
