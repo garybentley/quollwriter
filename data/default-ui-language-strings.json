@@ -3,7 +3,7 @@
     ":nativename" : "English",
     ":version" : 1,
     ":id" : ":English",
-    ":qwversion" : "2.6.9",
+    ":qwversion" : "2.6.10",
     ":created" : 0,
     ":email" : "gary@quollwriter.com",
     ":sections" :
@@ -5813,6 +5813,17 @@
                     {
                         "title" : "User Interface Languages",
                         "text" : "It's finally here.  Support for other languages for the User Interface.  At the time this was written there wasn't any non-English languages added, but there may be now, check the <a href='action:options.look'>${options.lookandsound.title}</a> section in the <b>${options.title}</b> panel to see what languages are available.<br /><br />And if you fancy taking a crack at creating a translation yourself, check out the <a href='help://uilanguages/overview'>Selecting a User Interface Language</a> help page for details on how to get started."
+                    }
+                }
+            },
+            "2.6.10" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes/minor improvements",
+                        "text" : "A number of bug fixes relating to the User Interface strings editor have been made, mostly related to formatting and character encoding."
                     }
                 }
             }
