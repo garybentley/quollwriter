@@ -2053,6 +2053,16 @@ public class LanguageStringsEditor extends AbstractViewer implements RefValuePro
 
             LanguageStrings.Value nv = this.baseStrings.getValue (uv.getId ());
 
+            if (nv == null)
+            {
+
+                // The string is present in the user strings but not the base!
+                Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
+
+                continue;
+
+            }
+
             c += LanguageStrings.getErrors (uv.getRawText (),
                                             LanguageStrings.toId (nv.getId ()),
                                             nv.getSCount (),
