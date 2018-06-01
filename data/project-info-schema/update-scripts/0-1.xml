@@ -2,10 +2,10 @@
   <item>
     <log>Create the key_sequence sequence.</log>
     <sql>
-CREATE SEQUENCE key_sequence START WITH 1 INCREMENT BY 1    
+CREATE SEQUENCE key_sequence START WITH 1 INCREMENT BY 1
     </sql>
   </item>
-    
+
   <item>
     <log>Create dataobject table.</log>
     <sql>
@@ -17,12 +17,12 @@ CREATE TABLE dataobject
   properties CLOB,
   version UUID DEFAULT RANDOM_UUID(),
   id UUID DEFAULT RANDOM_UUID(),
-  latest BOOLEAN DEFAULT TRUE,  
+  latest BOOLEAN DEFAULT TRUE,
   PRIMARY KEY (dbkey)
 )
     </sql>
   </item>
-  
+
   <item>
     <log>Create namedobject table.</log>
     <sql>
@@ -31,9 +31,9 @@ CREATE TABLE namedobject
     dbkey BIGINT NOT NULL,
     name CLOB,
     description CLOB,
-    userobjecttypedbkey BIGINT,    
+    userobjecttypedbkey BIGINT,
     markup CLOB,
-    files CLOB,    
+    files CLOB,
     lastmodified TIMESTAMP,
     PRIMARY KEY (dbkey)
 )
@@ -57,10 +57,10 @@ CREATE TABLE projectinfo
     icon CLOB,
     foreditor CLOB,
     PRIMARY KEY (dbkey)
-)        
+)
     </sql>
-  </item>  
-  
+  </item>
+
   <item>
     <log>Create the actionlog table.</log>
     <sql>
@@ -73,18 +73,18 @@ CREATE TABLE actionlog
     digest CLOB
 )
     </sql>
-  </item>  
-  
+  </item>
+
   <item>
     <log>Create info table.</log>
     <sql>
 CREATE TABLE info
 (
     schema_version SMALLINT DEFAULT 1
-)        
+)
     </sql>
   </item>
-  
+
   <item>
     <log>Create the session table.</log>
     <sql>
@@ -96,7 +96,7 @@ CREATE TABLE session
 )
     </sql>
   </item>
-  
+
   <item>
     <log>Add the user object type table</log>
     <sql>
@@ -113,8 +113,8 @@ CREATE TABLE userobjecttype
     PRIMARY KEY (dbkey)
 )
     </sql>
-  </item>  
-  
+  </item>
+
   <item>
     <log>Add the user object type field table</log>
     <sql>
@@ -129,7 +129,7 @@ CREATE TABLE userobjecttypefield
 )
     </sql>
   </item>
-  
+
   <item>
     <log>Add the tag table</log>
     <sql>
@@ -146,8 +146,8 @@ CREATE TABLE tag
     <sql>
 ALTER TABLE tag ADD CONSTRAINT tag_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
     </sql>
-  </item>  
-  
+  </item>
+
   <item>
     <log>Create foreign key constraint for namedobject/dataobject.</log>
     <sql>
@@ -167,8 +167,8 @@ ALTER TABLE projectinfo ADD CONSTRAINT projectinfo_namedobject_fk FOREIGN KEY(db
     <sql>
 ALTER TABLE dataobject ADD CONSTRAINT dataobject_id_uk UNIQUE(id)
     </sql>
-  </item>  
-  
+  </item>
+
   <item>
     <log>Create foreign key constraint for userobjecttype(dbkey)/namedobject(dbkey).</log>
     <sql>
@@ -191,11 +191,17 @@ ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjtypefield_dbkey___namedobj
   </item>
 
   <item>
+    <log>Add a unique constraint on the userobjecttypedbkey/orderby for userobjecttypefield.</log>
+    <sql>
+ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjecttypefield_typedbkey_orderby UNIQUE(userobjecttypedbkey,orderby)
+    </sql>
+  </item>
+
+  <item>
     <log>Initing info record.</log>
     <sql>
 INSERT INTO info (schema_version) VALUES (-1)
     </sql>
   </item>
-  
-</update-script>
 
+</update-script>
