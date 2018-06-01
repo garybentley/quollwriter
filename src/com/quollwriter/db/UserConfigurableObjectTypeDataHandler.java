@@ -264,4 +264,53 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
 
     }
 
+    public void updateFieldOrdering (UserConfigurableObjectType t)
+                              throws GeneralException
+    {
+
+        Connection conn = null;
+
+        try
+        {
+
+            conn = this.objectManager.getConnection ();
+
+            List params = new ArrayList ();
+            params.add (t.getKey ());
+
+            this.objectManager.executeStatement ("UPDATE userobjecttypefield SET orderby = NULL WHERE userobjecttypedbkey = ?",
+                                                 params,
+                                                 conn);
+
+            for (UserConfigurableObjectTypeField f : t.getConfigurableFields ())
+            {
+
+                 params = new ArrayList ();
+
+                 params.add (f.getOrder ());
+                 params.add (f.getKey ());
+                 params.add (t.getKey ());
+
+                 this.objectManager.executeStatement ("UPDATE userobjecttypefield SET orderby = ? WHERE dbkey = ? AND userobjecttypedbkey = ?",
+                                                      params,
+                                                      conn);
+
+            }
+
+        } catch (Exception e) {
+
+            this.objectManager.throwException (conn,
+                                               "Unable to update field orderbys for type: " +
+                                               t.getKey (),
+                                               e);
+
+        } finally {
+
+            this.objectManager.releaseConnection (conn);
+
+
+        }
+
+    }
+
 }

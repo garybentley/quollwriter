@@ -4374,7 +4374,7 @@ public class Environment
                     // Have we updated QW and need to get newer versions?
                     ((ls != null)
                      &&
-                     (Environment.getQuollWriterVersion ().isNewer (ls.getQuollWriterVersion ()))
+                     (ls.getQuollWriterVersion ().isNewer (Environment.getQuollWriterVersion ()))
                     )
                    )
                 {
@@ -7807,6 +7807,22 @@ TODO: Add back in when appropriate.
         Environment.fireUserProjectEvent (type,
                                           ProjectEvent.USER_OBJECT_TYPE,
                                           ProjectEvent.DELETE,
+                                          type);
+
+    }
+
+    public static void updateUserConfigurableObjectTypeFieldOrdering (UserConfigurableObjectType type)
+                                                               throws GeneralException
+    {
+
+        UserConfigurableObjectTypeDataHandler dh = (UserConfigurableObjectTypeDataHandler) Environment.projectInfoManager.getHandler (type.getClass ());
+
+        dh.updateFieldOrdering (type);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (type,
+                                          ProjectEvent.USER_OBJECT_TYPE,
+                                          ProjectEvent.CHANGED,
                                           type);
 
     }

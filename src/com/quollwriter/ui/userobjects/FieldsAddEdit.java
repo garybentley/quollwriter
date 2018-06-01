@@ -200,6 +200,19 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                 _this.fieldsList.revalidate ();
                 _this.fieldsList.repaint ();
 
+                UIUtils.doLater (new ActionListener ()
+                {
+
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.updateFieldOrdering ();
+
+                    }
+
+                });
+/*
                 int c = 0;
 
                 for (FieldViewBox f : _this.getFieldViewBoxs ())
@@ -234,7 +247,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                     return false;
 
                 }
-
+*/
                 return true;
 
             }
@@ -251,6 +264,44 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         this.fieldsView.add (this.fieldsListScrollPane);
 
+
+    }
+
+    private void updateFieldOrdering ()
+    {
+
+        int c = 0;
+
+        for (FieldViewBox f : this.getFieldViewBoxs ())
+        {
+
+            f.setSelected (false);
+
+            f.getField ().setOrder (c);
+
+            c++;
+
+        }
+
+        try
+        {
+
+            Environment.updateUserConfigurableObjectTypeFieldOrdering (this.type);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save type: " +
+                                  this.type,
+                                  e);
+
+            UIUtils.showErrorMessage (this.viewer,
+                                      Environment.getUIString (LanguageStrings.userobjects,
+                                                               LanguageStrings.fields,
+                                                               LanguageStrings.move,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to move.");
+
+        }
 
     }
 
@@ -299,6 +350,8 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     private void addField (UserConfigurableObjectTypeField field)
     {
 
+        final FieldsAddEdit _this = this;
+
         field.setUserConfigurableObjectType (this.type);
         field.setOrder (this.type.getConfigurableFields ().size ());
 
@@ -316,6 +369,19 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                             it);
 
         this.fieldsList.add (it);
+
+        UIUtils.doLater (new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.updateFieldOrdering ();
+
+            }
+
+        });
 
     }
 
@@ -543,6 +609,19 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                 _this.fieldsList.revalidate ();
                 _this.fieldsList.repaint ();
 
+                UIUtils.doLater (new ActionListener ()
+                {
+
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.updateFieldOrdering ();
+
+                    }
+
+                });
+/*
                 int c = 0;
 
                 for (FieldViewBox f : _this.getFieldViewBoxs ())
@@ -577,7 +656,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                     return false;
 
                 }
-
+*/
                 UIUtils.doLater (new ActionListener ()
                 {
 
