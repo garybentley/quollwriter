@@ -383,6 +383,7 @@
            destdir="${buildDir}"
            debug="on"
            deprecation="on"
+    	   target="1.8"
            nowarn="off"
            excludes="**/svn/**,**/ui/fx/**,**/*_fx*">
       <classpath>
