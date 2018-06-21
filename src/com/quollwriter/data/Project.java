@@ -2076,4 +2076,85 @@ public class Project extends NamedObject
 
     }
 
+    public String getLanguageCodeForSpellCheckLanguage ()
+    {
+
+        String lang = this.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+
+        if (lang == null)
+        {
+
+            lang = "en";
+
+            return lang;
+
+        }
+
+        if (lang.equals ("English"))
+        {
+
+            lang = "en";
+
+        }
+
+        if (lang.equals ("Czech"))
+        {
+
+            lang = "cs";
+
+        }
+
+        if (lang.equals ("Dutch"))
+        {
+
+            lang = "nl";
+
+        }
+
+        if (lang.equals ("French"))
+        {
+
+            lang = "fr";
+
+        }
+
+        if (lang.equals ("German"))
+        {
+
+            lang = "de";
+
+        }
+
+        if (lang.equals ("Italian"))
+        {
+
+            lang = "it";
+
+        }
+
+        if (lang.equals ("Polish"))
+        {
+
+            lang = "pl";
+
+        }
+
+        if (lang.equals ("Russian"))
+        {
+
+            lang = "ru";
+
+        }
+
+        if (lang.equals ("Spanish"))
+        {
+
+            lang = "es";
+
+        }
+
+        return lang;
+
+    }
+
 }

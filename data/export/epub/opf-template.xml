@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId">
- 
+
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
     <dc:title>[[TITLE]]</dc:title>
-    <dc:language>en</dc:language>
+    <dc:language>[[LANG]]</dc:language>
     <dc:identifier id="BookId" opf:scheme="[[SCHEME]]">[[ID]]</dc:identifier>
     <dc:creator opf:file-as="[[AUTHOR]]" opf:role="aut">[[AUTHOR]]</dc:creator>
   </metadata>
- 
+
   <manifest>
     [[MANIFEST]]
     <item id="stylesheet" href="style.css" media-type="text/css"/>
     <item id="ncx" href="book.ncx" media-type="application/x-dtbncx+xml"/>
   </manifest>
- 
+
   <spine toc="ncx">
     [[SPINE]]
   </spine>
-  
+
 </package>

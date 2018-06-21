@@ -53,6 +53,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
     private JComboBox        exportOthersType = null;
     private JComboBox        exportChaptersType = null;
     private JScrollPane      itemsTreeScroll = null;
+    private CTLanguage lang = null;
 
     public String getStartStage ()
     {
@@ -241,7 +242,33 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                Body           body)
     {
 
+        ObjectFactory factory = Context.getWmlObjectFactory ();
+
         P p = this.createParagraph (style);
+
+        PPr ppr = p.getPPr ();
+
+        if (ppr == null)
+        {
+
+            ppr = factory.createPPr ();
+            p.setPPr (ppr);
+
+        }
+
+        ParaRPr rpr = ppr.getRPr ();
+
+        if (rpr == null)
+        {
+
+            rpr = factory.createParaRPr ();
+            ppr.setRPr (rpr);
+
+        }
+
+        //rpr.setLang (this.lang);
+
+        //p.getPPr ().getRPr ().setLang (this.lang);
 
         body.getContent ().add (p);
 
@@ -395,6 +422,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         }
 
         run.setRPr (pr);
+
+        //pr.setLang (this.lang);
 
         run.getContent ().add (tel);
 
@@ -894,6 +923,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 
+    @Override
     public void exportProject (File dir)
                         throws GeneralException
     {
@@ -904,6 +934,12 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         es.otherExportType = ((this.exportOthersType.getSelectedIndex () == 0) ? ExportSettings.SINGLE_FILE : ExportSettings.INDIVIDUAL_FILE);
 
         this.settings = es;
+
+        ObjectFactory factory = Context.getWmlObjectFactory ();
+
+        this.lang = factory.createCTLanguage ();
+
+        this.lang.setVal (this.getLanguageCode (this.proj));
 
         Project p = ExportUtils.getSelectedItems (this.itemsTree,
                                                   this.proj);
@@ -1428,6 +1464,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 }
 
+                rpr.setLang (this.lang);
+
                 RFonts rf = rpr.getRFonts ();
 
                 if (rf == null)
@@ -1649,4 +1687,81 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 */
+
+    private String getLanguageCode (Project p)
+    {
+
+        // Ref: http://docwiki.embarcadero.com/RADStudio/Tokyo/en/Language_Culture_Names,_Codes,_and_ISO_Values
+        // The first part is the language, the second part is the culture.  Not sure how this affects how
+        // the document content will behave though.
+
+        String langCode = p.getLanguageCodeForSpellCheckLanguage ();
+
+        if (langCode.equals ("en"))
+        {
+
+            return langCode + "-US";
+
+        }
+
+        if (langCode.equals ("cs"))
+        {
+
+            return langCode + "-CZ";
+
+        }
+
+        if (langCode.equals ("nl"))
+        {
+
+            return langCode + "-NL";
+
+        }
+
+        if (langCode.equals ("fr"))
+        {
+
+            return langCode + "-FR";
+
+        }
+
+        if (langCode.equals ("de"))
+        {
+
+            return langCode + "-DE";
+
+        }
+
+        if (langCode.equals ("it"))
+        {
+
+            return langCode + "-IT";
+
+        }
+
+        if (langCode.equals ("pl"))
+        {
+
+            return langCode + "-PL";
+
+        }
+
+        if (langCode.equals ("ru"))
+        {
+
+            return langCode + "-RU";
+
+        }
+
+        if (langCode.equals ("es"))
+        {
+
+            return langCode + "-ES";
+
+        }
+
+        throw new IllegalArgumentException ("Language code: " + langCode + ", not supported.");
+
+    }
+
 }

@@ -240,6 +240,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             // Add an Author
             book.getMetadata ().addAuthor (new Author (this.author.getText ()));
+            book.getMetadata ().setLanguage (this.getLanguageCode (this.proj));
 
             // Set cover image
             //book.getMetadata().setCoverImage(new Resource(Simple1.class.getResourceAsStream("/book1/test_cover.png"), "cover.png"));
@@ -272,7 +273,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                              "[[INDENT]]",
                                              indent);
 
-            book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ()),
+            book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ("utf-8")),
                                                     "main.css"));
 
             Book b = p.getBook (0);
@@ -315,7 +316,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                          ct.toString ());
 
                 book.addSection (c.getName (),
-                                 new Resource (new ByteArrayInputStream (chapterText.getBytes ()),
+                                 new Resource (new ByteArrayInputStream (chapterText.getBytes ("utf-8")),
                                                "chapter" + count + ".html"));
 
             }
@@ -366,7 +367,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                                    book));
 
                 book.addSection (title,
-                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
+                                 new Resource (new ByteArrayInputStream (t.getBytes ("utf-8")),
                                                cid + ".html"));
 
             }
@@ -724,6 +725,16 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             buf.append (ptext);
 
         }
+
+    }
+
+    private String getLanguageCode (Project p)
+    {
+
+        // Ref: http://docwiki.embarcadero.com/RADStudio/Tokyo/en/Language_Culture_Names,_Codes,_and_ISO_Values
+        // The first part is the language, the second part is the culture.  Not sure how this affects how
+        // the document content will behave though.
+        return p.getLanguageCodeForSpellCheckLanguage ();
 
     }
 
