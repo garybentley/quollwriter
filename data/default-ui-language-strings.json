@@ -3,7 +3,7 @@
     ":nativename" : "English",
     ":version" : 1,
     ":id" : ":English",
-    ":qwversion" : "2.6.11",
+    ":qwversion" : "2.6.12",
     ":created" : 0,
     ":email" : "gary@quollwriter.com",
     ":sections" :
@@ -610,7 +610,7 @@
         },
         "popup" :
         {
-            "title" : "{Chapters} over word count target",
+            "title" : "${objectnames.plural.chapter} over word count target",
             "multipleoverlimit" : "%1$s ${objectnames.plural.chapter} are over the target word count, click to view them.",
             ":comment.multipleoverlimit" : "%1$s is the number of chapters over the limit.",
             ":scount.multipleoverlimit" : 1,
@@ -1873,7 +1873,7 @@
         },
         "chapter5over5000" :
         {
-            "name" : "{Chapters} are for the weak",
+            "name" : "${objectnames.plural.chapter} are for the weak",
             "description" : "Have 5 ${objectnames.plural.chapter} that are 5,000 words or more."
         },
         "chapterover5000" :
@@ -5835,6 +5835,17 @@
                     {
                         "title" : "Bug fix",
                         "text" : "Fixed a bug preventing the name of a custom object from being displayed."
+                    }
+                }
+            },
+            "2.6.12" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes",
+                        "text" : "Fixed a couple of issues relating to the EPUB and DOCX exports.  The language for each file will be set according to the current spellcheck language for the ${objectnames.singular.project}."
                     }
                 }
             }
