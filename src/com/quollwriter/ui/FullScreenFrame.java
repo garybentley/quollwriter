@@ -783,6 +783,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         };
 
+        this.setIconImage (Environment.getWindowIcon ().getImage ());
+
         Object bgObj = null;
 
         String b = UserProperties.get (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
