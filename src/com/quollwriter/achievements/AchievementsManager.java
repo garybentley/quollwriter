@@ -1000,7 +1000,12 @@ public class AchievementsManager implements ProjectEventListener
     {
 
         // Get our matching user rules for the event.
-        Environment.logMessage ("Event occurred: " + ev);
+        if (Environment.isDebugModeEnabled ())
+        {
+
+            Environment.logMessage ("Event occurred: " + ev);
+
+        }
 
         long start = System.currentTimeMillis ();
 
