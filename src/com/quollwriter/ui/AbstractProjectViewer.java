@@ -774,18 +774,35 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public void exitFullScreen ()
     {
 
-        if (this.fsf != null)
+        try
         {
 
-            this.fsf.close ();
+            if (this.fsf != null)
+            {
 
-            this.tabs.setVisible (true);
+                this.fsf.close ();
 
-            this.fullScreenOverlay.setVisible (false);
+                this.tabs.setVisible (true);
+
+                this.fullScreenOverlay.setVisible (false);
+
+            }
+
+            this.setUILayout (this.layout);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to exit full screen",
+                                  e);
+
+            UIUtils.showErrorMessage (null,
+                                      getUIString (fullscreen,actions,exit,actionerror));
+
+        } finally {
+
+            this.setVisible (true);
 
         }
-
-        this.setUILayout (this.layout);
 
     }
 
@@ -5001,6 +5018,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.validate ();
         this.repaint ();
 
+        this.setVisible (false);
+
         this.fireFullScreenEnteredEvent ();
 
 		final AbstractProjectViewer _this = this;
@@ -5097,6 +5116,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             this.repaint ();
 
         }
+
+        this.setVisible (false);
 
         this.fireFullScreenEnteredEvent ();
 
