@@ -3,7 +3,7 @@
     ":nativename" : "English",
     ":version" : 1,
     ":id" : ":English",
-    ":qwversion" : "2.6.12",
+    ":qwversion" : "2.6.13",
     ":created" : 0,
     ":email" : "gary@quollwriter.com",
     ":sections" :
@@ -5513,6 +5513,10 @@
         },
         "actions" :
         {
+            "exit" :
+            {
+                "actionerror" : "Unable to fully exit full screen mode."
+            },
             "showproperties" :
             {
                 "actionerror" : "Unable to show properties."
