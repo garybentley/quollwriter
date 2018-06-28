@@ -1078,8 +1078,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                             details.put ("errorLog",
                                          IOUtils.getFile (Environment.getErrorLogFile ()));
-                            details.put ("generalLog",
-                                         IOUtils.getFile (Environment.getGeneralLogFile ()));
                             details.put ("editorsMessageLog",
                                          IOUtils.getFile (EditorsEnvironment.getEditorsMessageLogFile ()));
 
