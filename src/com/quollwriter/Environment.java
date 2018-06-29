@@ -2871,7 +2871,7 @@ public class Environment
         {
 
             Map details = new HashMap ();
-
+/*
             try
             {
 
@@ -2885,7 +2885,7 @@ public class Environment
                 // NOt much we can do here!
 
             }
-
+*/
             details.put ("reason",
                          m);
 
