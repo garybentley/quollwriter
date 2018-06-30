@@ -5852,6 +5852,17 @@
                         "text" : "Fixed a couple of issues relating to the EPUB and DOCX exports.  The language for each file will be set according to the current spellcheck language for the ${objectnames.singular.project}."
                     }
                 }
+            },
+            "2.6.13" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes",
+                        "text" : "When using full screen mode, the normal ${objectnames.singular.project} window will be hidden."
+                    }
+                }
             }
         }
     },
