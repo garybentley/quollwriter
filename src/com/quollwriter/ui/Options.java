@@ -60,6 +60,7 @@ import com.quollwriter.text.*;
 
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
+import com.quollwriter.uistrings.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
@@ -82,7 +83,8 @@ public class Options extends Box
         start ("start"),
         landing ("landing"),
         assets ("assets"),
-        project ("project");
+        project ("project"),
+        website ("website");
 
         private String type = null;
 
@@ -438,7 +440,84 @@ public class Options extends Box
 
         }
 
+        if (sect == Section.website)
+        {
+
+            return this.createWebsiteSection ();
+
+        }
+
         return null;
+
+    }
+
+    private SectionInfo createWebsiteSection ()
+    {
+
+        final Options _this = this;
+/*
+xxx
+        Box lb = new Box (BoxLayout.X_AXIS);
+
+        uiLangSel.setMaximumSize (uiLangSel.getPreferredSize ());
+
+        lb.add (uiLangSel);
+        lb.add (Box.createHorizontalStrut (10));
+
+        lb.add (feedback);
+        lb.add (Box.createHorizontalGlue ());
+
+        c = this.createWrapper (lb);
+
+        box.add (Box.createVerticalStrut (5));
+        this.setAsSubItem (c);
+
+        box.add (c);
+*/
+        Box box = new Box (BoxLayout.Y_AXIS);
+
+        JButton createTrans = UIUtils.createButton (getUIString (options,website,labels,createtranslation),
+                                                    new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.showAddNewWebsiteLanguageStringsPopup (_this.viewer);
+
+            }
+
+        });
+
+        box.add (Box.createVerticalStrut (10));
+
+        JButton editTrans = UIUtils.createButton (getUIString (options,lookandsound,labels,edittranslation),
+                                                  new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.showEditWebsiteLanguageStringsSelectorPopup (_this.viewer);
+
+            }
+
+        });
+
+        JButton[] tbuts = { createTrans, editTrans };
+
+        JComponent c = this.createWrapper (UIUtils.createButtonBar2 (tbuts,
+                                                                     JComponent.LEFT_ALIGNMENT));
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        return new SectionInfo (getUIString (options,website,title),
+                                "website",
+                                getUIString (options,website,text),
+                                box);
 
     }
 
@@ -2282,7 +2361,7 @@ public class Options extends Box
 
         boolean showFeedbackB = true;
 
-        LanguageStrings currUIL = Environment.getCurrentUILanguageStrings ();
+        UILanguageStrings currUIL = Environment.getCurrentUILanguageStrings ();
 
         if ((currUIL.isEnglish ())
             ||
@@ -2305,7 +2384,7 @@ public class Options extends Box
 
                                                                             final String uid = ev.getActionCommand ();
 
-                                                                            feedback.setVisible ((!LanguageStrings.isEnglish (uid)) && (!uid.startsWith ("user-")));
+                                                                            feedback.setVisible ((!UILanguageStrings.isEnglish (uid)) && (!uid.startsWith ("user-")));
 
                                                                             if (uid.equals (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME)))
                                                                             {
@@ -2314,7 +2393,7 @@ public class Options extends Box
 
                                                                             }
 
-                                                                            LanguageStrings ls = null;
+                                                                            UILanguageStrings ls = null;
 
                                                                             try
                                                                             {
@@ -2427,7 +2506,7 @@ public class Options extends Box
             public void actionPerformed (ActionEvent ev)
             {
 
-                UIUtils.showAddNewLanguageStringsPopup (_this.viewer);
+                UIUtils.showAddNewUILanguageStringsPopup (_this.viewer);
 
             }
 
@@ -2443,7 +2522,7 @@ public class Options extends Box
             public void actionPerformed (ActionEvent ev)
             {
 
-                UIUtils.showEditLanguageStringsSelectorPopup (_this.viewer);
+                UIUtils.showEditUILanguageStringsSelectorPopup (_this.viewer);
 
             }
 

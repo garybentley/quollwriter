@@ -1,8 +1,1426 @@
-package com.quollwriter;
+package com.quollwriter.uistrings;
 
-public class LanguageStrings
+import java.io.*;
+import java.util.*;
+import java.nio.charset.*;
+
+import org.jdom.*;
+
+import com.gentlyweb.utils.*;
+
+import com.quollwriter.data.*;
+import com.quollwriter.*;
+
+public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings> extends NamedObject implements RefValueProvider, Comparable<E>
 {
 
+    public static final String ENGLISH_ID = ":" + Constants.ENGLISH;
+    public static final String OBJECT_TYPE = "languagestrings";
+
+    //public static String ID_PART_SEP = ".";
+    //public static String ID_REF_START = "${";
+    //public static String ID_REF_END = "}";
+
+    private String languageName = null;
+    private int stringsVersion = 0;
+    private Date created = null;
+    private Date lastModified = null;
+    private String _email = null;
+    private E parent = null;
+    //private Map<String, Node> nodes = new HashMap<> ();
+    private Set<Section> sections = null;
+    private boolean isUser = false;
+    private BaseStrings strings = null;
+
+    protected AbstractLanguageStrings ()
+    {
+
+        super (OBJECT_TYPE,
+               null);
+
+    }
+
+    public AbstractLanguageStrings (E derivedFrom)
+    {
+
+        this ();
+
+        // Clone the nodes in the derivedFrom.
+        //this.nodes = derivedFrom.cloneNodes ();
+        this.parent = derivedFrom;
+        this.setId (UUID.randomUUID ().toString ());
+        this.created = new Date ();
+
+    }
+/*
+    public AbstractLanguageStrings (File f)
+                             throws GeneralException
+    {
+
+        this ();
+
+        if ((f == null)
+            ||
+            (!f.exists ())
+            ||
+            (!f.isFile ())
+           )
+        {
+
+            throw new IllegalArgumentException ("No file provided.");
+
+        }
+
+        String v = null;
+
+        try
+        {
+
+            Reader in = new BufferedReader (new InputStreamReader (new FileInputStream (f),
+                                                                   StandardCharsets.UTF_8));
+
+            long length = f.length ();
+
+            char[] chars = new char[(int) length];
+
+            in.read (chars,
+    		         0,
+    		         (int) length);
+
+        	in.close ();
+
+            v = new String (chars);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to get contents of file: " + f,
+                                        e);
+
+        }
+
+        this.init (v);
+
+    }
+*/
+    public AbstractLanguageStrings (String jsonData)
+                             throws GeneralException
+    {
+
+        this ();
+
+        this.init (jsonData);
+
+    }
+
+    public BaseStrings getStrings ()
+    {
+
+        return this.strings;
+
+    }
+
+    public void setUser (boolean v)
+    {
+
+        this.isUser = v;
+
+    }
+
+    public boolean isUser ()
+    {
+
+        return this.isUser;
+
+    }
+/*
+    public void setQuollWriterVersion (Version v)
+    {
+
+        this.qwVersion = v;
+
+    }
+
+    public Version getQuollWriterVersion ()
+    {
+
+        return this.qwVersion;
+
+    }
+*/
+    public int getStringsVersion ()
+    {
+
+        return this.stringsVersion;
+
+    }
+
+    public void setStringsVersion (int v)
+    {
+
+        this.stringsVersion = v;
+
+    }
+
+    public static boolean isEnglish (String id)
+    {
+
+        return id.equals (ENGLISH_ID);
+
+    }
+
+    public boolean isEnglish ()
+    {
+
+        return isEnglish (this.getId ());
+
+    }
+
+    public Set<Section> getSections ()
+    {
+
+        return this.sections;
+
+    }
+
+    @Override
+    public boolean equals (Object o)
+    {
+
+        if (!(o instanceof AbstractLanguageStrings))
+        {
+
+            return false;
+
+        }
+
+        E ls = (E) o;
+
+        return this.compareTo (ls) == 0;
+
+    }
+
+    @Override
+    public int compareTo (E obj)
+    {
+
+        if (obj == null)
+        {
+
+            return -1;
+
+        }
+
+        if (this.getId ().equals (obj.getId ()))
+        {
+
+            return this.stringsVersion - obj.getStringsVersion ();
+
+        }
+
+/*
+        if (this.getId ().equals (obj.getId ()))
+        {
+
+            return this.qwVersion.compareTo (obj.qwVersion);
+
+        }
+
+        int v = this.qwVersion.compareTo (obj.qwVersion);
+*/
+        return this.getName ().compareTo (obj.getName ());
+
+    }
+
+    private void init (String jsonData)
+                throws GeneralException
+    {
+
+        Object obj = JSONDecoder.decode (jsonData);
+
+        if (!(obj instanceof Map))
+        {
+
+            throw new IllegalArgumentException ("String does parse to a Map");
+
+        }
+
+        this.init ((Map) obj);
+
+    }
+
+    public void init (Map<String, Object> m)
+               throws GeneralException
+    {
+
+        if (m == null)
+        {
+
+            throw new IllegalArgumentException ("No object provided.");
+
+        }
+
+        this.setId (this.getString (":id",
+                                    m));
+
+        Number sv = (Number) m.get (":version");
+
+        if (sv != null)
+        {
+
+            this.stringsVersion = sv.intValue ();
+
+        }
+
+        Number n = (Number) m.get (":created");
+
+        if (n == null)
+        {
+
+            throw new GeneralException ("Expected to find a created date.");
+
+        }
+
+        this.created = new Date ();
+        this.created.setTime (n.longValue ());
+
+        n = (Number) m.get (":lastmodified");
+
+        if (n != null)
+        {
+
+            Date d = new Date ();
+            d.setTime (n.longValue ());
+
+            this.lastModified = d;
+
+        }
+
+        Boolean b = (Boolean) m.get (":user");
+
+        if (b != null)
+        {
+
+            this.isUser = b.booleanValue ();
+
+        }
+
+        this.languageName = this.getString (":language",
+                                            m);
+
+        super.setName (this.getString (":nativename",
+                                       m));
+
+        if (this.getName () == null)
+        {
+
+            throw new IllegalArgumentException ("No native language name found.");
+
+        }
+
+        this._email = this.getString (":email",
+                                      m);
+
+        Collection s = (Collection) m.get (":sections");
+
+        if (s != null)
+        {
+
+            this.sections = new LinkedHashSet<> ();
+
+            Iterator iter = ((Collection) s).iterator ();
+
+            while (iter.hasNext ())
+            {
+
+                Object o = iter.next ();
+
+                if (o instanceof Map)
+                {
+
+                    this.sections.add (new Section ((Map) o));
+
+                }
+
+            }
+
+        }
+
+        this.strings = new BaseStrings ((this.parent != null ? this.parent.getStrings () : null));
+        this.strings.init (m);
+/*
+        // Ensure we can resolve everything.
+        Iterator iter = m.keySet ().iterator ();
+
+        while (iter.hasNext ())
+        {
+
+            String k = iter.next ().toString ();
+
+            if (BaseStrings.isSpecialId (k))
+            {
+
+                continue;
+
+            }
+
+            List ids = new ArrayList ();
+
+            ids.add (k);
+
+            Object v = m.get (k);
+
+            if (v instanceof Map)
+            {
+
+                Map om = (Map) v;
+
+                this.nodes.put (k,
+                                new Node (k,
+                                          null,
+                                          om));
+
+                continue;
+
+            }
+
+            if (v instanceof String)
+            {
+
+                String val = v.toString ();
+
+                this.nodes.put (k,
+                                new TextValue (k,
+                                               null,
+                                               val,
+                                               m));
+
+            }
+
+        }
+*/
+    }
+
+    public Set<NamedObject> getAllNamedChildObjects ()
+    {
+
+        return new HashSet<> ();
+
+    }
+
+    @Override
+    public Date getLastModified ()
+    {
+
+        return this.lastModified;
+
+    }
+
+    public void getChanges (NamedObject old,
+                            Element     root)
+    {
+
+    }
+
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+
+        this.addToStringProperties (props,
+                                    "language",
+                                    this.languageName);
+        this.addToStringProperties (props,
+                                    "nativename",
+                                    this.getName ());
+        this.addToStringProperties (props,
+                                    "email",
+                                    this._email);
+        this.addToStringProperties (props,
+                                    "created",
+                                    this.created);
+        this.addToStringProperties (props,
+                                    "stringsversion",
+                                    this.stringsVersion);
+
+        if (this.parent != null)
+        {
+
+            this.addToStringProperties (props,
+                                        "derivedfrom",
+                                        this.parent.getId ());
+
+        }
+
+    }
+
+    /**
+     * Returns a data structure that is suitable for JSON encoding.
+     *
+     * @return The data
+     */
+    public Map getAsJSON ()
+    {
+
+        Map m = new HashMap ();
+
+        m.put (":language",
+               this.languageName);
+        m.put (":nativename",
+               this.getName ());
+        m.put (":email",
+               this._email);
+        m.put (":id",
+               this.getId ());
+        m.put (":created",
+               this.created.getTime ());
+        m.put (":user",
+               this.isUser);
+        m.put (":version",
+               this.stringsVersion);
+
+        if (this.lastModified != null)
+        {
+
+            m.put (":lastmodified",
+                   this.lastModified.getTime ());
+
+        }
+
+        if (this.parent != null)
+        {
+
+            m.put (":derivedfrom",
+                   this.parent.getId ());
+
+        }
+
+        if (this.sections != null)
+        {
+
+            List<Map<String, String>> sects = new ArrayList<> ();
+
+            m.put (":sections",
+                   sects);
+
+            for (Section s : this.sections)
+            {
+
+                Map<String, String> ms = new HashMap<> ();
+
+                ms.put ("id",
+                        s.id);
+                ms.put ("name",
+                        s.name);
+                ms.put ("icon",
+                        s.icon);
+
+                sects.add (ms);
+
+            }
+
+        }
+
+        m.putAll (this.strings.getAsJSON ());
+
+        return m;
+
+    }
+
+    public Node createNode (String id)
+    {
+
+        return new Node (id,
+                         null);
+
+    }
+
+/*
+    public static Set<String> getRefIds (String text)
+    {
+
+        Set<String> ids = new LinkedHashSet<> ();
+
+        int start = 0;
+
+        while ((start = text.indexOf (ID_REF_START,
+                                      start)) > -1)
+        {
+
+            int end = text.indexOf (ID_REF_END,
+                                    start);
+
+            if (end > (start + ID_REF_START.length ()))
+            {
+
+                String sid = text.substring (start + ID_REF_START.length (),
+                                             end);
+
+                sid = sid.trim ();
+
+                if (sid.length () > 0)
+                {
+
+                    ids.add (sid);
+
+                }
+
+                start = end + ID_REF_END.length ();
+
+            } else {
+
+                start += ID_REF_START.length ();
+
+            }
+
+        }
+
+        return ids;
+
+    }
+*/
+/*
+    public static List<String> buildRefValsTree (String           text,
+                                                 String           rootId,
+                                                 RefValueProvider prov,
+                                                 List<String>         ids)
+    {
+
+        if (text == null)
+        {
+
+            return null;
+
+        }
+
+        Set<Id> refids = LanguageStrings.getIds (text);
+
+        for (Id rid : refids)
+        {
+
+            if (rid.isPartial ())
+            {
+
+                continue;
+
+            }
+            //Value v = strings.getValue (rid);
+
+            if (rid.getId ().equals (rootId))
+            {
+
+                return ids;
+
+            }
+
+            if (ids.contains (rid.getId ().trim ()))
+            {
+
+                // Already have this, got a loop.
+                return ids;
+
+            }
+
+            ids.add (rid.getId ().trim ());
+
+            int ind = ids.size () - 1;
+
+            String rv = prov.getRawText (rid.getId ().trim ());//getString (rid);
+
+            if (rv == null)
+            {
+
+                return null;
+
+            }
+
+            List<String> nids = LanguageStrings.buildRefValsTree (rv,
+                                                              rootId,
+                                                              prov,
+                                                              new ArrayList<> (ids));
+
+            if (nids != null)
+            {
+
+                return nids;
+
+            } else {
+
+                ids = ids.subList (0, ind);
+
+            }
+
+        }
+
+        return null;
+
+    }
+*/
+    public static Set<String> getErrors (String           text,
+                                         String           textId,
+                                         int              scount,
+                                         RefValueProvider prov)
+    {
+
+        return BaseStrings.getErrors (text,
+                                      textId,
+                                      scount,
+                                      prov);
+
+    }
+/*
+    public static String buildText (String           text,
+                                    RefValueProvider prov)
+    {
+
+        StringBuilder b = new StringBuilder (text);
+
+        int start = 0;
+
+        while ((start = b.indexOf (ID_REF_START,
+                                   start)) > -1)
+        {
+
+            int end = b.indexOf (ID_REF_END,
+                                 start);
+
+            if (end > (start + ID_REF_START.length ()))
+            {
+
+                String sid = b.substring (start + ID_REF_START.length (),
+                                          end);
+
+                int bind = sid.indexOf ("|");
+                String sub = null;
+
+                if (bind > -1)
+                {
+
+                    sub = sid.substring (0, bind);
+
+                    sid = sid.substring (bind + 1);
+
+                }
+
+                String sv = prov.getString (sid);
+
+                if (sub != null)
+                {
+
+                    if (sub.equalsIgnoreCase ("u"))
+                    {
+
+                        // Uppercase the first letter.
+
+                    }
+
+                    if (sub.equalsIgnoreCase ("l"))
+                    {
+
+                        // Lowercase the first letter.
+                        //char c[] = idv.toCharArray ();
+
+                        //c[0] = Character.toLowerCase (c[0]);
+
+                        //idv = new String (c);
+
+                    }
+
+                    if (sub.equalsIgnoreCase ("ua"))
+                    {
+
+                        // Uppercase the first letter of each word.
+
+                    }
+
+                    if (sub.equalsIgnoreCase ("la"))
+                    {
+
+                        // Lowercase the first letter of each word.
+
+                    }
+
+                }
+
+                if (sv != null)
+                {
+
+                    b.replace (start,
+                               end + ID_REF_END.length (),
+                               sv);
+
+                    start += sv.length ();
+
+                } else {
+
+                    start = end + 1;
+
+                }
+
+            } else {
+
+                start += ID_REF_START.length ();
+
+            }
+
+        }
+
+        String s = b.toString ();
+
+        s = LanguageStrings.replaceSpecialValues (s);
+
+        return s;
+
+    }
+*/
+    public static String replaceSpecialValues (String t)
+    {
+
+        if (t == null)
+        {
+
+            return t;
+
+        }
+
+        StringBuilder b = new StringBuilder (t);
+
+        int start = b.indexOf ("{");
+
+        while (start > -1)
+        {
+
+            int end = b.indexOf ("}",
+                                 start);
+
+            if (end > start)
+            {
+
+                String ot = b.substring (start + 1,
+                                         end);
+
+                String newot = ot.toLowerCase ();
+
+                if (newot.equals ("qw"))
+                {
+
+                    newot = Constants.QUOLL_WRITER_NAME;
+
+                }
+
+                b.replace (start,
+                           end + 1,
+                           newot);
+
+                start += newot.length ();
+
+            } else {
+
+                start++;
+
+            }
+
+            start = b.indexOf ("{",
+                               start);
+
+        }
+
+        return b.toString ();
+
+    }
+
+    public Map<TextValue, Set<String>> getErrors ()
+    {
+
+        Map<TextValue, Set<String>> ret = new LinkedHashMap<> ();
+
+        for (TextValue v : this.strings.getAllTextValues ())
+        {
+
+            Set<String> errors = v.getErrors (this);
+
+            if ((errors != null)
+                &&
+                (errors.size () > 0)
+               )
+            {
+
+                ret.put (v,
+                         errors);
+
+            }
+
+            // Special checks for the base strings.
+            if ((this.isEnglish ())
+                &&
+                (!this.isUser ())
+                &&
+                (v instanceof TextValue)
+               )
+            {
+
+                TextValue tv = (TextValue) v;
+
+                int c = 0;
+                boolean invalid = false;
+
+                String rawText = tv.getRawText ();
+
+                // This is a cheap check to determine whether there are strings but the scount is wrong.
+                for (int i = 0; i < 5; i++)
+                {
+
+                    if (rawText.indexOf ("%" + i + "$s") != -1)
+                    {
+
+                        c++;
+
+                    }
+
+                    if (rawText.indexOf ("%" + i + "s") != -1)
+                    {
+
+                        invalid = true;
+
+                    }
+
+                    if (rawText.indexOf ("$" + i + "$") != -1)
+                    {
+
+                        invalid = true;
+
+                    }
+
+                }
+
+                if (rawText.indexOf ("%$") != -1)
+                {
+
+                    invalid = true;
+
+                }
+
+                if (invalid)
+                {
+
+                    errors.add (String.format ("Invalid %$ or %Xs value found."));
+
+                }
+
+                if (tv.getSCount () != c)
+                {
+
+                    errors.add (String.format (":scount value is incorrect or not present, expected: %s, scount is %s.",
+                                               c,
+                                               tv.getSCount ()));
+
+                }
+
+                if ((c > 0)
+                    &&
+                    (tv.getComment () == null)
+                   )
+                {
+
+                    errors.add (String.format ("Value contains one or more %s values but not have an associated comment.",
+                                               "%x$s"));
+
+                }
+
+                if ((tv.getSCount () > 0)
+                    &&
+                    (tv.getComment () == null)
+                   )
+                {
+
+                    errors.add ("S count present but no comment provided.");
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Map<TextValue, Set<String>> getErrors (List<String> id)
+    {
+
+        Map<TextValue, Set<String>> ret = new LinkedHashMap<> ();
+
+        for (TextValue v : this.strings.getAllTextValues (id))
+        {
+
+            Set<String> errors = null;
+
+            if (v instanceof TextValue)
+            {
+
+                errors = ((TextValue) v).getErrors (this);
+
+            }
+
+            if ((errors != null)
+                &&
+                (errors.size () > 0)
+               )
+            {
+
+                ret.put (v,
+                         errors);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public String getString (String id,
+                             Map    from)
+    {
+
+        Object o = from.get (id);
+
+        if (o == null)
+        {
+
+            return null;
+
+        }
+
+        return o.toString ();
+
+    }
+
+    public Map<String, Node> cloneNodes ()
+    {
+
+        return this.strings.cloneNodes ();
+
+    }
+
+    public boolean containsId (String id)
+    {
+
+        return this.containsId (BaseStrings.getIdParts (id));
+
+    }
+
+    public boolean containsId (List<String> idparts)
+    {
+
+        return this.strings.containsId (idparts);
+
+    }
+
+    /**
+     * Return a list of values that this set contains but the old does not or if the old
+     * has the value then is the raw text value different.
+     *
+     * @return The set of new or raw text different values.
+     */
+    public Set<Value> diff (UILanguageStrings old)
+    {
+
+        return this.strings.diff (old.getStrings ());
+/*
+        Set<Value> ret = new LinkedHashSet<> ();
+
+        Set<Value> allVals = this.getAllValues ();
+
+        for (Value v : allVals)
+        {
+
+            Value ov = old.getValue (v.getId ());
+
+            if (ov == null)
+            {
+
+                // This is a new value.
+                ret.add (v);
+
+            } else {
+
+                if (v.isDifferent (ov))
+                {
+
+                    ret.add (v);
+
+                }
+
+            }
+
+        }
+
+        return ret;
+*/
+    }
+
+    public Map<String, Set<Node>> getNodesInSections (String defSection)
+    {
+
+        return this.strings.getNodesInSections (defSection);
+
+    }
+
+    public Set<Node> getNodes (List<String> idparts,
+                               Filter<Node> filter)
+    {
+
+        return this.strings.getNodes (idparts,
+                                      filter);
+
+    }
+
+    public Set<Node> getNodes (List<String> idParts)
+    {
+
+        return this.getNodes (idParts,
+                              null);
+
+    }
+
+    public Set<Node> getNodes (Filter<Node> filter)
+    {
+
+        return this.strings.getNodes (filter);
+
+    }
+
+    public Set<Value> getAllValues ()
+    {
+
+        return this.getAllValues ((Filter) null);
+/*
+        Set<Value> vals = new LinkedHashSet<> ();
+
+        for (Node n : this.nodes.values ())
+        {
+
+            vals.addAll (n.getAllValues ());
+
+        }
+
+        return vals;
+*/
+    }
+
+    public Set<Value> getAllValues (Filter<Value> filter)
+    {
+
+        return this.strings.getAllValues (filter);
+
+    }
+
+    public Set<Value> getAllValues (List<String> idparts)
+    {
+
+        return this.getAllValues (idparts,
+                                  null);
+/*
+        Set<Value> vals = new LinkedHashSet<> ();
+
+        if (idparts.size () < 1)
+        {
+
+            return vals;
+
+        }
+
+        Node n = this.nodes.get (idparts.get (0));
+
+        if (n == null)
+        {
+
+            return vals;
+
+        }
+
+        if (idparts.size () > 1)
+        {
+
+            return n.getAllValues (idparts.subList (1, idparts.size ()));
+
+        }
+
+        return n.getAllValues ();
+*/
+    }
+
+    public Set<Value> getAllValues (List<String>  idparts,
+                                    Filter<Value> filter)
+    {
+
+        return this.strings.getAllValues (idparts,
+                                          filter);
+
+    }
+
+    public void setEmail (String em)
+    {
+
+        this._email = em;
+
+    }
+
+    public String getEmail ()
+    {
+
+        return this._email;
+
+    }
+
+    public void setNativeName (String n)
+    {
+
+        super.setName (n);
+
+    }
+
+    public String getNativeName ()
+    {
+
+        return this.getName ();
+
+    }
+
+    public void setLanguageName (String n)
+    {
+
+        this.languageName = n;
+
+    }
+
+    public String getLanguageName ()
+    {
+
+        return this.languageName;
+
+    }
+/*
+    public static String toId (List<String> ids)
+    {
+
+        return Utils.joinStrings (ids,
+                                  ID_PART_SEP);
+
+    }
+
+    public static List<String> getIdParts (String id)
+    {
+
+        return Utils.splitString (id,
+                                  ID_PART_SEP);
+
+    }
+*/
+
+    public Node removeNode (List<String> idparts)
+                     throws GeneralException
+    {
+
+        return this.strings.removeNode (idparts);
+
+    }
+
+    public TreeSet<String> getIdMatches (String id)
+    {
+
+        return this.strings.getIdMatches (id);
+
+    }
+
+    public Node getNode (String id)
+    {
+
+        List<String> idparts = BaseStrings.getIdParts (id);
+
+        return this.getNode (idparts);
+
+    }
+
+    public Node getNode (List<String> idparts)
+    {
+
+        return this.strings.getNode (idparts);
+
+    }
+
+    public static boolean isSpecialId (List<String> id)
+    {
+
+        return BaseStrings.isSpecialId (id);
+
+    }
+
+    public TextValue getTextValue (List<String> idparts)
+    {
+
+        Value v = this.getValue (idparts);
+
+        if (v instanceof TextValue)
+        {
+
+            return (TextValue) v;
+
+        }
+
+        return null;
+
+    }
+
+    public Value getValue (List<String> idparts)
+    {
+
+        return this.strings.getValue (idparts,
+                                      false);
+
+    }
+
+    public Value getValue (List<String> idparts,
+                           boolean      thisOnly)
+    {
+
+        return this.strings.getValue (idparts,
+                                      thisOnly);
+
+    }
+
+    public TextValue insertTextValue (List<String> idparts)
+                               throws GeneralException
+    {
+
+        return this.strings.insertTextValue (idparts);
+
+    }
+
+    public String getBuiltText (String text)
+    {
+
+        return new TextValue (null, null, text, null, 0).getBuiltText (this);
+
+    }
+
+    public Value getValue (String id)
+    {
+
+        return this.getValue (BaseStrings.getIdParts (id));
+
+    }
+
+    public boolean isIdValid (String id)
+    {
+
+        return this.getNode (id) != null;
+
+    }
+
+    @Override
+    public int getSCount (String id)
+    {
+
+        return this.getSCount (BaseStrings.getIdParts (id));
+
+    }
+
+    @Override
+    public String getRawText (String id)
+    {
+
+        return this.getRawText (BaseStrings.getIdParts (id));
+
+    }
+
+    @Override
+    public String getString (String id)
+    {
+
+        return this.getString (BaseStrings.getIdParts (id));
+
+    }
+
+    public int getSCount (List<String> idparts)
+    {
+
+        if (this.parent != null)
+        {
+
+            // Defer to our parent.
+            return this.parent.getSCount (idparts);
+
+        }
+
+        if (idparts.size () < 1)
+        {
+
+            return 0;
+
+        }
+
+        TextValue v = this.getTextValue (idparts);
+
+        if (v != null)
+        {
+
+            return v.getSCount ();
+
+        }
+
+        return 0;
+
+    }
+
+    public String getString (List<String> idparts)
+    {
+
+        if (idparts.size () < 1)
+        {
+
+            return null;
+
+        }
+
+        TextValue v = this.getTextValue (idparts);
+
+        if (v != null)
+        {
+
+            return v.getBuiltText (this);
+
+        }
+
+        return null;
+
+    }
+
+    public String getRawText (List<String> idparts)
+    {
+
+        if (idparts.size () < 1)
+        {
+
+            return null;
+
+        }
+
+        TextValue v = this.getTextValue (idparts);
+
+        if (v != null)
+        {
+
+            return v.getRawText ();
+
+        }
+
+        return null;
+
+    }
+
+/*
     public static final String project = "project";
     public static final String settingsmenu = "settingsmenu";
     public static final String items = "items";
@@ -945,5 +2363,5 @@ public class LanguageStrings
     public static final String defaultstatuses = "defaultstatuses";
     public static final String editneededtype = "editneededtype";
     public static final String websiteuilanguage = "websiteuilanguage";
-
+*/
 }

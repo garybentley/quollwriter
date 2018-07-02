@@ -4870,6 +4870,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
+        // xxx
+        this.setExtendedState (NORMAL);
+
         this.setVisible (true);
         this.setUILayout (this.layout);
         this.validate ();
@@ -6364,7 +6367,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 									  Options.Section.warmups,
 									  Options.Section.achievements,
 									  Options.Section.problems,
-									  Options.Section.betas);
+									  Options.Section.betas,
+                                      Options.Section.website);
 
                 p.init ();
 

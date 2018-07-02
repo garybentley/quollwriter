@@ -3602,7 +3602,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 										Options.Section.warmups,
 										Options.Section.achievements,
 										Options.Section.problems,
-										Options.Section.betas);
+										Options.Section.betas,
+                                        Options.Section.website);
 
 			this.options.init ();
 

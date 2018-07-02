@@ -76,6 +76,7 @@ import com.quollwriter.achievements.*;
 import com.quollwriter.achievements.rules.*;
 
 import com.quollwriter.editors.ui.*;
+import com.quollwriter.uistrings.*;
 
 import static com.quollwriter.LanguageStrings.*;
 
@@ -168,8 +169,8 @@ public class Environment
 
     private static Set<Tag> tags = null;
 
-    private static LanguageStrings uiLanguageStrings = null;
-    private static LanguageStrings defaultUILanguageStrings = null;
+    private static UILanguageStrings uiLanguageStrings = null;
+    private static UILanguageStrings defaultUILanguageStrings = null;
 
     static
     {
@@ -436,6 +437,30 @@ public class Environment
 
         // What the derp... Return the first.
         return Environment.openViewers.iterator ().next ();
+
+    }
+
+    public static String getJSONFileAsString (String url)
+                                       throws Exception
+    {
+
+        String data = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + url));
+
+        if (data == null)
+        {
+
+            return null;
+
+        }
+
+        if (data.startsWith (Constants.JSON_RETURN_PREFIX))
+        {
+
+            data = data.substring (Constants.JSON_RETURN_PREFIX.length ());
+
+        }
+
+        return data;
 
     }
 
@@ -2968,7 +2993,7 @@ public class Environment
                                throws Exception
     {
 
-        LanguageStrings ls = null;
+        UILanguageStrings ls = null;
 
         ls = Environment.getUILanguageStrings (id);
 
@@ -3022,9 +3047,9 @@ public class Environment
 
     }
 
-    public static LanguageStrings getUserUILanguageStrings (Version v,
-                                                            String  id)
-                                                     throws Exception
+    public static UILanguageStrings getUserUILanguageStrings (Version v,
+                                                              String  id)
+                                                       throws Exception
     {
 
         File f = Environment.getUserUILanguageStringsFile (v,
@@ -3033,7 +3058,7 @@ public class Environment
         if (f.exists ())
         {
 
-            LanguageStrings ls = new LanguageStrings (f);
+            UILanguageStrings ls = new UILanguageStrings (f);
             ls.setUser (true);
 
             return ls;
@@ -3044,7 +3069,7 @@ public class Environment
 
     }
 
-    private static void deleteUserUILanguageStrings (final LanguageStrings ls)
+    private static void deleteUserUILanguageStrings (final UILanguageStrings ls)
     {
 
         ActionListener remFile = new ActionListener ()
@@ -3104,7 +3129,7 @@ public class Environment
             {
 
                 // Need to set the language back to English.
-                Environment.setUILanguage (LanguageStrings.ENGLISH_ID);
+                Environment.setUILanguage (UILanguageStrings.ENGLISH_ID);
 
             } catch (Exception e) {
 
@@ -3126,8 +3151,8 @@ public class Environment
 
     }
 
-    public static void deleteUserUILanguageStrings (LanguageStrings ls,
-                                                    boolean         allVersions)
+    public static void deleteUserUILanguageStrings (UILanguageStrings ls,
+                                                    boolean           allVersions)
                                              throws Exception
     {
 
@@ -3141,9 +3166,9 @@ public class Environment
         if (allVersions)
         {
 
-            Set<LanguageStrings> allLs = Environment.getAllUserLanguageStrings ();
+            Set<UILanguageStrings> allLs = Environment.getAllUserUILanguageStrings ();
 
-            for (LanguageStrings _ls : allLs)
+            for (UILanguageStrings _ls : allLs)
             {
 
                 if (_ls.getId ().equals (ls.getId ()))
@@ -3163,15 +3188,15 @@ public class Environment
 
     }
 
-    public static LanguageStrings getUserUIEnglishLanguageStrings (Version v)
-                                                            throws Exception
+    public static UILanguageStrings getUserUIEnglishLanguageStrings (Version v)
+                                                              throws Exception
     {
 
         // If the version is the same as the QW version the user is running then
         if (v.equals (Environment.getQuollWriterVersion ()))
         {
 
-            LanguageStrings def = Environment.getDefaultUILanguageStrings ();
+            UILanguageStrings def = Environment.getDefaultUILanguageStrings ();
 
             Environment.saveUserUILanguageStrings (def);
 
@@ -3183,12 +3208,12 @@ public class Environment
 
         // See if there is a user strings file.
         File f = Environment.getUserUILanguageStringsFile (v,
-                                                           LanguageStrings.ENGLISH_ID);
+                                                           UILanguageStrings.ENGLISH_ID);
 
         if (f.exists ())
         {
 
-            return new LanguageStrings (f);
+            return new UILanguageStrings (f);
 
         }
 
@@ -3196,35 +3221,43 @@ public class Environment
 
     }
 
-    public static LanguageStrings getDefaultUILanguageStrings ()
+    public static UILanguageStrings getDefaultUILanguageStrings ()
     {
 
         return Environment.defaultUILanguageStrings;
 
     }
 
-    public static LanguageStrings getCurrentUILanguageStrings ()
+    public static UILanguageStrings getCurrentUILanguageStrings ()
     {
 
         return Environment.uiLanguageStrings;
 
     }
 
-    public static LanguageStrings getUILanguageStrings (String id)
-                                                 throws Exception
+    public static UILanguageStrings getUILanguageStrings (String  id,
+                                                          Version ver)
+                                                   throws Exception
     {
+
+        if (ver == null)
+        {
+
+            ver = Environment.getQuollWriterVersion ();
+
+        }
 
         if (id.startsWith ("user-"))
         {
 
             id = id.substring ("user-".length ());
 
-            return Environment.getUserUILanguageStrings (Environment.getQuollWriterVersion (),
+            return Environment.getUserUILanguageStrings (ver,
                                                          id);
 
         }
 
-        if (id.equals (LanguageStrings.ENGLISH_ID))
+        if (id.equals (UILanguageStrings.ENGLISH_ID))
         {
 
             return Environment.getDefaultUILanguageStrings ();
@@ -3243,19 +3276,28 @@ public class Environment
         String data = Utils.getFileAsString (f,
                                              StandardCharsets.UTF_8);
 
-        LanguageStrings s = new LanguageStrings (data);
+        UILanguageStrings s = new UILanguageStrings (data);
 
         return s;
 
     }
 
-    public static Set<LanguageStrings> getAllUserLanguageStrings (Version qwVer)
-                                                           throws GeneralException
+    public static UILanguageStrings getUILanguageStrings (String id)
+                                                   throws Exception
     {
 
-        Set<LanguageStrings> ret = new LinkedHashSet<> ();
+        return Environment.getUILanguageStrings (id,
+                                                 Environment.getQuollWriterVersion ());
 
-        for (LanguageStrings ls : Environment.getAllUserLanguageStrings ())
+    }
+
+    public static Set<UILanguageStrings> getAllUserUILanguageStrings (Version qwVer)
+                                                               throws GeneralException
+    {
+
+        Set<UILanguageStrings> ret = new LinkedHashSet<> ();
+
+        for (UILanguageStrings ls : Environment.getAllUserUILanguageStrings ())
         {
 
             if (ls.getQuollWriterVersion ().equals (qwVer))
@@ -3271,14 +3313,14 @@ public class Environment
 
     }
 
-    public static Set<LanguageStrings> getAllUserLanguageStrings ()
-                                                           throws GeneralException
+    public static Set<WebsiteLanguageStrings> getAllUserWebsiteLanguageStrings ()
+                                                                         throws GeneralException
     {
 
-        Set<LanguageStrings> s = new TreeSet<> ();
+        Set<WebsiteLanguageStrings> s = new TreeSet<> ();
 
         File d = new File (Environment.getUserQuollWriterDir (),
-                           Constants.USER_UI_LANGUAGES_DIR_NAME);
+                           Constants.USER_WEBSITE_LANGUAGES_DIR_NAME);
 
         File[] files = d.listFiles ();
 
@@ -3298,7 +3340,7 @@ public class Environment
                     for (int j = 0; j < dfiles.length; j++)
                     {
 
-                        LanguageStrings ls = new LanguageStrings (dfiles[j]);
+                        WebsiteLanguageStrings ls = new WebsiteLanguageStrings (dfiles[j]);
 
                         if (ls.isEnglish ())
                         {
@@ -3321,11 +3363,83 @@ public class Environment
 
     }
 
-    public static void saveUserUILanguageStrings (LanguageStrings ls)
+    public static Set<UILanguageStrings> getAllUserUILanguageStrings ()
+                                                               throws GeneralException
+    {
+
+        Set<UILanguageStrings> s = new TreeSet<> ();
+
+        File d = new File (Environment.getUserQuollWriterDir (),
+                           Constants.USER_UI_LANGUAGES_DIR_NAME);
+
+        File[] files = d.listFiles ();
+
+        if (files != null)
+        {
+
+            for (int i = 0; i < files.length; i++)
+            {
+
+                File fd = files[i];
+
+                File[] dfiles = fd.listFiles ();
+
+                if (dfiles != null)
+                {
+
+                    for (int j = 0; j < dfiles.length; j++)
+                    {
+
+                        UILanguageStrings ls = new UILanguageStrings (dfiles[j]);
+
+                        if (ls.isEnglish ())
+                        {
+
+                            continue;
+
+                        }
+
+                        s.add (ls);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return s;
+
+    }
+
+    public static void saveUserUILanguageStrings (UILanguageStrings ls)
                                            throws Exception
     {
 
         File f = Environment.getUserUILanguageStringsFile (ls);
+
+        f.getParentFile ().mkdirs ();
+
+        String json = JSONEncoder.encode (ls.getAsJSON ());
+
+        Writer out = new BufferedWriter (new OutputStreamWriter (new FileOutputStream (f),
+                                                                 "utf-8"));
+
+        char[] chars = json.toCharArray ();
+
+        out.write (chars, 0, chars.length);
+    	out.flush ();
+    	out.close ();
+
+    }
+
+    public static void saveUserWebsiteLanguageStrings (WebsiteLanguageStrings ls)
+                                                throws Exception
+    {
+
+        File f = Environment.getUserWebsiteLanguageStringsFile (ls.getStringsVersion (),
+                                                                ls.getId ());
 
         f.getParentFile ().mkdirs ();
 
@@ -3356,7 +3470,7 @@ public class Environment
 
                 String lastMod = "";
 
-                LanguageStrings ls = null;
+                UILanguageStrings ls = null;
 
                 try
                 {
@@ -3498,17 +3612,17 @@ public class Environment
 
     }
 
-    public static Set<LanguageStrings> getAllUILanguageStrings ()
+    public static Set<UILanguageStrings> getAllUILanguageStrings ()
     {
 
         return Environment.getAllUILanguageStrings (null);
 
     }
 
-    public static Set<LanguageStrings> getAllUILanguageStrings (Version ver)
+    public static Set<UILanguageStrings> getAllUILanguageStrings (Version ver)
     {
 
-        Set<LanguageStrings> ret = new LinkedHashSet<> ();
+        Set<UILanguageStrings> ret = new LinkedHashSet<> ();
 
         File[] files = Environment.getUILanguageStringsDir ().listFiles ();
 
@@ -3530,7 +3644,7 @@ public class Environment
                 try
                 {
 
-                    LanguageStrings ls = new LanguageStrings (f);
+                    UILanguageStrings ls = new UILanguageStrings (f);
 
                     if (ver != null)
                     {
@@ -3576,7 +3690,7 @@ public class Environment
                                                      String  id)
     {
 
-        if (id.equals (LanguageStrings.ENGLISH_ID))
+        if (id.equals (UILanguageStrings.ENGLISH_ID))
         {
 
             id = id.substring (1);
@@ -3588,7 +3702,7 @@ public class Environment
 
     }
 
-    public static File getUserUILanguageStringsFile (LanguageStrings ls)
+    public static File getUserUILanguageStringsFile (UILanguageStrings ls)
     {
 
         return Environment.getUserUILanguageStringsFile (ls.getQuollWriterVersion (),
@@ -4059,6 +4173,20 @@ public class Environment
                       throws Exception
     {
 
+        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler ()
+        {
+
+            @Override
+            public void uncaughtException (Thread    t,
+                                           Throwable e)
+            {
+
+                Environment.logError ("Unexcepted error from thread: " + t.getId () + "\n\nStack Trace: \n" + Utils.getStackTrace (e));
+
+            }
+
+        });
+
         // Start the timer, it is done here so that any other code that needs it can start running things
         // straightaway.
         Environment.generalTimer = new ScheduledThreadPoolExecutor (5,
@@ -4232,7 +4360,7 @@ public class Environment
 
         Environment.incrStartupProgress ();
 
-        Environment.defaultUILanguageStrings = new LanguageStrings (Environment.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
+        Environment.defaultUILanguageStrings = new UILanguageStrings (Environment.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
 /*
         Map<LanguageStrings.Value, Set<String>> errs = Environment.defaultUILanguageStrings.getErrors ();
 
@@ -4364,10 +4492,10 @@ public class Environment
         if (uilangid != null)
         {
 
-            if (!LanguageStrings.isEnglish (uilangid))
+            if (!UILanguageStrings.isEnglish (uilangid))
             {
 
-                LanguageStrings ls = Environment.getUILanguageStrings (uilangid);
+                UILanguageStrings ls = Environment.getUILanguageStrings (uilangid);
 
                 if ((ls == null)
                     ||
@@ -6489,116 +6617,6 @@ xxx
 
                         _updater.doUpdate (viewer);
 
-/*
-Removed for now
-TODO: Add back in when appropriate.
-                        // Get the news.
-                        List news = (List) data.get ("news");
-
-                        if (news != null)
-                        {
-
-                            final Set<String> seenIds = new HashSet ();
-
-                            String seenNewsIds = UserProperties.get (Constants.SEEN_NEWS_IDS_PROPERTY_NAME);
-
-                            if (seenNewsIds == null)
-                            {
-
-                                seenNewsIds = "";
-
-                            }
-
-                            StringTokenizer t = new StringTokenizer (seenNewsIds,
-                                                                     ",");
-
-                            while (t.hasMoreTokens ())
-                            {
-
-                                seenIds.add (t.nextToken ().trim ());
-
-                            }
-
-                            for (int i = 0; i < news.size (); i++)
-                            {
-
-                                Map ndata = (Map) news.get (i);
-
-                                final String id = (String) ndata.get ("id");
-
-                                if (seenIds.contains (id))
-                                {
-
-                                    continue;
-
-                                }
-
-                                String m = (String) ndata.get ("message");
-
-                                Box ib = new Box (BoxLayout.Y_AXIS);
-                                ib.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                                  Short.MAX_VALUE));
-
-                                JTextPane p = UIUtils.createHelpTextPane (m,
-                                                                          viewer);
-                                p.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                                p.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                                 Short.MAX_VALUE));
-                                p.setBorder (null);
-
-                                ib.add (p);
-                                ib.add (Box.createVerticalStrut (5));
-
-                                JButton ok = new JButton ("Ok, got it");
-
-                                Box bb = new Box (BoxLayout.X_AXIS);
-                                bb.add (ok);
-
-                                ib.add (bb);
-                                bb.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                                final ActionListener removeNot = viewer.addNotification (ib,
-                                                                                         "notify",
-                                                                                         -1);
-
-                                ok.addActionListener (new ActionAdapter ()
-                                {
-
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-
-                                        seenIds.add (id);
-
-                                        StringBuilder sb = new StringBuilder ();
-
-                                        for (String s : seenIds)
-                                        {
-
-                                            if (sb.length () > 0)
-                                            {
-
-                                                sb.append (",");
-
-                                            }
-
-                                            sb.append (s);
-
-                                        }
-
-                                        UserProperties.set (Constants.SEEN_NEWS_IDS_PROPERTY_NAME,
-                                                            sb.toString ());
-
-                                        removeNot.actionPerformed (ev);
-
-                                    }
-
-                                });
-
-                            }
-
-                        }
-*/
                     } catch (Exception e)
                     {
 
@@ -6803,13 +6821,15 @@ TODO: Add back in when appropriate.
 
                     conn.connect ();
 
-                    BufferedWriter bout = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream ()));
+                    BufferedWriter bout = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream (),
+                                                                                      StandardCharsets.UTF_8));
 
                     bout.write (data);
                     bout.flush ();
                     bout.close ();
 
-                    BufferedReader b = new BufferedReader (new InputStreamReader (conn.getInputStream ()));
+                    BufferedReader b = new BufferedReader (new InputStreamReader (conn.getInputStream (),
+                                                                                  StandardCharsets.UTF_8));
 
                     String detail = b.readLine ();
 
@@ -8136,7 +8156,7 @@ TODO: Add back in when appropriate.
         if (s == null)
         {
 
-            s = LanguageStrings.toId (ids);
+            s = BaseStrings.toId (ids);
 
         }
 
@@ -8144,8 +8164,8 @@ TODO: Add back in when appropriate.
 
     }
 
-    public static LanguageStringsEditor editUILanguageStrings (LanguageStrings userStrings,
-                                                               Version         baseQWVersion)
+    public static LanguageStringsEditor editUILanguageStrings (UILanguageStrings userStrings,
+                                                               Version           baseQWVersion)
     {
 
         LanguageStringsEditor lse = Environment.getUILanguageStringsEditor (userStrings);
@@ -8182,7 +8202,7 @@ TODO: Add back in when appropriate.
 
     }
 
-    public static LanguageStringsEditor getUILanguageStringsEditor (LanguageStrings ls)
+    public static LanguageStringsEditor getUILanguageStringsEditor (UILanguageStrings ls)
     {
 
         for (AbstractViewer v : Environment.openViewers)
@@ -8192,6 +8212,239 @@ TODO: Add back in when appropriate.
             {
 
                 LanguageStringsEditor lse = (LanguageStringsEditor) v;
+
+                if (lse.getUserLanguageStrings ().equals (ls))
+                {
+
+                    return lse;
+
+                }
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    private static void deleteUserWebsiteLanguageStrings (final WebsiteLanguageStrings ls)
+    {
+
+        ActionListener remFile = new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                File f = Environment.getUserWebsiteLanguageStringsFile (ls.getStringsVersion (),
+                                                                        ls.getId ());
+
+                if (f.exists ())
+                {
+
+                    f.delete ();
+
+                }
+
+            }
+
+        };
+
+        Set<AbstractViewer> viewers = new HashSet<> (Environment.openViewers);
+
+        for (AbstractViewer v : viewers)
+        {
+
+            if (v instanceof WebsiteLanguageStringsEditor)
+            {
+
+                WebsiteLanguageStringsEditor lse = (WebsiteLanguageStringsEditor) v;
+
+                if ((lse.getUserLanguageStrings ().getId ().equals (ls.getId ()))
+                    &&
+                    (lse.getUserLanguageStrings ().getStringsVersion () == ls.getStringsVersion ())
+                   )
+                {
+
+                    lse.close (false,
+                               remFile);
+
+                    return;
+
+                }
+
+            }
+
+        }
+
+        remFile.actionPerformed (new ActionEvent (ls, 0, "do"));
+
+    }
+
+    public static void deleteUserWebsiteLanguageStrings (WebsiteLanguageStrings ls,
+                                                         boolean                allVersions)
+                                                  throws Exception
+    {
+
+        if (!ls.isUser ())
+        {
+
+            throw new IllegalArgumentException ("Can only delete user website language strings.");
+
+        }
+
+        if (allVersions)
+        {
+
+            Set<WebsiteLanguageStrings> allLs = Environment.getAllUserWebsiteLanguageStrings ();
+
+            for (WebsiteLanguageStrings _ls : allLs)
+            {
+
+                if (_ls.getId ().equals (ls.getId ()))
+                {
+
+                    Environment.deleteUserWebsiteLanguageStrings (_ls);
+
+                }
+
+            }
+
+        } else {
+
+            Environment.deleteUserWebsiteLanguageStrings (ls);
+
+        }
+
+    }
+
+    public static WebsiteLanguageStrings getUserWebsiteLanguageStrings (int    ver,
+                                                                        String id)
+                                                                 throws Exception
+    {
+
+        File f = Environment.getUserWebsiteLanguageStringsFile (ver,
+                                                                id);
+
+        if (f.exists ())
+        {
+
+            WebsiteLanguageStrings ls = new WebsiteLanguageStrings (f);
+            ls.setUser (true);
+
+            return ls;
+
+        }
+
+        return null;
+
+    }
+
+    private static File getUserWebsiteLanguageStringsDir (int v)
+    {
+
+        File d = new File (Environment.getUserQuollWriterDir (),
+                           Constants.USER_WEBSITE_LANGUAGES_DIR_NAME + "/" + v);
+
+        if (!d.exists ())
+        {
+
+            d.mkdirs ();
+
+        }
+
+        return d;
+
+    }
+
+    public static File getUserWebsiteLanguageStringsFile (int    ver,
+                                                          String id)
+    {
+
+        if (id.equals (WebsiteLanguageStrings.ENGLISH_ID))
+        {
+
+            id = id.substring (1);
+
+        }
+
+        return new File (Environment.getUserWebsiteLanguageStringsDir (ver),
+                         id);
+
+    }
+
+    public static WebsiteLanguageStrings getWebsiteLanguageStrings (int    ver,
+                                                                    String id)
+                                                             throws Exception
+    {
+
+        File f = new File (Environment.getUserQuollWriterDir (),
+                           Constants.USER_WEBSITE_LANGUAGES_DIR_NAME + "/" + ver + "/" + id);
+
+        if (!f.exists ())
+        {
+
+            return null;
+
+        }
+
+        String data = Utils.getFileAsString (f,
+                                             StandardCharsets.UTF_8);
+
+        WebsiteLanguageStrings s = new WebsiteLanguageStrings (data);
+
+        return s;
+
+    }
+
+    public static WebsiteLanguageStringsEditor editWebsiteLanguageStrings (WebsiteLanguageStrings userStrings)
+    {
+
+        WebsiteLanguageStringsEditor lse = Environment.getWebsiteLanguageStringsEditor (userStrings);
+
+        if (lse != null)
+        {
+
+            lse.toFront ();
+
+            return lse;
+
+        }
+
+         try
+         {
+
+             WebsiteLanguageStringsEditor _ls = new WebsiteLanguageStringsEditor (userStrings);
+             _ls.init ();
+
+             return _ls;
+
+         } catch (Exception e) {
+
+             Environment.logError ("Unable to create website language strings editor",
+                                   e);
+
+             UIUtils.showErrorMessage (null,
+                                       getUIString (uilanguage,edit,actionerror));
+
+            return null;
+
+         }
+
+    }
+
+    public static WebsiteLanguageStringsEditor getWebsiteLanguageStringsEditor (WebsiteLanguageStrings ls)
+    {
+
+        for (AbstractViewer v : Environment.openViewers)
+        {
+
+            if (v instanceof WebsiteLanguageStringsEditor)
+            {
+
+                WebsiteLanguageStringsEditor lse = (WebsiteLanguageStringsEditor) v;
 
                 if (lse.getUserLanguageStrings ().equals (ls))
                 {

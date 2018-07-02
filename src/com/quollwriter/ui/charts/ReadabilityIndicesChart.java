@@ -255,6 +255,13 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
 
             ChapterCounts cc = _this.viewer.getChapterCounts (c);
 
+            if (cc == null)
+            {
+
+                continue;
+
+            }
+
             if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
             {
 

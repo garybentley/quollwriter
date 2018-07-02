@@ -3,7 +3,7 @@
     ":nativename" : "English",
     ":version" : 1,
     ":id" : ":English",
-    ":qwversion" : "2.6.13",
+    ":qwversion" : "2.7",
     ":created" : 0,
     ":email" : "gary@quollwriter.com",
     ":sections" :
@@ -71,6 +71,23 @@
         ":section" : "Project",
         "title" : "No ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel selected",
         "text" : "<p>You are seeing this because no ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel has been selected.</p><p>This usually happens when you have just deleted the item you were viewing.</p><p>To continue, just <a href='action:projectsidebar'>select an item from the sidebar</a>.</p>"
+    },
+    "websiteuilanguage" :
+    {
+        ":title" : "UI Language",
+        "new" :
+        {
+            "popup" :
+            {
+                "title" : "Enter the language name",
+                "text" : "Enter the name of the language you want to create the strings for.  This should be the name that a native speaker of the language user would use, such as Español, Français or Deutsch.",
+                "buttons" :
+                {
+                    "create" : "${actions.create}",
+                    "cancel" : "${actions.cancel}"
+                }
+            }
+        }
     },
     "uilanguage" :
     {
@@ -5214,6 +5231,16 @@
                 "showtips" : "Show useful tips",
                 "showlastedited" : "Open the last edited ${objectnames.singular.project}",
                 "showprojectswindow" : "Show the ${objectnames.plural.project} window"
+            }
+        },
+        "website" :
+        {
+            "title" : "{QW} Website Translations",
+            "text" : "Want to create a translation for the {QW} website?  Just hit that button and go, go, go.",
+            "labels" :
+            {
+                "createtranslation" : "Create a translation",
+                "edittranslation" : "Edit one of your translations"
             }
         },
         "betas" :
