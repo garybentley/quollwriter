@@ -4853,6 +4853,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
+        // xxx
+        this.setExtendedState (NORMAL);
+
         this.setVisible (true);
         this.setUILayout (this.layout);
         this.validate ();
@@ -5001,6 +5004,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.validate ();
         this.repaint ();
 
+        // xxx
+        this.setExtendedState (ICONIFIED);
+        this.setVisible (false);
+
         this.fireFullScreenEnteredEvent ();
 
 		final AbstractProjectViewer _this = this;
@@ -5097,6 +5104,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             this.repaint ();
 
         }
+
+        // xxx
+        this.setExtendedState (ICONIFIED);
+        this.setVisible (false);
 
         this.fireFullScreenEnteredEvent ();
 
@@ -6343,7 +6354,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 									  Options.Section.warmups,
 									  Options.Section.achievements,
 									  Options.Section.problems,
-									  Options.Section.betas);
+									  Options.Section.betas,
+                                      Options.Section.website);
 
                 p.init ();
 

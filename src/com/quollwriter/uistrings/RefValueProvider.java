@@ -1,4 +1,4 @@
-package com.quollwriter;
+package com.quollwriter.uistrings;
 
 public interface RefValueProvider
 {

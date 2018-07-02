@@ -90,6 +90,7 @@ import com.quollwriter.synonyms.*;
 import com.quollwriter.db.*;
 import com.quollwriter.ui.forms.Form;
 import com.quollwriter.ui.forms.FormItem;
+import com.quollwriter.uistrings.*;
 
 import com.quollwriter.text.*;
 
@@ -9896,7 +9897,7 @@ public class UIUtils
                 {
 
                     // Add in any user generated ones.
-                    for (LanguageStrings _ls : Environment.getAllUserLanguageStrings (Environment.getQuollWriterVersion ()))
+                    for (UILanguageStrings _ls : Environment.getAllUserUILanguageStrings (Environment.getQuollWriterVersion ()))
                     {
 
                         langIds.add ("user-" + _ls.getId ());
@@ -9913,9 +9914,9 @@ public class UIUtils
                 }
 
                 // Add our local ones.
-                Set<LanguageStrings> uistrs = Environment.getAllUILanguageStrings (Environment.getQuollWriterVersion ());
+                Set<UILanguageStrings> uistrs = Environment.getAllUILanguageStrings (Environment.getQuollWriterVersion ());
 
-                for (LanguageStrings uistr : uistrs)
+                for (UILanguageStrings uistr : uistrs)
                 {
 
                     langIds.add (uistr.getId ());
@@ -9926,7 +9927,7 @@ public class UIUtils
                 // English is always available.
                 Map data = new HashMap ();
                 ls.add (data);
-                data.put ("id", LanguageStrings.ENGLISH_ID);
+                data.put ("id", UILanguageStrings.ENGLISH_ID);
                 data.put ("nativename", Constants.ENGLISH);
 
                 Iterator iter = ls.iterator ();
@@ -9938,7 +9939,7 @@ public class UIUtils
 
                     String id = (String) m.get ("id");
 
-                    objs.put (id, m.get ("nativename").toString () + (!id.equals (LanguageStrings.ENGLISH_ID) ? " (" + m.get ("languagename") + ")" : ""));
+                    objs.put (id, m.get ("nativename").toString () + (!id.equals (UILanguageStrings.ENGLISH_ID) ? " (" + m.get ("languagename") + ")" : ""));
 
                     langIds.add (id);
 
@@ -11113,15 +11114,15 @@ public class UIUtils
 
     }
 
-    public static void showEditLanguageStringsSelectorPopup (final AbstractViewer viewer)
+    public static void showEditUILanguageStringsSelectorPopup (final AbstractViewer viewer)
     {
 
-        Set<LanguageStrings> objs = null;
+        Set<UILanguageStrings> objs = null;
 
         try
         {
 
-            objs = Environment.getAllUserLanguageStrings ();
+            objs = Environment.getAllUserUILanguageStrings ();
 
         } catch (Exception e) {
 
@@ -11160,7 +11161,7 @@ public class UIUtils
                                                                                           boolean cellHasFocus)
                                            {
 
-                                               LanguageStrings obj = (LanguageStrings) value;
+                                               UILanguageStrings obj = (UILanguageStrings) value;
 
                                                JLabel l = (JLabel) super.getListCellRendererComponent (list,
                                                                                                        value,
@@ -11196,138 +11197,8 @@ public class UIUtils
                                            public void actionPerformed (ActionEvent ev)
                                            {
 
-                                               final LanguageStrings ls = (LanguageStrings) ev.getSource ();
-/*
-                                               // Check to see if this version is the same as the current QW version.
-                                               if (ls.getQuollWriterVersion ().isNewer (Environment.getQuollWriterVersion ()))
-                                               {
+                                               final UILanguageStrings ls = (UILanguageStrings) ev.getSource ();
 
-                                                   // It's not, so see if the user has a version for the current QW version.
-                                                   LanguageStrings lscurr = null;
-
-                                                   try
-                                                   {
-
-                                                       lscurr = Environment.getUserUILanguageStrings (Environment.getQuollWriterVersion (),
-                                                                                                      ls.getId ());
-
-                                                   } catch (Exception e) {
-
-                                                       Environment.logError ("Unable to get strings: " + ls.getId (),
-                                                                             e);
-
-                                                       UIUtils.showErrorMessage (viewer,
-                                                                                 "Unable to edit strings.");
-
-                                                       return;
-
-                                                   }
-
-                                                   if (lscurr == null)
-                                                   {
-
-                                                       // Offer to update the strings to the current version.
-                                                       UIUtils.createQuestionPopup (viewer,
-                                                                                    getUIString (uilanguage,update,popup,title),
-                                                                                    //"Update your strings to the current {QW} version?",
-                                                                                    Constants.SAVE_ICON_NAME,
-                                                                                    getUIString (uilanguage,update,popup,text),
-                                                                                    //"Do you want to update your strings to the current {QW} version?  This will not affect the old version.",
-                                                                                    getUIString (uilanguage,update,popup,buttons,confirm),
-                                                                                    //"Yes, update them",
-                                                                                    getUIString (uilanguage,update,popup,buttons,cancel),
-                                                                                    //"No, leave them",
-                                                                                    // On confirm
-                                                                                    new ActionListener ()
-                                                                                    {
-
-                                                                                        @Override
-                                                                                        public void actionPerformed (ActionEvent ev)
-                                                                                        {
-
-                                                                                            ls.setQuollWriterVersion (Environment.getQuollWriterVersion ());
-
-                                                                                            // Save it.
-                                                                                            try
-                                                                                            {
-
-                                                                                                Environment.saveUserUILanguageStrings (ls);
-
-                                                                                            } catch (Exception e) {
-
-                                                                                                Environment.logError ("Unable to update strings: " + ls.getId (),
-                                                                                                                      e);
-
-                                                                                                UIUtils.showErrorMessage (viewer,
-                                                                                                                          "Unable to update strings.");
-
-                                                                                                return;
-
-                                                                                            }
-
-                                                                                            LanguageStrings lscurr = null;
-
-                                                                                            // Now open it.
-                                                                                            try
-                                                                                            {
-
-                                                                                                lscurr = Environment.getUserUILanguageStrings (Environment.getQuollWriterVersion (),
-                                                                                                                                               ls.getId ());
-
-                                                                                                Environment.editUILanguageStrings (lscurr,
-                                                                                                                                   lscurr.getQuollWriterVersion ());
-
-                                                                                            } catch (Exception e) {
-
-                                                                                                Environment.logError ("Unable to edit strings: " + ls.getId (),
-                                                                                                                      e);
-
-                                                                                                UIUtils.showErrorMessage (viewer,
-                                                                                                                          "Unable to edit strings.");
-
-                                                                                                return;
-
-                                                                                            }
-
-                                                                                        }
-
-                                                                                    },
-                                                                                    // On cancel
-                                                                                    new ActionListener ()
-                                                                                    {
-
-                                                                                        @Override
-                                                                                        public void actionPerformed (ActionEvent ev)
-                                                                                        {
-
-                                                                                            Environment.editUILanguageStrings (ls,
-                                                                                                                               ls.getQuollWriterVersion ());
-
-                                                                                        }
-
-                                                                                    },
-                                                                                    // On close
-                                                                                    new ActionListener ()
-                                                                                    {
-
-                                                                                        @Override
-                                                                                        public void actionPerformed (ActionEvent ev)
-                                                                                        {
-
-                                                                                            Environment.editUILanguageStrings (ls,
-                                                                                                                               ls.getQuollWriterVersion ());
-
-                                                                                        }
-
-                                                                                    },
-                                                                                    null);
-
-                                                        return;
-
-                                                   }
-
-                                               }
-*/
                                                Environment.editUILanguageStrings (ls,
                                                                                   ls.getQuollWriterVersion ());
 
@@ -11339,7 +11210,7 @@ public class UIUtils
 
     }
 
-    public static void showAddNewLanguageStringsPopup (final AbstractViewer viewer)
+    public static void showAddNewUILanguageStringsPopup (final AbstractViewer viewer)
     {
 
         java.util.List<String> prefix = Arrays.asList (uilanguage,_new,popup);
@@ -11386,7 +11257,7 @@ public class UIUtils
 
                                                              String v = ev.getActionCommand ();
 
-                                                             LanguageStrings ls = new LanguageStrings (Environment.getDefaultUILanguageStrings ());
+                                                             UILanguageStrings ls = new UILanguageStrings (Environment.getDefaultUILanguageStrings ());
                                                              ls.setNativeName (v);
                                                              ls.setUser (true);
 
@@ -11410,6 +11281,176 @@ public class UIUtils
                                                      },
                                                      null,
                                                      null);
+
+    }
+
+    public static void showAddNewWebsiteLanguageStringsPopup (final AbstractViewer viewer)
+    {
+
+        java.util.List<String> prefix = Arrays.asList (websiteuilanguage,_new,popup);
+
+        QPopup popup = UIUtils.createTextInputPopup (viewer,
+                                                     getUIString (prefix,title),
+                                                    //"Enter the language name",
+                                                     Constants.ADD_ICON_NAME,
+                                                     getUIString (prefix,text),
+                                                     //"Enter the name of the language you want to create the strings for.",
+                                                     getUIString (prefix,buttons,create),
+                                                     //"Create",
+                                                     getUIString (prefix,buttons,cancel),
+                                                     //"Cancel",
+                                                     null,
+                                                     new ValueValidator<String> ()
+                                                     {
+
+                                                         @Override
+                                                         public String isValid (String v)
+                                                         {
+
+                                                             if ((v == null)
+                                                                 ||
+                                                                 (v.trim ().length () == 0)
+                                                                )
+                                                             {
+
+                                                                 return "Please enter the language name";
+
+                                                             }
+
+                                                             return null;
+
+                                                         }
+
+                                                     },
+                                                     new ActionListener ()
+                                                     {
+
+                                                         @Override
+                                                         public void actionPerformed (ActionEvent ev)
+                                                         {
+
+                                                             String v = ev.getActionCommand ();
+
+                                                             WebsiteLanguageStrings ls = new WebsiteLanguageStrings ((WebsiteLanguageStrings) null);
+                                                             ls.setNativeName (v);
+                                                             ls.setUser (true);
+
+                                                             try
+                                                             {
+
+                                                                 new WebsiteLanguageStringsEditor (ls).init ();
+
+                                                             } catch (Exception e) {
+
+                                                                 Environment.logError ("Unable to create website language strings editor",
+                                                                                       e);
+
+                                                                 UIUtils.showErrorMessage (viewer,
+                                                                                           "Unable to create strings editor.");
+
+                                                             }
+
+                                                         }
+
+                                                     },
+                                                     null,
+                                                     null);
+
+    }
+
+    public static void showEditWebsiteLanguageStringsSelectorPopup (final AbstractViewer viewer)
+    {
+
+        Set<UILanguageStrings> objs = null;
+
+        try
+        {
+
+            objs = Environment.getAllUserUILanguageStrings ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get all user language strings.",
+                                  e);
+
+            UIUtils.showErrorMessage (viewer,
+                                      getUIString (uilanguage,edit,actionerror));
+
+            return;
+
+        }
+
+        if (objs.size () == 0)
+        {
+
+            UIUtils.showMessage ((PopupsSupported) viewer,
+                                 getUIString (uilanguage,edit,novalue,title),
+                                 getUIString (uilanguage,edit,novalue,text));
+
+            return;
+
+        }
+
+        UIUtils.showObjectSelectPopup (objs,
+                                       viewer,
+                                       getUIString (uilanguage,edit,popup,title),
+                                       new DefaultListCellRenderer ()
+                                       {
+
+                                           @Override
+                                           public Component getListCellRendererComponent (JList   list,
+                                                                                          Object  value,
+                                                                                          int     index,
+                                                                                          boolean isSelected,
+                                                                                          boolean cellHasFocus)
+                                           {
+
+                                               UILanguageStrings obj = (UILanguageStrings) value;
+
+                                               JLabel l = (JLabel) super.getListCellRendererComponent (list,
+                                                                                                       value,
+                                                                                                       index,
+                                                                                                       isSelected,
+                                                                                                       cellHasFocus);
+
+                                               l.setText (obj.getName () + " (" + obj.getQuollWriterVersion ().toString () + ")");
+
+                                               l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+/*
+                                               l.setIcon (Environment.getObjectIcon (obj,
+                                                                                     Constants.ICON_NOTIFICATION));
+                                                                                     */
+                                               l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+
+                                               if (cellHasFocus)
+                                               {
+
+                                                   l.setBackground (Environment.getHighlightColor ());
+
+                                               }
+
+                                               return l;
+
+                                           }
+
+                                       },
+                                       new ActionListener ()
+                                       {
+
+                                           @Override
+                                           public void actionPerformed (ActionEvent ev)
+                                           {
+
+                                               final UILanguageStrings ls = (UILanguageStrings) ev.getSource ();
+
+                                               Environment.editUILanguageStrings (ls,
+                                                                                  ls.getQuollWriterVersion ());
+
+                                           }
+
+                                       },
+                                       true,
+                                       null);
 
     }
 

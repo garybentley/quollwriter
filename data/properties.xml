@@ -320,6 +320,11 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>get-ui-language-strings.html?version=[[VERSION]]&amp;id=[[ID]]&amp;lastModified=[[LAST_MOD]]</value>
   </property>
 
+  <property id="quollWriterGetWebsiteUILanguageStringsUrl" type="string">
+    <description>The url to use for downloading the website ui strings for quoll writer.</description>
+    <value>get-website-ui-language-strings.html?version=[[VERSION]]&amp;id=[[ID]]&amp;lastModified=[[LAST_MOD]]</value>
+  </property>
+
   <property id="quollWriterReleaseNotesUrl" type="string">
     <description>The release notes url for quoll writer.</description>
     <value><property id="quollWriterWebsite" />/user-guide/version-changes/[[VERSION]].html</value>
@@ -343,6 +348,16 @@ Removed so that the full screen properties will inherit from the standard editor
   <property id="quollWriterDeleteUILanguageStringsURL" type="string">
     <description>The url prefix for submitting a set of ui language strings to quoll writer.</description>
     <value>/delete-ui-language-strings.html?id=[[ID]]&amp;all=[[ALL]]&amp;version=[[VERSION]]</value>
+  </property>
+
+  <property id="quollWriterSubmitWebsiteUILanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of website ui language strings to quoll writer.</description>
+    <value>/submit-website-ui-language-strings.html</value>
+  </property>
+
+  <property id="quollWriterDeleteWebsiteUILanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of website ui language strings to quoll writer.</description>
+    <value>/delete-website-ui-language-strings.html?id=[[ID]]&amp;all=[[ALL]]&amp;version=[[VERSION]]</value>
   </property>
 
   <property id="contactSupportMailtoURI" type="string">
