@@ -1309,6 +1309,16 @@ public class Utils
 
         }
 
+        Throwable c = e.getCause ();
+
+        if (c != null)
+        {
+
+            b.append ("Caused by: ");
+            b.append (Utils.getStackTrace (c));
+
+        }
+
         return b.toString ();
 
     }
