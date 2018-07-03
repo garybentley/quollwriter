@@ -95,11 +95,21 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     protected B baseStrings = null;
     protected Filter<Node> nodeFilter = null;
     private Map<Node, Set<Value>> valuesCache = new HashMap<> ();
+    private boolean inited = false;
 
     public AbstractLanguageStringsEditor (U userStrings)
     {
 
         this.userStrings = userStrings;
+
+    }
+
+    public AbstractLanguageStringsEditor (U userStrings,
+                                          B baseStrings)
+    {
+
+        this.userStrings = userStrings;
+        this.baseStrings = baseStrings;
 
     }
 
@@ -1120,7 +1130,13 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     {
 
         this.baseStrings = ls;
-        this.initSideBar ();
+
+        if (this.inited)
+        {
+
+            this.initSideBar ();
+
+        }
 
     }
 
@@ -1129,8 +1145,17 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 			   throws Exception
     {
 
-		super.init ();
+        if (this.inited)
+        {
 
+            return;
+
+        }
+
+        this.inited = true;
+
+		super.init ();
+Environment.out.println ("called");
         final AbstractLanguageStringsEditor<B, U> _this = this;
 
         // Create a split pane.

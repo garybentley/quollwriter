@@ -79,9 +79,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 			               throws Exception
     {
 
-        super (userStrings);
-
-        this.setBaseStrings (baseStrings);
+        super (userStrings,
+               baseStrings);
 
     }
 
@@ -381,7 +380,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
     {
 
 		super.init ();
-
+Environment.out.println ("called2");
         final LanguageStringsEditor _this = this;
 
         // Check to see if a new version of the default strings is available.

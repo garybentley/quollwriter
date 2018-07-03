@@ -47,4 +47,12 @@ public class Section
 
     }
 
+    @Override
+    public String toString ()
+    {
+
+        return "id: " + this.id + ", name: " + this.name + ", icon: " + this.icon;
+
+    }
+
 }
