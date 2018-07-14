@@ -73,10 +73,10 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
 
             Component c = this.content.getComponent (i);
 
-            if (c instanceof LanguageStringsIdBox)
+            if (c instanceof LanguageStringsTextIdBox)
             {
 
-                LanguageStringsIdBox b = (LanguageStringsIdBox) c;
+                LanguageStringsTextIdBox b = (LanguageStringsTextIdBox) c;
 
                 b.showPreview ();
 
@@ -111,10 +111,19 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
 
             Component c = this.content.getComponent (i);
 
-            if (c instanceof LanguageStringsIdBox)
+            if (c instanceof LanguageStringsTextIdBox)
             {
 
-                LanguageStringsIdBox b = (LanguageStringsIdBox) c;
+                LanguageStringsTextIdBox b = (LanguageStringsTextIdBox) c;
+
+                b.saveValue ();
+
+            }
+
+            if (c instanceof LanguageStringsImageIdBox)
+            {
+
+                LanguageStringsImageIdBox b = (LanguageStringsImageIdBox) c;
 
                 b.saveValue ();
 
@@ -132,10 +141,10 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
 
             Component c = this.content.getComponent (i);
 
-            if (c instanceof LanguageStringsIdBox)
+            if (c instanceof LanguageStringsTextIdBox)
             {
 
-                LanguageStringsIdBox b = (LanguageStringsIdBox) c;
+                LanguageStringsTextIdBox b = (LanguageStringsTextIdBox) c;
 
                 if (b.getId ().equals (id))
                 {
@@ -162,10 +171,10 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
 
             Component co = this.content.getComponent (i);
 
-            if (co instanceof LanguageStringsIdBox)
+            if (co instanceof LanguageStringsTextIdBox)
             {
 
-                LanguageStringsIdBox b = (LanguageStringsIdBox) co;
+                LanguageStringsTextIdBox b = (LanguageStringsTextIdBox) co;
 
                 if (b.hasErrors ())
                 {
@@ -192,10 +201,10 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
 
             Component co = this.content.getComponent (i);
 
-            if (co instanceof LanguageStringsIdBox)
+            if (co instanceof LanguageStringsTextIdBox)
             {
 
-                LanguageStringsIdBox b = (LanguageStringsIdBox) co;
+                LanguageStringsTextIdBox b = (LanguageStringsTextIdBox) co;
 
                 if (b.hasUserValue ())
                 {
@@ -215,7 +224,8 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
     private void createComment (String comment)
     {
 
-        JComponent c = UIUtils.createLabel (comment);
+        JComponent c = UIUtils.createHelpTextPane (comment,
+                                                   this.getViewer ());
         c.setAlignmentX (LEFT_ALIGNMENT);
         c.setBorder (UIUtils.createPadding (0, 15, 5, 5));
 
@@ -237,10 +247,19 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
         for (Value v : this.values)
         {
 
+            if (v instanceof ImageValue)
+            {
+
+                this.content.add (new LanguageStringsImageIdBox ((ImageValue) v,
+                                                                 (this.editor.userStrings.containsId (v.getId ()) ? this.editor.userStrings.getImageValue (v.getId ()) : null),
+                                                                 this.editor));
+
+            }
+
             if (v instanceof TextValue)
             {
 
-                this.content.add (new LanguageStringsIdBox ((TextValue) v,
+                this.content.add (new LanguageStringsTextIdBox ((TextValue) v,
                                              (this.editor.userStrings.containsId (v.getId ()) ? this.editor.userStrings.getTextValue (v.getId ()) : null),
                                              this.editor)); // scount
 

@@ -1389,6 +1389,25 @@ public class ObjectManager
 
     }
 
+    private void deleteAllUserConfigurableObjectFieldsForObject (UserConfigurableObject obj,
+                                                                 Connection             conn)
+                                                          throws GeneralException
+    {
+
+        UserConfigurableObjectFieldDataHandler dh = (UserConfigurableObjectFieldDataHandler) this.getHandler (UserConfigurableObjectField.class); //this.handlers.get (d.getClass ().getName ());
+
+        if (dh == null)
+        {
+
+            throw new GeneralException ("Class is not supported.");
+
+        }
+
+        dh.deleteAllFieldsForObject (obj,
+                                     conn);
+
+    }
+
     public void deleteObject (DataObject d,
                               boolean    deleteChildObjects,
                               Connection conn)
@@ -1439,6 +1458,9 @@ public class ObjectManager
 
                 this.deleteObjects (o.getFields (),
                                     conn);
+
+                this.deleteAllUserConfigurableObjectFieldsForObject (o,
+                                                                     conn);
 
             }
 

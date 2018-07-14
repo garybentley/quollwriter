@@ -14,6 +14,7 @@ public class Node<E extends Value> implements Comparable<Node>
     protected String section = null;
     private String title = null;
     private Set<ImageValue> imgs = null;
+    private Set<String> toplevelNodes = null;
 
     public Node (String id,
                  Node   parent)
@@ -32,14 +33,14 @@ public class Node<E extends Value> implements Comparable<Node>
         this (id,
               parent);
 
-        Iterator iter = data.keySet ().iterator ();
-
         if (data == null)
         {
 
             return;
 
         }
+
+        Iterator iter = data.keySet ().iterator ();
 
         while (iter.hasNext ())
         {
@@ -57,11 +58,32 @@ public class Node<E extends Value> implements Comparable<Node>
 
             Object o = data.get (kid);
 
+            if (o instanceof Collection)
+            {
+
+                Collection c = (Collection) o;
+
+                if (kid.equals (":toplevelnodes"))
+                {
+
+                    this.toplevelNodes = new LinkedHashSet<> ();
+
+                    for (Object v : c)
+                    {
+
+                        this.toplevelNodes.add (v.toString ());
+
+                    }
+
+                }
+
+            }
+
             if (o instanceof Map)
             {
 
                 Map m = (Map) o;
-
+/*
                 if (kid.equals (":imgs"))
                 {
 
@@ -72,19 +94,49 @@ public class Node<E extends Value> implements Comparable<Node>
 
                         Map mm = (Map) m.get (mk);
 
-                        this.children.put (mk.toString (),
-                                           new ImageValue (mk.toString (),
+                        String mkk = mk.toString ();
+
+                        if (this.children == null)
+                        {
+
+                            this.children = new LinkedHashMap<> ();
+
+                        }
+
+                        this.children.put (mkk,
+                                           new ImageValue (mkk,
                                                            this,
                                                            mm));
 
                     }
 
                 }
-
+*/
                 if (this.children == null)
                 {
 
                     this.children = new LinkedHashMap<> ();
+
+                }
+
+                String type = (String) m.get (":type");
+
+                if (type != null)
+                {
+
+                    if (type.equals ("img"))
+                    {
+
+                        ImageValue img = new ImageValue (kid,
+                                                         this,
+                                                         m);
+
+                        this.children.put (kid,
+                                           img);
+
+                        continue;
+
+                    }
 
                 }
 
@@ -147,6 +199,13 @@ public class Node<E extends Value> implements Comparable<Node>
 
     }
 
+    public Set<String> getTopLevelNodes ()
+    {
+
+        return this.toplevelNodes;
+
+    }
+
     public Node getRoot ()
     {
 
@@ -199,6 +258,22 @@ public class Node<E extends Value> implements Comparable<Node>
     {
 
         return this.getNodes (null);
+
+    }
+
+    public Value getValue (List<String> id)
+    {
+
+        Node n = this.getChild (id);
+
+        if (n instanceof Value)
+        {
+
+            return (Value) n;
+
+        }
+
+        return null;
 
     }
 
@@ -333,6 +408,60 @@ public class Node<E extends Value> implements Comparable<Node>
 
     }
 
+    public ImageValue insertImageValue (List<String> idparts)
+                                 throws GeneralException
+    {
+
+        if ((idparts == null)
+            ||
+            (idparts.size () == 0)
+           )
+        {
+
+            throw new IllegalArgumentException ("No id provided.");
+
+        }
+
+        String f = idparts.get (0);
+
+        Node n = this.getChild (f);
+
+        if (idparts.size () == 1)
+        {
+
+            if (n == null)
+            {
+
+                ImageValue v = new ImageValue (f,
+                                               n,
+                                               null);
+
+                this.addNode (v);
+
+                return v;
+
+            } else {
+
+                throw new GeneralException ("Already have value: " + n + " with id: " + f);
+
+            }
+
+        }
+
+        if (n == null)
+        {
+
+            n = new Node (f,
+                          null);
+
+            this.addNode (n);
+
+        }
+
+        return n.insertImageValue (idparts.subList (1, idparts.size ()));
+
+    }
+
     public Node removeNode (List<String> idparts)
                      throws GeneralException
     {
@@ -375,6 +504,14 @@ public class Node<E extends Value> implements Comparable<Node>
     {
 
         Map m = new LinkedHashMap ();
+
+        if (this.toplevelNodes != null)
+        {
+
+            m.put (":toplevelnodes",
+                   this.toplevelNodes);
+
+        }
 
         if (this.comment != null)
         {
@@ -718,6 +855,115 @@ public class Node<E extends Value> implements Comparable<Node>
 
     }
 
+    public Set<ImageValue> getAllImageValues (List<String> idparts)
+    {
+
+        return this.getAllImageValues (idparts,
+                                       null);
+
+    }
+
+    public Set<ImageValue> getAllImageValues (List<String>       idparts,
+                                              Filter<ImageValue> filter)
+    {
+
+        if (this.children == null)
+        {
+
+            return new LinkedHashSet<> ();
+
+        }
+
+        if (idparts.size () > 0)
+        {
+
+            Node n = this.children.get (idparts.get (0));
+
+            if (n == null)
+            {
+
+                return new LinkedHashSet<> ();
+
+            }
+
+            return n.getAllImageValues (idparts.subList (1, idparts.size ()),
+                                        filter);
+
+        } else {
+
+            return this.getAllImageValues (filter);
+
+        }
+
+    }
+
+    public Set<ImageValue> getAllImageValues (Filter<ImageValue> filter)
+    {
+
+        Set<ImageValue> vals = new LinkedHashSet<> ();
+
+        if (this instanceof ImageValue)
+        {
+
+            ImageValue v = (ImageValue) this;
+
+            if (filter != null)
+            {
+
+                if (!filter.accept (v))
+                {
+
+                    return vals;
+
+                }
+
+            }
+
+            vals.add (v);
+
+            return vals;
+
+        }
+
+        if (this.children != null)
+        {
+
+            for (Node n : this.children.values ())
+            {
+
+                if (n instanceof ImageValue)
+                {
+
+                    ImageValue v = (ImageValue) n;
+
+                    if (filter != null)
+                    {
+
+                        if (!filter.accept (v))
+                        {
+
+                            continue;
+
+                        }
+
+                    }
+
+                    vals.add (v);
+
+                    continue;
+
+                }
+
+                vals.addAll (n.getAllImageValues (filter));
+
+            }
+
+        }
+
+        return vals;
+
+    }
+
     public Set<Value> getAllValues (List<String> idparts)
     {
 
@@ -898,7 +1144,7 @@ public class Node<E extends Value> implements Comparable<Node>
 
                 }
 
-                vals.addAll (n.getAllValues (filter));
+                vals.addAll (n.getAllTextValues (filter));
 
             }
 

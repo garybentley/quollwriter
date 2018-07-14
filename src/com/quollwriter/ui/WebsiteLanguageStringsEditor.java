@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.text.*;
 import java.net.*;
+import java.nio.file.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -73,6 +74,9 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
             this.showAllStrings ();
 
+            this.showForwardLabel (String.format ("Click to show what's changed/new between version <b>%s</b> and <b></b>.",
+                                                  this.userStrings.getStringsVersion ()));
+
         } else {
 
             this.limitViewToPreviousVersionDiff ();
@@ -96,6 +100,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
         super.init ();
 
+        this.updateTitle ();
+
         // Check to see if a new version of the default strings is available.
         Environment.schedule (new Runnable ()
         {
@@ -104,13 +110,12 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
             public void run ()
             {
 
-                WebsiteLanguageStrings bls = null;
+                WebsiteLanguageStrings enStrs = null;
 
                 try
                 {
 
-                    bls = Environment.getWebsiteLanguageStrings (1,
-                                                                 WebsiteLanguageStrings.ENGLISH_ID);
+                    enStrs = Environment.getWebsiteLanguageStringsFromServer ();
 
                 } catch (Exception e) {
 
@@ -124,134 +129,115 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                 }
 
-                String url = Environment.getProperty (Constants.QUOLL_WRITER_GET_WEBSITE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+                 if (enStrs.getStringsVersion () == _this.userStrings.getDerivedFrom ().getStringsVersion ())
+                 {
 
-                url = StringUtils.replaceString (url,
-                                                 Constants.LAST_MOD_TAG,
-                                                 "0");
+                     // Server still has same version.
+                     return;
 
-                url = StringUtils.replaceString (url,
-                                                 Constants.ID_TAG,
-                                                 "en");
+                 }
 
-                //url += "&newer=true";
+                 try
+                 {
 
-                try
-                {
+                     // Save the new strings away.
+                     Environment.saveWebsiteLanguageStrings (enStrs);
 
-                     String data = Environment.getJSONFileAsString (url);
+                 } catch (Exception e) {
 
-                     if (data == null)
-                     {
+                     Environment.logError ("Unable to save new English Website UI language strings",
+                                           e);
 
-                         _this.getUserLanguageStrings ().setParent (bls);
+                     UIUtils.showErrorMessage (_this,
+                                               "Unable to save new English Website UI language strings.");
 
-                         _this.setBaseStrings (bls);
+                     return;
 
-                         return;
+                 }
 
-                     }
+                 final WebsiteLanguageStrings _enStrs = enStrs;
 
-                     final WebsiteLanguageStrings newls = new WebsiteLanguageStrings (data);
+                 Box content = new Box (BoxLayout.Y_AXIS);
 
-                     if (bls == null)
-                     {
+                 content.add (UIUtils.createHelpTextPane (String.format ("A new version of the website language strings is available.<br />You can view the changes and submit an update to your strings."),
+                                                          _this));
 
-                         _this.setBaseStrings (bls);
+                 content.add (Box.createVerticalStrut (5));
 
-                         return;
+                 JButton b = UIUtils.createButton ("View the changes");
 
-                     }
+                 content.add (b);
 
-                     Box content = new Box (BoxLayout.Y_AXIS);
+                 // Add a notification.
+                 final Notification n = _this.addNotification (content,
+                                                               Constants.INFO_ICON_NAME,
+                                                               -1);
 
-                     content.add (UIUtils.createHelpTextPane (String.format ("A new version of the <b>%s</b> website language strings is available.<br />You can view the changes and submit an update to your strings.",
-                                                                             newls.getNativeName ()),
-                                                              _this));
+                  b.addActionListener (new ActionListener ()
+                  {
 
-                     content.add (Box.createVerticalStrut (5));
+                       @Override
+                       public void actionPerformed (ActionEvent ev)
+                       {
 
-                     JButton b = UIUtils.createButton ("View the changes");
+                           WebsiteLanguageStrings uls = null;
 
-                     content.add (b);
-
-                     // Add a notification.
-                     final Notification n = _this.addNotification (content,
-                                                                   Constants.INFO_ICON_NAME,
-                                                                   -1);
-
-                      b.addActionListener (new ActionListener ()
-                      {
-
-                           @Override
-                           public void actionPerformed (ActionEvent ev)
+                           try
                            {
 
-                               WebsiteLanguageStrings uls = null;
+                               uls = Environment.getWebsiteLanguageStrings (_this.userStrings.getStringsVersion (),
+                                                                            _this.userStrings.getId ());
+
+                           } catch (Exception e) {
+
+                               Environment.logError ("Unable to get user strings: " + _this.userStrings.getId (),
+                                                     e);
+
+                               UIUtils.showErrorMessage (null,
+                                                         getUIString (uilanguage,edit,actionerror));
+
+                               return;
+
+                           }
+
+                           if (uls != null)
+                           {
+
+                               // Open these instead.
+                               WebsiteLanguageStringsEditor lse = Environment.editWebsiteLanguageStrings (uls);
 
                                try
                                {
 
-                                   uls = Environment.getUserWebsiteLanguageStrings (_this.userStrings.getStringsVersion (),
-                                                                                    _this.userStrings.getId ());
+                                   lse.limitViewToPreviousVersionDiff ();
 
                                } catch (Exception e) {
 
-                                   Environment.logError ("Unable to get user strings: " + _this.userStrings.getId (),
+                                   Environment.logError ("Unable to update view",
                                                          e);
 
-                                   UIUtils.showErrorMessage (null,
-                                                             getUIString (uilanguage,edit,actionerror));
+                                   UIUtils.showErrorMessage (_this,
+                                                             "Unable to update view");
 
                                    return;
 
                                }
-
-                               if (uls != null)
-                               {
-
-                                   // Open these instead.
-                                   WebsiteLanguageStringsEditor lse = Environment.editWebsiteLanguageStrings (uls);
-
-                                   try
-                                   {
-
-                                       lse.limitViewToPreviousVersionDiff ();
-
-                                   } catch (Exception e) {
-
-                                       Environment.logError ("Unable to update view",
-                                                             e);
-
-                                       UIUtils.showErrorMessage (_this,
-                                                                 "Unable to update view");
-
-                                       return;
-
-                                   }
-
-                                   _this.removeNotification (n);
-
-                                   return;
-
-                               }
-
-                               _this.showChanges (newls);
 
                                _this.removeNotification (n);
 
+                               return;
+
                            }
 
-                      });
+                           _this.showChanges (_enStrs);
 
-                 } catch (Exception e) {
+                           _this.removeNotification (n);
 
-                     Environment.logError ("Unable to get new user interface strings",
-                                           e);
+                       }
 
-                }
+                  });
 
-            }
+              }
 
         },
         5,
@@ -375,12 +361,12 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
         try
         {
 
-            Environment.saveUserWebsiteLanguageStrings (newls);
+            Environment.saveWebsiteLanguageStrings (newls);
 
-            Environment.saveUserWebsiteLanguageStrings (this.userStrings);
+            Environment.saveWebsiteLanguageStrings (this.userStrings);
 
-            WebsiteLanguageStrings uls = Environment.getUserWebsiteLanguageStrings (this.userStrings.getStringsVersion (),
-                                                                                    this.userStrings.getId ());
+            WebsiteLanguageStrings uls = Environment.getWebsiteLanguageStrings (this.userStrings.getStringsVersion (),
+                                                                                this.userStrings.getId ());
 
             // Get a diff of the default to this new.
             WebsiteLanguageStringsEditor lse = Environment.editWebsiteLanguageStrings (uls);
@@ -508,27 +494,19 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
         for (Value uv : vals)
         {
 
-            if (uv instanceof TextValue)
+            Value bv = this.baseStrings.getTextValue (uv.getId ());
+
+            if (bv == null)
             {
 
-                TextValue nv = this.baseStrings.getTextValue (uv.getId ());
+                // The string is present in the user strings but not the base!
+                Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
 
-                if (nv == null)
-                {
-
-                    // The string is present in the user strings but not the base!
-                    Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
-
-                    continue;
-
-                }
-
-                c += BaseStrings.getErrors (((TextValue) uv).getRawText (),
-                                            BaseStrings.toId (nv.getId ()),
-                                            nv.getSCount (),
-                                            this).size ();
+                continue;
 
             }
+
+            c += bv.getErrors (this).size ();
 
         }
 
@@ -722,28 +700,30 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                     }
 
-                    Map<String, String> headers = new HashMap<> ();
+                    Map<String, Object> entries = new HashMap<> ();
+                    entries.put ("/strings", t);
 
-                    String submitterid = UserProperties.get (Constants.WEBSITE_UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
-
-                    if (submitterid != null)
+                    for (ImageValue iv : _this.userStrings.getAllImageValues ())
                     {
 
-                        headers.put (Constants.WEBSITE_UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
-                                     submitterid);
+                        ImageValue bv = _this.baseStrings.getImageValue (iv.getId ());
+
+                        entries.put (BaseStrings.toId (bv.getId ()),
+                                     iv.getImageFile ());
 
                     }
 
-                    URL u = null;
+                    Path _outputFile = null;
 
                     try
                     {
 
-                        u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.SUBMIT_WEBSITE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
+                        _outputFile = Files.createTempFile ("qw-upload",
+                                                            ".zip");
 
                     } catch (Exception e) {
 
-                        Environment.logError ("Unable to construct the url for submitting the ui language strings.",
+                        Environment.logError ("Unable to create output file",
                                               e);
 
                         UIUtils.showErrorMessage (_this,
@@ -753,107 +733,184 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                     }
 
-                    Utils.postToURL (u,
-                                     headers,
-                                     t,
-                                     // On success
-                                     new ActionListener ()
-                                     {
+                    final Path outputFile = _outputFile;
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
+                    outputFile.toFile ().deleteOnExit ();
+
+                    try
+                    {
+
+                        Utils.createZipFile (outputFile,
+                                             entries);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to create zip file: " + outputFile,
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to upload strings.");
+
+                        return;
+
+                    }
+
+                    Map<String, String> headers = new HashMap<> ();
+
+                    String submitterid = UserProperties.get (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
+
+                    if (submitterid != null)
+                    {
+
+                        headers.put (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
+                                     submitterid);
+
+                    }
+
+                    URL u = null;
+
+                    try
+                    {
+
+                        u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.SUBMIT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
+
+                        Utils.postToURL (u,
+                                         headers,
+                                         outputFile,
+                                         // On success
+                                         new ActionListener ()
                                          {
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                             @Override
+                                             public void actionPerformed (ActionEvent ev)
+                                             {
+Environment.out.println ("HERE");
+                                                 try
+                                                 {
 
-                                             String res = (String) m.get ("result");
+                                                     Files.deleteIfExists (outputFile);
 
-                                             String sid = (String) m.get ("submitterid");
+                                                 } catch (Exception e) {
 
-                                             UserProperties.set (Constants.WEBSITE_UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME,
-                                                                 sid);
+                                                     Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                                           e);
 
-                                             //_this.userStrings.setSubmitterId (sid);
-                                             _this.userStrings.setStringsVersion (((Number) m.get ("version")).intValue ());
+                                                 }
 
-                                             try
+                                                 Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+Environment.out.println ("GOT: " + m);
+                                                 String res = (String) m.get ("result");
+
+                                                 String sid = (String) m.get ("submitterid");
+
+                                                 UserProperties.set (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME,
+                                                                     sid);
+
+                                                 //_this.userStrings.setSubmitterId (sid);
+                                                 _this.userStrings.setStringsVersion (((Number) m.get ("version")).intValue ());
+
+                                                 try
+                                                 {
+
+                                                     _this.saveToFile ();
+
+                                                 } catch (Exception e) {
+
+                                                     Environment.logError ("Unable to save strings file: " +
+                                                                           _this.userStrings,
+                                                                           e);
+
+                                                     UIUtils.showErrorMessage (_this,
+                                                                               "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
+
+                                                     return;
+
+                                                 }
+
+                                                 if (_this.userStrings.getStringsVersion () == 1)
+                                                 {
+
+                                                     UIUtils.showMessage ((PopupsSupported) _this,
+                                                                          "Strings submitted",
+                                                                          String.format ("Your strings have been submitted to Quoll Writer support for review.<br /><br />A confirmation email has been sent to <b>%s</b>.  Please click on the link in that email to confirm your email address.<br /><br />Thank you for taking the time and the effort to create the strings, it is much appreciated!",
+                                                                                         _this.userStrings.getEmail ()));
+
+                                                 } else {
+
+                                                     UIUtils.showMessage ((PopupsSupported) _this,
+                                                                          "Strings submitted",
+                                                                          String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to Quoll Writer users.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
+                                                                                         Environment.formatNumber (_this.userStrings.getStringsVersion ())));
+
+                                                 }
+
+                                                 qp.resize ();
+                                                 qp.removeFromParent ();
+
+                                             }
+
+                                         },
+                                         // On error
+                                         new ActionListener ()
+                                         {
+
+                                             @Override
+                                             public void actionPerformed (ActionEvent ev)
                                              {
 
-                                                 _this.saveToFile ();
+                                                 try
+                                                 {
 
-                                             } catch (Exception e) {
+                                                     Files.deleteIfExists (outputFile);
 
-                                                 Environment.logError ("Unable to save strings file: " +
-                                                                       _this.userStrings,
-                                                                       e);
+                                                 } catch (Exception e) {
 
+                                                     Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                                           e);
+
+                                                 }
+
+                                                 Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                                 String res = (String) m.get ("reason");
+
+                                                 // Get the errors.
                                                  UIUtils.showErrorMessage (_this,
-                                                                           "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
-
-                                                 return;
+                                                                           "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
 
                                              }
 
-                                             if (_this.userStrings.getStringsVersion () == 1)
+                                         },
+                                         new ActionListener ()
+                                         {
+
+                                             @Override
+                                             public void actionPerformed (ActionEvent ev)
                                              {
 
-                                                 UIUtils.showMessage ((PopupsSupported) _this,
-                                                                      "Strings submitted",
-                                                                      String.format ("Your strings have been submitted to Quoll Writer support for review.<br /><br />A confirmation email has been sent to <b>%s</b>.  Please click on the link in that email to confirm your email address.<br /><br />Thank you for taking the time and the effort to create the strings, it is much appreciated!",
-                                                                                     _this.userStrings.getEmail ()));
+                                                 Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
-                                             } else {
+                                                 String res = (String) m.get ("reason");
 
-                                                 UIUtils.showMessage ((PopupsSupported) _this,
-                                                                      "Strings submitted",
-                                                                      String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to Quoll Writer users.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
-                                                                                     Environment.formatNumber (_this.userStrings.getStringsVersion ())));
+                                                 // Get the errors.
+                                                 UIUtils.showErrorMessage (_this,
+                                                                           "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
 
                                              }
 
-                                             qp.resize ();
-                                             qp.removeFromParent ();
+                                         });
 
-                                         }
+                     } catch (Exception e) {
 
-                                     },
-                                     // On error
-                                     new ActionListener ()
-                                     {
+                         Environment.logError ("Unable to post to the url.",
+                                               e);
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
+                         UIUtils.showErrorMessage (_this,
+                                                   "Unable to upload strings.");
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                         return;
 
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
-
-                                     },
-                                     new ActionListener ()
-                                     {
-
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
-
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
-
-                                     });
+                     }
 
                 }
 
@@ -1185,7 +1242,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                 }
 
-                String submitterid = UserProperties.get (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
+                String submitterid = UserProperties.get (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
 
                 if ((submitterid != null)
                     &&
@@ -1199,7 +1256,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                     try
                     {
 
-                        String p = Environment.getProperty (Constants.DELETE_WEBSITE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+                        String p = Environment.getProperty (Constants.DELETE_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
                         p = StringUtils.replaceString (p,
                                                        Constants.ID_TAG,
@@ -1225,7 +1282,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                     Map<String, String> headers = new HashMap<> ();
 
-                    headers.put (Constants.WEBSITE_UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
+                    headers.put (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
                                  submitterid);
 
                     Utils.postToURL (u,
@@ -1245,8 +1302,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                              try
                                              {
 
-                                                 Environment.deleteUserWebsiteLanguageStrings (_this.userStrings,
-                                                                                               delAll.isSelected ());
+                                                 Environment.deleteWebsiteLanguageStrings (_this.userStrings,
+                                                                                           delAll.isSelected ());
 
                                              } catch (Exception e) {
 
@@ -1326,8 +1383,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                     try
                     {
 
-                        Environment.deleteUserWebsiteLanguageStrings (_this.userStrings,
-                                                                      delAll.isSelected ());
+                        Environment.deleteWebsiteLanguageStrings (_this.userStrings,
+                                                                  delAll.isSelected ());
 
                     } catch (Exception e) {
 
@@ -1408,7 +1465,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                       throws Exception
     {
 
-        Environment.saveUserWebsiteLanguageStrings (this.userStrings);
+        Environment.saveWebsiteLanguageStrings (this.userStrings);
 
     }
 

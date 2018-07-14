@@ -240,6 +240,61 @@ public class BaseStrings implements RefValueProvider
 
     }
 
+    public ImageValue insertImageValue (List<String> idparts)
+                                 throws GeneralException
+    {
+
+        if ((idparts == null)
+            ||
+            (idparts.size () == 0)
+           )
+        {
+
+            throw new IllegalArgumentException ("No id provided.");
+
+        }
+
+        String f = idparts.get (0);
+
+        // See if we already have the first node.
+        Node n = this.nodes.get (f);
+
+        if (idparts.size () == 1)
+        {
+
+            if (n != null)
+            {
+
+                throw new GeneralException ("Already have a node called: " + f);
+
+            } else {
+
+                ImageValue v = new ImageValue (f,
+                                               n,
+                                               null);
+
+                this.nodes.put (f, v);
+
+            }
+
+        } else {
+
+            if (n == null)
+            {
+
+                n = new Node (f,
+                              null);
+
+                this.nodes.put (f, n);
+
+            }
+
+        }
+
+        return n.insertImageValue (idparts.subList (1, idparts.size ()));
+
+    }
+
     public TextValue insertTextValue (List<String> idparts)
                                throws GeneralException
     {
@@ -270,7 +325,7 @@ public class BaseStrings implements RefValueProvider
             } else {
 
                 TextValue v = new TextValue (f,
-                                             null,
+                                             n,
                                              null,
                                              null,
                                              0);
@@ -969,6 +1024,29 @@ copy?
         {
 
             vals.addAll (n.getAllTextValues (filter));
+
+        }
+
+        return vals;
+
+    }
+
+    public Set<ImageValue> getAllImageValues ()
+    {
+
+        return this.getAllImageValues ((Filter<ImageValue>) null);
+
+    }
+
+    public Set<ImageValue> getAllImageValues (Filter<ImageValue> filter)
+    {
+
+        Set<ImageValue> vals = new LinkedHashSet<> ();
+
+        for (Node n : this.nodes.values ())
+        {
+
+            vals.addAll (n.getAllImageValues (filter));
 
         }
 

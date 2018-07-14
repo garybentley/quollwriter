@@ -11329,14 +11329,18 @@ public class UIUtils
                                                          public void actionPerformed (ActionEvent ev)
                                                          {
 
-                                                             String v = ev.getActionCommand ();
-
-                                                             WebsiteLanguageStrings ls = new WebsiteLanguageStrings ((WebsiteLanguageStrings) null);
-                                                             ls.setNativeName (v);
-                                                             ls.setUser (true);
+                                                             final String v = ev.getActionCommand ();
 
                                                              try
                                                              {
+
+                                                                 WebsiteLanguageStrings enStrs = Environment.getWebsiteLanguageStringsFromServer ();
+
+                                                                 Environment.saveWebsiteLanguageStrings (enStrs);
+
+                                                                 WebsiteLanguageStrings ls = new WebsiteLanguageStrings (enStrs);
+                                                                 ls.setNativeName (v);
+                                                                 ls.setUser (true);
 
                                                                  new WebsiteLanguageStringsEditor (ls).init ();
 
@@ -11361,16 +11365,16 @@ public class UIUtils
     public static void showEditWebsiteLanguageStringsSelectorPopup (final AbstractViewer viewer)
     {
 
-        Set<UILanguageStrings> objs = null;
+        Set<WebsiteLanguageStrings> objs = null;
 
         try
         {
 
-            objs = Environment.getAllUserUILanguageStrings ();
+            objs = Environment.getAllWebsiteLanguageStrings ();
 
         } catch (Exception e) {
 
-            Environment.logError ("Unable to get all user language strings.",
+            Environment.logError ("Unable to get all user website language strings.",
                                   e);
 
             UIUtils.showErrorMessage (viewer,
@@ -11405,7 +11409,7 @@ public class UIUtils
                                                                                           boolean cellHasFocus)
                                            {
 
-                                               UILanguageStrings obj = (UILanguageStrings) value;
+                                               AbstractLanguageStrings obj = (AbstractLanguageStrings) value;
 
                                                JLabel l = (JLabel) super.getListCellRendererComponent (list,
                                                                                                        value,
@@ -11413,7 +11417,7 @@ public class UIUtils
                                                                                                        isSelected,
                                                                                                        cellHasFocus);
 
-                                               l.setText (obj.getName () + " (" + obj.getQuollWriterVersion ().toString () + ")");
+                                               l.setText (obj.getDisplayName ());
 
                                                l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
 /*
@@ -11441,10 +11445,9 @@ public class UIUtils
                                            public void actionPerformed (ActionEvent ev)
                                            {
 
-                                               final UILanguageStrings ls = (UILanguageStrings) ev.getSource ();
+                                               final WebsiteLanguageStrings ls = (WebsiteLanguageStrings) ev.getSource ();
 
-                                               Environment.editUILanguageStrings (ls,
-                                                                                  ls.getQuollWriterVersion ());
+                                               Environment.editWebsiteLanguageStrings (ls);
 
                                            }
 

@@ -102,6 +102,8 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         this.userStrings = userStrings;
 
+        this.baseStrings = (B) this.userStrings.getDerivedFrom ();
+
     }
 
     public AbstractLanguageStringsEditor (U userStrings,
@@ -268,21 +270,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         }
 
         this.mainSideBar.setItems (items);
-/*
-        if (this.nodeFilter == null)
-        {
 
-            this.forwardLabel.setText (String.format ("Click to show what's changed/new between version <b>%s</b> and <b>%s</b>.",
-                                                      Environment.getQuollWriterVersion ().toString (),
-                                                      this.userStrings.getQuollWriterVersion ().toString ()));
-
-        } else {
-
-            this.forwardLabel.setText (String.format ("Click to show all the strings for version <b>%s</b>.",
-                                                      this.userStrings.getQuollWriterVersion ().toString ()));
-
-        }
-*/
     }
 
     public void showAllStrings ()
@@ -790,45 +778,10 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
                     Node node  = (Node) n.getUserObject ();
 
-                    String id = node.getNodeId ();
+                    String id = BaseStrings.toId (node.getId ());
 
                     _this.showIds (id);
-                    /*
 
-                    IdsPanel p = _this.panels.get (id);
-
-                    if (p == null)
-                    {
-
-                        p = _this.createIdsPanel (id);
-
-                        try
-                        {
-
-                            p.init ();
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to show ids for id: " +
-                                                  id,
-                                                  e);
-
-                            UIUtils.showErrorMessage (_this,
-                                                      "Unable to show panel.");
-
-                            return;
-
-                        }
-
-                        _this.panels.put (id,
-                                          p);
-
-                        _this.cards.add (p, id);
-
-                    }
-
-                    _this.showCard (id);
-*/
                 }
 
             }
@@ -938,7 +891,68 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         for (Node k : sections)
         {
 
-            Set<Value> vals = k.getValues (this.nodeFilter);
+            // Find all the top level nodes.
+            Set<String> tlNodes = k.getTopLevelNodes ();
+
+            Set<Value> vals = null;
+
+            Node n = null;
+
+            if ((tlNodes != null)
+                &&
+                (tlNodes.size () > 0)
+               )
+            {
+
+                // Get the nodes, pass through the filter as well.
+                vals = new LinkedHashSet<> ();
+
+                for (String tln : tlNodes)
+                {
+
+                    Node x = k.getChild (BaseStrings.getIdParts (tln));
+
+                    if (x != null)
+                    {
+
+                        if (this.nodeFilter != null)
+                        {
+
+                            if (this.nodeFilter.accept (x))
+                            {
+
+                                n = x;
+
+                            }
+
+                        } else {
+
+                            n = x;
+
+                        }
+
+                    }
+
+                    vals = n.getValues (this.nodeFilter);
+
+                    if (vals.size () == 0)
+                    {
+
+                        continue;
+
+                    }
+
+                    this.valuesCache.put (n, vals);
+
+                    root.add (new DefaultMutableTreeNode (n));
+
+                }
+
+                continue;
+
+            }
+
+            vals = k.getValues (this.nodeFilter);
 
             if (vals.size () == 0)
             {
@@ -1155,7 +1169,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         this.inited = true;
 
 		super.init ();
-Environment.out.println ("called");
+
         final AbstractLanguageStringsEditor<B, U> _this = this;
 
         // Create a split pane.
@@ -1182,6 +1196,7 @@ Environment.out.println ("called");
                                                           Environment.getIcon (Constants.INFO_ICON_NAME,
                                                                                Constants.ICON_CLICKABLE_LABEL));
         this.forwardLabel.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+        this.forwardLabel.setVisible (false);
 
         UIUtils.makeClickable (this.forwardLabel,
                                new ActionListener ()
@@ -1239,7 +1254,7 @@ Environment.out.println ("called");
             public Dimension getMinimumSize ()
             {
 
-                return new Dimension (200,
+                return new Dimension (250,
                                       250);
             }
 
@@ -1252,6 +1267,13 @@ Environment.out.println ("called");
             }
 
         };
+
+        if (this.baseStrings != null)
+        {
+
+            this.initSideBar ();
+
+        }
 
         //this.initSideBar ();
 /*
@@ -2235,7 +2257,7 @@ Environment.out.println ("called");
                                             this.valuesCache.get (this.baseStrings.getNode (id)));
 
     }
-
+/*
     public class IdsPanel extends BasicQuollPanel<AbstractLanguageStringsEditor>
     {
 
@@ -2476,7 +2498,8 @@ Environment.out.println ("called");
         }
 
     }
-
+*/
+/*
     private class IdBox extends Box
     {
 
@@ -2863,16 +2886,6 @@ Environment.out.println ("called");
 
                         ev.consume ();
 
-/*
-                        if (id.hasErrors ())
-                        {
-
-                            _this.hideSelector ();
-
-                            return;
-
-                        }
-*/
                         _this.fillMatch ();//m);
 
                     }
@@ -3122,19 +3135,7 @@ Environment.out.println ("called");
 
             return BaseStrings.getId (this.userValue.getEditor ().getText (),
                                       offset);
-/*
-            Id id = new Id (this.userValue.getEditor ().getText (),
-                            offset);
 
-            if (id.fullId == null)
-            {
-
-                return null;
-
-            }
-
-            return id;
-*/
         }
 
         public Id getIdAtCaret ()
@@ -3412,18 +3413,6 @@ Environment.out.println ("called");
 
             id = this.getIdAtCaret ();
 
-            // We may be inserting into the middle of an id, check to see if it's valid.
-/*
-            if (id.hasErrors ())
-            {
-
-                this.hideSelector ();
-
-                // Update the view to "spell check" the ids.
-                return;
-
-            }
-*/
             // Check to see if the id maps to a string.
             if (this.editor.baseStrings.getString (id.getId ()) != null)
             {
@@ -3613,20 +3602,8 @@ Environment.out.println ("called");
                     l.setText (obj);//.getName ());
 
                     l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (10)).deriveFont (Font.PLAIN));
-/*
-                    l.setIcon (Environment.getObjectIcon (obj,
-                                                          Constants.ICON_NOTIFICATION));
-*/
                     l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
                     l.setPreferredSize (new Dimension (l.getPreferredSize ().width, 29));
-/*
-                    if (cellHasFocus)
-                    {
-
-                        l.setBackground (Environment.getHighlightColor ());
-
-                    }
-*/
                     return l;
 
                 }
@@ -3645,42 +3622,9 @@ Environment.out.println ("called");
             sp.getVerticalScrollBar ().setUnitIncrement (rowHeight);
             sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
             sp.setOpaque (false);
-/*
-            sp.getViewport ().setPreferredSize (new Dimension (300,
-                                                               rowHeight * (matches.size () > 10 ? 10 : matches.size ())));
-*/
             sp.setBorder (null);
 
             this.selector.add (sp);
-
-            l.addListSelectionListener (new ListSelectionListener ()
-            {
-
-                @Override
-                public void valueChanged (ListSelectionEvent ev)
-                {
-/*
-                    if (onSelect != null)
-                    {
-
-                        NamedObject obj = (NamedObject) l.getSelectedValue ();
-
-                        onSelect.actionPerformed (new ActionEvent (l,
-                                                                   0,
-                                                                   obj.getObjectReference ().asString ()));
-
-                        if (closeOnSelect)
-                        {
-
-                            ep.removeFromParent ();
-
-                        }
-
-                    }
-*/
-                }
-
-            });
 
             this.selector.setPreferredSize (new Dimension (300,
                                                            rowHeight * (matches.size () > 10 ? 10 : matches.size ())));
@@ -3701,8 +3645,8 @@ Environment.out.println ("called");
                                   this.getPreferredSize ().height);
 
         }
-/*
-        public class Id
+
+public class Id
         {
 
             private int _start = -1;
@@ -4040,7 +3984,5 @@ System.out.println ("ID: " + this.fullId);
 
         }
 */
-
-    }
 
 }

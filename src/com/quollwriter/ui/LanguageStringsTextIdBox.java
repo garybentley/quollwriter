@@ -25,7 +25,7 @@ import com.quollwriter.uistrings.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.text.*;
 
-public class LanguageStringsIdBox extends Box
+public class LanguageStringsTextIdBox extends Box
 {
 
     private TextArea userValue = null;
@@ -42,14 +42,14 @@ public class LanguageStringsIdBox extends Box
     private Box errorsWrapper = null;
     private JLabel errorsLabel = null;
 
-    public LanguageStringsIdBox (final TextValue                     baseValue,
-                                 final TextValue                     stringsValue,
-                                 final AbstractLanguageStringsEditor editor)
+    public LanguageStringsTextIdBox (final TextValue                     baseValue,
+                                     final TextValue                     stringsValue,
+                                     final AbstractLanguageStringsEditor editor)
     {
 
         super (BoxLayout.Y_AXIS);
 
-        final LanguageStringsIdBox _this = this;
+        final LanguageStringsTextIdBox _this = this;
 
         this.editor = editor;
         this.baseValue = baseValue;

@@ -3313,8 +3313,8 @@ public class Environment
 
     }
 
-    public static Set<WebsiteLanguageStrings> getAllUserWebsiteLanguageStrings ()
-                                                                         throws GeneralException
+    public static Set<WebsiteLanguageStrings> getAllWebsiteLanguageStrings ()
+                                                                     throws GeneralException
     {
 
         Set<WebsiteLanguageStrings> s = new TreeSet<> ();
@@ -3434,12 +3434,14 @@ public class Environment
 
     }
 
-    public static void saveUserWebsiteLanguageStrings (WebsiteLanguageStrings ls)
-                                                throws Exception
+    public static void saveWebsiteLanguageStrings (WebsiteLanguageStrings ls)
+                                            throws Exception
     {
 
-        File f = Environment.getUserWebsiteLanguageStringsFile (ls.getStringsVersion (),
-                                                                ls.getId ());
+        ls.setUser (true);
+
+        File f = Environment.getWebsiteLanguageStringsFile (ls.getStringsVersion (),
+                                                            ls.getId ());
 
         f.getParentFile ().mkdirs ();
 
@@ -8228,7 +8230,7 @@ xxx
 
     }
 
-    private static void deleteUserWebsiteLanguageStrings (final WebsiteLanguageStrings ls)
+    private static void deleteWebsiteLanguageStrings (final WebsiteLanguageStrings ls)
     {
 
         ActionListener remFile = new ActionListener ()
@@ -8238,8 +8240,8 @@ xxx
             public void actionPerformed (ActionEvent ev)
             {
 
-                File f = Environment.getUserWebsiteLanguageStringsFile (ls.getStringsVersion (),
-                                                                        ls.getId ());
+                File f = Environment.getWebsiteLanguageStringsFile (ls.getStringsVersion (),
+                                                                    ls.getId ());
 
                 if (f.exists ())
                 {
@@ -8283,9 +8285,9 @@ xxx
 
     }
 
-    public static void deleteUserWebsiteLanguageStrings (WebsiteLanguageStrings ls,
-                                                         boolean                allVersions)
-                                                  throws Exception
+    public static void deleteWebsiteLanguageStrings (WebsiteLanguageStrings ls,
+                                                     boolean                allVersions)
+                                              throws Exception
     {
 
         if (!ls.isUser ())
@@ -8298,7 +8300,7 @@ xxx
         if (allVersions)
         {
 
-            Set<WebsiteLanguageStrings> allLs = Environment.getAllUserWebsiteLanguageStrings ();
+            Set<WebsiteLanguageStrings> allLs = Environment.getAllWebsiteLanguageStrings ();
 
             for (WebsiteLanguageStrings _ls : allLs)
             {
@@ -8306,7 +8308,7 @@ xxx
                 if (_ls.getId ().equals (ls.getId ()))
                 {
 
-                    Environment.deleteUserWebsiteLanguageStrings (_ls);
+                    Environment.deleteWebsiteLanguageStrings (_ls);
 
                 }
 
@@ -8314,25 +8316,24 @@ xxx
 
         } else {
 
-            Environment.deleteUserWebsiteLanguageStrings (ls);
+            Environment.deleteWebsiteLanguageStrings (ls);
 
         }
 
     }
 
-    public static WebsiteLanguageStrings getUserWebsiteLanguageStrings (int    ver,
-                                                                        String id)
-                                                                 throws Exception
+    public static WebsiteLanguageStrings getWebsiteLanguageStrings (int    ver,
+                                                                    String id)
+                                                             throws Exception
     {
 
-        File f = Environment.getUserWebsiteLanguageStringsFile (ver,
-                                                                id);
+        File f = Environment.getWebsiteLanguageStringsFile (ver,
+                                                            id);
 
         if (f.exists ())
         {
 
             WebsiteLanguageStrings ls = new WebsiteLanguageStrings (f);
-            ls.setUser (true);
 
             return ls;
 
@@ -8342,7 +8343,7 @@ xxx
 
     }
 
-    private static File getUserWebsiteLanguageStringsDir (int v)
+    public static File getWebsiteLanguageStringsDir (int v)
     {
 
         File d = new File (Environment.getUserQuollWriterDir (),
@@ -8359,43 +8360,12 @@ xxx
 
     }
 
-    public static File getUserWebsiteLanguageStringsFile (int    ver,
-                                                          String id)
+    public static File getWebsiteLanguageStringsFile (int    ver,
+                                                      String id)
     {
 
-        if (id.equals (WebsiteLanguageStrings.ENGLISH_ID))
-        {
-
-            id = id.substring (1);
-
-        }
-
-        return new File (Environment.getUserWebsiteLanguageStringsDir (ver),
+        return new File (Environment.getWebsiteLanguageStringsDir (ver),
                          id);
-
-    }
-
-    public static WebsiteLanguageStrings getWebsiteLanguageStrings (int    ver,
-                                                                    String id)
-                                                             throws Exception
-    {
-
-        File f = new File (Environment.getUserQuollWriterDir (),
-                           Constants.USER_WEBSITE_LANGUAGES_DIR_NAME + "/" + ver + "/" + id);
-
-        if (!f.exists ())
-        {
-
-            return null;
-
-        }
-
-        String data = Utils.getFileAsString (f,
-                                             StandardCharsets.UTF_8);
-
-        WebsiteLanguageStrings s = new WebsiteLanguageStrings (data);
-
-        return s;
 
     }
 
@@ -8458,6 +8428,18 @@ xxx
         }
 
         return null;
+
+    }
+
+    public static WebsiteLanguageStrings getWebsiteLanguageStringsFromServer ()
+                                                                       throws Exception
+    {
+
+        String url = Environment.getProperty (Constants.QUOLL_WRITER_GET_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+
+         String data = Environment.getJSONFileAsString (url);
+
+         return new WebsiteLanguageStrings (data);
 
     }
 

@@ -161,6 +161,14 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
 
     }
 
+    @Override
+    public String getDisplayName ()
+    {
+
+        return this.getName () + " (" + this.getQuollWriterVersion ().toString () + ")";
+
+    }
+
     private void init (String jsonData)
                 throws GeneralException
     {
@@ -205,8 +213,8 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
             try
             {
 
-                this.setParent (Environment.getUILanguageStrings (did,
-                                                                  this.qwVersion));
+                this.setDerivedFrom (Environment.getUILanguageStrings (did,
+                                                                       this.qwVersion));
 
             } catch (Exception e) {
 

@@ -312,11 +312,6 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
         this.showForwardLabel (String.format ("Click to show all the strings for version <b>%s</b>.",
                                               this.userStrings.getQuollWriterVersion ().toString ()));
-/*
-      this.showForwardLabel (String.format ("Click to show what's changed/new between version <b>%s</b> and <b>%s</b>.",
-                                            Environment.getQuollWriterVersion ().toString (),
-                                            this.userStrings.getQuollWriterVersion ().toString ()));
-*/
 
     }
 
@@ -366,6 +361,10 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
             this.showAllStrings ();
 
+            this.showForwardLabel (String.format ("Click to show what's changed/new between version <b>%s</b> and <b>%s</b>.",
+                                                  Environment.getQuollWriterVersion ().toString (),
+                                                  this.userStrings.getQuollWriterVersion ().toString ()));
+
         } else {
 
             this.limitViewToPreviousVersionDiff ();
@@ -380,8 +379,10 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
     {
 
 		super.init ();
-Environment.out.println ("called2");
+
         final LanguageStringsEditor _this = this;
+
+        this.updateTitle ();
 
         // Check to see if a new version of the default strings is available.
         Environment.schedule (new Runnable ()

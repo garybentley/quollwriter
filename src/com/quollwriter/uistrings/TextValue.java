@@ -178,7 +178,8 @@ public class TextValue extends Value<TextValue>
 
         return BaseStrings.getErrors (this.text,
                                       BaseStrings.toId (this.getId ()),
-                                      this.scount,
+                                      prov.getSCount (BaseStrings.toId (this.getId ())),
+                                      //this.scount,
                                       prov);
 
     }

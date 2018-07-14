@@ -86,6 +86,14 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
 
     }
 
+    @Override
+    public String getDisplayName ()
+    {
+
+        return this.getName ();
+
+    }
+
     public boolean isEnglish ()
     {
 
@@ -126,8 +134,8 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
             try
             {
 
-                this.setParent (Environment.getWebsiteLanguageStrings (this.getStringsVersion (),
-                                                                       did));
+                this.setDerivedFrom (Environment.getWebsiteLanguageStrings (this.getStringsVersion (),
+                                                                            did));
 
             } catch (Exception e) {
 

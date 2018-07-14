@@ -175,9 +175,9 @@ public class Constants
 
     public static final String DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterDeleteUILanguageStringsURL";
 
-    public static final String SUBMIT_WEBSITE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterSubmitWebsiteUILanguageStringsURL";
+    public static final String SUBMIT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterSubmitWebsiteLanguageStringsURL";
 
-    public static final String DELETE_WEBSITE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterDeleteWebsiteUILanguageStringsURL";
+    public static final String DELETE_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterDeleteWebsiteLanguageStringsURL";
 
     public static final String EDIT_MARKER_COLOR_PROPERTY_NAME = "editMarkerColor";
 
@@ -317,7 +317,7 @@ public class Constants
 
     public static final String QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterGetUILanguageStringsUrl";
 
-    public static final String QUOLL_WRITER_GET_WEBSITE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterGetWebsiteUILanguageStringsUrl";
+    public static final String QUOLL_WRITER_GET_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterGetWebsiteLanguageStringsUrl";
 
     public static final String WRITING_GENRES_PROPERTY_NAME = "writingGenres";
 
@@ -545,8 +545,8 @@ public class Constants
     public static final String UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME = "ui-language-strings-submitter-id";
     public static final String UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME = "qw-ui-language-strings-submitter-id";
 
-    public static final String WEBSITE_UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME = "website-ui-language-strings-submitter-id";
-    public static final String WEBSITE_UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME = "qw-ui-language-strings-submitter-id";
+    public static final String WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME = "website-language-strings-submitter-id";
+    public static final String WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME = "qw-website-language-strings-submitter-id";
 
     public static final String IMGS_DIR = "/imgs/";
 

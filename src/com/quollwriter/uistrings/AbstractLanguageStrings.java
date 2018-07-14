@@ -22,11 +22,11 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     //public static String ID_REF_END = "}";
 
     private String languageName = null;
-    private int stringsVersion = 0;
+    private int stringsVersion = 1;
     private Date created = null;
     private Date lastModified = null;
     private String _email = null;
-    private E parent = null;
+    private E derivedFrom = null;
     //private Map<String, Node> nodes = new HashMap<> ();
     private Set<Section> sections = null;
     private boolean isUser = false;
@@ -38,6 +38,8 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
         super (OBJECT_TYPE,
                null);
 
+        this.strings = new BaseStrings (null);
+
     }
 
     public AbstractLanguageStrings (E derivedFrom)
@@ -45,13 +47,16 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
         this ();
 
+        this.setDerivedFrom (derivedFrom);
         // Clone the nodes in the derivedFrom.
         //this.nodes = derivedFrom.cloneNodes ();
-        this.parent = derivedFrom;
         this.setId (UUID.randomUUID ().toString ());
         this.created = new Date ();
 
     }
+
+    public abstract String getDisplayName ();
+
 /*
     public AbstractLanguageStrings (File f)
                              throws GeneralException
@@ -102,6 +107,28 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 */
+
+    public E getDerivedFrom ()
+    {
+
+        return this.derivedFrom;
+
+    }
+
+    public void setDerivedFrom (E derivedFrom)
+    {
+
+        this.derivedFrom = derivedFrom;
+
+        if (this.derivedFrom != null)
+        {
+
+            this.strings.setParent (this.derivedFrom.getStrings ());
+
+        }
+
+    }
+
     public AbstractLanguageStrings (String jsonData)
                              throws GeneralException
     {
@@ -132,21 +159,7 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
         return this.isUser;
 
     }
-/*
-    public void setQuollWriterVersion (Version v)
-    {
 
-        this.qwVersion = v;
-
-    }
-
-    public Version getQuollWriterVersion ()
-    {
-
-        return this.qwVersion;
-
-    }
-*/
     public int getStringsVersion ()
     {
 
@@ -345,8 +358,9 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
         }
 
-        this.strings = new BaseStrings ((this.parent != null ? this.parent.getStrings () : null));
+        this.strings = new BaseStrings ((this.derivedFrom != null ? this.derivedFrom.getStrings () : null));
         this.strings.init (m);
+
 /*
         // Ensure we can resolve everything.
         Iterator iter = m.keySet ().iterator ();
@@ -487,11 +501,11 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
         }
 
-        if (this.parent != null)
+        if (this.derivedFrom != null)
         {
 
             m.put (":derivedfrom",
-                   this.parent.getId ());
+                   this.derivedFrom.getId ());
 
         }
 
@@ -1091,6 +1105,13 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
+    public Set<ImageValue> getAllImageValues ()
+    {
+
+        return this.strings.getAllImageValues ();
+
+    }
+
     public Set<Value> getAllValues ()
     {
 
@@ -1273,6 +1294,22 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
+    public ImageValue getImageValue (List<String> idparts)
+    {
+
+        Value v = this.getValue (idparts);
+
+        if (v instanceof ImageValue)
+        {
+
+            return (ImageValue) v;
+
+        }
+
+        return null;
+
+    }
+
     public Value getValue (List<String> idparts)
     {
 
@@ -1295,6 +1332,14 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     {
 
         return this.strings.insertTextValue (idparts);
+
+    }
+
+    public ImageValue insertImageValue (List<String> idparts)
+                                 throws GeneralException
+    {
+
+        return this.strings.insertImageValue (idparts);
 
     }
 
@@ -1346,11 +1391,11 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     public int getSCount (List<String> idparts)
     {
 
-        if (this.parent != null)
+        if (this.derivedFrom != null)
         {
 
             // Defer to our parent.
-            return this.parent.getSCount (idparts);
+            return this.derivedFrom.getSCount (idparts);
 
         }
 

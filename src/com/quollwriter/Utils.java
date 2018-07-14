@@ -722,6 +722,49 @@ public class Utils
                                   final ActionListener      onFailure)
     {
 
+        byte[] bytes = content.getBytes (StandardCharsets.UTF_8);
+
+        Utils.postToURL (url,
+                         headers,
+                         "text/plain",
+                         bytes.length,
+                         new ByteArrayInputStream (bytes),
+                         onSuccess,
+                         onError,
+                         onFailure);
+
+    }
+
+    public static void postToURL (final URL                 url,
+                                  final Map<String, String> headers,
+                                  final Path                file,
+                                  final ActionListener      onSuccess,
+                                  final ActionListener      onError,
+                                  final ActionListener      onFailure)
+                           throws IOException
+    {
+
+        Utils.postToURL (url,
+                         headers,
+                         "application/octet-steam",
+                         Files.size (file),
+                         Files.newInputStream (file),
+                         onSuccess,
+                         onError,
+                         onFailure);
+
+    }
+
+    public static void postToURL (final URL                 url,
+                                  final Map<String, String> headers,
+                                  final String              contentType,
+                                  final long                contentLength,
+                                  final InputStream         content,
+                                  final ActionListener      onSuccess,
+                                  final ActionListener      onError,
+                                  final ActionListener      onFailure)
+    {
+
         new Thread (new Runnable ()
         {
 
@@ -750,9 +793,10 @@ public class Utils
 
                     }
 
-                    byte[] cb = content.getBytes ();
+                    conn.setRequestProperty ("content-type",
+                                             contentType);
                     conn.setRequestProperty ("content-length",
-                                             cb.length + "");
+                                             contentLength + "");
 
                     conn.setRequestMethod ("POST");
 
@@ -760,8 +804,25 @@ public class Utils
                     conn.setDoOutput (true);
                     conn.connect ();
 
-                    BufferedWriter out = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream (), StandardCharsets.UTF_8));
-                    out.write (content);
+                    int count = 0;
+
+                    OutputStream out = conn.getOutputStream ();
+
+                    byte[] bytes = new byte[8192];
+
+                    while ((count = content.read (bytes,
+                                                  0,
+                                                  8192)) != -1)
+                    {
+
+                        out.write (bytes,
+                                   0,
+                                   count);
+
+                    }
+
+                    //BufferedWriter out = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream (), StandardCharsets.UTF_8));
+                    //out.write (content);
 
                     out.flush ();
                     out.close ();
@@ -794,7 +855,7 @@ public class Utils
                         // Read everything.
                         char chars[] = new char[8192];
 
-                        int count = 0;
+                        count = 0;
 
                         while ((count = bin.read (chars,
                                                   0,
@@ -1882,6 +1943,89 @@ public class Utils
         }
 
         return b.toString ();
+
+    }
+
+    public static void createZipFile (Path                file,
+                                      Map<String, Object> entries)
+                               throws GeneralException
+    {
+
+        URI uri = URI.create ("jar:" + file.toFile ().toURI ().toString ());
+
+        Map<String, String> env = new HashMap<>();
+        env.put ("create", "true");
+        env.put ("encoding", "UTF-8");
+
+        try
+        {
+
+            Files.deleteIfExists (file);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to delete file: " + file,
+                                        e);
+
+        }
+
+        try (FileSystem zipfs = FileSystems.newFileSystem (uri, env))
+        {
+
+            for (String k : entries.keySet ())
+            {
+
+                Object o = entries.get (k);
+Environment.out.println ("K: " + k + ", " + zipfs);
+                Path zk = zipfs.getPath ((k.startsWith ("/") ? "" : "/") + k);
+
+                Path pzk = zk.getParent ();
+
+                if (pzk != null)
+                {
+
+                    Files.createDirectories (pzk);
+
+                }
+
+                if (o instanceof String)
+                {
+
+                    String s = (String) o;
+
+                    Files.copy (new ByteArrayInputStream (s.getBytes (StandardCharsets.UTF_8)),
+                                zk);
+
+                }
+
+                if (o instanceof File)
+                {
+
+                    File f = (File) o;
+
+                    Files.copy (Paths.get (f.toURI ()),
+                                zk);
+
+                }
+
+                if (o instanceof Path)
+                {
+
+                    Path p = (Path) o;
+
+                    Files.copy (p,
+                                zk);
+
+                }
+
+            }
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to create/write to zip file: " + file,
+                                        e);
+
+        }
 
     }
 
