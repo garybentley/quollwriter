@@ -3,7 +3,7 @@
     ":nativename" : "English",
     ":version" : 1,
     ":id" : ":English",
-    ":qwversion" : "2.6.13",
+    ":qwversion" : "2.6.14",
     ":created" : 0,
     ":email" : "gary@quollwriter.com",
     ":sections" :
@@ -5861,6 +5861,17 @@
                     {
                         "title" : "Bug fixes",
                         "text" : "When using full screen mode, the normal ${objectnames.singular.project} window will be hidden."
+                    }
+                }
+            },
+            "2.6.14" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes",
+                        "text" : "Removing custom object fields won't now prevent the parent object from being deleted."
                     }
                 }
             }
