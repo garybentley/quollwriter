@@ -261,22 +261,6 @@ public class Node<E extends Value> implements Comparable<Node>
 
     }
 
-    public Value getValue (List<String> id)
-    {
-
-        Node n = this.getChild (id);
-
-        if (n instanceof Value)
-        {
-
-            return (Value) n;
-
-        }
-
-        return null;
-
-    }
-
     public Set<Value> getValues (Filter<Node> filter)
     {
 
