@@ -30,6 +30,8 @@ import com.quollwriter.events.*;
 
 import com.quollwriter.ui.actionHandlers.*;
 
+import com.quollwriter.ui.components.ActionAdapter;
+
 public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane implements Stateful,
                                                                                         PopupsSupported
 {
@@ -43,12 +45,14 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
     protected E viewer = null;
 
+    protected ActionMap      actions = null;
+    private ActionListener performAction = null;
     protected Box                                   content = null;
     private java.util.List                          actionListeners = new ArrayList ();
     private JToolBar                                toolBar = null;
     private boolean                                 readyForUse = false;
     private MouseEventHandler mouseEventHandler = null;
-    
+
     public QuollPanel (E viewer)
     {
 
@@ -56,21 +60,21 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
         this.setOpaque (false);
         this.setBackground (null);
-        
+
         this.content = new Box (BoxLayout.Y_AXIS);
         this.content.setBackground (UIUtils.getComponentColor ());
-        
+
         this.getContentPane ().setBackground (UIUtils.getComponentColor ());
-        
+
         this.getContentPane ().add (this.content);
 
         final QuollPanel _this = this;
-        
+
         this.mouseEventHandler = this.getDefaultMouseEventHandler ();
-        
+
         this.getContentPane ().add (new JLayer<JComponent> (this.content, new LayerUI<JComponent> ()
         {
-            
+
             @Override
             public void installUI(JComponent c) {
                 super.installUI(c);
@@ -84,86 +88,100 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
                 // reset the layer event mask
                 ((JLayer) c).setLayerEventMask(0);
             }
-             
+
             @Override
             public void processMouseEvent (MouseEvent                   ev,
                                            JLayer<? extends JComponent> l)
             {
-                
+
                 if (_this.mouseEventHandler == null)
                 {
-                    
+
                     return;
-                    
+
                 }
-                
+
                 if (ev.getID () == MouseEvent.MOUSE_MOVED)
                 {
-                    
+
                     _this.mouseEventHandler.mouseMoved (ev);
-                    
+
                     return;
-                    
+
                 }
-                
+
                 if (ev.getID () == MouseEvent.MOUSE_RELEASED)
                 {
-                    
+
                     _this.mouseEventHandler.mouseReleased (ev);
-                    
+
                     return;
-                    
+
                 }
 
                 if (ev.getID () == MouseEvent.MOUSE_PRESSED)
                 {
-                    
+
                     _this.mouseEventHandler.mousePressed (ev);
-                    
+
                     return;
-                    
+
                 }
 
                 if (ev.getID () == MouseEvent.MOUSE_DRAGGED)
                 {
-                    
+
                     _this.mouseEventHandler.mousePressed (ev);
-                    
+
                     return;
-                    
+
                 }
 
                 if (ev.getID () == MouseEvent.MOUSE_ENTERED)
                 {
-                    
+
                     _this.mouseEventHandler.mouseEntered (ev);
-                    
+
                     return;
-                    
+
                 }
-                
+
                 if (ev.getID () == MouseEvent.MOUSE_EXITED)
                 {
-                    
+
                     _this.mouseEventHandler.mouseExited (ev);
-                    
+
                     return;
-                    
+
                 }
 
                 if (ev.getID () == MouseEvent.MOUSE_CLICKED)
                 {
-                    
+
                     _this.mouseEventHandler.mouseClicked (ev);
-                    
+
                     return;
-                    
+
                 }
-                                
-            }   
-            
+
+            }
+
         }));
-                
+
+        this.actions = this.getActionMap ();
+
+        this.performAction = new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.performAction (ev);
+
+            }
+
+        };
+
     }
 
     /**
@@ -176,11 +194,11 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
      */
     public void setMouseEventHandler (MouseEventHandler m)
     {
-        
+
         this.mouseEventHandler = m;
-        
+
     }
-    
+
     /**
      * Get the current mouse event handler.
      *
@@ -188,11 +206,11 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
      */
     public MouseEventHandler getMouseEventHandler ()
     {
-        
+
         return this.mouseEventHandler;
-        
+
     }
-    
+
     /**
      * Creates a default mouse event handler that just fills the popup menu for the panel by calling
      * this.fillPopupMenu.
@@ -201,12 +219,12 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
      */
     public MouseEventHandler getDefaultMouseEventHandler ()
     {
-        
+
         final QuollPanel _this = this;
-        
+
         return new MouseEventHandler ()
         {
-            
+
             @Override
             public void fillPopup (JPopupMenu m,
                                    MouseEvent ev)
@@ -214,36 +232,36 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
                 _this.fillPopupMenu (ev,
                                      m);
-                
+
             }
 
         };
-        
+
     }
-    
+
     public E getViewer ()
     {
-        
+
         return this.viewer;
-        
+
     }
-    
+
     public boolean isReadyForUse ()
     {
-        
+
         return this.readyForUse;
-        
+
     }
-    
+
     public void setReadyForUse (boolean v)
     {
-        
+
         this.readyForUse = true;
-        
+
     }
-    
+
     public abstract String getPanelId ();
-    
+
     public abstract void close ();
 
     public abstract void init ()
@@ -255,11 +273,11 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
                                    boolean             hasFocus);
 
     public abstract ImageIcon getIcon (int type);
-                                   
+
     //public abstract String getIconType ();
 
     public abstract String getTitle ();
-    
+
     public abstract void fillToolBar (JToolBar toolBar,
                                       boolean  fullScreen);
 
@@ -337,7 +355,9 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
     public void performAction (ActionEvent ev)
     {
 
-        Action aa = (Action) this.getActionMap ().get (ev.getActionCommand ());
+        Action aa = this.actions.get (ev.getActionCommand ());
+
+        //Action aa = (Action) this.getActionMap ().get (ev.getActionCommand ());
 
         if (aa != null)
         {
@@ -375,30 +395,30 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
         }
 
     }
-    
+
     private JToolBar createToolBar ()
     {
-        
+
         JToolBar t = new JToolBar ();
         t.setFloatable (false);
         t.setOpaque (false);
         t.setRollover (true);
         t.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         return t;
-        
+
     }
-    
+
     public JToolBar getToolBar (boolean fullScreen)
     {
 
         JToolBar tb = this.createToolBar ();
-                                              
+
         this.fillToolBar (tb,
                           fullScreen);
-        
+
         this.toolBar = tb;
-        
+
         return tb;
 
     }
@@ -462,7 +482,7 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
     {
 
         c.setVisible (false);
-    
+
         this.getLayeredPane ().remove (c);
 
         this.getLayeredPane ().validate ();
@@ -658,9 +678,9 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
         if (c.getParent () != null)
         {
-            
+
             c.getParent ().remove (c);
-            
+
         }
 
         this.getLayeredPane ().add (c,
@@ -677,7 +697,7 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
             // Need to do it this way because mouse events aren't being forwarded/delivered.
             MouseEventHandler m = new MouseEventHandler ()
             {
-                
+
                 @Override
                 public void mouseReleased (MouseEvent ev)
                 {
@@ -698,16 +718,16 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
                         if (comps != null)
                         {
-                        
+
                             for (int i = 0; i < comps.size (); i++)
                             {
-    
+
                                 comps.get (i).removeMouseListener (this);
-    
+
                             }
 
                         }
-                            
+
                     }
 
                 }
@@ -718,17 +738,130 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
             if (comps != null)
             {
-            
+
                 for (int i = 0; i < comps.size (); i++)
                 {
-    
+
                     comps.get (i).addMouseListener (m);
-    
+
                 }
 
             }
-                
+
         }
+
+    }
+
+    public void addPerformActionListener (AbstractButton b)
+    {
+
+        b.addActionListener (this.performAction);
+
+    }
+
+    public ActionListener getPerformActionListener ()
+    {
+
+        return this.performAction;
+
+    }
+
+    public JButton createToolbarButton (String icon,
+                                        String toolTipText,
+                                        String actionCommand)
+    {
+
+        return this.createButton (icon,
+                                  Constants.ICON_TOOLBAR,
+                                  toolTipText,
+                                  actionCommand);
+
+    }
+
+    public JButton createButton (String         icon,
+                                 int            iconType,
+                                 String         toolTipText,
+                                 String actionCommand)
+    {
+
+        JButton but = UIUtils.createButton (icon,
+                                            iconType,
+                                            toolTipText,
+                                            this.performAction);
+
+        but.setActionCommand (actionCommand);
+
+        return but;
+
+    }
+
+    public JButton createButton (String         icon,
+                                 int            iconType,
+                                 String         toolTipText,
+                                 String         actionCommand,
+                                 ActionListener list)
+    {
+
+        JButton but = UIUtils.createButton (icon,
+                                            iconType,
+                                            toolTipText,
+                                            list);
+
+        but.setActionCommand (actionCommand);
+
+        return but;
+
+    }
+
+    public JMenuItem createMenuItem (String label,
+                                     String icon,
+                                     String         actionCommand,
+                                     KeyStroke      accel,
+                                     ActionListener list)
+    {
+
+        JMenuItem mi = UIUtils.createMenuItem (label,
+                                               icon,
+                                               list);
+
+        mi.setActionCommand (actionCommand);
+
+        mi.setAccelerator (accel);
+
+        return mi;
+
+
+    }
+
+    public JMenuItem createMenuItem (String label,
+                                     String icon,
+                                     String         actionCommand,
+                                     KeyStroke      accel)
+    {
+
+        JMenuItem mi = this.createMenuItem (label,
+                                            icon,
+                                            actionCommand);
+
+        mi.setAccelerator (accel);
+
+        return mi;
+
+
+    }
+
+    public JMenuItem createMenuItem (String label,
+                                     String icon,
+                                     String actionCommand)
+    {
+
+        JMenuItem mi = UIUtils.createMenuItem (label,
+                                               icon,
+                                               this.performAction);
+
+        mi.setActionCommand (actionCommand);
+
+        return mi;
 
     }
 
