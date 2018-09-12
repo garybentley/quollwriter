@@ -162,12 +162,7 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
 
     public abstract void onHide ();
 
-    public String getId ()
-    {
-
-        return null;
-
-    }
+    public abstract String getId ();
 
     public String getSaveState ()
     {
@@ -269,6 +264,7 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
                                                     //_this.onClose ();
 
                                                     _this.viewer.closeSideBar ();
+                                                
                                                     /*
                                                     if (_this.removeOnClose ())
                                                     {
