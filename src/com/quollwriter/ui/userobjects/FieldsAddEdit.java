@@ -1589,7 +1589,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                 buttons.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                    Constants.ICON_MENU,
                                                    Environment.getUIString (prefix,
-                                                                            LanguageStrings.edit,
+                                                                            LanguageStrings.delete,
                                                                             LanguageStrings.tooltip),
                                                    //"Click to remove this field",
                                                    new ActionListener ()
