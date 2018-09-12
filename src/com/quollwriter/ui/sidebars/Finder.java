@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.HashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -29,34 +30,37 @@ import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class Finder extends AbstractSideBar<AbstractProjectViewer> implements TreeSelectionListener
+public abstract class Finder<E extends AbstractViewer, R extends JComponent> extends AbstractSideBar<E> //implements TreeSelectionListener
 {
 
     public static final String ID = "find";
 
     private JTextField text = null;
-    private Object highlightId = null;
-    private QTextEditor highlightedEditor = null;
     private Box content = null;
     private JLabel noMatches = null;
     private String currentSearch = null;
-    private Set<FindResultsBox> results = null;
+    protected Set<R> results = null;
 
-    public Finder (AbstractProjectViewer v)
+    public Finder (E v)
     {
 
         super (v);
 
     }
 
+    public abstract Set<R> search (String text);
+
+    @Override
+    public abstract String getTitle ();
+
     @Override
     public String getId ()
     {
-        
+
         return ID;
-        
+
     }
-    
+
     public void setText (String t)
     {
 
@@ -75,16 +79,6 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     }
 
     @Override
-    public String getTitle ()
-    {
-
-        return Environment.getUIString (LanguageStrings.objectfinder,
-                                        LanguageStrings.sidebar,
-                                        LanguageStrings.title) + (this.currentSearch != null ? ": " + this.currentSearch : "");
-
-    }
-
-    @Override
     public void onHide ()
     {
 
@@ -96,10 +90,11 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     public void onClose ()
     {
 
-        this.removeListeners ();
+        //this.removeListeners ();
 
     }
 
+/*
     private void removeListeners ()
     {
 
@@ -117,7 +112,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
         }
 
     }
-
+*/
     public String getIconType ()
     {
 
@@ -140,7 +135,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
         final Finder _this = this;
 
         this.text = UIUtils.createTextField ();
-        this.text.setBorder (new CompoundBorder (UIUtils.createPadding (5, 10, 5, 10),
+        this.text.setBorder (new CompoundBorder (UIUtils.createPadding (5, 5, 5, 10),
                                                  this.text.getBorder ()));
 
         this.viewer.fireProjectEvent (ProjectEvent.FIND,
@@ -202,7 +197,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
         this.noMatches.setVisible (false);
 
-        this.noMatches.setBorder (UIUtils.createPadding (5, 10, 0, 5));
+        this.noMatches.setBorder (UIUtils.createPadding (5, 5, 0, 5));
 
         b.add (this.noMatches);
 
@@ -242,6 +237,13 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     }
 
+    public String getFindText ()
+    {
+
+        return this.currentSearch;
+
+    }
+
     @Override
     public void onShow ()
     {
@@ -253,11 +255,9 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     private void search ()
     {
 
-        this.removeListeners ();
+        //this.removeListeners ();
 
         this.content.removeAll ();
-
-        this.clearHighlight ();
 
         String t = this.text.getText ().trim ();
 
@@ -272,25 +272,19 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
         }
 
-        this.results = this.viewer.findText (t);
+        this.results = this.search (t);
 
-        boolean expandSearchResults = UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME);
-
-        for (FindResultsBox r : this.results)
+        if (this.results == null)
         {
 
-            r.getTree ().addTreeSelectionListener (this);
+            this.results = new HashSet<> ();
 
-            r.init ();
+        }
 
-            if (expandSearchResults)
-            {
+        for (R b : this.results)
+        {
 
-                r.exapndAllResultsInTree ();
-
-            }
-
-            this.content.add (r);
+            this.content.add (b);
 
         }
 
@@ -304,7 +298,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
         this.repaint ();
 
     }
-
+/*
     @Override
     public void valueChanged (TreeSelectionEvent ev)
     {
@@ -333,121 +327,15 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
             }
 
-            b.clearSelectedItemInTree ();
+            //b.clearSelectedItemInTree ();
 
         }
 
     }
-
+    */
+/*
     public void clearHighlight ()
     {
-/*
-        if (this.highlightedEditor != null)
-        {
-
-            this.highlightedEditor.removeHighlight (this.highlightId);
-
-        }
-*/
-    }
-/*
-    public JButton[] getButtons ()
-    {
-
-        final Finder _this = this;
-
-        JButton b = new JButton ("Finish");
-
-        b.addActionListener (new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    _this.clearHighlight ();
-
-                    _this.close ();
-
-                }
-
-            });
-
-        JButton[] buts = new JButton[1];
-        buts[0] = b;
-
-        return buts;
-
-    }
-*/
-/*
-    public void showSegment (final Object  o,
-                             final Segment s)
-    {
-
-        this.clearHighlight ();
-
-        if (o instanceof Chapter)
-        {
-
-            final Chapter c = (Chapter) o;
-
-            final Finder _this = this;
-
-            this.viewer.viewObject ((DataObject) o,
-                                    new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    AbstractEditorPanel p = null;
-
-                    if (_this.viewer instanceof ProjectViewer)
-                    {
-
-                        ProjectViewer pv = (ProjectViewer) _this.viewer;
-
-                        p = pv.getEditorForChapter (c);
-
-                    }
-
-                    if (_this.viewer instanceof WarmupsViewer)
-                    {
-
-                        WarmupsViewer wv = (WarmupsViewer) _this.viewer;
-
-                        p = wv.getEditorForWarmup (c);
-
-                    }
-
-                    try
-                    {
-
-                        p.scrollToPosition (s.getBeginIndex ());
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to scroll to: " + s.getBeginIndex (),
-                                              e);
-
-                        return;
-
-                    }
-
-                    final QTextEditor ed = p.getEditor ();
-
-                    _this.highlightId = ed.addHighlight (s.getBeginIndex (),
-                                                         s.getEndIndex (),
-                                                         null,
-                                                         true);
-
-                    _this.highlightedEditor = ed;
-
-                }
-
-            });
-
-        }
 
     }
 */
