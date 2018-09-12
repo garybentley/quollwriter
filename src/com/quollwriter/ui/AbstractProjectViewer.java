@@ -208,7 +208,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.splitPane2.setBackground (UIUtils.getComponentColor ());
 
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
-
+/*
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F12,
                                         InputEvent.CTRL_MASK | InputEvent.ALT_MASK),
                 "debug");
@@ -219,7 +219,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F11,
                                         0),
                 "whatsnew");
-
+*/
         ActionMap am = this.getActionMap ();
 
         this.initKeyMappings (im);
@@ -348,7 +348,47 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         final AbstractProjectViewer _this = this;
 
         super.initActionMappings (am);
+/*
+        am.put ("next-tab",
+                new AbstractAction ()
+                {
 
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        int ind = _this.tabs.getSelectedIndex ();
+
+                        int tc = _this.tabs.getTabCount ();
+
+                        ind++;
+
+                        if (ind >= tc)
+                        {
+
+                            ind = 0;
+
+                        }
+
+                        _this.tabs.setSelectedIndex (ind);
+
+                    }
+
+                });
+
+        am.put ("prev-tab",
+                new AbstractAction ()
+                {
+
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+
+                    }
+
+                });
+*/
         am.put ("close-current-tab",
                 new ActionAdapter ()
                 {
@@ -423,7 +463,23 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     {
 
         super.initKeyMappings (im);
+/*
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_TAB,
+                                        InputEvent.ALT_MASK),
+                "next-tab");
 
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_PAGE_DOWN,
+                                        InputEvent.CTRL_MASK),
+                "next-tab");
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_TAB,
+                                        InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK),
+                "prev-tab");
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_PAGE_UP,
+                                        InputEvent.CTRL_MASK),
+                "prev-tab");
+*/
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
                                         0),
                 Constants.SHOW_FIND_ACTION);
@@ -464,7 +520,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                           throws GeneralException
     {
 
-        this.finder = new Finder (this);
+        this.finder = new ProjectFinder (this);
 
         this.addSideBar (this.finder);
 

@@ -59,13 +59,13 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
     protected QTextEditor    editor = null;
     private Border origEditorBorder = null;
-    protected ActionMap      actions = null;
+//    protected ActionMap      actions = null;
     protected Point             lastMousePosition = null;
     protected JScrollPane    scrollPane = null;
     private boolean          ignoreDocumentChange = false;
     private boolean          useTypewriterScrolling = false;
     private ReadabilityIndices readability = null;
-    private ActionListener performAction = null;
+    //private ActionListener performAction = null;
     private int scrollOffset = 0;
     private Insets origEditorMargin = null;
     private int softCaret = -1;
@@ -299,7 +299,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
 
         });
-
+/*
         this.performAction = new ActionAdapter ()
         {
 
@@ -311,7 +311,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
             }
 
         };
-
+*/
     }
 
     @Override
@@ -474,7 +474,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         this.viewer.showTextProperties ();
 
     }
-
+/*
     public JButton createToolbarButton (String icon,
                                         String toolTipText,
                                         String actionCommand)
@@ -573,7 +573,8 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         return mi;
 
     }
-
+    */
+/*
     public void addPerformActionListener (AbstractButton b)
     {
 
@@ -587,7 +588,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         return this.performAction;
 
     }
-
+*/
     protected void setReadabilityIndices (ReadabilityIndices r)
     {
 

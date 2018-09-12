@@ -656,7 +656,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     {
 
         final QuollEditorPanel _this = this;
-
+/*
         ActionAdapter aa = new ActionAdapter ()
         {
 
@@ -668,7 +668,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             }
 
         };
-
+*/
         java.util.List<String> prefix = new ArrayList<> ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.editorpanel);
