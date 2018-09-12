@@ -23,7 +23,7 @@ import com.quollwriter.text.*;
 
 import com.quollwriter.ui.components.ScrollableBox;
 
-public class TextArea extends ScrollableBox
+public class TextArea extends ScrollableBox 
 {
 
     protected QTextEditor text = null;
@@ -64,8 +64,43 @@ public class TextArea extends ScrollableBox
 
         super (BoxLayout.Y_AXIS);
 
+        final TextArea _this = this;
+
         this.text = new QTextEditor (null,
-                                     false);
+                                     false)
+        {
+
+            @Override
+            public void cut ()
+            {
+
+                super.cut ();
+
+                _this.onCut ();
+
+            }
+
+            @Override
+            public void paste ()
+            {
+
+                super.paste ();
+
+                _this.onPaste ();
+
+            }
+
+            @Override
+            public void copy ()
+            {
+
+                super.copy ();
+
+                _this.onCopy ();
+
+            }
+
+        };
 
         this.text.setCanFormat (false);
 
@@ -106,8 +141,6 @@ public class TextArea extends ScrollableBox
 
         this.text.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         this.text.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
-
-        final TextArea _this = this;
 
         this.addCaretListener (new CaretListener ()
         {
@@ -1291,6 +1324,32 @@ public class TextArea extends ScrollableBox
 
     }
 
+    /**
+     * Pass through to the underlying QTextEditor.
+     *
+     * @param l The listener.
+     */
+    @Override
+    public void addMouseMotionListener (MouseMotionListener l)
+    {
+
+        this.text.addMouseMotionListener (l);
+
+    }
+
+    /**
+     * Pass through to the underlying QTextEditor.
+     *
+     * @param l The listener.
+     */
+    @Override
+    public void removeMouseMotionListener (MouseMotionListener l)
+    {
+
+        this.text.removeMouseMotionListener (l);
+
+    }
+
     public void removeCaretListener (CaretListener l)
     {
 
@@ -1337,6 +1396,21 @@ public class TextArea extends ScrollableBox
             this.text.setBorder (b);
 
         }
+
+    }
+
+    public void onCut ()
+    {
+
+    }
+
+    public void onCopy ()
+    {
+
+    }
+
+    public void onPaste ()
+    {
 
     }
 
