@@ -21,6 +21,7 @@ import com.gentlyweb.utils.*;
 import com.quollwriter.ui.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.events.*;
 
 public class Utils
 {
@@ -719,7 +720,8 @@ public class Utils
                                   final String              content,
                                   final ActionListener      onSuccess,
                                   final ActionListener      onError,
-                                  final ActionListener      onFailure)
+                                  final ActionListener      onFailure,
+                                  final UpdateEventListener<UploadProgressEvent> progressListener)
     {
 
         byte[] bytes = content.getBytes (StandardCharsets.UTF_8);
@@ -731,7 +733,8 @@ public class Utils
                          new ByteArrayInputStream (bytes),
                          onSuccess,
                          onError,
-                         onFailure);
+                         onFailure,
+                         progressListener);
 
     }
 
@@ -740,7 +743,8 @@ public class Utils
                                   final Path                file,
                                   final ActionListener      onSuccess,
                                   final ActionListener      onError,
-                                  final ActionListener      onFailure)
+                                  final ActionListener      onFailure,
+                                  final UpdateEventListener<UploadProgressEvent> progressListener)
                            throws IOException
     {
 
@@ -751,7 +755,8 @@ public class Utils
                          Files.newInputStream (file),
                          onSuccess,
                          onError,
-                         onFailure);
+                         onFailure,
+                         progressListener);
 
     }
 
@@ -762,7 +767,8 @@ public class Utils
                                   final InputStream         content,
                                   final ActionListener      onSuccess,
                                   final ActionListener      onError,
-                                  final ActionListener      onFailure)
+                                  final ActionListener      onFailure,
+                                  final UpdateEventListener<UploadProgressEvent> progressListener)
     {
 
         new Thread (new Runnable ()
@@ -805,6 +811,7 @@ public class Utils
                     conn.connect ();
 
                     int count = 0;
+                    int sent = 0;
 
                     OutputStream out = conn.getOutputStream ();
 
@@ -819,6 +826,30 @@ public class Utils
                                    0,
                                    count);
 
+                        sent += count;
+
+                        if (progressListener != null)
+                        {
+
+                            int _sent = sent;
+
+                            UIUtils.doLater (new ActionListener ()
+                            {
+
+                                @Override
+                                public void actionPerformed (ActionEvent ev)
+                                {
+
+                                    progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
+                                                                                            _sent,
+                                                                                            contentLength));
+
+                                }
+
+                            });
+
+                        }
+
                     }
 
                     //BufferedWriter out = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream (), StandardCharsets.UTF_8));
@@ -826,6 +857,21 @@ public class Utils
 
                     out.flush ();
                     out.close ();
+
+                    UIUtils.doLater (new ActionListener ()
+                    {
+
+                        @Override
+                        public void actionPerformed (ActionEvent ev)
+                        {
+
+                            progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
+                                                                                    contentLength,
+                                                                                    contentLength));
+
+                        }
+
+                    });
 
                     // Try and get input stream, not all responses allow it.
                     InputStream in = null;
@@ -1976,7 +2022,7 @@ public class Utils
             {
 
                 Object o = entries.get (k);
-Environment.out.println ("K: " + k + ", " + zipfs);
+
                 Path zk = zipfs.getPath ((k.startsWith ("/") ? "" : "/") + k);
 
                 Path pzk = zk.getParent ();
