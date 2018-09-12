@@ -13,7 +13,7 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
     protected int count = 0;
 
     private String forObjType = null;
-    
+
     public FindResultsBox (String    title,
                            ImageIcon icon,
                            E         viewer)
@@ -22,7 +22,7 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
         super (title,
                icon,
                viewer);
-               
+
         this.getTree ().getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
     }
@@ -38,19 +38,19 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
                viewer);
 
         this.forObjType = forObjType;
-               
+
         this.getTree ().getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
     }
-    
+
     @Override
     public String getId ()
     {
-        
+
         return this.forObjType;
-        
+
     }
-    
+
     @Override
     public boolean showItemCountOnHeader ()
     {
@@ -103,11 +103,11 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
     @Override
     public boolean isAllowObjectPreview ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     public boolean isTreeEditable ()
     {
 
@@ -129,7 +129,7 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
         return null;
 
     }
-
+/*
     public void clearResults ()
     {
 
@@ -138,5 +138,5 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
         this.setVisible (false);
 
     }
-
+*/
 }
