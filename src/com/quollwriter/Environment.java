@@ -3332,28 +3332,16 @@ public class Environment
 
                 File fd = files[i];
 
-                File[] dfiles = fd.listFiles ();
+                WebsiteLanguageStrings ls = new WebsiteLanguageStrings (fd);
 
-                if (dfiles != null)
+                if (ls.isEnglish ())
                 {
 
-                    for (int j = 0; j < dfiles.length; j++)
-                    {
-
-                        WebsiteLanguageStrings ls = new WebsiteLanguageStrings (dfiles[j]);
-
-                        if (ls.isEnglish ())
-                        {
-
-                            continue;
-
-                        }
-
-                        s.add (ls);
-
-                    }
+                    continue;
 
                 }
+
+                s.add (ls);
 
             }
 
@@ -3440,8 +3428,7 @@ public class Environment
 
         ls.setUser (true);
 
-        File f = Environment.getWebsiteLanguageStringsFile (ls.getStringsVersion (),
-                                                            ls.getId ());
+        File f = Environment.getWebsiteLanguageStringsFile (ls.getId ());
 
         f.getParentFile ().mkdirs ();
 
@@ -8230,8 +8217,15 @@ xxx
 
     }
 
-    private static void deleteWebsiteLanguageStrings (final WebsiteLanguageStrings ls)
+    public static void deleteWebsiteLanguageStrings (final WebsiteLanguageStrings ls)
     {
+
+        if (!ls.isUser ())
+        {
+
+            throw new IllegalArgumentException ("Can only delete user website language strings.");
+
+        }
 
         ActionListener remFile = new ActionListener ()
         {
@@ -8240,8 +8234,7 @@ xxx
             public void actionPerformed (ActionEvent ev)
             {
 
-                File f = Environment.getWebsiteLanguageStringsFile (ls.getStringsVersion (),
-                                                                    ls.getId ());
+                File f = Environment.getWebsiteLanguageStringsFile (ls.getId ());
 
                 if (f.exists ())
                 {
@@ -8285,50 +8278,11 @@ xxx
 
     }
 
-    public static void deleteWebsiteLanguageStrings (WebsiteLanguageStrings ls,
-                                                     boolean                allVersions)
-                                              throws Exception
-    {
-
-        if (!ls.isUser ())
-        {
-
-            throw new IllegalArgumentException ("Can only delete user website language strings.");
-
-        }
-
-        if (allVersions)
-        {
-
-            Set<WebsiteLanguageStrings> allLs = Environment.getAllWebsiteLanguageStrings ();
-
-            for (WebsiteLanguageStrings _ls : allLs)
-            {
-
-                if (_ls.getId ().equals (ls.getId ()))
-                {
-
-                    Environment.deleteWebsiteLanguageStrings (_ls);
-
-                }
-
-            }
-
-        } else {
-
-            Environment.deleteWebsiteLanguageStrings (ls);
-
-        }
-
-    }
-
-    public static WebsiteLanguageStrings getWebsiteLanguageStrings (int    ver,
-                                                                    String id)
+    public static WebsiteLanguageStrings getWebsiteLanguageStrings (String id)
                                                              throws Exception
     {
 
-        File f = Environment.getWebsiteLanguageStringsFile (ver,
-                                                            id);
+        File f = Environment.getWebsiteLanguageStringsFile (id);
 
         if (f.exists ())
         {
@@ -8343,11 +8297,11 @@ xxx
 
     }
 
-    public static File getWebsiteLanguageStringsDir (int v)
+    public static File getWebsiteLanguageStringsDir ()
     {
 
         File d = new File (Environment.getUserQuollWriterDir (),
-                           Constants.USER_WEBSITE_LANGUAGES_DIR_NAME + "/" + v);
+                           Constants.USER_WEBSITE_LANGUAGES_DIR_NAME);
 
         if (!d.exists ())
         {
@@ -8360,11 +8314,10 @@ xxx
 
     }
 
-    public static File getWebsiteLanguageStringsFile (int    ver,
-                                                      String id)
+    public static File getWebsiteLanguageStringsFile (String id)
     {
 
-        return new File (Environment.getWebsiteLanguageStringsDir (ver),
+        return new File (Environment.getWebsiteLanguageStringsDir (),
                          id);
 
     }

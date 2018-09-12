@@ -14,6 +14,9 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
 
     public static final String ENGLISH_ID = "en";
 
+    private String langCode = null;
+    private int baseVersion = 0;
+
     public WebsiteLanguageStrings (WebsiteLanguageStrings derivedFrom)
     {
 
@@ -76,6 +79,20 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
 
     }
 
+    public void setBaseVersion (int v)
+    {
+
+        this.baseVersion = v;
+
+    }
+
+    public int getBaseVersion ()
+    {
+
+        return this.baseVersion;
+
+    }
+
     @Override
     public int compareTo (WebsiteLanguageStrings obj)
     {
@@ -83,6 +100,20 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
         int i = super.compareTo (obj);
 
         return i;
+
+    }
+
+    public void setLanguageCode (String c)
+    {
+
+        this.langCode = c;
+
+    }
+
+    public String getLanguageCode ()
+    {
+
+        return this.langCode;
 
     }
 
@@ -94,6 +125,14 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
 
     }
 
+    public static boolean isEnglish (String id)
+    {
+
+        return ENGLISH_ID.equals (id);
+
+    }
+
+    @Override
     public boolean isEnglish ()
     {
 
@@ -134,8 +173,9 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
             try
             {
 
-                this.setDerivedFrom (Environment.getWebsiteLanguageStrings (this.getStringsVersion (),
-                                                                            did));
+                this.setDerivedFrom (Environment.getWebsiteLanguageStrings (did));
+
+                this.baseVersion = this.getDerivedFrom ().getStringsVersion ();
 
             } catch (Exception e) {
 
@@ -143,6 +183,21 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
                                             e);
 
             }
+
+        }
+
+        String lc = this.getString (":langcode",
+                                    obj);
+
+        this.langCode = lc;
+
+        Number v = this.getNumber (":baseversion",
+                                   obj);
+
+        if (v != null)
+        {
+
+            this.baseVersion = v.intValue ();
 
         }
 
@@ -158,149 +213,19 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
 
         Map m = super.getAsJSON ();
 
+        if (this.langCode != null)
+        {
+
+            m.put (":langcode",
+                   this.langCode);
+
+        }
+
+        m.put (":baseversion",
+               this.baseVersion);
+
         return m;
 
     }
-
-/*
-keep?
-    public Map<TextValue, Set<String>> getErrors ()
-    {
-
-        Map<TextValue, Set<String>> ret = new LinkedHashMap<> ();
-
-        for (TextValue v : this.strings.getAllTextValues ())
-        {
-
-            Set<String> errors = v.getErrors (this);
-
-            if ((errors != null)
-                &&
-                (errors.size () > 0)
-               )
-            {
-
-                ret.put (v,
-                         errors);
-
-            }
-
-            // Special checks for the base strings.
-            if (this.isEnglish ())
-            {
-
-                int c = 0;
-                boolean invalid = false;
-
-                String rawText = v.getRawText ();
-
-                // This is a cheap check to determine whether there are strings but the scount is wrong.
-                for (int i = 0; i < 5; i++)
-                {
-
-                    if (rawText.indexOf ("%" + i + "$s") != -1)
-                    {
-
-                        c++;
-
-                    }
-
-                    if (rawText.indexOf ("%" + i + "s") != -1)
-                    {
-
-                        invalid = true;
-
-                    }
-
-                    if (rawText.indexOf ("$" + i + "$") != -1)
-                    {
-
-                        invalid = true;
-
-                    }
-
-                }
-
-                if (rawText.indexOf ("%$") != -1)
-                {
-
-                    invalid = true;
-
-                }
-
-                if (invalid)
-                {
-
-                    errors.add (String.format ("Invalid %$ or %Xs value found."));
-
-                }
-
-                if (v.getSCount () != c)
-                {
-
-                    errors.add (String.format (":scount value is incorrect or not present, expected: %s, scount is %s.",
-                                               c,
-                                               v.getSCount ()));
-
-                }
-
-                if ((c > 0)
-                    &&
-                    (v.getComment () == null)
-                   )
-                {
-
-                    errors.add (String.format ("Value contains one or more %s values but not have an associated comment.",
-                                               "%x$s"));
-
-                }
-
-                if ((v.getSCount () > 0)
-                    &&
-                    (v.getComment () == null)
-                   )
-                {
-
-                    errors.add ("S count present but no comment provided.");
-
-                }
-
-            }
-
-        }
-
-        return ret;
-
-    }
-*/
-/*
-keep?
-    public Map<TextValue, Set<String>> getErrors (String id)
-    {
-
-        Map<TextValue, Set<String>> ret = new LinkedHashMap<> ();
-
-        for (TextValue v : this.strings.getAllTextValues (id))
-        {
-
-            Set<String> errors = v.getErrors (this);
-
-            if ((errors != null)
-                &&
-                (errors.size () > 0)
-               )
-            {
-
-                ret.put (v,
-                         errors);
-
-            }
-
-        }
-
-        return ret;
-
-    }
-*/
 
 }

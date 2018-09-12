@@ -355,9 +355,14 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>/submit-website-language-strings.html</value>
   </property>
 
+  <property id="quollWriterTryoutWebsiteLanguageStringsURL" type="string">
+    <description>The url prefix for trying out a set of website language strings for the quoll writer website.</description>
+    <value>/tryout-website-language-strings.html</value>
+  </property>
+
   <property id="quollWriterDeleteWebsiteLanguageStringsURL" type="string">
     <description>The url prefix for submitting a set of website language strings to quoll writer.</description>
-    <value>/delete-website-language-strings.html?id=[[ID]]&amp;all=[[ALL]]&amp;version=[[VERSION]]</value>
+    <value>/delete-website-language-strings.html?id=[[ID]]</value>
   </property>
 
   <property id="contactSupportMailtoURI" type="string">

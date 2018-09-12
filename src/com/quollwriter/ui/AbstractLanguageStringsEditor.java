@@ -77,6 +77,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     private Box                   toolbarPanel = null;
     private AbstractSideBar       currentSideBar = null;
     private AccordionItemsSideBar mainSideBar = null;
+    private Finder                finder = null;
     private Map<String, AbstractSideBar> sideBars = new HashMap ();
     private Stack<AbstractSideBar>  activeSideBars = new Stack ();
     private java.util.List<SideBarListener> sideBarListeners = new ArrayList ();
@@ -86,7 +87,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 	private JLabel                importError = null;
     private JLabel                forwardLabel = null;
     private ImportTransferHandlerOverlay   importOverlay = null;
-    protected Map<String, LanguageStringsIdsPanel> panels = new HashMap ();
+    protected Map<String, LanguageStringsIdsPanel> panels = new HashMap<> ();
 	private String currentCard = null;
     ///private Finder                finder = null;
     protected U userStrings = null;
@@ -95,7 +96,11 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     protected B baseStrings = null;
     protected Filter<Node> nodeFilter = null;
     private Map<Node, Set<Value>> valuesCache = new HashMap<> ();
+    private Map<Node, Number> errCounts = new HashMap<> ();
+    private Map<Node, Number> userCounts = new HashMap<> ();
     private boolean inited = false;
+    private TreeCellRenderer treeCellRenderer = null;
+    private boolean updatingPreviews = false;
 
     public AbstractLanguageStringsEditor (U userStrings)
     {
@@ -120,13 +125,16 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     public abstract void save ()
                         throws Exception;
 
-    public abstract void submit ();
+    public abstract void submit (ActionListener onSuccess,
+                                 ActionListener onFailure);
 
     public abstract void delete ()
                           throws Exception;
 
     public abstract void onForwardLabelClicked ()
                                          throws Exception;
+
+    public abstract void showReportProblemForId (String id);
 
     public void showForwardLabel (String text)
     {
@@ -136,55 +144,76 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
     }
 
+    public TreeCellRenderer getTreeCellRenderer ()
+    {
+
+        return this.treeCellRenderer;
+
+    }
+
     private int getErrorCount (Node n)
     {
 
         int c = 0;
 
         // Get the card.
-        LanguageStringsIdsPanel p = this.panels.get (n.getNodeId ());
+        Number num = this.errCounts.get (n);
 
-        if (p != null)
+        if (num != null)
         {
 
-            return p.getErrorCount ();
+            return num.intValue ();
 
         }
 
-        for (Value nv : this.valuesCache.get (n))
+        LanguageStringsIdsPanel panel = this.panels.get (BaseStrings.toId (n.getId ()));
+
+        if (panel != null)
         {
 
-            Value uv = this.userStrings.getValue (nv.getId (),
-                                                  true);
+            c = panel.getErrorCount ();
 
-            if (uv instanceof TextValue)
+        } else {
+
+            for (Value nv : this.valuesCache.get (n))
             {
 
-                TextValue _nv = this.baseStrings.getTextValue (uv.getId ());
+                Value uv = this.userStrings.getValue (nv.getId (),
+                                                      true);
 
-                if (nv == null)
+                if (uv instanceof TextValue)
                 {
 
-                  // The string is present in the user strings but not the base!
-                  Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
+                    TextValue _nv = this.baseStrings.getTextValue (uv.getId ());
 
-                  continue;
+                    if (nv == null)
+                    {
+
+                      // The string is present in the user strings but not the base!
+                      Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
+
+                      continue;
+
+                    }
+
+                    if (BaseStrings.getErrors (((TextValue) uv).getRawText (),
+                                                 BaseStrings.toId (nv.getId ()),
+                                                 _nv.getSCount (),
+                                                 this).size () > 0)
+                    {
+
+                        c++;
+
+                    };
 
                 }
-
-                if (BaseStrings.getErrors (((TextValue) uv).getRawText (),
-                                             BaseStrings.toId (nv.getId ()),
-                                             _nv.getSCount (),
-                                             this).size () > 0)
-                {
-
-                    c++;
-
-                };
 
             }
 
         }
+
+        this.errCounts.put (n,
+                            c);
 
         return c;
 
@@ -195,30 +224,43 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         int c = 0;
 
-        // Get the card.
-        LanguageStringsIdsPanel p = this.panels.get (n.getNodeId ());
+        Number num = this.userCounts.get (n);
 
-        if (p != null)
+        if (num != null)
         {
 
-            return p.getUserValueCount ();
+            return num.intValue ();
 
         }
 
-        for (Value nv : this.valuesCache.get (n))
+        LanguageStringsIdsPanel panel = this.panels.get (BaseStrings.toId (n.getId ()));
+
+        if (panel != null)
         {
 
-            Value uv = this.userStrings.getValue (nv.getId (),
-                                                  true);
+            c = panel.getUserValueCount ();
 
-            if (uv != null)
+        } else {
+
+            for (Value nv : this.valuesCache.get (n))
             {
 
-                c++;
+                Value uv = this.userStrings.getValue (nv.getId (),
+                                                      true);
+
+                if (uv != null)
+                {
+
+                    c++;
+
+                }
 
             }
 
         }
+
+        this.userCounts.put (n,
+                             c);
 
         return c;
 
@@ -459,35 +501,51 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
     }
 */
-    public void updateSideBar (Node n)
+    public void updateSideBar (final Node n)
     {
 
-        for (JTree t : this.sectionTrees.values ())
+        final AbstractLanguageStringsEditor<B, U> _this = this;
+
+        this.errCounts.remove (n);
+        this.userCounts.remove (n);
+
+        UIUtils.doLater (new ActionListener ()
         {
 
-            // See how many children there are.
-            TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) t.getModel ().getRoot (),
-                                                            n.getRoot ());
-
-            if (tp != null)
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
 
-                ((DefaultTreeModel) t.getModel ()).nodeChanged ((DefaultMutableTreeNode) tp.getLastPathComponent ());
+                for (JTree t : _this.sectionTrees.values ())
+                {
 
-                t.validate ();
-                t.repaint ();
+                    // See how many children there are.
+                    TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) t.getModel ().getRoot (),
+                                                                    n);
 
-                break;
+                    if (tp != null)
+                    {
+
+                        ((DefaultTreeModel) t.getModel ()).nodeChanged ((DefaultMutableTreeNode) tp.getLastPathComponent ());
+
+                        t.validate ();
+                        t.repaint ();
+
+                        break;
+
+                    }
+
+                }
+
+                _this.sideBar.validate ();
+                _this.sideBar.repaint ();
 
             }
 
-        }
-
-        this.sideBar.validate ();
-        this.sideBar.repaint ();
+        });
 
     }
-
+/*
     private void updateSideBar ()
     {
 
@@ -495,7 +553,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         this.sideBar.repaint ();
 
     }
-
+*/
     private void fireMainPanelShownEvent (QuollPanel p)
     {
 
@@ -533,6 +591,62 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
     }
 
+    public void updatePreviews ()
+    {
+
+        // XXX TODO
+        if (true)
+        {
+
+            return;
+
+        }
+
+        final AbstractLanguageStringsEditor<B, U> _this = this;
+
+        UIUtils.doLater (new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                if (_this.updatingPreviews)
+                {
+
+                    return;
+
+                }
+
+                try
+                {
+
+                    _this.updatingPreviews = true;
+
+                    for (LanguageStringsIdsPanel p : _this.panels.values ())
+                    {
+
+                        p.updatePreviews ();
+
+                    }
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to update previews.",
+                                          e);
+
+                } finally {
+
+                    _this.updatingPreviews = false;
+
+                }
+
+            }
+
+        });
+
+    }
+
     @Override
     public String getString (String id)
     {
@@ -543,9 +657,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         if (idparts.size () > 0)
         {
 
-            LanguageStringsIdsPanel p = this.panels.get (idparts.get (0));
-
-            if (p != null)
+            for (LanguageStringsIdsPanel p : this.panels.values ())
             {
 
                 String t = p.getIdValue (id);
@@ -577,25 +689,15 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     public String getRawText (String id)
     {
 
-        java.util.List<String> idparts = BaseStrings.getIdParts (id);
-
-        // See if we have a panel.
-        if (idparts.size () > 0)
+        for (LanguageStringsIdsPanel p : this.panels.values ())
         {
 
-            LanguageStringsIdsPanel p = this.panels.get (idparts.get (0));
+            String t = p.getIdValue (id);
 
-            if (p != null)
+            if (t != null)
             {
 
-                String t = p.getIdValue (id);
-
-                if (t != null)
-                {
-
-                    return t;
-
-                }
+                return t;
 
             }
 
@@ -660,106 +762,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         }
 
-        tree.setCellRenderer (new DefaultTreeCellRenderer ()
-        {
-
-            public Component getTreeCellRendererComponent (JTree   tree,
-                                                           Object  value,
-                                                           boolean sel,
-                                                           boolean expanded,
-                                                           boolean leaf,
-                                                           int     row,
-                                                           boolean hasFocus)
-            {
-
-                super.getTreeCellRendererComponent (tree,
-                                                    value,
-                                                    sel,
-                                                    expanded,
-                                                    leaf,
-                                                    row,
-                                                    hasFocus);
-
-                DefaultMutableTreeNode tn = (DefaultMutableTreeNode) value;
-
-                if (tn.getUserObject () instanceof String)
-                {
-
-                    return this;
-
-                }
-
-                this.setIcon (null);
-
-                Node n = (Node) tn.getUserObject ();
-
-                final java.util.List<String> id = n.getId ();
-
-                int c = _this.getUserValueCount (n);
-                int alls = 0;
-                int errCount = _this.getErrorCount (n);
-
-                Set<Value> vals = _this.valuesCache.get (n);
-
-                if (vals != null)
-                {
-
-                    alls = vals.size ();
-
-                }
-
-                String title = (n.getTitle () != null ? n.getTitle () : n.getNodeId ());
-
-                String name = null;
-
-                if (errCount > 0)
-                {
-
-                    name = String.format ("%s (%s/%s) [%s errors]",
-                                          title,
-                                          Environment.formatNumber (c),
-                                          Environment.formatNumber (alls),
-                                          Environment.formatNumber (errCount));
-
-                    this.setIcon (Environment.getIcon (Constants.ERROR_ICON_NAME,
-                                                       Constants.ICON_SIDEBAR));
-
-                } else {
-
-                    name = String.format ("%s (%s/%s)",
-                                          title,
-                                          Environment.formatNumber (c),
-                                          Environment.formatNumber (alls));
-
-                    if (alls == c)
-                    {
-
-                        this.setIcon (Environment.getIcon (Constants.SAVE_ICON_NAME,
-                                                           Constants.ICON_SIDEBAR));
-
-                    } else {
-
-                        if (c > 0)
-                        {
-
-                            this.setIcon (Environment.getIcon (Constants.NEXT_ICON_NAME,
-                                                               Constants.ICON_SIDEBAR));
-
-                        }
-
-                    }
-
-                }
-
-                this.setText (name);
-
-                this.setBorder (new EmptyBorder (2, 2, 2, 2));
-
-                return this;
-
-            }
-
-        });
+        tree.setCellRenderer (this.treeCellRenderer);
 
         tree.addMouseListener (new MouseEventHandler ()
         {
@@ -812,6 +815,15 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     public void showIds (String idPrefix)
     {
 
+        this.showIds (idPrefix,
+                      null);
+
+    }
+
+    public void showIds (String         idPrefix,
+                         ActionListener onShow)
+    {
+
         if (!this.valuesCache.containsKey (this.baseStrings.getNode (idPrefix)))
         {
 
@@ -855,6 +867,85 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         this.showCard (idPrefix);
 
         this.fireMainPanelShownEvent (p);
+
+        if (onShow != null)
+        {
+
+            UIUtils.doLater (onShow);
+
+        }
+
+    }
+
+    public void showId (final String id)
+    {
+
+        final AbstractLanguageStringsEditor _this = this;
+
+        String idPrefix = null;
+
+        // Get the relevant prefix.
+        for (JTree t : this.sectionTrees.values ())
+        {
+
+            Enumeration en = ((DefaultMutableTreeNode) t.getModel ().getRoot ()).children ();
+
+            while (en.hasMoreElements ())
+            {
+
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) en.nextElement ();
+
+                Node n = (Node) node.getUserObject ();
+
+                if (id.startsWith (BaseStrings.toId (n.getId ())))
+                {
+
+                    idPrefix = BaseStrings.toId (n.getId ());
+
+                    break;
+
+                }
+
+            }
+
+            if (idPrefix != null)
+            {
+
+                break;
+
+            }
+
+        }
+
+        if (idPrefix == null)
+        {
+
+            return;
+
+        }
+
+        this.showIds (idPrefix,
+                      new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.scrollToNode (id);
+
+            }
+
+        });
+
+    }
+
+    public void scrollToNode (String n)
+    {
+
+        LanguageStringsIdsPanel c = this.panels.get (this.currentCard);
+
+        c.scrollToNode (n);
 
     }
 
@@ -999,6 +1090,8 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
                                name);
 
 		this.currentCard = name;
+
+        this.updateToolbarForPanel (this.panels.get (this.currentCard));
 
         this.validate ();
         this.repaint ();
@@ -1172,6 +1265,107 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         final AbstractLanguageStringsEditor<B, U> _this = this;
 
+        this.treeCellRenderer = new DefaultTreeCellRenderer ()
+        {
+
+            public Component getTreeCellRendererComponent (JTree   tree,
+                                                           Object  value,
+                                                           boolean sel,
+                                                           boolean expanded,
+                                                           boolean leaf,
+                                                           int     row,
+                                                           boolean hasFocus)
+            {
+
+                super.getTreeCellRendererComponent (tree,
+                                                    value,
+                                                    sel,
+                                                    expanded,
+                                                    leaf,
+                                                    row,
+                                                    hasFocus);
+
+                DefaultMutableTreeNode tn = (DefaultMutableTreeNode) value;
+
+                if (tn.getUserObject () instanceof String)
+                {
+
+                    return this;
+
+                }
+
+                this.setIcon (null);
+
+                Node n = (Node) tn.getUserObject ();
+
+                final java.util.List<String> id = n.getId ();
+
+                int c = _this.getUserValueCount (n);
+                int alls = 0;
+                int errCount = _this.getErrorCount (n);
+
+                Set<Value> vals = _this.valuesCache.get (n);
+
+                if (vals != null)
+                {
+
+                    alls = vals.size ();
+
+                }
+
+                String title = (n.getTitle () != null ? n.getTitle () : n.getNodeId ());
+
+                String name = null;
+
+                if (errCount > 0)
+                {
+
+                    name = String.format ("%s (%s/%s) [%s errors]",
+                                          title,
+                                          Environment.formatNumber (c),
+                                          Environment.formatNumber (alls),
+                                          Environment.formatNumber (errCount));
+
+                    this.setIcon (Environment.getIcon (Constants.ERROR_ICON_NAME,
+                                                       Constants.ICON_SIDEBAR));
+
+                } else {
+
+                    name = String.format ("%s (%s/%s)",
+                                          title,
+                                          Environment.formatNumber (c),
+                                          Environment.formatNumber (alls));
+
+                    if (alls == c)
+                    {
+
+                        this.setIcon (Environment.getIcon (Constants.SAVE_ICON_NAME,
+                                                           Constants.ICON_SIDEBAR));
+
+                    } else {
+
+                        if (c > 0)
+                        {
+
+                            this.setIcon (Environment.getIcon (Constants.NEXT_ICON_NAME,
+                                                               Constants.ICON_SIDEBAR));
+
+                        }
+
+                    }
+
+                }
+
+                this.setText ("<html>" + name + "</html>");
+
+                this.setBorder (new EmptyBorder (2, 2, 2, 2));
+
+                return this;
+
+            }
+
+        };
+
         // Create a split pane.
         this.splitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
                                          false);
@@ -1231,6 +1425,14 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         {
 
             @Override
+            public String getId ()
+            {
+
+                return "main";
+
+            }
+
+            @Override
             public JComponent getContent ()
             {
 
@@ -1268,6 +1470,282 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         };
 
+        this.addSideBar (this.mainSideBar);
+
+        this.finder = new Finder<AbstractLanguageStringsEditor, AccordionItem> (this)
+        {
+
+            @Override
+            public String getTitle ()
+            {
+
+                return "Find";
+
+            }
+
+            @Override
+            public Set<AccordionItem> search (String t)
+            {
+
+                Set<AccordionItem> res = new LinkedHashSet<> ();
+
+                Map<String, Section> sects = new HashMap<> ();
+
+                for (Section sect : (Set<Section>) _this.baseStrings.getSections ())
+                {
+
+                    sects.put (sect.id,
+                               sect);
+
+                }
+
+                Set<Value> results = _this.baseStrings.find (t);
+
+                Set<Value> uresults = _this.userStrings.find (t);
+
+                for (Value v : uresults)
+                {
+
+                    results.add (_this.baseStrings.getValue (v.getId ()));
+
+                }
+
+                Map<Section, Map<Node, java.util.List<Value>>> vals = new HashMap<> ();
+
+                for (Value v : results)
+                {
+
+                    Node r = v.getRoot ();
+
+                    Section s = sects.get (r.getSection ());
+
+                    Map<Node, java.util.List<Value>> svs = vals.get (s);
+
+                    if (svs == null)
+                    {
+
+                        svs = new LinkedHashMap<> ();
+
+                        vals.put (s,
+                                  svs);
+
+                    }
+
+                    Set<String> tlns = r.getTopLevelNodes ();
+
+                    if (tlns != null)
+                    {
+
+                        for (String tln : tlns)
+                        {
+
+                            String tlnid = r.getNodeId () + "." + tln;
+
+                            Node tlnn = _this.baseStrings.getNode (tlnid);
+
+                            if (BaseStrings.toId (v.getId ()).startsWith (tlnid))
+                            {
+
+                                java.util.List<Value> l = svs.get (tlnn);
+
+                                if (l == null)
+                                {
+
+                                    l = new ArrayList<> ();
+
+                                    svs.put (tlnn,
+                                             l);
+
+                                }
+
+                                l.add (v);
+
+                            }
+
+                        }
+
+                    } else {
+
+                        java.util.List<Value> l = svs.get (r);
+
+                        if (l == null)
+                        {
+
+                            l = new ArrayList<> ();
+
+                            svs.put (r,
+                                     l);
+
+                        }
+
+                        l.add (v);
+
+                    }
+
+                }
+
+                for (Section sect : vals.keySet ())
+                {
+
+                    final Map<Node, java.util.List<Value>> vs = vals.get (sect);
+
+                    // Build the tree.
+                    DefaultMutableTreeNode root = new DefaultMutableTreeNode ("_strings");
+
+                    for (Node n : vs.keySet ())
+                    {
+
+                        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (n);
+
+                        root.add (tn);
+
+                        for (Value v : vs.get (n))
+                        {
+
+                            tn.add (new DefaultMutableTreeNode (BaseStrings.toId (v.getId ())));
+
+                        }
+
+                    }
+
+                    final JTree tree = UIUtils.createTree ();
+
+                    tree.setBorder (new EmptyBorder (0, 7, 0, 0));
+
+                    DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel ();
+
+                    dtm.setRoot (root);
+
+                    tree.setCellRenderer (new DefaultTreeCellRenderer ()
+                    {
+
+                        public Component getTreeCellRendererComponent (JTree   tree,
+                                                                       Object  value,
+                                                                       boolean sel,
+                                                                       boolean expanded,
+                                                                       boolean leaf,
+                                                                       int     row,
+                                                                       boolean hasFocus)
+                        {
+
+                            super.getTreeCellRendererComponent (tree,
+                                                                value,
+                                                                sel,
+                                                                expanded,
+                                                                leaf,
+                                                                row,
+                                                                hasFocus);
+
+                            DefaultMutableTreeNode tn = (DefaultMutableTreeNode) value;
+
+                            if (tn.getUserObject () instanceof String)
+                            {
+
+                                this.setIcon (null);
+
+                                return this;
+
+                            }
+
+                            this.setIcon (null);
+
+                            DefaultMutableTreeNode pn = (DefaultMutableTreeNode) tn.getParent ();
+
+                            Node n = (Node) tn.getUserObject ();
+
+                            final java.util.List<String> id = n.getId ();
+
+                            int c = tn.getChildCount ();
+
+                            String title = (n.getTitle () != null ? n.getTitle () : n.getNodeId ());
+
+                            String name = null;
+
+                            name = String.format ("%s (%s)",
+                                                  title,
+                                                  Environment.formatNumber (c));
+
+                            this.setText ("<html>" + name + "</html>");
+
+                            this.setBorder (new EmptyBorder (2, 2, 2, 2));
+
+                            return this;
+
+                        }
+
+                    });
+
+                    tree.addMouseListener (new MouseEventHandler ()
+                    {
+
+                        @Override
+                        public void handlePress (MouseEvent ev)
+                        {
+
+                            TreePath tp = tree.getPathForLocation (ev.getX (),
+                                                                   ev.getY ());
+
+                            if (tp != null)
+                            {
+
+                                DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+
+                                Object o = n.getUserObject ();
+
+                                DefaultMutableTreeNode p = (DefaultMutableTreeNode) n.getParent ();
+
+                                Node pnode  = (Node) p.getUserObject ();
+
+                                String id = BaseStrings.toId (pnode.getId ());
+
+                                _this.showIds (id,
+                                               new ActionListener ()
+                                {
+
+                                    @Override
+                                    public void actionPerformed (ActionEvent ev)
+                                    {
+
+                                        _this.scrollToNode (o.toString ());
+
+                                    }
+
+                                });
+
+                            }
+
+                        }
+
+                    });
+
+                    AccordionItem it = new AccordionItem (sect.name,
+                                                          sect.icon)
+                    {
+
+                        @Override
+                        public JComponent getContent ()
+                        {
+
+                            return tree;
+
+                        }
+
+                    };
+
+                    it.init ();
+
+                    res.add (it);
+
+                }
+
+                return res;
+
+            }
+
+        };
+
+        this.addSideBar (this.finder);
+
         if (this.baseStrings != null)
         {
 
@@ -1294,43 +1772,15 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         this.sideBar = new Box (BoxLayout.Y_AXIS);
         this.sideBar.add (this.sideBarWrapper);
-        //this.sideBar.add (this.toolbarPanel);
+        this.sideBar.add (this.toolbarPanel);
 
         this.setToolbarLocation (null);
 
-        JButton saveB = UIUtils.createToolBarButton (Constants.SAVE_ICON_NAME,
-                                                    "Save all the strings",
-                                                    "save",
-                                                    new ActionListener ()
-        {
-
-           @Override
-           public void actionPerformed (ActionEvent ev)
-           {
-
-               //_this.userValue.setText (defValue);
-
-           }
-
-        });
-
-        JButton nextB = UIUtils.createToolBarButton (Constants.NEXT_ICON_NAME,
-                                                     "Go to the next section",
-                                                     "next",
-                                                     new ActionListener ()
-        {
-
-           @Override
-           public void actionPerformed (ActionEvent ev)
-           {
-
-               //_this.userValue.setText (defValue);
-
-           }
-
-        });
-
-        this.toolbarPanel.add (UIUtils.createButtonBar (Arrays.asList (saveB, nextB)));
+        this.toolbarPanel.setBorder (new CompoundBorder (new MatteBorder (1, 0, 0, 0, UIUtils.getBorderColor ()),
+                                                         new EmptyBorder (0,
+                                                                          5,
+                                                                          0,
+                                                                          5)));
 
         this.toolbarPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                          this.toolbarPanel.getPreferredSize ().height));
@@ -1521,6 +1971,28 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
     }
 
+    private void updateToolbarForPanel (QuollPanel qp)
+    {
+
+        if (qp != null)
+        {
+
+            this.toolbarPanel.removeAll ();
+
+            JToolBar tb = qp.getToolBar (false);
+
+            this.toolbarPanel.add (tb);
+
+            this.toolbarPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                             this.toolbarPanel.getPreferredSize ().height));
+
+            this.toolbarPanel.revalidate ();
+            this.toolbarPanel.repaint ();
+
+        }
+
+    }
+
     public void showSideBar (String name)
     {
 
@@ -1555,11 +2027,18 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
 		this.currentSideBar = b;
 
+        this.sideBarWrapper.removeAll ();
+
+        this.sideBarWrapper.add (this.currentSideBar);
+
 		this.activeSideBars.remove (b);
 
 		this.activeSideBars.push (b);
 
 		this.currentSideBar.setVisible (true);
+
+        this.validate ();
+        this.repaint ();
 
         this.setUILayout ();
 
@@ -1583,6 +2062,13 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
     public void setUILayout ()
     {
 
+        if (true)
+        {
+
+            return;
+
+        }
+
         final AbstractLanguageStringsEditor _this = this;
 
 		this.splitPane.setResizeWeight (1f);
@@ -1591,7 +2077,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 		{
 
 			this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-			this.splitPane.setRightComponent (this.currentSideBar);
+			this.splitPane.setLeftComponent (this.currentSideBar);
 
 			final Dimension min = this.currentSideBar.getMinimumSize ();
 
@@ -1760,7 +2246,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 		final AbstractLanguageStringsEditor _this = this;
 
 		JComponent c = null;
-/*
+
         if (id.equals (FIND_HEADER_CONTROL_ID))
         {
 
@@ -1773,14 +2259,14 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
                                               public void actionPerformed (ActionEvent ev)
                                               {
 
-                                                  _this.showFind ();
+                                                  _this.showFind (null);
 
                                               }
 
                                           });
 
         }
-*/
+
         if (id.equals (SUBMIT_HEADER_CONTROL_ID))
         {
 
@@ -1794,7 +2280,8 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
                                         public void actionPerformed (ActionEvent ev)
                                         {
 
-                                            _this.submit ();
+                                            _this.submit (null,
+                                                          null);
 
                                         }
 
@@ -2040,7 +2527,23 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         this.currentSideBar = null;
 
+        this.showMainSideBar ();
+
 		this.setUILayout ();
+
+    }
+
+    public void showMainSideBar ()
+    {
+
+        this.showSideBar (this.getMainSideBarId ());
+
+    }
+
+    public String getMainSideBarId ()
+    {
+
+        return this.mainSideBar.getId ();
 
     }
 
@@ -2195,7 +2698,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 					}
 
 				});
-/*
+
         am.put (Constants.SHOW_FIND_ACTION,
                 new ActionAdapter ()
                 {
@@ -2203,13 +2706,26 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        _this.showFind ();
+                        _this.showFind (null);
 
                     }
 
                 });
-*/
+
 	}
+
+    public void showFind (String text)
+    {
+
+        this.showSideBar ("find");
+
+        this.finder.setFindText (text);
+
+        this.finder.onShow ();
+
+        this.setUILayout ();
+
+    }
 
     @Override
     public void initKeyMappings (InputMap im)
@@ -2237,16 +2753,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
                 "open-project");
 
 	}
-/*
-    public void showFind ()
-    {
 
-        this.showSideBar ("find");
-
-        this.finder.onShow ();
-
-    }
-*/
     private LanguageStringsIdsPanel createIdsPanel (String id)
     {
 
@@ -2257,1732 +2764,5 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
                                             this.valuesCache.get (this.baseStrings.getNode (id)));
 
     }
-/*
-    public class IdsPanel extends BasicQuollPanel<AbstractLanguageStringsEditor>
-    {
-
-        private String parentId = null;
-        private Set<Value> vals = null;
-        private Node parent = null;
-        private Set<Value> values = null;
-        private Box content = null;
-        private AbstractLanguageStringsEditor editor = null;
-
-        public IdsPanel (AbstractLanguageStringsEditor ed,
-                         Node                          parent,
-                         Set<Value>                    values)
-        {
-
-            super (ed,
-                   parent.getNodeId (),
-                   null);
-
-            this.editor = ed;
-
-            this.parent = parent;
-            this.values = values;
-
-            //this.node = this.editor.baseStrings.getNode (id);
-
-            String title = (this.parent.getTitle () != null ? this.parent.getTitle () : this.parent.getNodeId ());
-
-            this.setTitle (String.format ("%s (%s)",
-                                          title,
-                                          Environment.formatNumber (this.values.size ())));
-
-            this.content = new ScrollableBox (BoxLayout.Y_AXIS);
-            this.content.setAlignmentY (Component.TOP_ALIGNMENT);
-            this.content.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        }
-
-        @Override
-        public String getPanelId ()
-        {
-
-            return this.parent.getNodeId ();
-
-        }
-
-        @Override
-        public boolean isWrapContentInScrollPane ()
-        {
-
-            return true;
-
-        }
-
-        public void updatePreviews ()
-        {
-
-            for (int i = 0; i < this.content.getComponentCount (); i++)
-            {
-
-                Component c = this.content.getComponent (i);
-
-                if (c instanceof LanguageStringsIdBox)
-                {
-
-                    LanguageStringsIdBox b = (LanguageStringsIdBox) c;
-
-                    b.showPreview ();
-
-                }
-
-            }
-
-        }
-
-        @Override
-        public JComponent getContent ()
-        {
-
-            final IdsPanel _this = this;
-
-            this.buildForm (this.parent.getNodeId ());
-
-            this.content.add (Box.createVerticalGlue ());
-
-            this.updatePreviews ();
-
-            return this.content;
-
-        }
-
-        public void saveValues ()
-                         throws GeneralException
-        {
-
-            for (int i = 0; i < this.content.getComponentCount (); i++)
-            {
-
-                Component c = this.content.getComponent (i);
-
-                if (c instanceof LanguageStringsIdBox)
-                {
-
-                    LanguageStringsIdBox b = (LanguageStringsIdBox) c;
-
-                    b.saveValue ();
-
-                }
-
-            }
-
-        }
-
-        public String getIdValue (String id)
-        {
-
-            for (int i = 0; i < this.content.getComponentCount (); i++)
-            {
-
-                Component c = this.content.getComponent (i);
-
-                if (c instanceof LanguageStringsIdBox)
-                {
-
-                    LanguageStringsIdBox b = (LanguageStringsIdBox) c;
-
-                    if (b.getId ().equals (id))
-                    {
-
-                        return b.getUserValue ();
-
-                    }
-
-                }
-
-            }
-
-            return null;
-
-        }
-
-        public int getErrorCount ()
-        {
-
-            int c = 0;
-
-            for (int i = 0; i < this.content.getComponentCount (); i++)
-            {
-
-                Component co = this.content.getComponent (i);
-
-                if (co instanceof LanguageStringsIdBox)
-                {
-
-                    LanguageStringsIdBox b = (LanguageStringsIdBox) co;
-
-                    if (b.hasErrors ())
-                    {
-
-                        c++;
-
-                    }
-
-                }
-
-            }
-
-            return c;
-
-        }
-
-        public int getUserValueCount ()
-        {
-
-            int c = 0;
-
-            for (int i = 0; i < this.content.getComponentCount (); i++)
-            {
-
-                Component co = this.content.getComponent (i);
-
-                if (co instanceof LanguageStringsIdBox)
-                {
-
-                    LanguageStringsIdBox b = (LanguageStringsIdBox) co;
-
-                    if (b.hasUserValue ())
-                    {
-
-                        c++;
-
-                    }
-
-                }
-
-            }
-
-            return c;
-
-        }
-
-        private void createComment (String comment)
-        {
-
-            JComponent c = UIUtils.createLabel (comment);
-            c.setAlignmentX (LEFT_ALIGNMENT);
-            c.setBorder (UIUtils.createPadding (0, 15, 5, 5));
-
-            this.content.add (c);
-
-        }
-
-        private void buildForm (String idPrefix)
-        {
-
-            // Check for the section comment.
-            if (this.parent.getComment () != null)
-            {
-
-                this.createComment (this.parent.getComment ());
-
-            }
-
-            for (Value v : this.values)
-            {
-
-                if (v instanceof TextValue)
-                {
-
-                    this.content.add (new LanguageStringsIdBox ((TextValue) v,
-                                                 (this.editor.userStrings.containsId (v.getId ()) ? this.editor.userStrings.getTextValue (v.getId ()) : null),
-                                                 this.editor)); // scount
-
-                }
-
-            }
-
-        }
-
-    }
-*/
-/*
-    private class IdBox extends Box
-    {
-
-        private TextArea userValue = null;
-        private AbstractLanguageStringsEditor editor = null;
-        private Box selector = null;
-        private JList<String> selections = null;
-        private TextValue baseValue = null;
-        private TextValue stringsValue = null;
-
-        private JTextPane preview = null;
-        private Box previewWrapper = null;
-        private JLabel previewLabel = null;
-        private JTextPane errors = null;
-        private Box errorsWrapper = null;
-        private JLabel errorsLabel = null;
-
-        public IdBox (final TextValue                     baseValue,
-                      final TextValue                     stringsValue,
-                      final AbstractLanguageStringsEditor editor)
-        {
-
-            super (BoxLayout.Y_AXIS);
-
-            final IdBox _this = this;
-
-            this.editor = editor;
-            this.baseValue = baseValue;
-            this.stringsValue = stringsValue;
-
-            Header h = UIUtils.createHeader (BaseStrings.toId (this.baseValue.getId ()),
-                                             Constants.SUB_PANEL_TITLE);
-
-            h.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
-            h.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            this.add (h);
-
-            String comment = this.baseValue.getComment ();
-
-            Box b = new Box (BoxLayout.Y_AXIS);
-            FormLayout   fl = new FormLayout ("right:60px, 5px, min(150px;p):grow",
-                                              (comment != null ? "top:p, 6px," : "") + "top:p, 6px, top:p:grow, 6px, top:p, top:p, top:p");
-            fl.setHonorsVisibility (true);
-            PanelBuilder pb = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            int r = 1;
-
-            if (comment != null)
-            {
-
-                pb.addLabel ("<html><i>Comment</i></html>",
-                             cc.xy (1, r));
-
-                String c = "";
-
-                if (this.baseValue.getSCount () > 0)
-                {
-
-                    for (int i = 0; i < this.baseValue.getSCount (); i++)
-                    {
-
-                        if (c.length () > 0)
-                        {
-
-                            c += ", ";
-
-                        }
-
-                        c += "%" + (i + 1) + "$s";
-
-                    }
-
-                    c = "<br /><i>Requires values: " + c + " to be present in your value.</i>";
-
-                }
-
-                pb.addLabel ("<html>" + comment + c + "</html>",
-                             cc.xy (3, r));
-
-                r += 2;
-
-            }
-
-            pb.addLabel ("<html><i>English</i></html>",
-                         cc.xy (1,
-                                r));
-
-            JTextArea l = new JTextArea (baseValue.getRawText ()); //defValue);
-            l.setLineWrap (true);
-            l.setWrapStyleWord (true);
-            l.setEditable (false);
-            l.setBackground (UIUtils.getComponentColor ());
-            l.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            //l.setMinimumSize (new Dimension (200, 20));
-
-            pb.add (l,
-                    cc.xy (3, r));
-
-            r += 2;
-
-            pb.addLabel ("<html><i>Your Value</i></html>",
-                         cc.xy (1, r));
-
-            this.userValue = new TextArea (null,
-                                           3,
-                                           -1,
-                                           false)
-            {
-
-                @Override
-                public void fillPopupMenuForExtraItems (MouseEvent ev,
-                                                        JPopupMenu popup,
-                                                        boolean    compress)
-                {
-
-                    if (compress)
-                    {
-
-                        java.util.List<JComponent> buts = new java.util.ArrayList ();
-
-                        buts.add (UIUtils.createButton (Constants.COPY_ICON_NAME,
-                                                        Constants.ICON_MENU,
-                                                        "Use the English value",
-                                                        new ActionListener ()
-                                                        {
-
-                                                             public void actionPerformed (ActionEvent ev)
-                                                             {
-
-                                                                 _this.useEnglishValue ();
-
-                                                             }
-
-                                                        }));
-
-                        popup.add (UIUtils.createPopupMenuButtonBar ("Manage",
-                                                                     //"Edit",
-                                                                     popup,
-                                                                     buts));
-
-                    } else {
-
-                        JMenuItem mi = null;
-
-                        mi = UIUtils.createMenuItem ("Use the English value",
-                                                     Constants.COPY_ICON_NAME,
-                                                     new ActionListener ()
-                                                     {
-
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            _this.useEnglishValue ();
-
-                                                        }
-
-                                                     });
-                        popup.add (mi);
-
-                    }
-
-                }
-
-            };
-
-            this.userValue.addKeyListener (new KeyAdapter ()
-            {
-
-                private ScheduledFuture task = null;
-
-                private void update ()
-                {
-
-                    if (this.task != null)
-                    {
-
-                        this.task.cancel (false);
-
-                    }
-
-                    this.task = _this.editor.schedule (new Runnable ()
-                    {
-
-                        @Override
-                        public void run ()
-                        {
-
-                            UIUtils.doLater (new ActionListener ()
-                            {
-
-                                @Override
-                                public void actionPerformed (ActionEvent ev)
-                                {
-
-                                    _this.showPreview ();
-
-                                }
-
-                            });
-
-                        }
-
-                    },
-                    750,
-                    0);
-
-                }
-
-                @Override
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    this.update ();
-
-                }
-
-                @Override
-                public void keyReleased (KeyEvent ev)
-                {
-
-                    this.update ();
-
-                }
-
-            });
-
-            //this.userValue.setBorder (UIUtils.createLineBorder ());
-
-            try
-            {
-
-                this.userValue.setDictionaryProvider (new UserDictionaryProvider (UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME))
-                {
-
-                    @Override
-                    public SpellChecker getSpellChecker ()
-                    {
-
-                        final SpellChecker sp = super.getSpellChecker ();
-
-                        return new SpellChecker ()
-                        {
-
-                            @Override
-                            public boolean isCorrect (Word word)
-                            {
-
-                                int offset = word.getAllTextStartOffset ();
-
-                                Id id = _this.getIdAtOffset (offset);
-
-                                if (id != null)
-                                {
-
-                                    return _this.editor.baseStrings.isIdValid (id.getId ());
-
-                                }
-
-                                return sp.isCorrect (word);
-
-                            }
-
-                            @Override
-                            public boolean isIgnored (Word word)
-                            {
-
-                                return false;
-
-                            }
-
-                            @Override
-                            public java.util.List<String> getSuggestions (Word word)
-                            {
-
-                                return sp.getSuggestions (word);
-
-                            }
-
-                        };
-
-                    }
-
-                });
-
-                this.userValue.setSpellCheckEnabled (true);
-
-            } catch (Exception e) {
-
-                e.printStackTrace ();
-
-            }
-
-            final Action defSelect = this.userValue.getEditor ().getActionMap ().get (DefaultEditorKit.selectWordAction);
-
-            this.userValue.getEditor ().getActionMap ().put (DefaultEditorKit.selectWordAction,
-                                                             new TextAction (DefaultEditorKit.selectWordAction)
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    int c = _this.userValue.getEditor ().getCaretPosition ();
-
-                    Id id = _this.getIdAtCaret ();
-
-                    if (id != null)
-                    {
-
-                        _this.userValue.getEditor ().setSelectionStart (id.getPart (c).start);
-                        _this.userValue.getEditor ().setSelectionEnd (id.getPart (c).end);
-
-                    } else {
-
-                        defSelect.actionPerformed (ev);
-
-                    }
-
-                }
-
-            });
-
-            if (stringsValue != null)
-            {
-
-                this.userValue.setText (stringsValue.getRawText ());
-
-            }
-
-            this.userValue.setAutoGrabFocus (false);
-
-            InputMap im = this.userValue.getInputMap (JComponent.WHEN_FOCUSED);
-            ActionMap am = this.userValue.getActionMap ();
-
-            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_P,
-                                            InputEvent.CTRL_MASK),
-                    "preview");
-
-            am.put ("preview",
-                    new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    _this.showPreview ();
-
-                }
-
-            });
-
-            this.userValue.addKeyListener (new KeyAdapter ()
-            {
-
-                @Override
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if ((ev.getKeyCode () == KeyEvent.VK_ENTER)
-                        ||
-                        (ev.getKeyCode () == KeyEvent.VK_UP)
-                        ||
-                        (ev.getKeyCode () == KeyEvent.VK_DOWN)
-                       )
-                    {
-
-                        if (_this.isSelectorVisible ())
-                        {
-
-                            ev.consume ();
-
-                            return;
-
-                        }
-
-                    }
-
-                    if (ev.getKeyCode () == KeyEvent.VK_TAB)
-                    {
-
-                        ev.consume ();
-
-                        _this.fillMatch ();//m);
-
-                    }
-
-                }
-
-                @Override
-                public void keyReleased (KeyEvent ev)
-                {
-
-                    if ((ev.getKeyCode () == KeyEvent.VK_CLOSE_BRACKET)
-                        &&
-                        (ev.isShiftDown ())
-                       )
-                    {
-
-                        _this.hideSelector ();
-
-                        return;
-
-                    }
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        if (_this.isSelectorVisible ())
-                        {
-
-                            ev.consume ();
-
-                            _this.fillMatch ();
-
-                            return;
-
-                        }
-
-                    }
-
-                    if (ev.getKeyCode () == KeyEvent.VK_UP)
-                    {
-
-                        if (_this.isSelectorVisible ())
-                        {
-
-                            ev.consume ();
-
-                            _this.updateSelectedMatch (-1);
-
-                            return;
-
-                        }
-
-                    }
-
-                    if (ev.getKeyCode () == KeyEvent.VK_DOWN)
-                    {
-
-                        if (_this.isSelectorVisible ())
-                        {
-
-                            ev.consume ();
-
-                            _this.updateSelectedMatch (1);
-
-                            return;
-
-                        }
-
-                    }
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ESCAPE)
-                    {
-
-                        ev.consume ();
-
-                        _this.hideSelector ();
-
-                        return;
-
-                    }
-
-                    int c = _this.userValue.getEditor ().getCaretPosition ();
-
-                    String t = _this.userValue.getEditor ().getText ();
-
-                    Id id = BaseStrings.getId (t, c);
-
-                    if (id == null)
-                    {
-
-                        _this.hideSelector ();
-
-                        return;
-
-                    }
-
-                    Set<String> matches = id.getPartMatches (c,
-                                                             _this.editor.baseStrings.getStrings ());
-
-                    if ((matches == null)
-                        ||
-                        (matches.size () == 0)
-                       )
-                    {
-
-                        _this.hideSelector ();
-
-                        return;
-
-                    }
-
-                    if (matches.size () == 1)
-                    {
-
-                        Id.Part p = id.getPart (c);
-
-                        if (p == null)
-                        {
-
-                            p = id.getLastPart ();
-
-                        }
-
-                        if (p.part.equals (matches.iterator ().next ()))
-                        {
-
-                            _this.hideSelector ();
-                            return;
-
-                        }
-
-                    }
-
-                    try
-                    {
-
-                        int ind = c;
-
-                        Id.Part pa = id.getPart (c);
-
-                        if (pa != null)
-                        {
-
-                            ind = pa.start;
-
-                        }
-
-                        Rectangle r = _this.userValue.getEditor ().modelToView (ind);
-
-                        //Point p = r.getLocation ();
-                        //p.y -= 10;
-                        //p.x -= 10;
-                        //p.y += r.height;.
-
-                        _this.showSelectionPopup (matches,
-                                                  r.getLocation ());
-
-                    } catch (Exception e) {
-
-                        e.printStackTrace ();
-
-                    }
-
-                }
-
-            });
-
-            pb.add (this.userValue,
-                    cc.xy (3, r));
-
-            r += 2;
-
-            // Needed to prevent the performance hit
-            this.errorsWrapper = new Box (BoxLayout.Y_AXIS);
-
-            this.errorsLabel = UIUtils.createErrorLabel ("Errors");
-            this.errorsLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
-            this.errorsLabel.setVisible (false);
-            this.errorsLabel.setIcon (null);
-            this.errorsLabel.setFocusable (false);
-
-            pb.add (this.errorsLabel,
-                    cc.xy (1, r));
-            pb.add (this.errorsWrapper,
-                    cc.xy (3, r));
-
-            r += 1;
-
-            // Needed to prevent the performance hit
-            this.previewWrapper = new Box (BoxLayout.Y_AXIS);
-
-            this.previewLabel = UIUtils.createInformationLabel ("Preview");
-            this.previewLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
-            this.previewLabel.setVisible (false);
-
-            pb.add (this.previewLabel,
-                    cc.xy (1, r));
-            pb.add (this.previewWrapper,
-                    cc.xy (3, r));
-
-            JPanel p = pb.getPanel ();
-            p.setOpaque (false);
-            p.setAlignmentX (Component.LEFT_ALIGNMENT);
-            p.setBorder (UIUtils.createPadding (5, 5, 0, 0));
-
-            this.add (p);
-
-            this.setBorder (UIUtils.createPadding (0, 10, 20, 10));
-            this.setAlignmentX (Component.LEFT_ALIGNMENT);
-            this.setAlignmentY (Component.TOP_ALIGNMENT);
-
-        }
-
-        public void saveValue ()
-                        throws GeneralException
-        {
-
-            String uv = this.getUserValue ();
-
-            if (uv != null)
-            {
-
-                if (this.stringsValue != null)
-                {
-
-                    this.stringsValue.setRawText (uv);
-
-                } else {
-
-                    this.stringsValue = this.editor.userStrings.insertTextValue (this.baseValue.getId ());
-
-                    //this.stringsValue.setSCount (this.baseValue.getSCount ());
-                    this.stringsValue.setRawText (uv);
-
-                }
-
-            } else {
-
-                this.editor.userStrings.removeNode (this.baseValue.getId ());
-
-            }
-
-        }
-
-        public Id getIdAtOffset (int offset)
-        {
-
-            return BaseStrings.getId (this.userValue.getEditor ().getText (),
-                                      offset);
-
-        }
-
-        public Id getIdAtCaret ()
-        {
-
-            return this.getIdAtOffset (this.userValue.getEditor ().getCaretPosition ());
-
-        }
-
-        public String getId ()
-        {
-
-            return BaseStrings.toId (this.baseValue.getId ());
-
-        }
-
-        public boolean hasUserValue ()
-        {
-
-            return this.getUserValue () != null;
-
-        }
-
-        public String getUserValue ()
-        {
-
-            StringWithMarkup sm = this.userValue.getTextWithMarkup ();
-
-            if (sm != null)
-            {
-
-                if (!sm.hasText ())
-                {
-
-                    return null;
-
-                }
-
-                return sm.getMarkedUpText ();
-
-            }
-
-            return null;
-
-        }
-
-        public void useEnglishValue ()
-        {
-
-            this.userValue.updateText (this.baseValue.getRawText ());
-            this.showPreview ();
-            this.validate ();
-            this.repaint ();
-
-        }
-
-        public boolean hasErrors ()
-        {
-
-            String s = this.getUserValue ();
-
-            if (s == null)
-            {
-
-                return false;
-
-            }
-
-            return BaseStrings.getErrors (s,
-                                          BaseStrings.toId (this.baseValue.getId ()),
-                                          this.baseValue.getSCount (),
-                                          this.editor).size () > 0;
-
-
-        }
-
-        public boolean showErrors (boolean requireUserValue)
-        {
-
-            String s = this.getUserValue ();
-
-            if ((s == null)
-                &&
-                (!requireUserValue)
-               )
-            {
-
-                this.errorsLabel.setVisible (false);
-                this.errorsWrapper.setVisible (false);
-
-                return false;
-
-            }
-
-            Set<String> errs = null;
-
-            if (s == null)
-            {
-
-                errs = new LinkedHashSet<> ();
-
-                errs.add ("Cannot show a preview, no value provided.");
-
-            } else {
-
-                errs = BaseStrings.getErrors (s,
-                                              BaseStrings.toId (this.baseValue.getId ()),
-                                              this.baseValue.getSCount (),
-                                              this.editor);
-
-            }
-
-            Node root = this.baseValue.getRoot ();
-
-            this.editor.updateSideBar (this.baseValue);
-
-            if (errs.size () > 0)
-            {
-
-                if (this.errors == null)
-                {
-
-                    this.errors = UIUtils.createHelpTextPane ("",
-                                                              this.editor);
-                    this.errors.setBorder (UIUtils.createPadding (6, 0, 0, 0));
-                    this.errors.setFocusable (false);
-                    this.errorsWrapper.add (this.errors);
-
-                }
-
-                StringBuilder b = new StringBuilder ();
-
-                for (String e : errs)
-                {
-
-                    if (b.length () > 0)
-                    {
-
-                        b.append ("<br />");
-
-                    }
-
-                    b.append ("- " + e);
-
-                }
-
-                this.errors.setText ("<span class='error'>" + b.toString () + "</span>");
-                this.errorsLabel.setVisible (true);
-                this.errorsWrapper.setVisible (true);
-
-                this.editor.updateSideBar (this.baseValue);
-
-                return true;
-
-            } else {
-
-                this.errorsLabel.setVisible (false);
-                this.errorsWrapper.setVisible (false);
-
-            }
-
-            return false;
-
-        }
-
-        public void showPreview ()
-        {
-
-            if (this.showErrors (false))
-            {
-
-                return;
-
-            }
-
-            String s = this.getUserValue ();
-
-            if (s == null)
-            {
-
-                if (this.preview != null)
-                {
-
-                    this.preview.setText ("");
-
-                }
-
-                this.previewWrapper.setVisible (false);
-                this.previewLabel.setVisible (false);
-
-                this.editor.updateSideBar (this.baseValue);
-
-                return;
-
-            }
-
-            if (this.preview == null)
-            {
-
-                this.preview = UIUtils.createHelpTextPane ("",
-                                                           this.editor);
-                this.preview.setBorder (UIUtils.createPadding (6, 0, 0, 0));
-                this.preview.setFocusable (false);
-
-                this.previewWrapper.add (this.preview);
-
-            }
-
-            String t = this.editor.getPreviewText (s);
-
-            this.previewLabel.setVisible (true);
-            this.preview.setText (t);
-            this.previewWrapper.setVisible (true);
-
-            this.editor.updateSideBar (this.baseValue);
-
-            this.validate ();
-            this.repaint ();
-
-        }
-
-        private void fillMatch ()
-        {
-
-            QTextEditor editor = this.userValue.getEditor ();
-
-            int c = editor.getCaretPosition ();
-
-            Id id = BaseStrings.getId (editor.getText (),
-                                       c);
-
-            if (id == null)
-            {
-
-                return;
-
-            }
-
-            String m = this.selections.getSelectedValue ();
-
-            //m = id.getNewFullId (m);
-
-            Id.Part part = id.getPart (c);
-
-            if (part != null)
-            {
-
-                editor.replaceText (part.start, part.end, m);
-                editor.setCaretPosition (part.start + m.length ());
-
-            } else {
-
-                // Is the previous character a . if so append.
-                if ((editor.getText ().substring (c - 1, c).equals ("."))
-                    ||
-                    (c == id.getEnd ())
-                   )
-                {
-
-                    editor.replaceText (c, c, m);
-                    editor.setCaretPosition (c + m.length ());
-
-                } else {
-
-                    part = id.getLastPart ();
-
-                    editor.replaceText (part.start, part.start + part.end, m);
-                    editor.setCaretPosition (part.start + m.length ());
-
-                }
-
-            }
-
-            c = editor.getCaretPosition ();
-
-            id = this.getIdAtCaret ();
-
-            // Check to see if the id maps to a string.
-            if (this.editor.baseStrings.getString (id.getId ()) != null)
-            {
-
-                if (id.isPartial ())
-                {
-
-                    editor.replaceText (id.getEnd (), id.getEnd (), "}");
-                    editor.setCaretPosition (c + 1);
-
-                }
-
-                this.hideSelector ();
-
-                return;
-
-            }
-
-            // Check to see if there are more matches further down the tree.
-            String nid = id.getId () + ".";
-
-            Set<String> matches = this.editor.baseStrings.getIdMatches (nid);
-
-            if (matches.size () > 0)
-            {
-
-                c = editor.getCaretPosition ();
-
-                editor.replaceText (c, c, ".");
-                editor.setCaretPosition (c + 1);
-
-                try
-                {
-
-                    this.showSelectionPopup (matches,
-                                             editor.modelToView (id.getPart (c).start).getLocation ());
-
-                } catch (Exception e) {
-
-                    e.printStackTrace ();
-
-                }
-
-                return;
-
-            } else {
-
-                c = editor.getCaretPosition ();
-
-                editor.replaceText (c, c, "}");
-                editor.setCaretPosition (c + 1);
-
-                this.hideSelector ();
-
-                return;
-
-            }
-
-        }
-
-        private String updateSelectedMatch (int incr)
-        {
-
-            int i = this.selections.getSelectedIndex ();
-
-            i += incr;
-
-            int s = this.selections.getModel ().getSize ();
-
-            if (i < 0)
-            {
-
-                i = s + i;
-
-            }
-
-            if (i > s - 1)
-            {
-
-                i -= s;
-
-            }
-
-            this.selections.setSelectedIndex (i);
-
-            return this.selections.getSelectedValue ();
-
-        }
-
-        public boolean isSelectorVisible ()
-        {
-
-            if (this.selector != null)
-            {
-
-                return this.selector.isVisible ();
-
-            }
-
-            return false;
-
-        }
-
-        public void hideSelector ()
-        {
-
-            if (this.selector != null)
-            {
-
-                this.selector.setVisible (false);
-
-            }
-
-            this.userValue.getEditor ().setFocusTraversalKeysEnabled (true);
-
-        }
-
-        public void showSelectionPopup (Set<String> matches,
-                                        Point       point)
-        {
-
-            if (this.selector == null)
-            {
-
-                this.selector = new Box (BoxLayout.Y_AXIS);
-
-                this.selector.setOpaque (true);
-                this.selector.setBackground (UIUtils.getComponentColor ());
-                this.selector.setBorder (UIUtils.createLineBorder ());
-
-            }
-
-            if ((matches == null)
-                ||
-                (matches.size () == 0)
-               )
-            {
-
-                this.hideSelector ();
-
-                return;
-
-            }
-
-            this.userValue.getEditor ().setFocusTraversalKeysEnabled (false);
-
-            this.selector.removeAll ();
-
-            DefaultListModel<String> m = new DefaultListModel<> ();
-
-            for (String o : matches)
-            {
-
-                m.addElement (o);
-
-            }
-
-            this.selections = new JList<String> ();
-            final JList<String> l = this.selections;
-            l.setModel (m);
-            l.setLayoutOrientation (JList.VERTICAL);
-            l.setVisibleRowCount (0);
-            l.setOpaque (true);
-            l.setBackground (UIUtils.getComponentColor ());
-            l.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                             Short.MAX_VALUE));
-            UIUtils.setAsButton (l);
-
-            l.setCellRenderer (new DefaultListCellRenderer ()
-            {
-
-                public Component getListCellRendererComponent (JList   list,
-                                                               Object  value,
-                                                               int     index,
-                                                               boolean isSelected,
-                                                               boolean cellHasFocus)
-                {
-
-                    String obj = (String) value;
-
-                    JLabel l = (JLabel) super.getListCellRendererComponent (list,
-                                                                            value,
-                                                                            index,
-                                                                            isSelected,
-                                                                            cellHasFocus);
-
-                    l.setText (obj);//.getName ());
-
-                    l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (10)).deriveFont (Font.PLAIN));
-                    l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
-                    l.setPreferredSize (new Dimension (l.getPreferredSize ().width, 29));
-                    return l;
-
-                }
-
-            });
-
-            l.setSelectedIndex (0);
-
-            int rowHeight = 30;
-
-            l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-            JScrollPane sp = new JScrollPane (l);
-
-            sp.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-            sp.getVerticalScrollBar ().setUnitIncrement (rowHeight);
-            sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-            sp.setOpaque (false);
-            sp.setBorder (null);
-
-            this.selector.add (sp);
-
-            this.selector.setPreferredSize (new Dimension (300,
-                                                           rowHeight * (matches.size () > 10 ? 10 : matches.size ())));
-
-            this.editor.showPopupAt (this.selector,
-                                     SwingUtilities.convertPoint (this.userValue,
-                                                                  point,
-                                                                  this.editor),
-                                     false);
-
-        }
-
-        @Override
-        public Dimension getMaximumSize ()
-        {
-
-            return new Dimension (Short.MAX_VALUE,
-                                  this.getPreferredSize ().height);
-
-        }
-
-public class Id
-        {
-
-            private int _start = -1;
-            private String fullId = null;
-            private boolean hasClosingBrace = false;
-            private java.util.List<Part> parts = new ArrayList<> ();
-            public boolean hasErrors = false;
-
-            public Id (String text,
-                       int    offset)
-            {
-
-                if (text.length () < 3)
-                {
-
-                    return;
-
-                }
-
-                String idstart = LanguageStrings.ID_REF_START;
-
-                int ind = text.lastIndexOf (idstart, offset);
-
-                if (ind > -1)
-                {
-
-                    ind += idstart.length ();
-                    this._start = ind;
-
-                    int idendind = text.indexOf (LanguageStrings.ID_REF_END, ind);
-
-                    if (idendind > -1)
-                    {
-
-                        if (idendind < offset)
-                        {
-
-                            return;
-
-                        }
-
-                        // We have an end, see if it's on the same line.
-                        int leind = text.indexOf ("\n", ind);
-
-                        if (leind < 0)
-                        {
-
-                            leind = text.length ();
-
-                        }
-
-                        if (idendind < leind)
-                        {
-
-                            this.hasClosingBrace = true;
-                            this.fullId = text.substring (ind, leind - 1);
-
-                        }
-
-                    } else {
-System.out.println ("ELSE");
-                        StringBuilder b = new StringBuilder ();
-
-                        for (int i = ind; i < text.length (); i++)
-                        {
-
-                            char c = text.charAt (i);
-
-                            if (Character.isWhitespace (c))
-                            {
-
-                                break;
-
-                            }
-
-                            b.append (c);
-
-                        }
-
-                        this.fullId = b.toString ();
-
-                    }
-System.out.println ("ID: " + this.fullId);
-                    if (this.fullId.equals (""))
-                    {
-
-                        this.fullId = null;
-
-                    }
-
-                    int start = ind;
-
-                    java.util.List<String> parts = Utils.splitString (this.fullId,
-                                                                      ".");
-
-                    int cind = start;
-
-                    Part prevp = null;
-
-                    for (int i = 0; i < parts.size (); i++)
-                    {
-
-                        if (i > 0)
-                        {
-
-                            cind++;
-
-                        }
-
-                        String ps = parts.get (i);
-
-                        if (ps.trim ().length () != ps.length ())
-                        {
-
-                            this.hasErrors = true;
-
-                        }
-
-                        Part p = new Part (this,
-                                           cind,
-                                           ps,
-                                           prevp);
-
-                        prevp = p;
-                        cind += ps.length ();
-
-                        this.parts.add (p);
-
-                    }
-
-                }
-
-            }
-
-            public int getEnd ()
-            {
-
-                if (this.parts.size () == 0)
-                {
-
-                    return this._start;
-
-                }
-
-                return this.parts.get (this.parts.size () - 1).end;
-
-            }
-
-            public Part getPart (int offset)
-            {
-
-                for (int i = 0; i < this.parts.size (); i++)
-                {
-
-                    Part p = this.parts.get (i);
-
-                    if ((offset >= p.start)
-                        &&
-                        (offset <= p.end)
-                       )
-                    {
-
-                        return p;
-
-                    }
-
-                }
-
-                return null;
-
-            }
-
-            public String getFullId ()
-            {
-
-                return this.fullId;
-
-            }
-
-            public boolean isIdValid (LanguageStrings baseStrings)
-            {
-
-                if (this.fullId == null)
-                {
-
-                    return false;
-
-                }
-
-                return baseStrings.isIdValid (this.fullId);
-
-            }
-
-            public boolean hasErrors ()
-            {
-
-                return this.hasErrors;
-
-            }
-
-            public String getNewFullId (String suffix)
-            {
-
-                if (this.fullId.endsWith ("."))
-                {
-
-                    return this.fullId + suffix;
-
-                }
-
-                String pref = this.getIdPrefix ();
-
-                if (pref == null)
-                {
-
-                    return suffix;
-
-                }
-
-                return pref + "." + suffix;
-
-            }
-
-            public String getIdPrefix ()
-            {
-
-                StringBuilder b = new StringBuilder ();
-
-                for (int i = 0; i < this.parts.size () - 1; i++)
-                {
-
-                    if (i > 0)
-                    {
-
-                        b.append (".");
-
-                    }
-
-                    b.append (this.parts.get (i).part);
-
-                }
-
-                if (b.length () == 0)
-                {
-
-                    return null;
-
-                }
-
-                return b.toString ();
-
-            }
-
-            public Part getLastPart ()
-            {
-
-                if (this.parts.size () == 0)
-                {
-
-                    return null;
-
-                }
-
-                return this.parts.get (this.parts.size () - 1);
-
-            }
-
-            public Set<String> getPartMatches (int             offset,
-                                               LanguageStrings baseStrings)
-            {
-
-                Part p = this.getPart (offset);
-
-                if (p != null)
-                {
-
-                    return baseStrings.getIdMatches (p.getFullId ());
-
-                }
-
-                return this.getMatches (baseStrings);
-
-            }
-
-            public Set<String> getMatches (LanguageStrings baseStrings)
-            {
-
-                return baseStrings.getIdMatches (this.fullId);
-
-            }
-
-            public class Part
-            {
-
-                public int start = -1;
-                public int end = -1;
-                public String part = null;
-                public Id parent = null;
-                public Part previous = null;
-
-                public Part (Id     parent,
-                             int    start,
-                             String part,
-                             Part   prev)
-                {
-
-                    this.start = start;
-                    this.end = this.start + part.length ();
-                    this.parent = parent;
-                    this.part = part;
-                    this.previous = prev;
-
-                }
-
-                public String getFullId ()
-                {
-
-                    StringBuilder b = new StringBuilder (this.part);
-
-                    Part prev = this.previous;
-
-                    while (prev != null)
-                    {
-
-                        b.insert (0, prev.part + ".");
-                        prev = prev.previous;
-
-                    }
-
-                    return b.toString ();
-
-                }
-
-            }
-
-        }
-*/
 
 }

@@ -557,7 +557,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
         ids.add (SUBMIT_HEADER_CONTROL_ID);
         ids.add (FIND_HEADER_CONTROL_ID);
         ids.add (USE_HEADER_CONTROL_ID);
-        ids.add (REPORT_BUG_HEADER_CONTROL_ID);
+        //ids.add (REPORT_BUG_HEADER_CONTROL_ID);
         ids.add (HELP_HEADER_CONTROL_ID);
         ids.add (SETTINGS_HEADER_CONTROL_ID);
 
@@ -596,7 +596,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                         {
 
                                             UIUtils.openURL (_this,
-                                                             "help://uilanguages/overview");
+                                                             "help:uilanguage");
 
                                         }
 
@@ -616,7 +616,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 	}
 
     @Override
-    public void submit ()
+    public void submit (ActionListener onSuccess,
+                        ActionListener onError)
     {
 
         final LanguageStringsEditor _this = this;
@@ -901,6 +902,20 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
                     }
 
+                    qp.setVisible (false);
+
+                    final ProgressPopup pp = new ProgressPopup (_this,
+                                                                "Uploading",
+                                                                "up",
+                                                                "Uploading strings, please wait...");
+
+                    _this.showPopupAt (pp,
+                                       UIUtils.getCenterShowPosition (_this,
+                                                                      pp),
+                                       false);
+
+                    pp.setDraggable (_this);
+
                     Utils.postToURL (u,
                                      headers,
                                      t,
@@ -911,6 +926,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                          @Override
                                          public void actionPerformed (ActionEvent ev)
                                          {
+
+                                             pp.removeFromParent ();
 
                                              Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
@@ -973,6 +990,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                          public void actionPerformed (ActionEvent ev)
                                          {
 
+                                             pp.removeFromParent ();
+
                                              Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
                                              String res = (String) m.get ("reason");
@@ -991,6 +1010,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                          public void actionPerformed (ActionEvent ev)
                                          {
 
+                                             pp.removeFromParent ();
+
                                              Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
                                              String res = (String) m.get ("reason");
@@ -998,6 +1019,19 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                              // Get the errors.
                                              UIUtils.showErrorMessage (_this,
                                                                        "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                         }
+
+                                     },
+                                     // Updater
+                                     new UpdateEventListener<UploadProgressEvent> ()
+                                     {
+
+                                         @Override
+                                         public void valueUpdated (UploadProgressEvent ev)
+                                         {
+
+                                             pp.update (ev.getPercent ());
 
                                          }
 
@@ -1139,7 +1173,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    _this.submit ();
+                                                    _this.submit (null,
+                                                                  null);
 
                                                 }
 
@@ -1494,7 +1529,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
                                          }
 
-                                     });
+                                     },
+                                     null);
 
                 } else {
 
@@ -1592,5 +1628,13 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 		return true;
 
 	}
+
+    @Override
+    public void showReportProblemForId (String id)
+    {
+
+        this.showReportProblem ("Language Strings Id: " + id + "\n\n");
+
+    }
 
 }

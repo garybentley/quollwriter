@@ -177,6 +177,8 @@ public class Constants
 
     public static final String SUBMIT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterSubmitWebsiteLanguageStringsURL";
 
+    public static final String TRYOUT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterTryoutWebsiteLanguageStringsURL";
+
     public static final String DELETE_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterDeleteWebsiteLanguageStringsURL";
 
     public static final String EDIT_MARKER_COLOR_PROPERTY_NAME = "editMarkerColor";

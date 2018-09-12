@@ -1,6 +1,7 @@
 package com.quollwriter.uistrings;
 
 import java.util.*;
+import com.quollwriter.text.*;
 
 public class TextValue extends Value<TextValue>
 {
@@ -59,6 +60,41 @@ public class TextValue extends Value<TextValue>
         this.text = text;
         this.comment = comment;
         this.scount = scount;
+
+    }
+
+    @Override
+    public boolean match (String find)
+    {
+
+        if (super.match (find))
+        {
+
+            return true;
+
+        }
+
+        if (this.text != null)
+        {
+
+            List<Word> ftext = new Paragraph (find,
+                                              0).getWords ();
+
+            List<Word> words = new Paragraph (this.text,
+                                              0).getWords ();
+
+            if (TextUtilities.find (words,
+                                    ftext,
+                                    true).size () > 0)
+            {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
 
     }
 

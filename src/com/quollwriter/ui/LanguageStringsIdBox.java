@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.datatransfer.*;
+import java.awt.Toolkit;
 
 import java.util.concurrent.*;
 import java.awt.event.*;
@@ -24,50 +26,191 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.uistrings.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.text.*;
+import com.quollwriter.ui.forms.*;
+import com.quollwriter.events.*;
 
-public class LanguageStringsIdBox extends Box
+public abstract class LanguageStringsIdBox<E extends Value, T extends Object> extends Box
 {
 
-    private TextArea userValue = null;
-    private AbstractLanguageStringsEditor editor = null;
-    private Box selector = null;
-    private JList<String> selections = null;
-    private TextValue baseValue = null;
-    private TextValue stringsValue = null;
-
-    private JTextPane preview = null;
-    private Box previewWrapper = null;
-    private JLabel previewLabel = null;
-    private JTextPane errors = null;
+    protected LanguageStringsIdsPanel panel = null;
+    protected E baseValue = null;
+    protected E stringsValue = null;
     private Box errorsWrapper = null;
     private JLabel errorsLabel = null;
+    private JTextPane errors = null;
 
-    public LanguageStringsIdBox (final TextValue                     baseValue,
-                                 final TextValue                     stringsValue,
-                                 final AbstractLanguageStringsEditor editor)
+    public LanguageStringsIdBox (final E                       baseValue,
+                                 final E                       stringsValue,
+                                 final LanguageStringsIdsPanel panel)
     {
 
         super (BoxLayout.Y_AXIS);
 
         final LanguageStringsIdBox _this = this;
 
-        this.editor = editor;
+        this.panel = panel;
         this.baseValue = baseValue;
         this.stringsValue = stringsValue;
 
-        Header h = UIUtils.createHeader (BaseStrings.toId (this.baseValue.getId ()),
-                                         Constants.SUB_PANEL_TITLE);
+    }
 
-        h.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
+    public void init ()
+    {
+
+        final String fid = BaseStrings.toId (this.baseValue.getId ());
+
+        final LanguageStringsIdBox _this = this;
+
+        // Needed to prevent the performance hit
+        this.errorsWrapper = new Box (BoxLayout.Y_AXIS);
+
+        this.errorsLabel = UIUtils.createErrorLabel ("Errors");
+        this.errorsLabel.setBorder (UIUtils.createPadding (0, 0, 0, 0));
+        this.errorsLabel.setVisible (false);
+        this.errorsLabel.setIcon (null);
+        this.errorsLabel.setFocusable (false);
+
+        final JTextField h = new JTextField (fid)
+        {
+
+            @Override
+            public void copy ()
+            {
+
+                String sel = this.getSelectedText ();
+
+                if ((sel == null)
+                    ||
+                    (sel.equals (""))
+                   )
+                {
+
+                    sel = fid;
+
+                }
+
+                if (sel.equals (fid))
+                {
+
+                    sel = BaseStrings.ID_REF_START + fid + BaseStrings.ID_REF_END;
+
+                }
+
+                StringSelection stringSelection = new StringSelection (sel);
+                Clipboard clipboard = Toolkit.getDefaultToolkit ().getSystemClipboard ();
+                clipboard.setContents (stringSelection, null);
+
+            }
+
+        };
+
+        h.setEditable (false);
         h.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+        h.setForeground (UIUtils.getTitleColor ());
+        h.setBackground (null);
+        h.setBackground (UIUtils.getComponentColor ());
+        h.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
+
+        h.addMouseListener (new MouseEventHandler ()
+        {
+
+            @Override
+            public void fillPopup (JPopupMenu m,
+                                   MouseEvent ev)
+            {
+
+                JMenuItem mi = this.createMenuItem ("Find all references",
+                                                    Constants.FIND_ICON_NAME,
+                                                    "find");
+
+                mi.addActionListener (new ActionListener ()
+                {
+
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.getEditor ().showFind (BaseStrings.toId (_this.baseValue.getId ()));
+
+                    }
+
+                });
+
+                m.add (mi);
+
+                mi = this.createMenuItem ("Report error about this Id",
+                                          Constants.BUG_ICON_NAME,
+                                          "bug");
+
+                mi.addActionListener (new ActionListener ()
+                {
+
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.getEditor ().showReportProblemForId (BaseStrings.toId (_this.baseValue.getId ()));
+
+                    }
+
+                });
+
+                m.add (mi);
+
+                mi = this.createMenuItem ("Copy Id",
+                                          Constants.COPY_ICON_NAME,
+                                          "copy");
+
+                mi.addActionListener (new ActionListener ()
+                {
+
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        h.copy ();
+
+                    }
+
+                });
+
+                m.add (mi);
+
+            }
+
+        });
 
         this.add (h);
 
         String comment = this.baseValue.getComment ();
 
+        String rows = (comment != null ? "top:p, 6px" : "");
+
+        Set<FormItem> items = this.getFormItems ();
+
+        for (FormItem i : items)
+        {
+
+            if (rows.length () > 0)
+            {
+
+                rows += ",";
+
+            }
+
+            rows += "top:p,6px";
+
+        }
+
+        rows += ",top:p";
+
         Box b = new Box (BoxLayout.Y_AXIS);
         FormLayout   fl = new FormLayout ("right:60px, 5px, min(150px;p):grow",
-                                          (comment != null ? "top:p, 6px," : "") + "top:p, 6px, top:p:grow, 6px, top:p, top:p, top:p");
+                                          rows);
+                                          //(comment != null ? "top:p, 6px," : "") + "top:p, 6px, top:p:grow, 6px, top:p, top:p, top:p");
+
         fl.setHonorsVisibility (true);
         PanelBuilder pb = new PanelBuilder (fl);
 
@@ -83,10 +226,12 @@ public class LanguageStringsIdBox extends Box
 
             String c = "";
 
-            if (this.baseValue.getSCount () > 0)
+            int sc = this.getSCount ();
+
+            if (sc > 0)
             {
 
-                for (int i = 0; i < this.baseValue.getSCount (); i++)
+                for (int i = 0; i < sc; i++)
                 {
 
                     if (c.length () > 0)
@@ -104,521 +249,71 @@ public class LanguageStringsIdBox extends Box
 
             }
 
-            pb.addLabel ("<html>" + comment + c + "</html>",
-                         cc.xy (3, r));
+            final JLabel cl = UIUtils.createLabel (comment + c);
+            //cl.setFocusable (false);
+/*
+            cl.addMouseListener (new MouseEventHandler ()
+            {
+
+                @Override
+                public void mouseEntered (MouseEvent ev)
+                {
+
+                    TextIterator iter = new TextIterator (this.editor.getText ());
+
+                    final Word w = iter.getWordAt (this.editor.viewToModel (ev.getPoint ()));
+
+
+                }
+
+            });
+*/
+            pb.add (cl,
+                    cc.xy (3, r));
 
             r += 2;
 
         }
 
-        pb.addLabel ("<html><i>English</i></html>",
-                     cc.xy (1,
-                            r));
-
-        JTextArea l = new JTextArea (baseValue.getRawText ()); //defValue);
-        l.setLineWrap (true);
-        l.setWrapStyleWord (true);
-        l.setEditable (false);
-        l.setBackground (UIUtils.getComponentColor ());
-        l.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        //l.setMinimumSize (new Dimension (200, 20));
-
-        pb.add (l,
-                cc.xy (3, r));
-
-        r += 2;
-
-        pb.addLabel ("<html><i>Your Value</i></html>",
-                     cc.xy (1, r));
-
-        this.userValue = new TextArea (null,
-                                       3,
-                                       -1,
-                                       false)
+        for (FormItem i : items)
         {
 
-            @Override
-            public void fillPopupMenuForExtraItems (MouseEvent ev,
-                                                    JPopupMenu popup,
-                                                    boolean    compress)
+            Object l = i.getLabel ();
+
+            if (l instanceof String)
             {
 
-                if (compress)
+                pb.addLabel (String.format ("<html><i>%s</i></html>",
+                                            l.toString ()),
+                             cc.xy (1,
+                                    r));
+
+            } else {
+
+                if (l instanceof JComponent)
                 {
 
-                    java.util.List<JComponent> buts = new java.util.ArrayList ();
-
-                    buts.add (UIUtils.createButton (Constants.COPY_ICON_NAME,
-                                                    Constants.ICON_MENU,
-                                                    "Use the English value",
-                                                    new ActionListener ()
-                                                    {
-
-                                                         public void actionPerformed (ActionEvent ev)
-                                                         {
-
-                                                             _this.useEnglishValue ();
-
-                                                         }
-
-                                                    }));
-
-                    popup.add (UIUtils.createPopupMenuButtonBar ("Manage",
-                                                                 //"Edit",
-                                                                 popup,
-                                                                 buts));
-
-                } else {
-
-                    JMenuItem mi = null;
-
-                    mi = UIUtils.createMenuItem ("Use the English value",
-                                                 Constants.COPY_ICON_NAME,
-                                                 new ActionListener ()
-                                                 {
-
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-
-                                                        _this.useEnglishValue ();
-
-                                                    }
-
-                                                 });
-                    popup.add (mi);
+                    pb.add ((JComponent) l,
+                            cc.xy (1,
+                                   r));
 
                 }
 
             }
 
-        };
+            pb.add (i.getComponent (),
+                    cc.xy (3, r));
 
-        this.userValue.addKeyListener (new KeyAdapter ()
-        {
-
-            private ScheduledFuture task = null;
-
-            private void update ()
-            {
-
-                if (this.task != null)
-                {
-
-                    this.task.cancel (false);
-
-                }
-
-                this.task = _this.editor.schedule (new Runnable ()
-                {
-
-                    @Override
-                    public void run ()
-                    {
-
-                        UIUtils.doLater (new ActionListener ()
-                        {
-
-                            @Override
-                            public void actionPerformed (ActionEvent ev)
-                            {
-
-                                _this.showPreview ();
-
-                            }
-
-                        });
-
-                    }
-
-                },
-                750,
-                0);
-
-            }
-
-            @Override
-            public void keyPressed (KeyEvent ev)
-            {
-
-                this.update ();
-
-            }
-
-            @Override
-            public void keyReleased (KeyEvent ev)
-            {
-
-                this.update ();
-
-            }
-
-        });
-
-        //this.userValue.setBorder (UIUtils.createLineBorder ());
-
-        try
-        {
-
-            this.userValue.setDictionaryProvider (new UserDictionaryProvider (UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME))
-            {
-
-                @Override
-                public SpellChecker getSpellChecker ()
-                {
-
-                    final SpellChecker sp = super.getSpellChecker ();
-
-                    return new SpellChecker ()
-                    {
-
-                        @Override
-                        public boolean isCorrect (Word word)
-                        {
-
-                            int offset = word.getAllTextStartOffset ();
-
-                            Id id = _this.getIdAtOffset (offset);
-
-                            if (id != null)
-                            {
-
-                                return _this.editor.baseStrings.isIdValid (id.getId ());
-
-                            }
-
-                            return sp.isCorrect (word);
-
-                        }
-
-                        @Override
-                        public boolean isIgnored (Word word)
-                        {
-
-                            return false;
-
-                        }
-
-                        @Override
-                        public java.util.List<String> getSuggestions (Word word)
-                        {
-
-                            return sp.getSuggestions (word);
-
-                        }
-
-                    };
-
-                }
-
-            });
-
-            this.userValue.setSpellCheckEnabled (true);
-
-        } catch (Exception e) {
-
-            e.printStackTrace ();
+            r += 2;
 
         }
 
-        final Action defSelect = this.userValue.getEditor ().getActionMap ().get (DefaultEditorKit.selectWordAction);
-
-        this.userValue.getEditor ().getActionMap ().put (DefaultEditorKit.selectWordAction,
-                                                         new TextAction (DefaultEditorKit.selectWordAction)
-        {
-
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                int c = _this.userValue.getEditor ().getCaretPosition ();
-
-                Id id = _this.getIdAtCaret ();
-
-                if (id != null)
-                {
-
-                    _this.userValue.getEditor ().setSelectionStart (id.getPart (c).start);
-                    _this.userValue.getEditor ().setSelectionEnd (id.getPart (c).end);
-
-                } else {
-
-                    defSelect.actionPerformed (ev);
-
-                }
-
-            }
-
-        });
-
-        if (stringsValue != null)
-        {
-
-            this.userValue.setText (stringsValue.getRawText ());
-
-        }
-
-        this.userValue.setAutoGrabFocus (false);
-
-        InputMap im = this.userValue.getInputMap (JComponent.WHEN_FOCUSED);
-        ActionMap am = this.userValue.getActionMap ();
-
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_P,
-                                        InputEvent.CTRL_MASK),
-                "preview");
-
-        am.put ("preview",
-                new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.showPreview ();
-
-            }
-
-        });
-
-        this.userValue.addKeyListener (new KeyAdapter ()
-        {
-
-            @Override
-            public void keyPressed (KeyEvent ev)
-            {
-
-                if ((ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    ||
-                    (ev.getKeyCode () == KeyEvent.VK_UP)
-                    ||
-                    (ev.getKeyCode () == KeyEvent.VK_DOWN)
-                   )
-                {
-
-                    if (_this.isSelectorVisible ())
-                    {
-
-                        ev.consume ();
-
-                        return;
-
-                    }
-
-                }
-
-                if (ev.getKeyCode () == KeyEvent.VK_TAB)
-                {
-
-                    ev.consume ();
-
-/*
-                    if (id.hasErrors ())
-                    {
-
-                        _this.hideSelector ();
-
-                        return;
-
-                    }
-*/
-                    _this.fillMatch ();//m);
-
-                }
-
-            }
-
-            @Override
-            public void keyReleased (KeyEvent ev)
-            {
-
-                if ((ev.getKeyCode () == KeyEvent.VK_CLOSE_BRACKET)
-                    &&
-                    (ev.isShiftDown ())
-                   )
-                {
-
-                    _this.hideSelector ();
-
-                    return;
-
-                }
-
-                if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                {
-
-                    if (_this.isSelectorVisible ())
-                    {
-
-                        ev.consume ();
-
-                        _this.fillMatch ();
-
-                        return;
-
-                    }
-
-                }
-
-                if (ev.getKeyCode () == KeyEvent.VK_UP)
-                {
-
-                    if (_this.isSelectorVisible ())
-                    {
-
-                        ev.consume ();
-
-                        _this.updateSelectedMatch (-1);
-
-                        return;
-
-                    }
-
-                }
-
-                if (ev.getKeyCode () == KeyEvent.VK_DOWN)
-                {
-
-                    if (_this.isSelectorVisible ())
-                    {
-
-                        ev.consume ();
-
-                        _this.updateSelectedMatch (1);
-
-                        return;
-
-                    }
-
-                }
-
-                if (ev.getKeyCode () == KeyEvent.VK_ESCAPE)
-                {
-
-                    ev.consume ();
-
-                    _this.hideSelector ();
-
-                    return;
-
-                }
-
-                int c = _this.userValue.getEditor ().getCaretPosition ();
-
-                String t = _this.userValue.getEditor ().getText ();
-
-                Id id = BaseStrings.getId (t, c);
-
-                if (id == null)
-                {
-
-                    _this.hideSelector ();
-
-                    return;
-
-                }
-
-                Set<String> matches = id.getPartMatches (c,
-                                                         _this.editor.baseStrings.getStrings ());
-
-                if ((matches == null)
-                    ||
-                    (matches.size () == 0)
-                   )
-                {
-
-                    _this.hideSelector ();
-
-                    return;
-
-                }
-
-                if (matches.size () == 1)
-                {
-
-                    Id.Part p = id.getPart (c);
-
-                    if (p == null)
-                    {
-
-                        p = id.getLastPart ();
-
-                    }
-
-                    if (p.part.equals (matches.iterator ().next ()))
-                    {
-
-                        _this.hideSelector ();
-                        return;
-
-                    }
-
-                }
-
-                try
-                {
-
-                    int ind = c;
-
-                    Id.Part pa = id.getPart (c);
-
-                    if (pa != null)
-                    {
-
-                        ind = pa.start;
-
-                    }
-
-                    Rectangle r = _this.userValue.getEditor ().modelToView (ind);
-
-                    //Point p = r.getLocation ();
-                    //p.y -= 10;
-                    //p.x -= 10;
-                    //p.y += r.height;.
-
-                    _this.showSelectionPopup (matches,
-                                              r.getLocation ());
-
-                } catch (Exception e) {
-
-                    e.printStackTrace ();
-
-                }
-
-            }
-
-        });
-
-        pb.add (this.userValue,
-                cc.xy (3, r));
-
-        r += 2;
-
-        // Needed to prevent the performance hit
-        this.errorsWrapper = new Box (BoxLayout.Y_AXIS);
-
-        this.errorsLabel = UIUtils.createErrorLabel ("Errors");
-        this.errorsLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
-        this.errorsLabel.setVisible (false);
-        this.errorsLabel.setIcon (null);
-        this.errorsLabel.setFocusable (false);
+        //r++;
 
         pb.add (this.errorsLabel,
                 cc.xy (1, r));
+
         pb.add (this.errorsWrapper,
-                cc.xy (3, r));
-
-        r += 1;
-
-        // Needed to prevent the performance hit
-        this.previewWrapper = new Box (BoxLayout.Y_AXIS);
-
-        this.previewLabel = UIUtils.createInformationLabel ("Preview");
-        this.previewLabel.setBorder (UIUtils.createPadding (6, 0, 0, 0));
-        this.previewLabel.setVisible (false);
-
-        pb.add (this.previewLabel,
-                cc.xy (1, r));
-        pb.add (this.previewWrapper,
                 cc.xy (3, r));
 
         JPanel p = pb.getPanel ();
@@ -634,6 +329,51 @@ public class LanguageStringsIdBox extends Box
 
     }
 
+    private int getSCount ()
+    {
+
+        if (this.baseValue instanceof TextValue)
+        {
+
+            return ((TextValue) this.baseValue).getSCount ();
+
+        }
+
+        return -1;
+
+    }
+
+    public void updatePreviews ()
+    {
+
+        this.panel.getEditor ().updatePreviews ();
+
+    }
+
+    public void updateSideBar (Node n)
+    {
+
+        this.panel.getEditor ().updateSideBar (this.panel.getParentNode ());
+
+    }
+
+    public AbstractLanguageStringsEditor getEditor ()
+    {
+
+        return this.panel.getEditor ();
+
+    }
+
+    public abstract Component getFocusableComponent ();
+
+    public abstract T getUserValue ();
+
+    public abstract Set<FormItem> getFormItems ();
+
+    public abstract void saveValue ()
+                             throws GeneralException;
+
+/*
     public void saveValue ()
                     throws GeneralException
     {
@@ -664,34 +404,24 @@ public class LanguageStringsIdBox extends Box
         }
 
     }
-
+*/
+/*
     public Id getIdAtOffset (int offset)
     {
 
         return BaseStrings.getId (this.userValue.getEditor ().getText (),
                                   offset);
-/*
-        Id id = new Id (this.userValue.getEditor ().getText (),
-                        offset);
 
-        if (id.fullId == null)
-        {
-
-            return null;
-
-        }
-
-        return id;
-*/
     }
-
+*/
+/*
     public Id getIdAtCaret ()
     {
 
         return this.getIdAtOffset (this.userValue.getEditor ().getCaretPosition ());
 
     }
-
+*/
     public String getId ()
     {
 
@@ -706,6 +436,7 @@ public class LanguageStringsIdBox extends Box
 
     }
 
+/*
     public String getUserValue ()
     {
 
@@ -728,7 +459,8 @@ public class LanguageStringsIdBox extends Box
         return null;
 
     }
-
+*/
+/*
     public void useEnglishValue ()
     {
 
@@ -738,7 +470,10 @@ public class LanguageStringsIdBox extends Box
         this.repaint ();
 
     }
+*/
 
+    public abstract boolean hasErrors ();
+/*
     public boolean hasErrors ()
     {
 
@@ -758,96 +493,72 @@ public class LanguageStringsIdBox extends Box
 
 
     }
+*/
 
-    public boolean showErrors (boolean requireUserValue)
+    public abstract boolean showErrors (boolean requireUserValue);
+
+    public void hideErrors ()
     {
 
-        String s = this.getUserValue ();
+        this.errorsLabel.setVisible (false);
+        this.errorsWrapper.setVisible (false);
 
-        if ((s == null)
-            &&
-            (!requireUserValue)
+    }
+
+    public boolean showErrors (Set<String> errs)
+    {
+
+        this.hideErrors ();
+
+        if ((errs == null)
+            ||
+            (errs.size () == 0)
            )
         {
-
-            this.errorsLabel.setVisible (false);
-            this.errorsWrapper.setVisible (false);
 
             return false;
 
         }
 
-        Set<String> errs = null;
-
-        if (s == null)
+        if (this.errors == null)
         {
 
-            errs = new LinkedHashSet<> ();
-
-            errs.add ("Cannot show a preview, no value provided.");
-
-        } else {
-
-            errs = BaseStrings.getErrors (s,
-                                          BaseStrings.toId (this.baseValue.getId ()),
-                                          this.baseValue.getSCount (),
-                                          this.editor);
+            this.errors = UIUtils.createHelpTextPane ("",
+                                                      this.getEditor ());
+            this.errors.setBorder (UIUtils.createPadding (0, 0, 0, 0));
+            this.errors.setFocusable (false);
+            this.errorsWrapper.add (this.errors);
 
         }
 
-        Node root = this.baseValue.getRoot ();
+        StringBuilder b = new StringBuilder ();
 
-        this.editor.updateSideBar (this.baseValue);
-
-        if (errs.size () > 0)
+        for (String e : errs)
         {
 
-            if (this.errors == null)
+            if (b.length () > 0)
             {
 
-                this.errors = UIUtils.createHelpTextPane ("",
-                                                          this.editor);
-                this.errors.setBorder (UIUtils.createPadding (6, 0, 0, 0));
-                this.errors.setFocusable (false);
-                this.errorsWrapper.add (this.errors);
+                b.append ("<br />");
 
             }
 
-            StringBuilder b = new StringBuilder ();
-
-            for (String e : errs)
-            {
-
-                if (b.length () > 0)
-                {
-
-                    b.append ("<br />");
-
-                }
-
-                b.append ("- " + e);
-
-            }
-
-            this.errors.setText ("<span class='error'>" + b.toString () + "</span>");
-            this.errorsLabel.setVisible (true);
-            this.errorsWrapper.setVisible (true);
-
-            this.editor.updateSideBar (this.baseValue);
-
-            return true;
-
-        } else {
-
-            this.errorsLabel.setVisible (false);
-            this.errorsWrapper.setVisible (false);
+            b.append ("* " + e);
 
         }
 
-        return false;
+        this.errors.setText ("<span class='error'>" + b.toString () + "</span>");
+        this.errorsLabel.setVisible (true);
+        this.errorsWrapper.setVisible (true);
+
+        this.getEditor ().updateSideBar (this.baseValue);
+
+        return true;
 
     }
 
+    public abstract void showPreview ();
+    /*
     public void showPreview ()
     {
 
@@ -903,7 +614,8 @@ public class LanguageStringsIdBox extends Box
         this.repaint ();
 
     }
-
+*/
+/*
     private void fillMatch ()
     {
 
@@ -961,17 +673,7 @@ public class LanguageStringsIdBox extends Box
         id = this.getIdAtCaret ();
 
         // We may be inserting into the middle of an id, check to see if it's valid.
-/*
-        if (id.hasErrors ())
-        {
 
-            this.hideSelector ();
-
-            // Update the view to "spell check" the ids.
-            return;
-
-        }
-*/
         // Check to see if the id maps to a string.
         if (this.editor.baseStrings.getString (id.getId ()) != null)
         {
@@ -1031,7 +733,8 @@ public class LanguageStringsIdBox extends Box
         }
 
     }
-
+*/
+/*
     private String updateSelectedMatch (int incr)
     {
 
@@ -1060,7 +763,8 @@ public class LanguageStringsIdBox extends Box
         return this.selections.getSelectedValue ();
 
     }
-
+*/
+/*
     public boolean isSelectorVisible ()
     {
 
@@ -1074,7 +778,8 @@ public class LanguageStringsIdBox extends Box
         return false;
 
     }
-
+*/
+/*
     public void hideSelector ()
     {
 
@@ -1088,7 +793,8 @@ public class LanguageStringsIdBox extends Box
         this.userValue.getEditor ().setFocusTraversalKeysEnabled (true);
 
     }
-
+*/
+/*
     public void showSelectionPopup (Set<String> matches,
                                     Point       point)
     {
@@ -1161,20 +867,9 @@ public class LanguageStringsIdBox extends Box
                 l.setText (obj);//.getName ());
 
                 l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (10)).deriveFont (Font.PLAIN));
-/*
-                l.setIcon (Environment.getObjectIcon (obj,
-                                                      Constants.ICON_NOTIFICATION));
-*/
                 l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
                 l.setPreferredSize (new Dimension (l.getPreferredSize ().width, 29));
-/*
-                if (cellHasFocus)
-                {
 
-                    l.setBackground (Environment.getHighlightColor ());
-
-                }
-*/
                 return l;
 
             }
@@ -1193,10 +888,6 @@ public class LanguageStringsIdBox extends Box
         sp.getVerticalScrollBar ().setUnitIncrement (rowHeight);
         sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         sp.setOpaque (false);
-/*
-        sp.getViewport ().setPreferredSize (new Dimension (300,
-                                                           rowHeight * (matches.size () > 10 ? 10 : matches.size ())));
-*/
         sp.setBorder (null);
 
         this.selector.add (sp);
@@ -1207,25 +898,7 @@ public class LanguageStringsIdBox extends Box
             @Override
             public void valueChanged (ListSelectionEvent ev)
             {
-/*
-                if (onSelect != null)
-                {
 
-                    NamedObject obj = (NamedObject) l.getSelectedValue ();
-
-                    onSelect.actionPerformed (new ActionEvent (l,
-                                                               0,
-                                                               obj.getObjectReference ().asString ()));
-
-                    if (closeOnSelect)
-                    {
-
-                        ep.removeFromParent ();
-
-                    }
-
-                }
-*/
             }
 
         });
@@ -1240,7 +913,7 @@ public class LanguageStringsIdBox extends Box
                                  false);
 
     }
-
+*/
     @Override
     public Dimension getMaximumSize ()
     {

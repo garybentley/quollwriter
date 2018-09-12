@@ -46,7 +46,6 @@ import com.quollwriter.achievements.ui.*;
 import com.quollwriter.ui.charts.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.forms.*;
-import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.SpellChecker;
 import com.quollwriter.uistrings.*;
 
@@ -88,6 +87,245 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
     @Override
     public void tryOut ()
     {
+
+        final WebsiteLanguageStringsEditor _this = this;
+
+        try
+        {
+
+            this.save ();
+
+        } catch (Exception e) {
+
+             Environment.logError ("Unable to save: " + this.userStrings,
+                                   e);
+
+             UIUtils.showErrorMessage (this,
+                                       "Unable to save strings.");
+
+             return;
+
+        }
+
+        int c = 0;
+
+        for (Value uv : this.userStrings.getAllValues ())
+        {
+
+             Value bv = this.baseStrings.getTextValue (uv.getId ());
+
+             if (bv == null)
+             {
+
+                 // The string is present in the user strings but not the base!
+                 Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
+
+                 continue;
+
+             }
+
+             c += uv.getErrors (this).size ();
+
+        }
+
+        if (c > 0)
+        {
+
+             UIUtils.showMessage ((PopupsSupported) this,
+                                  "Errors found in strings",
+                                  String.format ("Sorry, there are <b>%s</b> errors that must be corrected before you can submit the strings.",
+                                                 Environment.formatNumber (c)));
+
+             return;
+
+        }
+
+        Path _outputFile = null;
+
+        try
+        {
+
+            _outputFile = _this.createUploadFile ();
+
+        } catch (Exception e)
+        {
+
+             Environment.logError ("Unable to create upload file for strings: " + _this.userStrings,
+                                   e);
+
+             UIUtils.showErrorMessage (_this,
+                                       "Unable to upload strings.");
+
+             return;
+
+        }
+
+        final Path outputFile = _outputFile;
+
+        Map<String, String> headers = new HashMap<> ();
+
+        String submitterid = UserProperties.get (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
+
+        if (submitterid != null)
+        {
+
+             headers.put (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
+                          submitterid);
+
+        }
+
+        UIUtils.showMessage (this,
+                             "Your strings/images will now be uploaded to the server.  Note: your strings/images will be deleted after 2 hours.");
+
+        URL u = null;
+
+        try
+        {
+
+             u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.TRYOUT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
+
+             final ProgressPopup pp = new ProgressPopup (_this,
+                                                         "Uploading",
+                                                         "up",
+                                                         "Uploading strings/images, please wait...");
+
+             _this.showPopupAt (pp,
+                                UIUtils.getCenterShowPosition (_this,
+                                                               pp),
+                                 false);
+
+             pp.setDraggable (_this);
+
+             Utils.postToURL (u,
+                              headers,
+                              outputFile,
+                              // On success
+                              new ActionListener ()
+                              {
+
+                                  @Override
+                                  public void actionPerformed (ActionEvent ev)
+                                  {
+
+                                      pp.removeFromParent ();
+
+                                      try
+                                      {
+
+                                          Files.deleteIfExists (outputFile);
+
+                                      } catch (Exception e) {
+
+                                          Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                                e);
+
+                                      }
+
+                                      Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                      String res = (String) m.get ("result");
+
+                                      String sid = (String) m.get ("testid");
+
+                                      try
+                                      {
+
+                                          _this.saveToFile ();
+
+                                      } catch (Exception e) {
+
+                                          Environment.logError ("Unable to save strings file: " +
+                                                                _this.userStrings,
+                                                                e);
+
+                                      }
+
+                                      UIUtils.showMessage ((PopupsSupported) _this,
+                                                           "Strings uploaded",
+                                                           "Your strings have been uploaded and are ready to be tested.  A browser will now be opened for the {QW} website.");
+
+                                      UIUtils.openURL (_this,
+                                                       Environment.getQuollWriterWebsite () + "/" + sid + "/");
+
+                                 }
+
+                             },
+                             // On error
+                             new ActionListener ()
+                             {
+
+                                  @Override
+                                  public void actionPerformed (ActionEvent ev)
+                                  {
+
+                                      pp.removeFromParent ();
+
+                                      try
+                                      {
+
+                                          Files.deleteIfExists (outputFile);
+
+                                      } catch (Exception e) {
+
+                                          Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                                e);
+
+                                      }
+
+                                      Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                      String res = (String) m.get ("reason");
+
+                                      // Get the errors.
+                                      UIUtils.showErrorMessage (_this,
+                                                                "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                  }
+
+                              },
+                              new ActionListener ()
+                              {
+
+                                  @Override
+                                  public void actionPerformed (ActionEvent ev)
+                                  {
+
+                                      pp.removeFromParent ();
+
+                                      Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                      String res = (String) m.get ("reason");
+
+                                      // Get the errors.
+                                      UIUtils.showErrorMessage (_this,
+                                                                "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                  }
+
+                              },
+                              // Updater
+                              new UpdateEventListener<UploadProgressEvent> ()
+                              {
+
+                                  @Override
+                                  public void valueUpdated (UploadProgressEvent ev)
+                                  {
+
+                                      pp.update (ev.getPercent ());
+
+                                  }
+
+                              });
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to post to the url.",
+                                e);
+
+            UIUtils.showErrorMessage (_this,
+                                    "Unable to upload strings.");
+
+        }
 
     }
 
@@ -185,8 +423,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                            try
                            {
 
-                               uls = Environment.getWebsiteLanguageStrings (_this.userStrings.getStringsVersion (),
-                                                                            _this.userStrings.getId ());
+                               uls = Environment.getWebsiteLanguageStrings (_this.userStrings.getId ());
 
                            } catch (Exception e) {
 
@@ -268,8 +505,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
         final WebsiteLanguageStrings basels = this.baseStrings;
 
-        final WebsiteLanguageStrings prevbasels = Environment.getWebsiteLanguageStrings (1,
-                                                                                         WebsiteLanguageStrings.ENGLISH_ID);
+        final WebsiteLanguageStrings prevbasels = Environment.getWebsiteLanguageStrings (WebsiteLanguageStrings.ENGLISH_ID);
 
         if (prevbasels == null)
         {
@@ -365,8 +601,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
             Environment.saveWebsiteLanguageStrings (this.userStrings);
 
-            WebsiteLanguageStrings uls = Environment.getWebsiteLanguageStrings (this.userStrings.getStringsVersion (),
-                                                                                this.userStrings.getId ());
+            WebsiteLanguageStrings uls = Environment.getWebsiteLanguageStrings (this.userStrings.getId ());
 
             // Get a diff of the default to this new.
             WebsiteLanguageStringsEditor lse = Environment.editWebsiteLanguageStrings (uls);
@@ -394,8 +629,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
         ids.add (SUBMIT_HEADER_CONTROL_ID);
         ids.add (FIND_HEADER_CONTROL_ID);
-        //ids.add (USE_HEADER_CONTROL_ID);
-        ids.add (REPORT_BUG_HEADER_CONTROL_ID);
+        ids.add (USE_HEADER_CONTROL_ID);
+        //ids.add (REPORT_BUG_HEADER_CONTROL_ID);
         ids.add (HELP_HEADER_CONTROL_ID);
         ids.add (SETTINGS_HEADER_CONTROL_ID);
 
@@ -434,7 +669,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                         {
 
                                             UIUtils.openURL (_this,
-                                                             "help://uilanguages/overview");
+                                                             "help:websitelanguage");
 
                                         }
 
@@ -453,8 +688,41 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
 	}
 
+    private Path createUploadFile ()
+                            throws Exception
+    {
+
+        // Get the file, then send.
+        String t = JSONEncoder.encode (this.userStrings.getAsJSON ());
+
+        Map<String, Object> entries = new HashMap<> ();
+        entries.put ("/strings", t);
+
+        for (ImageValue iv : this.userStrings.getAllImageValues ())
+        {
+
+            ImageValue bv = this.baseStrings.getImageValue (iv.getId ());
+
+            entries.put (BaseStrings.toId (bv.getId ()),
+                         iv.getImageFile ());
+
+        }
+
+        Path outputFile = Files.createTempFile ("qw-upload",
+                                                ".zip");
+
+        outputFile.toFile ().deleteOnExit ();
+
+        Utils.createZipFile (outputFile,
+                             entries);
+
+        return outputFile;
+
+    }
+
     @Override
-    public void submit ()
+    public void submit (ActionListener onSuccess,
+                        ActionListener onFailure)
     {
 
         final WebsiteLanguageStringsEditor _this = this;
@@ -472,18 +740,22 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
             UIUtils.showErrorMessage (this,
                                       "Unable to save strings.");
 
+            UIUtils.doLater (onFailure);
+
             return;
 
         }
 
         Set<Value> vals = this.userStrings.getAllValues ();
 
-        if (vals.size () == 0)
+        if (vals.size () != this.baseStrings.getAllValues ().size ())
         {
 
             UIUtils.showMessage ((PopupsSupported) this,
-                                 "No strings provided",
-                                 "Sorry, you must provide at least 1 string.");
+                                 "Strings/images required",
+                                 "Sorry, you must provide values for all strings and images.");
+
+            UIUtils.doLater (onFailure);
 
             return;
 
@@ -518,6 +790,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                  String.format ("Sorry, there are <b>%s</b> errors that must be corrected before you can submit the strings.",
                                                 Environment.formatNumber (c)));
 
+            UIUtils.doLater (onFailure);
+
             return;
 
         }
@@ -537,7 +811,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
             Box content = new Box (BoxLayout.Y_AXIS);
 
-            JTextPane help = UIUtils.createHelpTextPane ("Complete the form below to submit your strings.  All the values are required.",
+            JTextPane help = UIUtils.createHelpTextPane ("Complete the form below to submit your strings.  All the values are required.<br /><br /><a href='https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes'>Click here to view the language codes</a>",
                                                          this);
 
             help.setBorder (null);
@@ -558,10 +832,10 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
             items.add (nativelang);
 
-            final TextFormItem lang = new TextFormItem ("English Name (i.e. Spanish, French, German)",
-                                                         this.userStrings.getLanguageName ());
+            final TextFormItem langcode = new TextFormItem ("Language Code (ISO 639-1 2 letter code, i.e es)",
+                                                             this.userStrings.getLanguageCode ());
 
-            items.add (lang);
+            items.add (langcode);
 
             final TextFormItem email = new TextFormItem ("Contact Email",
                                                          this.userStrings.getEmail ());
@@ -571,7 +845,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
             final JLabel tc = UIUtils.createClickableLabel ("View the Terms and Conditions for creating a translation",
                                                             Environment.getIcon (Constants.INFO_ICON_NAME,
                                                                                  Constants.ICON_CLICKABLE_LABEL),
-                                                            Environment.getQuollWriterHelpLink ("uilanguages/terms-and-conditions",
+                                                            Environment.getQuollWriterHelpLink ("websitelanguage-terms-and-conditions",
                                                                                                 null));
 
             final CheckboxFormItem tandc = new CheckboxFormItem (null, "I have read and agree to the Terms and Conditions");
@@ -601,18 +875,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                         qp.resize ();
                         qp.resize ();
 
-                        return;
-
-                    }
-
-                    String l = lang.getValue ();
-
-                    if (l == null)
-                    {
-
-                        error.setText ("Please enter the English Language name.");
-                        error.setVisible (true);
-                        qp.resize ();
+                        UIUtils.doLater (onFailure);
 
                         return;
 
@@ -627,6 +890,72 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                         error.setVisible (true);
                         qp.resize ();
 
+                        UIUtils.doLater (onFailure);
+
+                        return;
+
+                    }
+
+                    String lc = langcode.getValue ();
+
+                    boolean show = false;
+
+                    if (lc == null)
+                    {
+
+                        show = true;
+
+                    } else {
+
+                        lc = lc.trim ().toLowerCase ();
+
+                        if (lc.length () != 2)
+                        {
+
+                            show = true;
+
+                        } else {
+
+                            if (!Character.isLetter (lc.charAt (0)))
+                            {
+
+                                show = true;
+
+                            }
+
+                            if (!Character.isLetter (lc.charAt (1)))
+                            {
+
+                                show = true;
+
+                            }
+
+                        }
+
+                    }
+
+                    if (show)
+                    {
+
+                        error.setText ("Please enter a valid 2 letter ISO 639-1 language code.");
+                        error.setVisible (true);
+                        qp.resize ();
+
+                        UIUtils.doLater (onFailure);
+
+                        return;
+
+                    }
+
+                    if (WebsiteLanguageStrings.isEnglish (lc))
+                    {
+
+                        error.setText ("The {QW} already has an English translation!");
+                        error.setVisible (true);
+                        qp.resize ();
+
+                        UIUtils.doLater (onFailure);
+
                         return;
 
                     }
@@ -637,6 +966,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                         error.setText ("No strings provided.  Please provide at least 1 string for your translation.");
                         error.setVisible (true);
                         qp.resize ();
+
+                        UIUtils.doLater (onFailure);
 
                         return;
 
@@ -652,13 +983,15 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                         error.setVisible (true);
                         qp.resize ();
 
+                        UIUtils.doLater (onFailure);
+
                         return;
 
                     }
 
                     _this.userStrings.setEmail (em);
-                    _this.userStrings.setLanguageName (l);
                     _this.userStrings.setNativeName (nl);
+                    _this.userStrings.setLanguageCode (lc);
 
                     _this.updateTitle ();
 
@@ -675,41 +1008,9 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                         UIUtils.showErrorMessage (_this,
                                                   "Unable to save strings.");
 
-                        return;
-
-                    }
-
-                    // Get the file, then send.
-                    String t = null;
-
-                    try
-                    {
-
-                        t = JSONEncoder.encode (_this.userStrings.getAsJSON ());
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to upload strings: " + _this.userStrings,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to upload strings.");
+                        UIUtils.doLater (onFailure);
 
                         return;
-
-                    }
-
-                    Map<String, Object> entries = new HashMap<> ();
-                    entries.put ("/strings", t);
-
-                    for (ImageValue iv : _this.userStrings.getAllImageValues ())
-                    {
-
-                        ImageValue bv = _this.baseStrings.getImageValue (iv.getId ());
-
-                        entries.put (BaseStrings.toId (bv.getId ()),
-                                     iv.getImageFile ());
 
                     }
 
@@ -718,42 +1019,24 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                     try
                     {
 
-                        _outputFile = Files.createTempFile ("qw-upload",
-                                                            ".zip");
+                        _outputFile = _this.createUploadFile ();
 
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
 
-                        Environment.logError ("Unable to create output file",
+                        Environment.logError ("Unable to create upload file for strings: " + _this.userStrings,
                                               e);
 
                         UIUtils.showErrorMessage (_this,
                                                   "Unable to upload strings.");
+
+                        UIUtils.doLater (onFailure);
 
                         return;
 
                     }
 
                     final Path outputFile = _outputFile;
-
-                    outputFile.toFile ().deleteOnExit ();
-
-                    try
-                    {
-
-                        Utils.createZipFile (outputFile,
-                                             entries);
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to create zip file: " + outputFile,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to upload strings.");
-
-                        return;
-
-                    }
 
                     Map<String, String> headers = new HashMap<> ();
 
@@ -772,6 +1055,20 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                     try
                     {
 
+                        qp.setVisible (false);
+
+                        final ProgressPopup pp = new ProgressPopup (_this,
+                                                                    "Uploading",
+                                                                    "up",
+                                                                    "Uploading strings/images, please wait...");
+
+                        _this.showPopupAt (pp,
+                                           UIUtils.getCenterShowPosition (_this,
+                                                                          pp),
+                                            false);
+
+                        pp.setDraggable (_this);
+
                         u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.SUBMIT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
 
                         Utils.postToURL (u,
@@ -784,7 +1081,9 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                              @Override
                                              public void actionPerformed (ActionEvent ev)
                                              {
-Environment.out.println ("HERE");
+
+                                                 pp.removeFromParent ();
+
                                                  try
                                                  {
 
@@ -798,7 +1097,7 @@ Environment.out.println ("HERE");
                                                  }
 
                                                  Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-Environment.out.println ("GOT: " + m);
+
                                                  String res = (String) m.get ("result");
 
                                                  String sid = (String) m.get ("submitterid");
@@ -823,6 +1122,8 @@ Environment.out.println ("GOT: " + m);
                                                      UIUtils.showErrorMessage (_this,
                                                                                "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
 
+                                                     UIUtils.doLater (onFailure);
+
                                                      return;
 
                                                  }
@@ -839,13 +1140,15 @@ Environment.out.println ("GOT: " + m);
 
                                                      UIUtils.showMessage ((PopupsSupported) _this,
                                                                           "Strings submitted",
-                                                                          String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to Quoll Writer users.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
+                                                                          String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to visitors of the Quoll Writer website.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
                                                                                          Environment.formatNumber (_this.userStrings.getStringsVersion ())));
 
                                                  }
 
                                                  qp.resize ();
                                                  qp.removeFromParent ();
+
+                                                 UIUtils.doLater (onSuccess);
 
                                              }
 
@@ -857,6 +1160,8 @@ Environment.out.println ("GOT: " + m);
                                              @Override
                                              public void actionPerformed (ActionEvent ev)
                                              {
+
+                                                 pp.removeFromParent ();
 
                                                  try
                                                  {
@@ -878,15 +1183,20 @@ Environment.out.println ("GOT: " + m);
                                                  UIUtils.showErrorMessage (_this,
                                                                            "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
 
+                                                 UIUtils.doLater (onFailure);
+
                                              }
 
                                          },
+                                         // On failure
                                          new ActionListener ()
                                          {
 
                                              @Override
                                              public void actionPerformed (ActionEvent ev)
                                              {
+
+                                                 pp.removeFromParent ();
 
                                                  Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
@@ -895,6 +1205,21 @@ Environment.out.println ("GOT: " + m);
                                                  // Get the errors.
                                                  UIUtils.showErrorMessage (_this,
                                                                            "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                                 UIUtils.doLater (onFailure);
+
+                                             }
+
+                                         },
+                                         // Updater
+                                         new UpdateEventListener<UploadProgressEvent> ()
+                                         {
+
+                                             @Override
+                                             public void valueUpdated (UploadProgressEvent ev)
+                                             {
+
+                                                 pp.update (ev.getPercent ());
 
                                              }
 
@@ -908,6 +1233,8 @@ Environment.out.println ("GOT: " + m);
                          UIUtils.showErrorMessage (_this,
                                                    "Unable to upload strings.");
 
+                         UIUtils.doLater (onFailure);
+
                          return;
 
                      }
@@ -916,8 +1243,6 @@ Environment.out.println ("GOT: " + m);
 
             };
 
-            UIUtils.addDoActionOnReturnPressed (lang.getTextField (),
-                                                saveAction);
             UIUtils.addDoActionOnReturnPressed (nativelang.getTextField (),
                                                 saveAction);
             UIUtils.addDoActionOnReturnPressed (email.getTextField (),
@@ -1016,7 +1341,22 @@ Environment.out.println ("GOT: " + m);
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    _this.submit ();
+                                                    _this.submit (null,
+                                                                  null);
+
+                                                }
+
+                                            }));
+
+        popup.add (this.createMenuItem ("Try out your strings",
+                                        Constants.PLAY_ICON_NAME,
+                                        new ActionAdapter ()
+                                        {
+
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+
+                                                    _this.tryOut ();
 
                                                 }
 
@@ -1051,27 +1391,7 @@ Environment.out.println ("GOT: " + m);
 											}
 
 										}));
-/*
-        if (this.baseStrings.getQuollWriterVersion ().equals (Environment.getQuollWriterVersion ()))
-        {
 
-            popup.add (this.createMenuItem ("Try out your strings",
-                                            Constants.PLAY_ICON_NAME,
-    										new ActionListener ()
-    											 {
-
-    												@Override
-    												public void actionPerformed (ActionEvent ev)
-    												{
-
-                                                        //_this.tryOut ();
-
-    												}
-
-    											 }));
-
-        }
-*/
         popup.add (this.createMenuItem ("Delete",
                                      Constants.DELETE_ICON_NAME,
 										new ActionListener ()
@@ -1157,19 +1477,13 @@ Environment.out.println ("GOT: " + m);
 
         final Box content = new Box (BoxLayout.Y_AXIS);
 
-        JComponent mess = UIUtils.createHelpTextPane ("Please confirm you wish to delete your strings.  Enter <b>Yes</b> in the box below to confirm deletion.<br /><br />To delete <b>all</b> versions of the strings please check the box below.<br /><br /><span class='warning'>Warning!  This is an irreverisble operation and cannot be undone.  This will make your strings unavailable to {QW} users but will not remove it from anyone who has already downloaded the strings.",
+        JComponent mess = UIUtils.createHelpTextPane ("Please confirm you wish to delete your strings.  Enter <b>Yes</b> in the box below to confirm deletion.<br /><br /><span class='warning'>Warning!  This is an irreverisble operation and cannot be undone.  This will make your strings unavailable to {QW} users but will not remove it from anyone who has already downloaded the strings.",
                                                       this);
         mess.setBorder (null);
         mess.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                      mess.getPreferredSize ().height));
 
         content.add (mess);
-
-        content.add (Box.createVerticalStrut (10));
-
-        final JCheckBox delAll = UIUtils.createCheckBox ("Delete all versions");
-
-        content.add (delAll);
 
         content.add (Box.createVerticalStrut (10));
 
@@ -1262,10 +1576,6 @@ Environment.out.println ("GOT: " + m);
                                                        Constants.ID_TAG,
                                                        _this.userStrings.getId ());
 
-                        p = StringUtils.replaceString (p,
-                                                       Constants.ALL_TAG,
-                                                       (delAll.isSelected () ? "true" : ""));
-
                         u = new URL (Environment.getQuollWriterWebsite () + p);
 
                     } catch (Exception e) {
@@ -1302,8 +1612,7 @@ Environment.out.println ("GOT: " + m);
                                              try
                                              {
 
-                                                 Environment.deleteWebsiteLanguageStrings (_this.userStrings,
-                                                                                           delAll.isSelected ());
+                                                 Environment.deleteWebsiteLanguageStrings (_this.userStrings);
 
                                              } catch (Exception e) {
 
@@ -1329,7 +1638,7 @@ Environment.out.println ("GOT: " + m);
 
                                                      UIUtils.showMessage ((Component) null,
                                                                           "Strings deleted",
-                                                                          "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
+                                                                          "Your strings have been deleted.  Please note: your images have <b>not</b> been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
 
                                                  }
 
@@ -1374,7 +1683,8 @@ Environment.out.println ("GOT: " + m);
 
                                          }
 
-                                     });
+                                     },
+                                     null);
 
                 } else {
 
@@ -1383,8 +1693,7 @@ Environment.out.println ("GOT: " + m);
                     try
                     {
 
-                        Environment.deleteWebsiteLanguageStrings (_this.userStrings,
-                                                                  delAll.isSelected ());
+                        Environment.deleteWebsiteLanguageStrings (_this.userStrings);
 
                     } catch (Exception e) {
 
@@ -1482,6 +1791,8 @@ Environment.out.println ("GOT: " + m);
 
         }
 
+        this.userStrings.setBaseVersion (this.userStrings.getDerivedFrom ().getStringsVersion ());
+
         this.saveToFile ();
 
     }
@@ -1491,6 +1802,14 @@ Environment.out.println ("GOT: " + m);
 
         this.setViewerTitle (String.format ("Edit Website Language Strings for: %s",
                                             this.userStrings.getNativeName ()));
+
+    }
+
+    @Override
+    public void showReportProblemForId (String id)
+    {
+
+        this.showReportProblem ("Website Language Strings Id: " + id + "\n\n");
 
     }
 

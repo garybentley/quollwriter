@@ -21,6 +21,7 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
     //public static String ID_REF_START = "${";
     //public static String ID_REF_END = "}";
 
+    private String languageName = null;
     private Version qwVersion = null;
     //private Set<Section> sections = null;
 
@@ -96,6 +97,20 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
         this ();
 
         this.init (jsonData);
+
+    }
+
+    public void setLanguageName (String n)
+    {
+
+        this.languageName = n;
+
+    }
+
+    public String getLanguageName ()
+    {
+
+        return this.languageName;
 
     }
 
@@ -178,7 +193,7 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
         if (!(obj instanceof Map))
         {
 
-            throw new IllegalArgumentException ("String does parse to a Map");
+            throw new IllegalArgumentException ("String does parse to a Map, is: " + obj.getClass ().getName ());
 
         }
 
@@ -192,6 +207,9 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
     {
 
         super.init (obj);
+
+        this.languageName = this.getString (":language",
+                                            obj);
 
         String qwv = (String) obj.get (":qwversion");
 
@@ -285,6 +303,10 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
         super.fillToStringProperties (props);
 
         this.addToStringProperties (props,
+                                    "language",
+                                    this.languageName);
+
+        this.addToStringProperties (props,
                                     "qwversion",
                                     this.qwVersion.getVersion ());
 
@@ -300,6 +322,8 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
     {
 
         Map m = super.getAsJSON ();
+        m.put (":language",
+               this.languageName);
         m.put (":qwversion",
                this.qwVersion.getVersion ());
         return m;

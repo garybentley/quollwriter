@@ -295,6 +295,27 @@ public class BaseStrings implements RefValueProvider
 
     }
 
+    public Set<Value> find (String text)
+    {
+
+        Set<Value> ret = new LinkedHashSet<> ();
+
+        for (Value v : this.getAllValues ())
+        {
+
+            if (v.match (text))
+            {
+
+                ret.add (v);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
     public TextValue insertTextValue (List<String> idparts)
                                throws GeneralException
     {
@@ -821,6 +842,13 @@ copy?
                 }
 
                 String sv = strings.getString (sid);
+
+                if (sv == null)
+                {
+
+                    sv = ID_REF_START + sid + ID_REF_END;
+
+                }
 
                 if (sub != null)
                 {

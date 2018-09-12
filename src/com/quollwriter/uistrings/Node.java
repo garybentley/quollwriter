@@ -13,7 +13,6 @@ public class Node<E extends Value> implements Comparable<Node>
     protected String comment = null;
     protected String section = null;
     private String title = null;
-    private Set<ImageValue> imgs = null;
     private Set<String> toplevelNodes = null;
 
     public Node (String id,
@@ -1151,6 +1150,8 @@ public class Node<E extends Value> implements Comparable<Node>
 
         Node n = (Node) o;
 
+        return BaseStrings.toId (this.getId ()).equals (BaseStrings.toId (n.getId ()));
+/*
         if ((this.parent != null)
             &&
             (n.parent != null)
@@ -1177,7 +1178,7 @@ public class Node<E extends Value> implements Comparable<Node>
         }
 
         return false;
-
+*/
     }
 
     public boolean isDifferent (E v)

@@ -21,8 +21,7 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     //public static String ID_REF_START = "${";
     //public static String ID_REF_END = "}";
 
-    private String languageName = null;
-    private int stringsVersion = 1;
+    private int stringsVersion = 0;
     private Date created = null;
     private Date lastModified = null;
     private String _email = null;
@@ -107,6 +106,13 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 */
+
+    public Set<Value> find (String text)
+    {
+
+        return this.strings.find (text);
+
+    }
 
     public E getDerivedFrom ()
     {
@@ -317,9 +323,6 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
         }
 
-        this.languageName = this.getString (":language",
-                                            m);
-
         super.setName (this.getString (":nativename",
                                        m));
 
@@ -442,9 +445,6 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
         super.fillToStringProperties (props);
 
         this.addToStringProperties (props,
-                                    "language",
-                                    this.languageName);
-        this.addToStringProperties (props,
                                     "nativename",
                                     this.getName ());
         this.addToStringProperties (props,
@@ -478,8 +478,6 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
         Map m = new HashMap ();
 
-        m.put (":language",
-               this.languageName);
         m.put (":nativename",
                this.getName ());
         m.put (":email",
@@ -1010,6 +1008,30 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
+    public Number getNumber (String id,
+                             Map    from)
+    {
+
+        Object o = from.get (id);
+
+        if (o == null)
+        {
+
+            return null;
+
+        }
+
+        if (o instanceof Number)
+        {
+
+            return (Number) o;
+
+        }
+
+        return null;
+
+    }
+
     public Map<String, Node> cloneNodes ()
     {
 
@@ -1209,19 +1231,6 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
-    public void setLanguageName (String n)
-    {
-
-        this.languageName = n;
-
-    }
-
-    public String getLanguageName ()
-    {
-
-        return this.languageName;
-
-    }
 /*
     public static String toId (List<String> ids)
     {
