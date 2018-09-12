@@ -585,7 +585,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                                 {
 
                                                                                     UIUtils.openURL (_this,
-                                                                                                     "help:index");
+                                                                                                     "help:getting-started");
 
                                                                                 }
 
@@ -602,7 +602,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                                 {
 
                                                                                     UIUtils.openURL (_this,
-                                                                                                     "help:main-window/keyboard-shortcuts");
+                                                                                                     "help:keyboard-shortcuts");
 
                                                                                 }
 
@@ -922,6 +922,13 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     public void showReportProblem ()
     {
 
+        this.showReportProblem (null);
+
+    }
+
+    public void showReportProblem (String bugText)
+    {
+
         final AbstractViewer _this = this;
 
         java.util.List<String> prefix = Arrays.asList (project,actions,reportproblem);
@@ -966,6 +973,13 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                           10000,
                                                                           false,
                                                                           null);
+
+            if (bugText != null)
+            {
+
+                desc.setText (bugText);
+
+            }
 
             final TextFormItem email = new TextFormItem (getUIString (prefix, LanguageStrings.popup, LanguageStrings.email,text),
                                                          //"Email",
