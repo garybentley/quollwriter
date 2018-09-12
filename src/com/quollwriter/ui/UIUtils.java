@@ -5289,7 +5289,7 @@ public class UIUtils
 
             String p = url.getPath ();
 
-            if (!p.endsWith (".html"))
+            if (p.indexOf (".html") < 0)
             {
 
                 p += ".html";
@@ -5297,6 +5297,13 @@ public class UIUtils
             }
 
             u = u + "/user-guide/" + url.getHost () + p;
+
+            if (url.getRef () != null)
+            {
+
+                u += "#" + url.getRef ();
+
+            }
 
             try
             {
