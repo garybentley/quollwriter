@@ -18,7 +18,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
-public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSideBar<E>
+public abstract class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSideBar<E>
 {
 
     private List<AccordionItem> items = new ArrayList ();
@@ -67,12 +67,7 @@ public class AccordionItemsSideBar<E extends AbstractViewer> extends AbstractSid
     }
 
     @Override
-    public String getId ()
-    {
-
-        return null;
-
-    }
+    public abstract String getId ();
 
     @Override
     public void onShow ()
