@@ -240,12 +240,15 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                                       }
 
+                                      String url = Environment.getQuollWriterWebsite () + "/" + sid + "/";
+
                                       UIUtils.showMessage ((PopupsSupported) _this,
                                                            "Strings uploaded",
-                                                           "Your strings have been uploaded and are ready to be tested.  A browser will now be opened for the {QW} website.");
+                                                           String.format ("Your strings have been uploaded and are ready to be tested.  A browser will now be opened for the {QW} website.<br /><br />You can also <a href='%s'>click here</a> to try out your translation.",
+                                                                          url));
 
                                       UIUtils.openURL (_this,
-                                                       Environment.getQuollWriterWebsite () + "/" + sid + "/");
+                                                       url);
 
                                  }
 
@@ -271,11 +274,11 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                                                 e);
 
                                       }
-
+Environment.out.println ("S: " + ev.getSource ());
                                       Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
                                       String res = (String) m.get ("reason");
-
+Environment.out.println ("HERE: " + res);
                                       // Get the errors.
                                       UIUtils.showErrorMessage (_this,
                                                                 "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
