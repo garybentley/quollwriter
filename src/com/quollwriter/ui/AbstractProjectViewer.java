@@ -2641,8 +2641,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                     // you exit full screen it will have the other sidebar as taking up all the space.
                     _this.splitPane.setDividerLocation (fsbw2);
 
-					_this.validate ();
-					_this.repaint ();
+                    if (_this.isShowing ())
+                    {
+
+    					_this.validate ();
+    					_this.repaint ();
+
+                    }
 
                 }
 
