@@ -16,6 +16,7 @@ import java.beans.*;
 
 import java.io.*;
 import java.nio.charset.*;
+import java.nio.file.*;
 
 import java.net.*;
 
@@ -8393,6 +8394,48 @@ xxx
          String data = Environment.getJSONFileAsString (url);
 
          return new WebsiteLanguageStrings (data);
+
+    }
+
+    public static File getEnglishWebsiteLanguageStringsPreviousFile ()
+                                                              throws Exception
+    {
+
+        File f = Environment.getWebsiteLanguageStringsFile (WebsiteLanguageStrings.ENGLISH_ID);
+        return new File (f.getParent (), f.getName () + "-prev");
+
+    }
+
+    public static WebsiteLanguageStrings getPreviousEnglishWebsiteLanguageStrings ()
+                                                                            throws Exception
+    {
+
+        File f = Environment.getEnglishWebsiteLanguageStringsPreviousFile ();
+
+        if (f.exists ())
+        {
+
+            WebsiteLanguageStrings ls = new WebsiteLanguageStrings (f);
+
+            return ls;
+
+        }
+
+        return null;
+
+    }
+
+    public static void moveWebsiteLanguageStringsToPrevious ()
+                                                      throws Exception
+    {
+
+        File f = Environment.getWebsiteLanguageStringsFile (WebsiteLanguageStrings.ENGLISH_ID);
+
+        Path p = f.toPath ();
+        Path np = Environment.getEnglishWebsiteLanguageStringsPreviousFile ().toPath ();
+
+        Files.move (p, np,
+                    StandardCopyOption.REPLACE_EXISTING);
 
     }
 

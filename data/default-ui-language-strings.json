@@ -6127,7 +6127,7 @@
                 },
                 "importfile" :
                 {
-                    "tooltip" : "Click to create a new ${objectnames.singular.project} by importing a file."
+                    "tooltip" : "Click to create a new ${objectnames.singular.project} by importing a file or importing from another ${objectnames.singular.project}."
                 }
             }
         },

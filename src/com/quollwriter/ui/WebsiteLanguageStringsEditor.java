@@ -55,6 +55,8 @@ import static com.quollwriter.Environment.getUIString;
 public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<WebsiteLanguageStrings, WebsiteLanguageStrings>
 {
 
+    private WebsiteLanguageStrings prevEnglishStrings = null;
+
     public WebsiteLanguageStringsEditor (WebsiteLanguageStrings userStrings)
 			                      throws Exception
     {
@@ -68,13 +70,17 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                 throws Exception
     {
 
-        if (this.nodeFilter != null)
+        if ((this.nodeFilter != null)
+            &&
+            (this.prevEnglishStrings != null)
+           )
         {
 
             this.showAllStrings ();
 
-            this.showForwardLabel (String.format ("Click to show what's changed/new between version <b>%s</b> and <b></b>.",
-                                                  this.userStrings.getStringsVersion ()));
+            this.showForwardLabel (String.format ("Click to show what's changed/new between version <b>%1$s</b> and <b>%2$s</b>.",
+                                                  this.baseStrings.getStringsVersion (),
+                                                  this.prevEnglishStrings.getStringsVersion ()));
 
         } else {
 
@@ -112,7 +118,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
         for (Value uv : this.userStrings.getAllValues ())
         {
 
-             Value bv = this.baseStrings.getTextValue (uv.getId ());
+             Value bv = this.baseStrings.getValue (uv.getId ());
 
              if (bv == null)
              {
@@ -274,11 +280,11 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                                                 e);
 
                                       }
-Environment.out.println ("S: " + ev.getSource ());
+
                                       Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
                                       String res = (String) m.get ("reason");
-Environment.out.println ("HERE: " + res);
+
                                       // Get the errors.
                                       UIUtils.showErrorMessage (_this,
                                                                 "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
@@ -343,6 +349,17 @@ Environment.out.println ("HERE: " + res);
 
         this.updateTitle ();
 
+        this.prevEnglishStrings = Environment.getPreviousEnglishWebsiteLanguageStrings ();
+
+        if (this.prevEnglishStrings != null)
+        {
+
+            this.showForwardLabel (String.format ("Click to show what's changed/new between version <b>%1$s</b> and <b>%2$s</b>.",
+                                                  this.baseStrings.getStringsVersion (),
+                                                  this.prevEnglishStrings.getStringsVersion ()));
+
+        }
+
         // Check to see if a new version of the default strings is available.
         Environment.schedule (new Runnable ()
         {
@@ -374,6 +391,24 @@ Environment.out.println ("HERE: " + res);
                  {
 
                      // Server still has same version.
+                     return;
+
+                 }
+
+                 try
+                 {
+
+                     // Move the existing strings file to a previous veersion.
+                     Environment.moveWebsiteLanguageStringsToPrevious ();
+
+                 } catch (Exception e) {
+
+                     Environment.logError ("Unable to move English Website UI language strings to previous file.",
+                                           e);
+
+                     UIUtils.showErrorMessage (_this,
+                                               "Unable to get English Website UI language strings.");
+
                      return;
 
                  }
@@ -446,6 +481,13 @@ Environment.out.println ("HERE: " + res);
                                // Open these instead.
                                WebsiteLanguageStringsEditor lse = Environment.editWebsiteLanguageStrings (uls);
 
+                               if (lse == _this)
+                               {
+
+                                   _this.baseStrings = _enStrs;
+
+                               }
+
                                try
                                {
 
@@ -474,6 +516,14 @@ Environment.out.println ("HERE: " + res);
                            _this.removeNotification (n);
 
                        }
+
+                  });
+
+                  UIUtils.doLater (e ->
+                  {
+
+                     _this.validate ();
+                     _this.repaint ();
 
                   });
 
@@ -508,7 +558,7 @@ Environment.out.println ("HERE: " + res);
 
         final WebsiteLanguageStrings basels = this.baseStrings;
 
-        final WebsiteLanguageStrings prevbasels = Environment.getWebsiteLanguageStrings (WebsiteLanguageStrings.ENGLISH_ID);
+        final WebsiteLanguageStrings prevbasels = Environment.getPreviousEnglishWebsiteLanguageStrings ();
 
         if (prevbasels == null)
         {
@@ -517,6 +567,8 @@ Environment.out.println ("HERE: " + res);
             return;
 
         }
+
+        this.prevEnglishStrings = prevbasels;
 
         this.setNodeFilter (new Filter<Node> ()
         {
@@ -584,8 +636,8 @@ Environment.out.println ("HERE: " + res);
 
         });
 
-        this.showForwardLabel (String.format ("Click to show all the strings for version <b>%s</b>.",
-                                              this.userStrings.getStringsVersion ()));
+        this.showForwardLabel (String.format ("Click to show all the strings for version <b>%1$s</b>.",
+                                              this.baseStrings.getStringsVersion ()));
 /*
       this.showForwardLabel (String.format ("Click to show what's changed/new between version <b>%s</b> and <b>%s</b>.",
                                             Environment.getQuollWriterVersion ().toString (),
@@ -769,7 +821,7 @@ Environment.out.println ("HERE: " + res);
         for (Value uv : vals)
         {
 
-            Value bv = this.baseStrings.getTextValue (uv.getId ());
+            Value bv = this.baseStrings.getValue (uv.getId ());
 
             if (bv == null)
             {
