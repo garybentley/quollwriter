@@ -827,7 +827,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
             {
 
                 // The string is present in the user strings but not the base!
-                Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
+                //Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
 
                 continue;
 
