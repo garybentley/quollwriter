@@ -3219,7 +3219,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			c = UIUtils.createButton (Constants.PROJECT_IMPORT_ICON_NAME,
                                       Constants.ICON_TITLE_ACTION,
                                       Environment.getUIString (prefix,
-                                                               LanguageStrings.add,
+                                                               LanguageStrings.importfile,
                                                                LanguageStrings.tooltip),
                                     //"Click to create a new {project} by importing a file",
                                           new ActionAdapter ()
