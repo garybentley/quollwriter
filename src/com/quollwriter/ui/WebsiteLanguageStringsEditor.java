@@ -818,9 +818,6 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
         int c = 0;
 
-        // TEST
-        java.util.List<String> errs = new ArrayList<> ();
-
         for (Value uv : vals)
         {
 
@@ -836,11 +833,10 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
             }
 
-            c += bv.getErrors (this).size ();
-            errs.addAll (bv.getErrors (this));
+            c += uv.getErrors (this).size ();
 
         }
-Environment.logError ("ERRORS: " + errs);
+
         if (c > 0)
         {
 
