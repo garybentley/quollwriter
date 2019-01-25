@@ -9923,11 +9923,32 @@ public class UIUtils
                 // Add our local ones.
                 Set<UILanguageStrings> uistrs = Environment.getAllUILanguageStrings (Environment.getQuollWriterVersion ());
 
+                String format = "%1$s (%2$s, %3$s%%)";
+                int s = 0;
+                UILanguageStrings enStrs = null;
+
+                try
+                {
+                    enStrs = Environment.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ());
+                    s = Environment.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ()).getAllTextValues ().size ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get english ui language strings count.",
+                                          e);
+
+                }
+
                 for (UILanguageStrings uistr : uistrs)
                 {
 
+                    int c = uistr.getAllTextValues ().size ();
+
                     langIds.add (uistr.getId ());
-                    objs.put (uistr.getId (), uistr.getNativeName () + " (" + uistr.getLanguageName () + ")");
+                    objs.put (uistr.getId (), String.format (format,
+                                                             uistr.getNativeName (),
+                                                             uistr.getLanguageName (),
+                                                             Environment.formatNumber (Environment.getPercent (c, s))));
 
                 }
 
@@ -9946,7 +9967,48 @@ public class UIUtils
 
                     String id = (String) m.get ("id");
 
-                    objs.put (id, m.get ("nativename").toString () + (!id.equals (UILanguageStrings.ENGLISH_ID) ? " (" + m.get ("languagename") + ")" : ""));
+                    if (!id.equals (UILanguageStrings.ENGLISH_ID))
+                    {
+
+                        int c = 100;
+
+                        Object v = m.get ("strcount");
+
+                        if (v != null)
+                        {
+
+                            if (v instanceof Number)
+                            {
+
+                                c = ((Number) v).intValue ();
+
+                            } else {
+
+                                try
+                                {
+
+                                    c = Integer.parseInt (m.get ("strcount").toString ());
+
+                                } catch (Exception e) {
+
+                                    // Ignore
+
+                                }
+
+                            }
+
+                        }
+
+                        objs.put (id, String.format (format,
+                                                     m.get ("nativename").toString (),
+                                                     m.get ("languagename"),
+                                                     Environment.formatNumber (Environment.getPercent (c, s))));
+
+                    } else {
+
+                        objs.put (id, m.get ("nativename").toString ());
+
+                    }
 
                     langIds.add (id);
 
@@ -9954,52 +10016,47 @@ public class UIUtils
 
                 final Vector langs = new Vector (langIds);
 
-                SwingUtilities.invokeLater (new Runnable ()
+                UIUtils.doLater (e ->
                 {
 
-                    public void run ()
+                    uiLangs.setRenderer (new DefaultListCellRenderer ()
                     {
 
-                        uiLangs.setRenderer (new DefaultListCellRenderer ()
+                        @Override
+                        public Component getListCellRendererComponent (JList  list,
+                                                                       Object        val,
+                                                                       int           index,
+                                                                       boolean       sel,
+                                                                       boolean       hasFocus)
                         {
 
-                            @Override
-                            public Component getListCellRendererComponent (JList  list,
-                                                                           Object        val,
-                                                                           int           index,
-                                                                           boolean       sel,
-                                                                           boolean       hasFocus)
+                            super.getListCellRendererComponent (list,
+                                                                val,
+                                                                index,
+                                                                sel,
+                                                                hasFocus);
+
+                            if (val == null)
                             {
-
-                                super.getListCellRendererComponent (list,
-                                                                    val,
-                                                                    index,
-                                                                    sel,
-                                                                    hasFocus);
-
-                                if (val == null)
-                                {
-
-                                    return this;
-
-                                }
-
-                                String name = objs.get (val.toString ());
-
-                                this.setText (name);
 
                                 return this;
 
                             }
 
-                        });
+                            String name = objs.get (val.toString ());
 
-                        uiLangs.setModel (new DefaultComboBoxModel (langs));
-                        uiLangs.setSelectedItem (defLang);
-                        uiLangs.setEnabled (true);
-                        uiLangs.setMaximumSize (uiLangs.getPreferredSize ());
+                            this.setText (name);
 
-                    }
+                            return this;
+
+                        }
+
+                    });
+
+                    uiLangs.setModel (new DefaultComboBoxModel (langs));
+                    uiLangs.setSelectedItem (defLang);
+                    uiLangs.setEnabled (true);
+                    uiLangs.setMaximumSize (uiLangs.getPreferredSize ());
 
                 });
 
