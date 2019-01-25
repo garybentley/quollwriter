@@ -465,6 +465,7 @@ public class Environment
 
     }
 
+    // TODO: Change to use a new thread.
     public static String getUrlFileAsString (URL    url)
                                              throws Exception
     {
@@ -839,6 +840,13 @@ public class Environment
     public static int getPercent (float t,
                                   float b)
     {
+
+        if (b == 0)
+        {
+
+            return 0;
+
+        }
 
         return (int) ((t / b) * 100);
 
@@ -2730,10 +2738,32 @@ public class Environment
                                 null,
                                 onProjectOpen);
 
-            } catch (Exception e) {
+            } catch (final Exception e) {
 
-                pv.close (false,
-                          null);
+                try
+                {
+
+                    pv.close (false,
+                              new ActionListener ()
+                              {
+
+                                  @Override
+                                  public void actionPerformed (ActionEvent ev)
+                                  {
+
+                                      // This prevents QW from going into a shutdown.
+                                      // TODO: Make this nicer.
+
+                                  }
+
+                              });
+
+                } catch (Exception ee) {
+
+                    Environment.logError ("Unable to close project after try open, project: " + p,
+                                          ee);
+
+                }
 
                 if (ObjectManager.isDatabaseAlreadyInUseException (e))
                 {
