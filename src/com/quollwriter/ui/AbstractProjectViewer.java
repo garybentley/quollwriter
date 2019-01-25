@@ -2254,6 +2254,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public void setUILayout (String layout)
     {
 
+        if (this.proj == null)
+        {
+
+            return;
+
+        }
+
         final AbstractProjectViewer _this = this;
         final AbstractSideBar other = this.currentOtherSideBar;
 
