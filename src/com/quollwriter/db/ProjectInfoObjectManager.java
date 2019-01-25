@@ -212,6 +212,13 @@ public class ProjectInfoObjectManager extends ObjectManager
                      throws GeneralException
     {
 
+        if (s.getStart () == null)
+        {
+
+            return;
+
+        }
+
         Connection conn = null;
 
         try
