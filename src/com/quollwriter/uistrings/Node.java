@@ -1103,7 +1103,7 @@ public class Node<E extends Value> implements Comparable<Node>
 
             for (Node n : this.children.values ())
             {
-
+/*
                 if (n instanceof TextValue)
                 {
 
@@ -1126,7 +1126,7 @@ public class Node<E extends Value> implements Comparable<Node>
                     continue;
 
                 }
-
+*/
                 vals.addAll (n.getAllTextValues (filter));
 
             }
