@@ -107,6 +107,13 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     }
 */
 
+    public Set<TextValue> getAllTextValues ()
+    {
+
+        return this.strings.getAllTextValues ();
+
+    }
+
     public Set<Value> find (String text)
     {
 
