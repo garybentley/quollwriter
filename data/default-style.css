@@ -1,0 +1,495 @@
+.root
+{
+    -qw-bg-color: #fdfdfd;
+
+    /*
+     * The dark color.  Generally used for borders and drop shadows as well as solid colors.
+     */
+    -qw-dark-color: #4d4d4d;
+
+    /*
+     * Used for hover effects on things you can click on.
+     */
+    -qw-hover-bg: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);
+
+    -qw-armed-bg: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, green 100%);
+
+    /**
+     * The color of borders around components.
+     */
+    -qw-border-color: -qw-dark-color;
+
+    /*
+     * The color used when items have focus.
+     */
+    -qw-focus-color: #aaaaaa;
+
+    -qw-show-delay: 750ms;
+
+    /*
+     * The standard drop shadow.
+     */
+    -qw-drop-shadow: dropshadow(gaussian, -qw-border-color, 30, 0.5, 0, 0);
+
+    /*
+     * The popup width.
+     */
+    -qw-popup-width: 650px;
+
+    -fx-background-color: -qw-bg-color;
+    -fx-text-base-color: #333333;
+    -fx-font-size: 9pt;
+
+    -qw-popup-header-font-size: 2em;
+    -qw-window-header-font-size: 2.5em;
+}
+
+.tooltip
+{
+    -fx-font-size: 1.1em;
+    -fx-show-delay: -qw-show-delay;
+    -fx-background-color: -qw-bg-color;
+    -fx-background-radius: 0px;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+/*
+    General styles related to header.
+    Structure:
+        .header
+            .name
+            .controls
+                .button
+                    .<button-name>
+*/
+.header
+{
+    -fx-border-width: 1px;
+    -fx-border-insets: 0px;
+    -fx-border-color: transparent transparent #aaaaaa transparent;
+    -fx-max-width: Infinity;
+    -fx-alignment: center-left;
+}
+
+.header .name
+{
+    -fx-font-size: 1.5em;
+    -fx-padding: 5 7 5 7;
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.header .controls
+{
+    -fx-orientation: horizontal;
+    -fx-background-color: transparent;
+    -fx-spacing: 0px;
+    -fx-padding: 3 3 3 5;
+}
+
+.header .controls .button
+{
+    -fx-background-color: transparent;
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+    -fx-padding: 5px;
+    -fx-border-radius: 3;
+}
+
+.header .controls .button:hover, .header .controls .button:focused
+{
+    -fx-border-color: -qw-border-color;
+    -fx-cursor: hand;
+    -fx-background-color: -qw-hover-bg;
+}
+
+.header .controls .button:armed
+{
+    -fx-background-color: -qw-armed-bg;
+}
+
+.root.popup.qw-popup
+{
+    -fx-border-color: -qw-border-color;
+    -fx-border-width: 1;
+    -fx-min-width: -qw-popup-width;
+    -fx-fill-width: true;
+    -fx-effect: -qw-drop-shadow;
+    -fx-background-color: -qw-bg-color;
+}
+
+.qw-popup .qw-header
+{
+    -fx-border-width: 0px;
+}
+
+.qw-popup .header .name
+{
+    -fx-font-size: -qw-popup-header-font-size;
+}
+
+.qw-popup .buttons
+{
+    -fx-padding: 1em, 0, 1em, 0;
+    -fx-spacing: 6px;
+}
+
+.qw-popup .buttons .buttonX
+{
+    -fx-padding: 5px;
+    -fx-border-radius: 3 0 3 0;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #eeeeee 100%);
+}
+
+.qw-popup .buttons .buttonX:hover
+{
+    -fx-border-color: -qw-border-color;
+    -fx-cursor: hand;
+    -fx-background-color: -qw-hover-bg;
+}
+
+/**
+ * Add project popup.
+ */
+.qw-popup.add-project .header .name
+{
+    -fx-graphic: url(/imgs/add20.png);
+}
+
+.qw-textarea
+{
+    -fx-min-height: 150px;
+    -fx-pref-width: 400px;
+    -fx-border-color: -qw-border-color;
+    -fx-border-width: 1px;
+}
+
+.menu-item:hover, .menu-item:focused
+{
+    -fx-background-color: -qw-focus-color;
+}
+
+.scroll-bar
+{
+    -fx-background-color: #fdfdfd;
+    -fx-box-border: null;
+    -fx-background-radius: 0px;
+    -fx-padding: 0px;
+}
+
+.scroll-bar .track
+{
+    -fx-padding: 0px;
+    -fx-border-width: 0px;
+}
+
+.scroll-bar .thumb
+{
+    -fx-background-color: #dddddd;
+    -fx-background-radius: 0px;
+}
+
+.scroll-bar .thumb:hover, .scroll-bar .thumb:focused, .scroll-bar .thumb:armed, .scroll-bar .thumb:pressed
+{
+    -fx-background-color: -qw-focus-color;
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button
+{
+    -fx-padding: 6px;
+}
+
+.scroll-pane
+{
+    -fx-background-color: #fdfdfd;
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+}
+
+.split-pane-divider
+{
+    -fx-padding: 0 0 0 1px;
+    -fx-background-color: #aaaaaa;
+}
+
+.split-pane
+{
+    -fx-box-border: transparent;
+    -fx-max-height: Infinity;
+}
+
+.qw-allprojects .header .name
+{
+    -fx-graphic: url(/imgs/project24.png);
+    -fx-font-size: -qw-window-header-font-size;
+}
+
+.qw-allprojects .header .controls .add
+{
+    -fx-graphic: url(/imgs/add24.png);
+}
+
+.qw-allprojects .header .controls .import-project
+{
+    -fx-graphic: url(/imgs/project-import24.png);
+}
+
+.qw-allprojects .header .controls .options
+{
+    -fx-graphic: url(/imgs/options24.png);
+}
+
+.projects-list
+{
+    -fx-pref-tile-width: 245px;
+    -fx-hgap: 7px;
+    -fx-vgap: 7px;
+    -fx-padding: 5 5 5 5;
+    -fx-background-color: #fdfdfd;
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+    -fx-row-valignment: top;
+    -fx-alignment: top-left;
+    -fx-orientation: horizontal;
+}
+
+.scroll-pane.projects-list
+{
+    -fx-hbar-policy: never;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+    -fx-pannable: true;
+    -fx-padding: 0;
+}
+
+.scroll-pane.projects-list .scroll-bar
+{
+    -fx-unit-increment: 250;
+}
+
+/*
+ * A project box in the projects window.
+ * Setting both max AND min width is needed to ensure the height is calculated.
+ */
+.projects-list > .project
+{
+    -fx-padding: 5;
+    -fx-border-width: 1px;
+    -fx-border-insets: 0px;
+    -fx-border-color: transparent;
+    -fx-min-width: 245px;
+    -fx-max-width: 245px;
+}
+
+.projects-list > .project:hover
+{
+    -fx-border-width: 1px;
+    -fx-border-insets: 0px;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: -qw-hover-bg;
+    -fx-cursor: hand;
+}
+
+/*
+ * The name of a project in the projects window.
+ */
+.projects-list > .project .name
+{
+    -fx-font-size: 14pt;
+    -fx-wrap-text: true;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-alignment: baseline-center;
+}
+
+/*
+ * The info about a project in the projects window.
+ */
+.projects-list > .project .info
+{
+    -fx-font-size: 10pt;
+    -fx-wrap-text: true;
+    -fx-padding: 2 0 0 10;
+
+}
+
+/**
+ * COPIED FROM AeroFX
+ */
+.button, .toggle-button{
+    -fx-alignment: center;
+    -fx-background-color:
+        rgb(112,112,112),
+        linear-gradient(rgb(252,252,252), rgb(252,252,252)),
+        linear-gradient(rgb(242,242,242) 0%, rgb(235,235,235) 49%, rgb(221,221,221) 50%, rgb(207,207,207) 100%);
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
+    -fx-padding: 4 4 3 3;
+    -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.button:hover{
+    -fx-background-color:
+        rgb(60,127,177),
+        linear-gradient(rgb(250,253,254),rgb(250,253,254)),
+        linear-gradient(rgb(234, 246, 253) 0%, rgb(217, 240, 252) 49%, rgb(190, 230, 253) 50%, rgb(167, 217, 245) 100%);
+}
+
+.button:default{
+    -fx-background-color:
+        rgb(60,127,177),
+        linear-gradient(rgb(47,212,255), rgb(47,212,255)),
+        linear-gradient(rgb(234,246,252) 0%, rgb(228,243,252) 49%, rgb(202,233,250) 50%, rgb(182,222,245) 100%);
+}
+
+.button:armed, .toggle-button:armed{
+    -fx-background-color:
+        rgb(44,98,139),
+        linear-gradient(rgb(158,176,186), rgb(158,176,186)),
+        linear-gradient(rgb(229,244,252) 0%, rgb(196,229,246) 49%, rgb(152,209,239) 50%, rgb(104,179,219) 100%);
+}
+
+.tab-pane{
+    -fx-tab-min-height: 1.8333em;
+    -fx-tab-max-height: 1.8333em;
+}
+
+.tab-pane:top > .tab-content-area {
+    -fx-border-color: transparent rgb(137,140,149) rgb(137,140,149) rgb(137,140,149);
+    -fx-background-color: -qw-bg-col;
+}
+
+.tab-pane:top > .tab-header-area {
+    -fx-padding: 0;
+}
+
+.tab-pane:bottom > .tab-header-area {
+    -fx-padding: 0;
+}
+
+.tab-pane > *.tab-header-area > .headers-region {
+    -fx-translate-x: -5px;
+}
+
+.tab-pane > *.tab-header-area > *.tab-header-background{
+    -fx-background-color: rgb(240,240,240);
+    -fx-border-color: transparent transparent rgb(137,140,149) transparent ;
+    -fx-background-color: transparent;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab{
+    -fx-padding: 0.083333em 0.5em 0.083333em 0.5em;
+    -fx-border-color: rgb(137,140,149);
+    -fx-background-color:
+        rgb(255,255,255),
+        linear-gradient(to bottom, rgb(242,242,242) 0%, rgb(235,235,235) 49%, rgb(221,221,221) 50%, rgb(207,207,207) 100%);
+    -fx-background-insets: 0,2 2 0 2;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:top{
+    -fx-border-color: rgb(244,0,0), rgb(137,140,149), rgb(137,140,149), rgb(137,140,149);
+    -fx-border-width: 1 1 1 1;
+    -fx-pref-height: 1.8em;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:bottom{
+    -fx-border-color: rgb(244,0,0), rgb(137,140,149), rgb(137,140,149), rgb(137,140,149);
+    -fx-border-width: 1 1 1 1;
+    -fx-pref-height: 1.8em;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:hover{
+    -fx-border-color: rgb(60,127,177);
+    -fx-background-color:
+        rgb(255,255,255),
+        linear-gradient(to bottom, rgb(234,246,253) 0%, rgb(217,240,252) 49%, rgb(190,230,253) 50%, rgb(167,217,245) 100%);
+    -fx-background-insets: 0,2 2 0 2;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected{
+    -fx-border-color: rgb(137,140,149);
+    -fx-border-width: 1 1 0 1;
+    -fx-background-color: rgb(255,255,255);
+    -fx-pref-height: 2em;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected .focus-indicator{
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.tab-pane.floating > .tab-content-area {
+    -fx-background-color: -fx-outer-border, -fx-background;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 3, 2;
+    -fx-padding: 2;
+}
+
+/*
+.tab-pane .tab
+{
+    -fx-padding: 0;
+}
+
+.tab-pane .tab-label
+{
+    -fx-padding: 0 0 0 0;
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab .header
+{
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+.tab-pane .tab .header .name
+{
+    -fx-font-size: 9pt;
+}
+
+.tab-label .button
+{
+
+}
+*/
+.qw-splashscreen
+{
+    -fx-effect: -qw-drop-shadow;
+    -fx-border-color: -qw-border-color;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-border-insets: 30;
+}
+
+.qw-splashscreen .image
+{
+    -fx-image: url(/imgs/q-app-logo.png);
+}
+
+.progress-bar .track
+{
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-style: none;
+}
+
+.progress-bar .bar
+{
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-border-style: none;
+    -fx-background-color: #4d4d4d;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
