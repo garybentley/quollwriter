@@ -23,54 +23,54 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
 
     private String getAsString (Set<String> items)
     {
-        
+
         if ((items == null)
             ||
             (items.size () == 0)
            )
         {
-            
+
             return null;
-            
+
         }
-        
+
         StringBuilder b = new StringBuilder ();
-        
+
         for (String g : items)
         {
-            
+
             if (b.length () > 0)
             {
-                
+
                 b.append (",");
-                
+
             }
-            
+
             b.append (g);
-            
+
         }
-        
+
         return b.toString ();
-        
+
     }
-    
+
     @Override
     public void createObject (EditorProject p,
                               Connection    conn)
                        throws GeneralException
     {
-        
-        List params = new ArrayList ();
+
+        List<Object> params = new ArrayList<> ();
         params.add (p.getKey ());
         params.add (p.getId ());
         params.add (this.getAsString (p.getGenres ()));
         params.add (p.getExpectations ());
         params.add (p.getWordCountLength ().getType ());
-        
+
         this.objectManager.executeStatement ("INSERT INTO editorproject (dbkey, id, genres, expectations, wordcounttypelength) VALUES (?, ?, ?, ?, ?)",
                                              params,
-                                             conn);        
-        
+                                             conn);
+
     }
 
     @Override
@@ -79,14 +79,14 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
                               Connection    conn)
                        throws GeneralException
     {
-    
-        List params = new ArrayList ();
+
+        List<Object> params = new ArrayList<> ();
         params.add (d.getKey ());
-    
+
         this.objectManager.executeStatement ("DELETE FROM editorproject WHERE dbkey = ?",
                                              params,
                                              conn);
-        
+
     }
 
     @Override
@@ -94,18 +94,18 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
                               Connection    conn)
                        throws GeneralException
     {
-        
-        List params = new ArrayList ();
+
+        List<Object> params = new ArrayList<> ();
         params.add (p.getId ());
         params.add (this.getAsString (p.getGenres ()));
         params.add (p.getExpectations ());
         params.add (p.getWordCountLength ().getType ());
         params.add (p.getKey ());
-        
+
         this.objectManager.executeStatement ("UPDATE editorproject SET id = ?, genres = ?, expectations = ?, wordcounttypelength = ? WHERE dbkey = ?",
                                              params,
                                              conn);
-        
+
     }
 
     @Override
@@ -114,31 +114,31 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
                                            boolean     loadChildObjects)
                                     throws GeneralException
     {
-        
-        throw new UnsupportedOperationException ("Not supported");        
-        
+
+        throw new UnsupportedOperationException ("Not supported");
+
     }
 
     private Set<String> split (String s,
                                String sep)
     {
-        
-        Set<String> ret = new LinkedHashSet ();
-        
+
+        Set<String> ret = new LinkedHashSet<> ();
+
         StringTokenizer t = new StringTokenizer (s,
                                                  sep);
-        
+
         while (t.hasMoreTokens ())
         {
-            
+
             ret.add (t.nextToken ().trim ());
-            
+
         }
-        
+
         return ret;
-        
+
     }
-    
+
     private EditorProject getEditorProject (ResultSet rs)
                                throws GeneralException
     {
@@ -155,18 +155,18 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
             p.setKey (key);
             p.setId (rs.getString (ind++));
             p.setName (rs.getString (ind++));
-            
+
             String genres = rs.getString (ind++);
-            
+
             p.setGenres (this.split (genres,
                                      ","));
-            
+
             p.setExpectations (rs.getString (ind++));
-            
+
             String wcLength = rs.getString (ind++);
-            
+
             p.setWordCountLength (EditorProject.WordCountLength.getWordCountLengthByType (wcLength));
-            
+
             p.setDescription (new StringWithMarkup (rs.getString (ind++)));
 
             p.setLastModified (rs.getTimestamp (ind++));
@@ -182,9 +182,9 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
                                         e);
 
         }
-            
+
     }
-    
+
     @Override
     public EditorProject getObjectByKey (long        key,
                                          NamedObject parent,
@@ -192,12 +192,12 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
                                          boolean     loadChildObjects)
                                   throws GeneralException
     {
-        
+
         ResultSet rs = null;
 
         try
         {
-        
+
             rs = this.objectManager.executeQuery ("SELECT dbkey, id, name, genres, expectations, wordcounttypelength, description, lastmodified, datecreated, properties FROM editorproject_v",
                                                   null,
                                                   conn);
@@ -238,7 +238,7 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
             }
 
         }
-        
+
     }
 
 }

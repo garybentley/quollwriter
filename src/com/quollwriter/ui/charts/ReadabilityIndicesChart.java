@@ -366,12 +366,12 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
                                             boolean                v)
             {
 
-                Enumeration<DefaultMutableTreeNode> en = n.children ();
+                Enumeration<TreeNode> en = n.children ();
 
                 while (en.hasMoreElements ())
                 {
 
-                    DefaultMutableTreeNode c = en.nextElement ();
+                    DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                     SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
 

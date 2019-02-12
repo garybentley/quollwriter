@@ -39,15 +39,15 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
             long key = rs.getLong (ind++);
 
             c.setKey (key);
-                        
+
             // Load the object fields.
             this.objectManager.setUserConfigurableObjectFields (c,
                                                                 rs.getStatement ().getConnection ());
-            
+
             c.setName (rs.getString (ind++));
             c.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
-            
+
             c.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
 
             c.setLastModified (rs.getTimestamp (ind++));
@@ -57,32 +57,32 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
             // Handle the legacy value.
             if (c.getLegacyField (QCharacter.ALIASES_LEGACY_FIELD_ID) == null)
             {
-            
+
                 c.setAliases (rs.getString (ind++));
-                
+
             } else {
-                
+
                 ind++;
-                
+
             }
 
             c.setId (rs.getString (ind++));
-            c.setVersion (rs.getString (ind++));            
-                        
+            c.setVersion (rs.getString (ind++));
+
             if (p != null)
             {
 
                 p.addAsset (c);
-                                
+
             }
-                        
+
             // Get all the notes.
             if (loadChildObjects)
             {
-                
+
                 this.objectManager.loadNotes (c,
                                               rs.getStatement ().getConnection ());
-                 
+
             }
 
             return c;
@@ -103,12 +103,12 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
                                  throws GeneralException
     {
 
-        List<QCharacter> ret = new ArrayList ();
+        List<QCharacter> ret = new ArrayList<> ();
 
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (parent.getKey ());
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
@@ -158,7 +158,7 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (key);
             //params.add (proj.getKey ());
 
@@ -204,7 +204,7 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
         QCharacter c = (QCharacter) d;
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (c.getKey ());
         params.add (c.getAliases ());
         params.add (c.getProject ().getKey ());
@@ -223,7 +223,7 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
         QCharacter c = (QCharacter) d;
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (c.getKey ());
 
         this.objectManager.executeStatement ("DELETE FROM character WHERE dbkey = ?",
@@ -239,14 +239,14 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
         QCharacter c = (QCharacter) d;
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (c.getAliases ());
         params.add (c.getKey ());
-        
+
         this.objectManager.executeStatement ("UPDATE character SET aliases = ? WHERE dbkey = ?",
                                              params,
                                              conn);
-         
+
     }
 
 }

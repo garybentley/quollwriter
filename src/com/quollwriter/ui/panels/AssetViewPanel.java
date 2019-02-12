@@ -33,8 +33,14 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.ProjectEvent;
+import com.quollwriter.ui.fx.ProjectEventListener;
+import com.quollwriter.ui.ProjectViewer;
 import com.quollwriter.data.*;
+import com.quollwriter.ui.UIUtils;
+import com.quollwriter.ui.EditPanel;
+import com.quollwriter.ui.AssetDetailsEditPanel;
+import com.quollwriter.ui.AppearsInChaptersEditPanel;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.events.*;
 
@@ -94,7 +100,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
     public void eventOccurred (ProjectEvent ev)
     {
 
-        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
+        if (ev.getType ().equals (ProjectEvent.Type.userobjecttype))
         {
 
             if (ev.getSource ().equals (this.getForObject ().getUserConfigurableObjectType ()))

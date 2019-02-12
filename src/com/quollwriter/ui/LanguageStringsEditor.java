@@ -105,7 +105,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
         }
 
-        UILanguageStrings baseStrings = Environment.getUserUIEnglishLanguageStrings (baseQWVersion);
+        UILanguageStrings baseStrings = UILanguageStringsManager.getUserUIEnglishLanguageStrings (baseQWVersion);
 
         if (baseStrings == null)
         {
@@ -181,19 +181,19 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
         try
         {
 
-            Environment.saveUserUILanguageStrings (newls);
+            UILanguageStringsManager.saveUserUILanguageStrings (newls);
 
             this.userStrings.setQuollWriterVersion (newls.getQuollWriterVersion ());
 
-            Environment.saveUserUILanguageStrings (this.userStrings);
+            UILanguageStringsManager.saveUserUILanguageStrings (this.userStrings);
 
             this.userStrings.setQuollWriterVersion (v);
 
-            UILanguageStrings uls = Environment.getUserUILanguageStrings (newls.getQuollWriterVersion (),
+            UILanguageStrings uls = UILanguageStringsManager.getUserUILanguageStrings (newls.getQuollWriterVersion (),
                                                                           this.userStrings.getId ());
 
             // Get a diff of the default to this new.
-            LanguageStringsEditor lse = Environment.editUILanguageStrings (uls,
+            LanguageStringsEditor lse = UILanguageStringsManager.editUILanguageStrings (uls,
                                                                            newls.getQuollWriterVersion ());
             lse.limitViewToPreviousVersionDiff ();
 
@@ -234,7 +234,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
         final UILanguageStrings basels = this.baseStrings;
 
         // Get the previous version (which will be the current QW version).
-        final UILanguageStrings prevbasels = Environment.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ());
+        final UILanguageStrings prevbasels = UILanguageStringsManager.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ());
 
         if (prevbasels == null)
         {
@@ -319,7 +319,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                       throws Exception
     {
 
-        Environment.saveUserUILanguageStrings (this.userStrings);
+        UILanguageStringsManager.saveUserUILanguageStrings (this.userStrings);
 
     }
 
@@ -385,140 +385,134 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
         this.updateTitle ();
 
         // Check to see if a new version of the default strings is available.
-        Environment.schedule (new Runnable ()
+        Environment.schedule (() ->
         {
 
-            @Override
-            public void run ()
+            String url = UserProperties.get (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+
+            url = StringUtils.replaceString (url,
+                                             Constants.VERSION_TAG,
+                                             _this.baseStrings.getQuollWriterVersion ().toString ());
+            url = StringUtils.replaceString (url,
+                                             Constants.ID_TAG,
+                                             _this.baseStrings.getId ());
+
+            url = StringUtils.replaceString (url,
+                                             Constants.LAST_MOD_TAG,
+                                             "0");
+
+            url += "&newer=true";
+
+            try
             {
 
-                String url = Environment.getProperty (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+                 String data = Utils.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + url));
 
-                url = StringUtils.replaceString (url,
-                                                 Constants.VERSION_TAG,
-                                                 _this.baseStrings.getQuollWriterVersion ().toString ());
-                url = StringUtils.replaceString (url,
-                                                 Constants.ID_TAG,
-                                                 _this.baseStrings.getId ());
+                 if (data.startsWith (Constants.JSON_RETURN_PREFIX))
+                 {
 
-                url = StringUtils.replaceString (url,
-                                                 Constants.LAST_MOD_TAG,
-                                                 "0");
+                     data = data.substring (Constants.JSON_RETURN_PREFIX.length ());
 
-                url += "&newer=true";
+                 }
 
-                try
-                {
+                 Object obj = JSONDecoder.decode (data);
 
-                     String data = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + url));
+                 if (obj == null)
+                 {
 
-                     if (data.startsWith (Constants.JSON_RETURN_PREFIX))
-                     {
+                     return;
 
-                         data = data.substring (Constants.JSON_RETURN_PREFIX.length ());
+                 }
 
-                     }
+                 final UILanguageStrings newls = new UILanguageStrings (data);
 
-                     Object obj = JSONDecoder.decode (data);
+                 Box content = new Box (BoxLayout.Y_AXIS);
 
-                     if (obj == null)
-                     {
+                 content.add (UIUtils.createHelpTextPane (String.format ("A new version of the <b>%s</b> language strings is available.  This is for version <b>%s</b>, of {QW}.<br />You can view the changes and submit an update to your strings.",
+                                                                         newls.getNativeName (),
+                                                                         newls.getQuollWriterVersion ().toString ()),
+                                                          _this));
 
-                         return;
+                 content.add (Box.createVerticalStrut (5));
 
-                     }
+                 JButton b = UIUtils.createButton ("View the changes");
 
-                     final UILanguageStrings newls = new UILanguageStrings (data);
+                 content.add (b);
 
-                     Box content = new Box (BoxLayout.Y_AXIS);
+                 // Add a notification.
+                 final Notification n = _this.addNotification (content,
+                                                               Constants.INFO_ICON_NAME,
+                                                               -1);
 
-                     content.add (UIUtils.createHelpTextPane (String.format ("A new version of the <b>%s</b> language strings is available.  This is for version <b>%s</b>, of {QW}.<br />You can view the changes and submit an update to your strings.",
-                                                                             newls.getNativeName (),
-                                                                             newls.getQuollWriterVersion ().toString ()),
-                                                              _this));
+                  b.addActionListener (new ActionListener ()
+                  {
 
-                     content.add (Box.createVerticalStrut (5));
+                       @Override
+                       public void actionPerformed (ActionEvent ev)
+                       {
 
-                     JButton b = UIUtils.createButton ("View the changes");
+                           UILanguageStrings uls = null;
 
-                     content.add (b);
-
-                     // Add a notification.
-                     final Notification n = _this.addNotification (content,
-                                                                   Constants.INFO_ICON_NAME,
-                                                                   -1);
-
-                      b.addActionListener (new ActionListener ()
-                      {
-
-                           @Override
-                           public void actionPerformed (ActionEvent ev)
+                           try
                            {
 
-                               UILanguageStrings uls = null;
+                               uls = UILanguageStringsManager.getUserUILanguageStrings (newls.getQuollWriterVersion (),
+                                                                           _this.userStrings.getId ());
+
+                           } catch (Exception e) {
+
+                               Environment.logError ("Unable to get user strings for version: " + newls.getQuollWriterVersion () + ", " + _this.userStrings.getId (),
+                                                     e);
+
+                               UIUtils.showErrorMessage (null,
+                                                         getUIString (uilanguage,edit,actionerror));
+
+                               return;
+
+                           }
+
+                           if (uls != null)
+                           {
+
+                               // Open these instead.
+                               LanguageStringsEditor lse = UILanguageStringsManager.editUILanguageStrings (uls,
+                                                                                              uls.getQuollWriterVersion ());
 
                                try
                                {
 
-                                   uls = Environment.getUserUILanguageStrings (newls.getQuollWriterVersion (),
-                                                                               _this.userStrings.getId ());
+                                   lse.limitViewToPreviousVersionDiff ();
 
                                } catch (Exception e) {
 
-                                   Environment.logError ("Unable to get user strings for version: " + newls.getQuollWriterVersion () + ", " + _this.userStrings.getId (),
+                                   Environment.logError ("Unable to update view",
                                                          e);
 
-                                   UIUtils.showErrorMessage (null,
-                                                             getUIString (uilanguage,edit,actionerror));
+                                   UIUtils.showErrorMessage (_this,
+                                                             "Unable to update view");
 
                                    return;
 
                                }
-
-                               if (uls != null)
-                               {
-
-                                   // Open these instead.
-                                   LanguageStringsEditor lse = Environment.editUILanguageStrings (uls,
-                                                                                                  uls.getQuollWriterVersion ());
-
-                                   try
-                                   {
-
-                                       lse.limitViewToPreviousVersionDiff ();
-
-                                   } catch (Exception e) {
-
-                                       Environment.logError ("Unable to update view",
-                                                             e);
-
-                                       UIUtils.showErrorMessage (_this,
-                                                                 "Unable to update view");
-
-                                       return;
-
-                                   }
-
-                                   _this.removeNotification (n);
-
-                                   return;
-
-                               }
-
-                               _this.showChanges (newls);
 
                                _this.removeNotification (n);
 
+                               return;
+
                            }
 
-                      });
+                           _this.showChanges (newls);
 
-                 } catch (Exception e) {
+                           _this.removeNotification (n);
 
-                     Environment.logError ("Unable to get new user interface strings",
-                                           e);
+                       }
 
-                }
+                  });
+
+             } catch (Exception e) {
+
+                 Environment.logError ("Unable to get new user interface strings",
+                                       e);
 
             }
 
@@ -888,7 +882,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                     try
                     {
 
-                        u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.SUBMIT_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
+                        u = new URL (Environment.getQuollWriterWebsite () + UserProperties.get (Constants.SUBMIT_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
 
                     } catch (Exception e) {
 
@@ -1284,7 +1278,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    Environment.showLanding ();
+                                                    Environment.showAllProjectsViewer ();
 
                                                 }
 
@@ -1407,7 +1401,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                     try
                     {
 
-                        String p = Environment.getProperty (Constants.DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+                        String p = UserProperties.get (Constants.DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
                         p = StringUtils.replaceString (p,
                                                        Constants.ID_TAG,
@@ -1457,7 +1451,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                              try
                                              {
 
-                                                 Environment.deleteUserUILanguageStrings (_this.userStrings,
+                                                 UILanguageStringsManager.deleteUserUILanguageStrings (_this.userStrings,
                                                                                           delAll.isSelected ());
 
                                              } catch (Exception e) {
@@ -1539,8 +1533,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                     try
                     {
 
-                        Environment.deleteUserUILanguageStrings (_this.userStrings,
-                                                                 delAll.isSelected ());
+                        UILanguageStringsManager.deleteUserUILanguageStrings (_this.userStrings,
+                                                                              delAll.isSelected ());
 
                     } catch (Exception e) {
 

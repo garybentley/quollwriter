@@ -105,12 +105,12 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
                                                  throws GeneralException
     {
 
-        List<UserConfigurableObjectType> ret = new ArrayList ();
+        List<UserConfigurableObjectType> ret = new ArrayList<> ();
 
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE",
                                                             params,
@@ -159,11 +159,8 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
         try
         {
 
-            List params = new ArrayList ();
-            params.add (key);
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
 
             if (rs.next ())
@@ -202,18 +199,15 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (t.getKey ());
-        params.add (t.getUserObjectType ());
-        params.add (t.getActualObjectTypeNamePlural ());
-        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())));
-        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())));
-        params.add (t.getLayout ());
-        params.add (t.isAssetObjectType ());
-        params.add (Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ()));
-
         this.objectManager.executeStatement ("INSERT INTO userobjecttype (dbkey, userobjtype, pluralname, icon24x24, icon16x16, layout, assetobjtype, createshortcutkey) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                                             params,
+                                             Arrays.asList (t.getKey (),
+                                                            t.getUserObjectType (),
+                                                            t.getActualObjectTypeNamePlural (),
+                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())),
+                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())),
+                                                            t.getLayout (),
+                                                            t.isAssetObjectType (),
+                                                            Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ())),
                                              conn);
 
         // Save the fields.
@@ -232,11 +226,8 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
         this.objectManager.deleteObjects (t.getConfigurableFields (),
                                           conn);
 
-        List params = new ArrayList ();
-        params.add (t.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM userobjecttype WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (t.getKey ()),
                                              conn);
 
     }
@@ -246,16 +237,13 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (t.getActualObjectTypeNamePlural ());
-        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())));
-        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())));
-        params.add (t.getLayout ());
-        params.add (Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ()));
-        params.add (t.getKey ());
-
         this.objectManager.executeStatement ("UPDATE userobjecttype SET pluralname = ?, icon24x24 = ?, icon16x16 = ?, layout = ?, createshortcutkey = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (t.getActualObjectTypeNamePlural (),
+                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())),
+                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())),
+                                                            t.getLayout (),
+                                                            Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ()),
+                                                            t.getKey ()),
                                              conn);
 
         // Save the fields.
@@ -275,24 +263,17 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
 
             conn = this.objectManager.getConnection ();
 
-            List params = new ArrayList ();
-            params.add (t.getKey ());
-
             this.objectManager.executeStatement ("UPDATE userobjecttypefield SET orderby = NULL WHERE userobjecttypedbkey = ?",
-                                                 params,
+                                                 Arrays.asList (t.getKey ()),
                                                  conn);
 
             for (UserConfigurableObjectTypeField f : t.getConfigurableFields ())
             {
 
-                 params = new ArrayList ();
-
-                 params.add (f.getOrder ());
-                 params.add (f.getKey ());
-                 params.add (t.getKey ());
-
                  this.objectManager.executeStatement ("UPDATE userobjecttypefield SET orderby = ? WHERE dbkey = ? AND userobjecttypedbkey = ?",
-                                                      params,
+                                                      Arrays.asList (f.getOrder (),
+                                                                     f.getKey (),
+                                                                     t.getKey ()),
                                                       conn);
 
             }

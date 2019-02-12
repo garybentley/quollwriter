@@ -31,7 +31,6 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
-import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -295,10 +294,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.projectViewer.fullScreenClosed (this.panel.getChild ());
 
         EditorsEnvironment.fullScreenExited ();
-
+/*
+TODO
         this.projectViewer.fireProjectEventLater (ProjectEvent.FULL_SCREEN,
                                                   ProjectEvent.EXIT);
-
+*/
     }
 
     public void removePopup (Component c)
@@ -561,10 +561,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
 
             edPanel.setIgnoreDocumentChanges (true);
-
+/*
+TODO
             Environment.getProjectTextProperties ().setOn (edPanel,
                                                            true);
-
+*/
             edPanel.setIgnoreDocumentChanges (false);
 
             edPanel.setUseTypewriterScrolling (false);
@@ -632,10 +633,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         if (v)
         {
-
+/*
+TODO
             this.projectViewer.fireProjectEvent (ProjectEvent.DISTRACTION_FREE,
                                                  ProjectEvent.ENTER);
-
+*/
         }
 
     }
@@ -933,10 +935,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 _this.setBorderOpacity (_this.borderOpacity + (-1 * r * 0.1f));
 
                 //_this.properties.backgroundOpacityChanged ();
-
-                _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                      ProjectEvent.CHANGE_BG_OPACITY);
-
+/*
+TODO
+                _this.projectViewer.fireProjectEvent (ProjectEvent.Type.fullscreen,
+                                                      ProjectEvent.Action.changebgopacity);
+*/
             }
 
             private void handlePopup (MouseEvent ev)
@@ -1109,10 +1112,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     //_this.properties.displayAreaSizeChanged ();
 
                     _this.lastX = x;
-
-                    _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                          ProjectEvent.CHANGE_BORDER_SIZE);
-
+/*
+TODO
+                    _this.projectViewer.fireProjectEvent (ProjectEvent.Type.fullscreen,
+                                                          ProjectEvent.Action.changebordersize);
+*/
                 }
 
                 if (_this.lastY > 0)
@@ -1143,10 +1147,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     //_this.properties.displayAreaSizeChanged ();
 
                     _this.lastY = y;
-
-                    _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                          ProjectEvent.CHANGE_BORDER_SIZE);
-
+/*
+TODO
+                    _this.projectViewer.fireProjectEvent (ProjectEvent.Type.fullscreen,
+                                                          ProjectEvent.Action.changebordersize);
+*/
                 }
 
             }
@@ -1284,10 +1289,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.setVisible (true);
 
         EditorsEnvironment.fullScreenEntered ();
-
+/*
+TODO
         this.projectViewer.fireProjectEventLater (ProjectEvent.FULL_SCREEN,
                                                   ProjectEvent.ENTER);
-
+*/
     }
 
     private void createSideBar ()
@@ -2042,12 +2048,13 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     BackgroundChangeEvent bce = (BackgroundChangeEvent) ev;
 
                     _this.setFullScreenBackground (bce.getValue ());
-
+/*
+TODO
                     Environment.fireUserProjectEvent (_this,
-                                                      ProjectEvent.FULL_SCREEN,
-                                                      ProjectEvent.CHANGE_BG_IMAGE,
+                                                      ProjectEvent.Type.fullscreen,
+                                                      ProjectEvent.Action.changebgimage,
                                                       bce.getValue ());
-
+*/
                 }
 
             },
@@ -2501,7 +2508,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             if (b.getComponentCount () > 0)
             {
 
-                arBox.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
+                arBox.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
                                                      arBox.getBorder ()));
 
             }
@@ -2788,9 +2795,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
             AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
 
+            /*
+            TODO
             Environment.getFullScreenTextProperties ().setOn (edPanel,
                                                               true);
-
+*/
             this.showFirstTimeInDistractionFreeModeInfoPopup ();
 
         }
@@ -2861,10 +2870,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.yBorderWidth += v;
 
         this.setChildBorder ();
-
+/*
+TODO
         this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
                                              ProjectEvent.CHANGE_BORDER_SIZE);
-
+*/
     }
 
     public void incrementXBorderWidth (float v)
@@ -2873,10 +2883,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.xBorderWidth += v;
 
         this.setChildBorder ();
-
+/*
+TODO
         this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
                                              ProjectEvent.CHANGE_BORDER_SIZE);
-
+*/
     }
 
     public float getBorderOpacity ()
@@ -2892,10 +2903,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.borderOpacity = f;
 
         this.setChildBorder ();
-
+/*
+TODO
         this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
                                              ProjectEvent.CHANGE_BG_OPACITY);
-
+*/
     }
 
     public void toggleMaximizeDisplayArea ()
@@ -2929,10 +2941,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         }
 
         this.setChildBorder ();
-
-        this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                             ProjectEvent.CHANGE_BORDER_SIZE);
-
+/*
+TODO
+        this.projectViewer.fireProjectEvent (ProjectEvent.Type.fullscreen,
+                                             ProjectEvent.Action.changebordersize);
+*/
     }
 
     public float getYBorderWidth ()
@@ -2990,7 +3003,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         if (showBorder)
         {
 
-            innerBorder = new LineBorder (Environment.getBorderColor (),
+            innerBorder = new LineBorder (UIUtils.getBorderColor (),
                                           1,
                                           true);
 

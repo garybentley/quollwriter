@@ -449,7 +449,7 @@ public class QColorChooser extends Box implements UserPropertyListener
                                            1,
                                            1,
                                            1,
-                                           Environment.getBorderColor ());
+                                           UIUtils.getBorderColor ());
 
 
 

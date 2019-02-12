@@ -6,11 +6,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import com.quollwriter.*;
-import com.quollwriter.events.*;
 import com.quollwriter.ui.components.*;
 
-
-public class SplashScreen extends JWindow implements PropertyChangedListener
+public class SplashScreen extends JWindow
 {
 
     private JProgressBar progressBar = null;
@@ -28,7 +26,7 @@ public class SplashScreen extends JWindow implements PropertyChangedListener
         JLabel l = new JLabel (new ImageIcon (image));
         l.setAlignmentX (Component.LEFT_ALIGNMENT);
         box.add (l);
-        
+
         this.progressBar = new JProgressBar ();
         this.progressBar.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.progressBar.setForeground (UIUtils.getColor ("#4d4d4f"));
@@ -41,7 +39,7 @@ public class SplashScreen extends JWindow implements PropertyChangedListener
         box.setOpaque (false);
         box.setBorder (UIUtils.createLineBorder ());
         box.setBorder (new MatteBorder (1, 1, 1, 1, UIUtils.getColor ("#4d4d4f")));
-        
+
         JComponent cp = (JComponent) this.getContentPane ();
 
         cp.add (box);//ip);
@@ -57,21 +55,19 @@ public class SplashScreen extends JWindow implements PropertyChangedListener
         this.setVisible (true);
         this.toFront ();
 
-        Environment.addStartupProgressListener (this);
-        
+        Environment.startupProgressProperty ().addListener ((p, oldv, newv) ->
+        {
+
+            this.setProgress (newv.intValue ());
+
+        });
+
     }
 
-    public void propertyChanged (PropertyChangedEvent ev)
-    {
-        
-        this.setProgress (((Number) ev.getNewValue ()).intValue ());
-        
-    }
-    
     public void finish ()
     {
 
-        this.progressBar.setValue (100);    
+        this.progressBar.setValue (100);
 
         try
         {
@@ -113,14 +109,14 @@ public class SplashScreen extends JWindow implements PropertyChangedListener
     {
 
         this.progressBar.setValue (v);
-        
+
         if (v >= 100)
         {
-            
+
             this.finish ();
-            
+
         }
-        
+
     }
 
 }

@@ -1,13 +1,25 @@
 package com.quollwriter;
 
 import java.io.*;
-
+import java.net.*;
 import java.util.*;
+import java.nio.file.*;
 
-import com.quollwriter.ui.events.*;
+import com.gentlyweb.utils.*;
 
-import com.quollwriter.ui.components.*;
+import javafx.scene.control.*;
+import javafx.scene.text.*;
+import javafx.scene.layout.*;
+
+import com.quollwriter.*;
+import com.quollwriter.uistrings.UILanguageStrings;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.text.*;
+import com.quollwriter.ui.events.DictionaryChangedEvent;
+import com.quollwriter.ui.events.DictionaryChangedListener;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import com.softcorporation.suggester.util.Constants;
 import com.softcorporation.suggester.util.SpellCheckConfiguration;
@@ -15,15 +27,18 @@ import com.softcorporation.suggester.Suggestion;
 import com.softcorporation.suggester.dictionary.BasicDictionary;
 import com.softcorporation.suggester.BasicSuggester;
 
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
+
 public class DictionaryProvider
 {
 
     private List                           listeners = new ArrayList ();
-    //private List<QWSpellDictionaryHashMap> dicts = new ArrayList ();
     private QWSpellDictionaryHashMap       projDict = null;
     private SpellChecker                   checker = null;
     private com.swabunga.spell.event.SpellChecker projectSpellChecker = null;
 
+    // TODO Use a path.
     private static File                           userDictFile = null;
     private static QWSpellDictionaryHashMap       userDict = null;
     private static com.swabunga.spell.event.SpellChecker userSpellChecker = null;
@@ -36,9 +51,9 @@ public class DictionaryProvider
 
         this.language = lang;
 
-        File dictFile = Environment.getDictionaryFile (lang);
+        Path dictFile = DictionaryProvider.getDictionaryFilePath (lang);
 
-        if (!dictFile.exists ())
+        if (Files.notExists (dictFile))
         {
 
             throw new GeneralException ("Unable to find dictionary file: " +
@@ -46,7 +61,7 @@ public class DictionaryProvider
 
         }
 
-        BasicDictionary dict = new BasicDictionary ("file://" + dictFile.getPath ());
+        BasicDictionary dict = new BasicDictionary ("file://" + dictFile.toFile ().getPath ());
 
         SpellCheckConfiguration config = new SpellCheckConfiguration ("/com/softcorporation/suggester/spellCheck.config");
 
@@ -266,18 +281,18 @@ public class DictionaryProvider
         if (DictionaryProvider.userDict == null)
         {
 
-            File userDictFile = Environment.getUserDictionaryFile ();
+            Path userDictFile = DictionaryProvider.getUserDictionaryFilePath ();
 
-            if (!userDictFile.exists ())
+            if (Files.notExists (userDictFile))
             {
 
-                userDictFile.createNewFile ();
+                Files.createFile (userDictFile);
 
             }
 
-            DictionaryProvider.userDict = new QWSpellDictionaryHashMap (userDictFile);
+            DictionaryProvider.userDict = new QWSpellDictionaryHashMap (userDictFile.toFile ());
 
-            DictionaryProvider.userDictFile = userDictFile;
+            DictionaryProvider.userDictFile = userDictFile.toFile ();
 
             DictionaryProvider.userSpellChecker = new com.swabunga.spell.event.SpellChecker ();
 
@@ -297,11 +312,11 @@ public class DictionaryProvider
     public static boolean isLanguageInstalled (String lang)
     {
 
-        File f = Environment.getDictionaryFile (lang);
+        Path f = DictionaryProvider.getDictionaryFilePath (lang);
 
         if ((f != null)
             &&
-            (f.exists ())
+            (Files.exists (f))
            )
         {
 
@@ -550,6 +565,267 @@ public class DictionaryProvider
             }
 
         }
+
+    }
+
+    public static void downloadDictionaryFiles (String               lang,
+                                                final AbstractViewer parent,
+                                                final Runnable       onComplete)
+    {
+
+        if (UILanguageStrings.isEnglish (lang))
+        {
+
+            lang = com.quollwriter.Constants.ENGLISH;
+
+        }
+
+        final String langOrig = lang;
+        final String language = lang;
+
+        String fileLang = lang;
+
+        // Legacy, if the user doesn't have the language file but DOES have a thesaurus then just
+        // download the English-dictionary-only.zip.
+        if ((UILanguageStrings.isEnglish (lang))
+            &&
+            (Files.notExists (DictionaryProvider.getDictionaryFilePath (lang)))
+            &&
+            (DictionaryProvider.hasSynonymsDirectory (lang))
+           )
+        {
+
+            fileLang = "English-dictionary-only";
+
+        }
+
+        URL url = null;
+
+        try
+        {
+
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (UserProperties.get (com.quollwriter.Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+                                                                                                   "[[LANG]]",
+                                                                                                   StringUtils.replaceString (fileLang,
+                                                                                                                              " ",
+                                                                                                                              "%20")));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to download language files, cant create url",
+                                  e);
+
+            ComponentUtils.showErrorMessage (parent,
+                                             getUILanguageStringProperty (dictionary,download,actionerror));
+                                      //"Unable to download language files");
+
+            return;
+
+        }
+
+        Environment.logDebugMessage ("Downloading language file(s) from: " + url + ", for language: " + lang);
+
+        File _file = null;
+
+        // Create a temp file for it.
+        try
+        {
+
+            _file = File.createTempFile ("quollwriter-language-" + fileLang,
+                                         null);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to download language files, cant create temp file",
+                                  e);
+
+            ComponentUtils.showErrorMessage (parent,
+                                             getUILanguageStringProperty (dictionary,download,actionerror));
+                                    //"Unable to download language files");
+
+            return;
+
+        }
+
+        _file.deleteOnExit ();
+
+        final File file = _file;
+
+        VBox b = new VBox ();
+
+        Text text = new Text ();
+        text.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (dictionary,download,notification),
+                                                                language));
+
+        final ProgressBar prog = new ProgressBar ();
+
+        b.getChildren ().addAll (text, prog);
+
+        final Notification n = parent.addNotification (b,
+                                                       StyleClassNames.DOWNLOAD,
+                                                       -1,
+                                                       null);
+
+        final UrlDownloader downloader = new UrlDownloader (url,
+                                                            file,
+                                                            new DownloadListener ()
+                                                            {
+
+                                                                @Override
+                                                                public void handleError (Exception e)
+                                                                {
+
+                                                                    UIUtils.runLater (() ->
+                                                                    {
+
+                                                                        n.removeNotification ();
+
+                                                                        Environment.logError ("Unable to download language files",
+                                                                                              e);
+
+                                                                        ComponentUtils.showErrorMessage (parent,
+                                                                                                         getUILanguageStringProperty (dictionary,download,actionerror));
+                                                                                                  //"A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+
+                                                                    });
+
+                                                                }
+
+                                                                @Override
+                                                                public void progress (final int downloaded,
+                                                                                      final int total)
+                                                                {
+
+                                                                    UIUtils.runLater (() ->
+                                                                    {
+
+                                                                        double val = (double) downloaded / (double) total;
+
+                                                                        prog.setProgress (val);
+
+                                                                    });
+
+                                                                }
+
+                                                                @Override
+                                                                public void finished (int total)
+                                                                {
+
+                                                                    UIUtils.runLater (() ->
+                                                                    {
+
+                                                                        prog.setProgress (-1);
+
+                                                                    });
+
+                                                                    new Thread (() ->
+                                                                    {
+
+                                                                        // Now extract the file into the relevant directory.
+                                                                        try
+                                                                        {
+
+                                                                            Utils.extractZipFile (file,
+                                                                                                  Environment.getUserQuollWriterDirPath ().toFile ());
+
+                                                                        } catch (Exception e) {
+
+                                                                            Environment.logError ("Unable to extract language zip file: " +
+                                                                                                  file +
+                                                                                                  " to: " +
+                                                                                                  Environment.getUserQuollWriterDirPath (),
+                                                                                                  e);
+
+                                                                             ComponentUtils.showErrorMessage (parent,
+                                                                                                              getUILanguageStringProperty (dictionary,download,actionerror));
+
+                                                                            return;
+
+                                                                        } finally {
+
+                                                                            file.delete ();
+
+                                                                        }
+
+                                                                        if (onComplete != null)
+                                                                        {
+
+                                                                            UIUtils.runLater (() ->
+                                                                            {
+
+                                                                                prog.setProgress (-1);
+
+                                                                                onComplete.run ();
+
+                                                                            });
+
+                                                                        }
+
+                                                                        UIUtils.runLater (() -> n.removeNotification ());
+
+                                                                    }).start ();
+
+                                                                }
+
+                                                            });
+
+        downloader.start ();
+
+// TODO Add a listener to the notification for removal.
+/*
+        n.addCancelListener (new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                downloader.stop ();
+
+                file.delete ();
+
+            }
+
+        });
+*/
+    }
+
+    /**
+     * Gets the path for the dictionaires.
+     */
+    public static Path getDictionariesDirPath ()
+    {
+
+        return Environment.getUserPath (com.quollwriter.Constants.DICTIONARIES_DIR);
+
+    }
+
+    /**
+     * Gets the user dictionary.
+     */
+    public static Path getUserDictionaryFilePath ()
+    {
+
+        return DictionaryProvider.getDictionariesDirPath ().resolve (com.quollwriter.Constants.USER_DICTIONARY_FILE_NAME);
+
+    }
+
+    /**
+     * Gets the path for a specific dictionary.
+     */
+    public static Path getDictionaryFilePath (String lang)
+    {
+
+        return DictionaryProvider.getDictionariesDirPath ().resolve (lang + ".zip");
+
+    }
+
+    public static boolean hasSynonymsDirectory (String lang)
+    {
+
+        Path f = Environment.getUserPath (com.quollwriter.Constants.THESAURUS_DIR).resolve (lang);
+
+        return Files.exists (f) && Files.isDirectory (f);
 
     }
 

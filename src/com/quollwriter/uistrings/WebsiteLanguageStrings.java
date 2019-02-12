@@ -173,7 +173,7 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
             try
             {
 
-                this.setDerivedFrom (Environment.getWebsiteLanguageStrings (did));
+                this.setDerivedFrom (WebsiteLanguageStringsManager.getWebsiteLanguageStrings (did));
 
                 this.baseVersion = this.getDerivedFrom ().getStringsVersion ();
 

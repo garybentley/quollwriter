@@ -135,14 +135,14 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     public List<Issue> getIssues (Paragraph paragraph)
     {
 
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         //int wc = TextUtilities.getWordCount (paragraph);
 
         if (paragraph.getWordCount () > 100)
         {
 
-            List<String> pref = new ArrayList ();
+            List<String> pref = new ArrayList<> ();
             pref.add (LanguageStrings.problemfinder);
             pref.add (LanguageStrings.issues);
             pref.add (LanguageStrings.paragraphreadability);
@@ -225,7 +225,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     public Set<FormItem> getFormItems ()
     {
 
-        List<String> pref = new ArrayList ();
+        List<String> pref = new ArrayList<> ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);

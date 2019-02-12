@@ -32,46 +32,35 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
      * A cache, since the same projEditor can be viewed in multiple places and updated in multiple places
      * we need a single object for the editor so that we have one object -> multiple viewers.
      */
-    private Map<Long, ProjectEditor> cache = new HashMap ();
-    
+    private Map<Long, ProjectEditor> cache = new HashMap<> ();
+
     public ProjectEditorDataHandler (ObjectManager om)
     {
 
         this.objectManager = om;
 
     }
-        
+
     @Override
     public void createObject (ProjectEditor pe,
                               Connection    conn)
                        throws GeneralException
     {
-                
+
         if (pe.getForProjectId () == null)
         {
-        
+
             throw new GeneralException ("No for project id specified.");
-            
+
         }
-        
+
         if (pe.getEditor () == null)
         {
-            
+
             throw new GeneralException ("No editor is specified.");
-            
+
         }
-        
-        List params = new ArrayList ();
-        params.add (pe.getKey ());
-        params.add (pe.getEditor ().getKey ());
-        params.add (pe.getForProjectId ());
-        params.add (pe.getForProjectName ());
-        params.add (pe.getStatus ().getType ());
-        params.add (pe.getStatusMessage ());
-        params.add (pe.isCurrent ());
-        params.add ((pe.getEditorFrom () != null ? pe.getEditorFrom () : new java.util.Date ()));
-        params.add (pe.getEditorTo ());
-                
+
         this.objectManager.executeStatement ("INSERT INTO projecteditor " +
                                              "(dbkey, " +
                                              " editordbkey, " +
@@ -83,12 +72,20 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                              " editorfrom, " +
                                              " editorto) " +
                                              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                             params,
-                                             conn);        
-        
+                                             Arrays.asList (pe.getKey (),
+                                                            pe.getEditor ().getKey (),
+                                                            pe.getForProjectId (),
+                                                            pe.getForProjectName (),
+                                                            pe.getStatus ().getType (),
+                                                            pe.getStatusMessage (),
+                                                            pe.isCurrent (),
+                                                            (pe.getEditorFrom () != null ? pe.getEditorFrom () : new java.util.Date ()),
+                                                            pe.getEditorTo ()),
+                                             conn);
+
         this.cache.put (pe.getKey (),
-                        pe);        
-        
+                        pe);
+
     }
 
     @Override
@@ -97,16 +94,13 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                               Connection    conn)
                        throws GeneralException
     {
-    
-        List params = new ArrayList ();
-        params.add (d.getKey ());
-    
+
         this.objectManager.executeStatement ("DELETE FROM projecteditor WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (d.getKey ()),
                                              conn);
 
         this.cache.remove (d.getKey ());
-        
+
     }
 
     @Override
@@ -114,17 +108,7 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                               Connection    conn)
                        throws GeneralException
     {
-        
-        List params = new ArrayList ();
 
-        params.add (pe.getForProjectName ());
-        params.add (pe.getStatus ().getType ());
-        params.add (pe.getStatusMessage ());
-        params.add (pe.isCurrent ());
-        params.add (pe.getEditorFrom ());
-        params.add (pe.getEditorTo ());
-        params.add (pe.getKey ());
-        
         this.objectManager.executeStatement ("UPDATE projecteditor " +
                                              "SET forprojectname = ?, " +
                                              "    status = ?, " +
@@ -133,9 +117,15 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                              "    editorfrom = ?, " +
                                              "    editorto = ? " +
                                              "WHERE dbkey = ?",
-                                             params,
-                                             conn);        
-        
+                                             Arrays.asList (pe.getForProjectName (),
+                                                            pe.getStatus ().getType (),
+                                                            pe.getStatusMessage (),
+                                                            pe.isCurrent (),
+                                                            pe.getEditorFrom (),
+                                                            pe.getEditorTo (),
+                                                            pe.getKey ()),
+                                             conn);
+
     }
 
     @Override
@@ -144,19 +134,16 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                            boolean     loadChildObjects)
                                     throws GeneralException
     {
-                
-        List<ProjectEditor> ret = new ArrayList ();
+
+        List<ProjectEditor> ret = new ArrayList<> ();
 
         ResultSet rs = null;
-        
+
         try
         {
 
-            List params = new ArrayList ();
-            params.add (p.getId ());
-        
             rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE forprojectid = ? ORDER BY editorfrom",
-                                                  params,
+                                                  Arrays.asList (p.getId ()),
                                                   conn);
 
             while (rs.next ())
@@ -165,7 +152,7 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                 ret.add (this.getProjectEditor (rs));
 
             }
-            
+
         } catch (Exception e) {
 
             throw new GeneralException ("Unable to load project editors for: " +
@@ -173,7 +160,7 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                         e);
 
         } finally {
-            
+
             try
             {
 
@@ -181,15 +168,15 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
 
             } catch (Exception e)
             {
-                
+
             }
-        
-        }            
+
+        }
 
         return ret;
-        
+
     }
-    
+
     private ProjectEditor getProjectEditor (ResultSet rs)
                                      throws GeneralException
     {
@@ -202,20 +189,20 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
             long key = rs.getLong (ind++);
 
             ProjectEditor pe = this.cache.get (key);
-            
+
             if (pe != null)
             {
-                
+
                 return pe;
-                
+
             }
-            
+
             pe = new ProjectEditor ();
-            
+
             long edKey = rs.getLong (ind++);
-            
+
             EditorEditor ed = EditorsEnvironment.getEditorByKey (edKey);
-            
+
             pe.setKey (key);
             pe.setEditor (ed);
             pe.setForProjectId (rs.getString (ind++));
@@ -225,10 +212,10 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
             pe.setCurrent (rs.getBoolean (ind++));
             pe.setEditorFrom (rs.getTimestamp (ind++));
             pe.setEditorTo (rs.getTimestamp (ind++));
-            
+
             this.cache.put (key,
                             pe);
-            
+
             return pe;
 
         } catch (Exception e)
@@ -238,9 +225,9 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                         e);
 
         }
-            
+
     }
-        
+
     @Override
     public ProjectEditor getObjectByKey (long        key,
                                          ProjectInfo p,
@@ -248,17 +235,14 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                          boolean     loadChildObjects)
                                   throws GeneralException
     {
-        
+
         ResultSet rs = null;
-        
+
         try
         {
 
-            List params = new ArrayList ();
-            params.add (key);
-        
             rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
-                                                  params,
+                                                  Arrays.asList (key),
                                                   conn);
 
             if (rs.next ())
@@ -267,9 +251,9 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                 return this.getProjectEditor (rs);
 
             }
-            
+
             return null;
-            
+
         } catch (Exception e) {
 
             throw new GeneralException ("Unable to get project editor with key: " +
@@ -277,7 +261,7 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                         e);
 
         } finally {
-            
+
             try
             {
 
@@ -285,11 +269,11 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
 
             } catch (Exception e)
             {
-                
+
             }
-        
-        }            
-                
+
+        }
+
     }
 
 }

@@ -192,7 +192,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
         final AbstractRule _this = this;
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<FormItem> items = new LinkedHashSet<> ();
 
         final TextFormItem summary = new TextFormItem (Environment.getUIString (LanguageStrings.form,
                                                                                 LanguageStrings.labels,
@@ -212,10 +212,10 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                                                                       5);
         desc.setText (this.getDescription ());
         desc.setCanFormat (false);
-        
+
         items.add (desc);
 
-        Map<Form.Button, ActionListener> buttons = new LinkedHashMap ();
+        Map<Form.Button, ActionListener> buttons = new LinkedHashMap<> ();
 
         buttons.put (Form.Button.save,
                      new ActionListener ()
@@ -228,69 +228,69 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                             Form f = (Form) ev.getSource ();
 
                             String error = _this.getFormError ();
-            
+
                             if (error != null)
                             {
-            
+
                                 f.showError (error);
-            
+
                                 return;
-            
+
                             }
-            
+
                             _this.setDescription (desc.getText ().trim ());
-            
+
                             String summ = summary.getText ();
-                            
+
                             if (summ == null)
                             {
-                                
+
                                 summ = "";
-                                
+
                             } else {
-                                
+
                                 summ = summ.trim ();
-                                
+
                             }
-            
+
                             if (summ.length () == 0)
                             {
-            
+
                                 summ = _this.getSummary ();
-            
+
                             }
-            
+
                             if (summ == null)
                             {
-            
+
                                 summ = _this.getDefaultSummary ();
-            
+
                             }
-            
+
                             if (summ == null)
                             {
-            
+
                                 f.showError (Environment.getUIString (LanguageStrings.problemfinder,
                                                                       LanguageStrings.config,
                                                                       LanguageStrings.entersummaryerror));
-            
+
                                 return;
-            
+
                             }
-            
+
                             _this.setSummary (summ);
-            
+
                             if (onSaveComplete != null)
                             {
-            
+
                                 onSaveComplete.actionPerformed (new ActionEvent (_this, 1, "saved"));
-            
+
                             }
 
                         }
-                        
+
                      });
-        
+
         buttons.put (Form.Button.cancel,
                      new ActionListener ()
                      {
@@ -301,9 +301,9 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
                             if (onCancel != null)
                             {
-        
+
                                 onCancel.actionPerformed (new ActionEvent (_this, 1, "cancelled"));
-        
+
                             }
 
                             return;
@@ -311,7 +311,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                         }
 
                      });
-        
+
         Form f = new Form (Form.Layout.stacked,
                            items,
                            buttons);

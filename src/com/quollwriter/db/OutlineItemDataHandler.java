@@ -39,45 +39,45 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
             long key = rs.getLong (ind++);
 
             OutlineItem o = null;
-    
+
             if (parent == null)
             {
-                
+
                 o = new OutlineItem ();
-                
+
             } else {
-                
+
                 if (sceneKey > 0)
                 {
-    
+
                     Scene s = (Scene) parent;
-                            
+
                     o = new OutlineItem (pos,
                                          s);
-                                
+
                 } else
                 {
-                      
+
                     if (parent instanceof Chapter)
                     {
-                                                
+
                         o = new OutlineItem (pos,
                                              (Chapter) parent);
 
                     }
-                        
+
                     if (parent instanceof Scene)
                     {
-                                                
+
                         o = new OutlineItem (pos,
                                              (Scene) parent);
 
                     }
 
                 }
-                
-            }            
-            
+
+            }
+
             o.setKey (key);
             o.setName (rs.getString (ind++));
             o.setDescription (new StringWithMarkup (rs.getString (ind++),
@@ -89,34 +89,34 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
 
             if (parent != null)
             {
-            
+
                 if (sceneKey > 0)
                 {
-    
+
                     Scene s = (Scene) parent;
-                                            
+
                     s.addOutlineItem (o);
-                
+
                 } else {
-                      
+
                     if (parent instanceof Chapter)
                     {
-                                        
+
                         ((Chapter) parent).addOutlineItem (o);
-    
+
                     }
-    
+
                     if (parent instanceof Scene)
                     {
-                                        
+
                         ((Scene) parent).addOutlineItem (o);
-    
+
                     }
 
                 }
 
             }
-                
+
             return o;
 
         } catch (Exception e)
@@ -138,15 +138,12 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
         try
         {
 
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-        
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE scenedbkey = ?",
-                                                            params,
+                                                            Arrays.asList (parent.getKey ()),
                                                             conn);
 
-            List<OutlineItem> items = new ArrayList ();
-                                                            
+            List<OutlineItem> items = new ArrayList<> ();
+
             while (rs.next ())
             {
 
@@ -166,7 +163,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
             }
 
             return items;
-            
+
         } catch (Exception e)
         {
 
@@ -175,7 +172,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
                                         e);
 
         }
-        
+
     }
 
     public List<OutlineItem> getObjects (Chapter     parent,
@@ -187,16 +184,13 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
         try
         {
 
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-        
             // No scene allowed here.
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE chapterdbkey = ? AND scenedbkey IS NULL",
-                                                            params,
+                                                            Arrays.asList (parent.getKey ()),
                                                             conn);
 
-            List<OutlineItem> items = new ArrayList ();
-                                                            
+            List<OutlineItem> items = new ArrayList<> ();
+
             while (rs.next ())
             {
 
@@ -216,7 +210,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
             }
 
             return items;
-            
+
         } catch (Exception e)
         {
 
@@ -225,7 +219,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
                                         e);
 
         }
-        
+
     }
 
     @Override
@@ -237,22 +231,22 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
 
         if (parent instanceof Scene)
         {
-            
+
             return this.getObjects ((Scene) parent,
                                     conn,
                                     loadChildObjects);
-            
+
         }
-    
+
         if (parent instanceof Chapter)
         {
-            
+
             return this.getObjects ((Chapter) parent,
                                     conn,
                                     loadChildObjects);
-            
+
         }
-        
+
         throw new IllegalArgumentException ("Unsupported parent object type: " +
                                             parent);
 
@@ -268,34 +262,31 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
 
         try
         {
-    
-            List params = new ArrayList ();
-            params.add (key);
-        
+
             // No scene allowed here.
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
-                                                            
+
             if (rs.next ())
             {
-    
+
                 return this.getOutlineItem (rs,
                                             parent,
                                             loadChildObjects);
-    
+
             }
-    
+
             return null;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get outline item with key: " +
                                         key,
                                         e);
-            
+
         }
-        
+
     }
 
     @Override
@@ -304,7 +295,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (o.getKey ());
         params.add (o.getPosition ());
         params.add (o.getChapter ().getKey ());
@@ -328,16 +319,13 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
 
     @Override
     public void deleteObject (OutlineItem o,
-                              boolean     deleteChildObjects,                              
+                              boolean     deleteChildObjects,
                               Connection  conn)
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (o.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM outlineitem WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (o.getKey ()),
                                              conn);
 
     }
@@ -348,7 +336,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (o.getPosition ());
         params.add (o.getChapter ().getKey ());
 

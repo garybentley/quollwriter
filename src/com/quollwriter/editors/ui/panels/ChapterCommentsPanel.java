@@ -91,7 +91,7 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
         this.editor.getInputMap (JComponent.WHEN_FOCUSED).put (KeyStroke.getKeyStroke ("ctrl shift O"),
                                                                "none");
 
-        this.highlight = new BlockPainter (Environment.getHighlightColor ());
+        this.highlight = new BlockPainter (UIUtils.getHighlightColor ());
 
     }
 

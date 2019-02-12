@@ -145,12 +145,12 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public List<Issue> getIssues (Paragraph paragraph)
     {
 
-        List<String> pref = new ArrayList ();
+        List<String> pref = new ArrayList<> ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.issues);
         pref.add (LanguageStrings.paragraphlength);
-    
-        List<Issue> issues = new ArrayList ();
+
+        List<Issue> issues = new ArrayList<> ();
 
         int wc = paragraph.getWordCount ();
 
@@ -218,13 +218,13 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public Set<FormItem> getFormItems ()
     {
 
-        List<String> pref = new ArrayList ();
+        List<String> pref = new ArrayList<> ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);
         pref.add (LanguageStrings.paragraphlength);
         pref.add (LanguageStrings.labels);
-    
+
         Set<FormItem> items = new LinkedHashSet ();
 
         this.wordCountF = new JSpinner (new SpinnerNumberModel (this.wordCount,

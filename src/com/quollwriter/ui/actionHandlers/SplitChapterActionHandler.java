@@ -17,7 +17,6 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.text.*;
 
@@ -37,7 +36,7 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
                AbstractFormPopup.ADD);
 
         this.addFrom = addFrom;
-        
+
         this.nameField = new TextFormItem (Environment.getUIString (LanguageStrings.project,
                                                                     LanguageStrings.actions,
                                                                     LanguageStrings.splitchapter,
@@ -45,7 +44,7 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
                                                                     LanguageStrings.newchaptername),
                                            //"New {Chapter} Name",
                                            null);
-        
+
         final SplitChapterActionHandler _this = this;
 
         this.nameField.setDoOnReturnPressed (this.getSaveAction ());
@@ -63,7 +62,7 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
     @Override
     public Set<String> getFormErrors ()
     {
-        
+
         Set<String> errs = new LinkedHashSet ();
 
         if (this.nameField.getValue () == null)
@@ -78,44 +77,44 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
         }
 
         return errs;
-        
+
     }
-    
+
     @Override
     public boolean handleSave ()
     {
 
         String n = this.nameField.getValue ();
-        
+
         try
-        {            
+        {
 
             QuollEditorPanel panel = this.viewer.getEditorForChapter (this.addFrom);
-        
+
             QTextEditor ed = panel.getEditor ();
 
             int start = ed.getSelectionStart ();
             int end = ed.getSelectionEnd ();
-            
+
             if (start == end)
             {
-                
+
                 end = ed.getText ().length ();
-            
+
             }
-        
+
             int shiftBy = -1 * start;
-        
+
             Chapter c = this.addFrom.getBook ().createChapterAfter (this.addFrom,
                                                                     n);
 
             this.object = c;
 
             StringWithMarkup edT = ed.getTextWithMarkup ();
-            
+
             String newText = edT.getText ().substring (start,
                                                        end);
-            
+
             // Get the markup and shift
             Markup newM = new Markup (edT.getMarkup (),
                                       start,
@@ -124,51 +123,51 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
 
             c.setText (new StringWithMarkup (newText,
                                              newM));
-                        
+
             this.viewer.saveObject (c,
                                     true);
 
             List toSave = new ArrayList ();
-                                           
+
             // Handle notes, scenes, outline items.
             Set<ChapterItem> its = this.addFrom.getChapterItemsWithPositionBetween (start,
                                                                                     end);
-            
+
             for (ChapterItem it : its)
             {
-                
+
                 // Null out the standard Position objects and set the underlying start/end positions.
                 it.shiftPositionBy (shiftBy);
-                
+
                 // Set the chapter.
                 it.setChapter (c);
 
                 // Save the item.
                 toSave.add (it);
-                
-            }                                           
-            
+
+            }
+
             this.viewer.saveObjects (toSave,
                                      true);
-                        
+
             ed.removeText (start,
                            end - start);
 
             this.viewer.fireProjectEvent (this.object.getObjectType (),
                                           ProjectEvent.NEW,
                                           this.object);
-                            
+
             // Save the chapter.
             panel.saveObject ();
-                                 
+
             // Reload existing chapter?
             panel.reinitIconColumn ();
-                                 
+
             this.viewer.reloadChapterTree ();
-                                 
+
             // Open the new chapter.
-            this.viewer.editChapter (c);            
-                                                                                      
+            this.viewer.editChapter (c);
+
         } catch (Exception e)
         {
 
@@ -219,22 +218,22 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
     {
 
         QTextEditor ed = this.viewer.getEditorForChapter (this.addFrom).getEditor ();
-            
+
         int start = ed.getSelectionStart ();
         int end = ed.getSelectionEnd ();
 
         if (start == end)
         {
-            
+
             end = ed.getText ().length ();
-            
+
         }
-    
+
         return ed.getText ().substring (start,
-                                        end);        
-        
+                                        end);
+
     }
-    
+
     @Override
     public String getTitle ()
     {
@@ -249,7 +248,7 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
     @Override
     public Icon getIcon (int iconSizeType)
     {
-        
+
         return Environment.getIcon (Chapter.OBJECT_TYPE + "-split",
                                     iconSizeType);
 
@@ -262,52 +261,52 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
         Set<FormItem> items = new LinkedHashSet ();
 
         items.add (this.nameField);
-        
+
         String text = this.getSelectedText ();
-    
+
         Paragraph para = new Paragraph (text,
                                         0);
-    
+
         //SentenceIterator iter = new SentenceIterator (text);
 
         int count = para.getWordCount ();
-        
+
         //int count = UIUtils.getWordCount (text);
-        
+
         // Get the first sentence.
         text = para.getFirstSentence ().getText ();
-        
+
         //text = iter.next ();
-        
+
         if (text != null)
         {
-            
+
             text = text.trim ();
-            
+
             if (text.length () > 150)
             {
-                
+
                 text = text.trim ().substring (0, 150) + Environment.getUIString (LanguageStrings.project,
                                                                                   LanguageStrings.actions,
                                                                                   LanguageStrings.splitchapter,
                                                                                   LanguageStrings.moretextindicator);
                 //"...";
-                    
+
             }
-                                
+
             JTextArea t = new JTextArea (text);
-            
+
             t.setLineWrap (true);
             t.setWrapStyleWord (true);
             t.setOpaque (false);
             t.setBorder (null);
             t.setEditable (false);
             t.setSize (new Dimension (300, 300));
-            
+
             Box p = new Box (BoxLayout.X_AXIS);
             p.add (t);
             p.setOpaque (false);
-            
+
             items.add (new AnyFormItem (Environment.getUIString (LanguageStrings.project,
                                                                  LanguageStrings.actions,
                                                                  LanguageStrings.splitchapter,
@@ -317,40 +316,40 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
                                         p));
 
             QTextEditor ed = this.viewer.getEditorForChapter (this.addFrom).getEditor ();
-                
+
             int start = ed.getSelectionStart ();
             int end = ed.getSelectionEnd ();
-            
+
             text = para.getLastSentence ().getText ();//iter.last ();
-                 
+
             if ((end > start)
                 &&
                 (text != null)
                )
             {
-                
+
                 text = text.trim ();
-                
+
                 if (text.length () > 150)
                 {
-                    
+
                     text = "... " + text.trim ().substring (text.length () - 150);
-                        
+
                 }
-                
+
                 JTextArea et = new JTextArea (text);
-                
+
                 et.setLineWrap (true);
                 et.setWrapStyleWord (true);
                 et.setOpaque (false);
                 et.setBorder (null);
                 et.setEditable (false);
                 et.setSize (new Dimension (300, 300));
-                
+
                 Box ep = new Box (BoxLayout.X_AXIS);
                 ep.add (et);
                 ep.setOpaque (false);
-                
+
                 items.add (new AnyFormItem (Environment.getUIString (LanguageStrings.project,
                                                                      LanguageStrings.actions,
                                                                      LanguageStrings.splitchapter,
@@ -358,9 +357,9 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
                                                                      LanguageStrings.endat),
                                             //"End at",
                                             ep));
-                                     
+
             }
-            
+
             items.add (new AnyFormItem (Environment.getUIString (LanguageStrings.project,
                                                                  LanguageStrings.actions,
                                                                  LanguageStrings.splitchapter,
@@ -370,12 +369,12 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
                                         UIUtils.createLabel (Environment.formatNumber (count))));
 
         }
-        
+
         if (text != null)
         {
-                    
+
         }
-        
+
         return items;
 
     }

@@ -115,7 +115,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         this.iconProvider = new DefaultIconProvider ();
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ();
 
-        Environment.addUserProjectEventListener (this);
+        // TODO Environment.addUserProjectEventListener (this);
 
         this.problemFinderRuleConfig  = new ProblemFinderRuleConfig (this);
 

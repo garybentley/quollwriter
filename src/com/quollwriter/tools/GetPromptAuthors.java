@@ -21,8 +21,8 @@ public class GetPromptAuthors
 
         File promptsDir = new File (argv[0]);
 
-        List<String>        authors = new ArrayList ();
-        Map<String, String> seen = new HashMap ();
+        List<String>        authors = new ArrayList<> ();
+        Map<String, String> seen = new HashMap<> ();
 
         try
         {

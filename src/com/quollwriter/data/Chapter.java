@@ -7,6 +7,8 @@ import java.util.*;
 import javax.swing.text.Position;
 import javax.swing.text.Document;
 
+import javafx.beans.property.*;
+
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
@@ -37,6 +39,8 @@ public class Chapter extends LegacyUserConfigurableObject
     private Set<OutlineItem> outlineItems = new HashSet (); //TreeSet (new ChapterItemSorter ());
     private Set<Scene>       scenes = new HashSet (); //TreeSet (new ChapterItemSorter ());
     private int editPosition = -1;
+
+    private IntegerProperty editPositionProp = new SimpleIntegerProperty (-1);
     private Position textEditPos = null;
     private boolean editComplete = false;
     private Set<Issue> problemFinderIgnores = new HashSet<> ();
@@ -1234,8 +1238,16 @@ public class Chapter extends LegacyUserConfigurableObject
         {
 
             this.editPosition = -1;
+            this.editPositionProp.setValue (-1);
 
         }
+
+    }
+
+    public IntegerProperty editPositionProperty ()
+    {
+
+        return this.editPositionProp;
 
     }
 
@@ -1243,6 +1255,8 @@ public class Chapter extends LegacyUserConfigurableObject
     {
 
         int oldPos = this.editPosition;
+
+        this.editPositionProp.setValue (p);
 
         this.editPosition = p;
 

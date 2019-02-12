@@ -9,12 +9,12 @@ import com.quollwriter.*;
 
 public abstract class LegacyAsset extends Asset
 {
-        
+
     public static final String NAME_LEGACY_FIELD_ID = "name";
     public static final String DESCRIPTION_LEGACY_FIELD_ID = "description";
     public static final String ALIASES_LEGACY_FIELD_ID = "aliases";
-        
-    public static Map<String, Class> supportedLegacyTypes = new LinkedHashMap ();        
+
+    public static Map<String, Class> supportedLegacyTypes = new LinkedHashMap ();
 
     static
     {
@@ -31,26 +31,26 @@ public abstract class LegacyAsset extends Asset
                ResearchItem.class);
 
     }
-        
+
     public LegacyAsset (String objType)
     {
-        
+
         super (Environment.getUserConfigurableObjectType (objType));
-                
+
     }
-                
+
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {
 
         super.fillToStringProperties (props);
-        
+
         this.addToStringProperties (props,
                                     "legacyAsset",
-                                    true);        
+                                    true);
 
-    }                
-                
+    }
+
     public static Asset createLegacyAsset (UserConfigurableObjectType objectType)
                                     throws GeneralException
     {
@@ -67,7 +67,7 @@ public abstract class LegacyAsset extends Asset
         try
         {
 
-            return (Asset) cl.newInstance ();
+            return (Asset) cl.getDeclaredConstructor ().newInstance ();
 
         } catch (Exception e)
         {
@@ -81,95 +81,95 @@ public abstract class LegacyAsset extends Asset
         }
 
     }
-                
+
     public boolean isFieldSupported (String id)
     {
-        
+
         if (id.equals (ALIASES_LEGACY_FIELD_ID))
         {
-            
+
             return true;
-                
+
         }
-        
+
         return false;
-        
+
     }
 
     @Override
     public void setAliases (String a)
     {
-        
+
         this.setAliases (new StringWithMarkup (a));
-        
+
     }
-    
+
     public void setAliases (StringWithMarkup a)
     {
-        
+
         if (this.isFieldSupported (ALIASES_LEGACY_FIELD_ID))
         {
-            
+
             UserConfigurableObjectField f = this.getLegacyField (ALIASES_LEGACY_FIELD_ID);
-    
+
             if (f == null)
             {
-                
+
                 UserConfigurableObjectTypeField type = this.getLegacyTypeField (ALIASES_LEGACY_FIELD_ID);
-                
+
                 if (type == null)
                 {
                     return;
                 }
-                
+
                 f = new UserConfigurableObjectField (type);
-                
+
                 this.addField (f);
-                
+
             }
-            
+
             f.setValue (a);
 
         }
-        
+
         super.setAliases (a.getText ());
-        
+
     }
 
     public UserConfigurableObjectTypeField getLegacyTypeField (String id)
     {
-        
+
         if (this.userConfigObjType == null)
         {
-            
+
             throw new IllegalStateException ("No configurable object type set");
-            
+
         }
-        
+
         return this.userConfigObjType.getLegacyField (id);
-        
+
     }
 
     public UserConfigurableObjectField getLegacyField (String id)
     {
-        
+
         for (UserConfigurableObjectField f : this.fields)
         {
-            
+
             if ((f.getLegacyFieldId () != null)
                 &&
                 (f.getLegacyFieldId ().equals (id))
                )
             {
-                
+
                 return f;
-                
+
             }
-                        
+
         }
-        
+
         return null;
-        
+
     }
-        
+
 }

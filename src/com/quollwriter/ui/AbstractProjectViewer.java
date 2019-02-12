@@ -71,9 +71,10 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.ui.sidebars.*;
 
 import com.quollwriter.achievements.rules.*;
+import com.quollwriter.uistrings.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public abstract class AbstractProjectViewer extends AbstractViewer implements PropertyChangedListener,
                                                                               SpellCheckSupported,
@@ -195,7 +196,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.splitPane.setBorder (null);
 
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
-        div.setBorder (new MatteBorder (0, 0, 0, 1, Environment.getBorderColor ()));
+        div.setBorder (new MatteBorder (0, 0, 0, 1, UIUtils.getBorderColor ()));
         this.splitPane.setOpaque (false);
         this.splitPane.setBackground (UIUtils.getComponentColor ());
 
@@ -203,7 +204,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.splitPane2.setBorder (null);
 
         div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane2.getUI ()).getDivider ();
-        div.setBorder (new MatteBorder (0, 0, 0, 1, Environment.getBorderColor ()));
+        div.setBorder (new MatteBorder (0, 0, 0, 1, UIUtils.getBorderColor ()));
         this.splitPane2.setOpaque (false);
         this.splitPane2.setBackground (UIUtils.getComponentColor ());
 
@@ -1152,7 +1153,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     {
 
 
-        ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ().setBackground (Environment.getBorderColor ());
+        ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ().setBackground (UIUtils.getBorderColor ());
 
         this.validate ();
         this.repaint ();
@@ -1305,7 +1306,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public TextProperties getTextProperties ()
     {
 
-        return (this.fsf != null ? Environment.getFullScreenTextProperties () : Environment.getProjectTextProperties ());
+        // TODO return (this.fsf != null ? Environment.getFullScreenTextProperties () : Environment.getProjectTextProperties ());
+        return null;
 
     }
 
@@ -1463,7 +1465,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                     try
                     {
 
-                        Environment.showLanding ();
+                        Environment.showAllProjectsViewer ();
+                        //Environment.showLanding ();
 
                     } catch (Exception e) {
 
@@ -1913,7 +1916,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         java.util.List<String> names = new ArrayList ();
 
-        boolean isEnglish = Environment.isEnglish (lang);
+        boolean isEnglish = UILanguageStrings.isEnglish (lang);
 
         // Get the names from the assets.
         Set<NamedObject> objs = this.proj.getAllNamedChildObjects (Asset.class);
@@ -2073,7 +2076,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public boolean isLanguageEnglish ()
     {
 
-        return Environment.isEnglish (this.getSpellCheckLanguage ());
+        return UILanguageStrings.isEnglish (this.getSpellCheckLanguage ());
 
     }
 
@@ -2086,11 +2089,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         if (c == null)
         {
 
-            c = Environment.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+            c = UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
 
         }
 
-        if (Environment.isEnglish (c))
+        if (UILanguageStrings.isEnglish (c))
         {
 
             c = Constants.ENGLISH;
@@ -2902,7 +2905,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         this.setIgnoreProjectEvents (true);
 
-        this.dBMan = Environment.createProject (saveDir,
+        this.dBMan = Environment.createProject (saveDir.toPath (),
                                                 p,
                                                 filePassword);
 
@@ -2942,7 +2945,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 		this.targets = new TargetsData (this.proj.getProperties ());
 
-        Environment.addToAchievementsManager (this);
+        Environment.getAchievementsManager ().addProjectViewer (this);
 
         this.initSideBars ();
 
@@ -2977,7 +2980,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         try
         {
 
-            Environment.addOpenedProject (this);
+            // TODO Environment.addOpenedProject (this);
 
         } catch (Exception e)
         {
@@ -3067,8 +3070,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.setIgnoreProjectEvents (true);
 
         // Get the username and password.
-        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
-        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
+        String username = UserProperties.get (Constants.DB_USERNAME_PROPERTY_NAME);
+        String password = UserProperties.get (Constants.DB_PASSWORD_PROPERTY_NAME);
 
         if (p.isNoCredentials ())
         {
@@ -3130,7 +3133,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         Environment.incrStartupProgress ();
 
-        Environment.addToAchievementsManager (this);
+        Environment.getAchievementsManager ().addProjectViewer (this);
 
         this.initSideBars ();
 
@@ -3240,7 +3243,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         try
         {
 
-            Environment.addOpenedProject (this);
+            // TODO Environment.addOpenedProject (this);
 
         } catch (Exception e)
         {
@@ -4115,7 +4118,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
             if (v.equals ("enabletypewritersound"))
             {
-
+/*
+TODO Use property.
 				boolean old = Environment.isPlaySoundOnKeyStroke ();
 
 				Environment.setPlaySoundOnKeyStroke (true);
@@ -4123,7 +4127,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 				Environment.playKeyStrokeSound ();
 
 				Environment.setPlaySoundOnKeyStroke (old);
-
+*/
                 return;
 
             }
@@ -4417,24 +4421,26 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.fireProjectEvent (this.proj.getObjectType (),
                                ProjectEvent.CLOSE);
 
-        Environment.removeFromAchievementsManager (this);
+        // TODO Environment.getAchievementsManager ().removeViewer (this);
 
         // Close all the db connections.
         this.dBMan.closeConnectionPool ();
 
         try
         {
-
+/*
+TODO
             Environment.projectClosed (this,
                                        !(afterClose != null));
-
+*/
         } catch (Exception e)
         {
 
             Environment.logError ("Unable to close project",
                                   e);
 
-            Environment.showLanding ();
+            Environment.showAllProjectsViewer ();
+            //Environment.showLanding ();
 
             return false;
 
@@ -4585,11 +4591,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         if (!this.sideBars.containsKey (TextPropertiesSideBar.ID))
         {
-
+/*
+TODO
             this.addSideBar (new TextPropertiesSideBar (this,
                                                         this,
                                                         Environment.getProjectTextProperties ()));
-
+*/
         }
 
         this.showSideBar (TextPropertiesSideBar.ID);
@@ -6294,7 +6301,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.chapterCounts.put (c,
                                 cc);
 
-        if (!Environment.isStartupComplete ())
+        if (!Environment.startupCompleteProperty ().getValue ())
         {
 
             return;

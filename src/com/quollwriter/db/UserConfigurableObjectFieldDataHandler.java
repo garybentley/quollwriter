@@ -31,11 +31,8 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
         try
         {
 
-            List params = new ArrayList ();
-            params.add (obj.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey FROM userobjectfield_v WHERE namedobjectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (obj.getKey ()),
                                                             conn);
 
             // Create a fake field.
@@ -137,16 +134,13 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
                                                   throws GeneralException
     {
 
-        List<UserConfigurableObjectField> ret = new ArrayList ();
+        List<UserConfigurableObjectField> ret = new ArrayList<> ();
 
         try
         {
 
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND namedobjectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (parent.getKey ()),
                                                             conn);
 
             while (rs.next ())
@@ -201,11 +195,8 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
         try
         {
 
-            List params = new ArrayList ();
-            params.add (key);
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
 
             if (rs.next ())
@@ -260,7 +251,7 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
 
         }
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (t.getKey ());
         params.add (t.getUserConfigurableObjectTypeField ().getKey ());
         params.add (t.getParent ().getKey ());
@@ -281,7 +272,7 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
                        throws GeneralException
     {
 
-        Set<String> filesToDelete = new HashSet ();
+        Set<String> filesToDelete = new HashSet<> ();
 
         for (String fn : t.getProjectFileNames ())
         {
@@ -297,11 +288,8 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
 
         }
 
-        List params = new ArrayList ();
-        params.add (t.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM userobjectfield WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (t.getKey ()),
                                              conn);
 
         for (String fn : filesToDelete)
@@ -318,18 +306,12 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-
-
         String val = t.getUserConfigurableObjectTypeField ().getViewEditHandler (t.getParentObject (),
                                                                                  t,
                                                                                  null).valueToString (t.getValue ());
-        params.add (val);
-
-        params.add (t.getKey ());
 
         this.objectManager.executeStatement ("UPDATE userobjectfield SET value = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (val, t.getKey ()),
                                              conn);
 
     }

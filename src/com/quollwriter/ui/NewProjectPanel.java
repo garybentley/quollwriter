@@ -34,28 +34,28 @@ public class NewProjectPanel
     private JCheckBox      encryptField = null;
     private JLabel         error = null;
     private Project        project = null;
-    
+
     public NewProjectPanel()
     {
-    
+
         this.nameField = UIUtils.createTextField ();
-    
+
     }
 
     public void setProject (Project p)
     {
-        
+
         this.project = p;
-        
+
     }
-    
+
     public JTextField getNameField ()
     {
-        
+
         return this.nameField;
-        
+
     }
-        
+
     public JComponent createPanel (final Container      parent,
                                    final ActionListener onCreate,
                                          boolean        createOnReturn,
@@ -66,16 +66,16 @@ public class NewProjectPanel
         final NewProjectPanel _this = this;
 
         String rows = "p, 6px, p, 6px, p, 6px, p";
-        
+
         if (addButtons)
         {
-            
+
             rows = rows + ", 6px, p";
-            
+
         }
-        
+
         int row = 1;
-        
+
         final FormLayout fl = new FormLayout ("right:p, 6px, fill:200px:grow, 2px, p",
                                               rows);
         fl.setHonorsVisibility (true);
@@ -94,7 +94,7 @@ public class NewProjectPanel
                             row));
 
         row += 2;
-                            
+
         builder.addLabel (Environment.getUIString (LanguageStrings.newprojectpanel,
                                                    LanguageStrings.labels,
                                                    LanguageStrings.savein),
@@ -102,8 +102,8 @@ public class NewProjectPanel
                           cc.xy (1,
                                  row));
 
-        File defDir = Environment.getDefaultSaveProjectDir ();
-        
+        File defDir = Environment.getDefaultSaveProjectDirPath ().toFile ();
+
         this.saveField = UIUtils.createTextField ();
         this.saveField.setText (defDir.getPath ());
 
@@ -154,7 +154,7 @@ public class NewProjectPanel
                             row));
 
         row += 2;
-                            
+
         this.encryptField = UIUtils.createCheckBox (Environment.getUIString (LanguageStrings.newprojectpanel,
                                                                              LanguageStrings.labels,
                                                                              LanguageStrings.encrypt));
@@ -198,7 +198,7 @@ public class NewProjectPanel
                              1));
 
         row += 2;
-                             
+
         final JPanel ppanel = pbuilder.getPanel ();
         ppanel.setVisible (false);
         ppanel.setOpaque (false);
@@ -215,58 +215,58 @@ public class NewProjectPanel
             {
 
                 ppanel.setVisible (_this.encryptField.isSelected ());
-                
+
                 UIUtils.resizeParent (parent);
-                
+
             }
 
         });
 
         ActionListener createProjectAction = new ActionAdapter ()
         {
-            
+
             public void actionPerformed (ActionEvent ev)
             {
-                                
+
                 if (!_this.createProject (parent))
                 {
-                    
+
                     return;
-                         
-                } 
-                
+
+                }
+
                 if (onCreate != null)
                 {
-                    
+
                     onCreate.actionPerformed (new ActionEvent (_this,
                                                                0,
                                                                _this.nameField.getText ()));
-                    
+
                 }
-                
+
                 if (parent instanceof PopupWindow)
                 {
-                    
+
                     ((PopupWindow) parent).close ();
-                    
-                }                
-                
+
+                }
+
                 if (parent instanceof QPopup)
                 {
-                    
+
                     ((QPopup) parent).removeFromParent ();
-                    
-                }                
+
+                }
 
             }
-            
-        };                    
-            
+
+        };
+
         if (addButtons)
         {
-            
+
             row += 2;
-            
+
             JButton createBut = new JButton ();
             createBut.setText (Environment.getUIString (LanguageStrings.newprojectpanel,
                                                         LanguageStrings.buttons,
@@ -274,7 +274,7 @@ public class NewProjectPanel
                                //"Create");
 
             createBut.addActionListener (createProjectAction);
-                
+
             JButton cancelBut = new JButton ();
             cancelBut.setText (Environment.getUIString (LanguageStrings.newprojectpanel,
                                                         LanguageStrings.buttons,
@@ -283,24 +283,24 @@ public class NewProjectPanel
 
             if (onCancel != null)
             {
-            
+
                 cancelBut.addActionListener (onCancel);
-                
+
             }
 
             if (parent instanceof PopupWindow)
             {
-                
+
                 cancelBut.addActionListener (((PopupWindow) parent).getCloseAction ());
-                
-            }                
-            
+
+            }
+
             if (parent instanceof QPopup)
             {
-                
+
                 cancelBut.addActionListener (((QPopup) parent).getCloseAction ());
-                
-            }                
+
+            }
 
             JButton[] buts = { createBut, cancelBut };
 
@@ -308,29 +308,29 @@ public class NewProjectPanel
                                                   Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
             bp.setOpaque (false);
             bp.setAlignmentX (Component.LEFT_ALIGNMENT);
-            
+
             builder.add (bp,
                          cc.xyw (3,
                                  row,
                                  3));
-                        
+
         }
-        
+
         JPanel p = builder.getPanel ();
         p.setOpaque (false);
         p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         if (createOnReturn)
         {
-                    
+
             UIUtils.addDoActionOnReturnPressed (this.nameField,
-                                                createProjectAction);        
+                                                createProjectAction);
             UIUtils.addDoActionOnReturnPressed (this.saveField,
-                                                createProjectAction);        
+                                                createProjectAction);
             UIUtils.addDoActionOnReturnPressed (this.passwordField,
-                                                createProjectAction);        
+                                                createProjectAction);
             UIUtils.addDoActionOnReturnPressed (this.passwordField2,
-                                                createProjectAction);        
+                                                createProjectAction);
 
         }
 
@@ -340,37 +340,37 @@ public class NewProjectPanel
                                                0,
                                                5,
                                                0));
-        
+
         Box b = new Box (BoxLayout.Y_AXIS);
-        
+
         b.add (this.error);
         b.add (p);
-        
+
         return b;
 
     }
 
     public boolean createProject (Container parent)
     {
-        
+
         if (!this.checkForm (parent))
         {
-            
+
             return false;
-            
+
         }
 
         Project proj = this.project;
-        
+
         if (proj == null)
         {
-            
+
             proj = new Project (this.getName ());
-            
+
         } else {
-            
+
             proj.setName (this.getName ());
-            
+
         }
 
         AbstractProjectViewer pj = null;
@@ -378,7 +378,7 @@ public class NewProjectPanel
         try
         {
 
-            pj = Environment.getProjectViewerForType (proj);
+            // TODO pj = Environment.getProjectViewerForType (proj);
 
         } catch (Exception e)
         {
@@ -417,39 +417,39 @@ public class NewProjectPanel
 
             return false;
 
-        }                
-        
+        }
+
         return true;
-        
+
     }
-    
+
     private boolean showError (Container parent,
                                String    text)
     {
-        
+
         this.error.setText (Environment.replaceObjectNames (text));
-        
+
         this.error.setVisible (true);
 
         parent.repaint ();
-        
+
         UIUtils.resizeParent (parent);
-        
+
         return false;
-        
+
     }
-    
+
     private boolean hideError (Container parent)
     {
-                
+
         this.error.setVisible (false);
 
         parent.repaint ();
-        
+
         UIUtils.resizeParent (parent);
-        
+
         return false;
-        
+
     }
 
     public boolean checkForm (Container parent)
@@ -458,9 +458,9 @@ public class NewProjectPanel
         java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.newprojectpanel);
         prefix.add (LanguageStrings.errors);
-    
+
         this.hideError (parent);
-    
+
         String n = this.nameField.getText ().trim ();
 
         if (n.equals (""))
@@ -470,7 +470,7 @@ public class NewProjectPanel
                                    Environment.getUIString (prefix,
                                                             LanguageStrings.novalue));
                                    //"Please provide a name for the {project}.");
-                
+
         }
 
         // See if the project already exists.
@@ -543,11 +543,11 @@ public class NewProjectPanel
 
         if (!this.encryptField.isSelected ())
         {
-            
+
             return null;
-            
+
         }
-    
+
         String pwd = new String (this.passwordField.getPassword ());
 
         if (pwd.trim ().equals (""))
@@ -563,16 +563,16 @@ public class NewProjectPanel
 
     public void setName (String n)
     {
-        
+
         this.nameField.setText (n);
-        
+
     }
-    
+
     public String getName ()
     {
 
         return this.nameField.getText ();
 
     }
-    
+
 }

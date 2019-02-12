@@ -1,6 +1,7 @@
 package com.quollwriter;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
 
@@ -52,7 +53,8 @@ public class LanguageDictionaryProvider implements DictionaryProvider2
 
         this.language = lang;
 
-        File dictFile = Environment.getDictionaryFile (lang);
+        // TODO CHange to a path.
+        File dictFile = DictionaryProvider.getDictionaryFilePath (lang).toFile ();
 
         if (!dictFile.exists ())
         {
@@ -224,19 +226,9 @@ public class LanguageDictionaryProvider implements DictionaryProvider2
     public static boolean isLanguageInstalled (String lang)
     {
 
-        File f = Environment.getDictionaryFile (lang);
+        Path f = DictionaryProvider.getDictionaryFilePath (lang);
 
-        if ((f != null)
-            &&
-            (f.exists ())
-           )
-        {
-
-            return true;
-
-        }
-
-        return false;
+        return f != null && Files.exists (f);
 
     }
 

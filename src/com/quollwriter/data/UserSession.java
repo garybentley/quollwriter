@@ -1,6 +1,7 @@
 package com.quollwriter.data;
 
 import java.util.*;
+import java.util.stream.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
@@ -264,7 +265,23 @@ public class UserSession extends Session
     public int getCurrentSessionWordCount ()
     {
 
-        Map<ProjectInfo, AbstractProjectViewer> pvs = Environment.getOpenProjects ();
+        int c = Environment.getOpenProjectViewers ().stream ()
+            .collect (Collectors.summingInt (pv ->
+            {
+
+                if (pv.getProject ().isEditorProject ())
+                {
+
+                    return 0;
+
+                }
+
+                return pv.getSessionWordCount ();
+
+            }));
+/*
+TODO Remove
+        Map<ProjectInfo, AbstractProjectViewer> pvs = Environment.openProjectsProperty ().getValue ();
 
         int c = this.currentSessionWordCount;
 
@@ -274,15 +291,15 @@ public class UserSession extends Session
             // Don't include editor projects.
             if (pv.getProject ().isEditorProject ())
             {
-                
+
                 continue;
-                
+
             }
-        
+
             c += pv.getSessionWordCount ();
 
         }
-
+*/
         return c;
 
     }

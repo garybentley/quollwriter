@@ -51,7 +51,7 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
             pv.setId (rs.getString (ind++));
             pv.setVersion (rs.getString (ind++));
             pv.setLatest (rs.getBoolean (ind++));
-            
+
             return pv;
 
         } catch (Exception e)
@@ -64,7 +64,7 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
 
     }
 
-    @Override    
+    @Override
     public List<ProjectVersion> getObjects (Project     proj,
                                             Connection  conn,
                                             boolean     loadChildObjects)
@@ -73,43 +73,43 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
 
         try
         {
-    
-            List<ProjectVersion> ret = new ArrayList ();
-    
+
+            List<ProjectVersion> ret = new ArrayList<> ();
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " ORDER BY datecreated",
                                                             null,
                                                             conn);
-    
+
             while (rs.next ())
             {
-    
+
                 ret.add (this.getProjectVersion (rs));
-    
+
             }
-    
+
             if (loadChildObjects)
             {
-                
+
                 // Get all the chapters with the version.
-                
+
             }
-    
+
             try
             {
-    
+
                 rs.close ();
-    
+
             } catch (Exception e)
             {
             }
 
             return ret;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Uanble to get all project versions",
                                         e);
-            
+
         }
 
     }
@@ -124,40 +124,37 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
 
         try
         {
-    
+
             ProjectVersion pv = null;
-    
-            List params = new ArrayList ();
-            params.add (key);
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
-                                                                
+
             if (rs.next ())
             {
-    
+
                 pv = this.getProjectVersion (rs);
-        
+
             }
-    
+
             try
             {
-    
+
                 rs.close ();
-    
+
             } catch (Exception e)
             {
             }
-    
+
             return pv;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get project version: " +
                                         key,
                                         e);
-            
+
         }
 
     }
@@ -166,38 +163,35 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
                             throws GeneralException
     {
 
-        Connection conn = this.objectManager.getConnection ();    
-    
+        Connection conn = this.objectManager.getConnection ();
+
         try
         {
-    
+
             ProjectVersion pv = null;
-    
-            List params = new ArrayList ();
-            params.add (id);
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE id = ?",
-                                                            params,
+                                                            Arrays.asList (id),
                                                             conn);
-                                                                
+
             if (rs.next ())
             {
-    
+
                 pv = this.getProjectVersion (rs);
-        
+
             }
-    
+
             try
             {
-    
+
                 rs.close ();
-    
+
             } catch (Exception e)
             {
             }
-    
+
             return pv;
-        
+
         } catch (Exception e) {
 
             this.objectManager.throwException (conn,
@@ -206,11 +200,11 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
+
         }
-        
+
         return null;
 
     }
@@ -218,44 +212,44 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
     public ProjectVersion getLatest (Connection conn)
                               throws GeneralException
     {
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
             closeConn = true;
-            
+
         }
-    
+
         try
         {
-    
+
             ProjectVersion pv = null;
-            
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE",
                                                             null,
                                                             conn);
-                                                                
+
             if (rs.next ())
             {
-    
+
                 pv = this.getProjectVersion (rs);
-        
+
             }
-    
+
             try
             {
-    
+
                 rs.close ();
-    
+
             } catch (Exception e)
             {
             }
-    
+
             return pv;
-        
+
         } catch (Exception e) {
 
             this.objectManager.throwException (conn,
@@ -263,16 +257,16 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
                                                e);
 
         } finally {
-            
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
-            
+
         }
-        
+
         return null;
 
     }
@@ -283,29 +277,23 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (ProjectVersion.OBJECT_TYPE);
-        
         // Mark all other versions as previous.
         this.objectManager.executeStatement ("UPDATE dataobject SET latest = FALSE WHERE objecttype = ?",
-                                             params,
+                                             Arrays.asList (ProjectVersion.OBJECT_TYPE),
                                              conn);
-        
-        params = new ArrayList ();
-        params.add (pv.getKey ());
-        params.add (pv.getDueDate ());
-        
+
         this.objectManager.executeStatement ("INSERT INTO projectversion (dbkey, due) VALUES (?, ?)",
-                                             params,
+                                             Arrays.asList (pv.getKey (),
+                                                            pv.getDueDate ()),
                                              conn);
 
         this.objectManager.setLatestVersion (pv,
                                              true,
                                              conn);
-                                             
+
     }
 
-    @Override    
+    @Override
     public void deleteObject (ProjectVersion pv,
                               boolean        deleteChildObjects,
                               Connection     conn)
@@ -315,18 +303,18 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
         throw new UnsupportedOperationException ("Not supported for project versions.");
 /*
         ProjectVersion pv = (ProjectVersion) d;
-    
+
         ChapterDataHandler cdh = (ChapterDataHandler) this.objectManager.getHandler (Chapter.class);
 
         List params = new ArrayList ();
         params.add (pv.getKey ());
-            
+
         this.objectManager.executeStatement ("DELETE FROM projectversion WHERE dbkey = ?",
                                              params,
                                              conn);
 
         this.versions.remove (pv.getKey ());
-  */                                           
+  */
     }
 
     @Override
@@ -336,7 +324,7 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
     {
 
         throw new UnsupportedOperationException ("Not supported for project versions.");
-    
+
     }
 
 }

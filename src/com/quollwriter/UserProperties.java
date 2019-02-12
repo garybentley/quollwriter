@@ -2,13 +2,18 @@ package com.quollwriter;
 
 import java.io.*;
 
+import java.nio.file.*;
+
 import java.util.Map;
+import java.util.HashMap;
 import java.util.WeakHashMap;
 import java.util.LinkedHashSet;
 import java.util.Collections;
 import java.util.Set;
 
 import java.awt.event.*;
+
+import javafx.beans.property.SimpleStringProperty;
 
 import com.gentlyweb.properties.*;
 
@@ -20,6 +25,12 @@ public class UserProperties
 
     private static com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties ();
     private static Map<UserPropertyListener, Object> listeners = null;
+    private static Path qwDir = null;
+
+    private static Map<String, SimpleStringProperty> mappedProperties = new HashMap<> ();
+    private static SimpleStringProperty tabsLocationProp = null;
+    private static SimpleStringProperty projectInfoFormatProp = null;
+    private static SimpleStringProperty editMarkerColorProp = null;
 
     // Just used in the map above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
@@ -27,7 +38,7 @@ public class UserProperties
     static
     {
 
-        UserProperties.listeners = Collections.synchronizedMap (new WeakHashMap ());
+        UserProperties.listeners = Collections.synchronizedMap (new WeakHashMap<> ());
 
     }
 
@@ -37,6 +48,7 @@ public class UserProperties
     }
 
     public static void init (com.gentlyweb.properties.Properties props)
+                      throws IOException
     {
 
         if (props == null)
@@ -47,6 +59,68 @@ public class UserProperties
         }
 
         UserProperties.props = props;
+
+        String v = UserProperties.get (Constants.PROJECT_INFO_FORMAT);
+
+		if (v == null)
+		{
+
+			v = UserProperties.get (Constants.DEFAULT_PROJECT_INFO_FORMAT);
+
+		}
+
+        UserProperties.projectInfoFormatProp = UserProperties.createMappedProperty (Constants.PROJECT_INFO_FORMAT);
+
+        UserProperties.tabsLocationProp = UserProperties.createMappedProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+
+        UserProperties.editMarkerColorProp = UserProperties.createMappedProperty (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME);
+
+    }
+
+    private static SimpleStringProperty createMappedProperty (String name)
+    {
+
+        SimpleStringProperty s = new SimpleStringProperty (UserProperties.get (name));
+        UserProperties.mappedProperties.put (name,
+                                             s);
+
+        return s;
+
+    }
+
+    public static SimpleStringProperty editMarkerColorProperty ()
+    {
+
+        return UserProperties.editMarkerColorProp;
+
+    }
+
+    public static SimpleStringProperty projectInfoFormatProperty ()
+    {
+
+        return UserProperties.projectInfoFormatProp;
+
+    }
+
+    public static void setProjectInfoFormat (String v)
+    {
+
+        UserProperties.projectInfoFormatProp.setValue (v);
+
+    }
+
+    public static SimpleStringProperty tabsLocationProperty ()
+    {
+
+        return UserProperties.tabsLocationProp;
+
+    }
+
+    // TODO Make an enum.
+    public static void setTabsLocation (String loc)
+    {
+
+        UserProperties.tabsLocationProp.setValue (loc);
 
     }
 
@@ -99,7 +173,7 @@ public class UserProperties
                 synchronized (UserProperties.listeners)
                 {
 
-                    ls = new LinkedHashSet (UserProperties.listeners.keySet ());
+                    ls = new LinkedHashSet<> (UserProperties.listeners.keySet ());
 
                 }
 
@@ -154,7 +228,14 @@ public class UserProperties
                             new StringProperty (name,
                                                 value));
 
-        UserProperties.save ();
+        SimpleStringProperty p = UserProperties.mappedProperties.get (name);
+
+        if (p != null)
+        {
+
+            p.setValue (value);
+
+        }
 
     }
 
@@ -325,6 +406,39 @@ public class UserProperties
                                   e);
 
         }
+
+    }
+
+    public static Path getUserEditorsPropertiesPath ()
+    {
+
+        return Environment.getUserPath (Constants.EDITORS_PROPERTIES_FILE_NAME);
+
+    }
+
+    public static Path getUserDefaultProjectPropertiesPath ()
+    {
+
+        return Environment.getUserPath (Constants.DEFAULT_PROJECT_PROPERTIES_FILE_NAME);
+
+    }
+
+    /**
+     * No longer used, since properties now stored in projects db.
+     * This is only used for legacy versions that need to port the properties over
+     * to the new storage method.
+     */
+    public static Path getUserPropertiesPath ()
+    {
+
+        return Environment.getUserPath (Constants.PROPERTIES_FILE_NAME);
+
+    }
+
+    public static Path getUserObjectTypeNamesPath ()
+    {
+
+        return Environment.getUserPath (Constants.OBJECT_TYPE_NAMES_FILE_NAME);
 
     }
 

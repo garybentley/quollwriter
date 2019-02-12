@@ -1,6 +1,7 @@
 package com.quollwriter;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
 
@@ -20,6 +21,7 @@ public class UserDictionaryProvider implements DictionaryProvider2
 
     private static List                           listeners = new ArrayList ();
 
+    // TODO Use a path
     private static File                           file = null;
     private static QWSpellDictionaryHashMap       dict = null;
     private static SpellChecker                   checker = null;
@@ -43,18 +45,18 @@ public class UserDictionaryProvider implements DictionaryProvider2
         if (UserDictionaryProvider.file == null)
         {
 
-            File userDictFile = Environment.getUserDictionaryFile ();
+            Path userDictFile = DictionaryProvider.getUserDictionaryFilePath ();
 
-            if (!userDictFile.exists ())
+            if (Files.notExists (userDictFile))
             {
 
-                userDictFile.createNewFile ();
+                Files.createFile (userDictFile);
 
             }
 
-            UserDictionaryProvider.dict = new QWSpellDictionaryHashMap (userDictFile);
+            UserDictionaryProvider.dict = new QWSpellDictionaryHashMap (userDictFile.toFile ());
 
-            UserDictionaryProvider.file = userDictFile;
+            UserDictionaryProvider.file = userDictFile.toFile ();
 
             UserDictionaryProvider.spellChecker = new com.swabunga.spell.event.SpellChecker ();
 

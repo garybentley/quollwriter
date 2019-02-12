@@ -65,7 +65,7 @@ public abstract class PopupWizard extends PopupWindow
                                                                     0,
                                                                     1,
                                                                     0,
-                                                                    Environment.getBorderColor ()),
+                                                                    UIUtils.getBorderColor ()),
                                                    new EmptyBorder (0,
                                                                     0,
                                                                     2,

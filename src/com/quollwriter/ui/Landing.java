@@ -38,7 +38,7 @@ import com.quollwriter.ui.charts.*;
 import com.quollwriter.ui.actionHandlers.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 // TODO: Create a PopupFrame that supports popups.
 
@@ -104,7 +104,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         this.splitPane.setBorder (null);
 
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
-        div.setBorder (new MatteBorder (0, 0, 0, 1, Environment.getBorderColor ()));
+        div.setBorder (new MatteBorder (0, 0, 0, 1, UIUtils.getBorderColor ()));
         this.splitPane.setOpaque (false);
         this.splitPane.setBackground (UIUtils.getComponentColor ());
 
@@ -1130,14 +1130,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
                   });
 
-        String reason = Environment.canOpenProject (p);
+        javafx.beans.property.StringProperty reason = Environment.canOpenProject (p);
 
 		String message = String.format (Environment.getUIString (prefix,
                                                                  LanguageStrings.popup,
                                                                  LanguageStrings.text),
                                         //"Sorry, {project} <b>%s</b> cannot be opened for the following reason:<br /><br /><b>%s</b><br /><br />This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of {projects}?",
                                         p.getName (),
-                                        reason);
+                                        reason.getValue ());
 
         //message = message + "<br /><br />Note: this will <b>only</b> remove the {project} from the list it will not remove any other data.";
 
@@ -1166,7 +1166,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         final Landing _this = this;
 
-        final AbstractProjectViewer viewer = Environment.getProjectViewer (p);
+        final AbstractProjectViewer viewer = null; // TODO Environment.getProjectViewer (p);
 
         if (viewer != null)
         {
@@ -1266,7 +1266,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 									   final ActionListener onOpen)
     {
 
-        String reason = Environment.canOpenProject (p);
+        javafx.beans.property.StringProperty reason = Environment.canOpenProject (p);
 
         if (reason != null)
         {
@@ -1286,7 +1286,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		}
 
 		// Is the project already open?
-		AbstractProjectViewer pv = Environment.getProjectViewer (p);
+		AbstractProjectViewer pv = null; // TODO Environment.getProjectViewer (p);
 
 		if (pv != null)
 		{
@@ -1329,9 +1329,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         try
         {
 
+/*
+TODO
             Environment.openProject (p,
 									 _onOpen);
-
+*/
             return true;
 
         } catch (Exception e)
@@ -1653,7 +1655,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		this.showProjects ();
 
-        Environment.addProjectInfoChangedListener (this);
+        // TODO Environment.addProjectInfoChangedListener (this);
 
 		this.setTitleHeaderControlsVisible (true);
 
@@ -2008,14 +2010,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 					String tip = null;
 
-					tip = Environment.canOpenProject (_this.project);
+					javafx.beans.property.StringProperty _tip = Environment.canOpenProject (_this.project);
 
-					if (tip != null)
+					if (_tip != null)
 					{
 
 						tip = String.format (Environment.getUIString (prefix,
                                                                       LanguageStrings.error),
-                                             tip);
+                                             _tip.getValue ());
                         //"This {project} cannot be opened for the following reason:<br /><br />" + tip + "<br /><br />Right click to remove this from your list of {projects}.";
 
 					}
@@ -2129,7 +2131,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 								JPopupMenu popup = new JPopupMenu ();
 
-								String reason = Environment.canOpenProject (_this.project);
+								javafx.beans.property.StringProperty reason = Environment.canOpenProject (_this.project);
 
 								if (reason != null)
 								{
@@ -2548,7 +2550,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 											  String.format (Environment.getUIString (prefix,
                                                                                       LanguageStrings.editcomplete),
                                                             //"%s%% complete",
-															 Environment.formatNumber (Environment.getPercent (this.project.getEditedWordCount (), project.getWordCount ()))));
+															 Environment.formatNumber (Utils.getPercent (this.project.getEditedWordCount (), project.getWordCount ()))));
 			text = StringUtils.replaceString (text,
 											  READABILITY_TAG,
 											  String.format (Environment.getUIString (prefix,
@@ -3722,7 +3724,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			try
 			{
 
-				pi = Environment.getProjectByDirectory (dir);
+				pi = null; // TODO Environment.getProjectByDirectory (dir);
 
 			} catch (Exception e) {
 
@@ -3922,7 +3924,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                                                                LanguageStrings.find));
                                                                                //"Find");
 
-		final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
+		final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDirPath ().toFile ().getPath (),
 														  Environment.getUIString (prefix,
                                                                                    LanguageStrings.finder,
                                                                                    LanguageStrings.title),
@@ -4238,7 +4240,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         }
 
-        Environment.removeProjectInfoChangedListener (this);
+        // TODO Environment.removeProjectInfoChangedListener (this);
 
 		super.close (true,
 					 null);

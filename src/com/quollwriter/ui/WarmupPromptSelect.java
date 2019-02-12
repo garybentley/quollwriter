@@ -503,7 +503,7 @@ public class WarmupPromptSelect extends Box
                                                     v.init ();
 
                                                     // Put it in the user's directory.
-                                                    v.newProject (Environment.getUserQuollWriterDir (),
+                                                    v.newProject (Environment.getUserQuollWriterDirPath ().toFile (),
                                                                   p,
                                                                   null);
 
@@ -619,7 +619,7 @@ public class WarmupPromptSelect extends Box
                 try
                 {
 
-                    WarmupsViewer v = (WarmupsViewer) Environment.getProjectViewer (p);
+                    WarmupsViewer v = null; // TODO (WarmupsViewer) Environment.getProjectViewer (p);
 
                     v.addNewWarmup (w);
 

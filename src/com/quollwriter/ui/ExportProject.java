@@ -216,7 +216,7 @@ public class ExportProject extends Wizard<ProjectViewer>
         try
         {
 
-            de = (DocumentExporter) c.newInstance ();
+            de = (DocumentExporter) c.getDeclaredConstructor ().newInstance ();
             de.setProject (this.proj);
 
             this.exporters.put (fileType,

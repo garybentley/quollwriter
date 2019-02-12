@@ -1213,7 +1213,7 @@ public class ProblemFinder extends Box
     public static BlockPainter getTextBlockHighlighter ()
     {
 
-        return new BlockPainter (Environment.getHighlightColor ());
+        return new BlockPainter (UIUtils.getHighlightColor ());
 
     }
 

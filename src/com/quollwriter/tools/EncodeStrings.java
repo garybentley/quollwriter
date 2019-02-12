@@ -143,7 +143,7 @@ public class EncodeStrings
                               throws Exception
     {
 
-        return EncodeStrings.getPNGData (Environment.getResourceStream (resource));
+        return EncodeStrings.getPNGData (Utils.getResourceStream (resource));
 
     }
 

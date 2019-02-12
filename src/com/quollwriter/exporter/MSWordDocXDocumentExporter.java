@@ -26,7 +26,6 @@ import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.userobjects.*;
-import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 

@@ -23,6 +23,8 @@ import com.quollwriter.ui.components.ActionAdapter;
 public class AchievementsManager implements ProjectEventListener
 {
 
+    // TODO Make a singleton... like UILanguageStringsManager
+
     public static final String USER = "user";
     public static final String PROJECT = "project";
     public static final String CHAPTER = "chapter";
@@ -61,13 +63,13 @@ public class AchievementsManager implements ProjectEventListener
         this.listeners = Collections.synchronizedMap (new WeakHashMap ());
 
         // Load our list of user achieved achievements.
-        Set<String> achieved = this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+        Set<String> achieved = this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
         // Load the state for the user achievements.
-        Map<String, Element> initEls = this.getInitElements (Environment.getProperty (Constants.USER_ACHIEVEMENTS_STATE_PROPERTY_NAME));
+        Map<String, Element> initEls = this.getInitElements (UserProperties.get (Constants.USER_ACHIEVEMENTS_STATE_PROPERTY_NAME));
 
         // Create the achievements for the project and chapter categories.
-        String achFile = Environment.getResourceFileAsString (Constants.ACHIEVEMENTS_FILE);
+        String achFile = Utils.getResourceFileAsString (Constants.ACHIEVEMENTS_FILE);
 
         if (achFile == null)
         {
@@ -180,7 +182,7 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
-        Environment.addUserProjectEventListener (this);
+        // TODO Environment.addUserProjectEventListener (this);
 
     }
 
@@ -237,7 +239,7 @@ public class AchievementsManager implements ProjectEventListener
     public Set<String> getUserAchievedIds ()
     {
 
-        return this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+        return this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
     }
 
@@ -247,7 +249,7 @@ public class AchievementsManager implements ProjectEventListener
     {
 
         // Create the achievements for the project and chapter categories.
-        String achFile = Environment.getResourceFileAsString (Constants.ACHIEVEMENTS_FILE);
+        String achFile = Utils.getResourceFileAsString (Constants.ACHIEVEMENTS_FILE);
 
         if (achFile == null)
         {
@@ -802,7 +804,7 @@ public class AchievementsManager implements ProjectEventListener
         {
 
             // Add to the list of user achievements.
-            Set<String> achieved = this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+            Set<String> achieved = this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
             if (achieved.contains (ar.getId ()))
             {
@@ -818,7 +820,7 @@ public class AchievementsManager implements ProjectEventListener
 
             this.fireAchievementReachedEvent (ar);
 
-            Environment.showAchievement (ar);
+            // TODO Environment.getFocusedViewer ().showAchievement (ar);
 
             this.playAchievementSound ();
 
@@ -906,7 +908,7 @@ public class AchievementsManager implements ProjectEventListener
             try
             {
 
-                InputStream is = new BufferedInputStream (Environment.getResourceStream (Constants.DEFAULT_ACHIEVEMENT_SOUND_FILE));
+                InputStream is = new BufferedInputStream (Utils.getResourceStream (Constants.DEFAULT_ACHIEVEMENT_SOUND_FILE));
 
                 // Get the clip.
                 AudioInputStream ais = AudioSystem.getAudioInputStream (is);
@@ -1254,7 +1256,7 @@ public class AchievementsManager implements ProjectEventListener
         if (type.toLowerCase ().equals (USER))
         {
 
-            Set<String> achieved = this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+            Set<String> achieved = this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
             achieved.remove (id.toLowerCase ());
 

@@ -26,6 +26,8 @@ import com.quollwriter.text.*;
 
 import com.quollwriter.synonyms.SynonymProvider;
 
+import com.quollwriter.*;
+
 public class QTextEditor extends JTextPane implements TextStylable
 {
 

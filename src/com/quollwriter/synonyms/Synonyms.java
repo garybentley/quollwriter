@@ -33,12 +33,12 @@ public class Synonyms
 
     }
 
-    public List                verbs = new ArrayList ();
-    public List                nouns = new ArrayList ();
-    public List                other = new ArrayList ();
-    public List                adjectives = new ArrayList ();
-    public List                adverbs = new ArrayList ();
-    public List<Synonyms.Part> words = new ArrayList ();
+    public List<String>        verbs = new ArrayList<> ();
+    public List<String>        nouns = new ArrayList<> ();
+    public List<String>        other = new ArrayList<> ();
+    public List<String>        adjectives = new ArrayList<> ();
+    public List<String>        adverbs = new ArrayList<> ();
+    public List<Synonyms.Part> words = new ArrayList<> ();
     public String              word = null;
     private String             parts = null;
 
@@ -119,7 +119,7 @@ public class Synonyms
     public Part newPart (char type)
     {
 
-        List words = this.other;
+        List<String> words = this.other;
 
         if ((type == VERB) ||
             (type == VERB_I) ||
@@ -178,7 +178,7 @@ public class Synonyms
 
     }
 
-    public void addNouns (List nouns)
+    public void addNouns (List<String> nouns)
     {
 
         if (nouns != null)
@@ -190,7 +190,7 @@ public class Synonyms
 
     }
 
-    public void addAdverbs (List advs)
+    public void addAdverbs (List<String> advs)
     {
 
         if (advs != null)
@@ -202,7 +202,7 @@ public class Synonyms
 
     }
 
-    public void addAdjectives (List adjs)
+    public void addAdjectives (List<String> adjs)
     {
 
         if (adjs != null)
@@ -214,7 +214,7 @@ public class Synonyms
 
     }
 
-    public void addVerbs (List verbs)
+    public void addVerbs (List<String> verbs)
     {
 
         if (verbs != null)

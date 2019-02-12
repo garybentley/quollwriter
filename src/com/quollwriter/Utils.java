@@ -5,6 +5,7 @@ import java.awt.event.*;
 
 import java.text.*;
 import java.net.*;
+import java.util.jar.*;
 import java.util.*;
 import java.util.zip.*;
 import java.nio.file.*;
@@ -25,6 +26,30 @@ import com.quollwriter.events.*;
 
 public class Utils
 {
+
+    public static <T> List<T> newList (Collection<T> l,
+                                       T...    els)
+    {
+
+        List<T> ret = new ArrayList<> ();
+
+        if (l != null)
+        {
+
+            ret.addAll (l);
+
+        }
+
+        if (els != null)
+        {
+
+            ret.addAll (Arrays.asList (els));
+
+        }
+
+        return ret;
+
+    }
 
     public static String getElementAsString (Element el)
 	                                     throws  IOException
@@ -100,7 +125,7 @@ public class Utils
 
         StringBuilder b = new StringBuilder ();
 
-        String m = KeyEvent.getKeyModifiersText (k.getModifiers ());
+        String m = KeyEvent.getModifiersExText (k.getModifiers ());
 
         if (m.length () > 0)
         {
@@ -122,7 +147,7 @@ public class Utils
                                             String separator)
     {
 
-        List<String> ret = new ArrayList ();
+        List<String> ret = new ArrayList<> ();
 
         if (str == null)
         {
@@ -338,7 +363,7 @@ public class Utils
     public static Map<ProjectInfo.Statistic, Object> getStatisticsFromXML (String t)
     {
 
-        Map<ProjectInfo.Statistic, Object> ret = new HashMap ();
+        Map<ProjectInfo.Statistic, Object> ret = new HashMap<> ();
 
         if (t == null)
         {
@@ -434,7 +459,7 @@ public class Utils
     public static Set<File> getFilesFromXML (String t)
     {
 
-        Set<File> ret = new LinkedHashSet ();
+        Set<File> ret = new LinkedHashSet<> ();
 
         if (t == null)
         {
@@ -1036,7 +1061,7 @@ public class Utils
         try
         {
 
-            Map<String, String> env = new HashMap ();
+            Map<String, String> env = new HashMap<> ();
             env.put ("create", "true");
 
             FileSystem fs = FileSystems.newFileSystem (Paths.get (f.getPath ()),
@@ -1483,7 +1508,7 @@ public class Utils
     public static String formatDate (Date d)
     {
 
-        return new SimpleDateFormat (Environment.getProperty (Constants.DATE_FORMAT_PROPERTY_NAME)).format (d);
+        return new SimpleDateFormat (UserProperties.get (Constants.DATE_FORMAT_PROPERTY_NAME)).format (d);
 
     }
 
@@ -1493,7 +1518,7 @@ public class Utils
         try
         {
 
-            return new SimpleDateFormat (Environment.getProperty (Constants.DATE_FORMAT_PROPERTY_NAME)).parse (d);
+            return new SimpleDateFormat (UserProperties.get (Constants.DATE_FORMAT_PROPERTY_NAME)).parse (d);
 
         } catch (Exception e)
         {
@@ -1501,7 +1526,7 @@ public class Utils
             Environment.logError ("Unable to parse date: " +
                                   d +
                                   ", using format: " +
-                                  Environment.getProperty (Constants.DATE_FORMAT_PROPERTY_NAME),
+                                  UserProperties.get (Constants.DATE_FORMAT_PROPERTY_NAME),
                                   e);
 
             return null;
@@ -1642,27 +1667,35 @@ public class Utils
 
     }
 
+    @Deprecated
     public static void createQuollWriterDirFile (File d)
                                           throws IOException
     {
 
-        if (!d.exists ())
+        Utils.createQuollWriterDirFile (d.toPath ());
+
+    }
+
+    public static void createQuollWriterDirFile (Path d)
+                                          throws IOException
+    {
+
+        if (!Files.notExists (d))
         {
 
             return;
 
         }
 
-        if (d.isFile ())
+        if (!Files.isDirectory (d))
         {
 
             return;
 
         }
 
-        IOUtils.writeStringToFile (new File (d.getPath () + "/" + Constants.QUOLLWRITER_DIR_FILE_NAME),
-                                   "This file indicates to quollwriter that the parent directory can be safely deleted or copied.",
-                                   false);
+        Files.write (d.resolve (Constants.QUOLLWRITER_DIR_FILE_NAME),
+                     "This file indicates to quollwriter that the parent directory can be safely deleted or copied.".getBytes (StandardCharsets.UTF_8));
 
     }
 
@@ -2072,6 +2105,268 @@ public class Utils
                                         e);
 
         }
+
+    }
+
+    public static File writeStreamToTempFile (InputStream in)
+                                       throws IOException
+    {
+
+        // TODO Change to use a path.
+        File f = File.createTempFile ("___" + Constants.QUOLL_WRITER_DIR_NAME + System.currentTimeMillis (),
+                                      null);
+
+        BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (f));
+
+        IOUtils.streamTo (new BufferedInputStream (in),
+                          bout,
+                          4096);
+
+        bout.flush ();
+        bout.close ();
+
+        return f;
+
+    }
+
+    public static void extractResourceToFile (String name,
+                                              File   outFile)
+                                       throws GeneralException
+    {
+
+        try
+        {
+
+            BufferedInputStream bin = new BufferedInputStream (Environment.class.getResourceAsStream (name));
+
+            BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (outFile));
+
+            IOUtils.streamTo (bin,
+                              bout,
+                              4096);
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to stream resource: " +
+                                        name +
+                                        " to output file: " +
+                                        outFile,
+                                        e);
+
+        }
+
+    }
+
+    public static Date zeroTimeFieldsForDate (Date d)
+    {
+
+        GregorianCalendar gc = new GregorianCalendar ();
+        gc.setTime (d);
+
+        Utils.zeroTimeFields (gc);
+
+        return gc.getTime ();
+
+    }
+
+    public static void zeroTimeFields (GregorianCalendar gc)
+    {
+
+        // Zero-out the non date fields.
+        gc.set (Calendar.HOUR_OF_DAY,
+                0);
+        gc.set (Calendar.MINUTE,
+                0);
+        gc.set (Calendar.SECOND,
+                0);
+        gc.set (Calendar.MILLISECOND,
+                0);
+
+    }
+
+    /**
+     * List directory contents for a resource folder. Not recursive.
+     * This is basically a brute-force implementation.
+     * Works for regular files and also JARs.
+     *
+     * @author Greg Briggs
+     * @param clazz Any java class that lives in the same place as the resources you want.
+     * @param path Should end with "/", but not start with one.
+     * @return Just the name of each member item, not the full paths.
+     * @throws URISyntaxException
+     * @throws IOException
+     */
+    public static Set<String> getResourceListing (String path)
+                                           throws URISyntaxException,
+                                                  GeneralException,
+                                                  IOException
+    {
+
+        URL dirURL = Environment.class.getResource (path);
+
+        if (dirURL == null)
+        {
+
+            throw new GeneralException ("Unable to find resource: " + path);
+
+        }
+
+        if (dirURL.getProtocol ().equals ("jar"))
+        {
+
+            /* A JAR path */
+            String jarPath = dirURL.getPath ().substring (5,
+                                                          dirURL.getPath ().indexOf ("!")); // strip out only the JAR file
+
+            JarFile jar = new JarFile (URLDecoder.decode (jarPath,
+                                                          "UTF-8"));
+
+            Enumeration<JarEntry> entries = jar.entries (); // gives ALL entries in jar
+
+            Set<String> result = new HashSet<String> (); // avoid duplicates in case it is a subdirectory
+
+            while (entries.hasMoreElements ())
+            {
+
+                String name = "/" + entries.nextElement ().getName ();
+
+                if (name.startsWith (path))
+                { // filter according to the path
+
+                    String entry = name.substring (path.length ());
+
+                    if (entry.length () == 0)
+                    {
+
+                        continue;
+
+                    }
+
+                    int checkSubdir = entry.indexOf ("/");
+
+                    if (checkSubdir >= 0)
+                    {
+
+                        // if it is a subdirectory, we just return the directory name
+                        entry = entry.substring (0,
+                                                 checkSubdir);
+
+                    }
+
+                    result.add (entry);
+                }
+
+            }
+
+            return result;
+
+        }
+
+        throw new UnsupportedOperationException ("Cannot list files for URL " + dirURL);
+    }
+
+    public static InputStream getResourceStream (String name)
+    {
+
+        return Environment.class.getResourceAsStream (name);
+
+    }
+
+    public static String getResourceFileAsString (String name)
+                                           throws GeneralException
+    {
+
+        InputStream is = Utils.getResourceStream (name);
+
+        if (is == null)
+        {
+
+            return null;
+
+        }
+
+        StringBuilder b = new StringBuilder ();
+
+        BufferedReader r = null;
+
+        try
+        {
+
+            r = new BufferedReader (new InputStreamReader (is, "utf-8"));
+
+            String line = r.readLine ();
+
+            while (line != null)
+            {
+
+                b.append (line);
+                b.append ('\n');
+
+                line = r.readLine ();
+
+            }
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to read from resource: " +
+                                        name,
+                                        e);
+
+        } finally
+        {
+
+            // Oh how I hate this...
+            try
+            {
+
+                if (r != null)
+                {
+
+                    r.close ();
+
+                }
+
+            } catch (Exception e)
+            {
+
+                // Ignore...  What could we do otherwise?
+
+            }
+
+        }
+
+        return b.toString ();
+
+    }
+
+    // TODO: Change to use a new thread.
+    public static String getUrlFileAsString (URL    url)
+                                             throws Exception
+    {
+
+        URLConnection c = url.openConnection ();
+
+        InputStream bin = c.getInputStream ();
+
+        return Utils.getStreamAsString (bin,
+                                        StandardCharsets.UTF_8);
+
+    }
+
+    public static int getPercent (float t,
+                                  float b)
+    {
+
+        if (b == 0)
+        {
+
+            return 0;
+
+        }
+
+        return (int) ((t / b) * 100);
 
     }
 

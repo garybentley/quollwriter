@@ -102,7 +102,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                           throws Exception
     {
 
-        File f = Environment.writeStreamToTempFile (in);
+        File f = Utils.writeStreamToTempFile (in);
         f.deleteOnExit ();
 
         WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load (f);

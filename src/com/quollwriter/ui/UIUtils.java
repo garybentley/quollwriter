@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.*;
 import java.net.*;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.text.*;
 
@@ -52,7 +53,6 @@ import javax.swing.table.*;
 import javax.swing.filechooser.*;
 
 import javax.imageio.*;
-import javax.activation.*;
 
 //import javafx.scene.*;
 import javafx.scene.web.*;
@@ -80,7 +80,8 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
-import com.quollwriter.ui.events.*;
+import com.quollwriter.ui.fx.ProjectEvent;
+import com.quollwriter.ui.fx.ProjectEventListener;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.userobjects.*;
@@ -107,7 +108,7 @@ import org.jfree.ui.*;
 import org.josql.utils.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class UIUtils
 {
@@ -136,6 +137,13 @@ public class UIUtils
                                                                                                "jpeg",
                                                                                                "gif",
                                                                                                "png");
+
+   public static Color getIconColumnColor ()
+   {
+
+       return getColor ("#f0f0f0");//"f5fcfe");
+
+   }
 
     public static int getScrollByAmount ()
     {
@@ -537,12 +545,12 @@ public class UIUtils
                                     throws GeneralException
     {
 
-        Enumeration<DefaultMutableTreeNode> en = n.children ();
+        Enumeration<TreeNode> en = n.children ();
 
         while (en.hasMoreElements ())
         {
 
-            DefaultMutableTreeNode nn = en.nextElement ();
+            DefaultMutableTreeNode nn = (DefaultMutableTreeNode) en.nextElement ();
 
             SelectableDataObject sd = (SelectableDataObject) nn.getUserObject ();
 
@@ -636,12 +644,12 @@ public class UIUtils
                                             boolean                v)
             {
 
-                Enumeration<DefaultMutableTreeNode> en = n.children ();
+                Enumeration<TreeNode> en = n.children ();
 
                 while (en.hasMoreElements ())
                 {
 
-                    DefaultMutableTreeNode c = en.nextElement ();
+                    DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                     SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
 
@@ -740,12 +748,12 @@ public class UIUtils
                                                     boolean                v)
                     {
 
-                        Enumeration<DefaultMutableTreeNode> en = n.children ();
+                        Enumeration<TreeNode> en = n.children ();
 
                         while (en.hasMoreElements ())
                         {
 
-                            DefaultMutableTreeNode c = en.nextElement ();
+                            DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                             SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
 
@@ -855,13 +863,6 @@ public class UIUtils
                                                   dataObject);
 
         return tree;
-
-    }
-
-    public static void scrollIntoView (final JComponent c)
-    {
-
-        Environment.scrollIntoView (c);
 
     }
 
@@ -1723,12 +1724,12 @@ public class UIUtils
                                            Set                    s)
     {
 
-        Enumeration<DefaultMutableTreeNode> en = n.children ();
+        Enumeration<TreeNode> en = n.children ();
 
         while (en.hasMoreElements ())
         {
 
-            DefaultMutableTreeNode nn = en.nextElement ();
+            DefaultMutableTreeNode nn = (DefaultMutableTreeNode) en.nextElement ();
 
             SelectableDataObject sd = (SelectableDataObject) nn.getUserObject ();
 
@@ -1757,12 +1758,12 @@ public class UIUtils
                                             boolean                v)
             {
 
-                Enumeration<DefaultMutableTreeNode> en = n.children ();
+                Enumeration<TreeNode> en = n.children ();
 
                 while (en.hasMoreElements ())
                 {
 
-                    DefaultMutableTreeNode c = en.nextElement ();
+                    DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                     SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
 
@@ -2401,7 +2402,7 @@ public class UIUtils
                                                if (cellHasFocus)
                                                {
 
-                                                   l.setBackground (Environment.getHighlightColor ());
+                                                   l.setBackground (UIUtils.getHighlightColor ());
 
                                                }
 
@@ -3224,7 +3225,7 @@ public class UIUtils
     public static Border createLineBorder ()
     {
 
-        return new LineBorder (Environment.getBorderColor (),
+        return new LineBorder (UIUtils.getBorderColor (),
                                1);
 
     }
@@ -3553,7 +3554,7 @@ public class UIUtils
                                                           0,
                                                           1,
                                                           0,
-                                                          Environment.getBorderColor ()),
+                                                          UIUtils.getBorderColor ()),
                                          new EmptyBorder (0,
                                                           0,
                                                           2,
@@ -5329,9 +5330,9 @@ public class UIUtils
                 if (pv != null)
                 {
 
-                    Environment.eventOccurred (new ProjectEvent (pv,
-                                                                 ProjectEvent.HELP,
-                                                                 ProjectEvent.SHOW));
+                    Environment.fireUserProjectEvent (new ProjectEvent (pv,
+                                                                        ProjectEvent.Type.help,
+                                                                        ProjectEvent.Action.show));
 
                 }
 
@@ -5436,7 +5437,8 @@ public class UIUtils
 
             if (parent != null)
             {
-
+/*
+TODO
                 AbstractViewer pv = Environment.getFocusedViewer ();
 
                 if (pv != null)
@@ -5447,7 +5449,7 @@ public class UIUtils
                     return;
 
                 }
-
+*/
             }
 
         }
@@ -5985,7 +5987,7 @@ public class UIUtils
         t.append ("ul{margin-left: 20px;}\n");
         t.append ("li{font-size: " + ((int) f.getSize ()) + "pt; font-family: \"" + f.getFontName () + "\";}\n");
         t.append ("p.error{padding: 0px; margin: 0px; color: red;}");
-        t.append ("h1.help{font-size:" + (((int) f.getSize ()) + 6) + "pt; padding: 0px; margin: 0px; border-bottom: solid 1px " + UIUtils.colorToHex (Environment.getBorderColor ()) + "; font-weight: normal;}");
+        t.append ("h1.help{font-size:" + (((int) f.getSize ()) + 6) + "pt; padding: 0px; margin: 0px; border-bottom: solid 1px " + UIUtils.colorToHex (UIUtils.getBorderColor ()) + "; font-weight: normal;}");
         t.append ("p.help{margin: 0px; margin-left: 5px; margin-top: 5px; padding: 0px; margin-bottom: 10px;}");
         t.append ("p.help img{padding-left: 3px; padding-right: 3px;}");
         t.append (".error{color: red;}");
@@ -7606,13 +7608,6 @@ public class UIUtils
 
     }
 
-    public static Color getIconColumnColor ()
-    {
-
-        return UIUtils.getColor ("#f0f0f0");//"f5fcfe");
-
-    }
-
     public static int getSplitPaneDividerSize ()
     {
 
@@ -7860,6 +7855,8 @@ public class UIUtils
 
     }
 
+/*
+ Needed?
     public static BufferedImage getScaledImage (DataSource ds,
                                                 int        width,
                                                 int        height)
@@ -7882,7 +7879,7 @@ public class UIUtils
         }
 
     }
-
+*/
     public static BufferedImage getImage (byte[] bytes)
                                    throws GeneralException
     {
@@ -9601,7 +9598,8 @@ public class UIUtils
                                                  final ActionListener         onProvided,
                                                  final AbstractViewer         parentViewer)
     {
-
+/*
+TODO
         AbstractProjectViewer pv = Environment.getProjectViewer (proj);
 
         if ((pv == null)
@@ -9733,7 +9731,7 @@ public class UIUtils
             onProvided.actionPerformed (new ActionEvent (proj, 1, "provided"));
 
         }
-
+*/
     }
 
     public static JComboBox getSpellCheckLanguagesSelector (final ActionListener onSelect,
@@ -9780,7 +9778,7 @@ public class UIUtils
                 try
                 {
 
-                    l = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + Environment.getProperty (Constants.QUOLL_WRITER_SUPPORTED_LANGUAGES_URL_PROPERTY_NAME)));
+                    l = Utils.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + UserProperties.get (Constants.QUOLL_WRITER_SUPPORTED_LANGUAGES_URL_PROPERTY_NAME)));
 
                 } catch (Exception e) {
 
@@ -9881,7 +9879,7 @@ public class UIUtils
                 try
                 {
 
-                    l = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + Environment.getProperty (Constants.QUOLL_WRITER_AVAILABLE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME) + "?version=" + Environment.getQuollWriterVersion ().toString ()));
+                    l = Utils.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + UserProperties.get (Constants.QUOLL_WRITER_AVAILABLE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME) + "?version=" + Environment.getQuollWriterVersion ().toString ()));
 
                     ls = (Collection) JSONDecoder.decode (l);
 
@@ -9904,7 +9902,7 @@ public class UIUtils
                 {
 
                     // Add in any user generated ones.
-                    for (UILanguageStrings _ls : Environment.getAllUserUILanguageStrings (Environment.getQuollWriterVersion ()))
+                    for (UILanguageStrings _ls : UILanguageStringsManager.getAllUserUILanguageStrings (Environment.getQuollWriterVersion ()))
                     {
 
                         langIds.add ("user-" + _ls.getId ());
@@ -9921,7 +9919,19 @@ public class UIUtils
                 }
 
                 // Add our local ones.
-                Set<UILanguageStrings> uistrs = Environment.getAllUILanguageStrings (Environment.getQuollWriterVersion ());
+                Set<UILanguageStrings> uistrs = null;
+
+                try
+                {
+
+                    uistrs = UILanguageStringsManager.getAllUILanguageStrings (Environment.getQuollWriterVersion ());
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get local ui language strings",
+                                          e);
+
+                }
 
                 String format = "%1$s (%2$s, %3$s%%)";
                 int s = 0;
@@ -9929,8 +9939,8 @@ public class UIUtils
 
                 try
                 {
-                    enStrs = Environment.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ());
-                    s = Environment.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ()).getAllTextValues ().size ();
+                    enStrs = UILanguageStringsManager.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ());
+                    s = UILanguageStringsManager.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ()).getAllTextValues ().size ();
 
                 } catch (Exception e) {
 
@@ -9948,7 +9958,7 @@ public class UIUtils
                     objs.put (uistr.getId (), String.format (format,
                                                              uistr.getNativeName (),
                                                              uistr.getLanguageName (),
-                                                             Environment.formatNumber (Environment.getPercent (c, s))));
+                                                             Environment.formatNumber (Utils.getPercent (c, s))));
 
                 }
 
@@ -10002,7 +10012,7 @@ public class UIUtils
                         objs.put (id, String.format (format,
                                                      m.get ("nativename").toString (),
                                                      m.get ("languagename"),
-                                                     Environment.formatNumber (Environment.getPercent (c, s))));
+                                                     Environment.formatNumber (Utils.getPercent (c, s))));
 
                     } else {
 
@@ -10133,8 +10143,8 @@ public class UIUtils
         }
 
         Environment.fireUserProjectEvent (viewer,
-                                          ProjectEvent.BACKUPS,
-                                          ProjectEvent.SHOW);
+                                          ProjectEvent.Type.backups,
+                                          ProjectEvent.Action.show);
 
 	}
 
@@ -10245,7 +10255,7 @@ public class UIUtils
                                                 final ActionListener onComplete)
     {
 
-        if (Environment.isEnglish (lang))
+        if (UILanguageStrings.isEnglish (lang))
         {
 
             lang = Constants.ENGLISH;
@@ -10259,9 +10269,9 @@ public class UIUtils
 
         // Legacy, if the user doesn't have the language file but DOES have a thesaurus then just
         // download the English-dictionary-only.zip.
-        if ((Environment.isEnglish (lang))
+        if ((UILanguageStrings.isEnglish (lang))
             &&
-            (!Environment.getDictionaryFile (lang).exists ())
+            (!Files.exists (DictionaryProvider.getDictionaryFilePath (lang)))
             &&
             (Environment.hasSynonymsDirectory (lang))
            )
@@ -10276,7 +10286,7 @@ public class UIUtils
         try
         {
 
-            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (Environment.getProperty (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (UserProperties.get (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
                                                                                                    "[[LANG]]",
                                                                                                    StringUtils.replaceString (fileLang,
                                                                                                                               " ",
@@ -10419,14 +10429,14 @@ public class UIUtils
                                                                             {
 
                                                                                 Utils.extractZipFile (file,
-                                                                                                      Environment.getUserQuollWriterDir ());
+                                                                                                      Environment.getUserQuollWriterDirPath ().toFile ());
 
                                                                             } catch (Exception e) {
 
                                                                                 Environment.logError ("Unable to extract language zip file: " +
                                                                                                       file +
                                                                                                       " to: " +
-                                                                                                      Environment.getUserQuollWriterDir (),
+                                                                                                      Environment.getUserQuollWriterDirPath (),
                                                                                                       e);
 
                                                                                  UIUtils.showErrorMessage (parent,
@@ -10722,7 +10732,7 @@ public class UIUtils
                 ChapterCounts ecc = new ChapterCounts (chapText.substring (0,
                                                                            ep));
 
-                ep = Environment.getPercent (ecc.wordCount, cc.wordCount);
+                ep = Utils.getPercent (ecc.wordCount, cc.wordCount);
 
             }
 
@@ -11186,7 +11196,7 @@ public class UIUtils
         try
         {
 
-            objs = Environment.getAllUserUILanguageStrings ();
+            objs = UILanguageStringsManager.getAllUserUILanguageStrings ();
 
         } catch (Exception e) {
 
@@ -11245,7 +11255,7 @@ public class UIUtils
                                                if (cellHasFocus)
                                                {
 
-                                                   l.setBackground (Environment.getHighlightColor ());
+                                                   l.setBackground (UIUtils.getHighlightColor ());
 
                                                }
 
@@ -11263,7 +11273,7 @@ public class UIUtils
 
                                                final UILanguageStrings ls = (UILanguageStrings) ev.getSource ();
 
-                                               Environment.editUILanguageStrings (ls,
+                                               UILanguageStringsManager.editUILanguageStrings (ls,
                                                                                   ls.getQuollWriterVersion ());
 
                                            }
@@ -11321,7 +11331,7 @@ public class UIUtils
 
                                                              String v = ev.getActionCommand ();
 
-                                                             UILanguageStrings ls = new UILanguageStrings (Environment.getDefaultUILanguageStrings ());
+                                                             UILanguageStrings ls = new UILanguageStrings (UILanguageStringsManager.getDefaultUILanguageStrings ());
                                                              ls.setNativeName (v);
                                                              ls.setUser (true);
 
@@ -11398,9 +11408,9 @@ public class UIUtils
                                                              try
                                                              {
 
-                                                                 WebsiteLanguageStrings enStrs = Environment.getWebsiteLanguageStringsFromServer ();
+                                                                 WebsiteLanguageStrings enStrs = WebsiteLanguageStringsManager.getWebsiteLanguageStringsFromServer ();
 
-                                                                 Environment.saveWebsiteLanguageStrings (enStrs);
+                                                                 WebsiteLanguageStringsManager.saveWebsiteLanguageStrings (enStrs);
 
                                                                  WebsiteLanguageStrings ls = new WebsiteLanguageStrings (enStrs);
                                                                  ls.setNativeName (v);
@@ -11434,7 +11444,7 @@ public class UIUtils
         try
         {
 
-            objs = Environment.getAllWebsiteLanguageStrings ();
+            objs = WebsiteLanguageStringsManager.getAllWebsiteLanguageStrings ();
 
         } catch (Exception e) {
 
@@ -11493,7 +11503,7 @@ public class UIUtils
                                                if (cellHasFocus)
                                                {
 
-                                                   l.setBackground (Environment.getHighlightColor ());
+                                                   l.setBackground (UIUtils.getHighlightColor ());
 
                                                }
 
@@ -11511,13 +11521,67 @@ public class UIUtils
 
                                                final WebsiteLanguageStrings ls = (WebsiteLanguageStrings) ev.getSource ();
 
-                                               Environment.editWebsiteLanguageStrings (ls);
+                                               WebsiteLanguageStringsManager.editWebsiteLanguageStrings (ls);
 
                                            }
 
                                        },
                                        true,
                                        null);
+
+    }
+
+    public static Color getHighlightColor ()
+    {
+
+        // #DAE4FC
+        return new Color (218,
+                          228,
+                          252);
+
+    }
+
+    public static void scrollIntoView (JComponent c)
+    {
+
+        if (c == null)
+        {
+
+            return;
+
+        }
+
+        if (!(c.getParent () instanceof JComponent))
+        {
+
+            return;
+
+        }
+
+        JComponent parent = (JComponent) c.getParent ();
+
+        if (!(parent instanceof JComponent))
+        {
+
+            return;
+
+        }
+
+        if (parent == null)
+        {
+
+            return;
+
+        }
+
+        if (parent instanceof JViewport)
+        {
+
+            parent = (JComponent) parent.getParent ();
+
+        }
+
+        parent.scrollRectToVisible (c.getBounds ());
 
     }
 

@@ -33,7 +33,7 @@ public class Tips
 
         this.viewer = viewer;
 
-        String tipsXML = Environment.getResourceFileAsString (Constants.TIPS_FILE);
+        String tipsXML = Utils.getResourceFileAsString (Constants.TIPS_FILE);
 
         Element root = JDOMUtils.getStringAsElement (tipsXML);
 

@@ -13,10 +13,12 @@ import javax.swing.event.*;
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.ProjectEvent;
+import com.quollwriter.ui.fx.ProjectEventListener;
 import com.quollwriter.ui.components.ScrollableBox;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class LayoutAddEdit extends Box implements ProjectEventListener
 {
@@ -88,7 +90,7 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                                           e);
 
                     UIUtils.showErrorMessage (_this.viewer,
-                                              Environment.getUIString (LanguageStrings.userobjects,
+                                              getUIString (LanguageStrings.userobjects,
                                                                        LanguageStrings.layout,
                                                                        LanguageStrings.edit,
                                                                        LanguageStrings.actionerror));
@@ -157,7 +159,7 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_0))
                 {
 
-                    text = Environment.getUIString (prefix,
+                    text = getUIString (prefix,
                                                     LanguageStrings.layout0);
                                                     //"Fields are laid out in a single column.";
 
@@ -184,7 +186,7 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 if (imName.equals (Constants.ASSET_LAYOUT_3))
                 {
 
-                    text = Environment.getUIString (prefix,
+                    text = getUIString (prefix,
                                                     LanguageStrings.layout3);
                                                     //"Two columns of fields are displayed.";
 
@@ -291,7 +293,7 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
     public void eventOccurred (ProjectEvent ev)
     {
 
-        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
+        if (ev.getType ().equals (ProjectEvent.Type.userobjecttype))
         {
 
             if (ev.getSource ().equals (this.type))

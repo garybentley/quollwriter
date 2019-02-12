@@ -45,6 +45,7 @@ import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
+import com.quollwriter.uistrings.*;
 
 public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 {
@@ -978,7 +979,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                         (ev.getSource () == this.editor))
                     {
 
-                        if (Environment.isEnglish (_this.viewer.getSpellCheckLanguage ()))
+                        if (UILanguageStrings.isEnglish (_this.viewer.getSpellCheckLanguage ()))
                         {
 
                             if ((word != null) &&

@@ -4,8 +4,6 @@ import java.io.*;
 import java.util.*;
 import java.awt.image.*;
 
-import javax.activation.*;
-
 import org.jdom.*;
 
 import com.gentlyweb.xml.*;
@@ -114,7 +112,6 @@ public class EditorEditor extends AbstractEditorObject
     private OnlineStatus status = null;
     private EditorStatus editorStatus = EditorStatus.pending;
     private Set<EditorMessage> messages = null;
-    //private DataSource avatar = null;
     private BufferedImage avatar = null;
     private String avatarImageFileType = null;
     private boolean invitedByMe = false;
@@ -802,22 +799,6 @@ public class EditorEditor extends AbstractEditorObject
         return this.status == OnlineStatus.offline;
 
     }
-
-/*
-    public DataSource getAvatar ()
-    {
-
-        return this.avatar;
-
-    }
-
-    public void setAvatar (DataSource ds)
-    {
-
-        this.avatar = ds;
-
-    }
-    */
 
     public BufferedImage getDisplayAvatar ()
     {

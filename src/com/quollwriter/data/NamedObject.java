@@ -5,12 +5,13 @@ import java.util.*;
 
 import com.gentlyweb.xml.*;
 
+import javafx.beans.property.*;
+
 import com.quollwriter.*;
 
 import com.quollwriter.data.comparators.*;
 
 import org.jdom.*;
-
 
 public abstract class NamedObject extends DataObject
 {
@@ -21,6 +22,7 @@ public abstract class NamedObject extends DataObject
     public static final String ALIASES = "aliases";
     public static final String TAG = "tag";
 
+    private StringProperty nameProp = null;
     private String   name = null;
     private Date     lastModified = null;
     private StringWithMarkup   description = null;
@@ -38,6 +40,8 @@ public abstract class NamedObject extends DataObject
 
         this.name = name;
 
+        this.nameProp = new SimpleStringProperty (this.name);
+
     }
 
     public NamedObject(String objType)
@@ -46,81 +50,88 @@ public abstract class NamedObject extends DataObject
         super (objType);
 
     }
-    
+
+    public StringProperty nameProperty ()
+    {
+
+        return this.nameProp;
+
+    }
+
     public <T extends NamedObject> void merge (T other)
     {
-        
+
         String od = other.getDescriptionText ();
-        
+
         String td = this.getDescriptionText ();
-        
+
         if ((td == null)
             &&
             (od != null)
            )
         {
-            
+
             this.setDescription (other.getDescription ());
-            
+
         }
-        
+
         if ((td != null)
             &&
             (od != null)
            )
         {
-            
+
             td = td.trim ();
             od = od.trim ();
-            
+
             if ((!td.equalsIgnoreCase (od))
                 &&
                 (!td.toLowerCase ().contains (od.toLowerCase ()))
                )
             {
-            
+
                 String nd = td + "\n\n" + od;
-                
+
                 this.setDescription (new StringWithMarkup (nd,
                                                            this.getDescription ().getMarkup ()));
-                
+
             }
-            
+
         }
-        
+
         Set<String> taliases = new LinkedHashSet (this.getAliasesAsList ());
-        
+
         taliases.addAll (other.getAliasesAsList ());
 
         if (taliases.size () > 0)
         {
-        
+
             StringBuilder b = new StringBuilder ();
-            
+
             int i = 0;
-            
+
             for (String a : taliases)
             {
-                
+
                 b.append (a);
-                                
+
                 if (i < taliases.size () - 1)
                 {
-                    
+
                     b.append (",");
-                    
+
                 }
-                
+
                 i++;
-                                
+
             }
-            
+
             this.setAliases (b.toString ());
-            
+
         }
-        
+
     }
-    
+
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {
@@ -142,51 +153,51 @@ public abstract class NamedObject extends DataObject
         this.addToStringProperties (props,
                                     "tags",
                                     this.tags);
-                        
+
     }
-    
+
     public synchronized void reindex ()
     {
-        
+
         TreeSet<Note> nnotes = new TreeSet (new ChapterItemSorter ());
-        
+
         nnotes.addAll (this.notes);
-        
+
         this.notes = nnotes;
-        
+
         for (Note n : this.notes)
         {
-            
+
             n.reindex ();
-            
+
         }
-        
+
     }
-    
+
     public boolean contains (String s)
     {
-        
+
         if (s == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         s = s.trim ().toLowerCase ();
-        
+
         if (s.length () == 0)
         {
-            
+
             return false;
-            
+
         }
-        
+
         if (this.name.toLowerCase ().indexOf (s) != -1)
         {
-            
+
             return true;
-            
+
         }
 
         if ((this.description != null)
@@ -197,27 +208,27 @@ public abstract class NamedObject extends DataObject
 
             if (this.description.getText ().toLowerCase ().indexOf (s) != -1)
             {
-                
+
                 return true;
-                
+
             }
 
         }
-        
+
         if (this.aliases != null)
         {
-        
+
             if (this.aliases.toLowerCase ().indexOf (s) != -1)
             {
-                
+
                 return true;
-                
-            }        
+
+            }
 
         }
-        
+
         return false;
-    
+
     }
 
     public Note getNoteAt (int pos)
@@ -238,7 +249,7 @@ public abstract class NamedObject extends DataObject
         return null;
 
     }
-    
+
     public Set<Note> getNotesAt (int pos)
     {
 
@@ -294,48 +305,48 @@ public abstract class NamedObject extends DataObject
 
     public Set<File> getFiles ()
     {
-        
+
         return this.files;
-        
+
     }
-    
+
     public void setFiles (Set<File> files)
     {
-        
+
         this.files = files;
-        
+
     }
-    
+
     public void addFile (File f)
     {
-        
+
         if (this.files == null)
         {
-            
+
             this.files = new LinkedHashSet ();
-            
+
         }
-        
+
         this.files.add (f);
-        
+
     }
-    
+
     public void addNote (Note n)
     {
 
         n.setObject (this);
 
         n.setParent (this);
-        
+
         this.notes.add (n);
-        
+
     }
 
     public void removeNote (Note n)
     {
-                
+
         this.notes.remove (n);
-        
+
     }
 
     public Set<Note> getNotes ()
@@ -391,7 +402,7 @@ public abstract class NamedObject extends DataObject
 
     public void setAliases (String a)
     {
-        
+
         String oldAliases = this.aliases;
 
         this.aliases = a;
@@ -399,7 +410,7 @@ public abstract class NamedObject extends DataObject
         this.firePropertyChangedEvent (NamedObject.ALIASES,
                                        oldAliases,
                                        this.aliases);
-        
+
     }
 
     public void clearLinks ()
@@ -500,29 +511,29 @@ public abstract class NamedObject extends DataObject
 
         if (this.lastModified == null)
         {
-            
+
             return this.getDateCreated ();
-            
+
         }
-    
+
         return this.lastModified;
 
     }
 
     public String getDescriptionText ()
     {
-        
+
         if (this.description != null)
         {
-            
+
             return this.description.getText ();
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public StringWithMarkup getDescription ()
     {
 
@@ -557,7 +568,7 @@ public abstract class NamedObject extends DataObject
         this.firePropertyChangedEvent (NamedObject.NAME,
                                        oldName,
                                        this.name);
-                                           
+
     }
 
     public String getName ()
@@ -597,7 +608,7 @@ public abstract class NamedObject extends DataObject
                                           String  newValue)
     {
 
-        if (Environment.areDifferent (oldValue,
+        if (NamedObject.areDifferent (oldValue,
                                       newValue))
         {
 
@@ -629,8 +640,8 @@ public abstract class NamedObject extends DataObject
 
         String ot = (oldValue != null ? oldValue.getText () : null);
         String nt = (newValue != null ? newValue.getText () : null);
-    
-        if (Environment.areDifferent (ot,
+
+        if (NamedObject.areDifferent (ot,
                                       nt))
         {
 
@@ -660,7 +671,7 @@ public abstract class NamedObject extends DataObject
                                           Date    newValue)
     {
 
-        if (Environment.areDifferent (oldValue,
+        if (NamedObject.areDifferent (oldValue,
                                       newValue))
         {
 
@@ -720,122 +731,154 @@ public abstract class NamedObject extends DataObject
 
     public void addTag (Tag t)
     {
-        
+
         if (t == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         this.tags.add (t);
-        
+
         this.updateTags ();
-        
+
         this.firePropertyChangedEvent (NamedObject.TAG,
                                        null,
-                                       t);        
-        
+                                       t);
+
     }
-    
+
     public void removeTag (Tag t)
     {
-        
+
         if (t == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         this.tags.remove (t);
-        
+
         this.updateTags ();
 
         this.firePropertyChangedEvent (NamedObject.TAG,
                                        t,
-                                       null);        
-        
+                                       null);
+
     }
-    
+
     public boolean hasTag (Tag t)
     {
-        
+
         if (t == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return this.tags.contains (t);
-        
+
     }
-    
+
     private void updateTags ()
     {
-     
+
         Set<String> tagKeys = new LinkedHashSet ();
-        
+
         for (Tag t : this.tags)
         {
-            
+
             tagKeys.add (t.getKey ().toString ());
-            
+
         }
-     
+
         try
         {
-        
+
             this.setProperty (Constants.TAGS_PROPERTY_NAME,
                               Utils.joinStrings (tagKeys,
                                                  ";"));
 
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to updated tags to: " +
                                   tagKeys +
                                   " for: " +
                                   this,
                                   e);
-            
+
         }
-        
+
     }
-    
+
     @Override
     public void setPropertiesAsString (String s)
                                 throws Exception
     {
-        
+
         super.setPropertiesAsString (s);
-        
+
         Set<String> tagKeys = new LinkedHashSet (Utils.splitString (this.getProperty (Constants.TAGS_PROPERTY_NAME),
                                                                     ";"));
 
         for (String k : tagKeys)
         {
-            
+
             try
             {
-                
+
                 Tag t = Environment.getTagByKey (Long.parseLong (k));
-                
+
                 if (t != null)
                 {
-                    
+
                     this.tags.add (t);
-                                                                    
+
                 }
-                
+
             } catch (Exception e) {
-                
+
                 // Ignore.
-                
+
             }
-            
+
         }
-        
+
     }
-    
+
+    public static boolean areDifferent (Comparable o,
+                                        Comparable n)
+    {
+
+        if ((o == null) &&
+            (n == null))
+        {
+
+            return false;
+
+        }
+
+        if ((o != null) &&
+            (n == null))
+        {
+
+            return true;
+
+        }
+
+        if ((o == null) &&
+            (n != null))
+        {
+
+            return true;
+
+        }
+
+        return o.compareTo (n) != 0;
+
+    }
+
 }

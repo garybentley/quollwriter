@@ -3,6 +3,8 @@ package com.quollwriter;
 public class Constants
 {
 
+    public static String GZIP_EXTENSION = ".gz";
+
     public static final int SEC_IN_MILLIS = 1000;
 
     public static final int MIN_IN_MILLIS = 60 * SEC_IN_MILLIS;

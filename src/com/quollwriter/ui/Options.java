@@ -43,7 +43,6 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.renderers.*;
-import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ItemAdapter;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -62,8 +61,10 @@ import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.uistrings.*;
 
+import com.quollwriter.ui.fx.ProjectEvent;
+
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class Options extends Box
 {
@@ -1219,6 +1220,8 @@ xxx
                                                         enableAutosave.isSelected ()));
 
                 // For all the ProjectViewers (where text is editable) update the auto save settings.
+                // TODO Change to use a property on the AbstractProjectViewer.
+                /*
                 Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
                                                new ProjectViewerAction<ProjectViewer> ()
                                                {
@@ -1231,13 +1234,13 @@ xxx
                                                     }
 
                                                });
-
+*/
                 _this.updateDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME,
                                                     enableAutosave.isSelected ());
 
                 Environment.fireUserProjectEvent (_this,
-                                                  ProjectEvent.AUTO_SAVE,
-                                                  (enableAutosave.isSelected () ? ProjectEvent.ON : ProjectEvent.OFF));
+                                                  ProjectEvent.Type.autosave,
+                                                  (enableAutosave.isSelected () ? ProjectEvent.Action.on : ProjectEvent.Action.off));
 
             }
 
@@ -1293,6 +1296,8 @@ xxx
                                                     //(String) autosaveAmount.getSelectedItem ());
 
                 // For all the ProjectViewers (where text is editable) update the auto save settings.
+                /*
+                TODO Change to use a property.
                 Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
                                                new ProjectViewerAction<ProjectViewer> ()
                                                {
@@ -1305,7 +1310,7 @@ xxx
                                                     }
 
                                                });
-
+*/
             }
 
         });
@@ -1342,7 +1347,8 @@ xxx
 
             public void itemStateChanged (ItemEvent ev)
             {
-
+/*
+TODO Change to use a property.
                 Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
                                                new ProjectViewerAction<ProjectViewer> ()
                                                {
@@ -1355,7 +1361,7 @@ xxx
                                                     }
 
                                                });
-
+*/
                 _this.updateUserProperty (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME,
                                           showEditPos.isSelected ());
 
@@ -1379,7 +1385,8 @@ xxx
 
             public void itemStateChanged (ItemEvent ev)
             {
-
+/*
+TODO Change to use a property.
                 Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
                                                new ProjectViewerAction<ProjectViewer> ()
                                                {
@@ -1392,7 +1399,7 @@ xxx
                                                     }
 
                                                });
-
+*/
                 _this.updateUserProperty (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME,
                                           showEdited.isSelected ());
 
@@ -1525,7 +1532,8 @@ xxx
 
                 _this.updateUserProperty (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME,
                                           showEditMarker.isSelected ());
-
+/*
+TODO Change to use a property.
                 Environment.doForOpenProjectViewers (AbstractProjectViewer.class,
                                                      new ProjectViewerAction<AbstractProjectViewer> ()
                                                      {
@@ -1559,7 +1567,7 @@ xxx
                                                         }
 
                                                      });
-
+*/
             }
 
         });
@@ -1604,6 +1612,8 @@ xxx
                                                                         _this.updateUserProperty (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME,
                                                                                                   UIUtils.colorToHex (c));
 
+/*
+TODO Remove, now handled by a listener in the icon column and a property in UserProperties.
                                                                         Environment.doForOpenProjectViewers (AbstractProjectViewer.class,
                                                                                                              new ProjectViewerAction<AbstractProjectViewer> ()
                                                                                                              {
@@ -1637,7 +1647,7 @@ xxx
                                                                                                                 }
 
                                                                                                              });
-
+*/
                                                                         cSwatch.setBackground (c);
 
                                                                      }
@@ -1732,7 +1742,8 @@ xxx
 
                 _this.updateUserProperty (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME,
                                           markEdited.isSelected ());
-
+/*
+TODO Change to use a property.
                 Environment.doForOpenProjectViewers (AbstractProjectViewer.class,
                                                      new ProjectViewerAction<AbstractProjectViewer> ()
                                                      {
@@ -1784,7 +1795,7 @@ xxx
                                                         }
 
                                                      });
-
+*/
             }
 
         });
@@ -1930,7 +1941,7 @@ xxx
                 try
                 {
 
-                    l = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + Environment.getProperty (Constants.QUOLL_WRITER_SUPPORTED_LANGUAGES_URL_PROPERTY_NAME)));
+                    l = Utils.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + UserProperties.get (Constants.QUOLL_WRITER_SUPPORTED_LANGUAGES_URL_PROPERTY_NAME)));
 
                 } catch (Exception e) {
 
@@ -2037,10 +2048,11 @@ xxx
 
                     if (!lang.equals (pv.getSpellCheckLanguage ()))
                     {
-
-                        pv.fireProjectEventLater (ProjectEvent.SPELL_CHECK,
-                                                  ProjectEvent.CHANGE_LANGUAGE);
-
+/*
+TODO
+                        pv.fireProjectEventLater (ProjectEvent.Type.spellcheck,
+                                                  ProjectEvent.Action.changelanguage);
+*/
                     }
 
                 }
@@ -2116,7 +2128,7 @@ xxx
 
                 final String currLang = def;
 
-                if (Environment.isEnglish (def))
+                if (UILanguageStrings.isEnglish (def))
                 {
 
                     def = Constants.ENGLISH;
@@ -2134,7 +2146,7 @@ xxx
 
                 }
 
-                if ((!Environment.isEnglish (lang))
+                if ((!UILanguageStrings.isEnglish (lang))
                     &&
                     (!def.equals (lang))
                    )
@@ -2361,7 +2373,7 @@ xxx
 
         boolean showFeedbackB = true;
 
-        UILanguageStrings currUIL = Environment.getCurrentUILanguageStrings ();
+        UILanguageStrings currUIL = UILanguageStringsManager.getCurrentUILanguageStrings ();
 
         if ((currUIL.isEnglish ())
             ||
@@ -2398,7 +2410,7 @@ xxx
                                                                             try
                                                                             {
 
-                                                                                ls = Environment.getUILanguageStrings (uid);
+                                                                                ls = UILanguageStringsManager.getUILanguageStrings (uid);
 
                                                                             } catch (Exception e) {
 
@@ -2448,8 +2460,9 @@ xxx
                                                                                 UIUtils.showMessage ((PopupsSupported) _this.viewer,
                                                                                                      getUIString (uilanguage,set,downloading,title),
                                                                                                      getUIString (uilanguage,set,downloading,text));
-
-                                                                                Environment.downloadUILanguageFile (uid,
+/*
+TODO
+                                                                                UILanguageStringsManager.downloadUILanguageFile (uid,
                                                                                                                     setLang,
                                                                                                                     new ActionListener ()
                                                                                                                     {
@@ -2464,7 +2477,7 @@ xxx
                                                                                                                         }
 
                                                                                                                     });
-
+*/
                                                                             } else {
 
                                                                                 setLang.actionPerformed (new ActionEvent (_this, 0, "set"));
@@ -2646,19 +2659,10 @@ xxx
                 _this.updateUserProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME,
                                           showNotesInChapterList.isSelected ());
 
-                Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
-                                               new ProjectViewerAction<ProjectViewer> ()
-                                               {
-
-                                                    public void doAction (ProjectViewer pv)
-                                                    {
-
-                                                        pv.reloadChapterTree ();
-
-                                                    }
-
-                                               });
-
+                // TODO Change to use a property.
+                /*
+                Environment.doForOpenProjects (pv -> pv.reloadChapterTree ());
+*/
             }
 
         });
@@ -2728,6 +2732,8 @@ xxx
                         _this.updateUserProperty (Constants.UI_LAYOUT_PROPERTY_NAME,
                                                   layout);
 
+/*
+TODO Remove, should be handled by the viewer.
                         Environment.doForOpenProjectViewers (AbstractProjectViewer.class,
                                                              new ProjectViewerAction<AbstractProjectViewer> ()
                                                              {
@@ -2740,10 +2746,10 @@ xxx
                                                                 }
 
                                                              });
-
+*/
                         Environment.fireUserProjectEvent (_this,
-                                                          ProjectEvent.LAYOUT,
-                                                          ProjectEvent.CHANGED);
+                                                          ProjectEvent.Type.layout,
+                                                          ProjectEvent.Action.changed);
 
                     }
 
@@ -2880,7 +2886,8 @@ xxx
 
                 _this.updateUserProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME,
                                           loc);
-
+/*
+TODO Remove should be handled by the property in UserProperties.
                 Environment.doForOpenProjectViewers (AbstractProjectViewer.class,
                                                      new ProjectViewerAction<AbstractProjectViewer> ()
                                                      {
@@ -2893,10 +2900,10 @@ xxx
                                                         }
 
                                                      });
-
+*/
                 Environment.fireUserProjectEvent (_this,
-                                                  ProjectEvent.TOOLBAR,
-                                                  ProjectEvent.MOVE);
+                                                  ProjectEvent.Type.toolbar,
+                                                  ProjectEvent.Action.move);
 
             }
 
@@ -2985,6 +2992,8 @@ xxx
                 _this.updateUserProperty (Constants.TABS_LOCATION_PROPERTY_NAME,
                                           loc);
 
+/*
+ TODO Change to use a property in the environment that viewers can listen to.
                 Environment.doForOpenProjectViewers (AbstractProjectViewer.class,
                                                      new ProjectViewerAction<AbstractProjectViewer> ()
                                                      {
@@ -2997,10 +3006,10 @@ xxx
                                                         }
 
                                                      });
-
+*/
                 Environment.fireUserProjectEvent (_this,
-                                                  ProjectEvent.TABS,
-                                                  ProjectEvent.MOVE);
+                                                  ProjectEvent.Type.tabs,
+                                                  ProjectEvent.Action.move);
 
             }
 
@@ -3188,7 +3197,7 @@ xxx
                 UserProperties.remove (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
 
                 // Reset to the default.
-                Environment.setKeyStrokeSoundFile (null);
+                // TODO Environment.setKeyStrokeSoundFile (null);
 
                 useB.setEnabled (false);
                 testB.setEnabled (false);
@@ -3225,7 +3234,7 @@ xxx
                     try
                     {
 
-                        Environment.setKeyStrokeSoundFile (file);
+                        // TODO Environment.setKeyStrokeSoundFile (file);
 
                     } catch (Exception e)
                     {
@@ -3285,7 +3294,7 @@ xxx
                     {
 
                         // Play the default.
-                        is = Environment.getResourceStream (Constants.DEFAULT_KEY_STROKE_SOUND_FILE);
+                        is = Utils.getResourceStream (Constants.DEFAULT_KEY_STROKE_SOUND_FILE);
 
                     }
 
@@ -4439,26 +4448,21 @@ xxx
                             {
 
                                 Environment.openProject (proj,
-                                                         new ActionListener ()
+                                                         () ->
                                                          {
-
-                                                            @Override
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                                Environment.getProjectViewer (proj).fireProjectEventLater (proj.getObjectType (),
-                                                                                                                           ProjectEvent.CHANGED_DIRECTORY);
-
-
-                                                            }
-
+/*
+TODO
+                                                            Environment.getProjectViewer (proj).fireProjectEvent (ProjectEvent.Type.projectobject,
+                                                                                                                  ProjectEvent.Action.changeddirectory,
+                                                                                                                  proj.getObjectType ());
+*/
                                                          });
 
                             } catch (Exception e)
                             {
 
                                 // Show the projects window.
-                                Environment.showLanding ();
+                                Environment.showAllProjectsViewer ();
 
                                 Environment.logError ("Unable to reopen project: " +
                                                       proj,
@@ -4993,7 +4997,7 @@ xxx
             Box content = new Box (BoxLayout.Y_AXIS);
 
             JTextPane help = UIUtils.createHelpTextPane (String.format (getUIString (prefix, LanguageStrings.popup,text),
-                                                                                     Environment.getCurrentUILanguageStrings ().getNativeName ()),
+                                                                                     UILanguageStringsManager.getCurrentUILanguageStrings ().getNativeName ()),
                                                          this.viewer);
 
             help.setBorder (null);
@@ -5068,7 +5072,7 @@ xxx
                     details.put ("email",
                                  email.getText ());
                     details.put ("uilanguageid",
-                                 Environment.getCurrentUILanguageStrings ().getId ());
+                                 UILanguageStringsManager.getCurrentUILanguageStrings ().getId ());
 
                     try
                     {

@@ -36,7 +36,7 @@ import com.quollwriter.ui.components.*;
 import org.jdom.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 {
@@ -478,6 +478,8 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                                 ProcessBuilder pb = new ProcessBuilder (args);
                                 pb.start ();
 
+                                // TODO Check that the JVM is exiting...
+
                             } catch (Exception e) {
 
                                 Environment.logError ("Unable to run upgrade file: " +
@@ -667,12 +669,12 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
     private void showGeneralError ()
     {
 
-        this.showError (String.format (Environment.getUIString (LanguageStrings.upgrade,
+        this.showError (String.format (getUIString (LanguageStrings.upgrade,
                                                                 LanguageStrings.download,
                                                                 LanguageStrings.errors,
                                                                 LanguageStrings.general),
                                             //"Unable to download/install the new version.  <a href='%s'>Click here to download the latest version from the Quoll Writer website</a>",
-                                       Environment.getProperty (Constants.QUOLLWRITER_DOWNLOADS_URL_PROPERTY_NAME)));
+                                       UserProperties.get (Constants.QUOLLWRITER_DOWNLOADS_URL_PROPERTY_NAME)));
 
        this.downloadNotification.removeNotification ();
 
@@ -705,6 +707,9 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
         final DefaultQuollWriterUpdater _this = this;
 
+        // TODO Environment.doForOpenViewers -> close ()
+/*
+TODO
         Map<ProjectInfo, AbstractProjectViewer> open = Environment.getOpenProjects ();
 
         // Get the first, close it.
@@ -734,11 +739,10 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
         } else {
 
-            if (Environment.getLanding () != null)
+            if (Environment.getAllProjectsViewer () != null)
             {
 
-                Environment.getLanding ().close (false,
-                                                 null);
+                Environment.getAllProjectsViewer ().close (null);
 
             } else {
 
@@ -747,7 +751,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
             }
 
         }
-
+*/
 
     }
 

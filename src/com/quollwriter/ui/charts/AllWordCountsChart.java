@@ -316,8 +316,8 @@ public class AllWordCountsChart extends AbstractQuollChart<AbstractProjectViewer
         }
 
         plot.setBackgroundPaint (UIUtils.getComponentColor ());
-        plot.setDomainGridlinePaint (Environment.getBorderColor ());
-        plot.setRangeGridlinePaint (Environment.getBorderColor ());
+        plot.setDomainGridlinePaint (UIUtils.getBorderColor ());
+        plot.setRangeGridlinePaint (UIUtils.getBorderColor ());
         plot.setAxisOffset (new RectangleInsets (5D,
                                                  5D,
                                                  5D,

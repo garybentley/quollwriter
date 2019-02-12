@@ -36,7 +36,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         this.objType = objType;
 
-        Environment.addUserProjectEventListener (this);
+        // TODO Environment.addUserProjectEventListener (this);
 
         this.sortField = objType.getPrimaryNameField ();
 

@@ -321,7 +321,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
                     this.editPointWordCount.setText (String.format (valueperc,
                                                                     Environment.formatNumber (sc.wordCount),
-                                                                    Environment.formatNumber (Environment.getPercent (sc.wordCount, chc.wordCount))));
+                                                                    Environment.formatNumber (Utils.getPercent (sc.wordCount, chc.wordCount))));
 
                     this.chapterEditPointBox.setVisible (true);
 
@@ -334,7 +334,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
                 this.chapterWordCount.setText (String.format (valueperc,
                                                               Environment.formatNumber (chc.wordCount),
-                                                              Environment.formatNumber (Environment.getPercent (chc.wordCount, achc.wordCount))));
+                                                              Environment.formatNumber (Utils.getPercent (chc.wordCount, achc.wordCount))));
 
                 this.chapterPages.setText (Environment.formatNumber (chc.standardPageCount));
 
@@ -392,7 +392,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
                                 wordCounts.add (new WordCount (chc.wordCount,
                                                                null,
-                                                               Environment.zeroTimeFieldsForDate (new Date ())));
+                                                               Utils.zeroTimeFieldsForDate (new Date ())));
 
                             }
 
@@ -406,7 +406,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                                 wordCounts.add (0,
                                                 new WordCount (chc.wordCount,
                                                                null,
-                                                               Environment.zeroTimeFieldsForDate (d)));
+                                                               Utils.zeroTimeFieldsForDate (d)));
 
                             }
 
@@ -582,11 +582,11 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
             this.allEditPointWordCount.setText (String.format (valueperc,
                                                                Environment.formatNumber (allc.wordCount),
-                                                               Environment.formatNumber (Environment.getPercent (allc.wordCount, achc.wordCount))));
+                                                               Environment.formatNumber (Utils.getPercent (allc.wordCount, achc.wordCount))));
 
             this.allChaptersEditCount.setText (String.format (valueperc,
                                                               Environment.formatNumber (editComplete),
-                                                              Environment.formatNumber (Environment.getPercent (editComplete, chapters.size ()))));
+                                                              Environment.formatNumber (Utils.getPercent (editComplete, chapters.size ()))));
 
             this.allChaptersEditPointBox.setVisible (true);
 

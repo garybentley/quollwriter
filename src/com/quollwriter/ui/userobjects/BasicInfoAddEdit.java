@@ -13,11 +13,15 @@ import javax.swing.event.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.UIUtils;
 import com.quollwriter.ui.forms.*;
+import com.quollwriter.ui.AbstractViewer;
+
+import com.quollwriter.ui.fx.ProjectEvent;
+import com.quollwriter.ui.fx.ProjectEventListener;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class BasicInfoAddEdit extends Box implements ProjectEventListener
 {
@@ -181,7 +185,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
     public void eventOccurred (ProjectEvent ev)
     {
 
-        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
+        if (ev.getType ().equals (ProjectEvent.Type.userobjecttype))
         {
 
             if (ev.getSource ().equals (this.type))

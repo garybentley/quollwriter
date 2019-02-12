@@ -12,7 +12,7 @@ import com.gentlyweb.xml.*;
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 import com.quollwriter.ui.forms.*;
-
+import com.quollwriter.uistrings.*;
 import org.jdom.*;
 
 public class WordFinder extends AbstractDialogueRule
@@ -41,7 +41,7 @@ public class WordFinder extends AbstractDialogueRule
     public boolean isForLanguage (String language)
     {
 
-        return Environment.isEnglish (language);
+        return UILanguageStrings.isEnglish (language);
 
     }
 
@@ -361,7 +361,7 @@ public class WordFinder extends AbstractDialogueRule
 
         items.add (this.words);
 
-        Vector<String> whereVals = new Vector ();
+        Vector<String> whereVals = new Vector<> ();
         whereVals.add (Environment.getUIString (pref,
                                                 LanguageStrings.anywhere));
         //"Anywhere");

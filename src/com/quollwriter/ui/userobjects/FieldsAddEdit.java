@@ -17,11 +17,13 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.data.*;
 import com.quollwriter.*;
-import com.quollwriter.events.*;
+import com.quollwriter.events.MouseEventHandler;
+import com.quollwriter.ui.fx.ProjectEvent;
+import com.quollwriter.ui.fx.ProjectEventListener;
 import com.quollwriter.ui.components.ScrollableBox;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class FieldsAddEdit extends Box implements ProjectEventListener
 {
@@ -119,7 +121,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        Environment.getUIString (LanguageStrings.userobjects,
+                                        getUIString (LanguageStrings.userobjects,
                                                                  LanguageStrings.fields,
                                                                  LanguageStrings.view,
                                                                  LanguageStrings.buttons,
@@ -295,7 +297,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      Environment.getUIString (LanguageStrings.userobjects,
+                                      getUIString (LanguageStrings.userobjects,
                                                                LanguageStrings.fields,
                                                                LanguageStrings.move,
                                                                LanguageStrings.actionerror));
@@ -309,7 +311,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     public void eventOccurred (ProjectEvent ev)
     {
 
-        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
+        if (ev.getType ().equals (ProjectEvent.Type.userobjecttype))
         {
 
             if (ev.getSource ().equals (this.type))
@@ -422,7 +424,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      Environment.getUIString (LanguageStrings.userobjects,
+                                      getUIString (LanguageStrings.userobjects,
                                                                LanguageStrings.fields,
                                                                LanguageStrings.delete,
                                                                LanguageStrings.actionerror));
@@ -433,8 +435,8 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         }
 
         Environment.fireUserProjectEvent (this.type,
-                                          ProjectEvent.USER_OBJECT_TYPE,
-                                          ProjectEvent.CHANGED,
+                                          ProjectEvent.Type.userobjecttype,
+                                          ProjectEvent.Action.changed,
                                           this.type);
 
         //this.refresh ();
@@ -887,7 +889,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         this.formTypeFields = new HashMap ();
 
-        this.showFormForAddType (Environment.getUIString (LanguageStrings.userobjects,
+        this.showFormForAddType (getUIString (LanguageStrings.userobjects,
                                                           LanguageStrings.fields,
                                                           LanguageStrings.add,
                                                           LanguageStrings.title),
@@ -953,7 +955,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        TextFormItem name = new TextFormItem (Environment.getUIString (prefix,
+        TextFormItem name = new TextFormItem (getUIString (prefix,
                                                                        LanguageStrings.labels,
                                                                        LanguageStrings.name),
                                                                        //"Name",
@@ -1009,7 +1011,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         }
 
-        ComboBoxFormItem types = new ComboBoxFormItem (Environment.getUIString (prefix,
+        ComboBoxFormItem types = new ComboBoxFormItem (getUIString (prefix,
                                                                                 LanguageStrings.labels,
                                                                                 LanguageStrings.type),
                                                                        //"Type",
@@ -1125,7 +1127,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                             if (name.getText () == null)
                             {
 
-                                f.showError (Environment.getUIString (prefix,
+                                f.showError (getUIString (prefix,
                                                                       LanguageStrings.errors,
                                                                       LanguageStrings.name,
                                                                       LanguageStrings.novalue));
@@ -1168,7 +1170,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                     if (uf.getFormName ().toLowerCase ().equals (lformName))
                                     {
 
-                                        f.showError (String.format (Environment.getUIString (prefix,
+                                        f.showError (String.format (getUIString (prefix,
                                                                                              LanguageStrings.errors,
                                                                                              LanguageStrings.name,
                                                                                              LanguageStrings.valueexists),
@@ -1284,7 +1286,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        final TextFormItem name = new TextFormItem (Environment.getUIString (prefix,
+        final TextFormItem name = new TextFormItem (getUIString (prefix,
                                                                              LanguageStrings.labels,
                                                                              LanguageStrings.name),
                                                                              //"Name",
@@ -1294,7 +1296,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         final UserConfigurableObjectTypeFieldConfigHandler handler = field.getConfigHandler ();
 
-        items.add (new AnyFormItem (Environment.getUIString (prefix,
+        items.add (new AnyFormItem (getUIString (prefix,
                                                              LanguageStrings.labels,
                                                              LanguageStrings.name),
                                                                              //"Type",
@@ -1330,7 +1332,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                             if (formName.equals (""))
                             {
 
-                                f.showError (Environment.getUIString (prefix,
+                                f.showError (getUIString (prefix,
                                                                       LanguageStrings.errors,
                                                                       LanguageStrings.name,
                                                                       LanguageStrings.novalue));
@@ -1351,7 +1353,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                     if (uf.getFormName ().toLowerCase ().equals (lformName))
                                     {
 
-                                        f.showError (String.format (Environment.getUIString (prefix,
+                                        f.showError (String.format (getUIString (prefix,
                                                                                              LanguageStrings.errors,
                                                                                              LanguageStrings.name,
                                                                                              LanguageStrings.valueexists),
@@ -1438,7 +1440,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         if (this.showFormTitles)
         {
 
-            JComponent h = UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+            JComponent h = UIUtils.createBoldSubHeader (getUIString (prefix,
                                                                                  LanguageStrings.title),
                                                                                  //"Edit field",
                                                         null);
@@ -1564,7 +1566,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
                 buttons.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                                    Constants.ICON_MENU,
-                                                   Environment.getUIString (prefix,
+                                                   getUIString (prefix,
                                                                             LanguageStrings.edit,
                                                                             LanguageStrings.tooltip),
                                                    //"Click to edit this field",
@@ -1588,7 +1590,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
                 buttons.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                    Constants.ICON_MENU,
-                                                   Environment.getUIString (prefix,
+                                                   getUIString (prefix,
                                                                             LanguageStrings.delete,
                                                                             LanguageStrings.tooltip),
                                                    //"Click to remove this field",
@@ -1606,18 +1608,18 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                                             prefix.add (LanguageStrings.confirmpopup);
 
                                                             UIUtils.createQuestionPopup (_this.edit.viewer,
-                                                                                         Environment.getUIString (prefix,
+                                                                                         getUIString (prefix,
                                                                                                                   LanguageStrings.title),
                                                                                          //"Remove field",
                                                                                          Constants.DELETE_ICON_NAME,
-                                                                                         Environment.getUIString (prefix,
+                                                                                         getUIString (prefix,
                                                                                                                   LanguageStrings.text),
                                                                                          //"Remove this field?  Note: any data associated with the field will also be removed.",
-                                                                                         Environment.getUIString (prefix,
+                                                                                         getUIString (prefix,
                                                                                                                   LanguageStrings.buttons,
                                                                                                                   LanguageStrings.confirm),
                                                                                                                   //"Yes, remove it",
-                                                                                         Environment.getUIString (prefix,
+                                                                                         getUIString (prefix,
                                                                                                                   LanguageStrings.buttons,
                                                                                                                   LanguageStrings.cancel),
                                                                                          //Constants.CANCEL_BUTTON_LABEL_ID,

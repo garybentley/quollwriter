@@ -31,7 +31,7 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
-    private Set<String> speechVerbs = new HashSet ();
+    private Set<String> speechVerbs = new HashSet<> ();
     private JTextField          newVerbs = null;
     private DefaultListModel    listModel = null;
 
@@ -124,7 +124,7 @@ public class AdverbRule extends AbstractSentenceRule
     public List<Issue> getIssues (Sentence sentence)
     {
 
-        List<Issue>  issues = new ArrayList ();
+        List<Issue>  issues = new ArrayList<> ();
 
         String adverbWT = String.valueOf (Synonyms.ADVERB);
 
@@ -151,9 +151,16 @@ public class AdverbRule extends AbstractSentenceRule
                     try
                     {
 
-                        String wt = Environment.getWordTypes (nw.getText (),
-                                                              // We assume english for now
-                                                              null);
+                        SynonymProvider sp = Environment.getSynonymProvider (Constants.ENGLISH);
+
+                        String wt = null;
+
+                        if (sp != null)
+                        {
+
+                            wt = sp.getWordTypes (nw.getText ());
+
+                        }
 
                         if (wt != null)
                         {
@@ -209,14 +216,14 @@ public class AdverbRule extends AbstractSentenceRule
 
         final AdverbRule _this = this;
 
-        List<String> pref = new ArrayList ();
+        List<String> pref = new ArrayList<> ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);
         pref.add (LanguageStrings.adverb);
         pref.add (LanguageStrings.labels);
-        
-        Set<FormItem> items = new LinkedHashSet ();
+
+        Set<FormItem> items = new LinkedHashSet<> ();
 
         Box b = new Box (BoxLayout.Y_AXIS);
 
@@ -236,7 +243,7 @@ public class AdverbRule extends AbstractSentenceRule
                                     //"New Speech Verbs",
                                     b));
 
-        Vector v = new Vector (this.speechVerbs);
+        Vector v = new Vector<> (this.speechVerbs);
 
         Collections.sort (v);
 
@@ -251,7 +258,7 @@ public class AdverbRule extends AbstractSentenceRule
 
         b = new Box (BoxLayout.X_AXIS);
 
-        final JList verbs = new JList (this.listModel);
+        final JList verbs = new JList<> (this.listModel);
 
         verbs.setVisibleRowCount (5);
         verbs.setMaximumSize (verbs.getPreferredSize ());
@@ -262,8 +269,8 @@ public class AdverbRule extends AbstractSentenceRule
 
         Box bb = new Box (BoxLayout.Y_AXIS);
 
-        List<JComponent> buts = new ArrayList ();
-        
+        List<JComponent> buts = new ArrayList<> ();
+
         buts.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                         Constants.ICON_MENU,
                                         Environment.getUIString (LanguageStrings.problemfinder,
@@ -276,7 +283,7 @@ public class AdverbRule extends AbstractSentenceRule
                                         //"Click to remove the selected Speech Verbs",
                                         new ActionListener ()
         {
-            
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
@@ -295,12 +302,12 @@ public class AdverbRule extends AbstractSentenceRule
                     }
 
                 }
-                
+
             }
-            
+
         }));
 
-/*        
+/*
 
         ImagePanel del = new ImagePanel (Environment.getIcon ("delete",
                                                               Constants.ICON_MENU),
@@ -363,7 +370,7 @@ public class AdverbRule extends AbstractSentenceRule
     {
 
         // Reset the speech verbs.
-        Set<String> verbs = new HashSet ();
+        Set<String> verbs = new HashSet<> ();
 
         String n = this.newVerbs.getText ();
 

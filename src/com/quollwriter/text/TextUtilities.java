@@ -11,7 +11,6 @@ import javax.swing.text.*;
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.components.Markup;
 
 public class TextUtilities
 {
@@ -24,12 +23,12 @@ public class TextUtilities
     public static String DEFAULT_ELLIPSIS = "...";
 
     private static Map<String, Integer> wordSyllableCounts = null;
-    private static Map<String, String>  contractionEnds = new HashMap ();
-    private static Map<Character, Set<Character>> openCloseQs = new HashMap ();
+    private static Map<String, String>  contractionEnds = new HashMap<> ();
+    private static Map<Character, Set<Character>> openCloseQs = new HashMap<> ();
     static
     {
 
-        Map m = TextUtilities.contractionEnds;
+        Map<String, String> m = TextUtilities.contractionEnds;
 
         m.put ("m",
                "");
@@ -42,7 +41,7 @@ public class TextUtilities
         m.put ("ll",
                "");
 
-        m = TextUtilities.openCloseQs;
+        // TODO REmove m = TextUtilities.openCloseQs;
 
         // Taken from: http://en.wikipedia.org/wiki/International_variation_in_quotation_marks
         // The assumption here is (perhaps erroneously) that any text will be language consistent
@@ -132,7 +131,7 @@ public class TextUtilities
                                           char... closeQs)
     {
 
-        Set<Character> s = new HashSet ();
+        Set<Character> s = new HashSet<> ();
 
         for (int i = 0; i < closeQs.length; i++)
         {
@@ -259,7 +258,7 @@ public class TextUtilities
     {
 
         // Get the markup from the start of the paragraph (all text) to the end of the text.
-        List<Markup.MarkupItem> items = new ArrayList ();
+        List<Markup.MarkupItem> items = new ArrayList<> ();
 
         //int end = -1;
 
@@ -324,7 +323,7 @@ public class TextUtilities
     public static List<String> stripPunctuation (List<String> words)
     {
 
-        List<String> ret = new ArrayList ();
+        List<String> ret = new ArrayList<> ();
 
         for (String w : words)
         {
@@ -497,14 +496,14 @@ public class TextUtilities
         {
 
             // Init the word counts.
-            TextUtilities.wordSyllableCounts = new HashMap ();
+            TextUtilities.wordSyllableCounts = new HashMap<> ();
 
             String c = null;
 
             try
             {
 
-                c = Environment.getResourceFileAsString (Constants.WORD_SYLLABLE_COUNTS_FILE);
+                c = Utils.getResourceFileAsString (Constants.WORD_SYLLABLE_COUNTS_FILE);
 
             } catch (Exception e)
             {
@@ -753,7 +752,7 @@ public class TextUtilities
                                               boolean    ignoreCase)
     {
 
-        NavigableSet<Integer> ret = new TreeSet ();
+        NavigableSet<Integer> ret = new TreeSet<> ();
 
         if ((findWords == null)
             ||
@@ -765,7 +764,7 @@ public class TextUtilities
 
         }
 
-        List<String> _words = new ArrayList ();
+        List<String> _words = new ArrayList<> ();
 
         for (Word w : words)
         {
@@ -774,7 +773,7 @@ public class TextUtilities
 
         }
 
-        List<String> _findWords = new ArrayList ();
+        List<String> _findWords = new ArrayList<> ();
 
         for (Word w : findWords)
         {
@@ -892,7 +891,7 @@ public class TextUtilities
             q.parse ("SELECT * FROM javax.swing.text.Segment ORDER BY beginIndex");
             QueryResults qr = q.execute (snippets);
 
-            snippets = new ArrayList (qr.getResults ());
+            snippets = new ArrayList<> (qr.getResults ());
 
         } catch (Exception e) {
 

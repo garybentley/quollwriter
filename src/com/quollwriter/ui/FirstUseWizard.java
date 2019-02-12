@@ -19,9 +19,10 @@ import com.quollwriter.importer.*;
 import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
+import com.quollwriter.uistrings.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class FirstUseWizard extends PopupWizard
 {
@@ -467,7 +468,7 @@ public class FirstUseWizard extends PopupWizard
             try
             {
 
-                if (Environment.getUILanguageStrings (lsid) == null)
+                if (UILanguageStringsManager.getUILanguageStrings (lsid) == null)
                 {
 
                     this.enableButton ("next",
@@ -476,59 +477,45 @@ public class FirstUseWizard extends PopupWizard
                     // Show the downloading message.
                     this.dlUILangFile.setVisible (true);
 
-                    Environment.downloadUILanguageFile (lsid,
-                                                        new ActionListener ()
-                                                        {
+                    UILanguageStringsManager.downloadUILanguageFile (lsid,
+                                                                     () ->
+                                                                     {
+                                                                        // Set the language.
+                                                                        try
+                                                                        {
 
-                                                            @Override
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
+                                                                            Environment.setUILanguage (lsid);
 
-                                                                // Set the language.
-                                                                try
-                                                                {
+                                                                        } catch (Exception e) {
 
-                                                                    Environment.setUILanguage (lsid);
+                                                                            Environment.logError ("Unable to set ui language to: " + lsid,
+                                                                                                  e);
 
-                                                                } catch (Exception e) {
+                                                                            UIUtils.showErrorMessage (_this,
+                                                                                                      getUIString (uilanguage,set,actionerror));
 
-                                                                    Environment.logError ("Unable to set ui language to: " + lsid,
-                                                                                          e);
+                                                                            _this.dlUILangError.setVisible (true);
+                                                                            _this.dlUILangFile.setVisible (false);
 
-                                                                    UIUtils.showErrorMessage (_this,
-                                                                                              getUIString (uilanguage,set,actionerror));
+                                                                            return;
 
-                                                                    _this.dlUILangError.setVisible (true);
-                                                                    _this.dlUILangFile.setVisible (false);
+                                                                        }
 
-                                                                    return;
+                                                                        _this.dlUILangFile.setVisible (true);
+                                                                        _this.showStage (SPELL_CHECK_LANG_STAGE);
+                                                                    },
+                                                                    // On error
+                                                                    () ->
+                                                                    {
 
-                                                                }
+                                                                        UIUtils.showErrorMessage (_this,
+                                                                                                  getUIString (uilanguage,set,actionerror));
 
-                                                                _this.dlUILangFile.setVisible (true);
-                                                                _this.showStage (SPELL_CHECK_LANG_STAGE);
+                                                                        _this.dlUILangFile.setVisible (false);
 
-                                                            }
+                                                                        _this.dlUILangError.setVisible (true);
 
-                                                        },
-                                                        // On error
-                                                        new ActionListener ()
-                                                        {
-
-                                                            @Override
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                                UIUtils.showErrorMessage (_this,
-                                                                                          getUIString (uilanguage,set,actionerror));
-
-                                                                _this.dlUILangFile.setVisible (false);
-
-                                                                _this.dlUILangError.setVisible (true);
-
-                                                            }
-
-                                                        });
+                                                                    });
 
                     this.validate ();
                     this.repaint ();
@@ -601,9 +588,9 @@ public class FirstUseWizard extends PopupWizard
             if (this.findProjects.isSelected ())
             {
 
-                Environment.showLanding ();
+                Environment.showAllProjectsViewer ();
 
-                Environment.getLanding ().showFindProjects ();
+                // TODO Environment.getLanding ().showFindProjects ();
 
                 this.close ();
 
@@ -664,11 +651,13 @@ public class FirstUseWizard extends PopupWizard
             ws.title = Environment.getUIString (prefix,
                                                 title);
                         //"Select your {projects} directory";
+                        /*
+                         TODO
             ws.helpText = String.format (Environment.getUIString (prefix,
                                                                   text),
                                         //"Use the finder below to find the directory where your {projects} database file is stored.  The file is called <b>%s%s</b>",
                                          Environment.getProjectInfoDBFile ().getName () + Constants.H2_DB_FILE_SUFFIX);
-
+*/
             Box b = new Box (BoxLayout.Y_AXIS);
 
             this.projDBFindError.setVisible (false);
@@ -709,7 +698,7 @@ public class FirstUseWizard extends PopupWizard
                                                                      title));
                                                                            //"Select the directory");
 
-            this.projDBFind.setFile (Environment.getUserQuollWriterDir ());
+            this.projDBFind.setFile (Environment.getUserQuollWriterDirPath ().toFile ());
 
             this.projDBFind.setFindButtonToolTip (Environment.getUIString (prefix,
                                                                            finder,
@@ -926,9 +915,9 @@ public class FirstUseWizard extends PopupWizard
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
 
-                                                                Environment.showLanding ();
+                                                                Environment.showAllProjectsViewer ();
 
-                                                                Environment.getLanding ().showFindProjects ();
+                                                                // TODO Environment.getLanding ().showFindProjects ();
 
                                                                 _this.close ();
 
@@ -1056,12 +1045,12 @@ public class FirstUseWizard extends PopupWizard
                                                 boolean                v)
                 {
 
-                    Enumeration<DefaultMutableTreeNode> en = n.children ();
+                    Enumeration<TreeNode> en = n.children ();
 
                     while (en.hasMoreElements ())
                     {
 
-                        DefaultMutableTreeNode c = en.nextElement ();
+                        DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                         Object uo = c.getUserObject ();
 

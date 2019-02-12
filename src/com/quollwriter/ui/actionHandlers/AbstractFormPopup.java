@@ -335,12 +335,12 @@ public abstract class AbstractFormPopup<E extends AbstractProjectViewer, O exten
                                                     boolean                v)
                     {
 
-                        Enumeration<DefaultMutableTreeNode> en = n.children ();
+                        Enumeration<TreeNode> en = n.children ();
 
                         while (en.hasMoreElements ())
                         {
 
-                            DefaultMutableTreeNode c = en.nextElement ();
+                            DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                             SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
 
@@ -908,12 +908,12 @@ public abstract class AbstractFormPopup<E extends AbstractProjectViewer, O exten
                               throws GeneralException
     {
 
-        Enumeration<DefaultMutableTreeNode> en = n.children ();
+        Enumeration<TreeNode> en = n.children ();
 
         while (en.hasMoreElements ())
         {
 
-            DefaultMutableTreeNode nn = en.nextElement ();
+            DefaultMutableTreeNode nn = (DefaultMutableTreeNode) en.nextElement ();
 
             SelectableDataObject sd = (SelectableDataObject) nn.getUserObject ();
 

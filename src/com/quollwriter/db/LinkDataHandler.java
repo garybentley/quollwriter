@@ -52,31 +52,25 @@ public class LinkDataHandler implements DataHandler<Link, NamedObject>
 
         // Check to see if it already exists. ???
 
-        List params = new ArrayList ();
-        params.add (l.getKey ());
-        params.add (l.getObject1 ().getKey ());
-        params.add (l.getObject1 ().getObjectType ());
-        params.add (l.getObject2 ().getKey ());
-        params.add (l.getObject2 ().getObjectType ());
-
         this.objectManager.executeStatement ("INSERT INTO link (dbkey, object1dbkey, object1objtype, object2dbkey, object2objtype) VALUES (?, ?, ?, ?, ?)",
-                                             params,
+                                             Arrays.asList (l.getKey (),
+                                                            l.getObject1 ().getKey (),
+                                                            l.getObject1 ().getObjectType (),
+                                                            l.getObject2 ().getKey (),
+                                                            l.getObject2 ().getObjectType ()),
                                              conn);
 
     }
 
     @Override
     public void deleteObject (Link       d,
-                              boolean    deleteChildObjects,                              
+                              boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (d.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM link WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (d.getKey ()),
                                              conn);
 
     }
@@ -88,7 +82,7 @@ public class LinkDataHandler implements DataHandler<Link, NamedObject>
     {
 
         throw new UnsupportedOperationException ("Not supported");
-    
+
     }
 
 }

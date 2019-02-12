@@ -301,7 +301,7 @@ public class Achievements extends Box implements AchievementReachedListener
 
                 ab.setVisible (true);
 
-                ab.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getInnerBorderColor ()),
+                ab.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getInnerBorderColor ()),
                                                   ab.getBorder ()));
 
             } else {
@@ -311,7 +311,7 @@ public class Achievements extends Box implements AchievementReachedListener
                 if (c < (rules.size () - 1))
                 {
 
-                    ab.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getInnerBorderColor ()),
+                    ab.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getInnerBorderColor ()),
                                                       ab.getBorder ()));
 
                 }

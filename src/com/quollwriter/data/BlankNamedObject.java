@@ -40,7 +40,7 @@ public class BlankNamedObject extends NamedObject
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        return new HashSet ();
+        return new HashSet<> ();
 
     }
 

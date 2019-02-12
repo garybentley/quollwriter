@@ -73,7 +73,7 @@ public class WhatsNew extends Wizard //PopupWizard
         try
         {
 
-            String whatsNew = Environment.getResourceFileAsString (Constants.WHATS_NEW_FILE);
+            String whatsNew = Utils.getResourceFileAsString (Constants.WHATS_NEW_FILE);
 
             // Load up all the whats new for greater versions.
             Element root = JDOMUtils.getStringAsElement (whatsNew);

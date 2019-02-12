@@ -37,7 +37,7 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
 
             ResearchItem l = new ResearchItem ();
             l.setKey (key);
-            
+
             // Load the object fields.
             this.objectManager.setUserConfigurableObjectFields (l,
                                                                 rs.getStatement ().getConnection ());
@@ -45,33 +45,33 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
             l.setName (rs.getString (ind++));
             l.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
-            
+
             l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
-            
+
             if (l.getLegacyField (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID) == null)
             {
-                
+
                 l.setUrl (rs.getString (ind++));
-                
+
             } else {
-                
+
                 ind++;
-                
+
             }
-            
+
             l.setId (rs.getString (ind++));
-            l.setVersion (rs.getString (ind++));            
-            
+            l.setVersion (rs.getString (ind++));
+
             if (proj != null)
             {
-                
+
                 proj.addAsset (l);
-                                
+
             }
-            
+
             // Get all the notes.
             if (loadChildObjects)
             {
@@ -106,12 +106,8 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
         try
         {
 
-            List params = new ArrayList ();
-            params.add (key);
-            //params.add (proj.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?", // AND projectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
 
             if (rs.next ())
@@ -152,16 +148,13 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
                                    throws GeneralException
     {
 
-        List<ResearchItem> ret = new ArrayList ();
+        List<ResearchItem> ret = new ArrayList<> ();
 
         try
         {
 
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (parent.getKey ()),
                                                             conn);
 
             while (rs.next ())
@@ -201,29 +194,23 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (r.getKey ());
-        params.add (r.getUrl ());
-        params.add (r.getProject ().getKey ());
-
         this.objectManager.executeStatement ("INSERT INTO researchitem (dbkey, url, projectdbkey) VALUES (?, ?, ?)",
-                                             params,
+                                             Arrays.asList (r.getKey (),
+                                                            r.getUrl (),
+                                                            r.getProject ().getKey ()),
                                              conn);
 
     }
 
     @Override
     public void deleteObject (ResearchItem r,
-                              boolean      deleteChildObjects,                              
+                              boolean      deleteChildObjects,
                               Connection   conn)
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (r.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM researchitem WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (r.getKey ()),
                                              conn);
 
     }
@@ -234,12 +221,9 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (r.getUrl ());
-        params.add (r.getKey ());
-
         this.objectManager.executeStatement ("UPDATE researchitem SET url = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (r.getUrl (),
+                                                            r.getKey ()),
                                              conn);
 
     }

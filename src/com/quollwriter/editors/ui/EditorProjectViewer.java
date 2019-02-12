@@ -64,10 +64,7 @@ import com.quollwriter.editors.*;
 import com.quollwriter.editors.ui.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
-
-import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class EditorProjectViewer extends AbstractProjectViewer
 {
@@ -545,7 +542,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                         public void actionPerformed (ActionEvent ev)
                                                                         {
 
-                                                                            Environment.showLandingIfNoOpenProjects ();
+                                                                            Environment.showAllProjectsViewerIfNoOpenProjects ();
 
                                                                         }
 
@@ -941,7 +938,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
     {
 
         // TODO: Add achievements later.
-        Environment.removeFromAchievementsManager (this);
+        // TODO Environment.getAchievementsManager ().removeViewer (this);
 
         // See if we have any state, if not then this is probably the first time we've opened the project
         // then open the first chapter.

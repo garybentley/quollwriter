@@ -2592,7 +2592,7 @@ public class ObjectManager
 
             String f = this.getCreateViewsFile ();
 
-            String xml = Environment.getResourceFileAsString (f);
+            String xml = Utils.getResourceFileAsString (f);
 
             if (xml == null)
             {
@@ -2689,7 +2689,7 @@ public class ObjectManager
             String f = this.getUpgradeScriptFile (oldVersion,
                                                   newVersion);
 
-            String xml = Environment.getResourceFileAsString (f);
+            String xml = Utils.getResourceFileAsString (f);
 
             if (xml == null)
             {
@@ -2811,7 +2811,7 @@ public class ObjectManager
 
                 // Get the file.
 
-                sql = Environment.getResourceFileAsString (this.getSchemaFile (file));
+                sql = Utils.getResourceFileAsString (this.getSchemaFile (file));
 
             } else
             {

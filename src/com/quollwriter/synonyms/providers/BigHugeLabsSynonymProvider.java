@@ -21,7 +21,7 @@ public class BigHugeLabsSynonymProvider implements SynonymProvider
     public static final String WORD_TAG = "[[WORD]]";
 
     private String language = null;
-    
+
     public BigHugeLabsSynonymProvider()
     {
 
@@ -29,18 +29,18 @@ public class BigHugeLabsSynonymProvider implements SynonymProvider
 
     public boolean isLanguageSupported (String language)
     {
-        
+
         return true;
-        
+
     }
-    
+
     public void init (String language)
     {
-        
+
         this.language = language;
-        
+
     }
-    
+
     public void setUseCache (boolean v)
     {
 
@@ -59,11 +59,11 @@ public class BigHugeLabsSynonymProvider implements SynonymProvider
     public boolean hasSynonym (String word)
                                throws GeneralException
     {
-    
+
         return this.getSynonyms (word) != null;
-        
+
     }
-    
+
     public Synonyms getSynonyms (String word)
                           throws GeneralException
     {
@@ -92,7 +92,7 @@ public class BigHugeLabsSynonymProvider implements SynonymProvider
 
         }
 
-        String url = Environment.getProperty (BigHugeLabsSynonymProvider.URL_PROPERTY_NAME);
+        String url = UserProperties.get (BigHugeLabsSynonymProvider.URL_PROPERTY_NAME);
 
         url = StringUtils.replaceString (url,
                                          BigHugeLabsSynonymProvider.WORD_TAG,

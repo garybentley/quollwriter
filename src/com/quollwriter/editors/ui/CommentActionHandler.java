@@ -35,7 +35,7 @@ import com.quollwriter.ui.renderers.*;
 import com.quollwriter.editors.ui.panels.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 /**
  * A comment action handler is really just a tweaked note action handler.  A comment is a note but for
@@ -73,7 +73,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
 
         final int origSelStart = this.editor.getSelectionStart ();
 
-        final BlockPainter highlight = new BlockPainter (Environment.getHighlightColor ());
+        final BlockPainter highlight = new BlockPainter (UIUtils.getHighlightColor ());
 
         final Caret origCaret = editor.getCaret ();
 

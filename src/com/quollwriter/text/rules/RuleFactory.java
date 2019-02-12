@@ -1,6 +1,7 @@
 package com.quollwriter.text.rules;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
 
@@ -22,8 +23,8 @@ public class RuleFactory
     public static final int PROJECT = 2;
     public static final int ALL = 4;
 
-    private static Map<String, Map<String, Rule>> rules = new HashMap ();
-    private static Map<String, Class> ruleTypes = new HashMap ();
+    private static Map<String, Map<String, Rule>> rules = new HashMap<> ();
+    private static Map<String, Class> ruleTypes = new HashMap<> ();
 
     private static int lastUserRuleIndex = 0;
 
@@ -32,7 +33,7 @@ public class RuleFactory
     {
 
         // Load the standard rules.
-        String xml = Environment.getResourceFileAsString (Constants.PROBLEM_FINDER_RULES_FILE);
+        String xml = Utils.getResourceFileAsString (Constants.PROBLEM_FINDER_RULES_FILE);
 
         Element root = JDOMUtils.getStringAsElement (xml);
 
@@ -81,54 +82,56 @@ public class RuleFactory
         }
 
         // Load the user defined rules.
-        File dir = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_PROBLEM_FINDER_RULES_DIR);
+        Path dir = Environment.getUserPath (Constants.USER_PROBLEM_FINDER_RULES_DIR);
 
-        File[] files = dir.listFiles (new FilenameFilterAdapter ()
-            {
-
-                public boolean accept (File   dir,
-                                       String name)
-                {
-
-                    if (name.endsWith (".xml"))
-                    {
-
-                        return true;
-
-                    }
-
-                    return false;
-
-                }
-
-            });
-
-        if (files != null)
-        {
-
-            for (int i = 0; i < files.length; i++)
+        Files.walk (dir)
+            .filter (f -> f.getFileName ().toString ().endsWith (".xml"))
+            .forEach (f ->
             {
 
                 try
                 {
 
-                    RuleFactory.loadUserRule (files[i]);
+                    RuleFactory.loadUserRule (f);
 
                 } catch (Exception e)
                 {
 
                     // Delete the rule.
-                    files[i].delete ();
+                    try
+                    {
+
+                        Files.delete (f);
+
+                    } catch (Exception ee) {
+
+                        Environment.logError ("Unable to delete user rule file: " +
+                                              f,
+                                              ee);
+
+                    }
 
                     Environment.logError ("Unable to load user rule: " +
-                                          files[i],
+                                          f,
                                           e);
 
                 }
 
-            }
+            });
 
-        }
+    }
+
+    public static Path getUserRuleFilePath (Rule r)
+    {
+
+        return RuleFactory.getUserRulesDirPath ().resolve (r.getId () + ".xml");
+
+    }
+
+    public static Path getUserRulesDirPath ()
+    {
+
+        return Environment.getUserPath (Constants.USER_PROBLEM_FINDER_RULES_DIR);
 
     }
 
@@ -136,6 +139,20 @@ public class RuleFactory
                                 throws Exception
     {
 
+        Path f = RuleFactory.getUserRuleFilePath (r);
+
+        if (Files.deleteIfExists (f))
+        {
+
+            RuleFactory.rules.get (Rule.WORD_CATEGORY).remove (r.getId ());
+
+        } else {
+
+            throw new GeneralException ("Unable to delete user rule file: " + f);
+
+        }
+/*
+TODO
         File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_PROBLEM_FINDER_RULES_DIR + r.getId () + ".xml");
 
         if (f.exists ())
@@ -151,7 +168,7 @@ public class RuleFactory
             RuleFactory.rules.get (Rule.WORD_CATEGORY).remove (r.getId ());
 
         }
-
+*/
     }
 
     public static Map<String, String> getIgnores (int                                 type,
@@ -198,7 +215,7 @@ public class RuleFactory
 
         }
 
-        Map<String, String> rulesToIgnore = new HashMap ();
+        Map<String, String> rulesToIgnore = new HashMap<> ();
 
         StringTokenizer t = new StringTokenizer (toIgnore,
                                                  ";");
@@ -327,12 +344,12 @@ public class RuleFactory
 
     }
 
-    private static Rule loadUserRule (File f)
+    private static Rule loadUserRule (Path f)
                                throws Exception
     {
 
-        Element el = JDOMUtils.getFileAsElement (f,
-                                                 Environment.GZIP_EXTENSION);
+        Element el = JDOMUtils.getFileAsElement (f.toFile (),
+                                                 Constants.GZIP_EXTENSION);
 
         Rule r = RuleFactory.createRule (el,
                                          false);
@@ -351,7 +368,7 @@ public class RuleFactory
         l.put (r.getId (),
                r);
 
-        String fn = f.getName ();
+        String fn = f.getFileName ().toString ();
 
         if (fn.startsWith ("user-"))
         {
@@ -394,6 +411,11 @@ public class RuleFactory
 
         }
 
+        Path f = RuleFactory.getUserRuleFilePath (r);
+
+        Files.createDirectories (f.getParent ());
+/*
+TODO Clean up
         File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_PROBLEM_FINDER_RULES_DIR + r.getId ().toLowerCase () + ".xml");
 
         if (!f.exists ())
@@ -413,9 +435,9 @@ public class RuleFactory
             }
 
         }
-
+*/
         JDOMUtils.writeElementToFile (r.getAsElement (),
-                                      f,
+                                      f.toFile (),
                                       true);
 
         RuleFactory.loadUserRule (f);
@@ -520,7 +542,7 @@ public class RuleFactory
                                                   com.gentlyweb.properties.Properties projProps)
     {
 
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         Map<String, Rule> rules = RuleFactory.rules.get (Rule.PARAGRAPH_CATEGORY);
 
@@ -561,7 +583,7 @@ public class RuleFactory
                                                  com.gentlyweb.properties.Properties projProps)
     {
 
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         // Get the ignores.
         Map<String, String> ignores = RuleFactory.getIgnores (ALL,
@@ -662,7 +684,7 @@ public class RuleFactory
         try
         {
 
-            r = (Rule) c.newInstance ();
+            r = (Rule) c.getDeclaredConstructor ().newInstance ();
 
         } catch (Exception e) {
 

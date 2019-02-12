@@ -1407,7 +1407,8 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     public TextProperties getTextProperties ()
     {
 
-        return Environment.getProjectTextProperties ();
+        // TODO return Environment.getProjectTextProperties ();
+        return null;
 
     }
 

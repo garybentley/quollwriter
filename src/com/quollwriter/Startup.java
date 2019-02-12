@@ -9,7 +9,10 @@ import javax.swing.*;
 
 import com.quollwriter.data.*;
 
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.components.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class Startup
 {
@@ -30,34 +33,42 @@ public class Startup
 
         }
 
-        SplashScreen ss = null;
+        Splashscreen ss = null;
 
         try
         {
 
-            ss = new SplashScreen (Environment.getLogo ().getImage (),
-                                   "Starting...",
-                                   com.quollwriter.ui.UIUtils.getColor ("#f9f9f9"));
+            ss = Splashscreen.builder ()
+                .build ();
 
-            ss.setProgress (5);
+            ss.updateProgress (5);
 
             Environment.init ();
+
+            final Splashscreen _ss = ss;
+
+            Environment.startupProgressProperty ().addListener ((p, oldv, newv) ->
+            {
+
+                _ss.updateProgress (5);
+
+            });
 
             if (Environment.isFirstUse ())
             {
 
-                new FirstUseWizard ().init ();
+                // TODO new FirstUseWizard ().init ();
 
                 return;
 
             }
 
-            if (Environment.getAllProjectInfos ().size () == 0)
+            if (Environment.allProjectsProperty ().size () == 0)
             {
 
                 ss.finish ();
 
-                Environment.showLanding ();
+                Environment.showAllProjectsViewer ();
 
                 return;
 
@@ -68,7 +79,7 @@ public class Startup
             if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
             {
 
-                Environment.showLanding ();
+                Environment.showAllProjectsViewer ();
 
             }
 
@@ -99,16 +110,12 @@ public class Startup
             if (showError)
             {
 
-                Environment.showLanding ();
+                Environment.showAllProjectsViewer ();
 
-                UIUtils.showMessage ((java.awt.Component) null,
-                                     Environment.getUIString (LanguageStrings.startup,
-                                                              LanguageStrings.cantopenlastprojecterror,
-                                                              LanguageStrings.title),
-                                     //"Unable to open last {project}",
-                                     Environment.getUIString (LanguageStrings.startup,
-                                                              LanguageStrings.cantopenlastprojecterror,
-                                                              LanguageStrings.text));
+                ComponentUtils.showMessage (Environment.getFocusedViewer (),
+                                            getUILanguageStringProperty (startup,cantopenlastprojecterror,title),
+                                            //"Unable to open last {project}",
+                                            getUILanguageStringProperty (startup,cantopenlastprojecterror,text));
                                     //"Unable to open last edited {project}, please select another {project} or create a new one.");
 
             }
@@ -119,9 +126,8 @@ public class Startup
             if (eee instanceof OverlappingFileLockException)
             {
 
-                UIUtils.showErrorMessage (null,
-                                          Environment.getUIString (LanguageStrings.startup,
-                                                                   LanguageStrings.alreadyrunningerror));
+                ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                                 getUILanguageStringProperty (startup,alreadyrunningerror));
                                           //"It appears that Quoll Writer is already running.  Please close the other instance before starting Quoll Writer again.");
 
 
@@ -130,9 +136,8 @@ public class Startup
                 Environment.logError ("Unable to open Quoll Writer",
                                       eee);
 
-                UIUtils.showErrorMessage (null,
-                                          Environment.getUIString (LanguageStrings.startup,
-                                                                   LanguageStrings.unabletostarterror));
+                ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                                 getUILanguageStringProperty (startup,unabletostarterror));
                                           //"Unable to start Quoll Writer");
 
             }

@@ -32,7 +32,7 @@ public abstract class AbstractAchievementRule implements AchievementRule
     private String cat = null;
     private boolean hidden = false;
 
-    protected Set<String> eventIds = new HashSet ();
+    protected Set<String> eventIds = new HashSet<> ();
 
     public String toString ()
     {

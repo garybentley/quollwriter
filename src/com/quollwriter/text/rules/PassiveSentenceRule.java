@@ -31,8 +31,8 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
     }
 
-    private Set<String> beWords = new HashSet ();
-    private Set<String> irregularForms = new HashSet ();
+    private Set<String> beWords = new HashSet<> ();
+    private Set<String> irregularForms = new HashSet<> ();
     private boolean ignoreInDialogue = false;
 
     private CheckboxFormItem ignoreDialogueF = null;
@@ -45,14 +45,14 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     public void setIrregularForms (Set<String> forms)
     {
 
-        this.irregularForms = new HashSet (forms);
+        this.irregularForms = new HashSet<> (forms);
 
     }
 
     public void setBeWords (Set<String> words)
     {
 
-        this.beWords = new HashSet (words);
+        this.beWords = new HashSet<> (words);
 
     }
 
@@ -299,12 +299,18 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         try
         {
 
-            if (Environment.getWordTypes (w,
-                                          // Assume english for now
-                                          null) == null)
+            // Assume english for now
+            SynonymProvider sp = Environment.getSynonymProvider (Constants.ENGLISH);
+
+            if (sp != null)
             {
 
-                w += "e";
+                if (sp.getWordTypes (w) == null)
+                {
+
+                    w += "e";
+
+                }
 
             }
 
@@ -319,9 +325,14 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         try
         {
 
-            t = Environment.getWordTypes (w,
-                                          // Assume english for now
-                                          null);
+            SynonymProvider sp = Environment.getSynonymProvider (Constants.ENGLISH);
+
+            if (sp != null)
+            {
+
+                t = sp.getWordTypes (w);
+
+            }
 
         } catch (Exception e)
         {
@@ -360,13 +371,8 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.rules);
-        pref.add (LanguageStrings.passivesentence);
-        pref.add (LanguageStrings.labels);        
-        
+        List<String> pref = Arrays.asList (LanguageStrings.problemfinder,LanguageStrings.config,LanguageStrings.rules,LanguageStrings.passivesentence,LanguageStrings.labels);
+
         this.ignoreDialogueF = new CheckboxFormItem (null,
                                                      Environment.getUIString (pref,
                                                                               LanguageStrings.ignoreindialogue));

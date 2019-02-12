@@ -42,7 +42,7 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
             i.setType (ideaType);
             i.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
-            i.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));            
+            i.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             i.setRating (rs.getInt (ind++));
 
             i.setLastModified (rs.getTimestamp (ind++));
@@ -50,11 +50,11 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
 
             if (ideaType != null)
             {
-            
+
                 ideaType.addIdea (i);
-                
+
             }
-            
+
             return i;
 
         } catch (Exception e)
@@ -74,12 +74,12 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
                            throws GeneralException
     {
 
-        List<Idea> ret = new ArrayList ();
+        List<Idea> ret = new ArrayList<> ();
 
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (parent.getKey ());
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE ideatypedbkey = ?",
@@ -124,7 +124,7 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
                          throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (key);
 
         ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
@@ -162,7 +162,7 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
 
         Idea i = (Idea) d;
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (i.getKey ());
         params.add (i.getType ().getKey ());
         params.add (i.getRating ());
@@ -175,12 +175,12 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
 
     @Override
     public void deleteObject (Idea       d,
-                              boolean    deleteChildObjects,                              
+                              boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (d.getKey ());
 
         this.objectManager.executeStatement ("DELETE FROM idea WHERE dbkey = ?",
@@ -197,7 +197,7 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
 
         Idea i = (Idea) d;
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (i.getRating ());
         params.add (i.getKey ());
         params.add (i.getType ().getKey ());

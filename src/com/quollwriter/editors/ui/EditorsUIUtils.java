@@ -178,7 +178,7 @@ public class EditorsUIUtils
 
                                                                                         viewer.removeNotification (notify);
 
-                                                                                        AbstractViewer viewer = Environment.getFocusedViewer ();
+                                                                                        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                                                                                         String url = "";
 
@@ -212,7 +212,7 @@ public class EditorsUIUtils
                                                                                         public void actionPerformed (ActionEvent ev)
                                                                                         {
 
-                                                                                            AbstractViewer viewer = Environment.getFocusedViewer ();
+                                                                                            AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                                                                                             UIUtils.showErrorMessage (viewer,
                                                                                                                       getUIString (editors,user,deleteaccount,actionerror));
@@ -319,7 +319,7 @@ public class EditorsUIUtils
                         {
 
                             Environment.deleteProject (p,
-                                                       null);
+                                                       (Runnable) null);
 
                         } catch (Exception e) {
 
@@ -454,9 +454,11 @@ public class EditorsUIUtils
 
                         }
 
+/*
+TODO
                         Environment.deleteProject (p,
                                                    null);
-
+*/
                     }
 
                     if (onRemoveComplete != null)
@@ -554,7 +556,7 @@ public class EditorsUIUtils
             public void actionPerformed (ActionEvent ev)
             {
 
-                AbstractViewer viewer = Environment.getFocusedViewer ();
+                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                 java.util.List<String> prefix = Arrays.asList (editors,editor,remove,confirmpopup);
 
@@ -581,11 +583,12 @@ public class EditorsUIUtils
 
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-
+/*
+TODO
                                                         EditorsUIUtils.showDeleteProjectsForEditor (Environment.getFocusedViewer (),
                                                                                                     ed,
                                                                                                     onComplete);
-
+*/
                                                     }
 
                                                 });
@@ -1799,7 +1802,7 @@ Not used.
                                                                 public void actionPerformed (ActionEvent ev)
                                                                 {
 
-                                                                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                                                                    AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                                                                     UIUtils.showMessage ((PopupsSupported) viewer,
                                                                                          getUIString (editors,user,invitesent,popup,title),
@@ -3804,7 +3807,7 @@ Not used.
         }
         */
 
-        AbstractViewer viewer = Environment.getFocusedViewer ();
+        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
         EditorsUIUtils.editorLogin.show (viewer);
 
@@ -3875,7 +3878,7 @@ Not used.
                                                if (cellHasFocus)
                                                {
 
-                                                   l.setBackground (Environment.getHighlightColor ());
+                                                   l.setBackground (UIUtils.getHighlightColor ());
 
                                                }
 
@@ -4174,7 +4177,7 @@ Not used.
     public static void showResultError (final EditorsWebServiceResult res)
     {
 
-        AbstractViewer viewer = Environment.getFocusedViewer ();
+        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
         UIUtils.showErrorMessage (viewer,
                                   res.getErrorMessage ());
@@ -4835,7 +4838,7 @@ Not used.
 
                     Environment.openProject (_proj);
 
-                    AbstractProjectViewer pv = Environment.getProjectViewer (_proj);
+                    AbstractProjectViewer pv = null; // TODO Environment.getProjectViewer (_proj);
 
                     if (!(pv instanceof EditorProjectViewer))
                     {

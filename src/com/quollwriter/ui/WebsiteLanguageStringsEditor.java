@@ -188,7 +188,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
         try
         {
 
-             u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.TRYOUT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
+             u = new URL (Environment.getQuollWriterWebsite () + UserProperties.get (Constants.TRYOUT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
 
              final ProgressPopup pp = new ProgressPopup (_this,
                                                          "Uploading",
@@ -349,7 +349,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
         this.updateTitle ();
 
-        this.prevEnglishStrings = Environment.getPreviousEnglishWebsiteLanguageStrings ();
+        this.prevEnglishStrings = WebsiteLanguageStringsManager.getPreviousEnglishWebsiteLanguageStrings ();
 
         if (this.prevEnglishStrings != null)
         {
@@ -373,7 +373,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                 try
                 {
 
-                    enStrs = Environment.getWebsiteLanguageStringsFromServer ();
+                    enStrs = WebsiteLanguageStringsManager.getWebsiteLanguageStringsFromServer ();
 
                 } catch (Exception e) {
 
@@ -399,7 +399,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                  {
 
                      // Move the existing strings file to a previous veersion.
-                     Environment.moveWebsiteLanguageStringsToPrevious ();
+                     WebsiteLanguageStringsManager.moveWebsiteLanguageStringsToPrevious ();
 
                  } catch (Exception e) {
 
@@ -417,7 +417,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                  {
 
                      // Save the new strings away.
-                     Environment.saveWebsiteLanguageStrings (enStrs);
+                     WebsiteLanguageStringsManager.saveWebsiteLanguageStrings (enStrs);
 
                  } catch (Exception e) {
 
@@ -461,7 +461,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                            try
                            {
 
-                               uls = Environment.getWebsiteLanguageStrings (_this.userStrings.getId ());
+                               uls = WebsiteLanguageStringsManager.getWebsiteLanguageStrings (_this.userStrings.getId ());
 
                            } catch (Exception e) {
 
@@ -479,7 +479,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                            {
 
                                // Open these instead.
-                               WebsiteLanguageStringsEditor lse = Environment.editWebsiteLanguageStrings (uls);
+                               WebsiteLanguageStringsEditor lse = WebsiteLanguageStringsManager.editWebsiteLanguageStrings (uls);
 
                                if (lse == _this)
                                {
@@ -558,7 +558,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
         final WebsiteLanguageStrings basels = this.baseStrings;
 
-        final WebsiteLanguageStrings prevbasels = Environment.getPreviousEnglishWebsiteLanguageStrings ();
+        final WebsiteLanguageStrings prevbasels = WebsiteLanguageStringsManager.getPreviousEnglishWebsiteLanguageStrings ();
 
         if (prevbasels == null)
         {
@@ -652,14 +652,14 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
         try
         {
 
-            Environment.saveWebsiteLanguageStrings (newls);
+            WebsiteLanguageStringsManager.saveWebsiteLanguageStrings (newls);
 
-            Environment.saveWebsiteLanguageStrings (this.userStrings);
+            WebsiteLanguageStringsManager.saveWebsiteLanguageStrings (this.userStrings);
 
-            WebsiteLanguageStrings uls = Environment.getWebsiteLanguageStrings (this.userStrings.getId ());
+            WebsiteLanguageStrings uls = WebsiteLanguageStringsManager.getWebsiteLanguageStrings (this.userStrings.getId ());
 
             // Get a diff of the default to this new.
-            WebsiteLanguageStringsEditor lse = Environment.editWebsiteLanguageStrings (uls);
+            WebsiteLanguageStringsEditor lse = WebsiteLanguageStringsManager.editWebsiteLanguageStrings (uls);
 
             lse.limitViewToPreviousVersionDiff ();
 
@@ -1124,7 +1124,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                         pp.setDraggable (_this);
 
-                        u = new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.SUBMIT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
+                        u = new URL (Environment.getQuollWriterWebsite () + UserProperties.getProperty (Constants.SUBMIT_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME));
 
                         Utils.postToURL (u,
                                          headers,
@@ -1501,7 +1501,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    Environment.showLanding ();
+                                                    Environment.showAllProjectsViewer ();
 
                                                 }
 
@@ -1625,7 +1625,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                     try
                     {
 
-                        String p = Environment.getProperty (Constants.DELETE_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+                        String p = UserProperties.get (Constants.DELETE_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
                         p = StringUtils.replaceString (p,
                                                        Constants.ID_TAG,
@@ -1667,7 +1667,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                              try
                                              {
 
-                                                 Environment.deleteWebsiteLanguageStrings (_this.userStrings);
+                                                 WebsiteLanguageStringsManager.deleteWebsiteLanguageStrings (_this.userStrings);
 
                                              } catch (Exception e) {
 
@@ -1748,7 +1748,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                     try
                     {
 
-                        Environment.deleteWebsiteLanguageStrings (_this.userStrings);
+                        WebsiteLanguageStringsManager.deleteWebsiteLanguageStrings (_this.userStrings);
 
                     } catch (Exception e) {
 
@@ -1829,7 +1829,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                       throws Exception
     {
 
-        Environment.saveWebsiteLanguageStrings (this.userStrings);
+        WebsiteLanguageStringsManager.saveWebsiteLanguageStrings (this.userStrings);
 
     }
 

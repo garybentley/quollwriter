@@ -32,7 +32,7 @@ public class NamedObjectNameWrapper implements Comparable<NamedObjectNameWrapper
             if (nitems == null)
             {
 
-                nitems = new ArrayList ();
+                nitems = new ArrayList<> ();
 
                 m.put (i.name.toLowerCase (),
                        nitems);
@@ -48,19 +48,19 @@ public class NamedObjectNameWrapper implements Comparable<NamedObjectNameWrapper
     public static List<NamedObjectNameWrapper> getForAllNames (NamedObject n)
     {
 
-        List<NamedObjectNameWrapper> ret = new ArrayList ();
+        List<NamedObjectNameWrapper> ret = new ArrayList<> ();
 
         for (String name : n.getAllNames ())
         {
 
             if (name != null)
             {
-        
+
                 ret.add (new NamedObjectNameWrapper (name,
                                                      n));
 
             }
-                                                     
+
         }
 
         return ret;

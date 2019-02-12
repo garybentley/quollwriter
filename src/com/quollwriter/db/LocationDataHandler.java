@@ -41,33 +41,33 @@ public class LocationDataHandler implements DataHandler<Location, Project>
             // Load the object fields.
             this.objectManager.setUserConfigurableObjectFields (l,
                                                                 rs.getStatement ().getConnection ());
-            
+
             l.setName (rs.getString (ind++));
             l.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
 
             l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
-                                                    
+
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
             l.setId (rs.getString (ind++));
-            l.setVersion (rs.getString (ind++));            
-                                    
+            l.setVersion (rs.getString (ind++));
+
             if (proj != null)
             {
-                                
+
                 proj.addAsset (l);
-                
+
             }
-                        
+
             // Get all the notes.
             if (loadChildObjects)
             {
-                
+
                 this.objectManager.loadNotes (l,
                                               rs.getStatement ().getConnection ());
-                 
+
             }
 
             return l;
@@ -88,16 +88,13 @@ public class LocationDataHandler implements DataHandler<Location, Project>
                                throws GeneralException
     {
 
-        List<Location> ret = new ArrayList ();
+        List<Location> ret = new ArrayList<> ();
 
         try
         {
 
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (parent.getKey ()),
                                                             conn);
 
             while (rs.next ())
@@ -143,12 +140,8 @@ public class LocationDataHandler implements DataHandler<Location, Project>
         try
         {
 
-            List params = new ArrayList ();
-            params.add (key);
-            //params.add (proj.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?",// AND projectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
 
             if (rs.next ())
@@ -189,29 +182,23 @@ public class LocationDataHandler implements DataHandler<Location, Project>
 
         Location l = (Location) d;
 
-        List params = new ArrayList ();
-        params.add (l.getKey ());
-        params.add (l.getProject ().getKey ());
-
         this.objectManager.executeStatement ("INSERT INTO location (dbkey, projectdbkey) VALUES (?, ?)",
-                                             params,
+                                             Arrays.asList (l.getKey (),
+                                                            l.getProject ().getKey ()),
                                              conn);
 
     }
 
     public void deleteObject (Location   d,
-                              boolean    deleteChildObjects,                              
+                              boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
 
         Location l = (Location) d;
 
-        List params = new ArrayList ();
-        params.add (l.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM location WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (l.getKey ()),
                                              conn);
 
     }
@@ -221,15 +208,6 @@ public class LocationDataHandler implements DataHandler<Location, Project>
                        throws GeneralException
     {
 
-        Location l = (Location) d;
-
-        List params = new ArrayList ();
-        params.add (l.getKey ());
-        /*
-        this.objectManager.executeStatement ("UPDATE location SET ? WHERE dbkey = ?",
-                                             params,
-                                             conn);
-         */
     }
 
 }

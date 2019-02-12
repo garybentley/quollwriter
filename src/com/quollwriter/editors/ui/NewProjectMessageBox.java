@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Arrays;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.awt.Point;
 import java.awt.event.*;
@@ -35,7 +36,7 @@ import com.quollwriter.text.*;
 import com.quollwriter.events.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implements EditorChangedListener
 {
@@ -249,7 +250,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
         if (viewer == null)
         {
 
-            viewer = Environment.getFocusedViewer ();
+            viewer = null; // TODO Environment.getFocusedViewer ();
 
         }
 
@@ -276,15 +277,29 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
 
             content.add (Box.createVerticalStrut (5));
 
-            File defDir = Environment.getDefaultSaveProjectDir ();
+            Path defDir = Environment.getDefaultSaveProjectDirPath ();
 
-            defDir.mkdirs ();
+            try
+            {
 
-            File nf = new File (defDir, "editor-projects/" + mess.getEditor ().getEmail ());
+                Files.createDirectories (defDir);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to create directories for: " + defDir,
+                                      e);
+
+                // TODO Hanlde this error.
+
+            }
+
+            Path nf = defDir.resolve ("editor-projects/").resolve (mess.getEditor ().getEmail ());
+
+            // TODO REMOVE? File nf = new File (defDir, "editor-projects/" + mess.getEditor ().getEmail ());
 
             final FileFinder saveField = new FileFinder ();
 
-            saveField.setFile (nf);
+            saveField.setFile (nf.toFile ());
 
             saveField.setApproveButtonText (getUIString (prefix,finder,button));
             //"Select");
@@ -506,7 +521,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
 
                         // We create the project but then close the connection pool since the user
                         // may not want to open the project yet.
-                        Environment.createProject (saveField.getSelectedFile (),
+                        Environment.createProject (saveField.getSelectedFile ().toPath (),
                                                    p,
                                                    pwd).closeConnectionPool ();
 
@@ -552,7 +567,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                       mess,
                                                       e);
 
-                                UIUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                UIUtils.showErrorMessage (null, // TODO Environment.getFocusedViewer (),
                                                           getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,actionerror));
                                                           //"Unable to update message, please contact Quoll Writer support for assistance.");
 
@@ -561,7 +576,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                             }
 
                             // Ask if they want to open the project now.
-                            UIUtils.createQuestionPopup (Environment.getFocusedViewer (),
+                            UIUtils.createQuestionPopup (null, // TODO Environment.getFocusedViewer (),
                                                          getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,title),
                                                          //"Open the {project}?",
                                                          Constants.OPEN_PROJECT_ICON_NAME,
@@ -579,7 +594,8 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
 
                                                                 try
                                                                 {
-
+/*
+TODO
                                                                     Environment.openProject (fproj,
                                                                                             new ActionListener ()
                                                                                              {
@@ -600,7 +616,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                                                                 }
 
                                                                                              });
-
+*/
                                                                 } catch (Exception e) {
 
                                                                     Environment.logError ("Unable to open project: " +

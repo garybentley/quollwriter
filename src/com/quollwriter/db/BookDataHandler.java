@@ -39,7 +39,7 @@ public class BookDataHandler implements DataHandler<Book, Project>
 
             b.setName (rs.getString (ind++));
             b.setKey (key);
-            
+
             b.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
 
@@ -51,23 +51,23 @@ public class BookDataHandler implements DataHandler<Book, Project>
 
             if (p != null)
             {
-            
+
                 p.addBook (b);
-                
+
             }
 
             if (loadChildObjects)
             {
-            
+
                 Connection conn = rs.getStatement ().getConnection ();
-    
+
                 this.objectManager.getObjects (Chapter.class,
                                                b,
                                                conn,
                                                loadChildObjects);
 
             }
-                                               
+
             return b;
 
         } catch (Exception e)
@@ -87,36 +87,36 @@ public class BookDataHandler implements DataHandler<Book, Project>
                            throws GeneralException
     {
 
-        List<Book> ret = new ArrayList ();
-    
+        List<Book> ret = new ArrayList<> ();
+
         try
         {
-    
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE",
                                                             null,
                                                             conn);
-        
+
             while (rs.next ())
             {
-                
+
                 ret.add (this.getBook (rs,
                                        parent,
                                        loadChildObjects));
-        
+
             }
-    
+
             rs.close ();
 
             return ret;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get books for project: " +
                                         parent,
                                         e);
-            
+
         }
-    
+
     }
 
     @Override
@@ -126,36 +126,36 @@ public class BookDataHandler implements DataHandler<Book, Project>
                                 boolean    loadChildObjects)
                          throws GeneralException
     {
-    
+
         try
         {
-    
-            List params = new ArrayList ();
+
+            List<Object> params = new ArrayList<> ();
             params.add (key);
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + "WHERE dbkey = ?",
                                                             params,
                                                             conn);
-        
+
             if (rs.next ())
             {
-                
+
                 return this.getBook (rs,
                                      proj,
                                      loadChildObjects);
-        
+
             }
-                
+
             return null;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get book for key: " +
                                         key,
                                         e);
-            
+
         }
-    
+
     }
 
     public void updateChapterIndexes (Book       b,
@@ -163,7 +163,7 @@ public class BookDataHandler implements DataHandler<Book, Project>
                                throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (null);
         params.add (null);
         params.add (b.getKey ());
@@ -190,7 +190,7 @@ public class BookDataHandler implements DataHandler<Book, Project>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (b.getKey ());
         params.add (b.getProject ().getKey ());
         params.add (b.getProject ().getBookIndex (b));
@@ -226,7 +226,7 @@ public class BookDataHandler implements DataHandler<Book, Project>
 
         }
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (b.getKey ());
 
         this.objectManager.executeStatement ("DELETE FROM book WHERE dbkey = ?",
@@ -241,7 +241,7 @@ public class BookDataHandler implements DataHandler<Book, Project>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (b.getProject ().getBookIndex (b));
         params.add (b.getKey ());
 

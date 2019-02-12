@@ -387,7 +387,7 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
                     java.util.List<String> prefix = Arrays.asList (editors,login,savepasswordwarningpopup);
 
                     // Show the warning.
-                    UIUtils.createTextInputPopup (Environment.getFocusedViewer (),
+                    UIUtils.createTextInputPopup (null, // TODO Environment.getFocusedViewer (),
                                                    getUIString (prefix,title),
                                                    //"Warning!",
                                                    Constants.WARN_ICON_NAME,

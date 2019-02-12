@@ -54,7 +54,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
 
         final int origSelStart = editor.getSelectionStart ();
 
-        final BlockPainter highlight = new BlockPainter (Environment.getHighlightColor ());
+        final BlockPainter highlight = new BlockPainter (UIUtils.getHighlightColor ());
 
         final Caret origCaret = editor.getCaret ();
 

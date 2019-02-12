@@ -109,7 +109,8 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
     {
 
         // Get the words.
-        File userDict = Environment.getUserDictionaryFile ();
+        // TODO Use the path.
+        File userDict = DictionaryProvider.getUserDictionaryFilePath ().toFile ();
 
         Set<String> words = new TreeSet<> ();
 
@@ -200,8 +201,10 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
         final DictionaryManager _this = this;
 
         this.watcher = new FileWatcher ();
-        this.watcher.addFile (Environment.getUserDictionaryFile ());
+        // TODO Use the Files.watch service instead.
+        this.watcher.addFile (DictionaryProvider.getUserDictionaryFilePath ().toFile ());
 
+        // TODO CHange to use a path and the Files.watchService.
         this.watcher.addFileChangeListener (new FileChangeListener ()
           {
 

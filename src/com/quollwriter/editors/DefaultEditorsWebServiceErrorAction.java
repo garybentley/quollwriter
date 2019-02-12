@@ -29,7 +29,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
 
         EditorsEnvironment.clearUserPassword ();
 
-        AbstractViewer viewer = Environment.getFocusedViewer ();
+        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
         if (viewer == null)
         {
@@ -44,7 +44,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
             public void actionPerformed (ActionEvent ev)
             {
 
-                AbstractViewer viewer = Environment.getFocusedViewer ();
+                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                 EditorsUIUtils.showLoginError (getUIString (editors,login,errors,maxloginattempts));
                 //"You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.");
@@ -60,7 +60,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
                                                ActionListener          onCancel)
     {
 
-        AbstractViewer viewer = Environment.getFocusedViewer ();
+        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
         if (viewer == null)
         {

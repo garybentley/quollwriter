@@ -85,15 +85,21 @@
 
   <target name="runfx" depends="init, createJar, createPromptsJar, createDataJar, createImagesJar">
     <java classname="com.quollwriter.Startup_fx"
-          maxmemory="512m"
+          maxmemory="1012m"
           fork="yes">
         <arg value="_debugMode" />
         <jvmarg value="-Xdebug" />
         <jvmarg value="-Xnoagent" />
+        <jvmarg value="-Dprism.order=sw" />
         <!--
         Uncomment if you want to access the jvm via jdb -attach jdbconn
         -->
+        <!--
         <jvmarg value="-Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jdbconn" />
+    -->
+        <jvmarg line="--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach" />
+        <jvmarg line="--module-path E:/reference/java/javafx/javafx-sdk-11.0.2/lib" />
+        <jvmarg line="--add-opens java.base/java.instrument=ALL-UNNAMED" />
         <!--
         <arg value="-Dlog4j.configuration=log4j.xml" />
         -->
@@ -382,10 +388,23 @@
     <javac srcdir="${srcDir}"
            destdir="${buildDir}"
            debug="on"
-           deprecation="on"
-    	   target="1.8"
+           deprecation="off"
            nowarn="off"
-           excludes="**/svn/**,**/ui/fx/**,**/*_fx*">
+           excludes="**/svn/**">
+      <compilerarg line="-Xmaxerrs 1000" />
+      <compilerarg line="--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web" />
+      <compilerarg line="--module-path E:/reference/java/javafx/javafx-sdk-11.0.2/lib" />
+      <!--
+      <compilerarg line="-Xmaxwarns 10000" />
+  -->
+<!--
+      <compilerarg line="-Xlint:unchecked" />
+-->
+      <modulepath>
+          <dirset dir="E:/reference/java/javafx/javafx-sdk-11.0.2/lib">
+            <include name="*.jar" />
+          </dirset>
+      </modulepath>
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
@@ -576,6 +595,45 @@
       </manifest>
     </jar>
 
+  </target>
+
+  <target name="runtestfx" depends="init">
+      <javac srcdir="javafx-tests"
+             destdir="javafx-tests"
+             debug="on"
+             deprecation="off"
+             nowarn="off"
+             includes="*.java"
+             excludes="**/svn/**">
+        <compilerarg line="-Xmaxerrs 1000" />
+        <compilerarg line="--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web" />
+        <compilerarg line="--module-path E:/reference/java/javafx/javafx-sdk-11.0.2/lib" />
+        <!--
+        <compilerarg line="-Xmaxwarns 10000" />
+    -->
+  <!--
+        <compilerarg line="-Xlint:unchecked" />
+  -->
+      </javac>
+
+    <java classname="JavaFXTest"
+          maxmemory="1012m"
+          fork="yes">
+        <arg value="_debugMode" />
+        <jvmarg value="-Xdebug" />
+        <jvmarg value="-Xnoagent" />
+        <!--
+        Uncomment if you want to access the jvm via jdb -attach jdbconn
+        -->
+        <jvmarg value="-Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jdbconn" />
+        <jvmarg line="--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web" />
+        <jvmarg line="--module-path E:/reference/java/javafx/javafx-sdk-11.0.2/lib" />
+        <!--
+        <arg value="-Dlog4j.configuration=log4j.xml" />
+        -->
+        <classpath path="./javafx-tests" />
+
+    </java>
   </target>
 
 </project>

@@ -120,7 +120,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     public List<Issue> getIssues (Sentence sentence)
     {
 
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         float wordC = (float) sentence.getWordCount ();
 
@@ -175,13 +175,13 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     public Set<FormItem> getFormItems ()
     {
 
-        List<String> pref = new ArrayList ();
+        List<String> pref = new ArrayList<> ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);
         pref.add (LanguageStrings.sentencecomplexity);
         pref.add (LanguageStrings.labels);
-    
+
         Set<FormItem> items = new LinkedHashSet ();
 
         this.ratioF = new JSpinner (new SpinnerNumberModel (this.ratio,

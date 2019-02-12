@@ -60,7 +60,7 @@ public class Warmup extends NamedObject
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        return new HashSet (this.getNotes ());
+        return new HashSet<> (this.getNotes ());
 
     }
 
@@ -81,7 +81,7 @@ public class Warmup extends NamedObject
     {
 
         this.chapter = c;
-        
+
         this.setParent (c);
 
     }

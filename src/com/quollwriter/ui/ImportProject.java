@@ -1015,12 +1015,12 @@ public class ImportProject extends Wizard implements ImportCallback
                                                     boolean                v)
                     {
 
-                        Enumeration<DefaultMutableTreeNode> en = n.children ();
+                        Enumeration<TreeNode> en = n.children ();
 
                         while (en.hasMoreElements ())
                         {
 
-                            DefaultMutableTreeNode c = en.nextElement ();
+                            DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                             Object uo = c.getUserObject ();
 

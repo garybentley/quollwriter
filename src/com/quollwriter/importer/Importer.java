@@ -60,9 +60,9 @@ public class Importer
             try
             {
 
-                DocumentImporter di = (DocumentImporter) c.newInstance ();
+                DocumentImporter di = (DocumentImporter) c.getDeclaredConstructor ().newInstance ();
 
-                di.convert (Environment.getResourceStream (Importer.initDocs.get (t)),
+                di.convert (Utils.getResourceStream (Importer.initDocs.get (t)),
                             t);
 
             } catch (Exception e)
@@ -120,7 +120,7 @@ public class Importer
         try
         {
 
-            final DocumentImporter di = (DocumentImporter) c.newInstance ();
+            final DocumentImporter di = (DocumentImporter) c.getDeclaredConstructor ().newInstance ();
 
             Thread t = new Thread (new Runner ()
                 {

@@ -410,7 +410,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                                      0,
                                                      1,
                                                      0,
-                                                     Environment.getBorderColor ()));
+                                                     UIUtils.getBorderColor ()));
 
         }
 
@@ -1863,7 +1863,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         if (bg == null)
         {
 
-            bg = "bg:" + Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME);
+            bg = "bg:" + UserProperties.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME);
 
         }
 
@@ -1878,7 +1878,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                                   bg,
                                   e);
 
-            this.setBoardBackground ("bg:" + Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME));
+            this.setBoardBackground ("bg:" + UserProperties.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME));
 
         }
 

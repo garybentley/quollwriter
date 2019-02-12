@@ -76,7 +76,7 @@ public class MessageFactory
         try
         {
 
-            mess = (EditorMessage) cl.newInstance ();
+            mess = (EditorMessage) cl.getDeclaredConstructor ().newInstance ();
 
         } catch (Exception e) {
 

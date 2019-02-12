@@ -54,12 +54,12 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
                                                 boolean                v)
                 {
 
-                    Enumeration<DefaultMutableTreeNode> en = n.children ();
+                    Enumeration<TreeNode> en = n.children ();
 
                     while (en.hasMoreElements ())
                     {
 
-                        DefaultMutableTreeNode c = en.nextElement ();
+                        DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
 
                         Object uo = c.getUserObject ();
 
@@ -191,27 +191,27 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
 
         for (UserConfigurableObjectType t : assetTypes)
         {
-            
+
             Set<Asset> as = p.getAssets (t);
-        
+
             if (excludeTypes.contains (t.getObjectTypeId ()))
             {
-                
+
                 continue;
-                
+
             }
-        
+
             if (as == null)
             {
-                
+
                 continue;
-                
+
             }
-        
+
             this.addAssetsToTree (root,
                                   t,
                                   as);
-            
+
         }
         /*
         if (!excludeTypes.contains (QCharacter.OBJECT_TYPE))
@@ -270,7 +270,7 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
             root.add (tn);
 
             java.util.List<Asset> lassets = new ArrayList (assets);
-            
+
             Collections.sort (lassets,
                               NamedObjectSorter.getInstance ());
 

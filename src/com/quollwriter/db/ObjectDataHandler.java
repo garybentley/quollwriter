@@ -36,11 +36,11 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
 
             QObject l = new QObject ();
             l.setKey (key);
-                        
+
             // Load the object fields.
             this.objectManager.setUserConfigurableObjectFields (l,
-                                                                rs.getStatement ().getConnection ());            
-                        
+                                                                rs.getStatement ().getConnection ());
+
             l.setName (rs.getString (ind++));
             l.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
@@ -49,37 +49,37 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
-            
+
             if (l.getLegacyField (QObject.TYPE_LEGACY_FIELD_ID) == null)
             {
-            
+
                 l.setType (rs.getString (ind++));
-                
+
             } else {
-                
+
                 ind++;
-                
+
             }
-            
+
             l.setId (rs.getString (ind++));
-            l.setVersion (rs.getString (ind++));            
-                                    
+            l.setVersion (rs.getString (ind++));
+
             // Get all the notes.
             if (loadChildObjects)
             {
-                
+
                 this.objectManager.loadNotes (l,
                                               rs.getStatement ().getConnection ());
-                 
+
             }
 
             if (proj != null)
             {
-                
+
                 proj.addAsset (l);
-                
+
             }
-            
+
             return l;
 
         } catch (Exception e)
@@ -99,16 +99,13 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
                               throws GeneralException
     {
 
-        List<QObject> ret = new ArrayList ();
+        List<QObject> ret = new ArrayList<> ();
 
         try
         {
 
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (parent.getKey ()),
                                                             conn);
 
             while (rs.next ())
@@ -155,12 +152,8 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
         try
         {
 
-            List params = new ArrayList ();
-            params.add (key);
-            //params.add (proj.getKey ());
-
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?", // AND projectdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
 
             if (rs.next ())
@@ -200,29 +193,23 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (o.getKey ());
-        params.add (o.getType ());
-        params.add (o.getProject ().getKey ());
-
         this.objectManager.executeStatement ("INSERT INTO qobject (dbkey, type, projectdbkey) VALUES (?, ?, ?)",
-                                             params,
+                                             Arrays.asList (o.getKey (),
+                                                            o.getType (),
+                                                            o.getProject ().getKey ()),
                                              conn);
 
     }
 
     @Override
     public void deleteObject (QObject    o,
-                              boolean    deleteChildObjects,                              
+                              boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (o.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM qobject WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (o.getKey ()),
                                              conn);
 
     }
@@ -233,11 +220,9 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (o.getType ());
-        params.add (o.getKey ());
         this.objectManager.executeStatement ("UPDATE qobject SET type = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (o.getType (),
+                                                            o.getKey ()),
                                              conn);
 
     }

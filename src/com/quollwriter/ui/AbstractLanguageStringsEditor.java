@@ -1373,7 +1373,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         this.splitPane.setBorder (null);
 
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
-        div.setBorder (new MatteBorder (0, 0, 0, 1, Environment.getBorderColor ()));
+        div.setBorder (new MatteBorder (0, 0, 0, 1, UIUtils.getBorderColor ()));
         this.splitPane.setOpaque (false);
         this.splitPane.setBackground (UIUtils.getComponentColor ());
 

@@ -38,6 +38,8 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.text.*;
 import com.quollwriter.text.rules.*;
+import com.quollwriter.ui.fx.ProjectEvent;
+import com.quollwriter.ui.fx.ProjectEventListener;
 
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.components.ScrollableBox;
@@ -230,8 +232,8 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                  }
 
                                                                  Environment.fireUserProjectEvent (conf,
-                                                                                                   ProjectEvent.PROBLEM_FINDER,
-                                                                                                   ProjectEvent.REMOVE_RULE,
+                                                                                                   ProjectEvent.Type.problemfinder,
+                                                                                                   ProjectEvent.Action.removerule,
                                                                                                    _this.rule);
 
                                                             }
@@ -294,18 +296,18 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
      public void eventOccurred (ProjectEvent ev)
      {
 
-          if (!ev.getType ().equals (ProjectEvent.PROBLEM_FINDER))
+          if (!ev.getType ().equals (ProjectEvent.Type.problemfinder))
           {
 
                return;
 
           }
 
-          if ((!ev.getAction ().equals (ProjectEvent.NEW_RULE))
+          if ((!ev.getAction ().equals (ProjectEvent.Action.newrule))
               &&
-              (!ev.getAction ().equals (ProjectEvent.EDIT_RULE))
+              (!ev.getAction ().equals (ProjectEvent.Action.editrule))
               &&
-              (!ev.getAction ().equals (ProjectEvent.REMOVE_RULE))
+              (!ev.getAction ().equals (ProjectEvent.Action.removerule))
              )
           {
 
@@ -354,7 +356,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                              0,
                                                                              1,
                                                                              0,
-                                                                             Environment.getBorderColor ()),
+                                                                             UIUtils.getBorderColor ()),
                                                             new EmptyBorder (3,
                                                                              3,
                                                                              3,
@@ -548,7 +550,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                              0,
                                                                              1,
                                                                              0,
-                                                                             Environment.getBorderColor ()),
+                                                                             UIUtils.getBorderColor ()),
                                                             new EmptyBorder (3,
                                                                              3,
                                                                              3,
@@ -1120,8 +1122,8 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                       add);
 
                  Environment.fireUserProjectEvent (_this,
-                                                   ProjectEvent.PROBLEM_FINDER,
-                                                   (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
+                                                   ProjectEvent.Type.problemfinder,
+                                                   (add ? ProjectEvent.Action.newrule : ProjectEvent.Action.editrule),
                                                    r);
 
             }

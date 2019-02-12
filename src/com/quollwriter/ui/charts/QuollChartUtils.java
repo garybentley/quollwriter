@@ -179,8 +179,8 @@ public class QuollChartUtils
         Font f = QuollChartUtils.getLabelFont ();
 
         plot.setBackgroundPaint (UIUtils.getComponentColor ());
-        plot.setDomainGridlinePaint (Environment.getBorderColor ());
-        plot.setRangeGridlinePaint (Environment.getBorderColor ());
+        plot.setDomainGridlinePaint (UIUtils.getBorderColor ());
+        plot.setRangeGridlinePaint (UIUtils.getBorderColor ());
         plot.setAxisOffset (new RectangleInsets (5D,
                                                  5D,
                                                  5D,
@@ -294,8 +294,8 @@ public class QuollChartUtils
         Font f = QuollChartUtils.getLabelFont ();
 
         plot.setBackgroundPaint (UIUtils.getComponentColor ());
-        plot.setDomainGridlinePaint (Environment.getBorderColor ());
-        plot.setRangeGridlinePaint (Environment.getBorderColor ());
+        plot.setDomainGridlinePaint (UIUtils.getBorderColor ());
+        plot.setRangeGridlinePaint (UIUtils.getBorderColor ());
         plot.setAxisOffset (new RectangleInsets (5D,
                                                  5D,
                                                  5D,
@@ -344,8 +344,8 @@ public class QuollChartUtils
         // get a reference to the plot for further customisation...
         final CategoryPlot plot = chart.getCategoryPlot();
         plot.setBackgroundPaint (UIUtils.getComponentColor ());
-        plot.setDomainGridlinePaint (Environment.getBorderColor ());
-        plot.setRangeGridlinePaint (Environment.getBorderColor ());
+        plot.setDomainGridlinePaint (UIUtils.getBorderColor ());
+        plot.setRangeGridlinePaint (UIUtils.getBorderColor ());
         /*
         plot.setAxisOffset (new RectangleInsets (5D,
                                                  5D,
@@ -409,8 +409,8 @@ public class QuollChartUtils
 
         XYPlot xyplot = (XYPlot) chart.getPlot ();
         xyplot.setBackgroundPaint (UIUtils.getComponentColor ());
-        xyplot.setDomainGridlinePaint (Environment.getBorderColor ());
-        xyplot.setRangeGridlinePaint (Environment.getBorderColor ());
+        xyplot.setDomainGridlinePaint (UIUtils.getBorderColor ());
+        xyplot.setRangeGridlinePaint (UIUtils.getBorderColor ());
         /*
         xyplot.setAxisOffset (new RectangleInsets (5D,
                                                    5D,

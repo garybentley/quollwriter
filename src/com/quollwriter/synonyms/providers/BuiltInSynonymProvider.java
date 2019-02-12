@@ -1,6 +1,7 @@
 package com.quollwriter.synonyms.providers;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.net.*;
 
@@ -9,7 +10,7 @@ import java.util.*;
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.uistrings.*;
 import com.quollwriter.synonyms.*;
 
 public class BuiltInSynonymProvider implements SynonymProvider
@@ -19,10 +20,10 @@ public class BuiltInSynonymProvider implements SynonymProvider
 
     public static final String THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME = "thesaurusIndexFileName";
 
-    private List<SynonymIndex>  synInd = new ArrayList<SynonymIndex> ();
+    private List<SynonymIndex>  synInd = new ArrayList<> ();
     private RandomAccessFile    thesaurusFile = null;
     private File                tFile = null;
-    private Map<String, String> synCache = new HashMap ();
+    private Map<String, String> synCache = new HashMap<> ();
     private boolean             useCache = false;
 
     public BuiltInSynonymProvider()
@@ -30,69 +31,78 @@ public class BuiltInSynonymProvider implements SynonymProvider
 
     }
 
+    private Path getThesaurusDirPath (String lang)
+    {
+
+        return Environment.getUserPath (Constants.THESAURUS_DIR).resolve (lang);
+
+    }
+
     private File getIndexFile (String lang)
     {
-        
-        String thesaurusDir = Environment.getUserQuollWriterDir ().getPath () + "/thesaurus/" + lang;
 
-        return new File (thesaurusDir + "/index.txt");
-        
+        return this.getThesaurusDirPath (lang).resolve ("index.txt").toFile ();
+
+        // TODO Check return new File (thesaurusDir + "/index.txt");
+
     }
-    
+
     private File getWordsFile (String lang)
     {
-        
-        String thesaurusDir = Environment.getUserQuollWriterDir ().getPath () + "/thesaurus/" + lang;
-            
-        return new File (thesaurusDir + "/words.txt");
-        
+
+        return this.getThesaurusDirPath (lang).resolve ("words.txt").toFile ();
+
+        // REMOVE String thesaurusDir = Environment.getUserQuollWriterDir ().getPath () + "/thesaurus/" + lang;
+
+        // REMOVE return new File (thesaurusDir + "/words.txt");
+
     }
-    
+
     public boolean isLanguageSupported (String lang)
     {
-        
+
         if (this.hasThesaurusJarResourceFile ())
         {
-            
+
             return true;
-            
+
         }
-            
+
         // Look in the thesaurus directory.
-        if (Environment.isEnglish (lang))
+        if (UILanguageStrings.isEnglish (lang))
         {
-            
+
             lang = Constants.ENGLISH;
             //"English";
-            
+
         }
-        
+
         File wordsFile = this.getWordsFile (lang);
-                
+
         if (!wordsFile.exists ())
         {
-            
+
             return false;
-                
+
         }
-            
+
         File indexFile = this.getIndexFile (lang);
-        
+
         if (!indexFile.exists ())
         {
-            
+
             return false;
-        
+
         }
-        
+
         return true;
-        
+
     }
-    
+
     private boolean hasThesaurusJarResourceFile ()
     {
-        
-        String thesaurusIndexFileName = Environment.getProperty (BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME);
+
+        String thesaurusIndexFileName = UserProperties.get (BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME);
 
         if (thesaurusIndexFileName == null)
         {
@@ -104,127 +114,128 @@ public class BuiltInSynonymProvider implements SynonymProvider
         String thesaurusIndexFileResourceName = Constants.DICTIONARIES_DIR + thesaurusIndexFileName;
 
         // Read the index file.
-        return Environment.getResourceStream (thesaurusIndexFileResourceName) != null;        
-        
+        return Utils.getResourceStream (thesaurusIndexFileResourceName) != null;
+
     }
 
-    
+
     public void init (String language)
                       throws GeneralException
     {
-        
+
         BufferedReader indexReader = null;
         File wordsFile = null;
-        
+
         // Check for legacy, pre v2.2 or if the user still has the dictionaries jar.
         if (this.hasThesaurusJarResourceFile ())
         {
-        
-            String thesaurusFileName = Environment.getProperty (BuiltInSynonymProvider.THESAURUS_FILE_NAME_PROPERTY_NAME);
-    
+
+            String thesaurusFileName = UserProperties.get (BuiltInSynonymProvider.THESAURUS_FILE_NAME_PROPERTY_NAME);
+
             if (thesaurusFileName == null)
             {
-    
+
                 throw new GeneralException ("No: " +
                                             BuiltInSynonymProvider.THESAURUS_FILE_NAME_PROPERTY_NAME +
                                             " property found.");
-    
+
             }
-    
-            String thesaurusIndexFileName = Environment.getProperty (BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME);
-    
+
+            String thesaurusIndexFileName = UserProperties.get (BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME);
+
             if (thesaurusIndexFileName == null)
             {
-    
+
                 throw new GeneralException ("No: " +
                                             BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME +
                                             " property found.");
-    
+
             }
-    
+
             String thesaurusFileResourceName = Constants.DICTIONARIES_DIR + thesaurusFileName;
-    
-            File thesaurusFile = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + thesaurusFileName);
-    
+
+            // TODO Improve...
+            File thesaurusFile = Environment.getUserPath (Constants.DICTIONARIES_DIR).resolve (thesaurusFileName).toFile ();
+
             if (!thesaurusFile.exists ())
             {
-    
+
                 // Extract the thesaurus file to the Quoll Writer directory.
-                Environment.extractResourceToFile (thesaurusFileResourceName,
-                                                   thesaurusFile);
-    
+                Utils.extractResourceToFile (thesaurusFileResourceName,
+                                             thesaurusFile);
+
             }
-    
+
             this.tFile = thesaurusFile;
-    
+
             String thesaurusIndexFileResourceName = Constants.DICTIONARIES_DIR + thesaurusIndexFileName;
-    
+
             // Read the index file.
-            indexReader = new BufferedReader (new InputStreamReader (Environment.getResourceStream (thesaurusIndexFileResourceName)));
+            indexReader = new BufferedReader (new InputStreamReader (Utils.getResourceStream (thesaurusIndexFileResourceName)));
 
         } else {
-            
+
             String lang = language;
-            
+
             // Look in the thesaurus directory.
-            if (Environment.isEnglish (language))
+            if (UILanguageStrings.isEnglish (language))
             {
-                
+
                 lang = Constants.ENGLISH;
                 //"English";
-                
+
             }
-                        
+
             File thesaurusFile = this.getWordsFile (lang);
-                
+
             if (!thesaurusFile.exists ())
             {
-                
+
                 throw new GeneralException ("Unable to find thesaurus words file for language: " +
                                             lang +
                                             " at: " +
                                             thesaurusFile);
-                
+
             }
-            
+
             this.tFile = thesaurusFile;
-            
+
             File indexFile = this.getIndexFile (lang);
-            
+
             if (!indexFile.exists ())
             {
-                
+
                 throw new GeneralException ("Unable to find thesaurus index file for language: " +
                                             lang +
                                             " at: " +
                                             indexFile);
-                
+
             }
-            
+
             try
             {
-            
+
                 indexReader = new BufferedReader (new FileReader (indexFile));
-                
+
             } catch (Exception e) {
-                
+
                 throw new GeneralException ("Unable to read thesaurus index file for language: " +
                                             lang +
                                             " at: " +
                                             indexFile);
-                
+
             }
-            
+
         }
-        
+
         if (indexReader == null)
         {
-            
+
             throw new GeneralException ("Unable to find thesaurus index file for language: " +
                                         language);
-            
+
         }
-        
+
         String l = null;
 
         try

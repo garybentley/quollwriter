@@ -49,11 +49,11 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
 
             if (p != null)
             {
-                
+
                 p.addIdeaType (it);
-                
+
             }
-            
+
             Connection conn = rs.getStatement ().getConnection ();
 
             this.objectManager.getObjects (Idea.class,
@@ -80,7 +80,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
                                throws GeneralException
     {
 
-        List<IdeaType> ret = new ArrayList ();
+        List<IdeaType> ret = new ArrayList<> ();
 
         try
         {
@@ -132,7 +132,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (key);
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
@@ -175,7 +175,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (it.getKey ());
         params.add (it.getSortBy ());
         params.add (it.getIconType ());
@@ -188,7 +188,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
 
     @Override
     public void deleteObject (IdeaType   it,
-                              boolean    deleteChildObjects,                              
+                              boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
@@ -205,7 +205,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
 
         }
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (it.getKey ());
 
         this.objectManager.executeStatement ("DELETE FROM ideatype WHERE dbkey = ?",
@@ -220,7 +220,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (it.getSortBy ());
         params.add (it.getIconType ());
         params.add (it.getKey ());

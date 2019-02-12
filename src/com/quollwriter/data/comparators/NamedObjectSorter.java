@@ -11,52 +11,52 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
 
     private static NamedObjectSorter sorter = null;
 
-    private Map<String, Integer> objectTypeOrder = new HashMap ();
+    private Map<String, Integer> objectTypeOrder = new HashMap<> ();
 
     private ChapterItemSorter chapterItemComp = new ChapterItemSorter ();
-        
+
     public static NamedObjectSorter getInstance ()
     {
-                
+
         if (NamedObjectSorter.sorter == null)
         {
-        
+
             Object o = new Object ();
-            
+
             synchronized (o)
             {
-                
+
                 NamedObjectSorter.sorter = new NamedObjectSorter ();
-                
-                Environment.addUserProjectEventListener (NamedObjectSorter.sorter);
-                
+
+                // TODO Environment.addUserProjectEventListener (NamedObjectSorter.sorter);
+
             }
-            
+
         }
-        
+
         return NamedObjectSorter.sorter;
-        
+
     }
-    
+
     protected NamedObjectSorter()
     {
 
         this.initOrder ();
-            
+
     }
-    
+
     private void initOrder ()
     {
-                 
+
         // We lock here on the object we will change, we don't want to be in a situation where
         // the ordering is being used and then it changes underneath whoever is using it.
         synchronized (this.objectTypeOrder)
         {
-        
-            Map<String, Integer> m = new HashMap ();
-    
+
+            Map<String, Integer> m = new HashMap<> ();
+
             int ind = 1;
-    
+
             m.put (Scene.OBJECT_TYPE,
                    ind++);
             m.put (OutlineItem.OBJECT_TYPE,
@@ -65,17 +65,17 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
                    ind++);
             m.put (Note.OBJECT_TYPE,
                    ind++);
-            
+
             Set<UserConfigurableObjectType> assetObjTypes = Environment.getAssetUserConfigurableObjectTypes (true);
-    
+
             for (UserConfigurableObjectType type : assetObjTypes)
             {
-                    
+
                 m.put (type.getObjectTypeId (),
                        ind++);
-    
+
             }
-            
+
             m.put (IdeaType.OBJECT_TYPE,
                    ind++);
             m.put (Idea.OBJECT_TYPE,
@@ -84,13 +84,13 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
                    ind++);
             m.put (Project.OBJECT_TYPE,
                    ind++);
-            
+
             this.objectTypeOrder = m;
 
-        } 
-        
+        }
+
     }
-    
+
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
@@ -99,11 +99,11 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
         {
 
             this.initOrder ();
-        
+
         }
-        
+
     }
-    
+
     @Override
     public int compare (NamedObject o1,
                         NamedObject o2)
@@ -114,9 +114,9 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
             (o2 == null)
            )
         {
-            
+
             return 0;
-            
+
         }
 
         if ((o1 == null)
@@ -124,9 +124,9 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
             (o2 != null)
            )
         {
-            
+
             return 1;
-            
+
         }
 
         if ((o1 != null)
@@ -134,9 +134,9 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
             (o2 == null)
            )
         {
-            
+
             return -1;
-            
+
         }
 
         if (!o1.getObjectType ().equals (o2.getObjectType ()))
@@ -178,16 +178,16 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
 
         if (o1.getName () == null)
         {
-            
+
             return 1;
-            
+
         }
-        
+
         if (o2.getName () == null)
         {
-            
+
             return -1;
-            
+
         }
 
         return o1.getName ().toLowerCase ().compareTo (o2.getName ().toLowerCase ());

@@ -180,7 +180,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                            0,
                                                            1,
                                                            0,
-                                                           Environment.getBorderColor ()),
+                                                           UIUtils.getBorderColor ()),
                                           new EmptyBorder (0,
                                                            5,
                                                            0,
@@ -290,7 +290,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.updateForDebugMode ();
 
-        Environment.registerViewer (this);
+        // TODO Environment.registerViewer (this);
 
     }
 
@@ -314,7 +314,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.setVisible (true);
 
-        Environment.doNewsAndVersionCheck (this);
+        // TODO Environment.doNewsAndVersionCheck (this);
 
         this.handleWhatsNew ();
 
@@ -2001,7 +2001,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             String year = sdf.format (d);
 
-            pbuilder.addLabel (String.format (Environment.getProperty (Constants.COPYRIGHT_PROPERTY_NAME),
+            pbuilder.addLabel (String.format (UserProperties.get (Constants.COPYRIGHT_PROPERTY_NAME),
                                               year),
                                cc.xy (4,
                                       y));
@@ -2026,7 +2026,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                cc.xy (2,
                                       y));
 
-            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.SOURCE_CODE_WEBSITE_PROPERTY_NAME),
+            pbuilder.add (UIUtils.createWebsiteLabel (UserProperties.get (Constants.SOURCE_CODE_WEBSITE_PROPERTY_NAME),
                                                       //"https://github.com/garybentley/quollwriter",
                                                       null,
                                                       false),
@@ -2035,7 +2035,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             y += 2;
 
-            String relNotesUrl = Environment.getProperty (Constants.QUOLL_WRITER_RELEASE_NOTES_URL_PROPERTY_NAME);
+            String relNotesUrl = UserProperties.get (Constants.QUOLL_WRITER_RELEASE_NOTES_URL_PROPERTY_NAME);
 
             relNotesUrl = StringUtils.replaceString (relNotesUrl,
                                                      "[[VERSION]]",
@@ -2051,7 +2051,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             y += 2;
 
-            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.PATREON_WEBSITE_PROPERTY_NAME),
+            pbuilder.add (UIUtils.createWebsiteLabel (UserProperties.get (Constants.PATREON_WEBSITE_PROPERTY_NAME),
                                                       //"https://www.patreon.com/quollwriter?ty=h",
                                                       "Patreon",
                                                       false),
@@ -2060,7 +2060,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             y += 2;
 
-            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.GOFUNDME_WEBSITE_PROPERTY_NAME),
+            pbuilder.add (UIUtils.createWebsiteLabel (UserProperties.get (Constants.GOFUNDME_WEBSITE_PROPERTY_NAME),
                                                       //"https://www.gofundme.com/quollwriter",
                                                       getUIString (prefix,makeadonation),
                                                       //"Make a donation",
@@ -2070,7 +2070,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             y += 2;
 
-            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.QUOLL_WRITER_ACKNOWLEDGMENTS_URL_PROPERTY_NAME),
+            pbuilder.add (UIUtils.createWebsiteLabel (UserProperties.get (Constants.QUOLL_WRITER_ACKNOWLEDGMENTS_URL_PROPERTY_NAME),
                                                       getUIString (prefix,acknowledgments),
                                                       //"Acknowledgments",
                                                       false),
@@ -2572,10 +2572,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.dispose ();
 
         this.generalTimer.shutdown ();
-
+/*
+TODO
         Environment.unregisterViewer (this,
                                       afterClose);
-
+*/
         return true;
 
     }
@@ -2709,7 +2710,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             if (b.getComponentCount () > 0)
             {
 
-                arBox.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
+                arBox.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
                                                      arBox.getBorder ()));
 
             }

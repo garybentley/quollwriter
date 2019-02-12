@@ -31,7 +31,6 @@ import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.userobjects.*;
-import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 
@@ -245,7 +244,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             // Set cover image
             //book.getMetadata().setCoverImage(new Resource(Simple1.class.getResourceAsStream("/book1/test_cover.png"), "cover.png"));
 
-            String css = Environment.getResourceFileAsString ("/data/export/epub/css-template.xml");
+            String css = Utils.getResourceFileAsString ("/data/export/epub/css-template.xml");
 
             css = StringUtils.replaceString (css,
                                              "[[FONT_NAME]]",
@@ -278,7 +277,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             Book b = p.getBook (0);
 
-            String cTemp = Environment.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
+            String cTemp = Utils.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
 
             List<Chapter> chapters = b.getChapters ();
 
@@ -321,7 +320,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             }
 
-            String appendixTemp = Environment.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
+            // TODO Make a constant/property...
+            String appendixTemp = Utils.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
 
             Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
 

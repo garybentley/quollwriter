@@ -1,6 +1,7 @@
 package com.quollwriter.data;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
 
@@ -16,9 +17,9 @@ import org.jdom.*;
 public class Prompts
 {
 
-    private static Map          excludes = new HashMap ();
-    private static List<String> promptIds = new ArrayList ();
-    private static int          pos = 0;
+    private static Map<String, String> excludes = new HashMap<> ();
+    private static List<String>        promptIds = new ArrayList<> ();
+    private static int                 pos = 0;
 
     public class XMLConstants
     {
@@ -27,12 +28,41 @@ public class Prompts
 
     }
 
+    private static Path getExcludesFilePath ()
+    {
+
+        return Environment.getUserPath (Constants.PROMPTS_EXCLUDE_FILE);
+
+    }
+
+    private static Path getUserPromptsDirPath ()
+    {
+
+        return Environment.getUserPath (Constants.USER_PROMPTS_DIR);
+
+    }
+
+    private static Path getUserPromptFilePath (Prompt p)
+    {
+
+        return Prompts.getUserPromptFilePath (p.getId ());
+
+    }
+
+    private static Path getUserPromptFilePath (String id)
+    {
+
+        return Prompts.getUserPromptsDirPath ().resolve (id + ".txt");
+
+    }
+
     public static void init ()
                       throws Exception
     {
 
         // Get the exclude list.
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.PROMPTS_EXCLUDE_FILE);
+        // TODO Change to use paths.
+        File f = Prompts.getExcludesFilePath ().toFile ();
 
         if (f.exists ())
         {
@@ -64,7 +94,7 @@ public class Prompts
         }
 
         // Get the default prompts file.
-        BufferedReader b = new BufferedReader (new InputStreamReader (Environment.getResourceStream (Constants.DEFAULT_PROMPT_IDS_FILE)));
+        BufferedReader b = new BufferedReader (new InputStreamReader (Utils.getResourceStream (Constants.DEFAULT_PROMPT_IDS_FILE)));
 
         try
         {
@@ -95,13 +125,16 @@ public class Prompts
         }
 
         // Load the user prompts.
-        f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_PROMPTS_DIR);
+        Path p = Prompts.getUserPromptsDirPath ();
 
-        if ((f.exists ()) &&
-            (f.isDirectory ()))
+        if ((Files.exists (p))
+            &&
+            (Files.isDirectory (p))
+           )
         {
 
-            File[] files = f.listFiles ();
+            // TODO Use a walk/stream.
+            File[] files = p.toFile ().listFiles ();
 
             if (files != null)
             {
@@ -159,22 +192,15 @@ public class Prompts
         if (Prompt.isUserPrompt (id))
         {
 
-            File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_PROMPTS_DIR + id + ".txt");
+            Path f = Prompts.getUserPromptFilePath (id);
 
-            if (f == null)
-            {
-
-                return null;
-
-            }
-
-            root = JDOMUtils.getFileAsElement (f,
+            root = JDOMUtils.getFileAsElement (f.toFile (),
                                                ".gz");
 
         } else
         {
 
-            String xml = Environment.getResourceFileAsString (Constants.PROMPTS_DIR + id + ".txt");
+            String xml = Utils.getResourceFileAsString (Constants.PROMPTS_DIR + id + ".txt");
 
             if (xml == null)
             {
@@ -204,11 +230,11 @@ public class Prompts
         Prompt p = new Prompt (text);
 
         // Get the prompts file.
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_PROMPTS_DIR + p.getId () + ".txt");
+        Path f = Prompts.getUserPromptFilePath (p);
 
-        f.getParentFile ().mkdirs ();
+        Files.createDirectories (f.getParent ());
 
-        if (f.exists ())
+        if (Files.exists (f))
         {
 
             throw new GeneralException ("A user prompt with id: " +
@@ -219,7 +245,7 @@ public class Prompts
         }
 
         JDOMUtils.writeElementToFile (p.getAsElement (),
-                                      f,
+                                      f.toFile (),
                                       true);
 
         return p;
@@ -306,7 +332,8 @@ public class Prompts
         Prompts.promptIds.remove (Prompts.getCurrentId ());
 
         // Write out the exclude list.
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.PROMPTS_EXCLUDE_FILE);
+        // TODO Change to use a path.
+        File f = Prompts.getExcludesFilePath ().toFile ();
 
         try
         {
@@ -341,12 +368,12 @@ public class Prompts
     public static List<PromptWebsite> getPromptWebsites ()
     {
 
-        List<PromptWebsite> ws = new ArrayList ();
+        List<PromptWebsite> ws = new ArrayList<> ();
 
         try
         {
 
-            String xml = Environment.getResourceFileAsString (Constants.PROMPT_WEBSITES_FILE);
+            String xml = Utils.getResourceFileAsString (Constants.PROMPT_WEBSITES_FILE);
 
             Element root = JDOMUtils.getStringAsElement (xml);
 

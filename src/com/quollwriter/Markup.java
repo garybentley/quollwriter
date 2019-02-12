@@ -1,4 +1,4 @@
-package com.quollwriter.ui.components;
+package com.quollwriter;
 
 import java.util.*;
 
@@ -103,7 +103,7 @@ public class Markup
                                                false,
                                                false,
                                                false);
-                                               
+
             } else
             {
 
@@ -185,26 +185,26 @@ public class Markup
 
         public void shiftBy (int i)
         {
-            
+
             this.start += i;
             this.end += i;
-            
+
             if (this.start < 0)
             {
-                
+
                 this.start = 0;
-                
+
             }
-            
+
             if (this.end < 0)
             {
-                
+
                 this.end = 0;
-                
+
             }
-            
+
         }
-        
+
         public String toString ()
         {
 
@@ -237,21 +237,21 @@ public class Markup
 
         if (fromMarkup == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         for (MarkupItem mi : fromMarkup.getItems (from,
                                                   to))
         {
-            
+
             this.items.add (this.createItem (mi));
-            
+
         }
-        
+
     }
-        
+
     public Markup(String m)
     {
 
@@ -263,7 +263,7 @@ public class Markup
         }
 
         int lastInd = 0;
-        
+
         StringTokenizer tt = new StringTokenizer (m,
                                                   ",");
 
@@ -278,7 +278,7 @@ public class Markup
 
                 MarkupItem it = new MarkupItem (nt.nextToken (),
                                                 nt.nextToken ());
-            
+
                 if (it.start > lastInd)
                 {
                     /*
@@ -288,13 +288,13 @@ public class Markup
                                                      false,
                                                      false,
                                                      false);
-                    
+
                     this.items.add (dit);
                     */
                 }
-                
+
                 lastInd = it.end;
-            
+
                 this.items.add (it);
 
             } catch (Exception e)
@@ -321,47 +321,47 @@ public class Markup
         }
 
     }
-    
+
     public void shiftBy (int i)
     {
-        
+
         for (MarkupItem it : items)
         {
-            
+
             it.shiftBy (i);
-            
+
         }
-        
+
     }
-    
+
     public String markupAsHTML (String text)
     {
-        
+
         return this.markupAsHTML (text,
                                   DEFAULT_SEPARATOR);
-        
+
     }
-    
+
     public String markupAsHTML (String text,
                                 String sep)
     {
 
         if (text == null)
         {
-            
+
             return "";
-            
+
         }
-    
+
         if (this.items.size () == 0)
         {
-            
+
             return text;
-            
+
         }
-    
+
         StringBuilder ct = new StringBuilder ();
-        
+
         Markup.MarkupItem last = null;
 
         for (MarkupItem item : this.items)
@@ -372,32 +372,32 @@ public class Markup
                 (item.start > 0)
                )
             {
-                
+
                 // Got some unstyled text at the start.
                 ct.append (text.substring (0,
                                            item.start));
-                                
+
             }
-            
+
             if ((last != null)
                 &&
                 (item.start > last.end)
                )
             {
-                
+
                 // Got some unstyled text in the middle of two items.
                 ct.append (text.substring (last.end,
                                            item.start));
-                
+
             }
-        
+
             int end = Math.min (item.end, text.length ());
-                
+
             String st = text.substring (item.start,
                                         end);
 
             boolean styled = item.isStyled ();
-            
+
             if (styled)
             {
 
@@ -414,28 +414,28 @@ public class Markup
             } else {
 
                 ct.append (st);
-            
+
             }
-            
+
             last = item;
-            
+
         }
-        
+
         if ((last != null)
             &&
             (last.end < text.length ())
            )
         {
-            
+
             // Got some unstyled text at the end.
             ct.append (text.substring (last.end));
-            
+
         }
 
         return ct.toString ();
-        
+
     }
-    
+
     private void applyStyle (DefaultStyledDocument doc,
                              Object                style,
                              int                   start,
@@ -445,17 +445,17 @@ public class Markup
         MutableAttributeSet attrs = new SimpleAttributeSet ();
         attrs.addAttribute (style,
                             true);
-        
+
         doc.setCharacterAttributes (start,
                                     end - start,
                                     attrs,
                                     false);
-    
+
     }
-    
+
     public void apply (DefaultStyledDocument doc)
     {
-        
+
         for (MarkupItem i : items)
         {
 
@@ -497,11 +497,56 @@ public class Markup
 
             }
 
-        }        
-        
+        }
+
     }
-    
-    public void apply (QTextEditor ed)
+
+    public void apply (com.quollwriter.ui.components.QTextEditor ed)
+    {
+
+        for (MarkupItem i : items)
+        {
+
+            try
+            {
+
+                if (i.bold)
+                {
+
+                    ed.applyStyle (StyleConstants.Bold,
+                                   i.start,
+                                   i.end);
+
+                }
+
+                if (i.italic)
+                {
+
+                    ed.applyStyle (StyleConstants.Italic,
+                                   i.start,
+                                   i.end);
+
+                }
+
+                if (i.underline)
+                {
+
+                    ed.applyStyle (StyleConstants.Underline,
+                                   i.start,
+                                   i.end);
+
+                }
+
+            } catch (Exception e)
+            {
+
+            }
+
+        }
+
+    }
+
+    public void apply (com.quollwriter.ui.fx.swing.QTextEditor ed)
     {
 
         for (MarkupItem i : items)
@@ -552,7 +597,7 @@ public class Markup
         return new MarkupIterator (this.items);
 
     }
-  */  
+  */
     private void traverseElement (Element el)
     {
 
@@ -589,10 +634,10 @@ public class Markup
     public List<MarkupItem> getMarkupBetween (int from,
                                               int to)
     {
-        
+
         return this.getItems (from,
                               to);
-                
+
     }
 
     public List<MarkupItem> getItems (int from,
@@ -610,39 +655,39 @@ public class Markup
                 (it.start <= to)
                )
             {
-                
+
                 its.add (it);
-                
+
                 continue;
-                
+
             }
-        
+
             // anything that covers the whole range.
             if ((it.start <= from)
                 &&
                 (it.end >= from)
                )
             {
-                
+
                 its.add (it);
-                
+
                 continue;
-                
+
             }
-                
+
             // end between from and to.
             if ((it.end >= from)
                 &&
                 (it.end <= to)
                )
             {
-                
+
                 its.add (it);
-                
+
                 continue;
-                
+
             }
-            
+
         }
 
         return its;
@@ -651,30 +696,30 @@ public class Markup
 
     public MarkupItem createItem (MarkupItem it)
     {
-        
+
         return this.createItem (it.start,
                                 it.end,
                                 it.bold,
                                 it.italic,
                                 it.underline);
-        
+
     }
-    
+
     public MarkupItem createItem (int     start,
                                   int     end,
                                   boolean bold,
                                   boolean italic,
                                   boolean underline)
     {
-        
+
         return new MarkupItem (start,
                                end,
                                bold,
                                italic,
                                underline);
-        
+
     }
-    
+
     private String formatItems ()
     {
 
@@ -693,11 +738,11 @@ public class Markup
 
             if (m.types.equals (""))
             {
-                
+
                 continue;
-                
+
             }
-        
+
             if (b.length () > 0)
             {
 

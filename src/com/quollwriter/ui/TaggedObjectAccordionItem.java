@@ -40,7 +40,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
         this.tag = tag;
 
-        Environment.addUserProjectEventListener (this);
+        // TODO Environment.addUserProjectEventListener (this);
 
         this.sorter = NamedObjectSorter.getInstance ();
 

@@ -25,74 +25,74 @@ public class SelectUserConfigurableObjectTypeField extends UserConfigurableObjec
 
     public SelectUserConfigurableObjectTypeField ()
     {
-        
+
         super (Type.select);
-        
+
     }
 
     @Override
     public boolean isSortable ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     @Override
     public UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           AbstractProjectViewer       viewer)
     {
-        
+
         return new SelectUserConfigurableObjectFieldViewEditHandler (this,
                                                                      obj,
                                                                      field,
                                                                      viewer);
-        
+
     }
-        
+
     @Override
     public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
     {
-        
+
         return new SelectUserConfigurableObjectTypeFieldConfigHandler (this);
-        
+
     }
-        
+
     public void setItems (Collection<String> its)
     {
-        
-        this.setDefinitionValue (ITEMS, new ArrayList (its));
-        
+
+        this.setDefinitionValue (ITEMS, new ArrayList<> (its));
+
     }
-    
+
     public Collection<String> getItems ()
     {
-        
+
         return (Collection<String>) this.getDefinitionValue (ITEMS);
-        
+
     }
-    
+
     @Override
     public boolean isSearchable ()
     {
-        
+
         return true;
-        
-    }        
-                
+
+    }
+
     public boolean isAllowMulti ()
     {
-        
+
         return this.getBooleanDefinitionValue (ALLOWMULTI);
-        
+
     }
-    
+
     public void setAllowMulti (boolean v)
     {
-        
+
         this.setDefinitionValue (ALLOWMULTI, v);
-        
+
     }
-    
+
 }

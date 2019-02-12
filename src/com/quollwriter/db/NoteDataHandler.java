@@ -56,7 +56,7 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
             n.setPosition (rs.getInt (ind++));
             n.setEndPosition (rs.getInt (ind++));
             n.setId (rs.getString (ind++));
-            n.setVersion (rs.getString (ind++));            
+            n.setVersion (rs.getString (ind++));
 
             return n;
 
@@ -79,12 +79,10 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
         try
         {
 
-            List<Note> ret = new ArrayList ();
-        
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-            params.add (parent.getVersion ());
-        
+            List<Note> ret = new ArrayList<> ();
+
+            List<Object> params = Arrays.asList (parent.getKey (), parent.getVersion ());
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE objectdbkey = ? AND objectversion = ?",
                                                             params,
                                                             conn);
@@ -107,7 +105,7 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
             }
 
             return ret;
-                
+
         } catch (Exception e)
         {
 
@@ -116,7 +114,7 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
                                         e);
 
         }
-            
+
     }
 
     public Note getObjectByKey (long        key,
@@ -128,32 +126,32 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
 
         try
         {
-    
-            List params = new ArrayList ();
+
+            List<Object> params = new ArrayList<> ();
             params.add (key);
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
                                                             params,
                                                             conn);
-    
+
             if (rs.next ())
             {
-    
+
                 return this.getNote (rs,
                                      loadChildObjects);
-    
+
             }
-    
+
             return null;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get note with key: " +
                                         key,
                                         e);
-                
+
         }
-        
+
     }
 
     public Set<Note> getNotesForVersion (ProjectVersion pv,
@@ -163,30 +161,30 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
 
         if (pv == null)
         {
-            
+
             throw new IllegalArgumentException ("Must provide a project version");
-            
+
         }
-    
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
-            
+
             closeConn = true;
-            
+
         }
-        
+
         try
         {
 
-            Set<Note> ret = new LinkedHashSet ();
-        
-            List params = new ArrayList ();
+            Set<Note> ret = new LinkedHashSet<> ();
+
+            List<Object> params = new ArrayList<> ();
             params.add (pv.getKey ());
-        
+
             ResultSet rs = this.objectManager.executeQuery (String.format ("%s WHERE objectdbkey IN (SELECT dbkey FROM chapter WHERE projectversiondbkey = ?) ORDER BY datecreated",
                                                                            STD_SELECT_PREFIX),
                                                             params,
@@ -210,29 +208,29 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
             }
 
             return ret;
-                                                                                    
+
         } catch (Exception e) {
-            
+
             this.objectManager.throwException (conn,
                                                "Unable to get notes for project version: " +
                                                pv,
                                                e);
-            
+
         } finally {
-                        
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
-            
-        }        
-        
+
+        }
+
         return null;
-        
+
     }
-    
+
     public Set<Note> getDealtWith (ProjectVersion pv,
                                    boolean        isDealtWith,
                                    Connection     conn)
@@ -241,30 +239,30 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
 
         if (pv == null)
         {
-            
+
             throw new IllegalArgumentException ("Must provide a project version");
-            
+
         }
-    
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
-            
+
             closeConn = true;
-            
+
         }
-        
+
         try
         {
 
-            Set<Note> ret = new LinkedHashSet ();
-        
-            List params = new ArrayList ();
+            Set<Note> ret = new LinkedHashSet<> ();
+
+            List<Object> params = new ArrayList<> ();
             params.add (pv.getKey ());
-        
+
             ResultSet rs = this.objectManager.executeQuery (String.format ("%s WHERE dealtwith IS %s NULL AND objectdbkey IN (SELECT dbkey FROM chapter WHERE projectversiondbkey = ?) ORDER BY datecreated",
                                                                            STD_SELECT_PREFIX,
                                                                            (isDealtWith ? "NOT" : "")),
@@ -289,93 +287,93 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
             }
 
             return ret;
-                                                                                    
+
         } catch (Exception e) {
-            
+
             this.objectManager.throwException (conn,
                                                "Unable to get notes for project version: " +
                                                pv,
                                                e);
-            
+
         } finally {
-                        
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
-            
-        }        
-        
+
+        }
+
         return null;
-        
+
     }
-    
+
     public int getDealtWithCount (ProjectVersion projVer,
                                   boolean        isDealtWith,
                                   Connection     conn)
                            throws GeneralException
     {
-        
+
         if (projVer == null)
         {
-            
+
             throw new IllegalArgumentException ("Must provide a project version");
-            
+
         }
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
-            
+
             closeConn = true;
-            
+
         }
-        
+
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (projVer.getKey ());
-        
+
             ResultSet rs = this.objectManager.executeQuery (String.format ("SELECT COUNT(*) FROM note_v WHERE dealtwith IS %s NULL AND objectdbkey IN (SELECT dbkey FROM chapter WHERE projectversiondbkey = ?)",
                                                                            (isDealtWith ? "NOT" : "")),
                                                             params,
                                                             conn);
-        
+
             if (rs.next ())
             {
 
-                return rs.getInt (1); 
+                return rs.getInt (1);
 
             }
-                        
+
         } catch (Exception e) {
-            
+
             this.objectManager.throwException (conn,
                                                "Unable to get count of notes for project version: " +
                                                projVer,
                                                e);
-            
+
         } finally {
-                        
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
-            
-        }        
-        
+
+        }
+
         return 0;
-        
+
     }
-    
+
     /**
      * Get a count of the dealt with notes for all versions except that passed in.
      */
@@ -384,63 +382,63 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
                                                   Connection     conn)
                                            throws GeneralException
     {
-        
+
         if (projVer == null)
         {
-            
+
             throw new IllegalArgumentException ("Must provide a project version");
-            
+
         }
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
-            
+
             closeConn = true;
-            
+
         }
-        
+
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (projVer.getKey ());
-        
+
             ResultSet rs = this.objectManager.executeQuery (String.format ("SELECT COUNT(*) FROM note_v WHERE dealtwith IS %s NULL AND objectdbkey IN (SELECT dbkey FROM chapter WHERE projectversiondbkey <> ?)",
                                                                            (isDealtWith ? "NOT" : "")),
                                                             params,
                                                             conn);
-        
+
             if (rs.next ())
             {
 
-                return rs.getInt (1); 
+                return rs.getInt (1);
 
             }
-                        
+
         } catch (Exception e) {
-            
+
             this.objectManager.throwException (conn,
                                                "Unable to get count of notes for project version: " +
                                                projVer,
                                                e);
-            
+
         } finally {
-                        
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
-            
-        }        
-        
+
+        }
+
         return 0;
-        
+
     }
 
     public void setObjectNotesToLatest (DataObject d,
@@ -448,58 +446,54 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
                                         Connection conn)
                                  throws GeneralException
     {
-        
+
         if (d == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
-            
+
             closeConn = true;
-            
+
         }
-        
+
         try
         {
 
-            List params = new ArrayList ();
-            params.add (latest);
-            params.add (Note.OBJECT_TYPE);
-            params.add (d.getKey ());
-            params.add (d.getVersion ());
-        
+            List<Object> params = Arrays.asList (latest, Note.OBJECT_TYPE, d.getKey (), d.getVersion ());
+
             this.objectManager.executeStatement ("UPDATE dataobject SET latest = ? WHERE objecttype = ? AND dbkey IN (SELECT dbkey FROM note WHERE objectdbkey = ? AND objectversion = ?)",
                                                  params,
                                                  conn);
-        
+
         } catch (Exception e) {
 
             this.objectManager.throwException (conn,
                                                "Unable to update notes to be latest for object: " +
                                                d,
                                                e);
-            
+
         } finally {
-            
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
-            
+
         }
-        
+
     }
-    
+
     public void createObject (Note       d,
                               Connection conn)
                        throws GeneralException
@@ -507,35 +501,29 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
 
         Note n = (Note) d;
 
-        List params = new ArrayList ();
-        params.add (n.getKey ());
-        params.add (n.getDue ());
-        params.add (n.getDealtWith ());
-        params.add (n.getType ());
-        params.add (n.getPosition ());
-        params.add (n.getEndPosition ());
-        params.add (n.getObject ().getKey ());
-        params.add (n.getObject ().getVersion ());
-
         this.objectManager.executeStatement ("INSERT INTO note (dbkey, due, dealtwith, type, position, end_position, objectdbkey, objectversion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                                             params,
+                                             Arrays.asList (n.getKey (),
+                                                            n.getDue (),
+                                                            n.getDealtWith (),
+                                                            n.getType (),
+                                                            n.getPosition (),
+                                                            n.getEndPosition (),
+                                                            n.getObject ().getKey (),
+                                                            n.getObject ().getVersion ()),
                                              conn);
 
     }
 
     public void deleteObject (Note       d,
-                              boolean    deleteChildObjects,                              
+                              boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
 
         Note n = (Note) d;
 
-        List params = new ArrayList ();
-        params.add (n.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM note WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (n.getKey ()),
                                              conn);
 
     }
@@ -547,18 +535,15 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
 
         Note n = (Note) d;
 
-        List params = new ArrayList ();
-        params.add (n.getDue ());
-        params.add (n.getDealtWith ());
-        params.add (n.getType ());
-        params.add (n.getObject ().getKey ());
-        params.add (n.getObject ().getVersion ());
-        params.add (n.getPosition ());
-        params.add (n.getEndPosition ());
-        params.add (n.getKey ());
-
         this.objectManager.executeStatement ("UPDATE note SET due = ?, dealtwith = ?, type = ?, objectdbkey = ?, objectversion = ?, position = ?, end_position = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (n.getDue (),
+                                                            n.getDealtWith (),
+                                                            n.getType (),
+                                                            n.getObject ().getKey (),
+                                                            n.getObject ().getVersion (),
+                                                            n.getPosition (),
+                                                            n.getEndPosition (),
+                                                            n.getKey ()),
                                              conn);
 
     }

@@ -40,7 +40,7 @@ import com.quollwriter.ui.events.*;
 import com.quollwriter.editors.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class EditorRegister extends Wizard
 {
@@ -780,7 +780,7 @@ public class EditorRegister extends Wizard
 
             message.setBorder (UIUtils.createPadding (0, 0, 5, 0));
 
-            this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
+            this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDirPath ().toFile ().getPath (),
                                                   getUIString (prefix,labels,LanguageStrings.finder,title),
                                                   //"Select a Directory",
                                                   JFileChooser.DIRECTORIES_ONLY,
@@ -878,7 +878,7 @@ public class EditorRegister extends Wizard
             finderError.setVisible (false);
             finderError.setBorder (new EmptyBorder (0, 0, 5, 0));
 
-            this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath () + "/editors",
+            this.finder = UIUtils.createFileFind (Environment.getUserPath ("editors").toFile ().getPath (),
                                                   getUIString (prefix,LanguageStrings.finder,title),
                                                   //"Select a Directory",
                                                   JFileChooser.DIRECTORIES_ONLY,

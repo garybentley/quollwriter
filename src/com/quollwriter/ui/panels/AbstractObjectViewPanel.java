@@ -282,13 +282,14 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_E,
-                                        Event.CTRL_MASK),
+                                        InputEvent.CTRL_DOWN_MASK),
                 "edit");
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_D,
-                                        Event.CTRL_MASK),
+                                        InputEvent.CTRL_DOWN_MASK),
                 "adddocument");
+                
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_L,
-                                        Event.CTRL_MASK),
+                                        InputEvent.CTRL_DOWN_MASK),
                 "editlinkedto");
 
         actions.put ("edit",

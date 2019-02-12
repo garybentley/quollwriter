@@ -54,7 +54,7 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.ui.events.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements EditorChangedListener,
                                                                                EditorMessageListener,
@@ -694,9 +694,9 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                                                    // TODO AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                                                    viewer.showOptions ("editors");
+                                                    // TODO viewer.showOptions ("editors");
 
                                                 }
 
@@ -757,7 +757,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         {
 
             this.viewer.showHelpText ("Welcome to the Editors Service",
-                                      StringUtils.replaceString (Environment.getResourceFileAsString (Constants.EDITORS_SIDEBAR_FIRST_USE_HELP_FILE),
+                                      StringUtils.replaceString (Utils.getResourceFileAsString (Constants.EDITORS_SIDEBAR_FIRST_USE_HELP_FILE),
                                                                  "\n",
                                                                  ""),
                                       Constants.EDITORS_ICON_NAME,

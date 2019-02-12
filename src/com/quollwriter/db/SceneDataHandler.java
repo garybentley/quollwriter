@@ -50,11 +50,11 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
 
             if (parent != null)
             {
-            
+
                 parent.addScene (s);
-                
+
             }
-            
+
             // Get all the notes.
 
             if (loadChildObjects)
@@ -66,7 +66,7 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
                                                s,
                                                conn,
                                                loadChildObjects);
-                
+
             }
 
             return s;
@@ -91,13 +91,10 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
         try
         {
 
-            List<Scene> ret = new ArrayList ();
-        
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-        
+            List<Scene> ret = new ArrayList<> ();
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE chapterdbkey = ?",
-                                                            params,
+                                                            Arrays.asList (parent.getKey ()),
                                                             conn);
 
             while (rs.next ())
@@ -119,7 +116,7 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
             }
 
             return ret;
-            
+
         } catch (Exception e)
         {
 
@@ -141,31 +138,28 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
 
         try
         {
-    
-            List params = new ArrayList ();
-            params.add (key);
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
-                                                            params,
+                                                            Arrays.asList (key),
                                                             conn);
-    
+
             if (rs.next ())
             {
-    
+
                 return this.getScene (rs,
                                       parent,
                                       loadChildObjects);
-    
+
             }
-    
+
             return null;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get scene with key: " +
                                         key,
                                         e);
-            
+
         }
 
     }
@@ -176,13 +170,10 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (s.getKey ());
-        params.add (s.getChapter ().getKey ());
-        params.add (s.getPosition ());
-
         this.objectManager.executeStatement ("INSERT INTO scene (dbkey, chapterdbkey, position) VALUES (?, ?, ?)",
-                                             params,
+                                             Arrays.asList (s.getKey (),
+                                                            s.getChapter ().getKey (),
+                                                            s.getPosition ()),
                                              conn);
 
         for (OutlineItem i : s.getOutlineItems ())
@@ -208,34 +199,31 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
             // Delete the outline items.
             for (OutlineItem i : s.getOutlineItems ())
             {
-    
+
                 this.objectManager.deleteObject (i,
                                                  true,
                                                  conn);
-    
+
             }
 
         } else {
-            
+
             // Remove the scene from the item.
             for (OutlineItem i : s.getOutlineItems ())
             {
-    
+
                 i.setScene (null);
-    
+
                 this.objectManager.saveObject (i,
                                                conn);
-    
+
             }
-            
-            
+
+
         }
 
-        List params = new ArrayList ();
-        params.add (s.getKey ());
-
         this.objectManager.executeStatement ("DELETE FROM scene WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (s.getKey ()),
                                              conn);
 
     }
@@ -246,13 +234,10 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (s.getPosition ());
-        params.add (s.getChapter ().getKey ());
-        params.add (s.getKey ());
-
         this.objectManager.executeStatement ("UPDATE scene SET position = ?, chapterdbkey = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (s.getPosition (),
+                                                            s.getChapter ().getKey (),
+                                                            s.getKey ()),
                                              conn);
 
         for (OutlineItem i : s.getOutlineItems ())

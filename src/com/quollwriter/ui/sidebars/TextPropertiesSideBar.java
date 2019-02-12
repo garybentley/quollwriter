@@ -202,7 +202,7 @@ public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer
 
             UserProperties.removeListener (this.props);
 
-            this.props.setTextProperties (Environment.getFullScreenTextProperties ());
+            // TODO this.props.setTextProperties (Environment.getFullScreenTextProperties ());
 
             UserProperties.addListener (this.props);
 
@@ -216,7 +216,7 @@ public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer
 
             UserProperties.removeListener (this.props);
 
-            this.props.setTextProperties (Environment.getProjectTextProperties ());
+            // TODO this.props.setTextProperties (Environment.getProjectTextProperties ());
 
             UserProperties.addListener (this.props);
 

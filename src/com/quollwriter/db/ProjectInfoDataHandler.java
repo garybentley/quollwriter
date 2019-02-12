@@ -21,8 +21,8 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
      * A cache, since the same projEditor can be viewed in multiple places and updated in multiple places
      * we need a single object for the editor so that we have one object -> multiple viewers.
      */
-    private Map<Long, ProjectInfo> cache = new HashMap ();
-    
+    private Map<Long, ProjectInfo> cache = new HashMap<> ();
+
     public ProjectInfoDataHandler(ObjectManager om)
     {
 
@@ -43,14 +43,14 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
             long key = rs.getLong (ind++);
 
             ProjectInfo p = this.cache.get (key);
-            
+
             if (p != null)
             {
-                
+
                 return p;
-                
-            }            
-            
+
+            }
+
             p = new ProjectInfo ();
 
             p.setKey (key);
@@ -58,39 +58,39 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
             p.setProjectDirectory (new File (rs.getString (ind++)));
             p.setBackupDirectory (new File (rs.getString (ind++)));
             p.setStatus (rs.getString (ind++));
-            
+
             // Get the statistics which should look something like:
             //
             // <statistics>
             //   <stat id="xxx">[value]</stat>
             // </statistics>
             p.setStatistics (Utils.getStatisticsFromXML (rs.getString (ind++)));
-            
+
             p.setEncrypted (rs.getBoolean (ind++));
             p.setNoCredentials (rs.getBoolean (ind++));
-            
+
             String ic = rs.getString (ind++);
-            
+
             if (ic != null)
             {
-            
+
                 p.setIcon (new File (ic));
-                
+
             }
-            
+
             p.setType (rs.getString (ind++));
-            
+
             String edEmail = rs.getString (ind++);
-            
+
             if (edEmail != null)
             {
-                
+
                 EditorEditor ed = EditorsEnvironment.getEditorByEmail (edEmail);
-                
+
                 p.setForEditor (ed);
-                
+
             }
-            
+
             p.setLastEdited (rs.getTimestamp (ind++));
             p.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
@@ -99,10 +99,10 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
             p.setLastModified (rs.getTimestamp (ind++));
             p.setDateCreated (rs.getTimestamp (ind++));
             p.setPropertiesAsString (rs.getString (ind++));
-            
+
             this.cache.put (key,
-                            p);            
-            
+                            p);
+
             return p;
 
         } catch (Exception e)
@@ -114,7 +114,7 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
         }
 
     }
-    
+
     @Override
     public List<ProjectInfo> getObjects (NamedObject parent,
                                          Connection  conn,
@@ -123,26 +123,26 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
     {
 
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
             closeConn = true;
-            
+
         }
 
         ResultSet rs = null;
 
         try
         {
-        
+
             rs = this.objectManager.executeQuery (STD_SELECT_PREFIX,
                                                   null,
                                                   conn);
 
-            List<ProjectInfo> ret = new ArrayList ();
-                                                  
+            List<ProjectInfo> ret = new ArrayList<> ();
+
             while (rs.next ())
             {
 
@@ -150,11 +150,11 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
                                                      loadChildObjects);
 
                 ret.add (p);
-                
+
             }
 
             return ret;
-            
+
         } catch (Exception e)
         {
 
@@ -164,16 +164,16 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
 
         } finally
         {
-            
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
 
         }
-        
+
         return null;
 
     }
@@ -187,25 +187,22 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
     {
 
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
             closeConn = true;
-            
+
         }
-        
+
         ResultSet rs = null;
 
         try
         {
 
-            List params = new ArrayList ();
-            params.add (key);
-        
             rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
-                                                  params,
+                                                  Arrays.asList (key),
                                                   conn);
 
             if (rs.next ())
@@ -226,20 +223,20 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
 
         } finally
         {
-            
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
 
         }
-        
+
         return null;
-    
+
     }
-        
+
     @Override
     public void createObject (ProjectInfo p,
                               Connection  conn)
@@ -251,12 +248,12 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
             (p.getForEditor () == null)
            )
         {
-            
+
             throw new IllegalStateException ("If the project is for an editor then the forEditor must be specified.");
-            
-        }        
-        
-        List params = new ArrayList ();
+
+        }
+
+        List<Object> params = new ArrayList<> ();
         params.add (p.getKey ());
         params.add (p.getLastEdited ());
         params.add (p.isEncrypted ());
@@ -268,31 +265,29 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
         params.add ((p.getIcon () != null ? p.getIcon ().getPath () : null));
         params.add (p.getType ());
         params.add ((p.getForEditor () != null ? p.getForEditor ().getEmail () : null));
-        
+
         this.objectManager.executeStatement ("INSERT INTO projectinfo (dbkey, lastedited, encrypted, nocredentials, directory, backupdirectory, status, statistics, icon, type, foreditor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                              params,
                                              conn);
-        
+
         this.cache.put (p.getKey (),
                         p);
-        
+
     }
 
     @Override
     public void deleteObject (ProjectInfo p,
-                              boolean     deleteChildObjects,                              
+                              boolean     deleteChildObjects,
                               Connection  conn)
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (p.getKey ());
         this.objectManager.executeStatement ("DELETE FROM projectinfo WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (p.getKey ()),
                                              conn);
 
         this.cache.remove (p.getKey ());
-                                             
+
     }
 
     @Override
@@ -301,17 +296,14 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (p.getLastEdited ());
-        params.add (p.getProjectDirectory ().getPath ());
-        params.add (p.getBackupDirectory ().getPath ());
-        params.add (p.getStatus ());
-        params.add (Utils.getStatisticsAsXML (p.getStatistics ()));
-        params.add ((p.getIcon () != null ? p.getIcon ().getPath () : null));
-
-        params.add (p.getKey ());
         this.objectManager.executeStatement ("UPDATE projectinfo SET lastedited = ?, directory = ?, backupdirectory = ?, status = ?, statistics = ?, icon = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (p.getLastEdited (),
+                                                            p.getProjectDirectory ().getPath (),
+                                                            p.getBackupDirectory ().getPath (),
+                                                            p.getStatus (),
+                                                            Utils.getStatisticsAsXML (p.getStatistics ()),
+                                                            (p.getIcon () != null ? p.getIcon ().getPath () : null),
+                                                            p.getKey ()),
                                              conn);
 
     }

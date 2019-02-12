@@ -98,7 +98,7 @@ public class DoubleWordRule extends AbstractSentenceRule
     public List<Issue> getIssues (Sentence sentence)
     {
 
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         if (sentence == null)
         {
@@ -160,11 +160,11 @@ public class DoubleWordRule extends AbstractSentenceRule
                 if (curr.textEquals (prev))
                 {
 
-                    List<String> pref = new ArrayList ();
+                    List<String> pref = new ArrayList<> ();
                     pref.add (LanguageStrings.problemfinder);
                     pref.add (LanguageStrings.issues);
                     pref.add (LanguageStrings.doubleword);
-                
+
                     Issue iss = null;
 
                     if (curr.isPunctuation ())

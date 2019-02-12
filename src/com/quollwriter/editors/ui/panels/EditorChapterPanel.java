@@ -206,7 +206,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         im.put (KeyStroke.getKeyStroke ("ctrl shift C"),
                 NEW_COMMENT_ACTION_NAME);
 
-        this.highlight = new BlockPainter (Environment.getHighlightColor ());
+        this.highlight = new BlockPainter (UIUtils.getHighlightColor ());
 
     }
 

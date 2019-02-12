@@ -8,7 +8,6 @@ import java.awt.event.*;
 import java.awt.image.*;
 import javax.imageio.*;
 import javax.swing.*;
-import javax.activation.*;
 
 import org.jdom.*;
 
@@ -24,7 +23,7 @@ import com.quollwriter.editors.messages.*;
 import com.quollwriter.data.editors.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class EditorsWebServiceHandler
 {
@@ -62,13 +61,13 @@ public class EditorsWebServiceHandler
     public enum Service
     {
 
-        accounts ("accounts", Environment.getProperty (Constants.ACCOUNTS_WEBSERVICE_URL_PROPERTY_NAME)),
-        authors ("authors", Environment.getProperty (Constants.AUTHORS_WEBSERVICE_URL_PROPERTY_NAME)),
-        projects ("projects", Environment.getProperty (Constants.PROJECTS_WEBSERVICE_URL_PROPERTY_NAME)),
-        login ("login", Environment.getProperty (Constants.LOGIN_WEBSERVICE_URL_PROPERTY_NAME)),
-        editors ("editors", Environment.getProperty (Constants.EDITORS_WEBSERVICE_URL_PROPERTY_NAME)),
-        sessions ("sessions", Environment.getProperty (Constants.SESSIONS_WEBSERVICE_URL_PROPERTY_NAME)),
-        invites ("invites", Environment.getProperty (Constants.INVITES_WEBSERVICE_URL_PROPERTY_NAME));
+        accounts ("accounts", UserProperties.get (Constants.ACCOUNTS_WEBSERVICE_URL_PROPERTY_NAME)),
+        authors ("authors", UserProperties.get (Constants.AUTHORS_WEBSERVICE_URL_PROPERTY_NAME)),
+        projects ("projects", UserProperties.get (Constants.PROJECTS_WEBSERVICE_URL_PROPERTY_NAME)),
+        login ("login", UserProperties.get (Constants.LOGIN_WEBSERVICE_URL_PROPERTY_NAME)),
+        editors ("editors", UserProperties.get (Constants.EDITORS_WEBSERVICE_URL_PROPERTY_NAME)),
+        sessions ("sessions", UserProperties.get (Constants.SESSIONS_WEBSERVICE_URL_PROPERTY_NAME)),
+        invites ("invites", UserProperties.get (Constants.INVITES_WEBSERVICE_URL_PROPERTY_NAME));
 
         private final String type;
         private final String url;
@@ -163,7 +162,7 @@ public class EditorsWebServiceHandler
 
         }
 
-        AbstractViewer viewer = Environment.getFocusedViewer ();
+        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
         for (int i = 0; i < invites.size (); i++)
         {

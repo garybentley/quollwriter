@@ -36,11 +36,11 @@ public class WordCount
 
     public String toString ()
     {
-        
+
         return "word-count(start: " + this.start + ", end: " + this.end + ", count: " + count + ")";
-        
+
     }
-    
+
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -50,7 +50,7 @@ public class WordCount
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        return new HashSet ();
+        return new HashSet<> ();
 
     }
 

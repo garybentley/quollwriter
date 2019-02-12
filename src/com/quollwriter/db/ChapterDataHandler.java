@@ -32,7 +32,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                       throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (c.getKey ());
 
         this.objectManager.executeStatement ("DELETE FROM problemfinderignore WHERE chapterdbkey = ?",
@@ -66,7 +66,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             for (Issue iss : c.getProblemFinderIgnores ())
             {
 
-                List params = new ArrayList ();
+                List<Object> params = new ArrayList<> ();
                 params.add (c.getKey ());
                 params.add (iss.getRuleId ());
                 params.add (iss.getIssueId ());
@@ -117,7 +117,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                          throws GeneralException
     {
 
-        Set<Issue> ret = new HashSet (); //new TreeSet (new IssueSorter ());
+        Set<Issue> ret = new HashSet<> (); //new TreeSet (new IssueSorter ());
 
         boolean releaseConn = false;
 
@@ -132,7 +132,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (c.getKey ());
 
             ResultSet rs = this.objectManager.executeQuery ("SELECT ruleid, startposition, wordposition, issueid FROM problemfinderignore WHERE chapterdbkey = ? ORDER BY startposition, wordposition",
@@ -228,14 +228,14 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             long key = rs.getInt (ind++);
 
             long userObjTypeKey = rs.getLong (ind++);
-            
+
             Chapter c = new Chapter ();
             c.setKey (key);
-                        
+
             // Load the object fields.
             this.objectManager.setUserConfigurableObjectFields (c,
                                                                 rs.getStatement ().getConnection ());
-            
+
             c.setName (rs.getString (ind++));
 
             c.setDescription (new StringWithMarkup (rs.getString (ind++),
@@ -257,7 +257,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             c.setPlan (new StringWithMarkup (rs.getString (ind++),
                                              rs.getString (ind++)));
             c.setEditPosition (rs.getInt (ind++));
-            
+
             // Ensure that the edit position is valid (not sure why this can happen).
             // If it's not then set it to the end of the text.
             if ((c.getEditPosition () > 0)
@@ -267,11 +267,11 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 (c.getEditPosition () > c.getText ().getText ().length ())
                )
             {
-                
+
                 c.setEditPosition (c.getText ().getText ().length ());
-                
+
             }
-            
+
             c.setEditComplete (rs.getBoolean (ind++));
             c.setId (rs.getString (ind++));
             c.setVersion (rs.getString (ind++));
@@ -283,7 +283,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 book.addChapter (c);
 
             }
-                        
+
             c.setProblemFinderIgnores (this.getProblemFinderIgnores (c,
                                                                      null,
                                                                      rs.getStatement ().getConnection ()));
@@ -345,7 +345,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                         throws GeneralException
     {
 
-        Set<Chapter> ret = new LinkedHashSet ();
+        Set<Chapter> ret = new LinkedHashSet<> ();
 
         boolean closeConn = false;
 
@@ -361,7 +361,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (pv.getKey ());
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE projectversiondbkey = ? ORDER BY index",
@@ -407,7 +407,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                         throws Exception
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
 
         StringBuilder b = new StringBuilder ();
 
@@ -428,7 +428,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         }
 
-        Set<Chapter> ret = new LinkedHashSet ();
+        Set<Chapter> ret = new LinkedHashSet<> ();
 
         Connection conn = null;
 
@@ -495,7 +495,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         try
         {
 
-            List<Chapter> ret = new ArrayList ();
+            List<Chapter> ret = new ArrayList<> ();
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + "WHERE latest = TRUE ORDER BY index",
                                                             null,
@@ -534,7 +534,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (key);
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + "WHERE dbkey = ?",
@@ -581,14 +581,14 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         try
         {
 
-            List wcs = new ArrayList ();
+            List<Object> wcs = new ArrayList<> ();
 
             conn = this.objectManager.getConnection ();
 
-            start = Environment.zeroTimeFieldsForDate (start);
-            end = Environment.zeroTimeFieldsForDate (end);
+            start = Utils.zeroTimeFieldsForDate (start);
+            end = Utils.zeroTimeFieldsForDate (end);
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (start);
             params.add (project.getKey ());
 
@@ -604,7 +604,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
                     ChapterCounts cc = new ChapterCounts (c.getChapterText ());
 
-                    params = new ArrayList ();
+                    params = new ArrayList<> ();
                     params.add (project.getKey ());
 
                     params.add (c.getKey ());
@@ -660,7 +660,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
             conn = this.objectManager.getConnection ();
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (ch.getKey ());
             params.add (ch.getBook ().getProject ().getKey ());
 
@@ -678,7 +678,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                             params,
                                                             conn);
 
-            List<WordCount> ret = new ArrayList ();
+            List<WordCount> ret = new ArrayList<> ();
 
             while (rs.next ())
             {
@@ -721,7 +721,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (c.getKey ());
         params.add (c.getBook ().getKey ());
 
@@ -827,7 +827,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         }
 
-        Set<Chapter> newChapters = new LinkedHashSet ();
+        Set<Chapter> newChapters = new LinkedHashSet<> ();
 
         Connection conn = null;
 
@@ -898,7 +898,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (id);
 
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE id = ?",
@@ -942,7 +942,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                       throws GeneralException
     {
 
-        Set<Chapter> newChapters = new LinkedHashSet ();
+        Set<Chapter> newChapters = new LinkedHashSet<> ();
 
         Connection conn = null;
 
@@ -960,14 +960,14 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             }
 
             // Need to set all existing chapters to be not the latest.
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (Chapter.OBJECT_TYPE);
 
             this.objectManager.executeStatement ("UPDATE dataobject SET latest = FALSE WHERE objecttype = ? AND dbkey IN (SELECT dbkey FROM chapter)",
                                                  params,
                                                  conn);
 
-            final List<Chapter> chaps = new ArrayList (chapters);
+            final List<Chapter> chaps = new ArrayList<> (chapters);
 
             // TODO: Handle multiple books.  This is "ok" for now, i.e. assume a single book.
             Book b = this.objectManager.getProject ().getBook (0);
@@ -1161,7 +1161,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         if (!c.isLatest ())
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (c.getKey ());
 
             this.objectManager.executeStatement ("DELETE FROM chapter WHERE dbkey = ?",
@@ -1172,7 +1172,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         }
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (c.getId ());
 
         try
@@ -1227,7 +1227,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         this.deleteProblemFinderIgnores (c,
                                          conn);
 
-        params = new ArrayList ();
+        params = new ArrayList<> ();
         params.add (c.getKey ());
 
         // Delete the word counts.
@@ -1265,7 +1265,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         }
 
-        List params = new ArrayList ();
+        List<Object> params = new ArrayList<> ();
         params.add (t);
         params.add (m);
         params.add (c.getBook ().getChapterIndex (c));

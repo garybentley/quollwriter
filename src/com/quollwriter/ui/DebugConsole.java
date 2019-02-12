@@ -3,7 +3,7 @@ package com.quollwriter.ui;
 import java.awt.*;
 import java.awt.event.*;
 
-import java.io.File;
+import java.io.*;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -71,14 +71,23 @@ public class DebugConsole extends JFrame
         JTabbedPane tp = new JTabbedPane ();
         b.add (tp);
 
-        tp.add ("Logs",
-                this.createLogPanel ());
+        try
+        {
+
+            tp.add ("Logs",
+                    this.createLogPanel ());
+
+        } catch (Exception e) {
+
+            e.printStackTrace (Environment.out);
+
+        }
 
         if (this.viewer instanceof AbstractProjectViewer)
-        {                
-        
+        {
+
             AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
-        
+
             tp.add ("SQL Console",
                     this.createSQLConsolePanel (pv));
 
@@ -86,7 +95,7 @@ public class DebugConsole extends JFrame
                     this.createPropertiesPanel (pv.getProject ().getProperties ()));
 
         }
-                    
+
         tp.add ("Achievements",
                 this.createAchievementsPanel ());
 
@@ -133,19 +142,19 @@ public class DebugConsole extends JFrame
 
         Header h = UIUtils.createHeader ("Schema Information",
                                          Constants.SUB_PANEL_TITLE);
-        
-        h.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
+
+        h.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
                                                              new EmptyBorder (0, 0, 3, 0)));
 
         return h;
-        
+
     }
-    
+
     private JComponent createSQLConsolePanel (final AbstractProjectViewer pv)
     {
 
         final DebugConsole _this = this;
-    
+
         Box bprops = new Box (BoxLayout.PAGE_AXIS);
         bprops.setBorder (new EmptyBorder (5,
                                            10,
@@ -153,7 +162,7 @@ public class DebugConsole extends JFrame
                                            10));
 
         bprops.add (this.createHeader ("Schema Information"));
-                                 
+
         FormLayout fl = new FormLayout ("right:p, 6px, p",
                                         "p, 6px, p, 6px, p, 6px, p");
 
@@ -164,22 +173,22 @@ public class DebugConsole extends JFrame
         final JComboBox words = WarmupPromptSelect.getWordsOptions ();
 
         int row = 1;
-        
+
         int max = Environment.getSchemaVersion ();
         int projSchemaVersion = -1;
-        
+
         try
         {
-            
+
             projSchemaVersion = pv.getObjectManager ().getSchemaVersion ();
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to get project schema version",
                                   e);
-            
+
         }
-        
+
         builder.addLabel ("System schema version",
                           cc.xy (1,
                                  row));
@@ -189,7 +198,7 @@ public class DebugConsole extends JFrame
                                  row));
 
         row += 2;
-                                                                
+
         builder.addLabel ("Project schema version",
                           cc.xy (1,
                                  row));
@@ -199,30 +208,30 @@ public class DebugConsole extends JFrame
                                  row));
 
         row += 2;
-                                                               
+
         builder.addLabel ("Project db file",
                           cc.xy (1,
                                  row));
 
         String url = "jdbc:h2:" + pv.getObjectManager ().getDBDir ().toString () + "/" + Constants.PROJECT_DB_FILE_NAME_PREFIX + ".h2.db";
-                                 
+
         final JTextField urlf = new JTextField (url);
         urlf.setText (url);
         urlf.setEditable (false);
         urlf.addMouseListener (new MouseAdapter ()
         {
-            
+
             public void mouseEntered (MouseEvent ev)
             {
-                
+
                 urlf.grabFocus ();
                 urlf.selectAll ();
-                
+
             }
-            
+
         });
-        
-                                 
+
+
         builder.add (urlf,
                      cc.xy (3,
                             row));
@@ -231,63 +240,63 @@ public class DebugConsole extends JFrame
 
         Box versBox = new Box (BoxLayout.X_AXIS);
         versBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         Vector vers = new Vector ();
-        
+
         for (int i = max; i > 0; i--)
         {
-            
+
             vers.add ("  " + i);
-            
+
         }
-        
-        final JComboBox versions = new JComboBox (vers);        
+
+        final JComboBox versions = new JComboBox (vers);
 
         versBox.add (versions);
         versBox.add (Box.createHorizontalStrut (5));
-    
+
         JButton upgradeButton = UIUtils.createButton ("Run");
         versBox.add (upgradeButton);
         versBox.add (Box.createHorizontalGlue ());
-    
+
         upgradeButton.addActionListener (new ActionListener ()
         {
-         
+
              public void actionPerformed (ActionEvent ev)
              {
-                 
+
                  int ver = -1;
-                 
+
                  try
                  {
-                    
+
                     ver = Integer.parseInt ((versions.getSelectedItem () + "").trim ());
-                    
+
                  } catch (Exception e) {
-                    
+
                     return;
-                    
+
                  }
-                 
+
                  try
                  {
-                 
+
                     pv.getObjectManager ().forceRunUpgradeScript (ver);
-                    
+
                  } catch (Exception e) {
-                    
+
                     UIUtils.showErrorMessage (_this,
                                               "Unable to upgrade to version: " + ver + " see the log for details.");
-                    
+
                     Environment.logError ("Unable to upgrade to version: " + ver,
                                           e);
-                    
+
                  }
-                 
+
              }
-         
+
         });
-    
+
         builder.addLabel ("Upgrade to version",
                           cc.xy (1,
                                  row));
@@ -297,14 +306,14 @@ public class DebugConsole extends JFrame
                             row));
 
         row += 2;
-        
+
         JPanel p = builder.getPanel ();
         p.setOpaque (false);
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
         p.setBorder (new EmptyBorder (5, 10, 10, 5));
 
         bprops.add (p);
-        
+
         JSplitPane sp = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT);
         sp.setAlignmentX (Component.LEFT_ALIGNMENT);
         sp.setDividerLocation (0.5f);
@@ -417,7 +426,7 @@ public class DebugConsole extends JFrame
                                            3,
                                            3));
 
-        Map<String, Set<String>> achieved = Environment.getAchievedAchievementIds (this.viewer);
+        Map<String, Set<String>> achieved = Environment.getAchievementsManager ().getAchievedAchievementIds (this.viewer);
 
         Vector data = new Vector ();
 
@@ -439,19 +448,19 @@ public class DebugConsole extends JFrame
 
         if (project != null)
         {
-            
+
             for (String id : project)
             {
-    
+
                 Vector d = new Vector ();
-    
+
                 d.add ("Project");
                 d.add (id);
-    
+
                 data.add (d);
-    
-            }            
-            
+
+            }
+
         }
 
         Vector colNames = new Vector ();
@@ -464,52 +473,52 @@ public class DebugConsole extends JFrame
         bprops.add (new JScrollPane (tab));
 
         bprops.add (Box.createVerticalStrut (10));
-        
+
         JButton b = new JButton ("Clear Selected Achievements");
 
-        b.setAlignmentX (Component.LEFT_ALIGNMENT); 
+        b.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         final DebugConsole _this = this;
 
         b.addActionListener (new ActionAdapter ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 // Get the selected rows.
                 int[] selRows = tab.getSelectedRows ();
-                
+
                 for (int i = selRows.length - 1; i > -1; i--)
                 {
-                    
+
                     DefaultTableModel mod = (DefaultTableModel) tab.getModel ();
-                    
+
                     String id = (String) mod.getValueAt (i, 1);
-                                
+
                     try
-                    {                                        
-                    
-                        Environment.removeAchievedAchievement (((String) mod.getValueAt (i, 0)).toLowerCase (),
-                                                               id,
-                                                               _this.viewer);
-                    
+                    {
+
+                        Environment.getAchievementsManager ().removeAchievedAchievement (((String) mod.getValueAt (i, 0)).toLowerCase (),
+                                                                                         id,
+                                                                                         _this.viewer);
+
                     } catch (Exception e) {
-                        
+
                         UIUtils.showErrorMessage (_this,
                                                   "Unable to remove achievement: " + id);
 
                         Environment.logError ("Unable to remove achievement: " + id,
                                               e);
-                        
+
                     }
-                    
+
                     mod.removeRow (i);
-                    
+
                 }
-                
+
             }
-            
+
         });
 
         bprops.add (b);
@@ -519,6 +528,7 @@ public class DebugConsole extends JFrame
     }
 
     private JComponent createLogPanel ()
+                                throws IOException
     {
 
         JTabbedPane tp = new JTabbedPane ();

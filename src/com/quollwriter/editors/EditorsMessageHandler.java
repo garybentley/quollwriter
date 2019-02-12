@@ -34,7 +34,7 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.messages.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class EditorsMessageHandler implements ChatMessageListener
 {
@@ -1464,7 +1464,7 @@ public class EditorsMessageHandler implements ChatMessageListener
 
                                         } else {
 
-                                            AbstractViewer viewer = Environment.getFocusedViewer ();
+                                            AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                                             UIUtils.showErrorMessage (viewer,
                                                                       String.format (getUIString (editors,messages,send,actionerror),

@@ -189,7 +189,7 @@ public class Project extends NamedObject
                 } else {
 
                     ed = new EditorEditor ();
-                    ed.setKey (new Long (0));
+                    ed.setKey (Long.valueOf (0));
                     ed.setEmail (editorEmail);
 
                 }

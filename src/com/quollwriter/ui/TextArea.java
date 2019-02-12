@@ -11,19 +11,19 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 
 import com.quollwriter.*;
-import com.quollwriter.events.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.QTextEditor;
-import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.components.ActionAdapter;
 
 import com.quollwriter.DictionaryProvider;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.text.*;
+import com.quollwriter.events.MouseEventHandler;
 
+import com.quollwriter.ui.fx.ProjectEvent;
 import com.quollwriter.ui.components.ScrollableBox;
 
-public class TextArea extends ScrollableBox 
+public class TextArea extends ScrollableBox
 {
 
     protected QTextEditor text = null;
@@ -438,8 +438,9 @@ public class TextArea extends ScrollableBox
 
                     _this.text.addWordToDictionary (ev.getActionCommand ());
 
-                    Environment.fireUserProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
-                                                      ProjectEvent.ADD_WORD,
+                    Environment.fireUserProjectEvent (_this,
+                                                      ProjectEvent.Type.personaldictionary,
+                                                      ProjectEvent.Action.addword,
                                                       ev.getActionCommand ());
 
                 }
@@ -528,8 +529,9 @@ public class TextArea extends ScrollableBox
                                                             loc + word.length (),
                                                             repWord);
 
-                                    Environment.fireUserProjectEvent (ProjectEvent.SPELL_CHECK,
-                                                                      ProjectEvent.REPLACE,
+                                    Environment.fireUserProjectEvent (_this,
+                                                                      ProjectEvent.Type.spellcheck,
+                                                                      ProjectEvent.Action.replace,
                                                                       ev.getActionCommand ());
 
                                 }

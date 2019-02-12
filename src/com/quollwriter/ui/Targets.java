@@ -701,7 +701,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             int diff = count.wordCount - tcc;
 
-            int perc = Environment.getPercent (diff, tcc);
+            int perc = Utils.getPercent (diff, tcc);
 
             JLabel diffl = null;
 

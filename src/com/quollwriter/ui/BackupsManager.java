@@ -43,9 +43,11 @@ import com.quollwriter.exporter.*;
 
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.fx.ProjectEvent;
+import com.quollwriter.ui.fx.ProjectEventListener;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class BackupsManager extends Box implements ProjectEventListener
 {
@@ -73,7 +75,7 @@ public class BackupsManager extends Box implements ProjectEventListener
     public void eventOccurred (ProjectEvent ev)
     {
 
-        if (!ev.getType ().equals (ProjectEvent.BACKUPS))
+        if (!ev.getType ().equals (ProjectEvent.Type.backups))
         {
 
             return;
@@ -362,7 +364,7 @@ public class BackupsManager extends Box implements ProjectEventListener
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
-                                                final AbstractProjectViewer pv = Environment.getProjectViewer (_this.proj);
+                                                final AbstractProjectViewer pv = null; // TODO Environment.getProjectViewer (_this.proj);
 
                                                 ActionListener doRestore = new ActionListener ()
                                                 {
@@ -433,7 +435,7 @@ public class BackupsManager extends Box implements ProjectEventListener
                                                                         // Reopen the project.
                                                                         Environment.openProject (_this.proj);
 
-                                                                        AbstractProjectViewer p = Environment.getProjectViewer (_this.proj);
+                                                                        AbstractProjectViewer p = null; // TODO Environment.getProjectViewer (_this.proj);
 
                                                                         // Show confirmation.
                                                                         UIUtils.showMessage ((PopupsSupported) p,
@@ -442,10 +444,11 @@ public class BackupsManager extends Box implements ProjectEventListener
                                                                                              String.format (getUIString (prefix,text),
                                                                                                             //"The {project} has been restored from file <b>%s</b>.",
                                                                                                             _this.file.getName ()));
-
-                                                                        p.fireProjectEventLater (ProjectEvent.BACKUPS,
-                                                                                                 ProjectEvent.RESTORE);
-
+/*
+TODO
+                                                                        p.fireProjectEventLater (ProjectEvent.Type.backups,
+                                                                                                 ProjectEvent.Action.restore);
+*/
                                                                     } catch (Exception e) {
 
                                                                         Environment.logError ("Unable to reopen project: " +
@@ -549,10 +552,11 @@ public class BackupsManager extends Box implements ProjectEventListener
 
                                                 p.validate ();
                                                 p.repaint ();
-
-                                                BackupsManager.this.viewer.fireProjectEventLater (ProjectEvent.BACKUPS,
-                                                                                                  ProjectEvent.DELETE);
-
+/*
+TODO
+                                                BackupsManager.this.viewer.fireProjectEventLater (ProjectEvent.Type.backups,
+                                                                                                  ProjectEvent.Action.delete);
+*/
                                                 BackupsManager.this.update ();
 
                                             }

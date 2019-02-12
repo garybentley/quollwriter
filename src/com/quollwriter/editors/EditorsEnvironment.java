@@ -26,7 +26,7 @@ import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
 public class EditorsEnvironment
 {
@@ -111,7 +111,7 @@ public class EditorsEnvironment
         try
         {
 
-            EditorsEnvironment.schemaVersion = Integer.parseInt (Environment.getResourceFileAsString (Constants.EDITORS_SCHEMA_VERSION_FILE).trim ());
+            EditorsEnvironment.schemaVersion = Integer.parseInt (Utils.getResourceFileAsString (Constants.EDITORS_SCHEMA_VERSION_FILE).trim ());
 
         } catch (Exception e)
         {
@@ -151,151 +151,145 @@ public class EditorsEnvironment
         }
 
         // Bit of spelunking anyone???
-        Environment.addStartupProgressListener (new PropertyChangedListener ()
+        Environment.startupProgressProperty ().addListener ((p, oldv, newv) ->
         {
 
-            public void propertyChanged (PropertyChangedEvent ev)
+            if ((newv.intValue () == 100)
+                &&
+                (!EditorsEnvironment.startupLoginTried)
+               )
             {
 
-                if ((Environment.isStartupComplete ())
-                    &&
-                    (!EditorsEnvironment.startupLoginTried)
-                   )
+                if (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME))
                 {
 
-                    if (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME))
+                    UIUtils.doLater (new ActionListener ()
                     {
 
-                        UIUtils.doLater (new ActionListener ()
+                        public void actionPerformed (ActionEvent ev)
                         {
 
-                            public void actionPerformed (ActionEvent ev)
+                            String pwd = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME);
+
+                            String email = null;
+
+                            if (EditorsEnvironment.editorAccount != null)
                             {
 
-                                String pwd = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME);
-
-                                String email = null;
-
-                                if (EditorsEnvironment.editorAccount != null)
-                                {
-
-                                    email = EditorsEnvironment.editorAccount.getEmail ();
-
-                                }
-
-                                if (email == null)
-                                {
-
-                                    // Can't login, no account, this can happen if the user used to have an account and has
-                                    // deleted it with the setting enabled.
-                                    return;
-
-                                }
-
-                                // Add a notification to the project viewer saying we are logging in.
-                                final AbstractViewer viewer = Environment.getFocusedViewer ();
-
-                                Notification _n = null;
-
-                                // We may not have a viewer if we are opening an encrypted project.
-                                if (viewer != null)
-                                {
-
-                                    _n = viewer.addNotification (getUIString (LanguageStrings.editors,login,auto,notification),
-                                                                //"Logging in to the Editors service...",
-                                                                 Constants.EDITORS_ICON_NAME,
-                                                                 30);
-
-                                }
-
-                                final Notification n = _n;
-
-                                EditorsEnvironment.setLoginCredentials (email,
-                                                                        pwd);
-
-                                EditorsEnvironment.startupLoginTried = true;
-
-                                EditorsEnvironment.goOnline (null,
-                                                             new ActionListener ()
-                                                             {
-
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-
-                                                                    if (viewer != null)
-                                                                    {
-
-                                                                        viewer.removeNotification (n);
-
-                                                                    }
-
-                                                                }
-
-                                                             },
-                                                             // On cancel
-                                                             new ActionListener ()
-                                                             {
-
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-
-                                                                    if (viewer != null)
-                                                                    {
-
-                                                                        viewer.removeNotification (n);
-
-                                                                    }
-
-                                                                }
-
-                                                             },
-                                                             // On error
-                                                             new ActionListener ()
-                                                             {
-
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-
-                                                                    EditorsEnvironment.setLoginCredentials (EditorsEnvironment.editorAccount.getEmail (),
-                                                                                                            null);
-
-                                                                    if (viewer != null)
-                                                                    {
-
-                                                                        viewer.removeNotification (n);
-
-                                                                    }
-
-                                                                    EditorsUIUtils.showLoginError (getUIString (LanguageStrings.editors,login,auto,actionerror),
-                                                                                                    //"Unable to automatically login, please check your email and password.",
-                                                                                                   new ActionListener ()
-                                                                                                   {
-
-                                                                                                        public void actionPerformed (ActionEvent ev)
-                                                                                                        {
-
-                                                                                                            EditorsEnvironment.goOnline (null,
-                                                                                                                                         null,
-                                                                                                                                         null,
-                                                                                                                                         null);
-
-                                                                                                        }
-
-                                                                                                   },
-                                                                                                   null);
-
-                                                                }
-
-                                                             });
+                                email = EditorsEnvironment.editorAccount.getEmail ();
 
                             }
 
-                        });
+                            if (email == null)
+                            {
 
-                    }
+                                // Can't login, no account, this can happen if the user used to have an account and has
+                                // deleted it with the setting enabled.
+                                return;
+
+                            }
+
+                            // Add a notification to the project viewer saying we are logging in.
+                            final AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+
+                            Notification _n = null;
+
+                            // We may not have a viewer if we are opening an encrypted project.
+                            if (viewer != null)
+                            {
+
+                                _n = viewer.addNotification (getUIString (LanguageStrings.editors,login,auto,notification),
+                                                            //"Logging in to the Editors service...",
+                                                             Constants.EDITORS_ICON_NAME,
+                                                             30);
+
+                            }
+
+                            final Notification n = _n;
+
+                            EditorsEnvironment.setLoginCredentials (email,
+                                                                    pwd);
+
+                            EditorsEnvironment.startupLoginTried = true;
+
+                            EditorsEnvironment.goOnline (null,
+                                                         new ActionListener ()
+                                                         {
+
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                                if (viewer != null)
+                                                                {
+
+                                                                    viewer.removeNotification (n);
+
+                                                                }
+
+                                                            }
+
+                                                         },
+                                                         // On cancel
+                                                         new ActionListener ()
+                                                         {
+
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                                if (viewer != null)
+                                                                {
+
+                                                                    viewer.removeNotification (n);
+
+                                                                }
+
+                                                            }
+
+                                                         },
+                                                         // On error
+                                                         new ActionListener ()
+                                                         {
+
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                                EditorsEnvironment.setLoginCredentials (EditorsEnvironment.editorAccount.getEmail (),
+                                                                                                        null);
+
+                                                                if (viewer != null)
+                                                                {
+
+                                                                    viewer.removeNotification (n);
+
+                                                                }
+
+                                                                EditorsUIUtils.showLoginError (getUIString (LanguageStrings.editors,login,auto,actionerror),
+                                                                                                //"Unable to automatically login, please check your email and password.",
+                                                                                               new ActionListener ()
+                                                                                               {
+
+                                                                                                    public void actionPerformed (ActionEvent ev)
+                                                                                                    {
+
+                                                                                                        EditorsEnvironment.goOnline (null,
+                                                                                                                                     null,
+                                                                                                                                     null,
+                                                                                                                                     null);
+
+                                                                                                    }
+
+                                                                                               },
+                                                                                               null);
+
+                                                            }
+
+                                                         });
+
+                        }
+
+                    });
 
                 }
-
 
             }
 
@@ -952,7 +946,7 @@ public class EditorsEnvironment
 
         }
 
-        File f = new File (Environment.getUserQuollWriterDir (),
+        File f = new File (Environment.getUserQuollWriterDirPath ().toFile (),
                            Constants.EDITORS_AUTHOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
 
         f.getParentFile ().mkdirs ();
@@ -996,7 +990,7 @@ public class EditorsEnvironment
     public static File getEditorsAuthorFile ()
     {
 
-        File f = new File (Environment.getUserQuollWriterDir (),
+        File f = new File (Environment.getUserQuollWriterDirPath ().toFile (),
                            Constants.EDITORS_AUTHOR_FILE_NAME);
 
         f.getParentFile ().mkdirs ();
@@ -1015,7 +1009,7 @@ public class EditorsEnvironment
 
         }
 
-        File f = new File (Environment.getUserQuollWriterDir (),
+        File f = new File (Environment.getUserQuollWriterDirPath ().toFile (),
                            Constants.EDITORS_EDITOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
 
         f.getParentFile ().mkdirs ();
@@ -1059,7 +1053,7 @@ public class EditorsEnvironment
     public static File getEditorsEditorFile ()
     {
 
-        File f = new File (Environment.getUserQuollWriterDir (),
+        File f = new File (Environment.getUserQuollWriterDirPath ().toFile (),
                            Constants.EDITORS_EDITOR_FILE_NAME);
 
         f.getParentFile ().mkdirs ();
@@ -1141,7 +1135,7 @@ public class EditorsEnvironment
                                           " to accepted",
                                           e);
 
-                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                    AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                     UIUtils.showErrorMessage (viewer,
                                               getUIString (LanguageStrings.editors,LanguageStrings.editor,edit,actionerror));
@@ -1189,7 +1183,7 @@ public class EditorsEnvironment
 
                 } catch (Exception e) {
 
-                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                    AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                     UIUtils.showErrorMessage (viewer,
                                               getUIString (LanguageStrings.editors,LanguageStrings.editor,edit,actionerror));
@@ -1267,7 +1261,7 @@ public class EditorsEnvironment
 
                 } catch (Exception e) {
 
-                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                    AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                     UIUtils.showErrorMessage (viewer,
                                               getUIString (LanguageStrings.editors,editor,edit,actionerror));
@@ -1349,11 +1343,12 @@ public class EditorsEnvironment
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-
+/*
+TODO
                 UIUtils.showErrorMessage (Environment.getFocusedViewer (),
                                           getUIString (LanguageStrings.editors,user,edit,password,actionerror));
                                           //"Unable to update your password, please contact Quoll Writer support for assistance.");
-
+*/
             }
 
         };
@@ -1373,13 +1368,14 @@ public class EditorsEnvironment
                                                                       @Override
                                                                       public void actionPerformed (ActionEvent ev)
                                                                       {
-
+/*
+TODO
                                                                         UIUtils.showMessage ((PopupsSupported) Environment.getFocusedViewer (),
                                                                                              getUIString (LanguageStrings.editors,user,edit,password,confirmpopup,title),
                                                                                              //"Password updated",
                                                                                              getUIString (LanguageStrings.editors,user,edit,password,confirmpopup,text));
                                                                                              //"Your password has been updated.");
-
+*/
                                                                       }
 
                                                                   },
@@ -1406,7 +1402,7 @@ public class EditorsEnvironment
     private static void checkForUndealtWithMessages ()
     {
 
-        final AbstractViewer viewer = Environment.getFocusedViewer ();
+        final AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
         if (viewer == null)
         {
@@ -1532,7 +1528,7 @@ public class EditorsEnvironment
                                  final ActionListener onError)
     {
 
-        final AbstractViewer viewer = Environment.getFocusedViewer ();
+        final AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
         final String reason = (loginReason != null ? loginReason : getUIString (LanguageStrings.editors,login,reasons,_default));
         //"To go online you must first login.");
@@ -1794,7 +1790,7 @@ public class EditorsEnvironment
             public void processResult (EditorsWebServiceResult res)
             {
 
-                final AbstractViewer viewer = Environment.getFocusedViewer ();
+                final AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
                 boolean add = false;
 
                 // See if we already have this editor and this is a resend.
@@ -1885,7 +1881,7 @@ public class EditorsEnvironment
 
                                                                                 java.util.List<String> prefix = Arrays.asList (LanguageStrings.editors,user,invitesent,popup);
 
-                                                                                AbstractViewer viewer = Environment.getFocusedViewer ();
+                                                                                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                                                                                 UIUtils.showMessage ((PopupsSupported) viewer,
                                                                                                      getUIString (prefix,title),
@@ -2431,7 +2427,7 @@ public class EditorsEnvironment
         if (proj != null)
         {
 
-            AbstractProjectViewer pv = Environment.getProjectViewer (proj);
+            AbstractProjectViewer pv = null; // TODO Environment.getProjectViewer (proj);
 
             pv.getProject ().removeProjectEditor (pe);
 
@@ -2666,7 +2662,7 @@ public class EditorsEnvironment
                                       ed,
                                       e);
 
-                AbstractViewer viewer = Environment.getFocusedViewer ();
+                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                 UIUtils.showErrorMessage (viewer,
                                           getUIString (LanguageStrings.editors,editor,edit,actionerror));
@@ -2711,7 +2707,7 @@ public class EditorsEnvironment
                                                                                   ed,
                                                                                   e);
 
-                                                            AbstractViewer viewer = Environment.getFocusedViewer ();
+                                                            AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                                                             UIUtils.showErrorMessage (viewer,
                                                                                       getUIString (LanguageStrings.editors,editor,edit,actionerror));
@@ -2732,7 +2728,7 @@ public class EditorsEnvironment
                                                                                   ed,
                                                                                   e);
 
-                                                            AbstractViewer viewer = Environment.getFocusedViewer ();
+                                                            AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                                                             UIUtils.showErrorMessage (viewer,
                                                                                       getUIString (LanguageStrings.editors,editor,edit,actionerror));
@@ -3078,7 +3074,7 @@ public class EditorsEnvironment
         }
 
         // Load the per user properties.
-        File pf = Environment.getUserEditorsPropertiesFile ();
+        File pf = UserProperties.getUserEditorsPropertiesPath ().toFile ();
 
         JDOMUtils.writeElementToFile (props.getAsJDOMElement (),
                                       pf,
@@ -3208,7 +3204,7 @@ public class EditorsEnvironment
             //if (!EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.EDITORS_SEEN_OFFLINE_SEND_MESSAGE_PROPERTY_NAME))
             //{
 
-                AbstractViewer viewer = Environment.getFocusedViewer ();
+                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
                 UIUtils.showMessage ((PopupsSupported) viewer,
                                      getUIString (LanguageStrings.editors,messages,editoroffline,popup,title),
@@ -3241,7 +3237,7 @@ public class EditorsEnvironment
                                     throws Exception
     {
 
-        return new URL (Environment.getQuollWriterWebsite () + Environment.getProperty (Constants.EDITORS_SERVICE_REPORT_MESSAGE_PAGE_PROPERTY_NAME));
+        return new URL (Environment.getQuollWriterWebsite () + UserProperties.get (Constants.EDITORS_SERVICE_REPORT_MESSAGE_PAGE_PROPERTY_NAME));
 
     }
 
@@ -3385,11 +3381,12 @@ public class EditorsEnvironment
                                             onError.actionPerformed (new ActionEvent (res, 1, "error"));
 
                                         } else {
-
+/*
+TODO
                                             UIUtils.showErrorMessage (Environment.getFocusedViewer (),
                                                                       getUIString (LanguageStrings.editors,user,deleteaccount,actionerror));
                                                                       //"Unable to delete your account, please contact Quoll Writer support for assistance.");
-
+*/
                                         }
 
                                     }
@@ -3402,9 +3399,11 @@ public class EditorsEnvironment
                         };
 
                         // Offer to remove all the editor projects.
+                        /*
+                        TODO
                         EditorsUIUtils.showDeleteProjectsForAllEditors (Environment.getFocusedViewer (),
                                                                         deleteAcc);
-
+*/
                     }
 
                 });
@@ -3418,10 +3417,10 @@ public class EditorsEnvironment
     }
 
     public static File getEditorsMessageLogFile ()
+                                          throws IOException
     {
 
-        return new File (Environment.getLogDir (),
-                         Constants.EDITOR_MESSAGES_LOG_NAME);
+        return Environment.getLogDir ().resolve (Constants.EDITOR_MESSAGES_LOG_NAME).toFile ();
 
     }
 

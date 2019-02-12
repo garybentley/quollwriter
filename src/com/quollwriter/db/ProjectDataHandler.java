@@ -411,7 +411,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         try
         {
 
-            List params = new ArrayList ();
+            List<Object> params = new ArrayList<> ();
             params.add (p.getKey ());
 
             String whereDays = "";
@@ -428,7 +428,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                             params,
                                                             conn);
 
-            List<WordCount> ret = new ArrayList ();
+            List<WordCount> ret = new ArrayList<> ();
 
             while (rs.next ())
             {
@@ -564,13 +564,10 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
         }
 
-        List params = new ArrayList ();
-        params.add (p.getKey ());
-        params.add (Environment.getSchemaVersion ());
-        params.add (p.getType ());
-
         this.objectManager.executeStatement ("INSERT INTO project (dbkey, schema_version, type) VALUES (?, ?, ?)",
-                                             params,
+                                             Arrays.asList (p.getKey (),
+                                                            Environment.getSchemaVersion (),
+                                                            p.getType ()),
                                              conn);
 
         // Need to create the project version first since the chapters rely on it.
@@ -661,11 +658,9 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                        throws GeneralException
     {
 
-        List params = new ArrayList ();
-        params.add (p.getLastEdited ());
-        params.add (p.getKey ());
         this.objectManager.executeStatement ("UPDATE project SET lastedited = ? WHERE dbkey = ?",
-                                             params,
+                                             Arrays.asList (p.getLastEdited (),
+                                                            p.getKey ()),
                                              conn);
 
     }

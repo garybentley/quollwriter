@@ -231,8 +231,8 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
             try
             {
 
-                this.setDerivedFrom (Environment.getUILanguageStrings (did,
-                                                                       this.qwVersion));
+                this.setDerivedFrom (UILanguageStringsManager.getUILanguageStrings (did,
+                                                                                    this.qwVersion));
 
             } catch (Exception e) {
 
