@@ -77,7 +77,8 @@ import static com.quollwriter.Environment.getUIString;
 
 public abstract class AbstractProjectViewer extends AbstractViewer implements PropertyChangedListener,
                                                                               SpellCheckSupported,
-                                                                              HTMLPanelActionHandler
+                                                                              HTMLPanelActionHandler,
+                                                                              WindowStateListener
 {
 
     public static final String IDEA_BOARD_HEADER_CONTROL_ID = "ideaBoard";
@@ -177,6 +178,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private ScheduledFuture chapterCountsUpdater = null;
 	private TargetsData targets = null;
 	private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap ();
+
+    private int spHeight = -1;
+    private int spWidth = -1;
 
     public AbstractProjectViewer()
     {
@@ -311,6 +315,30 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         });
 
         this.setContent (this.cards);
+
+        this.addWindowStateListener (this);
+
+    }
+
+    @Override
+    public void windowStateChanged (WindowEvent l)
+    {
+
+        if ((this.getExtendedState () & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH)
+        {
+
+            // Save the current height/width away.
+            this.spHeight = this.splitPane.getSize ().height;
+            this.spWidth = this.splitPane.getSize ().width;
+
+        } else {
+
+            // Clear the height/width.
+            this.spHeight = -1;
+            this.spWidth = -1;
+
+        }
+
 
     }
 
@@ -2729,7 +2757,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         int wWidth = this.proj.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
 
-        if (wWidth > ss.width)
+        if (wWidth >= ss.width)
         {
 
             wWidth = (int) ((float) ss.width * 0.8f);
@@ -2738,7 +2766,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         int wHeight = this.proj.getPropertyAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
 
-        if (wHeight > ss.height)
+        if (wHeight >= ss.height)
         {
 
             wHeight = (int) ((float) ss.height * 0.8f);
@@ -2792,6 +2820,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                     }
 
                               });
+
+        }
+
+        if (this.proj.getPropertyAsBoolean (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME))
+        {
+
+            this.setExtendedState (JFrame.MAXIMIZED_BOTH);
 
         }
 
@@ -4716,11 +4751,31 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         try
         {
 
-            this.proj.setProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
-                                   this.splitPane.getSize ().height);
+            this.proj.setProperty (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME,
+                                   false);
 
-            this.proj.setProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME,
-                                   this.splitPane.getSize ().width);
+            if ((this.getExtendedState () & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH)
+            {
+
+                this.setExtendedState (JFrame.NORMAL);
+
+                this.proj.setProperty (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME,
+                                       true);
+                this.proj.setProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
+                                       this.spHeight);
+
+                this.proj.setProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME,
+                                       this.spWidth);
+
+            } else {
+
+                this.proj.setProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
+                                       this.splitPane.getSize ().height);
+
+                this.proj.setProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME,
+                                       this.splitPane.getSize ().width);
+
+            }
 
             this.proj.setProperty (Constants.PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME,
                                    this.sideBar.getSize ().width);

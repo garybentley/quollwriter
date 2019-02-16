@@ -209,6 +209,8 @@ public class Constants
 
     public static final String PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME = "projectSideBarWidth";
 
+    public static final String WINDOW_MAXIMIZED_PROPERTY_NAME = "windowMaximized";
+
     public static final String WINDOW_HEIGHT_PROPERTY_NAME = "windowHeight";
 
     public static final String WINDOW_WIDTH_PROPERTY_NAME = "windowWidth";
