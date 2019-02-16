@@ -2706,8 +2706,18 @@ public class Environment
 
             } catch (Exception e) {
 
-                pv.close (false,
-                          null);
+                try
+                {
+
+                    pv.close (false,
+                              null);
+                    
+                } catch (Exception ee) {
+
+                    Environment.logError ("Unable to close project after try open, project: " + p,
+                                          ee);
+
+                }
 
                 if (ObjectManager.isDatabaseAlreadyInUseException (e))
                 {
