@@ -310,7 +310,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.pack ();
 
         // Allow the underlying Windowing manager determine where to put the window.
-        this.setLocationByPlatform (true);
+        //this.setLocationByPlatform (true);
 
         this.setVisible (true);
 

@@ -2776,6 +2776,19 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.splitPane.setPreferredSize (new Dimension (wWidth,
                                                         wHeight));
 
+        int top = this.proj.getPropertyAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+        int left = this.proj.getPropertyAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+        if ((top > -1)
+            &&
+            (left > -1)
+           )
+        {
+
+            this.setLocation (left, top);
+
+        }
+
         this.setSplitPaneColor ();
 
         this.setToolbarLocation (this.proj.getProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME));
@@ -4751,6 +4764,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         try
         {
 
+            this.proj.setProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
+                                   this.getLocationOnScreen ().y);
+            this.proj.setProperty (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
+                                   this.getLocationOnScreen ().x);
+
             this.proj.setProperty (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME,
                                    false);
 
@@ -4785,7 +4803,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         } catch (Exception e)
         {
 
-            throw new GeneralException ("Unable to save open tab ids for project: " +
+            throw new GeneralException ("Unable to save open properties for project: " +
                                         this.proj,
                                         e);
 

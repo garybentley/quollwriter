@@ -1651,6 +1651,19 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         this.splitPane.setPreferredSize (new Dimension (width,
                                                         height));
 
+        int top = UserProperties.getAsInt ("landing-window-top-location");
+        int left = UserProperties.getAsInt ("landing-window-left-location");
+
+        if ((top > -1)
+            &&
+            (left > -1)
+           )
+        {
+
+            this.setLocation (left, top);
+
+        }
+
 		this.showProjects ();
 
         Environment.addProjectInfoChangedListener (this);
@@ -4172,6 +4185,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
     public boolean close (boolean              noConfirm,
                           final ActionListener afterClose)
 	{
+
+        UserProperties.set ("landing-window-top-location",
+							this.getLocationOnScreen ().y);
+
+        UserProperties.set ("landing-window-left-location",
+							this.getLocationOnScreen ().x);
 
 		this.setVisible (false);
 /*
