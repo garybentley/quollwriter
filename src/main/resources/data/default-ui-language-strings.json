@@ -396,6 +396,21 @@
             }
         }
     },
+    "filechooser" :
+    {
+        ":title" : "File Chooser",
+        ":section" : "General",
+        ":comment" : "Items relating to selecting a file.",
+        "image" :
+        {
+            "popup" :
+            {
+                "title" : "Find an Image",
+                "extensionfilter" : "Image files: jpg, png, gif",
+                ":comment.title" : "Only image files with a file extension of jpg, jpeg, gif and png are supported."
+            }
+        }
+    },
     "colorchooser" :
     {
         ":title" : "Color Chooser",
@@ -1494,11 +1509,19 @@
             "remove" : "Remove Selected",
             "title" : " Current Items",
             "tooltip" : "Double click to edit, press Enter when done.",
+            "edit" :
+            {
+                "errors" :
+                {
+                    "valueexists" : "That item already exists."
+                }
+            },
             "popupmenu" :
             {
                 "items" :
                 {
-                    "edit" : "${actions.edit}"
+                    "edit" : "${actions.edit}",
+                    "remove" : "${actions.remove}"
                 }
             }
         }
@@ -1607,6 +1630,7 @@
         "confirmword" : "Yes",
         "errorlabel" : "Please enter the word ${deleteitem.confirmword} to confirm the deletion.",
         "confirm" : "Yes, delete it",
+        "cancel" : "No, keep it",
         "tooltip" : "Click to delete this %1$s",
         ":comment.tooltip" : "%1$s is the object type name of the item.",
         ":scount.tooltip" : 1
@@ -5710,6 +5734,7 @@
         "delete" :
         {
             "tooltip" : "Click to delete this ${objectnames.singular.backup}",
+            "actionerror" : "Unable to delete the ${objectnames.singular.backup} file.",
             "confirmpopup" :
             {
                 "title" : "Confirm delete",
@@ -5932,7 +5957,8 @@
             "sourcecode" : "Source Code",
             "releasenotes" : "Release Notes",
             "makeadonation" : "Make a donation",
-            "acknowledgments" : "Acknowledgments"
+            "acknowledgments" : "Acknowledgments",
+            "supportqw" : "Support {QW}"
         }
     },
     "dowarmup" :
@@ -8302,8 +8328,8 @@
                 "deletetype" : "${objectnames.singular.project}",
                 "warning" :
                 {
-                    "normal" : "Warning!  Once deleted a ${objectnames.singular.project} cannot be restored.",
-                    ":comment.normal" : "This message is always shown.",
+                    "normal" : "<br /><br />Warning!  Once deleted a ${objectnames.singular.project} cannot be restored.",
+                    ":comment.normal" : "This message is always shown.  It is appended to ${deleteitem.text} which is why the br tags are at the front.",
                     "editor" : "<br /><br />A message will also be sent to <b>%1$s</b> telling them you are no longer editing the ${objectnames.singular.project}.",
                     ":comment.editor" : "%1$s is the name/email address of the person the user is editing the project for.  This message is shown when the user is editing the project for someone else.  The normal message is always shown, so this message acts as a suffix.",
                     ":scount.editor" : 1

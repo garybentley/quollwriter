@@ -205,7 +205,7 @@ public class Environment
             {
 
                 Environment.printStackTrace (e);
-                Environment.logError ("Unexcepted error from thread: " + t.getId () + "\n\nStack Trace: \n" + Utils.getStackTrace (e));
+                Environment.logError ("Unexcepted error from thread: " + t.getId () + "\nStack Trace: \n" + Utils.getStackTrace (e));
 
             }
 
@@ -1040,6 +1040,13 @@ TODO
 
     }
 
+    public static void printStackTrace ()
+    {
+
+        new Exception ().printStackTrace (Environment.out);
+
+    }
+
     public static void printStackTrace (Throwable e)
     {
 
@@ -1055,6 +1062,34 @@ TODO
                                                                                              null,
                                                                                              null,
                                                                                              true));
+
+        all.stream ()
+            .forEach (pi ->
+            {
+
+                pi.addNonWeakPropertyChangedListener (ev ->
+                {
+
+                    try
+                    {
+System.out.println ("HERE: ");
+                        Environment.updateProjectInfo (pi);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to update status for project: " +
+                                              pi,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                                         getUILanguageStringProperty (LanguageStrings.project,LanguageStrings.status,actionerror));
+                                                         //"Unable to update status");
+
+                    }
+
+                });
+
+            });
 
         Environment.allProjects.addAll (all);
 
@@ -1766,7 +1801,9 @@ TODO Needed?
                 }
 */
                 // Delete the backup directory.
-                Utils.deleteDir (pr.getBackupDirectory ());
+                Utils.deleteDir (pr.getBackupDirPath ().toFile ());
+                // TODO getBackupDirectory ());
+                // TODO Change to use a Path.
 
                 // Delete the files directory.
                 Utils.deleteDir (pr.getFilesDirectory ());
@@ -1828,6 +1865,13 @@ TODO Needed?
     public static void deleteProject (Project pr)
     {
 
+        Environment.deleteProject (Environment.getProjectInfo (pr));
+
+    }
+
+    public static void deleteProject (ProjectInfo pr)
+    {
+
         if (pr == null)
         {
 
@@ -1835,16 +1879,7 @@ TODO Needed?
 
         }
 
-        ProjectInfo p = Environment.getProjectInfo (pr);
-
-        if (p == null)
-        {
-
-            return;
-
-        }
-
-        Environment.deleteProject (p,
+        Environment.deleteProject (pr,
                                    // TODO Fix this.
                                    (Runnable) null);
 
@@ -5159,193 +5194,6 @@ TODO Remove
 
     }
 
-    // TODO Move to a BackupsManager.
-    public static void restoreBackupForProject (ProjectInfo p,
-                                                File        restoreFile)
-                                         throws Exception
-    {
-
-        // Get the project db file.
-        // TODO Change to use paths.
-
-        File dbFile = new File (p.getProjectDirectory (),
-                                Constants.PROJECT_DB_FILE_NAME_PREFIX + Constants.H2_DB_FILE_SUFFIX);
-
-        if (!dbFile.exists ())
-        {
-
-            throw new GeneralException ("No project database file found at: " +
-                                        dbFile +
-                                        ", for project: " +
-                                        p);
-
-        }
-
-        File oldDBFile = new File (dbFile.getPath () + ".old");
-
-        // Rename to .old
-        // TODO: Investigate using java.nio.file.Files.move instead.
-        if (!dbFile.renameTo (oldDBFile))
-        {
-
-            throw new GeneralException ("Unable to rename project database file to: " +
-                                        dbFile.getPath () + ".old" +
-                                        ", for project: " +
-                                        p);
-
-        }
-
-        try
-        {
-
-            Utils.extractZipFile (restoreFile,
-                                  p.getProjectDirectory ());
-
-            // See if there is a project db file in there now.
-            if (!dbFile.exists ())
-            {
-
-                throw new GeneralException ("Backup file does not contain a valid project db file");
-
-            }
-
-            oldDBFile.delete ();
-
-        } catch (Exception e) {
-
-            // Try and rename back.
-            oldDBFile.renameTo (dbFile);
-
-            throw e;
-
-        }
-
-    }
-
-    // TODO Move to a BackupsManager.
-    public static File createBackupForProject (Project p,
-                                               boolean noPrune)
-                                        throws Exception
-    {
-
-        return Environment.createBackupForProject (Environment.getProjectInfo (p),
-                                                   noPrune);
-
-    }
-
-    // TODO Move to a BackupsManager.
-    public static File createBackupForProject (ProjectInfo p,
-                                               boolean     noPrune)
-                                        throws Exception
-    {
-
-        boolean closePool = false;
-
-        AbstractProjectViewer pv = Environment.getProjectViewer (p);
-
-        ObjectManager om = null;
-        Project proj = null;
-
-        if (pv != null)
-        {
-
-            // Load up the chapters.
-            om = pv.getObjectManager ();
-
-            proj = pv.getProject ();
-
-        } else {
-
-            if ((p.isEncrypted ())
-                &&
-                (p.getFilePassword () == null)
-               )
-            {
-
-                throw new IllegalArgumentException ("The file password must be specified for encrypted projects when the project is not already open.");
-
-            }
-
-            // Open the project.
-            try
-            {
-
-                om = Environment.getProjectObjectManager (p,
-                                                          p.getFilePassword ());
-
-                proj = om.getProject ();
-
-            } catch (Exception e) {
-
-                // Can't open the project.
-                if (om != null)
-                {
-
-                    om.closeConnectionPool ();
-
-                }
-
-                throw e;
-
-            }
-
-            proj.setBackupDirectory (p.getBackupDirectory ());
-
-            closePool = true;
-
-        }
-
-        String backupCount = proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME);
-
-        int count = -1;
-
-        if ((backupCount != null)
-            &&
-            // Legacy, pre 2.6.5
-            (!backupCount.equals ("All"))
-           )
-        {
-
-            try
-            {
-
-                count = Integer.parseInt (backupCount);
-
-            } catch (Exception e) {}
-
-        }
-
-        try
-        {
-
-            File f = om.createBackup (proj,
-                                      (noPrune ? -1 : count));
-
-            Environment.fireUserProjectEvent (proj,
-                                              ProjectEvent.Type.backups,
-                                              ProjectEvent.Action._new,
-                                              proj);
-
-            return f;
-
-        } finally {
-
-            if (closePool)
-            {
-
-                if (om != null)
-                {
-
-                    om.closeConnectionPool ();
-
-                }
-
-            }
-
-        }
-
-    }
-
     // TODO Move to a better place.
     public static String getQuollWriterWebsiteLink (String url,
                                                     String linkText)
@@ -5795,6 +5643,65 @@ TODO
         }
 
         return new javax.swing.ImageIcon (url).getImage ();
+
+    }
+
+    public static WarmupProjectViewer getWarmupProjectViewer ()
+                                                       throws Exception
+    {
+
+        ProjectInfo pi = Environment.allProjects.stream ()
+            .filter (pr -> pr.isWarmupsProject ())
+            .findFirst ()
+            .orElse (null);
+
+        if (pi == null)
+        {
+
+            WarmupProjectViewer v = new WarmupProjectViewer ();
+
+            Project p = new Project (Constants.DEFAULT_WARMUPS_PROJECT_NAME);
+            p.setType (Project.WARMUPS_PROJECT_TYPE);
+
+            try
+            {
+
+                v.init (null);
+
+                // Put it in the user's directory.
+                v.newProject (Environment.getUserQuollWriterDirPath (),
+                              p,
+                              null);
+
+                ComponentUtils.showMessage (null,
+                                            getUILanguageStringProperty (dowarmup,createwarmupsproject,title),
+                                            //"{Warmups} project",
+                                            getUILanguageStringProperty (dowarmup,createwarmupsproject,text));
+                                            //"A {Warmups} {project} will now be created to hold your {warmups}.",
+
+                return v;
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to create warmups project",
+                                      e);
+
+                ComponentUtils.showErrorMessage (null,
+                                                 getUILanguageStringProperty (prefix,createwarmupsproject,actionerror));
+                                          //"Unable to create {Warmups} project please contact Quoll Writer support for assistance.");
+
+                return null;
+
+            }
+
+        }
+
+        WarmupProjectViewer v = new WarmupProjectViewer ();
+        v.init (null);
+        v.openProject (pi,
+                       null);
+
+        return v;
 
     }
 

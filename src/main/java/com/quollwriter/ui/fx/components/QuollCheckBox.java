@@ -2,6 +2,8 @@ package com.quollwriter.ui.fx.components;
 
 import java.util.*;
 
+import javafx.event.*;
+import javafx.scene.input.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 
@@ -41,6 +43,13 @@ public class QuollCheckBox extends CheckBox
 
         }
 
+        if (b.onAction != null)
+        {
+
+            this.setOnAction (b.onAction);
+
+        }
+
     }
 
     public static QuollCheckBox.Builder builder ()
@@ -57,6 +66,7 @@ public class QuollCheckBox extends CheckBox
         private StringProperty tooltip = null;
         private String styleName = null;
         private Boolean selected = false;
+        private EventHandler<ActionEvent> onAction = null;
 
         private Builder ()
         {
@@ -121,6 +131,14 @@ public class QuollCheckBox extends CheckBox
         {
 
             this.selected = v;
+            return this;
+
+        }
+
+        public Builder onAction (EventHandler<ActionEvent> h)
+        {
+
+            this.onAction = h;
             return this;
 
         }

@@ -44,14 +44,17 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+
+    compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.9.3'
+    implementation 'org.fxmisc.richtext:richtextfx:0.9.3'
 }
 
 compileJava {
     options.compilerArgs =
     [
-        '--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
+        '--add-modules=java.base,javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
         '--module-path',
-        'D:/reference/java/javafx/javafx-sdk-11.0.2/lib'
+        'D:/reference/java/javafx/javafx-sdk-12/lib'
     ]
 }
 
@@ -63,7 +66,7 @@ jar {
 
 javadoc {
     doFirst {
-        options.addStringOption ('-module-path', 'D:/reference/java/javafx/javafx-sdk-11.0.2/lib')
+        options.addStringOption ('-module-path', 'D:/reference/java/javafx/javafx-sdk-12/lib')
         options.addStringOption ('-add-modules', 'javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach')
     }
 }
@@ -73,7 +76,7 @@ application {
     [
         '--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
         '--module-path',
-        'D:/reference/java/javafx/javafx-sdk-11.0.2/lib'
+        'D:/reference/java/javafx/javafx-sdk-12/lib'
     ]
 
     // Define the main class for the application

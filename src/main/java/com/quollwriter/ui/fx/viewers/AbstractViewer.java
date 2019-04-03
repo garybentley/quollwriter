@@ -83,22 +83,18 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     private boolean ignoreProjectEvents = false;
 
     private Map<String, SideBar> sideBars = new HashMap<> ();
-    private Stack<SideBar>  activeSideBars = new Stack ();
+    private Stack<SideBar>  activeSideBars = new Stack<> ();
     private SideBar       currentOtherSideBar = null;
     private SideBar       mainSideBar = null;
 
     private StackPane sidebarsPane = null;
     private StackPane otherSidebarsPane = null;
-    private VBox sidebarsPaneWrapper = null;
-    private VBox otherSidebarsPaneWrapper = null;
     private SplitPane parentPane = null;
-    private StackPane contentPane = null;
     private Node content = null;
     private VBox notifications = null;
 
     private EditorsSideBar editorsSideBar = null;
 
-    private SimpleStringProperty layoutProp = null;
     private Set<QuollPopup> popups = new HashSet<> ();
 
     public AbstractViewer ()
@@ -135,22 +131,19 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         VBox.setVgrow (this.notifications,
                        Priority.NEVER);
 
-        this.parentPane = new SplitPane ();
-
         this.sidebarsPane = new StackPane ();
         this.sidebarsPane.getStyleClass ().add (StyleClassNames.SIDEBARS);
-        this.sidebarsPane.setVisible (false);
+        this.sidebarsPane.managedProperty ().bind (this.sidebarsPane.visibleProperty ());
+        SplitPane.setResizableWithParent (this.sidebarsPane, false);
 
         this.otherSidebarsPane = new StackPane ();
         this.otherSidebarsPane.getStyleClass ().add (StyleClassNames.OTHERSIDEBARS);
-        this.otherSidebarsPane.setVisible (false);
+        this.otherSidebarsPane.managedProperty ().bind (this.otherSidebarsPane.visibleProperty ());
+        SplitPane.setResizableWithParent (this.otherSidebarsPane, false);
 
-        this.contentPane = new StackPane ();
-        SplitPane.setResizableWithParent (this.contentPane, true);
-        this.contentPane.getStyleClass ().add (StyleClassNames.CONTENT);
-        this.parentPane.getItems ().addAll (//this.sidebarsPane,
-                                            //this.otherSidebarsPane,
-                                            this.contentPane);
+        this.parentPane = new SplitPane ();
+        SplitPane.setResizableWithParent (this.parentPane, true);
+        this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
         this.getChildren ().add (this.parentPane);
         VBox.setVgrow (this.parentPane,
                        Priority.ALWAYS);
@@ -171,18 +164,12 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         this.updateForDebugMode ();
 
-        // We set the value in init which triggers the layout.
-        this.layoutProp = new SimpleStringProperty ();
-
-        // When the layout property changes, update the layout.
-        this.layoutProp.addListener ((prop, oldv, newv) -> this.updateLayout ());
-
         // When we update our user property, update the layout property.
         // TODO Have a better bind.
-        UserProperties.addListener (ev ->
+        UserProperties.uiLayoutProperty ().addListener ((prop, oldv, newv) ->
         {
 
-            this.layoutProp.setValue (ev.getProperty ().getValue ());
+            _this.updateLayout ();
 
         });
 
@@ -191,74 +178,75 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     public QuollPopup getPopupById (String id)
     {
 
-        for (QuollPopup p : this.popups)
-        {
-
-            if (p.getPopupId ().equals (id))
-            {
-
-                return p;
-
-            }
-
-        }
-
-        return null;
+        return this.popups.stream ()
+            .filter (p -> p.getPopupId () != null && p.getPopupId ().equals (id))
+            .findFirst ()
+            .orElse (null);
 
     }
 
     public void showPopup (QuollPopup p,
-                           int        x,
-                           int        y)
+                           double     x,
+                           double     y)
     {
 
+        p.setVisible (false);
         this.addPopup (p);
-        p.setManaged (false);
-
-        int w = (int) p.getPrefWidth ();
-
-        w = w > -1 ? w : 450;
-
-        Bounds b = this.getLayoutBounds ();
-
-        if (x == -1)
-        {
-
-            x = (int) ((b.getWidth () / 2) - (w / 2d));
-
-        }
-
-        if (y == -1)
-        {
-
-            y = (int) ((b.getHeight () / 2) - (p.prefHeight (w) / 2d));
-
-        }
-
-        if (x < 0)
-        {
-
-            x = 0;
-
-        }
-
-        if (y < 0)
-        {
-
-            y = 0;
-
-        }
+        //p.setManaged (false);
 
         //p.layout ();
 
         //p.relocate (x, y);
 
-        p.resizeRelocate (x,
-                          y,
-                          w,
-                          p.prefHeight (w));
+        UIUtils.runLater (() ->
+        {
 
-        p.setVisible (true);
+            double w = p.getPrefWidth ();
+
+            w = w > -1 ? w : 450;
+
+            double _x = x;
+            double _y = y;
+
+            Bounds b = this.getLayoutBounds ();
+
+            if (_x == -1)
+            {
+
+                _x = ((b.getWidth () / 2) - (w / 2d));
+
+            }
+
+            if (_y == -1)
+            {
+
+                _y = ((b.getHeight () / 2) - (p.prefHeight (w) / 2d));
+
+            }
+
+            if (_x < 0)
+            {
+
+                _x = 0;
+
+            }
+
+            if (_y < 0)
+            {
+
+                _y = 0;
+
+            }
+
+            // Casting to a whole number is required here to prevent blurring.
+            p.resizeRelocate ((int) _x,
+                              (int) _y,
+                              w,
+                              p.prefHeight (w));
+
+            p.setVisible (true);
+
+        });
 
     }
 
@@ -290,17 +278,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     public void setContent (Node n)
     {
 
-        if (this.content != null)
-        {
-
-            this.contentPane.getChildren ().remove (this.content);
-
-        }
-
-        this.contentPane.getChildren ().add (n);
         this.content = n;
 
-        // TODO Update for the sidebars...
+        this.updateLayout ();
 
     }
 
@@ -440,10 +420,10 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         this.addActionMapping (() ->
         {
-
+/*
 			UserProperties.set (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
 								"0");
-
+*/
             _this.showWhatsNew (true);
 
         },
@@ -560,7 +540,16 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     public State getState ()
     {
 
-        return new State ();
+        State s = this.getViewer ().getState ();
+
+        if (s == null)
+        {
+
+            s = new State ();
+
+        }
+
+        return s;
 
     }
 
@@ -574,7 +563,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         this.getViewer ().init (s);
 
-        this.layoutProp.setValue (this.getUILayout ());
+        this.updateLayout ();
 
         Environment.doNewsAndVersionCheck (this);
 
@@ -582,7 +571,14 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         this.handleShowTips ();
 
-        this.show ();
+        // We show later to ensure that the init has worked.
+
+        UIUtils.runLater (() ->
+        {
+
+            this.show ();
+
+        });
 
     }
 
@@ -598,6 +594,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         // Fire an event.
         this.fireEvent (new Viewer.ViewerEvent (this.getViewer (),
                                                 Viewer.ViewerEvent.CLOSE_EVENT));
+
+        UIUtils.runLater (afterClose);
 
     }
 
@@ -668,40 +666,28 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
      */
     public void updateLayout ()
     {
-if (true)
-{
-    /// TODO xxx
-    return;
-}
-        String layout = this.layoutProp.getValue ();
 
-        // Legacy, pre-2.3
-        if (layout.equals (Constants.LEFT))
-        {
+        String layout = UserProperties.uiLayoutProperty ().getValue ();
 
-            layout = Constants.LAYOUT_PS_CH;
-
-        }
-
-        if (layout.equals (Constants.RIGHT))
-        {
-
-            layout = Constants.LAYOUT_CH_PS;
-
-        }
-
-        this.parentPane.getItems ().removeAll ();
+        this.parentPane.getItems ().clear ();
 
         if (layout.equals (Constants.LAYOUT_PS_CH_OS))
         {
 
             // Add the main sidebar, the content and the other sidebar (if present).
-            this.parentPane.getItems ().addAll (this.sidebarsPaneWrapper, this.content);
-
-            if (other != null)
+            if (this.mainSideBar != null)
             {
 
-                this.parentPane.getItems ().add (this.otherSidebarsPaneWrapper);
+                this.parentPane.getItems ().add (this.sidebarsPane);
+
+            }
+
+            this.parentPane.getItems ().addAll (this.content);
+
+            if (this.currentOtherSideBar != null)
+            {
+
+                this.parentPane.getItems ().add (this.otherSidebarsPane);
 
             }
 
@@ -712,14 +698,21 @@ if (true)
         if (layout.equals (Constants.LAYOUT_OS_CH_PS))
         {
 
-            if (other != null)
+            if (this.currentOtherSideBar != null)
             {
 
-                this.parentPane.getItems ().add (this.otherSidebarsPaneWrapper);
+                this.parentPane.getItems ().add (this.otherSidebarsPane);
 
             }
 
-            this.parentPane.getItems ().addAll (this.sidebarsPaneWrapper, this.content);
+            if (this.mainSideBar != null)
+            {
+
+                this.parentPane.getItems ().add (this.sidebarsPane);
+
+            }
+
+            this.parentPane.getItems ().addAll (this.content);
 
             // Update the divider locations?
 
@@ -728,12 +721,17 @@ if (true)
         if (layout.equals (Constants.LAYOUT_PS_OS_CH))
         {
 
-            this.parentPane.getItems ().add (this.sidebarsPaneWrapper);
+            if (this.mainSideBar != null)
+            {
+
+                this.parentPane.getItems ().add (this.sidebarsPane);
+
+            }
 
             if (other != null)
             {
 
-                this.parentPane.getItems ().add (this.otherSidebarsPaneWrapper);
+                this.parentPane.getItems ().add (this.otherSidebarsPane);
 
             }
 
@@ -751,27 +749,78 @@ if (true)
             if (other != null)
             {
 
-                this.parentPane.getItems ().add (this.otherSidebarsPaneWrapper);
+                this.parentPane.getItems ().add (this.otherSidebarsPane);
 
             }
 
-            this.parentPane.getItems ().add (this.sidebarsPaneWrapper);
+            if (this.mainSideBar != null)
+            {
 
-            // Update the divider locations?
+                this.parentPane.getItems ().add (this.sidebarsPane);
+
+            }
 
         }
 
         if (layout.equals (Constants.LAYOUT_PS_CH))
         {
 
-            this.parentPane.getItems ().addAll (this.sidebarsPaneWrapper, this.content);
+            double w = 0;
+
+            SideBar sb = (this.currentOtherSideBar != null ? this.currentOtherSideBar : this.mainSideBar);
+
+            if (sb != null)
+            {
+
+                w = this.sidebarsPane.getWidth ();
+
+                this.sidebarsPane.getChildren ().clear ();
+                this.sidebarsPane.getChildren ().add (sb);
+
+                this.parentPane.getItems ().add (this.sidebarsPane);
+
+            }
+
+            this.parentPane.getItems ().add (this.content);
+
+            if (sb != null)
+            {
+
+                double _w = w;
+
+                UIUtils.runLater (() ->
+                {
+
+                    double mw = _w;
+
+                    if (mw < 1)
+                    {
+
+                        mw = Math.min (sb.prefWidth (this.parentPane.getHeight ()), _w);
+
+                    }
+
+                    double pw = this.parentPane.getWidth ();
+
+                    this.parentPane.setDividerPositions (mw / pw);
+
+                });
+
+            }
 
         }
 
         if (layout.equals (Constants.LAYOUT_CH_PS))
         {
 
-            this.parentPane.getItems ().addAll (this.content, this.sidebarsPaneWrapper);
+            this.parentPane.getItems ().addAll (this.content);
+
+            if (this.mainSideBar != null)
+            {
+
+                this.parentPane.getItems ().add (this.sidebarsPane);
+
+            }
 
         }
 
@@ -1112,14 +1161,44 @@ if (true)
     public void showWhatsNew (boolean v)
     {
 
-        // TODO
+        QuollPopup qp = this.getPopupById (WhatsNewPopup.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        try
+        {
+
+            WhatsNewPopup p = new WhatsNewPopup (this,
+                                                 v);
+
+            p.show ();
+
+        } catch (Exception e) {
+
+            // Not good but not the end of the world but shouldn't stop things from going on.
+            Environment.logError ("Unable to init whats new",
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (whatsnew,actionerror));
+                                      //"Unable to show What's New, please contact Quoll Writer support for assistance.");
+
+            return;
+
+        }
 
     }
 
     public void showContactSupport ()
     {
 
-        // TODO
+        new ContactSupportPopup (this).show ();
 
     }
 
@@ -1134,6 +1213,18 @@ if (true)
     {
 
         // TODO
+        QuollPopup qp = this.getPopupById (AboutPopup.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.show ();
+            qp.toFront ();
+            return;
+
+        }
+
+        new AboutPopup (this).show ();
 
     }
 
@@ -1147,7 +1238,18 @@ if (true)
     public void showWarmupPromptSelect ()
     {
 
-        // TODO
+        QuollPopup qp = this.getPopupById (DoWarmupExercisePopup.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.show ();
+            qp.toFront ();
+            return;
+
+        }
+
+        new DoWarmupExercisePopup (this).show ();
 
     }
 
@@ -1249,7 +1351,7 @@ TODO
                     .onAction (ev ->
                     {
 
-                        if ((_this.isSideBarVisible (EditorsSideBar.ID))
+                        if ((_this.isSideBarVisible (EditorsSideBar.SIDEBAR_ID))
                             &&
                             (!EditorsEnvironment.isUserLoggedIn ())
                            )
@@ -1344,6 +1446,16 @@ TODO
 
     }
 
+    public void setMainSideBar (SideBar sb)
+    {
+
+        this.mainSideBar = sb;
+        this.sidebarsPane.getChildren ().clear ();
+        this.sidebarsPane.getChildren ().add (sb);
+        this.updateLayout ();
+
+    }
+
     public void showSideBar (SideBar sb)
     {
 
@@ -1379,6 +1491,7 @@ TODO
            )
         {
 
+            this.currentOtherSideBar.setVisible (true);
             return;
 
         }
@@ -1397,9 +1510,10 @@ TODO
         if (this.currentOtherSideBar != null)
         {
 
+            this.currentOtherSideBar.setVisible (false);
             this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
                                                                           this.currentOtherSideBar,
-                                                                          SideBar.SideBarEvent.SHOW_EVENT));
+                                                                          SideBar.SideBarEvent.HIDE_EVENT));
 
         }
 
@@ -1418,10 +1532,18 @@ TODO
         } else {
 
             this.currentOtherSideBar = b;
+            this.currentOtherSideBar.setVisible (true);
+
+            this.otherSidebarsPane.getChildren ().removeAll ();
+            this.otherSidebarsPane.getChildren ().add (this.currentOtherSideBar);
 
             this.activeSideBars.remove (b);
 
             this.activeSideBars.push (b);
+
+            this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
+                                                                          this.currentOtherSideBar,
+                                                                          SideBar.SideBarEvent.SHOW_EVENT));
 
         }
 
@@ -1440,10 +1562,6 @@ TODO
 
 		}
 */
-        b.fireEvent (new SideBar.SideBarEvent (this,
-                                               b,
-                                               SideBar.SideBarEvent.HIDE_EVENT));
-
         if (doAfterView != null)
         {
 
@@ -1457,8 +1575,9 @@ TODO
     {
 
         int c = this.activeSideBars.size ();
-
-        String l = this.layoutProp.getValue ();
+/*
+TODO Clean up?
+        String l = UserProperties.uiLayoutProperty ().getValue ();
 
         if ((l.equals (Constants.LEFT))
             ||
@@ -1473,7 +1592,7 @@ TODO
             c++;
 
         }
-
+*/
         return c;
 
     }
@@ -1485,7 +1604,7 @@ TODO
 
         ContextMenu m = new ContextMenu ();
 
-        String l = this.layoutProp.getValue ();
+        String l = UserProperties.uiLayoutProperty ().getValue ();
 
         if (this.currentOtherSideBar != null)
         {
@@ -1556,7 +1675,15 @@ TODO
     public void showMainSideBar ()
     {
 
-        this.showSideBar (this.getMainSideBarId ());
+        if (this.getMainSideBarId () != null)
+        {
+
+            this.showSideBar (this.getMainSideBarId ());
+            return;
+
+        }
+
+        this.updateLayout ();
 
     }
 
@@ -1570,7 +1697,14 @@ TODO
 
         }
 
-        return this.mainSideBar.getSideBarId ();
+        if (this.mainSideBar != null)
+        {
+
+            return this.mainSideBar.getSideBarId ();
+
+        }
+
+        return null;
 
     }
 
@@ -1597,6 +1731,8 @@ TODO
             this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
                                                                           this.currentOtherSideBar,
                                                                           SideBar.SideBarEvent.HIDE_EVENT));
+
+            this.currentOtherSideBar.setVisible (false);
 
         }
 
@@ -1698,23 +1834,25 @@ TODO
 
         }
 
-/* TODO Do when creating sidebar.
-        String state = null;
+        String sid = sb.getSideBarId ();
 
-        String id = sb.getSiId ();
-
-        if (id != null)
+        if (sid == null)
         {
 
-            state = this.proj.getProperty ("sidebarState-" + id);
+            throw new IllegalArgumentException ("Sidebar must have an id.");
 
         }
-*/
-        // TODO Do when creating sidebar... sb.init (state);
 
-        //sb.setName (name);
+        SideBar _sb = this.getSideBar (sid);
 
-        this.sideBars.put (sb.getSideBarId (),
+        if (_sb != null)
+        {
+
+            throw new IllegalArgumentException ("Already have a sidebar with id: " + sid);
+
+        }
+
+        this.sideBars.put (sid,
                            sb);
 
     }
@@ -1817,7 +1955,7 @@ TODO
 
       }
 
-      this.showSideBar (EditorsSideBar.ID);
+      this.showSideBar (EditorsSideBar.SIDEBAR_ID);
 
       return true;
 
@@ -1898,7 +2036,8 @@ TODO
         return uiLayout;
 
     }
-
+/*
+TODO Not needed, is a function of the sidebar itself...
     public void addToSidebarWrapper (Side where,
                                      Node node)
     {
@@ -1906,8 +2045,8 @@ TODO
         if (where == Side.TOP)
         {
 
-            this.sidebarsPaneWrapper.getChildren ().add (0,
-                                                         node);
+            this.sidebarsPane.getChildren ().add (0,
+                                             node);
 
             return;
 
@@ -1925,7 +2064,7 @@ TODO
         throw new IllegalArgumentException ("Side: " + where + " is not supported.");
 
     }
-
+*/
     public Viewer getViewer ()
     {
 
@@ -2170,8 +2309,6 @@ TODO
 
     public void show ()
     {
-
-        //this.getViewer ().sizeToScene ();
 
         this.getViewer ().show ();
 

@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.components;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.beans.property.*;
 import javafx.scene.*;
@@ -15,6 +16,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 import static com.quollwriter.LanguageStrings.*;
 
 public class ComponentUtils
@@ -107,6 +109,13 @@ public class ComponentUtils
             .show ()
             .build ();
 
+        UIUtils.runLater (() ->
+        {
+
+            qp.toFront ();
+
+        });
+
         return qp;
 
     }
@@ -192,7 +201,7 @@ public class ComponentUtils
                                                   StringProperty message,
                                                   StringProperty confirmButtonLabel,
                                                   StringProperty cancelButtonLabel,
-                                                  EventHandler<Form.FormEvent> onConfirm,
+                                                  EventHandler<ActionEvent> onConfirm,
                                                   AbstractViewer showOn)
     {
 
@@ -208,35 +217,227 @@ public class ComponentUtils
 
     }
 
-    public static QuollPopup createQuestionPopup (StringProperty  title,
-                                                  String          style,
-                                                  StringProperty  message,
-                                                  StringProperty  confirmButtonLabel,
-                                                  StringProperty  cancelButtonLabel,
-                                                  final EventHandler<Form.FormEvent>  onConfirm,
-                                                  final EventHandler<Form.FormEvent>  onCancel,
-                                                  final Runnable  onClose,
-                                                  AbstractViewer  showOn)
+    public static QuollPopup createYesConfirmPopup (StringProperty  title,
+                                                    String          style,
+                                                    StringProperty  message,
+                                                    StringProperty  entryLabel,
+                                                    StringProperty  confirmButtonLabel,
+                                                   StringProperty  cancelButtonLabel,
+                                                   final EventHandler<Form.FormEvent>  onConfirm,
+                                                   final EventHandler<Form.FormEvent>  onCancel,
+                                                   final Runnable  onClose,
+                                                   AbstractViewer  showOn)
     {
 
+        return ComponentUtils.createTextEntryPopup (title,
+                                                    style,
+                                                    message,
+                                                    null,
+                                                    v ->
+                                                    {
+
+                                                        if ((v == null)
+                                                            ||
+                                                            (!v.trim ().equalsIgnoreCase (getUIString (form,affirmativevalue)))
+                                                           )
+                                                        {
+
+                                                            return getUILanguageStringProperty (form,errors,affirmativevalue);
+                                                            //"Please enter the word Yes below.";
+
+                                                        }
+
+                                                        return null;
+
+                                                    },
+                                                    confirmButtonLabel,
+                                                    cancelButtonLabel,
+                                                    onConfirm,
+                                                    onCancel,
+                                                    onClose,
+                                                    showOn);
+
+    }
+
+    public static QuollPopup createTextEntryPopup (StringProperty  title,
+                                                   String          style,
+                                                   StringProperty  message,
+                                                   StringProperty  entryLabel,
+                                                   ValueValidator<String> validator,
+                                                   StringProperty  confirmButtonLabel,
+                                                   StringProperty  cancelButtonLabel,
+                                                   final EventHandler<Form.FormEvent>  onConfirm,
+                                                   final EventHandler<Form.FormEvent>  onCancel,
+                                                   final Runnable  onClose,
+                                                   AbstractViewer  showOn)
+    {
+
+        if (validator == null)
+        {
+
+            throw new IllegalArgumentException ("Expected a validator.");
+
+        }
+
+        QuollTextField tf = QuollTextField.builder ()
+            .build ();
+        // TODO Make a constant.
+        tf.setId ("text");
+
         Form f = Form.builder ()
-            .styleClassName (style != null ? style : StyleClassNames.QUESTION)
+            .styleClassName (StyleClassNames.TEXTENTRY)
             .description (message)
+            .item (entryLabel,
+                   tf)
             .confirmButton ((confirmButtonLabel != null ? confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
             .cancelButton ((cancelButtonLabel != null ? cancelButtonLabel : getUILanguageStringProperty (buttons,cancel)))
             .build ();
 
-        f.setOnConfirm (onConfirm);
         f.setOnCancel (onCancel);
 
         QuollPopup qp = QuollPopup.builder ()
             .title (title)
-            .styleClassName (StyleClassNames.QUESTION)
+            .styleClassName (style != null ? style : StyleClassNames.QUESTION)
             .content (f)
             .onClose (onClose)
             .withClose (true)
             .withViewer (showOn)
             .hideOnEscape (true)
+            .removeOnClose (true)
+            .build ();
+
+        Button cancel = f.getCancelButton ();
+
+        if (cancel != null)
+        {
+
+            cancel.addEventHandler (ActionEvent.ACTION,
+                                    ev -> qp.close ());
+
+        }
+
+        Runnable r = () ->
+        {
+
+            f.hideError ();
+
+            StringProperty m = validator.isValid (tf.getText ());
+
+            if (m != null)
+            {
+
+                f.showError (m);
+                return;
+
+            }
+
+            onConfirm.handle (new Form.FormEvent (f,
+                                                  Form.FormEvent.CONFIRM_EVENT));
+
+            qp.close ();
+
+        };
+
+        UIUtils.addDoOnReturnPressed (tf,
+                                      r);
+
+        f.setOnConfirm (ev ->
+        {
+
+            UIUtils.runLater (r);
+
+        });
+
+        qp.show ();
+
+        UIUtils.runLater (() ->
+        {
+
+            tf.requestFocus ();
+
+        });
+
+        return qp;
+
+    }
+
+    public static QuollPopup createPasswordEntryPopup (StringProperty  title,
+                                                       String          style,
+                                                       StringProperty  message,
+                                                       StringProperty  entryLabel,
+                                                       ValueValidator<String> validator,
+                                                       StringProperty  confirmButtonLabel,
+                                                       StringProperty  cancelButtonLabel,
+                                                       final Consumer<String> onProvided,
+                                                       final Runnable         onCancel,
+                                                       final Runnable  onClose,
+                                                       AbstractViewer  showOn)
+    {
+
+        if (validator == null)
+        {
+
+            throw new IllegalArgumentException ("Expected a validator.");
+
+        }
+
+        PasswordField tf = new PasswordField ();
+        // TODO Make a constant.
+        tf.setId ("password");
+
+        Form f = Form.builder ()
+            .styleClassName (style != null ? style : StyleClassNames.PASSWORD)
+            .description (message)
+            .item (entryLabel,
+                   tf)
+            .confirmButton ((confirmButtonLabel != null ? confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
+            .cancelButton ((cancelButtonLabel != null ? cancelButtonLabel : getUILanguageStringProperty (buttons,cancel)))
+            .build ();
+
+        Runnable r = () ->
+        {
+
+            f.hideError ();
+
+            StringProperty m = validator.isValid (tf.getText ());
+
+            if (m != null)
+            {
+
+                f.showError (m);
+                return;
+
+            }
+
+            onProvided.accept (tf.getText ());
+
+        };
+
+        UIUtils.addDoOnReturnPressed (tf,
+                                      r);
+
+        f.setOnConfirm (ev ->
+        {
+
+            UIUtils.runLater (r);
+
+        });
+        f.setOnCancel (ev ->
+        {
+
+            UIUtils.runLater (onCancel);
+
+        });
+
+        QuollPopup qp = QuollPopup.builder ()
+            .title (title)
+            .styleClassName (StyleClassNames.PASSWORD)
+            .content (f)
+            .onClose (onClose)
+            .withClose (true)
+            .withViewer (showOn)
+            .hideOnEscape (true)
+            .removeOnClose (true)
             .build ();
 
         Button cancel = f.getCancelButton ();
@@ -258,6 +459,77 @@ public class ComponentUtils
                                      ev -> qp.close ());
 
         }
+
+        qp.show ();
+
+        return qp;
+
+    }
+
+    public static QuollPopup createQuestionPopup (StringProperty  title,
+                                                  String          style,
+                                                  StringProperty  message,
+                                                  StringProperty  confirmButtonLabel,
+                                                  StringProperty  cancelButtonLabel,
+                                                  EventHandler<ActionEvent> onConfirm,
+                                                  EventHandler<ActionEvent> onCancel,
+                                                  Runnable  onClose,
+                                                  AbstractViewer  showOn)
+    {
+
+        VBox b = new VBox ();
+        b.setFillWidth (true);
+
+        BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
+            .styleClassName (StyleClassNames.MESSAGE)
+            .text (message)
+            .withViewer (showOn)
+            .build ();
+
+        Button confirm = QuollButton.builder ()
+            .label ((confirmButtonLabel != null ? confirmButtonLabel : getUILanguageStringProperty (buttons,LanguageStrings.confirm)))
+            .buttonType (ButtonBar.ButtonData.OK_DONE)
+            .styleClassName (StyleClassNames.CONFIRM)
+            .onAction (onConfirm)
+            .build ();
+
+        Button cancel = QuollButton.builder ()
+            .label ((cancelButtonLabel != null ? cancelButtonLabel : getUILanguageStringProperty (buttons,LanguageStrings.cancel)))
+            .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
+            .styleClassName (StyleClassNames.CANCEL)
+            .onAction (onCancel)
+            .build ();
+
+        Node bb = QuollButtonBar.builder ()
+            .button (confirm)
+            .button (cancel)
+            .build ();
+
+        b.getChildren ().addAll (desc, bb);
+
+        QuollPopup qp = QuollPopup.builder ()
+            .title (title)
+            .styleClassName (style != null ? style : StyleClassNames.QUESTION)
+            .content (b)
+            .onClose (onClose)
+            .withClose (true)
+            .withViewer (showOn)
+            .hideOnEscape (true)
+            .removeOnClose (true)
+            .build ();
+
+        if (style != null)
+        {
+
+            qp.getStyleClass ().add (StyleClassNames.QUESTION);
+
+        }
+
+        cancel.addEventHandler (ActionEvent.ACTION,
+                                ev -> qp.close ());
+
+        confirm.addEventHandler (ActionEvent.ACTION,
+                                 ev -> qp.close ());
 
         qp.show ();
 

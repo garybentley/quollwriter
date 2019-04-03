@@ -946,6 +946,8 @@ public class LanguageStrings
     public static final String editneededtype = "editneededtype";
     public static final String websiteuilanguage = "websiteuilanguage";
     public static final String startingfolder = "startingfolder";
-    public static final String colorpicker = "colorpicker";
+    public static final String filechooser = "filechooser";
+    public static final String extensionfilter = "extensionfilter";
+    public static final String supportqw = "supportqw";
 
 }

@@ -40,13 +40,49 @@ public class Viewer extends Stage implements Stateful
                throws GeneralException
     {
 
+        if (s != null)
+        {
+
+            this.setHeight (s.getAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME));
+            this.setWidth (s.getAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME));
+
+            int y = s.getAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+
+            if (y > 0)
+            {
+
+                this.setY (y);
+
+            }
+
+            int x = s.getAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+            if (x > 0)
+            {
+
+                this.setX (x);
+
+            }
+
+        }
+
     }
 
     @Override
     public State getState ()
     {
 
-        return new State ();
+        State s = new State ();
+        s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
+               this.getScene ().getHeight ());
+        s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
+               this.getScene ().getWidth ());
+        s.set (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
+               this.getY ());
+        s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
+               this.getX ());
+
+        return s;
 
     }
 
@@ -99,7 +135,7 @@ public class Viewer extends Stage implements Stateful
         box.getChildren ().addAll (this.header, b.content);
         this.content = b.content;
 
-        Scene s = new Scene (box);//, 790, 500);
+        Scene s = new Scene (box);
 
 		this.setScene (s);
         this.setMinWidth (300);
@@ -118,8 +154,9 @@ public class Viewer extends Stage implements Stateful
         this.getIcons ().addAll (Environment.getWindowIcons ());
 
         this.initStyle (StageStyle.UNIFIED);
-        this.setMinHeight (300);
-		this.setMinWidth (300);
+
+        // Hide the window by default, this allows subclasses to set things up.
+        this.hide ();
 
     }
 

@@ -2,6 +2,7 @@ package com.quollwriter.db;
 
 import java.sql.*;
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
 
@@ -56,7 +57,8 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
             p.setKey (key);
             p.setName (rs.getString (ind++));
             p.setProjectDirectory (new File (rs.getString (ind++)));
-            p.setBackupDirectory (new File (rs.getString (ind++)));
+            p.setBackupDirPath (Paths.get (rs.getString (ind++)));
+            // TODO p.setBackupDirectory (new File (rs.getString (ind++)));
             p.setStatus (rs.getString (ind++));
 
             // Get the statistics which should look something like:
@@ -259,7 +261,8 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
         params.add (p.isEncrypted ());
         params.add (p.isNoCredentials ());
         params.add (p.getProjectDirectory ().getPath ());
-        params.add (p.getBackupDirectory ().getPath ());
+        params.add (p.getBackupDirPath ().toString ());
+        //params.add (p.getBackupDirectory ().getPath ());
         params.add (p.getStatus ());
         params.add (Utils.getStatisticsAsXML (p.getStatistics ()));
         params.add ((p.getIcon () != null ? p.getIcon ().getPath () : null));
@@ -299,7 +302,8 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
         this.objectManager.executeStatement ("UPDATE projectinfo SET lastedited = ?, directory = ?, backupdirectory = ?, status = ?, statistics = ?, icon = ? WHERE dbkey = ?",
                                              Arrays.asList (p.getLastEdited (),
                                                             p.getProjectDirectory ().getPath (),
-                                                            p.getBackupDirectory ().getPath (),
+                                                            p.getBackupDirPath ().toString (),
+                                                            // TODO p.getBackupDirectory ().getPath (),
                                                             p.getStatus (),
                                                             Utils.getStatisticsAsXML (p.getStatistics ()),
                                                             (p.getIcon () != null ? p.getIcon ().getPath () : null),

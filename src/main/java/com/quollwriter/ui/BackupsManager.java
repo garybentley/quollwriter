@@ -116,11 +116,11 @@ public class BackupsManager extends Box implements ProjectEventListener
 
             this.noBackups.setVisible (true);
 
-            this.backupsDir.setVisible (this.proj.getBackupDirectory ().exists ());
+            this.backupsDir.setVisible (this.proj.getBackupDirPath ().toFile ().exists ());
 
             this.backupsBox.removeAll ();
 
-            File[] _files = this.proj.getBackupDirectory ().listFiles ();
+            File[] _files = this.proj.getBackupDirPath ().toFile ().listFiles ();
 
             if ((_files != null)
                 &&
@@ -213,7 +213,7 @@ public class BackupsManager extends Box implements ProjectEventListener
                                         {
 
                                             UIUtils.openURL (_this.viewer,
-                                                             _this.proj.getBackupDirectory ().toURI ().toURL ());
+                                                             _this.proj.getBackupDirPath ().toUri ().toURL ());
 
                                         } catch (Exception e) {
 
@@ -386,9 +386,11 @@ public class BackupsManager extends Box implements ProjectEventListener
                                                                 {
 
                                                                     // Create a backup.
+                                                                    /*
+                                                                    TODO Moved to new BackupsManager.
                                                                     File f = Environment.createBackupForProject (_this.proj,
                                                                                                                  true);
-
+*/
                                                                 } catch (Exception e) {
 
                                                                     Environment.logError ("Unable to create backup for project: " +
@@ -404,10 +406,11 @@ public class BackupsManager extends Box implements ProjectEventListener
                                                                 // Restore using our file.
                                                                 try
                                                                 {
-
+/*
+TODO
                                                                     Environment.restoreBackupForProject (_this.proj,
                                                                                                          _this.file);
-
+*/
                                                                 } catch (Exception e) {
 
                                                                     Environment.logError ("Unable to restore project with file: " +

@@ -44,6 +44,7 @@ public class Header extends HBox
 
         this.image = new ImageView ();
         this.image.getStyleClass ().add (StyleClassNames.ICON);
+        this.image.managedProperty ().bind (this.image.visibleProperty ());
 
         this.title = new Label ();
         this.title.getStyleClass ().add (StyleClassNames.TITLE);
@@ -96,6 +97,7 @@ public class Header extends HBox
         }
 
         this.toolbar = new ToolBar ();
+        this.toolbar.managedProperty ().bind (this.toolbar.visibleProperty ());
         this.getChildren ().add (this.toolbar);
         this.toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
 

@@ -16,6 +16,7 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -36,7 +37,6 @@ public class AllProjectsViewer extends AbstractViewer
     {
         String findprojects = "findprojects";
         String changeprojectdetails = "changeprojectdetails";
-        String newprojectstatus = "newprojectstatus";
     }
 
     public AllProjectsViewer ()
@@ -83,37 +83,18 @@ public class AllProjectsViewer extends AbstractViewer
         this.setOnDragEntered (ev ->
         {
 
-            List<File> files = ev.getDragboard ().getFiles ();
-
-            if (files != null)
-            {
-
-                ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
-
-                _this.showImportPanel ();
-
-            }
-
             ev.consume ();
+
+            _this.checkDragFileImport (ev);
 
         });
 
         this.setOnDragOver (ev ->
         {
 
-            List<File> files = ev.getDragboard ().getFiles ();
-
-            // TODO Checck the file type.
-            if (files != null)
-            {
-
-                ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
-
-                _this.showImportPanel ();
-
-            }
-
             ev.consume ();
+
+            _this.checkDragFileImport (ev);
 
         });
 
@@ -125,6 +106,36 @@ public class AllProjectsViewer extends AbstractViewer
         });
 
         this.update ();
+
+    }
+
+    private void checkDragFileImport (DragEvent ev)
+    {
+
+        List<File> files = ev.getDragboard ().getFiles ();
+
+        if (files != null)
+        {
+
+            if (files.size () > 1)
+            {
+
+                return;
+
+            }
+
+            File f = files.get (0);
+
+            if (f.getName ().endsWith (Constants.DOCX_FILE_EXTENSION))
+            {
+
+                ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
+
+                this.showImportPanel ();
+
+            }
+
+        }
 
     }
 
@@ -239,6 +250,26 @@ public class AllProjectsViewer extends AbstractViewer
         AbstractViewer.CommandIds.statistics,
         AbstractViewer.CommandIds.charts);
 
+        this.addActionMapping (() ->
+        {
+
+            try
+            {
+
+                ProjectStatusItemManager man = new ProjectStatusItemManager (_this);
+
+                man.show ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view the project statuses manager",
+                                      e);
+
+            }
+
+        },
+        CommandIds.manageprojectstatuses);
+
     }
 
     public void update ()
@@ -278,7 +309,7 @@ public class AllProjectsViewer extends AbstractViewer
 
         }
 
-        super.close ();
+        super.close (doAfterClose);
 
     }
 
@@ -290,7 +321,7 @@ public class AllProjectsViewer extends AbstractViewer
 
         s.set (ProjectsPanel.PANEL_ID,
                this.projectsPanel.getState ());
-
+System.out.println ("HEREW: " + this.getScene ().getWidth ());
         return s;
 
     }

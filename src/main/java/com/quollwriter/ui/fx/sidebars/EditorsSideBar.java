@@ -4,6 +4,7 @@ import java.util.*;
 
 import javafx.beans.property.*;
 import javafx.scene.*;
+import javafx.scene.control.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.editors.*;
@@ -17,12 +18,14 @@ import static com.quollwriter.LanguageStrings.*;
 public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 {
 
-    public static final String ID = "editors";
+    public static final String SIDEBAR_ID = "editors";
 
     public EditorsSideBar (E viewer)
     {
 
         super (viewer);
+
+        //this.getChildren ().add (new TextField ("test"));
 
     }
 
@@ -42,7 +45,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             //.headerControls ()?
             .withViewer (this.viewer)
             .content (this)
-            .sideBarId (ID)
+            .sideBarId (SIDEBAR_ID)
             .build ();
 
     }

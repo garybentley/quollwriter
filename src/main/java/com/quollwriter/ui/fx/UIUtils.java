@@ -2,6 +2,7 @@ package com.quollwriter.ui.fx;
 
 import java.net.*;
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 import java.io.*;
 import java.nio.file.*;
@@ -22,12 +23,17 @@ import javafx.stage.*;
 import javafx.geometry.*;
 import javafx.scene.paint.*;
 import javafx.embed.swing.*;
+import javafx.event.*;
+import javafx.util.*;
+import javafx.collections.*;
 
 import javax.imageio.*;
 
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
+import com.quollwriter.db.*;
+import com.quollwriter.data.Prompt;
 import com.quollwriter.data.ObjectReference;
 import com.quollwriter.data.Project;
 import com.quollwriter.data.ProjectInfo;
@@ -43,6 +49,14 @@ import static com.quollwriter.LanguageStrings.*;
 
 public class UIUtils
 {
+
+    public static final String PROJECT_INFO_STATUS_TAG = "{s}";
+	public static final String PROJECT_INFO_WORDS_TAG = "{wc}";
+	public static final String PROJECT_INFO_CHAPTERS_TAG = "{ch}";
+	public static final String PROJECT_INFO_LAST_EDITED_TAG = "{le}";
+	public static final String PROJECT_INFO_EDIT_COMPLETE_TAG = "{ec}";
+	public static final String PROJECT_INFO_READABILITY_TAG = "{r}";
+	public static final String PROJECT_INFO_EDITOR_TAG = "{ed}";
 
     public static Color hexToColor (String h)
     {
@@ -119,6 +133,13 @@ public class UIUtils
      */
     public static void runLater (Runnable r)
     {
+
+        if (r == null)
+        {
+
+            return;
+
+        }
 
         Platform.runLater (() ->
         {
@@ -548,173 +569,6 @@ public class UIUtils
 
     }
 
-    public static void showManageBackups (final ProjectInfo    proj,
-                                          final AbstractViewer viewer)
-	{
-/*
-TODO
-        String popupName = "managebackups" + proj.getId ();
-        QPopup popup = viewer.getNamedPopup (popupName);
-
-        if (popup == null)
-        {
-
-            popup = UIUtils.createClosablePopup (getUIString (backups,show, LanguageStrings.popup,title),
-                                                 //"Current Backups",
-                                                 Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
-                                                                      Constants.ICON_POPUP),
-                                                 null);
-
-            BackupsManager bm = null;
-
-            try
-            {
-
-                bm = new BackupsManager (viewer,
-                                         proj);
-                bm.init ();
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to show backups manager",
-                                      e);
-
-                UIUtils.showErrorMessage (viewer,
-                                          getUIString (backups,show,actionerror));
-                                          //"Unable to show backups manager, please contact Quoll Writer support for assistance.");
-
-                return;
-
-            }
-
-            bm.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                  bm.getPreferredSize ().height));
-            bm.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-            popup.setRemoveOnClose (false);
-            popup.setContent (bm);
-
-            popup.setDraggable (viewer);
-
-            popup.resize ();
-
-            viewer.showPopupAt (popup,
-                                UIUtils.getCenterShowPosition (viewer,
-                                                               popup),
-                                false);
-
-            viewer.addNamedPopup (popupName,
-                                  popup);
-
-        } else {
-
-            popup.setVisible (true);
-            popup.toFront ();
-
-        }
-*/
-        Environment.fireUserProjectEvent (viewer,
-                                          ProjectEvent.Type.backups,
-                                          ProjectEvent.Action.show);
-
-	}
-
-    public static void showCreateBackup (final Project        proj,
-                                         final String         filePassword,
-                                         final AbstractViewer viewer)
-    {
-
-        UIUtils.showCreateBackup (Environment.getProjectInfo (proj),
-                                  filePassword,
-                                  viewer);
-
-    }
-
-    public static void showCreateBackup (final ProjectInfo    proj,
-                                         final String         filePassword,
-                                         final AbstractViewer viewer)
-    {
-
-        ComponentUtils.createQuestionPopup (getUILanguageStringProperty (backups,_new,popup,title),
-                                            StyleClassNames.CREATEBACKUP,
-                                            getUILanguageStringProperty (Arrays.asList (backups,_new,popup,text),
-                                                        //"Please confirm you wish to create a backup of {project} <b>%s</b>.",
-                                                                         proj.getName ()),
-                                            getUILanguageStringProperty (backups,_new,popup,buttons,confirm),
-                                            //"Yes, create it",
-                                            getUILanguageStringProperty (backups,_new,popup,buttons,cancel),
-                                            //null,
-                                            fev ->
-                                            {
-
-                                                try
-                                                {
-
-                                                    java.io.File f = Environment.createBackupForProject (proj,
-                                                                                                 false);
-/*
-TODO
-                                                    Box b = new Box (BoxLayout.Y_AXIS);
-
-                                                    JTextPane m = UIUtils.createHelpTextPane (String.format (getUIString (backups,_new,confirmpopup,text),
-                                                                                                            //"A backup has been created and written to:\n\n  <a href='%s'>%s</a>",
-                                                                                                             f.getParentFile ().toURI ().toString (),
-                                                                                                             f),
-                                                                                              viewer);
-
-                                                    m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                                                              m.getPreferredSize ().height));
-                                                    m.setBorder (null);
-
-                                                    b.add (m);
-
-                                                    b.add (Box.createVerticalStrut (10));
-
-                                                    JLabel l = UIUtils.createClickableLabel (getUIString (backups,_new,confirmpopup,labels,view),
-                                                                                            //"Click to view the backups",
-                                                                                             Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
-                                                                                                                  Constants.ICON_MENU),
-                                                                                             new ActionListener ()
-                                                                                             {
-
-                                                                                                @Override
-                                                                                                public void actionPerformed (ActionEvent ev)
-                                                                                                {
-
-                                                                                                    UIUtils.showManageBackups (proj,
-                                                                                                                               viewer);
-
-                                                                                                }
-
-                                                                                             });
-
-                                                    b.add (l);
-*/
-                                                    ComponentUtils.showMessage (viewer,
-                                                                                StyleClassNames.NOTIFICATION,
-                                                                                getUILanguageStringProperty (backups,_new,confirmpopup,title),
-                                                                                //"Backup created",
-                                                                                null,
-                                                                                null);
-
-                                                } catch (Exception e)
-                                                {
-
-                                                    Environment.logError ("Unable to create backup of project: " +
-                                                                          proj,
-                                                                          e);
-
-                                                    ComponentUtils.showErrorMessage (viewer,
-                                                                                     getUILanguageStringProperty (backups,_new,actionerror));
-                                                                              //"Unable to create backup.");
-
-                                                }
-
-                                            },
-                                            viewer);
-
-    }
-
     public static byte[] getImageBytes (WritableImage im)
                                  throws GeneralException
     {
@@ -902,7 +756,7 @@ TODO
             if (pos == VPos.BOTTOM)
             {
 
-                //diff = 
+                //diff =
 
             }
 
@@ -1015,6 +869,623 @@ System.out.println ("D2: " + diff + ", " + vh);
         return parent.getChildrenUnmodifiable ().stream ()
             .filter (c -> c.getPseudoClassStates ().contains (StyleClassNames.SELECTED_PSEUDO_CLASS))
             .collect (Collectors.toList ());
+
+    }
+
+    public static HBox createButtonBar (Set<Button> buttons)
+    {
+
+        // TODO Make this configurable, esp for other OSes
+        ButtonBar bar = new ButtonBar ("OC");
+        //"OC+");
+        bar.getButtons ().addAll (buttons);
+
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.BUTTONS);
+        h.getChildren ().add (bar);
+        return h;
+
+    }
+
+    public static void askForPasswordForProject (final ProjectInfo            proj,
+                                                       ValueValidator<String> validator,
+                                                 final Consumer<String>       onProvided,
+                                                 final Runnable               onCancel,
+                                                 final AbstractViewer         parentViewer)
+    {
+
+        AbstractProjectViewer pv = Environment.getProjectViewer (proj);
+
+        if ((pv == null)
+            &&
+            (proj != null)
+            &&
+            (proj.isEncrypted ())
+           )
+        {
+
+            if (validator == null)
+            {
+
+                validator = new ValueValidator<String> ()
+                {
+
+                    public StringProperty isValid (String v)
+                    {
+
+                        java.util.List<String> prefix = Arrays.asList (project,actions,openproject,enterpasswordpopup,errors);
+
+                        if ((v == null)
+                            ||
+                            (v.trim ().equals (""))
+                           )
+                        {
+
+                            return getUILanguageStringProperty (Utils.newList (prefix,novalue));
+                            //"Please enter the password.";
+
+                        }
+
+                        ObjectManager om = null;
+
+                        try
+                        {
+
+                            om = Environment.getProjectObjectManager (proj,
+                                                                      v);
+
+                        } catch (Exception e) {
+
+                            if (ObjectManager.isDatabaseAlreadyInUseException (e))
+                            {
+
+                                return getUILanguageStringProperty (Utils.newList (prefix,projectalreadyopen));
+                                //"Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
+
+                            }
+
+                            if (ObjectManager.isEncryptionException (e))
+                            {
+
+                                return getUILanguageStringProperty (Utils.newList (prefix,invalidpassword));
+                                //"Password is not valid.";
+
+                            }
+
+                            Environment.logError ("Cant open project: " +
+                                                  proj,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (parentViewer,
+                                                             getUILanguageStringProperty (Utils.newList (prefix,general)));
+                                                      //"Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
+
+                            return null;
+
+                        } finally {
+
+                            if (om != null)
+                            {
+
+                                om.closeConnectionPool ();
+
+                            }
+
+                        }
+
+                        return null;
+
+                    }
+
+                };
+
+            }
+
+            java.util.List<String> prefix = Arrays.asList (project,actions,openproject,enterpasswordpopup);
+
+            ComponentUtils.createPasswordEntryPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
+                                                     StyleClassNames.PROJECT,
+                                                     getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                                                  //"{Project} <b>%s</b> is encrypted, please enter the password to unlock it below.",
+                                                                                  proj.getName ()),
+                                                     null,
+                                                     validator,
+                                                     getUILanguageStringProperty (Utils.newList (prefix,buttons,open)),
+                                                     //"Open",
+                                                     getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)),
+                                                     //Constants.CANCEL_BUTTON_LABEL_ID,
+                                                     onProvided,
+                                                     onCancel,
+                                                     null,
+                                                     parentViewer);
+
+        } else {
+
+            UIUtils.runLater (() ->
+            {
+
+                // No password for the project.
+                onProvided.accept (null);
+
+            });
+
+        }
+
+    }
+
+    public static String getFormattedProjectInfo (ProjectInfo project)
+    {
+
+        return UIUtils.getFormattedProjectInfo (project,
+                                                null);
+
+    }
+
+    public static String getFormattedProjectInfo (ProjectInfo project,
+                                                  String      format)
+    {
+
+        List<String> prefix = Arrays.asList (allprojects,LanguageStrings.project,view,labels);
+
+        String lastEd = "";
+
+        if (project.getLastEdited () != null)
+        {
+
+            lastEd = String.format (getUIString (Utils.newList (prefix, LanguageStrings.lastedited)),
+                                    //"Last edited: %s",
+                                    Environment.formatDate (project.getLastEdited ()));
+
+        } else {
+
+            lastEd = getUIString (Utils.newList (prefix, LanguageStrings.notedited));
+                                            //"Not yet edited.";
+
+        }
+
+        String text = (format != null ? format : UserProperties.getProjectInfoFormat ());
+
+        String nl = String.valueOf ('\n');
+
+        while (text.endsWith (nl))
+        {
+
+            text = text.substring (0,
+                                   text.length () - 1);
+
+        }
+
+        text = text.toLowerCase ();
+
+        text = StringUtils.replaceString (text,
+                                          " ",
+                                          "&nbsp;");
+        text = StringUtils.replaceString (text,
+                                          nl,
+                                          "<br />");
+
+        text = StringUtils.replaceString (text,
+                                          PROJECT_INFO_STATUS_TAG,
+                                          (project.getStatus () != null ? project.getStatus () : getUIString (LanguageStrings.project,status,novalue)));
+                                          //"No status"));
+
+        text = StringUtils.replaceString (text,
+                                          PROJECT_INFO_WORDS_TAG,
+                                          String.format (getUIString (prefix, LanguageStrings.words),
+                                                        //"%s words",
+                                                         Environment.formatNumber (project.getWordCount ())));
+
+        text = StringUtils.replaceString (text,
+                                          PROJECT_INFO_CHAPTERS_TAG,
+                                          String.format (getUIString (prefix, LanguageStrings.chapters),
+                                            //"%s ${objectnames.%s.chapter}",
+                                                         Environment.formatNumber (project.getChapterCount ())));
+
+        text = StringUtils.replaceString (text,
+                                          PROJECT_INFO_LAST_EDITED_TAG,
+                                          lastEd);
+        text = StringUtils.replaceString (text,
+                                          PROJECT_INFO_EDIT_COMPLETE_TAG,
+                                          String.format (getUIString (prefix, LanguageStrings.editcomplete),
+                                                        //"%s%% complete",
+                                                         Environment.formatNumber (Utils.getPercent (project.getEditedWordCount (), project.getWordCount ()))));
+        text = StringUtils.replaceString (text,
+                                          PROJECT_INFO_READABILITY_TAG,
+                                          String.format (getUIString (prefix, LanguageStrings.readability),
+                                                        //"GL: %s, RE: %s, GF: %s",
+                                                         Environment.formatNumber (Math.round (project.getFleschKincaidGradeLevel ())),
+                                                         Environment.formatNumber (Math.round (project.getFleschReadingEase ())),
+                                                         Environment.formatNumber (Math.round (project.getGunningFogIndex ()))));
+
+        return text;
+
+    }
+
+    public static void showDeleteProjectPopup (ProjectInfo    proj,
+                                               Runnable       onDelete,
+                                               AbstractViewer viewer)
+    {
+
+        StringProperty warning = getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,deleteproject,LanguageStrings.warning,normal),
+                                                              (proj.isEditorProject () ? getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,deleteproject,LanguageStrings.warning,editor,
+                                                                                                                                     proj.getForEditor ().getShortName ()))
+                                                                                            : ""));
+
+        UIUtils.showDeleteObjectPopup (getUILanguageStringProperty (project,actions,deleteproject,deletetype),
+                                       proj.nameProperty (),
+                                       StyleClassNames.PROJECT,
+                                       warning,
+                                       ev ->
+                                       {
+
+                                           if (proj.isEditorProject ())
+                                           {
+
+                                               EditorsEnvironment.sendProjectEditStopMessage (proj,
+                                                // TODO Change.
+                                                                                              new java.awt.event.ActionListener ()
+                                               {
+
+                                                   @Override
+                                                   public void actionPerformed (java.awt.event.ActionEvent ev)
+                                                   {
+
+                                                       UIUtils.runLater (() ->
+                                                       {
+
+                                                           Environment.deleteProject (proj,
+                                                                                      onDelete);
+
+                                                           ComponentUtils.showMessage (viewer,
+                                                                                       getUILanguageStringProperty (project,actions,deleteproject,editorproject,confirmpopup,title),
+                                                                                       getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,editorproject,confirmpopup,text),
+                                                                                                                    proj.getForEditor ().getShortName ()));
+
+                                                       });
+
+                                                   }
+
+                                               });
+
+                                           } else {
+
+                                               Environment.deleteProject (proj,
+                                                                          onDelete);
+
+                                           }
+
+                                       },
+                                       null,
+                                       viewer);
+
+    }
+
+    public static void showDeleteObjectPopup (StringProperty               deleteType,
+                                              StringProperty               objName,
+                                              String                       style,
+                                              StringProperty               extraMessage,
+                                              EventHandler<Form.FormEvent> onConfirm,
+                                              EventHandler<Form.FormEvent> onCancel,
+                                              AbstractViewer               viewer)
+    {
+
+        StringProperty message = getUILanguageStringProperty (Arrays.asList (deleteitem,text),
+                                                              deleteType,
+                                                              objName,
+                                                              extraMessage != null ? extraMessage : new SimpleStringProperty (""));
+
+        ComponentUtils.createYesConfirmPopup (getUILanguageStringProperty (Arrays.asList (deleteitem,title),
+                                                                           deleteType),
+                                              style,
+                                              message,
+                                              null,
+                                              getUILanguageStringProperty (deleteitem,confirm),
+                                              getUILanguageStringProperty (deleteitem,cancel),
+                                              onConfirm,
+                                              onCancel,
+                                              null,
+                                              viewer);
+
+    }
+
+    public static StringProperty formatPrompt (Prompt p)
+    {
+
+        if (p == null)
+        {
+
+            return getUILanguageStringProperty (Arrays.asList (warmups,prompt,view,unavailable));
+            //"Prompt no longer available.  Usually this is due to it's removal at the request of the author.";
+
+        }
+
+        String link = "";
+
+        if (p.isUserPrompt ())
+        {
+
+            link = getUIString (warmups,prompt,view,ownprompt);
+            //"by You";
+
+        } else
+        {
+
+            link = String.format (getUIString (warmups,prompt,view, LanguageStrings.link),
+                                //"<a title='Click to visit the website' href='%s'>%s by %s</a>",
+                                                p.getURL (),
+                                                p.getStoryName (),
+                                                p.getAuthor ());
+
+        }
+
+        return new SimpleStringProperty (p.getText () + "<br /> - " + link);
+
+
+    }
+
+    public static ChoiceBox<StringProperty> getTimeOptions (Supplier<Integer> defValue,
+                                                            Consumer<Integer> onSelected)
+    {
+
+        Map<String, StringProperty> vals = new LinkedHashMap<> ();
+
+        StringProperty unlim = getUILanguageStringProperty (times,unlimited);
+        vals.put (unlim.getValue (), unlim);
+
+        StringProperty mins10 = getUILanguageStringProperty (times,LanguageStrings.mins10);
+        vals.put (mins10.getValue (), mins10);
+
+        StringProperty mins20 = getUILanguageStringProperty (times,LanguageStrings.mins20);
+        vals.put (mins20.getValue (), mins20);
+
+        StringProperty mins30 = getUILanguageStringProperty (times,LanguageStrings.mins30);
+        vals.put (mins30.getValue (), mins30);
+
+        StringProperty hour1 = getUILanguageStringProperty (times,LanguageStrings.hour1);
+        vals.put (hour1.getValue (), hour1);
+
+        ChoiceBox<StringProperty> box = new ChoiceBox<> (FXCollections.observableList (new ArrayList<> (vals.values ())));
+
+        box.setConverter (new StringConverter<StringProperty> ()
+        {
+
+            @Override
+            public StringProperty fromString (String s)
+            {
+
+                return vals.get (s);
+
+            }
+
+            @Override
+            public String toString (StringProperty s)
+            {
+
+                return s.getValue ();
+
+            }
+
+        });
+
+        int minsC = Constants.DEFAULT_MINS;
+
+        if (defValue != null)
+        {
+
+            minsC = defValue.get ();
+
+        }
+
+        StringProperty sel = unlim;
+
+        if (minsC == 60)
+        {
+
+            sel = hour1;
+
+        }
+
+        if (minsC == 30)
+        {
+
+            sel = mins30;
+
+        }
+
+        if (minsC == 20)
+        {
+
+            sel = mins20;
+
+        }
+
+        if (minsC == 10)
+        {
+
+            sel = mins10;
+
+        }
+
+        box.setValue (sel);
+
+        box.setOnAction (ev ->
+        {
+
+            int val = 0;
+
+            StringProperty v = box.getValue ();
+
+            if (v == mins10)
+            {
+
+                val = 10;
+
+            }
+
+            if (v == mins20)
+            {
+
+                val = 20;
+
+            }
+
+            if (v == mins30)
+            {
+
+                val = 30;
+
+            }
+
+            if (v == hour1)
+            {
+
+                val = 60;
+
+            }
+
+            if (onSelected != null)
+            {
+
+                onSelected.accept (val);
+
+            }
+
+        });
+
+        return box;
+
+    }
+
+    public static ChoiceBox getWordsOptions (Supplier<Integer> defValue,
+                                             Consumer<Integer> onSelected)
+    {
+
+        Map<String, StringProperty> vals = new LinkedHashMap<> ();
+
+        StringProperty unlim = getUILanguageStringProperty (words,unlimited);
+        vals.put (unlim.getValue (), unlim);
+
+        StringProperty words100 = getUILanguageStringProperty (words,LanguageStrings.words100);
+        vals.put (words100.getValue (), words100);
+
+        StringProperty words250 = getUILanguageStringProperty (words,LanguageStrings.words250);
+        vals.put (words250.getValue (), words250);
+
+        StringProperty words500 = getUILanguageStringProperty (words,LanguageStrings.words500);
+        vals.put (words500.getValue (), words500);
+
+        StringProperty words1000 = getUILanguageStringProperty (words,LanguageStrings.words1000);
+        vals.put (words1000.getValue (), words1000);
+
+        ChoiceBox<StringProperty> box = new ChoiceBox<> (FXCollections.observableList (new ArrayList<> (vals.values ())));
+
+        box.setConverter (new StringConverter<StringProperty> ()
+        {
+
+            @Override
+            public StringProperty fromString (String s)
+            {
+
+                return vals.get (s);
+
+            }
+
+            @Override
+            public String toString (StringProperty s)
+            {
+
+                return s.getValue ();
+
+            }
+
+        });
+
+        int wordsC = 0;
+
+        if (defValue != null)
+        {
+
+            wordsC = defValue.get ();
+
+        }
+
+        StringProperty sel = unlim;
+
+        if (wordsC == 100)
+        {
+
+            sel = words100;
+
+        }
+
+        if (wordsC == 250)
+        {
+
+            sel = words250;
+
+        }
+
+        if (wordsC == 500)
+        {
+
+            sel = words500;
+
+        }
+
+        if (wordsC == 1000)
+        {
+
+            sel = words1000;
+
+        }
+
+        box.setValue (sel);
+
+        box.setOnAction (ev ->
+        {
+
+            int val = 0;
+
+            StringProperty v = box.getValue ();
+
+            if (v == words100)
+            {
+
+                val = 100;
+
+            }
+
+            if (v == words250)
+            {
+
+                val = 250;
+
+            }
+
+            if (v == words500)
+            {
+
+                val = 500;
+
+            }
+
+            if (v == words1000)
+            {
+
+                val = 1000;
+
+            }
+
+            if (onSelected != null)
+            {
+
+                onSelected.accept (val);
+
+            }
+
+        });
+
+        return box;
 
     }
 

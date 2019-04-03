@@ -115,6 +115,20 @@ public class BackgroundObject
 
     }
 
+    public Path getUserPath ()
+    {
+
+        return this.userPath;
+
+    }
+
+    public boolean isUserPath ()
+    {
+
+        return this.userPath != null;
+
+    }
+
     public boolean isImage ()
     {
 
@@ -201,7 +215,8 @@ public class BackgroundObject
                                                         BackgroundRepeat.NO_REPEAT,
                                                         BackgroundRepeat.NO_REPEAT,
                                                         null,
-                                                        null));
+                                                        new BackgroundSize (100, 100, true, true, true, true)));
+                                                        //null));
 
         this.bgProp.setValue (this.bg);
 
@@ -254,6 +269,13 @@ public class BackgroundObject
     public static Object createBackgroundObjectForId (String id)
     {
 
+        if (id == null)
+        {
+
+            return null;
+
+        }
+
         if (id.startsWith ("#"))
         {
 
@@ -268,14 +290,14 @@ public class BackgroundObject
 
             id = id.substring (BG_IMAGE_PREFIX.length ());
 
-        }
+            Image im = Environment.getBackgroundImage (id, -1, -1);
 
-        Image im = Environment.getBackgroundImage (id, -1, -1);
+            if (im != null)
+            {
 
-        if (im != null)
-        {
+                return id;
 
-            return id;
+            }
 
         }
 

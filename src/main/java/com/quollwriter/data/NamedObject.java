@@ -49,6 +49,8 @@ public abstract class NamedObject extends DataObject
 
         super (objType);
 
+        this.nameProp = new SimpleStringProperty ();
+
     }
 
     public StringProperty nameProperty ()
@@ -562,6 +564,8 @@ public abstract class NamedObject extends DataObject
         String oldName = this.name;
 
         this.name = n;
+
+        this.nameProp.setValue (this.name);
 
         this.setLastModified (new Date ());
 

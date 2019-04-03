@@ -13,6 +13,9 @@ public class Constants
 
     public static final long DAY_IN_MILLIS = 24 * HOUR_IN_MILLIS;
 
+    public static final int DEFAULT_WORDS = 500;
+    public static final int DEFAULT_MINS = 30;
+
     public static final int ICON_MENU = 1;
 
     public static final int ICON_TOOLBAR = 2;
@@ -222,6 +225,10 @@ public class Constants
     public static final String WINDOW_HEIGHT_PROPERTY_NAME = "windowHeight";
 
     public static final String WINDOW_WIDTH_PROPERTY_NAME = "windowWidth";
+
+    public static final String WINDOW_TOP_LOCATION_PROPERTY_NAME = "windowTopLocation";
+
+    public static final String WINDOW_LEFT_LOCATION_PROPERTY_NAME = "windowLeftLocation";
 
     public static final String SPELL_CHECKING_ENABLED_PROPERTY_NAME = "spellCheckingEnabled";
 
@@ -516,6 +523,11 @@ public class Constants
     public static final String PROJECT_DB_FILE_NAME_PREFIX = "projectdb";
     public static final String QUOLL_WRITER_DIR_NAME = "QuollWriter";
 
+    public static final String H2_DB_FILE_SUFFIX = ".h2.db";
+
+    public static final String FULL_PROJECT_DB_FILE_NAME = PROJECT_DB_FILE_NAME_PREFIX + H2_DB_FILE_SUFFIX;
+    public static final String FULL_OLD_PROJECT_DB_FILE_NAME = PROJECT_DB_FILE_NAME_PREFIX + H2_DB_FILE_SUFFIX + ".old";
+
     public static final String PROPERTIES_FILE_NAME = "properties.xml";
     public static final String PROJECTS_FILE_NAME = "projects.xml";
 
@@ -553,8 +565,6 @@ public class Constants
     public static final String WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME = "qw-website-language-strings-submitter-id";
 
     public static final String IMGS_DIR = "/imgs/";
-
-    public static final String H2_DB_FILE_SUFFIX = ".h2.db";
 
     public static final String BACKGROUND_IMGS_DIR = Constants.IMGS_DIR + "bgs/";
     public static final String BACKGROUND_THUMB_IMGS_DIR = Constants.BACKGROUND_IMGS_DIR + "thumbs/";

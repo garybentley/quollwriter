@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import javafx.beans.property.*;
+import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.layout.*;
@@ -36,6 +37,7 @@ public class SelectBGPopup extends PopupContent
     private Object origBG = null;
     private Object origSwatchSel = null;
     private FlowPane colorsPane = null;
+    private FlowPane imagesPane = null;
     private BackgroundObject bgObj = null;
 
     public SelectBGPopup (AbstractViewer viewer,
@@ -49,57 +51,16 @@ public class SelectBGPopup extends PopupContent
 
         final SelectBGPopup _this = this;
 
-        FlowPane p = new FlowPane ();
+        this.imagesPane = new FlowPane ();
 
         Set<Path> userImages = UserProperties.userBGImagePathsProperty ().getValue ();
 
         for (Path s : userImages)
         {
 
-            Background bg = this.createBackground (s);
-
-            if (bg == null)
-            {
-
-                continue;
-
-            }
-
-            Label swatch = this.getSwatch (bg);
-            swatch.setUserData (s);
-            UIUtils.setTooltip (swatch,
-                                getUILanguageStringProperty (selectbackground,types,image,tooltip));
-
-            ContextMenu cm = new ContextMenu ();
-
-            Set<MenuItem> items = new LinkedHashSet<> ();
-
-            items.add (QuollMenuItem.builder ()
-                .label (selectbackground,popupmenu,LanguageStrings.items,remove)
-                .styleClassName (StyleClassNames.DELETE)
-                .onAction (eev ->
-                {
-
-                    UserProperties.removeUserBGImagePath (s);
-
-                    p.getChildren ().remove (swatch);
-
-                    if (s == _this.selectedProp.getValue ())
-                    {
-
-                        _this.selectedProp.setValue (null);
-
-                    }
-
-                })
-                .build ());
-
-            swatch.setContextMenu (cm);
-
-            Group g = new Group ();
-            g.setUserData (s);
-            g.getChildren ().add (swatch);
-            p.getChildren ().add (g);
+            this.createUserBGImageSwatch (s,
+                                          -1,
+                                          this.imagesPane);
 
         }
 
@@ -143,7 +104,7 @@ public class SelectBGPopup extends PopupContent
             Group g = new Group ();
             g.setUserData (s);
             g.getChildren ().add (swatch);
-            p.getChildren ().add (g);
+            this.imagesPane.getChildren ().add (g);
 
         }
 
@@ -152,13 +113,39 @@ public class SelectBGPopup extends PopupContent
         imgsHeaderCons.add (QuollButton.builder ()
             .styleClassName (StyleClassNames.ADD)
             .tooltip (getUILanguageStringProperty (selectbackground,types,image,add,tooltip))
+            .onAction (ev ->
+            {
+
+                FileChooser f = new FileChooser ();
+                f.titleProperty ().bind (getUILanguageStringProperty (filechooser,image,LanguageStrings.popup,title));
+                f.getExtensionFilters ().add (new FileChooser.ExtensionFilter (getUILanguageStringProperty (filechooser,image,LanguageStrings.popup,extensionfilter).getValue (), "*.jpg", "*.jpeg", "*.gif", "*.png"));
+
+                java.io.File _f = f.showOpenDialog (this.viewer.getViewer ());
+
+                if (_f == null)
+                {
+
+                    return;
+
+                }
+
+                Path fp = _f.toPath ();
+                UserProperties.addUserBGImagePath (fp);
+
+                _this.createUserBGImageSwatch (fp,
+                                               0,
+                                               _this.imagesPane);
+
+                _this.selectedProp.setValue (fp);
+
+            })
             .build ());
 
         AccordionItem imgsai = AccordionItem.builder ()
             .title (selectbackground,types,image,title)
             .styleClassName (StyleClassNames.IMAGES)
             .headerControls (imgsHeaderCons)
-            .content (p)
+            .content (this.imagesPane)
             .build ();
 
         this.colorsPane = new FlowPane ();
@@ -237,24 +224,6 @@ public class SelectBGPopup extends PopupContent
                     _this.selectedProp.setValue (newv);//UIUtils.colorToHex (newv));
 
                 });
-/*
-                colp.getPopup ().addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
-                eev ->
-                {
-
-                    if (_this.origSwatchSel != null)
-                    {
-
-                        _this.selectedProp.setValue (_this.origSwatchSel);
-
-                    } else {
-
-                        _this.resetToOriginalBG ();
-
-                    }
-
-                });
-*/
                 colp.getChooser ().setOnColorSelected (eev ->
                 {
 
@@ -312,12 +281,12 @@ public class SelectBGPopup extends PopupContent
         this.selectedProp.addListener ((pr, oldv, newv) ->
         {
 
-            UIUtils.setSelected (p,
+            UIUtils.setSelected (_this.imagesPane,
                                  newv);
             UIUtils.setSelected (_this.colorsPane,
                                  newv);
 
-            List<Node> ns = UIUtils.getSelected (p);
+            List<Node> ns = UIUtils.getSelected (_this.imagesPane);
 
             if (ns.size () == 0)
             {
@@ -341,6 +310,73 @@ public class SelectBGPopup extends PopupContent
         {
 
             this.origBG = selected;
+
+        }
+
+    }
+
+    private void createUserBGImageSwatch (Path     p,
+                                          int      addAt,
+                                          FlowPane parent)
+    {
+
+        final SelectBGPopup _this = this;
+
+        Background bg = this.createBackground (p);
+
+        if (bg == null)
+        {
+
+            return;
+
+        }
+
+        Group g = new Group ();
+        Label swatch = this.getSwatch (bg);
+        swatch.setUserData (p);
+        UIUtils.setTooltip (swatch,
+                            getUILanguageStringProperty (selectbackground,types,image,tooltip));
+
+        ContextMenu cm = new ContextMenu ();
+
+        Set<MenuItem> items = new LinkedHashSet<> ();
+
+        items.add (QuollMenuItem.builder ()
+            .label (selectbackground,popupmenu,LanguageStrings.items,remove)
+            .styleClassName (StyleClassNames.DELETE)
+            .onAction (eev ->
+            {
+
+                UserProperties.removeUserBGImagePath (p);
+
+                parent.getChildren ().remove (g);
+
+                if (p.equals (_this.selectedProp.getValue ()))
+                {
+
+                    _this.selectedProp.setValue (null);
+
+                }
+
+            })
+            .build ());
+
+        cm.getItems ().addAll (items);
+
+        swatch.setContextMenu (cm);
+
+        g.setUserData (p);
+        g.getChildren ().add (swatch);
+
+        if (addAt > -1)
+        {
+
+            parent.getChildren ().add (addAt,
+                                       g);
+
+        } else {
+
+            parent.getChildren ().add (g);
 
         }
 
@@ -422,6 +458,20 @@ public class SelectBGPopup extends PopupContent
     private void resetToOriginalBG ()
     {
 
+        if (this.origBG instanceof Path)
+        {
+
+            if (!UserProperties.userBGImagePathsProperty ().getValue ().contains (this.origBG))
+            {
+
+                this.createUserBGImageSwatch ((Path) this.origBG,
+                                              0,
+                                              this.imagesPane);
+
+            }
+
+        }
+
         this.selectedProp.setValue (this.origBG);
 
     }
@@ -468,7 +518,7 @@ public class SelectBGPopup extends PopupContent
 
         Set<Node> headerCons = new LinkedHashSet<> ();
 
-        headerCons.add (QuollButton.builder ()
+        QuollButton b = QuollButton.builder ()
             .styleClassName (StyleClassNames.RESET)
             .tooltip (getUILanguageStringProperty (selectbackground,types,reset,tooltip))
             .onAction (ev ->
@@ -477,7 +527,16 @@ public class SelectBGPopup extends PopupContent
                 _this.resetToOriginalBG ();
 
             })
-            .build ());
+            .build ();
+
+        Tooltip t = b.getTooltip ();
+
+        Region r = new Region ();
+
+        r.setBackground (_this.createBackground (_this.origBG));
+        t.setGraphic (r);
+
+        headerCons.add (b);
 
         QuollPopup p = QuollPopup.builder ()
             .title (selectbackground,title)
@@ -488,6 +547,7 @@ public class SelectBGPopup extends PopupContent
             .popupId (POPUP_ID)
             .withViewer (this.viewer)
             .controls (headerCons)
+            .removeOnClose (true)
             .build ();
 
         p.requestFocus ();
@@ -505,6 +565,41 @@ public class SelectBGPopup extends PopupContent
         }
 
         return p;
+
+    }
+
+    private Background createBackground (Object obj)
+    {
+
+        if (obj == null)
+        {
+
+            return null;
+
+        }
+
+        if (obj instanceof Color)
+        {
+
+            return this.createBackground ((Color) obj);
+
+        }
+
+        if (obj instanceof String)
+        {
+
+            return this.createBackground ((String) obj);
+
+        }
+
+        if (obj instanceof Path)
+        {
+
+            return this.createBackground ((Path) obj);
+
+        }
+
+        throw new IllegalArgumentException ("Object type: " + obj.getClass ().getName () + ", not supported.");
 
     }
 

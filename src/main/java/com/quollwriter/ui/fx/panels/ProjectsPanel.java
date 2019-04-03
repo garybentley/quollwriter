@@ -43,15 +43,15 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 {
 
-    public static final String STATUS_TAG = "{s}";
-	public static final String WORDS_TAG = "{wc}";
-	public static final String CHAPTERS_TAG = "{ch}";
-	public static final String LAST_EDITED_TAG = "{le}";
-	public static final String EDIT_COMPLETE_TAG = "{ec}";
-	public static final String READABILITY_TAG = "{r}";
-	public static final String EDITOR_TAG = "{ed}";
-
     public static final String PANEL_ID = "allprojects";
+
+    public interface CommandIds extends PanelContent.CommandIds
+    {
+
+        String changedisplay = "changedisplay";
+        String newprojectstatus = "newproejctstatus";
+
+    }
 
     private SimpleStringProperty titleProp = null;
 
@@ -89,6 +89,26 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
         ScrollPane tsp = new ScrollPane ();
 		tsp.setContent (this.tiles);
+
+        this.addActionMapping (() ->
+        {
+
+            QuollPopup qp = _this.viewer.getPopupById (ChangeProjectDisplayPopup.POPUP_ID);
+
+            if (qp != null)
+            {
+
+                qp.show ();
+
+                return;
+
+            }
+
+            ChangeProjectDisplayPopup p = new ChangeProjectDisplayPopup (_this.viewer);
+            p.show ();
+
+        },
+        CommandIds.changedisplay);
 
         this.getChildren ().add (tsp);
 
@@ -236,7 +256,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
                     .onAction (ev ->
                     {
 
-                        _this.viewer.runCommand (AllProjectsViewer.CommandIds.changeprojectdetails);
+                        _this.runCommand (CommandIds.changedisplay);
 
                     })
                     .build ());
@@ -427,96 +447,44 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
     private void showRemoveProject (final ProjectInfo p)
     {
-/*
-        java.util.List<String> prefix = new ArrayList<> ();
-        prefix.add (LanguageStrings.allprojects);
-        prefix.add (LanguageStrings.actions);
-        prefix.add (LanguageStrings.removeproject);
 
-        final Landing _this = this;
+        List<String> prefix = Arrays.asList (allprojects,actions,removeproject);
 
-        Map<String, ActionListener> buts = new LinkedHashMap ();
-        buts.put (Environment.getUIString (prefix,
-                                           LanguageStrings.popup,
-                                           LanguageStrings.buttons,
-                                           LanguageStrings.confirm),
-                //"Yes, remove it",
-                  new ActionListener ()
-                  {
+        final ProjectsPanel _this = this;
 
-                     public void actionPerformed (ActionEvent ev)
-                     {
+        ComponentUtils.createQuestionPopup (getUILanguageStringProperty (Utils.newList (prefix,popup,title)),
+                                            StyleClassNames.WARNING,
+                                            getUILanguageStringProperty (Utils.newList (prefix,popup,text),
+                                                                         p.getName (),
+                                                                         Environment.canOpenProject (p)),
+                                            getUILanguageStringProperty (Utils.newList (prefix,popup,buttons,confirm)),
+                                            getUILanguageStringProperty (Utils.newList (prefix,popup,buttons,cancel)),
+                                            ev ->
+                                            {
 
-                        try
-                        {
+                                                try
+                                                {
 
-							Environment.deleteProject (p,
-													   onRemove);
+                        							Environment.deleteProject (p);
 
-                        } catch (Exception e) {
+                                                } catch (Exception e) {
 
-                            Environment.logError ("Unable to remove project: " +
-                                                  p.getName (),
-                                                  e);
+                                                    Environment.logError ("Unable to remove project: " +
+                                                                          p.getName (),
+                                                                          e);
 
-                            UIUtils.showErrorMessage (_this,
-                                                      Environment.getUIString (prefix,
-                                                                               LanguageStrings.actionerror));
-                                                      //"Unable to remove project, please contact Quoll Writer support for assistance.");
+                                                    ComponentUtils.showErrorMessage (_this.getViewer (),
+                                                                                     getUILanguageStringProperty (prefix,actionerror));
+                                                                              //"Unable to remove project, please contact Quoll Writer support for assistance.");
 
-                            return;
+                                                    return;
 
-                        }
+                                                }
 
-                     }
 
-                  });
+                                            },
+                                            _this.getViewer ());
 
-        buts.put (Environment.getUIString (prefix,
-                                           LanguageStrings.popup,
-                                           LanguageStrings.buttons,
-                                           LanguageStrings.cancel),
-                //"No, keep it",
-                  new ActionListener ()
-                  {
-
-                     public void actionPerformed (ActionEvent ev)
-                     {
-
-                        // Don't do anything...
-
-                     }
-
-                  });
-
-        String reason = Environment.canOpenProject (p);
-
-		String message = String.format (Environment.getUIString (prefix,
-                                                                 LanguageStrings.popup,
-                                                                 LanguageStrings.text),
-                                        //"Sorry, {project} <b>%s</b> cannot be opened for the following reason:<br /><br /><b>%s</b><br /><br />This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of {projects}?",
-                                        p.getName (),
-                                        reason);
-
-        //message = message + "<br /><br />Note: this will <b>only</b> remove the {project} from the list it will not remove any other data.";
-
-        JComponent mess = UIUtils.createHelpTextPane (message,
-                                                      null);
-        mess.setBorder (null);
-        mess.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                     500));
-
-        UIUtils.createQuestionPopup (this,
-                                     Environment.getUIString (prefix,
-                                                              LanguageStrings.popup,
-                                                              LanguageStrings.title),
-                                    //"Unable to open {project}",
-                                     Constants.ERROR_ICON_NAME,
-                                     mess,
-                                     buts,
-                                     null,
-                                     null);
-*/
     }
 
     private boolean handleOpenProject (final ProjectInfo p,
@@ -829,14 +797,12 @@ TODO Remove
   public class ProjectBox extends VBox
   {
 
+        private Header name = null;
+        private BasicHtmlTextFlow info = null;
+        private StringProperty infoProp = null;
+
 		private ProjectInfo project = null;
 		private ProjectsPanel parent = null;
-        private Header name = null;
-		//private Label name = null;
-        private BasicHtmlTextFlow info = null;
-		//private Label info = null;
-		private boolean interactive = true;
-        private StringProperty infoProp = null;
 
 		public ProjectInfo getProjectInfo ()
 		{
@@ -845,20 +811,11 @@ TODO Remove
 
 		}
 
-		public void setInteractive (boolean v)
-		{
-
-			this.interactive = v;
-
-		}
-
       public ProjectBox (ProjectInfo   p,
 						 ProjectsPanel parent)
       {
 
-          super (0);
-
-          this.setFocusTraversable (true);
+            this.setFocusTraversable (true);
 
 			this.parent = parent;
 
@@ -869,21 +826,19 @@ TODO Remove
             this.getStyleClass ().add (this.getStyleName ());
 
             this.name = Header.builder ()
-                // TODO Use name property.
-                .title (new SimpleStringProperty (this.project.getName ()))
+                .title (this.project.nameProperty ())
                 .build ();
 
             this.infoProp = new SimpleStringProperty ();
             this.infoProp.bind (Bindings.createStringBinding (() ->
             {
 
-                return this.getFormattedProjectInfo ();
+                return UIUtils.getFormattedProjectInfo (_this.project);
 
             },
             UILanguageStringsManager.uilangProperty (),
             UserProperties.projectInfoFormatProperty (),
-            // TODO: Add other props.
-            this.project.nameProperty ()));
+            this.project.statusProperty ()));
 
             this.info = BasicHtmlTextFlow.builder ()
                 .text (this.infoProp)
@@ -891,7 +846,7 @@ TODO Remove
                 .withViewer (this.parent.getViewer ())
                 .build ();
 
-			this.getChildren ().addAll (this.name, this.info);
+            this.getChildren ().addAll (this.name, this.info);
 
             this.setOnKeyPressed (ev ->
             {
@@ -1093,6 +1048,7 @@ TODO
                         .onAction (ev ->
                         {
 
+                            // TODO Change to use a command?
                             _this.parent.handleOpenProject (_this.project,
 															null);
 
@@ -1106,21 +1062,19 @@ TODO
                         {
 
                             Set<MenuItem> sitems = new LinkedHashSet<> ();
-/*
-TODO Currently returns null.
-                            // Get the project statuses.
-    						Set<String> statuses = Environment.getUserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME).getTypes ();
 
-                            // TODO Change to return StringPropertys...
-    						for (String s : statuses)
-    						{
+                            UserProperties.getProjectStatuses ().stream ()
+                                .forEach (s -> sitems.add (_this.createStatusMenuItem (s)));
 
-    							sitems.add (_this.createStatusMenuItem (new SimpleStringProperty (s)));
+                            if (sitems.size () > 0)
+                            {
 
-    						}
-*/
+                                sitems.add (new SeparatorMenuItem ());
+
+                            }
+
                             // No value.
-    						sitems.add (_this.createStatusMenuItem (null));
+    						sitems.add (_this.createStatusMenuItem (UserProperties.noProjectStatusProperty ()));
 
                             sitems.add (QuollMenuItem.builder ()
                                 .label (Utils.newList (prefix,newstatus))
@@ -1128,7 +1082,7 @@ TODO Currently returns null.
                                 .onAction (ev ->
                                 {
 
-                                    _this.parent.getViewer ().runCommand (AllProjectsViewer.CommandIds.newprojectstatus);
+                                    _this.showAddNewProjectStatus ();
 
                                 })
                                 .build ());
@@ -1149,9 +1103,9 @@ TODO Currently returns null.
                             .onAction (ev ->
                             {
 
-                                UIUtils.showCreateBackup (_this.project,
-                                                          null,
-                                                          _this.parent.getViewer ());
+                                BackupsManager.showCreateBackup (_this.project,
+                                                                 null,
+                                                                 _this.parent.getViewer ());
 
                             })
                             .build ());
@@ -1164,8 +1118,8 @@ TODO Currently returns null.
                         .onAction (ev ->
                         {
 
-                            UIUtils.showManageBackups (_this.project,
-                                                       _this.parent.getViewer ());
+                            BackupsManager.showForProject (_this.project,
+                                                           this.parent.getViewer ());
 
                         })
                         .build ());
@@ -1189,7 +1143,9 @@ TODO Currently returns null.
                         .onAction (ev ->
                         {
 
-                            _this.parent.showDeleteProject (_this.project);
+                            UIUtils.showDeleteProjectPopup (_this.project,
+                                                            null,
+                                                            _this.parent.getViewer ());
 
                         })
                         .build ());
@@ -1198,6 +1154,7 @@ TODO Currently returns null.
 
                     evv.consume ();
 
+                    cm.setAutoHide (true);
                     cm.getItems ().addAll (items);
 
 					cm.show (_this, evv.getScreenX (), evv.getScreenY ());
@@ -1228,7 +1185,7 @@ TODO Currently returns null.
 
                   List<String> prefix = Arrays.asList (LanguageStrings.project,actions,openproject,openerrors);
 
-                  ComponentUtils.showErrorMessage (this.parent.viewer,
+                  ComponentUtils.showErrorMessage (_this.parent.viewer,
                                                    getUILanguageStringProperty (Utils.newList (prefix,general),
                                                                                 _this.project.getName (),
                                                                                 getUIString (Utils.newList (prefix,unspecified))));
@@ -1626,6 +1583,78 @@ TODO Currently returns null.
 
 			this.project.addPropertyChangedListener (this);
 			*/
+
+      }
+
+      private void showAddNewProjectStatus ()
+      {
+
+          List<String> prefix = Arrays.asList (LanguageStrings.project,status,actions,add);
+
+          final ProjectBox _this = this;
+
+          ComponentUtils.createTextEntryPopup (getUILanguageStringProperty (Utils.newList (prefix,popup,title)),
+                                          //"Add a new {Project} Status",
+                                        StyleClassNames.ADD,
+                                        getUILanguageStringProperty (Utils.newList (prefix,popup,text)),
+                                        //"Enter a new status below, it will be applied to the {project} once added.",
+                                        null,
+                                        v ->
+                                        {
+
+                                            if ((v == null)
+                                                ||
+                                                (v.trim ().length () == 0)
+                                               )
+                                            {
+
+                                                return getUILanguageStringProperty (Utils.newList (prefix,popup,errors,novalue));
+                                                //"Please enter the new status.";
+
+                                            }
+
+                                            v = v.trim ();
+
+                                            for (StringProperty pp : UserProperties.getProjectStatuses ())
+                                            {
+
+                                                if (pp.getValue ().equalsIgnoreCase (v))
+                                                {
+
+                                                    return getUILanguageStringProperty (Utils.newList (prefix,popup,errors,valueexists));
+
+                                                }
+
+                                            }
+
+                                            return null;
+
+                                        },
+                                        getUILanguageStringProperty (Utils.newList (prefix,popup,buttons,save)),
+                                        getUILanguageStringProperty (Utils.newList (prefix,popup,buttons,cancel)),
+                                        // On save.
+                                        ev ->
+                                        {
+
+                                            javafx.scene.Node n = ev.getForm ().lookup ("#text");
+
+                                            if (n != null)
+                                            {
+
+                                                TextField tf = (TextField) n;
+
+                                                StringProperty pr = UserProperties.addProjectStatus (tf.getText ());
+
+                                                _this.project.setStatus (pr.getValue ());
+
+                                            }
+
+                                        },
+                                        // On cancel
+                                        null,
+                                        null,
+                                        _this.parent.getViewer ());
+
       }
 
       private void showDirectory ()
@@ -1636,14 +1665,14 @@ TODO Currently returns null.
 
       }
 
-      private MenuItem createStatusMenuItem (SimpleStringProperty status)
+      private MenuItem createStatusMenuItem (StringProperty status)
       {
 
           final ProjectBox _this = this;
 
           return QuollMenuItem.builder ()
-                    .label ((status == null ? getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,LanguageStrings.status,novalue)) : status))
-                    .styleClassName (StyleClassNames.NOVALUE)
+                    .label ((status.getValue () == null ? getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,LanguageStrings.status,novalue)) : status))
+                    .styleClassName (status.getValue () == null ? StyleClassNames.NOVALUE : StyleClassNames.NOIMAGE)
                     .onAction (ev ->
                     {
 
@@ -1651,8 +1680,6 @@ TODO Currently returns null.
                         {
 
                             _this.project.setStatus (status.getValue ());
-
-                            Environment.updateProjectInfo (_this.project);
 
                         } catch (Exception e) {
 
@@ -1716,89 +1743,6 @@ TODO Currently returns null.
           return n;
 
       }
-
-        public String getFormattedProjectInfo ()
-		{
-
-            java.util.List<String> prefix = new ArrayList ();
-            prefix.add (LanguageStrings.allprojects);
-            prefix.add (LanguageStrings.project);
-            prefix.add (LanguageStrings.view);
-            prefix.add (LanguageStrings.labels);
-
-			String lastEd = "";
-
-			if (project.getLastEdited () != null)
-			{
-
-				lastEd = String.format (getUIString (Utils.newList (prefix, LanguageStrings.lastedited)),
-                                        //"Last edited: %s",
-										Environment.formatDate (project.getLastEdited ()));
-
-			} else {
-
-				lastEd = getUIString (Utils.newList (prefix, LanguageStrings.notedited));
-                                                //"Not yet edited.";
-
-			}
-
-			String text = UserProperties.projectInfoFormatProperty ().getValue ();
-
-			String nl = String.valueOf ('\n');
-
-			while (text.endsWith (nl))
-			{
-
-				text = text.substring (0,
-									   text.length () - 1);
-
-			}
-
-			text = text.toLowerCase ();
-
-			text = StringUtils.replaceString (text,
-											  " ",
-											  "&nbsp;");
-			text = StringUtils.replaceString (text,
-											  nl,
-											  "<br />");
-
-			text = StringUtils.replaceString (text,
-											  STATUS_TAG,
-											  (this.project.getStatus () != null ? this.project.getStatus () : getUIString (LanguageStrings.project,status,novalue)));
-                                              //"No status"));
-
-			text = StringUtils.replaceString (text,
-											  WORDS_TAG,
-											  String.format (getUIString (prefix, LanguageStrings.words),
-                                                            //"%s words",
-															 Environment.formatNumber (this.project.getWordCount ())));
-
-            text = StringUtils.replaceString (text,
-                                              CHAPTERS_TAG,
-                                              String.format (getUIString (prefix, LanguageStrings.chapters),
-                                                //"%s ${objectnames.%s.chapter}",
-                                                             Environment.formatNumber (this.project.getChapterCount ())));
-
-			text = StringUtils.replaceString (text,
-											  LAST_EDITED_TAG,
-											  lastEd);
-			text = StringUtils.replaceString (text,
-											  EDIT_COMPLETE_TAG,
-											  String.format (getUIString (prefix, LanguageStrings.editcomplete),
-                                                            //"%s%% complete",
-															 Environment.formatNumber (Utils.getPercent (this.project.getEditedWordCount (), project.getWordCount ()))));
-			text = StringUtils.replaceString (text,
-											  READABILITY_TAG,
-											  String.format (getUIString (prefix, LanguageStrings.readability),
-                                                            //"GL: %s, RE: %s, GF: %s",
-															 Environment.formatNumber (Math.round (this.project.getFleschKincaidGradeLevel ())),
-															 Environment.formatNumber (Math.round (this.project.getFleschReadingEase ())),
-															 Environment.formatNumber (Math.round (this.project.getGunningFogIndex ()))));
-
-			return text;
-
-		}
 
     }
 

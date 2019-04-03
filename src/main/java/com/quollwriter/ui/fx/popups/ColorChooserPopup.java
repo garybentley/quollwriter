@@ -22,7 +22,7 @@ public class ColorChooserPopup extends PopupContent
     private QuollColorChooser chooser = null;
 
     public ColorChooserPopup (AbstractViewer viewer,
-                             Color          selected)
+                              Color          selected)
     {
 
         super (viewer);

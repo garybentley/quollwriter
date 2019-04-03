@@ -141,25 +141,28 @@ public class BasicHtmlTextFlow extends TextFlow
 
                 }
 
+                Text t = new Text (el.ownText ());
+                t.getStyleClass ().add (el.tagName ());
+                children.add (t);
+
                 if (el.tagName ().equalsIgnoreCase ("a"))
                 {
 
-                    Hyperlink _t = new Hyperlink (el.ownText ());
-                    _t.setOnMouseClicked (ev ->
+                    t.getStyleClass ().add (StyleClassNames.A);
+
+                    t.getStyleClass ().add (el.attributes ().get ("class"));
+
+                    //Hyperlink _t = new Hyperlink (el.ownText ());
+                    //_t.setWrapText (true);
+                    t.setOnMouseClicked (ev ->
                     {
 
                         UIUtils.openURL (_this.viewer,
                                          el.attributes ().get ("href"));
 
                     });
-                    children.add (_t);
-                    continue;
 
                 }
-
-                Text t = new Text (el.ownText ());
-                t.getStyleClass ().add (el.tagName ());
-                children.add (t);
 
             }
 

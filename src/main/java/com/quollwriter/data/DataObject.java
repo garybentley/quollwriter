@@ -34,11 +34,13 @@ public abstract class DataObject
     private   String id = null;
     private   String version = null;
     private boolean latest = true;
+    private javafx.beans.property.BooleanProperty modifiedProp = null;
     // protected Date lastModified = null;
 
     private Date                              dateCreated = new Date ();
     protected DataObject                      parent = null;
-    private Map<PropertyChangedListener, Object> listeners = null;
+    private Map<PropertyChangedListener, Object> weakListeners = null;
+    private Set<PropertyChangedListener> nonWeakListeners = null;
 
     // Just used in the maps above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
@@ -51,7 +53,9 @@ public abstract class DataObject
 
         // Where possible listeners should de-register as normal but this just ensure that objects
         // that don't have a controlled pre-defined lifecycle.
-        this.listeners = Collections.synchronizedMap (new WeakHashMap ());
+        this.weakListeners = Collections.synchronizedMap (new WeakHashMap<> ());
+
+        this.nonWeakListeners = Collections.synchronizedSet (new HashSet<> ());
 
         if (objType != null)
         {
@@ -261,13 +265,20 @@ public abstract class DataObject
 
         Object o = new Object ();
 
-        Set<PropertyChangedListener> ls = null;
+        Set<PropertyChangedListener> ls = new HashSet<> ();
 
         // Get a copy of the current valid listeners.
-        synchronized (this.listeners)
+        synchronized (this.weakListeners)
         {
 
-            ls = new HashSet (this.listeners.keySet ());
+            ls.addAll (this.weakListeners.keySet ());
+
+        }
+
+        synchronized (this.nonWeakListeners)
+        {
+
+            ls.addAll (this.nonWeakListeners);
 
         }
 
@@ -295,7 +306,14 @@ public abstract class DataObject
     public void removePropertyChangedListener (PropertyChangedListener l)
     {
 
-        this.listeners.remove (l);
+        this.weakListeners.remove (l);
+
+    }
+
+    public void removeNonWeakPropertyChangedListener (PropertyChangedListener l)
+    {
+
+        this.nonWeakListeners.remove (l);
 
     }
 
@@ -344,8 +362,15 @@ public abstract class DataObject
     public void addPropertyChangedListener (PropertyChangedListener l)
     {
 
-        this.listeners.put (l,
-                            this.listenerFillObj);
+        this.weakListeners.put (l,
+                                this.listenerFillObj);
+
+    }
+
+    public void addNonWeakPropertyChangedListener (PropertyChangedListener l)
+    {
+
+        this.nonWeakListeners.add (l);
 
     }
 

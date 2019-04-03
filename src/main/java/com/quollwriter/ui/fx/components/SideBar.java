@@ -117,7 +117,7 @@ public class SideBar extends VBox implements Stateful
         this.titleProp = this.header.titleProperty ();
 
         this.activeTitleProp = b.activeTitle;
-
+        this.otherSideBarsShowButton.managedProperty ().bind (this.otherSideBarsShowButton.visibleProperty ());
         this.otherSideBarsShowButton.setVisible (false);
 
         this.getChildren ().addAll (this.header);
@@ -133,7 +133,7 @@ public class SideBar extends VBox implements Stateful
         this.addEventHandler (SideBarEvent.HIDE_EVENT,
                               ev ->
         {
-
+System.out.println ("HERE: " + _this.getWidth ());
             _this.otherSideBarsShowButton.setVisible (ev.getViewer ().getActiveSideBarCount () > 1 && ev.getViewer ().getActiveOtherSideBar () != null);
 
         });
@@ -155,6 +155,8 @@ public class SideBar extends VBox implements Stateful
             }
 
         }
+
+        this.managedProperty ().bind (this.visibleProperty ());
 
     }
 

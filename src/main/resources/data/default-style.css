@@ -26,6 +26,8 @@
 
     -qw-component-border-color: #aaaaaa;
 
+    -qw-hyperlink-color: blue;
+
     /*
      * The color used when items have focus.
      */
@@ -60,10 +62,16 @@
     -qw-window-header-font-size: 2.5em;
 }
 
+.header .title
+{
+    -fx-max-width: Infinity;
+}
+
 .tooltip
 {
     -fx-font-size: 1em;
     -fx-show-delay: -qw-show-delay;
+    -fx-hide-delayX: 5000;
     -fx-background-color: -qw-bg-color;
     -fx-text-fill: -fx-text-base-color;
     -fx-background-radius: 0px;
@@ -85,11 +93,17 @@
 {
     -fx-background-color: transparent;
     -fx-padding: 0px;
+    -fx-fit-to-width: true;
 }
 
 .scroll-pane .viewport
 {
     -fx-background-color: transparent;
+}
+
+.list-view
+{
+    -fx-min-height: 20em;
 }
 
 /*
@@ -98,6 +112,12 @@
 .b, .B { -fx-font-weight: bold; }
 .i, .I { -fx-font-style: italic; }
 .u, .U { -fx-underline: true; }
+
+/*
+ The following .a styles are designed for use in basic HTML rendering.
+ */
+.a { -fx-fill: -qw-hyperlink-color; }
+.a:hover { -fx-underline: true; -fx-cursor: hand; }
 
 .page-corner
 {
@@ -158,6 +178,10 @@
 {
     -fx-graphic: url(/imgs/cancel16.png);
 }
+.menu-item.noimage > .label
+{
+    -fx-graphic: url(/imgs/16x16-transparent.png);
+}
 .menu-item.mangaestatuses > .label,
 .menu-item.changedisplay > .label,
 .menu-item.managebackups > .label
@@ -182,6 +206,7 @@
 .menu-item.selectbg > .label { -fx-graphic: url(/imgs/bg-select16.png); }
 .menu-item.open > .label { -fx-graphic: url(/imgs/open-project16.png); }
 .menu-item.remove > .label { -fx-graphic: url(/imgs/warning16.png); }
+.menu-item.edit > .label { -fx-graphic: url(/imgs/edit16.png); }
 .menu-item.createbackup > .label
 {
     -fx-graphic: url(/imgs/snapshot16.png);
@@ -312,7 +337,7 @@
 
 .scroll-bar
 {
-    -fx-background-color: #fdfdfd;
+    -fx-background-color: transparent;
     -fx-box-border: null;
     -fx-background-radius: 0px;
     -fx-padding: 0px;
@@ -328,6 +353,11 @@
 {
     -fx-background-color: #dddddd;
     -fx-background-radius: 0px;
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button
+{
+    visibility: hidden;
 }
 
 .scroll-bar .thumb:hover, .scroll-bar .thumb:focused, .scroll-bar .thumb:armed, .scroll-bar .thumb:pressed
@@ -350,6 +380,7 @@
 {
     -fx-box-border: transparent;
     -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
 .qw-allprojects .header .name
@@ -381,21 +412,27 @@
     visibility: hidden;
 }
 
-.panel.allprojects .projectslist .project .header .title
+.panel.allprojects .projectslist .project .header .title, .changeprojectdisplay .example.project .header .title
 {
     -fx-padding: -0.5em 0 0 0.3em;
     -fx-font-size: 1.7em;
     -fx-wrap-text: true;
     -fx-text-fill: -fx-text-base-color;
     -fx-alignment: top-left;
+    -fx-max-width: 25em;
+    -fx-pref-width: 25em;
 }
 
-.panel.allprojects .projectslist .project .header
+.panel.allprojects .projectslist .project .header, .changeprojectdisplay .example.project .header .title
 {
     -fx-alignment: top-left;
 }
 
-.panel.allprojects .projectslist .project .header .icon { -fx-image: url(/imgs/project20.png); }
+.panel.allprojects .projectslist .project .header .icon, .changeprojectdisplay .example.project .header .icon
+{
+    -fx-image: url(/imgs/project20.png);
+}
+
 .panel.allprojects .projectslist .warmup .header .icon { -fx-image: url(/imgs/warmups20.png); }
 .panel.allprojects .projectslist .editor .header .icon { -fx-image: url(/imgs/editor20.png); }
 .panel.allprojects .projectslist .encrypted .header .icon { -fx-image: url(/imgs/lock20.png); }
@@ -441,17 +478,18 @@
  * A project box in the projects window.
  * Setting both max AND min width is needed to ensure the height is calculated.
  */
-.panel.allprojects .projectslist .project
+.panel.allprojects .projectslist .project, .changeprojectdisplay .example.project
 {
     -fx-padding: 0.5em;
     -fx-border-width: 1px;
     -fx-border-insets: 0px;
     -fx-border-color: transparent;
     -fx-pref-width: 25em;
+    -fx-min-width: 25em;
     -fx-background-color: -qw-bg-color;
 }
 
-.panel.allprojects .projectslist .project:hover, .panel.allprojects .projectslist .project:focused
+.panel.allprojects .projectslist .project:hover, .panel.allprojects .projectslist .project:focused, .changeprojectdisplay .example.project:hover
 {
     -fx-border-width: 1px;
     -fx-border-insets: 0px;
@@ -460,7 +498,7 @@
     -fx-cursor: hand;
 }
 
-.panel.allprojects:bgcolor .projectslist .project, .panel.allprojects:bgimage .projectslist .project
+.panel.allprojects:bgcolor .projectslist .project, .panel.allprojects:bgimage .projectslist .project, .changeprojectdisplay .example.project
 {
     -fx-border-color: -qw-border-color;
 }
@@ -468,10 +506,9 @@
 /*
  * The info about a project in the projects window.
  */
-.panel.allprojects .projectslist .project .info
+.panel.allprojects .projectslist .project .info, .changeprojectdisplay .example.project .info
 {
     -fx-font-size: 1.1em;
-    -fx-wrap-text: true;
     -fx-padding: 0em 0 0 2em;
     -fx-text-fill: -fx-text-base-color;
 
@@ -482,22 +519,12 @@
     -fx-view-order: -1;
 }
 
-.panel.importfile .header
-{
-    -fx-alignment: center;
-}
+.panel.importfile .title { -fx-graphic: url(/imgs/project-import24.png); }
 
-.panel.importfile .header .icon { -fx-image: url(/imgs/project-import24.png); }
-
-.panel.importfile .header .title
+.panel.importfile .title
 {
     -fx-font-size: 2.5em;
     -fx-label-padding: 0 0 0 0.2em;
-}
-
-.panel.importfile .header .controls
-{
-    visibility: hidden;
 }
 
 /**
@@ -783,9 +810,9 @@
      -fx-border-width: 1px;
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-bg-color;
-     -Xfx-pref-width: 450px;
-     -Xfx-min-width: 450px;
-     -Xfx-max-width: 450px;
+     -fx-pref-width: 450px;
+     -fx-min-width: 450px;
+     -fx-max-width: 450px;
  }
 
 .qpopup .content
@@ -814,6 +841,11 @@
      -fx-padding: 0.2em;
  }
 
+ .qpopup .description
+ {
+     -fx-padding: 0 0 0.5em 0;
+ }
+
  .qpopup .buttons
  {
      -fx-alignment: center;
@@ -838,8 +870,33 @@
  .qpopup .form .buttons
  {
      -fx-alignment: center-left;
-     -fx-padding: 0.5em 0.5em 1em 1em;
+     -fx-padding: 0.5em 0.5em 0.5em 1em;
  }
+
+.qpopup.delete .buttons, .qpopup .form.textentry .buttons
+{
+    -fx-alignment: center-left;
+    -fx-padding: 0.5em 0.5em 0.5em 0em;
+}
+
+.qpopup.add .header .icon { -fx-image: url(/imgs/add16.png); }
+.qpopup.delete .header .icon { -fx-image: url(/imgs/delete16.png); }
+.qpopup.warning .header .icon { -fx-image: url(/imgs/warning16.png); }
+
+/*
+ * The text entry popup.
+ * It contains a Form but is styled to not look that way since it's only a
+ * single field.
+ */
+.qpopup .form.textentry .items
+{
+    -fx-padding: 0;
+}
+
+.qpopup .form.textentry .items .control
+{
+    -fx-padding: 0 0 0.5em 0;
+}
 
 /*
  Create new project Popup (NewProjectPopup)
@@ -870,11 +927,105 @@
 }
 
 /*
+ * Contact support popup (ContactSupportPopup)
+ */
+.qpopup.contactsupport .header .icon
+{
+    -fx-image: url(/imgs/email16.png);
+}
+
+/*
+ * About QW popup (AboutPopup)
+ */
+.qpopup.about .content .form, .qpopup.about .content .form .items
+{
+    -fx-padding: 0;
+}
+
+.qpopup.about .content .form
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+/*
  Find projects Popup (FindProjectsPopup)
  */
 .qpopup.findprojects .header .icon
 {
     -fx-image: url(/imgs/find16.png);
+}
+
+/*
+ * Do a warmup popup (DoWarmupExercisePopup)
+ */
+.qpopup.dowarmup > .header .icon
+{
+    -fx-image: url(/imgs/warmups16.png);
+}
+
+.qpopup.dowarmup .chooseprompt .header, .qpopup.dowarmup .chooseprompt .header .title,
+.qpopup.dowarmup .ownprompt .header, .qpopup.dowarmup .ownprompt .header .title,
+.qpopup.dowarmup .config .header, .qpopup.dowarmup .config .header .title
+{
+    -fx-padding: 0;
+}
+
+.qpopup.dowarmup .chooseprompt, .qpopup.dowarmup .ownprompt, .qpopup.dowarmup .config
+{
+    -fx-padding: 0 0 1em 0;
+}
+
+.qpopup.dowarmup .chooseprompt .scroll-pane
+{
+    -fx-min-height: 5em;
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.qpopup.dowarmup .chooseprompt .buttons
+{
+    -fx-alignment: center-left;
+    -fx-padding: 1em 0 0 0.5em;
+}
+
+.qpopup.dowarmup .chooseprompt .next
+{
+    -fx-graphic: url(/imgs/next16.png);
+}
+
+.qpopup.dowarmup .chooseprompt .previous
+{
+    -fx-graphic: url(/imgs/previous16.png);
+    -fx-min-width: 16px;
+}
+
+.qpopup.dowarmup .chooseprompt .weblinks
+{
+    -fx-graphic: url(/imgs/website-links16.png);
+    -fx-content-display: graphic-only;
+    -fx-min-width: 16px;
+}
+
+.qpopup.dowarmup .ownprompt .text
+{
+    -fx-padding: 0.5em 0 0 0.5em;
+}
+
+.qpopup.dowarmup .ownprompt .text .text-area
+{
+    -fx-max-height: 5em;
+    -fx-pref-height: 5em;
+    -fx-min-height: 5em;
+}
+
+.qpopup.dowarmup .config > *
+{
+    -fx-padding: 0.5em 0 0 0.5em;
+}
+
+.qpopup.dowarmup .config > HBox
+{
+    -fx-spacing: 0.5em;
+    -fx-alignment: baseline-left;
 }
 
 /*
@@ -1114,4 +1265,239 @@
 .colorchooser .text-field
 {
     -fx-max-width: 7em;
+}
+
+.qpopup.projectstatuses > .header .icon
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+
+.itemmanager .header, .itemmanager .header .title
+{
+    -fx-padding: 0;
+}
+
+.itemmanager .description
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.itemmanager .current .header .icon
+{
+    -fx-padding: 0em;
+    visiblity: hidden;
+}
+
+.projectstatuses .buttons
+{
+    -fx-alignment: center;
+    -fx-padding: 0 0 1em 0;
+}
+/*
+.backups .scroll-pane
+{
+    -fx-min-height: 25em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+}
+*/
+
+.qpopup.backups > .header .icon,
+.qpopup.createbackup > .header .icon,
+.qpopup.backupcreated > .header .icon
+{
+    -fx-image: url(/imgs/snapshot24.png);
+}
+
+.qpopup .hyperlink.view
+{
+    -fx-graphic: url(/imgs/find16.png);
+    -fx-graphic-text-gap: 0.5em;
+    -fx-padding: 0.5em 0.5em 0.5em 0em;
+}
+
+.backups .scroll-pane
+{
+    -fx-min-height: 25em;
+    -fx-pref-height: 25em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-fit-to-width: true;
+    -fx-background-color: transparent;
+}
+
+.backups .items
+{
+    -fx-fill-width: true;
+}
+
+.backups .item
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.backups .item:hover
+ {
+     -fx-background-color: -qw-hover-bg;
+ }
+
+.backups .item .title
+{
+    -fx-font-size: 1.1em;
+}
+
+.backups .item .restore
+{
+     -fx-graphic: url(/imgs/restore16.png);
+}
+
+.backups .item .delete
+{
+     -fx-graphic: url(/imgs/delete16.png);
+}
+
+.backups .nobackups
+{
+    -fx-font-size: 1.2em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em;
+    -fx-text-alignment: center;
+    -fx-graphic: url(/imgs/warning20.png);
+}
+
+.qpopup .itemmanager .buttons, .qpopup .backups .buttons
+{
+    -fx-alignment: center-left;
+    -fx-padding: 1em 0.5em 1em 0em;
+}
+
+/**
+ * Change project display popup (ChangeProjectDisplayPopup)
+ */
+.changeprojectdisplay .project.normal .header
+{
+    -fx-padding: 0;
+}
+
+.changeprojectdisplay > .header .icon
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+
+.changeprojectdisplay .header.example
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+    -fx-content-display: text-only;
+    -fx-graphic-text-gap: 0;
+    -fx-label-padding: 0;
+}
+
+.changeprojectdisplay .header.example .title
+{
+    -fx-padding: 0;
+}
+
+.changeprojectdisplay .example.project
+{
+    -fx-alignment: top-center;
+    -fx-fill-width: true;
+    -fx-max-width: 25em;
+    -fx-pref-width: 25em;
+}
+
+.changeprojectdisplay .qtextarea.format, .changeprojectdisplay .qtextarea.format .text-area
+{
+    -fx-min-height: 6em;
+    -fx-pref-height: 6em;
+}
+
+/**
+ * What's new popup.  (WhatsNewPopup)
+ */
+.qpopup.whatsnew > .header .icon
+{
+    -fx-image: url(/imgs/whats-new16.png);
+}
+
+/**
+ * Wizard (ui.fx.components.Wizard)
+ */
+.wizard > .header .title, .wizard > .header
+{
+    -fx-padding: 0 0 0 0;
+}
+
+.wizard > .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.list-cell:error
+{
+    -fx-border-color: -qw-error-text-color;
+}
+
+.scroll-bar:vertical .thumb
+{
+    -fx-padding: 0;
+    -fx-background-insets: 0 0 0 2px;
+}
+
+.scroll-bar:vertical .track-background, .scroll-bar:vertical .track
+{
+    -fx-padding: 0em;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.scroll-pane .viewport
+{
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+.sidebar > .header
+{
+    -fx-padding: 0em 0 0.5em 0.5em;
+}
+
+.sidebar > .header .close.button
+{
+    -fx-graphic: url(/imgs/close16.png);
+}
+
+.sidebar > .header .other.button
+{
+    -fx-graphic: url(/imgs/sidebars16.png);
+}
+
+.sidebar > .header .title
+{
+    -fx-padding: 0 0 0 0.5em;
+    -fx-font-size: 1.5em;
+    -fx-max-width: Infinity;
+    -fx-text-gap: 0.5em;
+}
+
+.sidebar.contacts
+{
+    -fx-pref-width: 200px;
+    -fx-min-width: 200px;
+}
+
+.sidebar.contacts > .header .icon
+{
+    -fx-image: url(/imgs/editors20.png);
+}
+
+.popuplayer
+{
+    -fx-view-order: -10000;
+    -fx-background-color: blue;
+    -fx-pref-width: 800px;
+    -fx-pref-height: 800px;
 }

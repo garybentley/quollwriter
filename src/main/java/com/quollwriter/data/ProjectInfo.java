@@ -1,9 +1,12 @@
 package com.quollwriter.data;
 
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
+import java.util.stream.*;
 
 import javafx.beans.property.*;
+import javafx.collections.*;
 
 import org.jdom.*;
 
@@ -13,6 +16,8 @@ import com.quollwriter.data.editors.*;
 
 public class ProjectInfo extends NamedObject implements PropertyChangedListener
 {
+
+    public static final String STATUS_PROP_NAME = "status";
 
     public enum Statistic
     {
@@ -49,22 +54,40 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     private Date               lastEdited = null;
     private boolean            noCredentials = false;
     private String             type = Project.NORMAL_PROJECT_TYPE;
-    private String             status = null;
     private File               icon = null;
-    private File               backupDirectory = null;
     private File               filesDirectory = null;
     private Map<Statistic, Object> statistics = new HashMap ();
     private boolean            encrypted = false;
     private Project            project = null;
     private String             filePassword = null;
 	private boolean opening = false;
+    private Path backupDirPath = null;
+    private ObjectProperty<Path> backupDirPathProp = null;
+    private ObservableSet<Path> backupPaths = null;
+    private SetProperty<Path> backupPathsProp = null;
 
-    private SimpleStringProperty nameProp = new SimpleStringProperty ();
+    private StringProperty statusProp = null;
 
     public ProjectInfo ()
     {
 
         super (OBJECT_TYPE);
+
+        final ProjectInfo _this = this;
+
+        this.statusProp = new SimpleStringProperty (this, STATUS_PROP_NAME);
+        this.statusProp.addListener ((p, oldv, newv) ->
+        {
+
+            // TODO Change to pass the property with the old/new values.
+            _this.firePropertyChangedEvent ("status",
+                                            oldv,
+                                            newv);
+
+        });
+
+        this.backupPathsProp = new SimpleSetProperty<> ();
+        this.backupDirPathProp = new SimpleObjectProperty<> ();
 
     }
 
@@ -84,18 +107,90 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         this.forEditor = from.getForEditor ();
         this.filePassword = from.getFilePassword ();
 
-        this.nameProp.setValue (this.project.getName ());
-
         this.update ();
 
         this.project.addPropertyChangedListener (this);
 
     }
 
-    public StringProperty nameProperty ()
+    public SetProperty<Path> backupPathsProperty ()
+                                           throws GeneralException
     {
 
-        return this.nameProp;
+        if (this.backupPathsProp.get () == null)
+        {
+
+            this.backupPathsProp.set (this.getBackupPaths ());
+
+        }
+
+        return this.backupPathsProp;
+
+    }
+
+    public ObservableSet<Path> getBackupPaths ()
+                                        throws GeneralException
+    {
+
+        if (this.backupPaths == null)
+        {
+
+            this.backupPaths = FXCollections.observableSet (new TreeSet<> ((p1, p2) ->
+            {
+
+                try
+                {
+
+                    return -1 * Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException (e);
+
+                }
+
+            }));
+
+            Path p = this.getBackupDirPath ();
+
+            if (p != null)
+            {
+
+                try
+                {
+
+                    this.backupPaths.addAll (Files.list (p)
+                        .filter (path -> path.getFileName ().toString ().endsWith (".zip"))
+                        .collect (Collectors.toList ()));
+
+                } catch (Exception e) {
+
+                    throw new GeneralException ("Unable to get backup paths from: " + p,
+                                                e);
+
+                }
+
+            }
+
+        }
+
+        return this.backupPaths;
+
+    }
+
+    public void addBackupPath (Path p)
+                        throws GeneralException
+    {
+
+        this.getBackupPaths ().add (p);
+
+    }
+
+    public void removeBackupPath (Path p)
+                           throws GeneralException
+    {
+
+        this.getBackupPaths ().remove (p);
 
     }
 
@@ -136,7 +231,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
                                     this.type);
         this.addToStringProperties (props,
                                     "status",
-                                    this.status);
+                                    this.statusProp.getValue ());
         this.addToStringProperties (props,
                                     "icon",
                                     (this.icon != null ? this.icon.getPath () : "Not set"));
@@ -146,7 +241,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
                                     (this.projectDirectory != null ? this.projectDirectory.getPath () : "Not set"));
         this.addToStringProperties (props,
                                     "backupDir",
-                                    (this.backupDirectory != null ? this.backupDirectory.getPath () : "Not set"));
+                                    (this.backupDirPath != null ? this.backupDirPath.toString () : "Not set"));
         this.addToStringProperties (props,
                                     "filesDir",
                                     (this.filesDirectory != null ? this.filesDirectory.getPath () : "Not set"));
@@ -255,7 +350,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     {
 
         this.setProjectDirectory (this.project.getProjectDirectory ());
-        this.setBackupDirectory (this.project.getBackupDirectory ());
+        this.setBackupDirPath (this.project.getBackupDirectory ().toPath ());
         this.setFilesDirectory (this.project.getFilesDirectory ());
         this.setName (this.project.getName ());
         this.setLastEdited (this.project.getLastEdited ());
@@ -368,14 +463,25 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     public String getStatus ()
     {
 
-        return this.status;
+        return this.statusProp.getValue ();
 
     }
 
     public void setStatus (String s)
     {
 
-        this.status = s;
+        this.statusProp.unbind ();
+
+        StringProperty p = UserProperties.getProjectStatus (s);
+
+        this.statusProp.bind (p);
+
+    }
+
+    public StringProperty statusProperty ()
+    {
+
+        return this.statusProp;
 
     }
 
@@ -463,17 +569,25 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
     }
 
-    public File getBackupDirectory ()
+    public ObjectProperty<Path> backupDirPathProperty ()
     {
 
-        return this.backupDirectory;
+        return this.backupDirPathProp;
 
     }
 
-    public void setBackupDirectory (File f)
+    public Path getBackupDirPath ()
     {
 
-        this.backupDirectory = f;
+        return this.backupDirPath;
+
+    }
+
+    public void setBackupDirPath (Path f)
+    {
+
+        this.backupDirPath = f;
+        this.backupDirPathProp.setValue (f);
 
     }
 

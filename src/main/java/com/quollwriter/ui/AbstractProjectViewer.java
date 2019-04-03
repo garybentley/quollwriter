@@ -3120,7 +3120,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 		this.proj.setFilePassword (filePassword);
         this.proj.setProjectDirectory (p.getProjectDirectory ());
-		this.proj.setBackupDirectory (p.getBackupDirectory ());
+		this.proj.setBackupDirectory (p.getBackupDirPath ().toFile ());
+        // TODO getBackupDirectory ());
         //this.proj.setFilePassword (filePassword);
         this.proj.setEncrypted (p.isEncrypted ());
         this.proj.setNoCredentials (p.isNoCredentials ());
@@ -3652,9 +3653,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 						if ((System.currentTimeMillis () - lastDate) > Utils.getTimeAsMillis (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME)))
 						{
 
+/*
+TODO Moved to new BackupsManager.
                             Environment.createBackupForProject (proj,
                                                                 false);
-
+*/
 							UIUtils.doLater (new ActionListener ()
 							{
 

@@ -22,6 +22,7 @@ import com.quollwriter.events.PropertyChangedListener;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.uistrings.UILanguageStrings;
 import com.quollwriter.uistrings.UILanguageStringsManager;
 
@@ -141,8 +142,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         });
 
         // TODO Init the tabs location.
+        /*
+        Not needed, if a function of the project sidebar...
         this.addToSidebarWrapper (Side.BOTTOM,
                                   this.toolbarWrapper);
+                                  */
 
         this.initActionMappings ();
 
@@ -456,7 +460,8 @@ TODO
 
 		this.project.setFilePassword (filePassword);
         this.project.setProjectDirectory (p.getProjectDirectory ());
-		this.project.setBackupDirectory (p.getBackupDirectory ());
+		this.project.setBackupDirectory (p.getBackupDirPath ().toFile ());
+        // TODO getBackupDirectory ());
         //this.proj.setFilePassword (filePassword);
         this.project.setEncrypted (p.isEncrypted ());
         this.project.setNoCredentials (p.isNoCredentials ());
@@ -2001,8 +2006,8 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
 					if ((System.currentTimeMillis () - lastDate) > Utils.getTimeAsMillis (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME)))
 					{
 
-                        Environment.createBackupForProject (proj,
-                                                            false);
+                        BackupsManager.createBackupForProject (proj,
+                                                               false);
 
 						UIUtils.runLater (() ->
 						{

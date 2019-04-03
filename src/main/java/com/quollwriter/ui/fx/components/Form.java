@@ -21,7 +21,7 @@ public class Form extends VBox
 
     private BasicHtmlTextFlow error = null;
     private HBox errorBox = null;
-    private ButtonBar buttonBar = null;
+    private QuollButtonBar buttonBar = null;
 
     public enum LayoutType
     {
@@ -177,17 +177,11 @@ public class Form extends VBox
            )
         {
 
-            // TODO Make this configurable, esp for other OSes
-            ButtonBar bar = new ButtonBar ("OC");
-            //"OC+");
-            this.buttonBar = bar;
-            bar.getButtons ().addAll (b.buttons);
+            this.buttonBar = QuollButtonBar.builder ()
+                .buttons (b.buttons)
+                .build ();
 
-            HBox h = new HBox ();
-            h.getStyleClass ().add (StyleClassNames.BUTTONS);
-            h.getChildren ().add (bar);
-
-            this.getChildren ().add (h);
+            this.getChildren ().add (this.buttonBar);
 
         }
 
@@ -210,6 +204,13 @@ public class Form extends VBox
 
     public void setOnCancel (EventHandler<FormEvent> h)
     {
+
+        if (h == null)
+        {
+
+            return;
+
+        }
 
         this.addEventHandler (FormEvent.CANCEL_EVENT,
                               h);
@@ -234,28 +235,7 @@ public class Form extends VBox
 
         }
 
-        for (Node n : this.buttonBar.getButtons ())
-        {
-
-            if (!(n instanceof Button))
-            {
-
-                continue;
-
-            }
-
-            Button b = (Button) n;
-
-            if (ButtonBar.getButtonData (b) == ButtonBar.ButtonData.CANCEL_CLOSE)
-            {
-
-                return b;
-
-            }
-
-        }
-
-        return null;
+        return this.buttonBar.getCancelButton ();
 
     }
 
@@ -269,28 +249,7 @@ public class Form extends VBox
 
         }
 
-        for (Node n : this.buttonBar.getButtons ())
-        {
-
-            if (!(n instanceof Button))
-            {
-
-                continue;
-
-            }
-
-            Button b = (Button) n;
-
-            if (ButtonBar.getButtonData (b) == ButtonBar.ButtonData.OK_DONE)
-            {
-
-                return b;
-
-            }
-
-        }
-
-        return null;
+        return this.buttonBar.getConfirmButton ();
 
     }
 

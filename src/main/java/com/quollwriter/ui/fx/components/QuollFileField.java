@@ -29,6 +29,7 @@ public class QuollFileField extends HBox
     private StringProperty chooserTitle = null;
     private AbstractViewer viewer = null;
     private Type limitTo = Type.file;
+    private FileChooser.ExtensionFilter fileExtFilter = null;
 
     private QuollFileField (Builder b)
     {
@@ -47,6 +48,7 @@ public class QuollFileField extends HBox
         this.viewer = b.viewer;
         this.chooserTitle = b.chooserTitle;
         this.limitTo = b.limitTo;
+        this.fileExtFilter = b.fileExtFilter;
 
         if (b.styleName != null)
         {
@@ -119,6 +121,26 @@ public class QuollFileField extends HBox
         {
 
             // TODO
+            FileChooser f = new FileChooser ();
+
+            if (this.chooserTitle != null)
+            {
+
+                f.titleProperty ().bind (this.chooserTitle);
+
+            }
+
+            if (this.fileExtFilter != null)
+            {
+
+                f.getExtensionFilters ().add (this.fileExtFilter);
+
+            }
+
+            File _f = f.showOpenDialog (this.viewer.getViewer ());
+            _this.fileProp.setValue (_f);
+
+            return;
 
         }
 
@@ -167,6 +189,7 @@ public class QuollFileField extends HBox
         private AbstractViewer viewer = null;
         private StringProperty chooserTitle = null;
         private Type limitTo = null;
+        private FileChooser.ExtensionFilter fileExtFilter = null;
 
         private Builder ()
         {
@@ -262,6 +285,14 @@ public class QuollFileField extends HBox
         {
 
             this.buttonTooltip = prop;
+            return this;
+
+        }
+
+        public Builder fileExtensionFilter (FileChooser.ExtensionFilter fil)
+        {
+
+            this.fileExtFilter = fil;
             return this;
 
         }

@@ -1455,6 +1455,8 @@ public class Utils
 
         StringBuilder b = new StringBuilder ();
 
+        b.append (e.getMessage ());
+
         for (int i = 0; i < els.length; i++)
         {
 

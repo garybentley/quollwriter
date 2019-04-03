@@ -10,7 +10,9 @@ public final class StyleClassNames
     public static final PseudoClass BGIMAGE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.BGIMAGE);
     public static final PseudoClass BGCOLOR_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.BGCOLOR);
     public static final PseudoClass NIGHT_MODE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NIGHT);
+    public static final PseudoClass USERIMAGE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.USERIMAGE);
 
+    public static final String USERIMAGE = "userimage";
     public static final String NIGHT = "night";
     public static final String IMAGE = "image";
     public static final String SPLASHSCREEN = "splashscreen";
@@ -126,5 +128,28 @@ public final class StyleClassNames
     public static final String IMAGES = "images";
     public static final String COLORCHOOSER = "colorchooser";
     public static final String TYPE = "type";
+    public static final String PROJECTSTATUSES = "projectstatuses";
+    public static final String ITEMMANAGER = "itemmanager";
+    public static final String CURRENT = "current";
+    public static final String NOIMAGE = "noimage";
+    public static final String NOBACKUPS = "nobackups";
+    public static final String RESTORE = "restore";
+    public static final String BACKUPS = "backups";
+    public static final String PASSWORD = "password";
+    public static final String BACKUPCREATED = "backupcreated";
+    public static final String A = "a";
+    public static final String FORMAT = "format";
+    public static final String EXAMPLE = "example";
+    public static final String CHANGEPROJECTDISPLAY = "changeprojectdisplay";
+    public static final String TEXTENTRY = "textentry";
+    public static final String WARNING = "warning";
+    public static final String WIZARD = "wizard";
+    public static final String WEBLINKS = "weblinks";
+    public static final String PREVIOUS = "previous";
+    public static final String DOWARMUP = "dowarmup";
+    public static final String CHOOSEPROMPT = "chooseprompt";
+    public static final String OWNPROMPT = "ownprompt";
+    public static final String TEXT = "text";
+    public static final String CONFIG = "config";
 
 }

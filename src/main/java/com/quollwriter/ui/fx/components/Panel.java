@@ -15,6 +15,7 @@ import javafx.collections.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -27,6 +28,7 @@ public class Panel extends VBox implements Stateful
     private String styleName = null;
     private StringProperty titleProp = null;
     private Supplier<Set<Node>> toolbarItemSupplier = null;
+    private ContextMenu contextMenu = null;
 
     private Panel (Builder b)
     {
@@ -108,6 +110,20 @@ public class Panel extends VBox implements Stateful
 
         }
 
+        this.addEventHandler (MouseEvent.MOUSE_CLICKED,
+                              ev ->
+        {
+
+            if (_this.contextMenu != null)
+            {
+
+                _this.contextMenu.hide ();
+                _this.contextMenu = null;
+
+            }
+
+        });
+
         this.setOnContextMenuRequested (ev ->
         {
 
@@ -122,12 +138,22 @@ public class Panel extends VBox implements Stateful
             {
 
                 ContextMenu cm = new ContextMenu ();
+                cm.setAutoHide (true);
+
+                if (_this.contextMenu != null)
+                {
+
+                    _this.contextMenu.hide ();
+
+                }
 
                 ev.consume ();
 
                 cm.getItems ().addAll (b.contextMenuItemSupplier.get ());
 
                 cm.show (_this, ev.getScreenX (), ev.getScreenY ());
+
+                _this.contextMenu = cm;
 
             }
 

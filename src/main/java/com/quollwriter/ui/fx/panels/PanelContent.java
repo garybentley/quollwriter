@@ -229,6 +229,7 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
     {
 
         this.background.setBackground (this.backgroundObject.getBackground ());
+        this.getPanel ().pseudoClassStateChanged (StyleClassNames.USERIMAGE_PSEUDO_CLASS, this.backgroundObject.isUserPath ());
 
         boolean isImage = this.backgroundObject.isImage ();
 

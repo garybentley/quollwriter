@@ -2,11 +2,15 @@ package com.quollwriter.ui.fx.components;
 
 import java.util.*;
 
+import javafx.event.*;
 import javafx.beans.binding.*;
 import javafx.scene.input.*;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
+
+import javafx.scene.web.*;
+import org.w3c.dom.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -74,6 +78,7 @@ public class QuollTextArea extends VBox
 
         this.maxlabel = new Label ();
         this.maxlabel.getStyleClass ().add (StyleClassNames.MAX);
+        this.maxlabel.managedProperty ().bind (this.maxlabel.visibleProperty ());
 
         this.maxlabel.setVisible (b.maxChars > 0);
 
@@ -115,7 +120,45 @@ public class QuollTextArea extends VBox
 
         // TODO Add menu, copy/paste etc.
 
+        // TODO Use RichTextFX
+/*
+        WebView wv = new WebView ();
+        wv.getEngine ().loadContent ("<html><body></body></html>");
+
+        wv.getEngine ().getLoadWorker ().stateProperty ().addListener ((p, old, newv) ->
+        {
+
+            if (newv == javafx.concurrent.Worker.State.SUCCEEDED)
+            {
+
+                Document doc = wv.getEngine ().getDocument ();
+                Element docEl = doc.getDocumentElement ();
+                ((Element) doc.getElementsByTagName ("body").item (0)).setAttribute ("contenteditable", Boolean.TRUE.toString ());
+
+            }
+
+        });
+
+        wv.setPrefHeight (200);
+        wv.setPrefWidth (400);
+        wv.setMinHeight (200);
+        wv.setMinWidth (400);
+*/
         this.getChildren ().addAll (this.text, this.maxlabel);
+
+    }
+
+    public StringProperty textProperty ()
+    {
+
+        return this.text.textProperty ();
+
+    }
+
+    public void setOnTextKeyReleased (EventHandler<KeyEvent> h)
+    {
+
+        this.text.setOnKeyReleased (h);
 
     }
 

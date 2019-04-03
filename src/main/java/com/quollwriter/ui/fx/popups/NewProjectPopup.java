@@ -52,6 +52,7 @@ public class NewProjectPopup extends PopupContent
             .content (this)
             .popupId (POPUP_ID)
             .withViewer (this.viewer)
+            .removeOnClose (true)
             .build ();
 
         p.requestFocus ();

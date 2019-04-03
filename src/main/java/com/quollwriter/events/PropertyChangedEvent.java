@@ -10,6 +10,7 @@ public class PropertyChangedEvent extends EventObject
     private Object newValue = null;
     private String changeType = null;
 
+    // TODO Change to take a JavaFX Property, have the property set a bean name.
     public PropertyChangedEvent(Object source,
                                 String changeType,
                                 Object oldValue,

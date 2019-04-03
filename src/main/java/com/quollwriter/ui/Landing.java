@@ -3784,7 +3784,7 @@ TODO
 
 								Project p = new Project ();
 								p.setProjectDirectory (dir);
-								pi.setBackupDirectory (p.getBackupDirectory ());
+								pi.setBackupDirPath (p.getBackupDirectory ().toPath ());
 
 							} else {
 

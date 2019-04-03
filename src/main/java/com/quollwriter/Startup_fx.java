@@ -30,8 +30,6 @@ public class Startup_fx extends Application
     public void start (Stage s)
     {
 
-        System.out.println ("CALLED START");
-
         //Splashscreen ss = null;
 
         try
@@ -50,7 +48,7 @@ public class Startup_fx extends Application
                 if (newv.doubleValue () >= 1)
                 {
 
-                    ss.close ();
+                    //ss.close ();
 
                 }
 
@@ -70,9 +68,9 @@ public class Startup_fx extends Application
 
             Environment.showAllProjectsViewer ();
 
-            Thread.sleep (4000);
-
             ss.updateProgress (0.6f);
+
+            ss.finish ();
 
             /*
             if (Environment.isFirstUse ())

@@ -71,6 +71,14 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
     }
 
+    public void addNewWarmup (Warmup w)
+                       throws Exception
+    {
+
+        // TODO 
+
+    }
+
     @Override
     public void handleNewProject ()
                            throws Exception

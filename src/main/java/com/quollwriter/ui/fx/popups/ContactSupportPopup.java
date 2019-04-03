@@ -16,29 +16,25 @@ import com.quollwriter.ui.fx.viewers.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class ReportBugPopup extends PopupContent
+public class ContactSupportPopup extends PopupContent
 {
 
-    public static final String POPUP_ID = "reportbug";
+    public static final String POPUP_ID = "contactsupport";
 
     private QuollTextArea desc = null;
     private QuollTextField email = null;
-    private QuollCheckBox sendLogFiles = null;
-    private QuollCheckBox sendScreenshot = null;
 
-    public ReportBugPopup (AbstractViewer viewer)
+    public ContactSupportPopup (AbstractViewer viewer)
     {
 
         super (viewer);
 
-        final ReportBugPopup _this = this;
+        final ContactSupportPopup _this = this;
 
-        this.setPrefSize (javafx.scene.layout.Region.USE_PREF_SIZE, javafx.scene.layout.Region.USE_PREF_SIZE);
-
-        List<String> prefix = Arrays.asList (project,actions,reportproblem);
+        List<String> prefix = Arrays.asList (project,actions,contactsupport);
 
         this.desc = QuollTextArea.builder ()
-            .placeholder (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,description,tooltip)))
+            .placeholder (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,message,tooltip)))
             .maxChars (10000)
             //.autoGrabFocus (true)
             .styleClassName (StyleClassNames.DESCRIPTION)
@@ -51,26 +47,14 @@ public class ReportBugPopup extends PopupContent
             .styleClassName (StyleClassNames.EMAIL)
             .build ();
 
-        this.sendLogFiles = QuollCheckBox.builder ()
-            .selected (true)
-            .label (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,sendlogfiles,text)))
-            .build ();
-
-        this.sendScreenshot = QuollCheckBox.builder ()
-            .label (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,sendscreenshot,text)))
-            .tooltip (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,sendscreenshot,tooltip)))
-            .build ();
-
         Form f = Form.builder ()
             .description (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.popup,text)))
             .confirmButton (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.popup,buttons,send)))
             .cancelButton (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.popup,buttons,cancel)))
-            .item (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,LanguageStrings.description,text)),
+            .item (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,LanguageStrings.message,text)),
                    this.desc)
             .item (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,LanguageStrings.email,text)),
                    this.email)
-            .item (this.sendLogFiles)
-            .item (this.sendScreenshot)
             .withViewer (this.viewer)
             .build ();
 
@@ -103,50 +87,17 @@ public class ReportBugPopup extends PopupContent
 
             _this.getPopup ().close ();
 
-            StringBuilder dets = new StringBuilder ("Email: " + email.getText () + "\nDetails: " + desc.getText ());
-
-            // TODO: Fix this, have a toString on project viewer instead.
-            if (_this.getViewer () instanceof AbstractProjectViewer)
-            {
-
-                Project proj = ((AbstractProjectViewer) _this.getViewer ()).getProject ();
-
-                dets.append ("\nCurrent project id: " + proj.getId ());
-
-            }
-
             // Send the message.
             Map details = new HashMap ();
             details.put ("details",
-                         dets.toString ());
-
+                         "Email: " + email.getText () + "\nDetails: " + desc.getText ());
             details.put ("email",
                          email.getText ());
 
             try
             {
 
-                // Get the log files?
-                if (sendLogFiles.isSelected ())
-                {
-
-                    details.put ("errorLog",
-                                 new String (Files.readAllBytes (Environment.getErrorLogPath ()),
-                                             StandardCharsets.UTF_8));
-                    details.put ("editorsMessageLog",
-                                 new String (Files.readAllBytes (EditorsEnvironment.getEditorsMessageLogFile ().toPath ()),
-                                             StandardCharsets.UTF_8));
-
-                }
-
-                if (sendScreenshot.isSelected ())
-                {
-                    details.put ("screenshot",
-                                 com.quollwriter.Base64.encodeBytes (UIUtils.getImageBytes (UIUtils.getImageOfNode (_this.getViewer ().getViewer ().getScene ().getRoot ()))));
-
-                }
-
-                Environment.sendMessageToSupport ("bug",
+                Environment.sendMessageToSupport ("contact",
                                                   details,
                                                   () ->
                 {
@@ -155,11 +106,11 @@ public class ReportBugPopup extends PopupContent
 
                     ComponentUtils.showMessage (_this.getViewer (),
                                                 getUILanguageStringProperty (Utils.newList (prefix,confirmpopup, LanguageStrings.title)),
-                                                //"Problem/Bug reported",
+                                         //"Message sent",
                                                 getUILanguageStringProperty (Utils.newList (prefix,confirmpopup,text)));
-                                                //"Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+                                         //"Your request has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
 
-                    _this.getViewer ().fireProjectEvent (ProjectEvent.Type.bugreport,
+                    _this.getViewer ().fireProjectEvent (ProjectEvent.Type.contact,
                                                          ProjectEvent.Action.submit);
 
                 });
@@ -170,8 +121,8 @@ public class ReportBugPopup extends PopupContent
                 Environment.logError ("Unable to send message to support",
                                       e);
 
-                ComponentUtils.showErrorMessage (_this.viewer,
-                                                 getUILanguageStringProperty (Utils.newList (prefix,actionerror)));
+                ComponentUtils.showErrorMessage (_this.getViewer (),
+                                                 getUILanguageStringProperty (prefix,actionerror));
                                           //"Unable to send message.");
 
             }
@@ -186,11 +137,11 @@ public class ReportBugPopup extends PopupContent
     public QuollPopup createPopup ()
     {
 
-        List<String> prefix = Arrays.asList (project,actions,reportproblem);
+        List<String> prefix = Arrays.asList (project,actions,contactsupport);
 
         QuollPopup p = QuollPopup.builder ()
             .title (Utils.newList (prefix,LanguageStrings.popup,title))
-            .styleClassName (StyleClassNames.REPORTBUG)
+            .styleClassName (StyleClassNames.CONTACTSUPPORT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

@@ -10184,9 +10184,13 @@ TODO
                                             try
                                             {
 
+                                                File f = null;
+
+/*
+TODO Moved to BackupsManager.
                                                 File f = Environment.createBackupForProject (proj,
                                                                                              false);
-
+*/
                                                 Box b = new Box (BoxLayout.Y_AXIS);
 
                                                 JTextPane m = UIUtils.createHelpTextPane (String.format (getUIString (backups,_new,confirmpopup,text),

@@ -5,6 +5,7 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
@@ -24,9 +25,10 @@ public class ImportFilePanel extends PanelContent<AbstractViewer>
     {
 
         super (viewer);
-        Header header = Header.builder ()
-            .title (general,importfile)
-            .build ();
+
+        Label header = new Label ();
+        header.getStyleClass ().add (StyleClassNames.TITLE);
+        header.textProperty ().bind (getUILanguageStringProperty (general,importfile));
 
         this.getChildren ().add (header);
 
