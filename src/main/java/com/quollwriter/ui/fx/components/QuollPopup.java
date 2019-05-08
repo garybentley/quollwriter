@@ -93,12 +93,12 @@ public class QuollPopup extends ViewerContent
             .build ();
 
         VBox vb = new VBox ();
-        vb.getStyleClass ().add (StyleClassNames.QPOPUP);
+        this.getStyleClass ().add (StyleClassNames.QPOPUP);
 
         if (b.styleName != null)
         {
 
-            vb.getStyleClass ().add (b.styleName);
+            this.getStyleClass ().add (b.styleName);
 
         }
 
@@ -205,6 +205,15 @@ public class QuollPopup extends ViewerContent
                 h.setCursor(Cursor.DEFAULT);
             }
         });
+
+        UIUtils.doOnKeyReleased (this,
+                                 KeyCode.F4,
+                                 () ->
+                                 {
+
+                                     this.close ();
+
+                                 });
 
         if (b.show)
         {
@@ -333,6 +342,13 @@ _this.moving = false;
 
         this.fireEvent (new PopupEvent (this,
                                         PopupEvent.SHOWN_EVENT));
+
+    }
+
+    public void setPopupId (String id)
+    {
+
+        this.popupId = id;
 
     }
 

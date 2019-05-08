@@ -34,6 +34,13 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
 
     }
 
+    public UILanguageStrings (BaseStrings strs)
+    {
+
+        super (strs);
+
+    }
+
     public UILanguageStrings (UILanguageStrings derivedFrom)
     {
 
@@ -100,6 +107,25 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
 
     }
 
+    public UILanguageStringsInfo getInfo ()
+    {
+
+        return new UILanguageStringsInfo (this.getId (),
+                                          this.getNativeName (),
+                                          this.languageName,
+                                          this.getPercentComplete (),
+                                          this.qwVersion,
+                                          this.isUser ());
+
+    }
+
+    public int getPercentComplete ()
+    {
+
+        return (this.getDerivedFrom () == null ? 100 : Utils.getPercent ((float) this.getAllTextValues ().size (), (float) this.getDerivedFrom ().getAllTextValues ().size ()));
+
+    }
+
     public void setLanguageName (String n)
     {
 
@@ -131,7 +157,9 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
     public static boolean isEnglish (String id)
     {
 
-        return id.equals (ENGLISH_ID);
+        return (id.equals (ENGLISH_ID))
+                ||
+               ((":" + id).equals (ENGLISH_ID));
 
     }
 

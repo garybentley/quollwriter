@@ -7,6 +7,12 @@ public class LanguageStrings
     public static final String settingsmenu = "settingsmenu";
     public static final String items = "items";
 
+    public static final String current = "current";
+    public static final String basefontsize = "basefontsize";
+    public static final String basefontsizeless = "basefontsizeless";
+    public static final String basefontsizemore = "basefontsizemore";
+    public static final String languagenames = "languagenames";
+    public static final String createdbyyou = "createdbyyou";
     public static final String renameproject = "renameproject";
     public static final String statistics = "statistics";
     public static final String targets = "targets";
@@ -949,5 +955,6 @@ public class LanguageStrings
     public static final String filechooser = "filechooser";
     public static final String extensionfilter = "extensionfilter";
     public static final String supportqw = "supportqw";
+    public static final String hideachieved = "hideachieved";
 
 }

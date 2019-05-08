@@ -13,7 +13,8 @@ import javax.swing.tree.*;
 import javax.swing.event.*;
 
 import org.jfree.chart.*;
-import org.jfree.ui.*;
+import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.time.*;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.labels.*;
@@ -449,7 +450,7 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                                                               tgf),
                                                                avgWords,
                                                                1,
-                                                               org.jfree.ui.RectangleAnchor.TOP_RIGHT));
+                                                               RectangleAnchor.TOP_RIGHT));
 
         }
 
@@ -464,7 +465,7 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                                                                   Environment.formatNumber (targetWords)),
                                                                    targetWords,
                                                                    -1,
-                                                                   org.jfree.ui.RectangleAnchor.BOTTOM_LEFT));
+                                                                   RectangleAnchor.BOTTOM_LEFT));
 
             }
 

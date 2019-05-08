@@ -13,7 +13,7 @@ import javax.swing.tree.*;
 import javax.swing.event.*;
 
 import org.jfree.chart.*;
-import org.jfree.ui.*;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.time.*;
 import org.jfree.data.category.*;
 import org.jfree.chart.axis.*;

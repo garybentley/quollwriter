@@ -70,6 +70,12 @@ public class Notification extends HBox
         this.close = QuollButton.builder ()
             .styleClassName (StyleClassNames.CLOSE)
             .tooltip (getUILanguageStringProperty (notifications,remove,tooltip))
+            .onAction (ev ->
+            {
+
+                this.removeNotification ();
+
+            })
             .build ();
 
         toolbar.getItems ().add (this.close);

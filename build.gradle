@@ -14,18 +14,11 @@ plugins {
     id 'application'
 }
 
-version '3.0.0'
+//version '3.0.0'
+version '2.6.14'
 
 sourceSets {
     main {
-        compileClasspath = fileTree('3rd-party-jars') {
-            include '*.jar'
-        }
-        runtimeClasspath = fileTree('3rd-party-jars') {
-            include '*.jar'
-        } + fileTree(project.libsDir) {
-            include '*.jar'
-        }
     }
 }
 
@@ -33,11 +26,43 @@ repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenCentral()
+
+    // Needed for the EPUB lib artifact.
+    maven {
+        url 'http://maven.openkm.com/'
+    }
+
 }
 
 dependencies {
-    // This dependency is found on compile classpath of this component and consumers.
-    /*implementation 'com.google.guava:guava:27.0.1-jre'*/
+
+    implementation fileTree('3rd-party-jars') {
+        include 'jdom-1.0.jar'
+        //include 'jgoodies-forms-1.8.0.jar'
+        include 'JoSQL-2.2.jar'
+        include 'gentlyWEB-utils-1.1.jar'
+        include 'gentlyWEB-xml-1.1.jar'
+        include 'gentlyWEB-properties-1.2.jar'
+        include 'gentlyWEB-logging-1.0.jar'
+        include 'javadiff.jar'
+
+        // Spellchecker
+        include 'suggester-1.1.2.jar'
+
+        // TODO Investigate using maven?
+        include 'jazzy-core.jar'
+
+        include 'suggester-1.1.2.jar'
+        //include 'bc*jdk15on-151.jar'
+        include 'GWordCram-0.1.jar'
+
+        // TODO Remove when no longer using Swing/AWT
+        include 'jcalendar-1.4.jar'
+
+        include 'h2mig_pagestore_addon.jar'
+
+    }
 
     compile 'org.jsoup:jsoup:1.11.3'
     implementation 'org.jsoup:jsoup:1.11.3'
@@ -45,16 +70,76 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 
-    compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.9.3'
+    // Docx4J
+    implementation 'org.docx4j:docx4j:6.1.2'
+
+    // JAXB (needed by Docx4J)
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'javax.activation:activation:1.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
+
+    // Bouncy castle crypto
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
+    implementation 'org.bouncycastle:bcpg-jdk15on:1.61'
+
+    // TODO This is probably not needed now since we can scale images via JavaFX.
+    implementation 'org.imgscalr:imgscalr-lib:4.2'
+
+    // DBCP implementation (Apache)
+    implementation 'org.apache.commons:commons-dbcp2:2.6.0'
+
+    // H2 DB
+    implementation 'com.h2database:h2:1.3.175'
+
+    // EPUB lib
+    implementation 'nl.siegmann.epublib:epublib-core:3.1'
+
+    // POI hwpf (.doc file reading)
+    implementation 'org.apache.poi:poi-scratchpad:4.1.0'
+
+    // JFreeChart
+    implementation 'org.jfree:jfreechart:1.5.0'
+
+    // JFreeChart-FX
+    implementation 'org.jfree:jfreechart-fx:1.0.1'
+
+    // Smack
+    implementation 'org.igniterealtime.smack:smack-core:4.3.3'
+    implementation 'org.igniterealtime.smack:smack-extensions:4.3.3'
+    implementation 'org.igniterealtime.smack:smack-tcp:4.3.3'
+    implementation 'org.igniterealtime.smack:smack-im:4.3.3'
+    implementation 'org.igniterealtime.smack:smack-java7:4.3.3'
+
+    // RichtextFX
     implementation 'org.fxmisc.richtext:richtextfx:0.9.3'
+
+    // Flying Saucer (can be removed when no longer using Swing)
+    implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
+
+    // JGoodies (remove when no longer using Swing)
+    implementation 'com.jgoodies:jgoodies-looks:2.7.0'
+    implementation 'com.jgoodies:jgoodies-forms:1.9.0'
+
+    // AnimateFX (test)
+    implementation 'io.github.typhon0:AnimateFX:1.2.1'
+
+    // SVG support
+    implementation 'de.codecentric.centerdevice:javafxsvg:1.3.0'
+
 }
 
 compileJava {
     options.compilerArgs =
     [
         '--add-modules=java.base,javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
         '--module-path',
-        'D:/reference/java/javafx/javafx-sdk-12/lib'
+        'D:/reference/java/javafx/javafx-sdk-12/lib',
+        '-Xmaxerrs',
+        '10000'
     ]
 }
 
@@ -75,6 +160,10 @@ application {
     applicationDefaultJvmArgs =
     [
         '--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
         '--module-path',
         'D:/reference/java/javafx/javafx-sdk-12/lib'
     ]

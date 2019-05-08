@@ -103,7 +103,7 @@ import org.jfree.chart.renderer.xy.*;
 
 import org.jfree.data.time.*;
 
-import org.jfree.ui.*;
+import org.jfree.chart.ui.*;
 
 import org.josql.utils.*;
 

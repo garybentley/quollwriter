@@ -116,7 +116,7 @@ public class ChapterField extends NamedObjectContent<ProjectViewer, Chapter>
         this.acc = AccordionItem.builder ()
             .title (new SimpleStringProperty (b.name))
             .styleClassName (b.styleName)
-            .content (box)
+            .openContent (box)
             .contextMenu (contextMenuItems)
             .headerControls (headerCons)
             .build ();
@@ -252,7 +252,7 @@ public class ChapterField extends NamedObjectContent<ProjectViewer, Chapter>
     public boolean isContentVisible ()
     {
 
-        return this.acc.isContentVisible ();
+        return this.acc.isOpen ();
 
     }
 

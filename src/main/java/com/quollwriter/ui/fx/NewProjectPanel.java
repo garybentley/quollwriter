@@ -29,7 +29,8 @@ public class NewProjectPanel extends VBox
     private AbstractViewer viewer = null;
 
     public NewProjectPanel (AbstractViewer viewer,
-                            StringProperty desc)
+                            StringProperty desc,
+                            boolean        showButtons)
     {
 
         final NewProjectPanel _this = this;
@@ -82,8 +83,8 @@ public class NewProjectPanel extends VBox
                    this.saveDir)
             .item (this.encrypt)
             .item (this.passwords)
-            .confirmButton (getUILanguageStringProperty (Arrays.asList (newprojectpanel,buttons,create)))
-            .cancelButton (getUILanguageStringProperty (Arrays.asList (newprojectpanel,buttons,cancel)))
+            .confirmButton (showButtons ? getUILanguageStringProperty (Arrays.asList (newprojectpanel,buttons,create)) : null)
+            .cancelButton (showButtons ? getUILanguageStringProperty (Arrays.asList (newprojectpanel,buttons,cancel)) : null)
             .build ();
 
         this.form.setOnConfirm (ev ->
@@ -93,12 +94,12 @@ public class NewProjectPanel extends VBox
 
         });
 
-        this.passwords.getParent ().managedProperty ().bind (this.passwords.getParent ().visibleProperty ());
-        this.passwords.getParent ().setVisible (false);
+        this.passwords.managedProperty ().bind (this.passwords.visibleProperty ());
+        this.passwords.setVisible (false);
         this.encrypt.selectedProperty ().addListener ((v, oldv, newv) ->
         {
 
-            _this.passwords.getParent ().setVisible (newv);
+            _this.passwords.setVisible (newv);
 
         });
 
@@ -106,12 +107,11 @@ public class NewProjectPanel extends VBox
 
     }
 
-    public void setOnCreate (EventHandler<ActionEvent> ev)
+    public void setOnCreate (EventHandler<Form.FormEvent> ev)
     {
-/*
-        this.addEventHandler (ActionEvent.ACTION,
-                              ev);
-*/
+
+        this.form.setOnConfirm (ev);
+
     }
 
     public void setOnCancel (EventHandler<Form.FormEvent> ev)
@@ -212,7 +212,7 @@ public class NewProjectPanel extends VBox
 
         if (n.equals (""))
         {
-System.out.println ("HERE");
+
             this.form.showError (getUILanguageStringProperty (Utils.newList (prefix,novalue)));
             return false;
 
@@ -236,10 +236,10 @@ System.out.println ("HERE");
             String pwd = this.passwords.getPassword1 ();
 
             String pwd2 = this.passwords.getPassword2 ();
-System.out.println ("HERE3: " + pwd);
+
             if (pwd.equals (""))
             {
-System.out.println ("HREE4");
+
                 this.form.showError (getUILanguageStringProperty (Utils.newList (prefix,nopassword)));
                                        //"Please provide a password for securing the {project}.");
                 return false;
@@ -248,7 +248,7 @@ System.out.println ("HREE4");
 
             if (pwd2.equals (""))
             {
-System.out.println ("HREE5");
+
                 this.form.showError (getUILanguageStringProperty (Utils.newList (prefix,confirmpassword)));
                                        //"Please confirm your password.");
                 return false;
@@ -257,7 +257,7 @@ System.out.println ("HREE5");
 
             if (!pwd.equals (pwd2))
             {
-System.out.println ("HERE2");
+
                 this.form.showError (getUILanguageStringProperty (Utils.newList (prefix,nomatch)));
                                        //"The passwords do not match.");
                 return false;

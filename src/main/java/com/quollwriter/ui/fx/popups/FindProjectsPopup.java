@@ -40,7 +40,7 @@ public class FindProjectsPopup extends PopupContent
             .initialFile (Environment.getUserQuollWriterDirPath ().toFile ())
             .withViewer (viewer)
             .limitTo (QuollFileField.Type.directory)
-            .buttonTooltip (getUILanguageStringProperty (Utils.newList (prefix,finder,tooltip)))
+            .findButtonTooltip (getUILanguageStringProperty (Utils.newList (prefix,finder,tooltip)))
             .chooserTitle (getUILanguageStringProperty (Utils.newList (prefix,finder,title)))
             .build ();
 

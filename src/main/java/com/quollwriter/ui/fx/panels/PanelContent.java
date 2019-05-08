@@ -57,7 +57,11 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
                               ev ->
         {
 
-            if (ev.isShiftDown ())
+            if ((ev.isShiftDown ())
+                &&
+                // We have to break encapsulation here because we know that AbstractView uses this same type of event for ui font scaling.
+                (!ev.isControlDown ())
+               )
             {
 
                 double o = _this.background.getOpacity ();
@@ -330,6 +334,13 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
         }
 
         this.readyForUseProp.setValue (true);
+
+    }
+
+    public String getPanelId ()
+    {
+
+        return this.getPanel ().getPanelId ();
 
     }
 

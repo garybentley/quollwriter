@@ -131,7 +131,7 @@ public class State
 
         }
 
-        return null;
+        return def;
 
     }
 
@@ -202,8 +202,17 @@ public class State
         try
         {
 
-            return this.getAs (name,
-                               Boolean.class);
+            Boolean b = this.getAs (name,
+                                    Boolean.class);
+
+            if (b == null)
+            {
+
+                return def;
+
+            }
+
+            return b;
 
         } catch (IllegalStateException e) {
 

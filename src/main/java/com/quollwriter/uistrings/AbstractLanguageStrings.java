@@ -41,6 +41,15 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
+    public AbstractLanguageStrings (BaseStrings strs)
+    {
+
+        this ();
+
+        this.strings = strs;
+
+    }
+
     public AbstractLanguageStrings (E derivedFrom)
     {
 

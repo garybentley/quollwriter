@@ -244,14 +244,14 @@ public class TextValue extends Value<TextValue>
 
     public String getBuiltText (RefValueProvider prov)
     {
-
+/*
         if (this.builtText != null)
         {
 
             return this.builtText;
 
         }
-
+*/
         if (this.getErrors (prov).size () > 0)
         {
 

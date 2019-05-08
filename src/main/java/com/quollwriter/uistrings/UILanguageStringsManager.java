@@ -3,6 +3,7 @@ package com.quollwriter.uistrings;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.function.*;
 import java.nio.file.*;
 import java.nio.charset.*;
 import java.util.stream.*;
@@ -24,6 +25,7 @@ import static com.quollwriter.LanguageStrings.*;
 public class UILanguageStringsManager
 {
 
+    private static Function<List<String>, String> userStringProvider = null;
     private static UILanguageStrings uiLanguageStrings = null;
     private static UILanguageStrings defaultUILanguageStrings = null;
     private static StringProperty uilangProp = new SimpleStringProperty (uiLanguageStrings.ENGLISH_ID);
@@ -36,6 +38,14 @@ public class UILanguageStringsManager
     public static void init ()
                throws Exception
     {
+
+        // We add a listener to the uilangProp to force recomputation of the value when it changes.
+        UILanguageStringsManager.uilangProp.addListener ((pr, oldv, newv) ->
+        {
+
+            // Don't care.
+
+        });
 
         UILanguageStringsManager.defaultUILanguageStrings = new UILanguageStrings (Utils.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
 
@@ -315,7 +325,50 @@ public class UILanguageStringsManager
 
         }
 
-        UILanguageStringsManager.uiLanguageStrings = ls;
+        UILanguageStringsManager.uiLanguageStrings = new UILanguageStrings (ls)
+        {
+
+            @Override
+            public String getId ()
+            {
+
+                return this.getDerivedFrom ().getId ();
+
+            }
+
+            @Override
+            public boolean isEnglish ()
+            {
+
+                return this.getDerivedFrom ().isEnglish ();
+
+            }
+
+            @Override
+            public String getString (List<String> idparts)
+            {
+
+                String s = null;
+
+                if (UILanguageStringsManager.userStringProvider != null)
+                {
+
+                    s = UILanguageStringsManager.userStringProvider.apply (idparts);
+
+                }
+
+                if (s == null)
+                {
+
+                    s = super.getString (idparts);
+
+                }
+
+                return s;
+
+            }
+
+        };
 
         UserProperties.set (Constants.USER_UI_LANGUAGE_PROPERTY_NAME, id);
 
@@ -336,50 +389,50 @@ public class UILanguageStringsManager
     {
 
         Path d = UILanguageStringsManager.getUILanguageStringsDirPath ();
-
+// TODO wrap Files.walk in try-close.
         // Cycle down all subdirs.
-        return Files.walk (d, 0)
-        // Map the file to a UILanguageStrings instance.
-        .map (f ->
+        try (Stream<Path> files = Files.walk (d, 1))
         {
 
-            try
-            {
-
-                UILanguageStrings ls = new UILanguageStrings (f.toFile ());
-
-                if (ver != null)
+            // Map the file to a UILanguageStrings instance.
+            return files.filter (f -> Files.isRegularFile (f))
+                .map (f ->
                 {
 
-                    if (!ls.getQuollWriterVersion ().equals (ver))
+                    try
                     {
 
-                        ls = null;
+                        UILanguageStrings ls = new UILanguageStrings (f.toFile ());
+
+                        if (ver != null)
+                        {
+
+                            if (!ls.getQuollWriterVersion ().equals (ver))
+                            {
+
+                                ls = null;
+
+                            }
+
+                        }
+
+                        return ls;
+
+                    } catch (Exception e) {
+
+                        throw new RuntimeException ("Unable to create ui language strings from: " +
+                                                    f,
+                                                    e);
 
                     }
 
-                }
+                })
+                // Remove nulls.
+                .filter (f -> f != null)
+                // Collect to a set.
+                .collect (Collectors.toSet ());
 
-                return ls;
-
-            } catch (Exception e) {
-
-                throw new RuntimeException ("Unable to create ui language strings from: " +
-                                            f,
-                                            e);
-
-            }
-
-        })
-        // Remove nulls.
-        .filter (f ->
-        {
-
-            return f != null;
-
-        })
-        // Collect to a set.
-        .collect (Collectors.toSet ());
+        }
 
 /*
         File[] files = this.getUILanguageStringsDir ().listFiles ();
@@ -553,21 +606,59 @@ public class UILanguageStringsManager
                                                                throws Exception
     {
 
-        Set<UILanguageStrings> ret = new LinkedHashSet<> ();
+        Path d = Environment.getUserPath (Constants.USER_UI_LANGUAGES_DIR_NAME).resolve (qwVer.toString ());
 
-        for (UILanguageStrings ls : UILanguageStringsManager.getAllUserUILanguageStrings ())
+        if (Files.notExists (d))
         {
 
-            if (ls.getQuollWriterVersion ().equals (qwVer))
-            {
-
-                ret.add (ls);
-
-            }
+            return new LinkedHashSet<> ();
 
         }
 
-        return ret;
+        // Cycle down all subdirs.
+        try (Stream<Path> stream = Files.walk (d, 1))
+        {
+
+            return stream.filter (f -> Files.isRegularFile (f))
+            // Map the file to a UILanguageStrings instance.
+            .map (f ->
+            {
+
+                // Grr...
+                try
+                {
+
+                    UILanguageStrings ls = new UILanguageStrings (f.toFile ());
+
+                    if (ls.isEnglish ())
+                    {
+
+                        ls = null;
+
+                    }
+
+                    return ls;
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException ("Unable to create ui language strings from: " +
+                                                f,
+                                                e);
+
+                }
+
+            })
+            // Remove nulls.
+            .filter (f ->
+            {
+
+                return f != null;
+
+            })
+            // Collect to a set.
+            .collect (Collectors.toSet ());
+
+        }
 
     }
 
@@ -575,49 +666,52 @@ public class UILanguageStringsManager
                                                         throws Exception
     {
 
-        Set<UILanguageStrings> s = new TreeSet<> ();
-
         Path d = Environment.getUserPath (Constants.USER_UI_LANGUAGES_DIR_NAME);
 
         // Cycle down all subdirs.
-        return Files.walk (d)
-        // Map the file to a UILanguageStrings instance.
-        .map (f ->
+        try (Stream<Path> stream = Files.walk (d))
         {
 
-            // Grr...
-            try
-            {
-
-                UILanguageStrings ls = new UILanguageStrings (f.toFile ());
-
-                if (ls.isEnglish ())
+            return stream.filter (f -> Files.isRegularFile (f))
+                // Map the file to a UILanguageStrings instance.
+                .map (f ->
                 {
 
-                    ls = null;
+                    // Grr...
+                    try
+                    {
 
-                }
+                        UILanguageStrings ls = new UILanguageStrings (f.toFile ());
 
-                return ls;
+                        if (ls.isEnglish ())
+                        {
 
-            } catch (Exception e) {
+                            ls = null;
 
-                throw new RuntimeException ("Unable to create ui language strings from: " +
-                                            f,
-                                            e);
+                        }
 
-            }
+                        return ls;
 
-        })
-        // Remove nulls.
-        .filter (f ->
-        {
+                    } catch (Exception e) {
 
-            return f != null;
+                        throw new RuntimeException ("Unable to create ui language strings from: " +
+                                                    f,
+                                                    e);
 
-        })
-        // Collect to a set.
-        .collect (Collectors.toSet ());
+                    }
+
+                })
+                // Remove nulls.
+                .filter (f ->
+                {
+
+                    return f != null;
+
+                })
+                // Collect to a set.
+                .collect (Collectors.toSet ());
+
+        }
 
     }
 
@@ -836,6 +930,13 @@ TODO
 
     }
 
+    public static void setUserStringProvider (Function<List<String>, String> userStringProvider)
+    {
+
+        UILanguageStringsManager.userStringProvider = userStringProvider;
+
+    }
+
     public static String getUIString (String... ids)
     {
 
@@ -856,7 +957,14 @@ TODO
 
         }
 
-        String s = UILanguageStringsManager.uiLanguageStrings.getString (_ids);
+        String s = null;
+
+        if (s == null)
+        {
+
+            s = UILanguageStringsManager.uiLanguageStrings.getString (_ids);
+
+        }
 
         if (s == null)
         {
@@ -868,18 +976,15 @@ TODO
         return s;
 
     }
-
+/*
     public static StringProperty getUILanguageStringProperty (List<String> ids)
     {
 
-        SimpleStringProperty prop =  new SimpleStringProperty ();
-        prop.bind (getUILanguageBinding (ids));
-        //prop.setValue (getUIString (ids));
-
-        return prop;
+        return UILanguageStringsManager.getUILanguageStringProperty (ids,
+                                                                     null);
 
     }
-
+*/
     /**
      * Creates a string property that is bound to the uilang property.  A binding function is created that uses the <b>ids</b> parm to get
      * a ui language string, the <b>reps</b> parm are then used as replacement values in a call to String.format
@@ -898,49 +1003,82 @@ TODO
                                                               Object...    reps)
     {
 
-        List<String> _reps = new ArrayList<> ();
+        List<Property> listen = new ArrayList<> ();
+        listen.add (UILanguageStringsManager.uilangProp);
+        listen.add (Environment.objectTypeNameChangedProperty ());
 
-        for (Object o : reps)
+        if (reps != null)
         {
 
-            if (o == null)
+            for (Object o : reps)
             {
 
-                continue;
+                if (o == null)
+                {
+
+                    continue;
+
+                }
+
+                if (o instanceof StringProperty)
+                {
+
+                    //_reps.add (((StringProperty) o).getValue ());
+                    listen.add ((StringProperty) o);
+
+                    continue;
+
+                }
+
+                if (o instanceof LongProperty)
+                {
+
+                    LongProperty p = (LongProperty) o;
+
+                    //_reps.add (Environment.formatNumber (p.longValue ()));
+                    listen.add (p);
+
+                    continue;
+
+                }
+
+                if (o instanceof IntegerProperty)
+                {
+
+                    IntegerProperty p = (IntegerProperty) o;
+
+                    //_reps.add (Environment.formatNumber (p.intValue ()));
+                    listen.add (p);
+
+                    continue;
+
+                }
+
+                if (o instanceof FloatProperty)
+                {
+
+                    FloatProperty p = (FloatProperty) o;
+
+                    //_reps.add (Environment.formatNumber (p.floatValue ()));
+                    listen.add (p);
+
+                    continue;
+
+                }
+
+                if (o instanceof DoubleProperty)
+                {
+
+                    DoubleProperty p = (DoubleProperty) o;
+
+                    //_reps.add (Environment.formatNumber (p.doubleValue ()));
+                    listen.add (p);
+
+                    continue;
+
+                }
 
             }
-
-            if (o instanceof Integer)
-            {
-
-                _reps.add (Environment.formatNumber ((Integer) o));
-
-            }
-
-            if (o instanceof Double)
-            {
-
-                _reps.add (Environment.formatNumber ((Double) o));
-
-            }
-
-            if (o instanceof Float)
-            {
-
-                _reps.add (Environment.formatNumber ((Float) o));
-
-            }
-
-            if (o instanceof StringProperty)
-            {
-
-                _reps.add (((StringProperty) o).getValue ());
-
-                continue;
-
-            }
-
-            _reps.add (o.toString ());
 
         }
 
@@ -948,10 +1086,105 @@ TODO
         prop.bind (Bindings.createStringBinding (() ->
         {
 
+            List<String> _reps = new ArrayList<> ();
+
+            if (reps != null)
+            {
+
+                for (Object o : reps)
+                {
+
+                    if (o == null)
+                    {
+
+                        continue;
+
+                    }
+
+                    if (o instanceof Integer)
+                    {
+
+                        _reps.add (Environment.formatNumber ((Integer) o));
+
+                    }
+
+                    if (o instanceof Double)
+                    {
+
+                        _reps.add (Environment.formatNumber ((Double) o));
+
+                    }
+
+                    if (o instanceof Float)
+                    {
+
+                        _reps.add (Environment.formatNumber ((Float) o));
+
+                    }
+
+                    if (o instanceof StringProperty)
+                    {
+
+                        _reps.add (((StringProperty) o).getValue ());
+
+                        continue;
+
+                    }
+
+                    if (o instanceof LongProperty)
+                    {
+
+                        LongProperty p = (LongProperty) o;
+
+                        _reps.add (Environment.formatNumber (p.longValue ()));
+
+                        continue;
+
+                    }
+
+                    if (o instanceof IntegerProperty)
+                    {
+
+                        IntegerProperty p = (IntegerProperty) o;
+
+                        _reps.add (Environment.formatNumber (p.intValue ()));
+
+                        continue;
+
+                    }
+
+                    if (o instanceof FloatProperty)
+                    {
+
+                        FloatProperty p = (FloatProperty) o;
+
+                        _reps.add (Environment.formatNumber (p.floatValue ()));
+
+                        continue;
+
+                    }
+
+                    if (o instanceof DoubleProperty)
+                    {
+
+                        DoubleProperty p = (DoubleProperty) o;
+
+                        _reps.add (Environment.formatNumber (p.doubleValue ()));
+
+                        continue;
+
+                    }
+
+                    _reps.add (o.toString ());
+
+                }
+
+            }
+
             return String.format (UILanguageStringsManager.getUIString (ids),
                                   _reps.toArray ());
         },
-        UILanguageStringsManager.uilangProp));
+        listen.toArray (new Property[] {})));
 
         return prop;
 
@@ -990,20 +1223,21 @@ TODO
 
     }
 */
+/*
     public static Binding<String> getUILanguageBinding (List<String> ids)
     {
 
-        return Bindings.createStringBinding (() -> UILanguageStringsManager.getUIString (ids), UILanguageStringsManager.uilangProp);
+        return Bindings.createStringBinding (() -> UILanguageStringsManager.getUIString (ids), UILanguageStringsManager.uilangProp, Environment.objectTypeNameChangedProperty ());
 
     }
 
     public static Binding<String> getUILanguageBinding (String... ids)
     {
 
-        return Bindings.createStringBinding (() -> UILanguageStringsManager.getUIString (ids), UILanguageStringsManager.uilangProp);
+        return Bindings.createStringBinding (() -> UILanguageStringsManager.getUIString (ids), UILanguageStringsManager.uilangProp, Environment.objectTypeNameChangedProperty ());
 
     }
-
+*/
     public static boolean isLanguageEnglish (String language)
     {
 

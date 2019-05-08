@@ -17,6 +17,7 @@ import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.ui.fx.sidebars.*;
+import com.quollwriter.ui.fx.charts.*;
 import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -27,9 +28,8 @@ public class AllProjectsViewer extends AbstractViewer
 {
 
     public static final String VIEWER_STATE_ID = "allprojects.state";
-    private ProjectsPanel<AllProjectsViewer> projectsPanel = null;
-    private ImportFilePanel importPanel = null;
-    private NoProjectsPanel noProjectsPanel = null;
+    private State state = null;
+    private Map<String, PanelContent> panels = null;
     private StringProperty titleProp = null;
     private StackPane content = null;
 
@@ -40,19 +40,20 @@ public class AllProjectsViewer extends AbstractViewer
     }
 
     public AllProjectsViewer ()
+                       throws GeneralException
     {
 
         final AllProjectsViewer _this = this;
 
-        // Create a projects panel.
-        this.projectsPanel = new ProjectsPanel<> (this);
-        this.noProjectsPanel = new NoProjectsPanel (this);
-        this.importPanel = new ImportFilePanel (this);
-
+        this.panels = new HashMap<> ();
         this.content = new StackPane ();
-        this.content.getChildren ().add (this.projectsPanel.getPanel ());
-        this.content.getChildren ().add (this.importPanel.getPanel ());
-        this.importPanel.getPanel ().setVisible (false);
+
+        // Create a projects panel.
+        this.addPanel (new ProjectsPanel<AllProjectsViewer> (this));
+        this.addPanel (new NoProjectsPanel (this));
+        this.addPanel (new ImportFilePanel (this));
+
+        this.showPanel (ProjectsPanel.PANEL_ID);
 
         this.setContent (this.content);
 
@@ -65,6 +66,7 @@ public class AllProjectsViewer extends AbstractViewer
 
         },
         UILanguageStringsManager.uilangProperty (),
+        Environment.objectTypeNameChangedProperty (),
         Environment.allProjectsProperty ()));
 
         Environment.allProjectsProperty ().addListener ((val, oldv, newv) -> this.update ());
@@ -109,6 +111,86 @@ public class AllProjectsViewer extends AbstractViewer
 
     }
 
+    public boolean showPanel (String id)
+    {
+
+        PanelContent pc = this.panels.get (id);
+
+        if (pc == null)
+        {
+
+            return false;
+
+        }
+
+        pc.getPanel ().toFront ();
+
+        this.fireEvent (new Panel.PanelEvent (pc.getPanel (),
+                                              Panel.PanelEvent.SHOW_EVENT));
+
+        return true;
+
+    }
+
+    public void removePanel (String id)
+    {
+
+        PanelContent pc = this.panels.remove (id);
+
+        if (pc == null)
+        {
+
+            throw new IllegalArgumentException ("Unable to find panel: " + id);
+
+        }
+
+        this.content.getChildren ().remove (pc.getPanel ());
+
+        if (this.state != null)
+        {
+
+            this.state.set (id,
+                            pc.getState ());
+
+        }
+
+        this.fireEvent (new Panel.PanelEvent (pc.getPanel (),
+                                              Panel.PanelEvent.CLOSE_EVENT));
+
+        this.showPanel (ProjectsPanel.PANEL_ID);
+
+    }
+
+    private void addPanel (PanelContent p)
+                    throws GeneralException
+    {
+
+        Panel panel = p.getPanel ();
+
+        if (this.panels.containsKey (panel.getPanelId ()))
+        {
+
+            throw new IllegalArgumentException ("Already have a panel with id: " + panel.getPanelId ());
+
+        }
+
+        this.content.getChildren ().add (panel);
+
+        this.panels.put (panel.getPanelId (),
+                         p);
+
+        if (this.state != null)
+        {
+
+            State s = this.state.getAs (panel.getPanelId (),
+                                        State.class);
+
+            p.init (s);
+
+        }
+
+    }
+
     private void checkDragFileImport (DragEvent ev)
     {
 
@@ -142,14 +224,14 @@ public class AllProjectsViewer extends AbstractViewer
     private void showProjectsPanel ()
     {
 
-        this.importPanel.getPanel ().setVisible (false);
+        this.showPanel (ProjectsPanel.PANEL_ID);
 
     }
 
     private void showImportPanel ()
     {
 
-        this.importPanel.getPanel ().setVisible (true);
+        this.showPanel (ImportFilePanel.PANEL_ID);
 
     }
 
@@ -198,6 +280,14 @@ public class AllProjectsViewer extends AbstractViewer
         this.addActionMapping (() ->
         {
 
+            new ImportPopup (_this).show ();
+
+        },
+        CommandIds.importfile);
+
+        this.addActionMapping (() ->
+        {
+
             try
             {
 
@@ -218,13 +308,49 @@ public class AllProjectsViewer extends AbstractViewer
         CommandIds.viewtargets,
         CommandIds.targets);
 
-        this.addActionMapping (() -> _this.viewAchievements (),
-                               CommandIds.viewachievements,
-                               CommandIds.achievements);
+        this.addActionMapping (() ->
+        {
 
-        this.addActionMapping (() -> _this.showOptions (null),
-                               CommandIds.showoptions,
-                               CommandIds.options);
+            try
+            {
+
+                _this.viewAchievements ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view achievements",
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this,
+                                                 getUILanguageStringProperty (achievements,actionerror));
+
+            }
+
+        },
+        CommandIds.viewachievements,
+        CommandIds.achievements);
+
+        this.addActionMapping (() ->
+        {
+
+            try
+            {
+
+                _this.showOptions (null);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view options",
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this,
+                                                 getUILanguageStringProperty (options,actionerror));
+
+            }
+
+        },
+        CommandIds.showoptions,
+        CommandIds.options);
 
         this.addActionMapping (() ->
         {
@@ -278,13 +404,11 @@ public class AllProjectsViewer extends AbstractViewer
         if (Environment.allProjectsProperty ().size () == 0)
         {
 
-            this.projectsPanel.setViewOrder (1d);
-            this.noProjectsPanel.setViewOrder (0d);
+            this.showPanel (NoProjectsPanel.PANEL_ID);
 
         } else {
 
-            this.projectsPanel.setViewOrder (0d);
-            this.noProjectsPanel.setViewOrder (1d);
+            this.showPanel (ProjectsPanel.PANEL_ID);
 
         }
 
@@ -319,9 +443,14 @@ public class AllProjectsViewer extends AbstractViewer
 
         State s = super.getState ();
 
-        s.set (ProjectsPanel.PANEL_ID,
-               this.projectsPanel.getState ());
-System.out.println ("HEREW: " + this.getScene ().getWidth ());
+        for (PanelContent p : this.panels.values ())
+        {
+
+            s.set (p.getPanelId (),
+                   p.getState ());
+
+        }
+
         return s;
 
     }
@@ -338,20 +467,24 @@ System.out.println ("HEREW: " + this.getScene ().getWidth ());
 
         }
 
-        State v = s.getAs (ProjectsPanel.PANEL_ID,
-                           State.class);
-
-        if (v != null)
+        for (PanelContent pc : this.panels.values ())
         {
 
-            this.projectsPanel.init (v);
+            State v = s.getAs (pc.getPanelId (),
+                               State.class);
+
+            if (v != null)
+            {
+
+                pc.init (v);
+
+            }
 
         }
 
-        this.noProjectsPanel.init (s);
-        this.importPanel.init (s);
-
         super.init (s);
+
+        this.state = s;
 
     }
 
@@ -414,6 +547,17 @@ System.out.println ("HEREW: " + this.getScene ().getWidth ());
                     .build ());
 
                 items.add (new SeparatorMenuItem ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (Utils.newList (prefix,showcontacts))
+                    .styleClassName (StyleClassNames.CONTACTS)
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AllProjectsViewer.CommandIds.contacts);
+
+                    })
+                    .build ());
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,statistics))
@@ -602,9 +746,47 @@ TODO Remove as not appropriate.
 
     @Override
     public void showOptions (String section)
+                      throws GeneralException
     {
 
-        // TODO
+        if (this.showPanel (OptionsPanel.PANEL_ID))
+        {
+
+            return;
+
+        }
+
+        Set<Node> cons = new LinkedHashSet<> ();
+        cons.add (QuollButton.builder ()
+            .styleClassName (StyleClassNames.CLOSE)
+            .tooltip (getUILanguageStringProperty (actions,clicktoclose))
+            .onAction (ev ->
+            {
+
+                this.removePanel (OptionsPanel.PANEL_ID);
+
+            })
+            .build ());
+
+        OptionsPanel a = new OptionsPanel (this,
+                                           cons,
+                                           Options.Section.Id.look,
+                                           Options.Section.Id.naming,
+                                           Options.Section.Id.editing);
+
+        a.showSection (section);
+
+        UIUtils.doOnKeyReleased (a,
+                                 KeyCode.F4,
+                                 () ->
+                                 {
+
+                                     this.removePanel (OptionsPanel.PANEL_ID);
+
+                                 });
+        this.addPanel (a);
+        this.showPanel (a.getPanelId ());
+
 
     }
 
@@ -620,21 +802,94 @@ TODO Remove as not appropriate.
                          throws GeneralException
     {
 
-        // TODO
+        if (this.showPanel (StatisticsPanel.PANEL_ID))
+        {
+
+            return;
+
+        }
+
+        Set<Node> cons = new LinkedHashSet<> ();
+        cons.add (QuollButton.builder ()
+            .styleClassName (StyleClassNames.CLOSE)
+            .tooltip (getUILanguageStringProperty (actions,clicktoclose))
+            .onAction (ev ->
+            {
+
+                this.removePanel (StatisticsPanel.PANEL_ID);
+
+            })
+            .build ());
+
+        StatisticsPanel a = new StatisticsPanel (this,
+                                                 cons,
+                                                 new SessionWordCountChart (this));
+        UIUtils.doOnKeyReleased (a,
+                                 KeyCode.F4,
+                                 () ->
+                                 {
+
+                                     this.removePanel (StatisticsPanel.PANEL_ID);
+
+                                 });
+        this.addPanel (a);
+        this.showPanel (a.getPanelId ());
 
     }
 
     private void viewAchievements ()
+                            throws GeneralException
     {
 
-        // TODO View the general achievements.
+        if (this.showPanel (AchievementsPanel.PANEL_ID))
+        {
+
+            return;
+
+        }
+
+        Set<Node> cons = new LinkedHashSet<> ();
+        cons.add (QuollButton.builder ()
+            .styleClassName (StyleClassNames.CLOSE)
+            .tooltip (getUILanguageStringProperty (actions,clicktoclose))
+            .onAction (ev ->
+            {
+
+                this.removePanel (AchievementsPanel.PANEL_ID);
+
+            })
+            .build ());
+
+        AchievementsPanel a = new AchievementsPanel (this,
+                                                     cons);
+        UIUtils.doOnKeyReleased (a,
+                                 KeyCode.F4,
+                                 () ->
+                                 {
+
+                                     this.removePanel (AchievementsPanel.PANEL_ID);
+
+                                 });
+        this.addPanel (a);
+        this.showPanel (a.getPanelId ());
 
     }
 
     private void viewTargets ()
     {
 
-        // TODO Show the targets sidebar with just the standard targets.
+        SideBar sb = this.getSideBarById (TargetsSideBar.SIDEBAR_ID);
+
+        if (sb == null)
+        {
+
+            sb = new TargetsSideBar (this).createSideBar ();
+
+            this.addSideBar (sb);
+
+        }
+
+        this.showSideBar (TargetsSideBar.SIDEBAR_ID);
 
     }
 

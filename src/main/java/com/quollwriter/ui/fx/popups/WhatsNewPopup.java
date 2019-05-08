@@ -48,7 +48,7 @@ public class WhatsNewPopup extends PopupContent
         Version lastWhatsNewVersion = Environment.getQuollWriterVersion ();
 
         String wn = UserProperties.get (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
-wn = "2.4.0";
+
         if (wn != null)
         {
 

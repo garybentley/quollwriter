@@ -22,6 +22,9 @@ import javafx.scene.image.*;
 
 import org.jdom.*;
 
+import de.codecentric.centerdevice.javafxsvg.*;
+import de.codecentric.centerdevice.javafxsvg.dimension.*;
+
 import com.gentlyweb.xml.*;
 import com.gentlyweb.utils.*;
 
@@ -123,6 +126,7 @@ public class Environment
     private static Map<String, com.quollwriter.ui.UserPropertyHandler> userPropertyHandlers = new HashMap<> ();
     private static ProjectTextProperties projectTextProps = null;
     private static FullScreenTextProperties fullScreenTextProps = null;
+    private static DoubleProperty objectTypeNameChangedProp = null;
 
     // TODO Probably not needed, bind to the property. private static List<PropertyChangedListener> startupProgressListeners = new ArrayList<> ();
 
@@ -184,17 +188,56 @@ public class Environment
                       throws Exception
     {
 
+        SvgImageLoaderFactory.install (new PrimitiveDimensionProvider());
+
         Environment.startupProgressProp = new SimpleIntegerProperty (0);
         Environment.startupCompleteProp = new SimpleBooleanProperty (false);
+
+        Environment.startupCompleteProp.addListener ((pr, oldv, newv) ->
+        {
+
+            // Do nothing, here to force updates.
+
+        });
 
         Environment.openProjects = FXCollections.observableMap (new HashMap<> ());
         Environment.openProjectsProp = new SimpleMapProperty<> (Environment.openProjects);
 
+        Environment.openProjectsProp.addListener ((pr, oldv, newv) ->
+        {
+
+            // Do nothing, here to force updates.
+
+        });
+
         Environment.openViewers = FXCollections.observableSet (new HashSet<> ());
         Environment.openViewersProp = new SimpleSetProperty<> (Environment.openViewers);
 
+        Environment.openViewersProp.addListener ((pr, oldv, newv) ->
+        {
+
+            // Do nothing, here to force updates.
+
+        });
+
         Environment.allProjects = FXCollections.observableSet (new HashSet<> ());
         Environment.allProjectsProp = new SimpleSetProperty<> (Environment.allProjects);
+
+        Environment.allProjectsProp.addListener ((pr, oldv, newv) ->
+        {
+
+            // Do nothing, here to force updates.
+
+        });
+
+        Environment.objectTypeNameChangedProp = new SimpleDoubleProperty (0);
+        Environment.objectTypeNameChangedProp.addListener ((pr, oldv, newv) ->
+        {
+
+            // Do nothing, here to force updates.
+
+        });
+
 
         Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler ()
         {
@@ -267,7 +310,7 @@ public class Environment
 
         Environment.isLinux = System.getProperty ("os.name").startsWith ("Linux");
 
-        System.setProperty ("prism.lcdtext", "false");
+        //System.setProperty ("prism.lcdtext", "false");
 
         // TODO Handle night mode.
         Environment.nightModeProp = new SimpleBooleanProperty (false);
@@ -423,6 +466,31 @@ public class Environment
 
         }
 
+/*
+ TODO Get rid of default project properties.
+        // Get the system default project properties.
+        com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Utils.getResourceStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),
+                                                                              UserProperties.getProperties ());
+
+        Path defUserPropsFile = UserProperties.getUserDefaultProjectPropertiesPath ();
+System.out.println ("FILEPROPS: " + defUserPropsFile);
+        if (Files.exists (defUserPropsFile))
+        {
+
+            com.gentlyweb.properties.Properties userDefProjProps = new com.gentlyweb.properties.Properties (defUserPropsFile.toFile (),
+                                                                                                            Constants.GZIP_EXTENSION);
+
+            userDefProjProps.setParentProperties (sysDefProjProps);
+
+            sysDefProjProps = userDefProjProps;
+
+        }
+
+        // Load the default project properties.
+        Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
+                                                 sysDefProjProps);
+*/
+        // The user properties need
         UserProperties.init (userProps);
 
         // Do a save here so that if we are loading for the first time they will be saved.
@@ -438,6 +506,8 @@ public class Environment
 
         }
 
+        UILanguageStringsManager.setUILanguage (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME));
+
         try
         {
 
@@ -449,6 +519,40 @@ public class Environment
                                   e);
 
         }
+
+        // Add a set of user overrides for the object type names.
+        UILanguageStringsManager.setUserStringProvider (ids ->
+        {
+
+            if ((ids != null)
+                &&
+                (ids.size () == 3)
+                &&
+                (ids.get (0).equals (LanguageStrings.objectnames))
+               )
+            {
+
+                String st = ids.get (1);
+
+                if (st.equals (LanguageStrings.singular))
+                {
+
+                    return Environment.objectTypeNamesSingular.get (ids.get (2));
+
+                }
+
+                if (st.equals (LanguageStrings.plural))
+                {
+
+                    return Environment.objectTypeNamesPlural.get (ids.get (2));
+
+                }
+
+            }
+
+            return null;
+
+        });
 
         // Add a property listener for name changes to user config object types.
         /*
@@ -489,28 +593,6 @@ public class Environment
 
         }
 */
-
-        // Get the system default project properties.
-        com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Utils.getResourceStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),
-                                                                              UserProperties.getProperties ());
-
-        Path defUserPropsFile = UserProperties.getUserDefaultProjectPropertiesPath ();
-
-        if (Files.exists (defUserPropsFile))
-        {
-
-            com.gentlyweb.properties.Properties userDefProjProps = new com.gentlyweb.properties.Properties (defUserPropsFile.toFile (),
-                                                                                                            Constants.GZIP_EXTENSION);
-
-            userDefProjProps.setParentProperties (sysDefProjProps);
-
-            sysDefProjProps = userDefProjProps;
-
-        }
-
-        // Load the default project properties.
-        Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
-                                                 sysDefProjProps);
 
         // Create the text properties, they are derived from the user properties so need to be done after
         // the user props are inited.
@@ -554,12 +636,7 @@ public class Environment
 
         String sf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
 
-        if (sf != null)
-        {
-
-            Environment.setKeyStrokeSoundFilePath (Paths.get (sf));
-
-        }
+        Environment.setKeyStrokeSoundFilePath ((sf != null ? Paths.get (sf) : null));
 
         Environment.incrStartupProgress ();
 /*
@@ -2382,6 +2459,23 @@ TODO Needed?
 
     public static void setKeyStrokeSoundFilePath (Path p)
     {
+System.out.println ("HERE: " + p);
+        if (p == null)
+        {
+
+            try
+            {
+
+                p = Paths.get (Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
+
+            } catch (Exception e) {
+
+                throw new IllegalArgumentException ("Unable to get path for: " + Constants.DEFAULT_KEY_STROKE_SOUND_FILE,
+                                                    e);
+
+            }
+
+        }
 
         try
         {
@@ -2396,6 +2490,13 @@ TODO Needed?
                 return;
 
             }
+
+            // TODO Handle this... getting exception from AudioClip.
+
+            javax.sound.sampled.AudioInputStream audioInputStream = javax.sound.sampled.AudioSystem.getAudioInputStream(p.toFile ().getAbsoluteFile());
+            javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
 
             AudioClip s = new AudioClip (p.toUri ().toString ());
 
@@ -2648,6 +2749,13 @@ TODO Needed?
 
     }
 
+    public static DoubleProperty objectTypeNameChangedProperty ()
+    {
+
+        return Environment.objectTypeNameChangedProp;
+
+    }
+
     public static void resetObjectTypeNamesToDefaults ()
                                                 throws IOException
     {
@@ -2692,6 +2800,7 @@ TODO Needed?
 
         }
 
+        Environment.objectTypeNameChangedProp.setValue (Environment.objectTypeNameChangedProp.getValue () + 1);
 
     }
 
@@ -2707,8 +2816,8 @@ TODO Needed?
             // Use this one.
             Map t = (Map) JSONDecoder.decode (IOUtils.getFile (f.toFile ()));
 
-            Environment.objectTypeNamesSingular = (Map) t.get (LanguageStrings.singular);
-            Environment.objectTypeNamesPlural = (Map) t.get (LanguageStrings.plural);
+            Environment.updateUserObjectTypeNames ((Map) t.get (LanguageStrings.singular),
+                                                   (Map) t.get (LanguageStrings.plural));
 
         } else {
 
@@ -2720,8 +2829,8 @@ TODO Needed?
 
                 Environment.loadLegacyObjectTypeNames (JDOMUtils.getStringAsElement (IOUtils.getFile (f.toFile ())));
 
-                Environment.setUserObjectTypeNames (Environment.objectTypeNamesSingular,
-                                                    Environment.objectTypeNamesPlural);
+                Environment.updateUserObjectTypeNames (Environment.objectTypeNamesSingular,
+                                                       Environment.objectTypeNamesPlural);
 
                 Files.deleteIfExists (f);
 
@@ -2743,26 +2852,13 @@ TODO Needed?
         for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
         {
 
-            if (t.getUserObjectType () != null)
+            if (t.isAssetObjectType ())
             {
-/*
-                plural.put (t.getUserObjectType (),
+
+                plural.put ("asset:" + t.getKey (),
                             t.getObjectTypeNamePlural ());
-
-                singular.put (t.getUserObjectType (),
+                singular.put ("asset:" + t.getKey (),
                               t.getObjectTypeName ());
-*/
-            } else {
-
-                if (t.isAssetObjectType ())
-                {
-
-                    plural.put ("asset:" + t.getKey (),
-                                t.getObjectTypeNamePlural ());
-                    singular.put ("asset:" + t.getKey (),
-                                  t.getObjectTypeName ());
-
-                }
 
             }
 
@@ -2831,8 +2927,8 @@ xxx
 
         }
 
-        Environment.objectTypeNamesSingular.putAll (singular);
-        Environment.objectTypeNamesPlural.putAll (plural);
+        Environment.updateUserObjectTypeNames (singular,
+                                               plural);
 
     }
 
@@ -2868,23 +2964,20 @@ xxx
 
     }
 
-    private static void setUserObjectTypeNames (Map<String, String> singular,
-                                                Map<String, String> plural)
-                                         throws Exception
+    private static void saveUserObjectTypeNames ()
+                                          throws Exception
     {
 
         Map<String, Map<String, String>> t = new HashMap ();
 
         t.put (LanguageStrings.singular,
-               singular);
+               Environment.objectTypeNamesSingular);
         t.put (LanguageStrings.plural,
-               plural);
+               Environment.objectTypeNamesPlural);
 
         IOUtils.writeStringToFile (UserProperties.getUserObjectTypeNamesPath ().toFile (),
                                    JSONEncoder.encode (t),
                                    false);
-
-        Environment.loadUserObjectTypeNames ();
 
     }
 
@@ -3509,7 +3602,7 @@ xxx
         for (AbstractProjectViewer pv : Environment.openProjects.values ())
         {
 
-            pv.removeSideBar (pv.getSideBar (id));
+            pv.removeSideBar (pv.getSideBarById (id));
 
         }
 
@@ -4269,16 +4362,6 @@ TODO Remove
                                            throws Exception
     {
 
-        //Map<String, String> newSingular = new HashMap ();
-        //newSingular.putAll (Environment.objectTypeNamesSingular);
-
-        //newSingular.putAll (singular);
-
-        //Map<String, String> newPlural = new HashMap ();
-        //newPlural.putAll (Environment.objectTypeNamesPlural);
-
-        //newPlural.putAll (plural);
-
         UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
 
         // TODO: Fix this nonsense...
@@ -4298,9 +4381,19 @@ TODO Remove
 
         Environment.updateUserConfigurableObjectType (type);
 
-        Environment.setUserObjectTypeNames (singular,
-                                            plural);
+        Object o = new Object ();
 
+        synchronized (o)
+        {
+
+            Environment.objectTypeNamesSingular.putAll (singular);
+            Environment.objectTypeNamesPlural.putAll (plural);
+
+        }
+
+        Environment.saveUserObjectTypeNames ();
+
+        Environment.objectTypeNameChangedProp.setValue (Environment.objectTypeNameChangedProp.getValue () + 1);
 
     }
 
@@ -5830,6 +5923,164 @@ TODO
                           height,
                           false,
                           true);
+
+    }
+
+    public static Set<UILanguageStringsInfo> getAvailableUILanguageStrings ()
+    {
+
+        String l = null;
+
+        Collection ls = null;
+
+        try
+        {
+
+            l = Utils.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + UserProperties.get (Constants.QUOLL_WRITER_AVAILABLE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME) + "?version=" + Environment.getQuollWriterVersion ().toString ()));
+
+            ls = (Collection) JSONDecoder.decode (l);
+
+        } catch (Exception e) {
+
+            // Something gone wrong, so just add our local langs.
+
+            ls = new LinkedHashSet<> ();
+
+            Environment.logError ("Unable to get the ui language strings files url",
+                                  e);
+
+        }
+
+        Set<UILanguageStringsInfo> ret = new LinkedHashSet<> ();
+        final Map<String, String> objs = new LinkedHashMap<> ();
+
+        Set<String> langIds = new LinkedHashSet<> ();
+
+        try
+        {
+
+            // Add in any user generated ones.
+            for (UILanguageStrings _ls : UILanguageStringsManager.getAllUserUILanguageStrings (Environment.getQuollWriterVersion ()))
+            {
+
+                ret.add (_ls.getInfo ());
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get the user ui language strings",
+                                  e);
+
+        }
+
+        // Add our local ones.
+        Set<UILanguageStrings> uistrs = null;
+
+        try
+        {
+
+            uistrs = UILanguageStringsManager.getAllUILanguageStrings (Environment.getQuollWriterVersion ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get local ui language strings",
+                                  e);
+
+        }
+
+        int s = 0;
+        UILanguageStrings enStrs = null;
+
+        try
+        {
+            enStrs = UILanguageStringsManager.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ());
+            s = UILanguageStringsManager.getUserUIEnglishLanguageStrings (Environment.getQuollWriterVersion ()).getAllTextValues ().size ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get english ui language strings count.",
+                                  e);
+
+        }
+
+        for (UILanguageStrings uistr : uistrs)
+        {
+
+            ret.add (uistr.getInfo ());
+
+        }
+
+        Iterator iter = ls.iterator ();
+
+        while (iter.hasNext ())
+        {
+
+            Map m = (Map) iter.next ();
+
+            String id = (String) m.get ("id");
+
+            if (!id.equals (UILanguageStrings.ENGLISH_ID))
+            {
+
+                int c = 100;
+
+                Object v = m.get ("strcount");
+
+                if (v != null)
+                {
+
+                    if (v instanceof Number)
+                    {
+
+                        c = ((Number) v).intValue ();
+
+                    } else {
+
+                        try
+                        {
+
+                            c = Integer.parseInt (m.get ("strcount").toString ());
+
+                        } catch (Exception e) {
+
+                            // Ignore
+
+                        }
+
+                    }
+
+                }
+
+                Object langName = m.get ("languagename");
+
+                UILanguageStringsInfo info = new UILanguageStringsInfo (id,
+                                                                        m.get ("nativename").toString (),
+                                                                        (langName != null ? langName.toString () : null),
+                                                                        Utils.getPercent (c, s),
+                                                                        Environment.getQuollWriterVersion (),
+                                                                        false);
+
+                ret.add (info);
+/*
+                objs.put (id, String.format (format,
+                                             m.get ("nativename").toString (),
+                                             m.get ("languagename"),
+                                             Environment.formatNumber (Utils.getPercent (c, s))));
+*/
+            } else {
+
+                //objs.put (id, m.get ("nativename").toString ());
+
+            }
+
+            //langIds.add (id);
+
+        }
+
+        ret.add (enStrs.getInfo ());
+
+        return ret;
 
     }
 

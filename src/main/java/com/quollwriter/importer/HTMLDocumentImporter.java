@@ -7,12 +7,12 @@ import java.util.*;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
-
+/*
 import org.apache.poi.hwpf.*;
 import org.apache.poi.hwpf.extractor.*;
 import org.apache.poi.hwpf.model.*;
 import org.apache.poi.hwpf.usermodel.*;
-
+*/
 import org.docx4j.openpackaging.parts.WordprocessingML.*;
 
 

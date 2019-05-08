@@ -2,6 +2,7 @@ package com.quollwriter.ui.fx.popups;
 
 import java.nio.file.*;
 import java.nio.charset.*;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -64,47 +65,75 @@ public class SelectBGPopup extends PopupContent
 
         }
 
-        Set<String> bgImages = null;
+        URL bgImagesURL = Utils.getResourceUrl (Constants.BACKGROUND_IMGS_DIR);
 
         try
         {
 
-            bgImages = Utils.getResourceListing (Constants.BACKGROUND_THUMB_IMGS_DIR);
+            Path p = Paths.get (bgImagesURL.toURI ());
 
-        } catch (Exception e) {
-
-            throw new GeneralException ("Unable to get bg image dir listing: " + Constants.BACKGROUND_THUMB_IMGS_DIR,
-                                        e);
-
-        }
-
-        List<String> _bgImages = new ArrayList<> (bgImages);
-
-        Collections.sort (_bgImages);
-
-        bgImages = new LinkedHashSet (_bgImages);
-
-        for (String s : bgImages)
-        {
-
-            Background bg = this.createBackground (s);
-
-            if (bg == null)
+            if (Files.exists (p))
             {
 
-                continue;
+                Files.list (p)
+                    .filter (f -> Files.isRegularFile (f))
+                    .sorted ((o1, o2) ->
+                    {
+
+                        String fo1 = o1.getFileName ().toString ();
+                        String fo2 = o2.getFileName ().toString ();
+
+                        if (fo1.startsWith ("_"))
+                        {
+
+                            fo1 = fo1.substring (1);
+
+                        }
+
+                        if (fo2.startsWith ("_"))
+                        {
+
+                            fo2 = fo2.substring (1);
+
+                        }
+
+                        return fo1.compareTo (fo2);
+
+                    })
+                    .forEach (f ->
+                    {
+
+                        String s = f.getFileName ().toString ();
+
+                        Background bg = this.createBackground (s);
+
+                        if (bg == null)
+                        {
+
+                            return;
+
+                        }
+
+                        Label swatch = this.getSwatch (null);
+                        swatch.getStyleClass ().add ("bgimage");
+                        swatch.getStyleClass ().add (s.substring (0, s.lastIndexOf (".")));
+                        swatch.setUserData (s);
+
+                        UIUtils.setTooltip (swatch,
+                                            getUILanguageStringProperty (selectbackground,types,image,tooltip));
+                        Group g = new Group ();
+                        g.setUserData (s);
+                        g.getChildren ().add (swatch);
+                        this.imagesPane.getChildren ().add (g);
+
+                    });
 
             }
 
-            Label swatch = this.getSwatch (bg);
-            swatch.setUserData (s);
+        } catch (Exception e) {
 
-            UIUtils.setTooltip (swatch,
-                                getUILanguageStringProperty (selectbackground,types,image,tooltip));
-            Group g = new Group ();
-            g.setUserData (s);
-            g.getChildren ().add (swatch);
-            this.imagesPane.getChildren ().add (g);
+            throw new GeneralException ("Unable to get background images",
+                                        e);
 
         }
 
@@ -145,7 +174,7 @@ public class SelectBGPopup extends PopupContent
             .title (selectbackground,types,image,title)
             .styleClassName (StyleClassNames.IMAGES)
             .headerControls (imgsHeaderCons)
-            .content (this.imagesPane)
+            .openContent (this.imagesPane)
             .build ();
 
         this.colorsPane = new FlowPane ();
@@ -216,7 +245,8 @@ public class SelectBGPopup extends PopupContent
                 }
 
                 ColorChooserPopup colp = new ColorChooserPopup (_this.viewer,
-                                                                initCol);
+                                                                initCol,
+                                                                false);
                 colp.show ();
                 colp.getChooser ().colorProperty ().addListener ((_p, oldv, newv) ->
                 {
@@ -259,7 +289,7 @@ public class SelectBGPopup extends PopupContent
             .title (selectbackground,types,color,title)
             .styleClassName (StyleClassNames.COLORS)
             .headerControls (colsHeaderCons)
-            .content (this.colorsPane)
+            .openContent (this.colorsPane)
             .build ();
 
         VBox v = new VBox ();
@@ -489,8 +519,8 @@ public class SelectBGPopup extends PopupContent
         final SelectBGPopup _this = this;
 
         Label b = new Label ();
-        b.getStyleClass ().add (StyleClassNames.ITEM);
         b.setBackground (bg);
+        b.getStyleClass ().add (StyleClassNames.ITEM);
 
         b.setOnMousePressed (ev ->
         {
@@ -664,17 +694,18 @@ public class SelectBGPopup extends PopupContent
         try
         {
 
-            Image im = new Image (Files.newInputStream (path),
-                                  SWATCH_WIDTH,
-                                  SWATCH_HEIGHT,
-                                  false,
-                                  true);
+            Image im = new Image (Files.newInputStream (path));
 
             return new Background (new BackgroundImage (im,
                                                         BackgroundRepeat.NO_REPEAT,
                                                         BackgroundRepeat.NO_REPEAT,
                                                         null,
-                                                        null));
+                                                        new BackgroundSize (BackgroundSize.AUTO,
+                                                                            BackgroundSize.AUTO,
+                                                                            false,
+                                                                            false,
+                                                                            true,
+                                                                            false)));
 
         } catch (Exception e) {
 

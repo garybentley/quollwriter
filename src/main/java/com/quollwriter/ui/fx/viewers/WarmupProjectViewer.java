@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 
 import com.quollwriter.data.*;
 
+import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
@@ -75,7 +76,7 @@ public class WarmupProjectViewer extends AbstractProjectViewer
                        throws Exception
     {
 
-        // TODO 
+        // TODO
 
     }
 
@@ -89,6 +90,13 @@ public class WarmupProjectViewer extends AbstractProjectViewer
     @Override
     public void handleOpenProject ()
                             throws Exception
+    {
+
+    }
+
+    @Override
+    public void showOptions (String sect)
+                      throws GeneralException
     {
 
     }

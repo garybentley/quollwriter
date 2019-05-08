@@ -24,7 +24,8 @@ import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.*;
 import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.renderer.category.*;
-import org.jfree.ui.*;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.category.*;
 import org.jfree.data.time.*;
 import org.jfree.data.xy.XYDataset;
@@ -237,14 +238,14 @@ public class QuollChartUtils
         if (anchor == RectangleAnchor.TOP_LEFT)
         {
 
-            m.setLabelOffset (new org.jfree.ui.RectangleInsets ((s.height / 2) + 3, (s.width / 2) + 5, 0, 0));
+            m.setLabelOffset (new RectangleInsets ((s.height / 2) + 3, (s.width / 2) + 5, 0, 0));
 
         }
 
         if (anchor == RectangleAnchor.TOP_RIGHT)
         {
 
-            m.setLabelOffset (new org.jfree.ui.RectangleInsets ((s.height / 2) + 3, -1 * ((s.width / 2) + 5), 0, 0));
+            m.setLabelOffset (new RectangleInsets ((s.height / 2) + 3, -1 * ((s.width / 2) + 5), 0, 0));
 
             // TOP_RIGHT doesn't work so change to TOP_LEFT and -1 the left value.
             anchor = RectangleAnchor.TOP_LEFT;
@@ -254,14 +255,14 @@ public class QuollChartUtils
         if (anchor == RectangleAnchor.BOTTOM_LEFT)
         {
 
-            m.setLabelOffset (new org.jfree.ui.RectangleInsets (0, (s.width / 2) + 5, (s.height / 2) + 3, 0));
+            m.setLabelOffset (new RectangleInsets (0, (s.width / 2) + 5, (s.height / 2) + 3, 0));
 
         }
 
         if (anchor == RectangleAnchor.BOTTOM_RIGHT)
         {
 
-            m.setLabelOffset (new org.jfree.ui.RectangleInsets (0, -1 * ((s.width / 2) + 5), (s.height / 2) + 3, 0));
+            m.setLabelOffset (new RectangleInsets (0, -1 * ((s.width / 2) + 5), (s.height / 2) + 3, 0));
 
             anchor = RectangleAnchor.BOTTOM_LEFT;
 
@@ -587,11 +588,13 @@ public class QuollChartUtils
         XYLineAndShapeRenderer rend = new XYLineAndShapeRenderer (true,
                                                                   false);
         plot.setRenderer (rend);
-        rend.setBaseStroke (new java.awt.BasicStroke (10f));
+        rend.setDefaultStroke (new java.awt.BasicStroke (10f));
         rend.setSeriesStroke (0,
                               new java.awt.BasicStroke (10f));
-        rend.setBasePaint (UIUtils.getColor ("#516CA3"));
+        //rend.setBasePaint (UIUtils.getColor ("#516CA3"));
 
+        // TODO Check to see if this is correct to set?  Replaces setBasePaint?
+        rend.setDefaultPaint (UIUtils.getColor ("#516CA3"));
         rend.setSeriesPaint (0,
                              UIUtils.getColor ("#516CA3"));
 

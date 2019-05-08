@@ -22,8 +22,6 @@ public class Startup_fx extends Application
     public void init ()
     {
 
-        System.out.println ("CALLED INIT");
-
     }
 
     @Override
@@ -31,28 +29,17 @@ public class Startup_fx extends Application
     {
 
         //Splashscreen ss = null;
+        Splashscreen ss = null;
 
         try
         {
 
-            final Splashscreen ss = Splashscreen.builder ().build ();
+            ss = Splashscreen.builder ().build ();
 
             ss.show ();
             javafx.geometry.Rectangle2D rb = Screen.getPrimary ().getBounds ();
             ss.setX (((rb.getWidth () - ss.getWidth ()) / 2));
             ss.setY (((rb.getHeight () - ss.getHeight ()) / 2));
-
-            ss.progressProperty ().addListener ((val, oldv, newv) ->
-            {
-
-                if (newv.doubleValue () >= 1)
-                {
-
-                    //ss.close ();
-
-                }
-
-            });
 
             //DoubleProperty progress = ss.progressProperty ();
 
@@ -70,7 +57,7 @@ public class Startup_fx extends Application
 
             ss.updateProgress (0.6f);
 
-            ss.finish ();
+System.out.println ("X: " + Platform.isImplicitExit ());
 
             /*
             if (Environment.isFirstUse ())
@@ -136,20 +123,16 @@ public class Startup_fx extends Application
                                      "Unable to open last edited {project}, please select another {project} or create a new one.");
 
             }
+
             */
         } catch (Exception eee)
         {
-eee.printStackTrace ();
 
-            Platform.exit ();
-
-}
-/*
             if (eee instanceof OverlappingFileLockException)
             {
 
-                UIUtils.showErrorMessage (null,
-                                          "It appears that Quoll Writer is already running.  Please close the other instance before starting Quoll Writer again.");
+                ComponentUtils.showErrorMessage (null,
+                                                 new SimpleStringProperty ("It appears that Quoll Writer is already running.  Please close the other instance before starting Quoll Writer again."));
 
 
             } else {
@@ -157,10 +140,14 @@ eee.printStackTrace ();
                 Environment.logError ("Unable to open Quoll Writer",
                                       eee);
 
-                UIUtils.showErrorMessage (null,
-                                          "Unable to start Quoll Writer");
+                ComponentUtils.showErrorMessage (null,
+                                                 new SimpleStringProperty ("Unable to start Quoll Writer"));
 
             }
+
+        } catch (Error err) {
+
+            err.printStackTrace ();
 
         } finally
         {
@@ -175,7 +162,7 @@ eee.printStackTrace ();
             Environment.startupComplete ();
 
         }
-*/
+
     }
 
     public static void main (String[] argv)

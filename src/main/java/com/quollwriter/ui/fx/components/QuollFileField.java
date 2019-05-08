@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.components;
 
 import java.util.*;
+import java.util.stream.*;
 import java.io.*;
 
 import javafx.stage.*;
@@ -80,7 +81,12 @@ public class QuollFileField extends HBox
 
             } else {
 
-                _this.text.setText (newv.getPath ());
+                if (newv != null)
+                {
+
+                    _this.text.setText (newv.getPath ());
+
+                }
 
             }
 
@@ -100,7 +106,8 @@ public class QuollFileField extends HBox
         this.getChildren ().add (this.text);
 
         this.getChildren ().add (QuollButton.builder ()
-            .tooltip (b.buttonTooltip)
+            .styleClassName (StyleClassNames.FIND)
+            .tooltip (b.findButtonTooltip)
             .onAction (ev ->
             {
 
@@ -109,6 +116,31 @@ public class QuollFileField extends HBox
 
             })
             .build ());
+
+        if (b.showClear)
+        {
+
+            this.getChildren ().add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.CLEAR)
+                .tooltip (b.clearButtonTooltip)
+                .onAction (ev ->
+                {
+
+                    ev.consume ();
+                    this.setFile (null);
+
+                })
+                .build ());
+
+        }
+
+        this.disableProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.getChildren ().stream ()
+                .forEach (n -> n.setDisable (newv));
+
+        });
 
     }
 
@@ -120,7 +152,6 @@ public class QuollFileField extends HBox
         if (this.limitTo == Type.file)
         {
 
-            // TODO
             FileChooser f = new FileChooser ();
 
             if (this.chooserTitle != null)
@@ -158,6 +189,13 @@ public class QuollFileField extends HBox
 
     }
 
+    public void setFile (File f)
+    {
+
+        this.fileProp.setValue (f);
+
+    }
+
     public File getFile ()
     {
 
@@ -184,15 +222,25 @@ public class QuollFileField extends HBox
 
         private String styleName = null;
         private StringProperty placeholder = null;
-        private StringProperty buttonTooltip = null;
+        private StringProperty findButtonTooltip = null;
+        private StringProperty clearButtonTooltip = null;
         private File initialFile = null;
         private AbstractViewer viewer = null;
         private StringProperty chooserTitle = null;
         private Type limitTo = null;
         private FileChooser.ExtensionFilter fileExtFilter = null;
+        private boolean showClear = false;
 
         private Builder ()
         {
+
+        }
+
+        public Builder showClear (boolean v)
+        {
+
+            this.showClear = v;
+            return this;
 
         }
 
@@ -266,25 +314,81 @@ public class QuollFileField extends HBox
 
         }
 
-        public Builder buttonTooltip (List<String> prefix,
-                                      String...    ids)
+        public Builder findButtonTooltip (List<String> prefix,
+                                          String...    ids)
         {
 
-            return this.buttonTooltip (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+            return this.findButtonTooltip (getUILanguageStringProperty (Utils.newList (prefix, ids)));
 
         }
 
-        public Builder buttonTooltip (String... ids)
+        public Builder findButtonTooltip (String... ids)
         {
 
-            return this.buttonTooltip (getUILanguageStringProperty (ids));
+            return this.findButtonTooltip (getUILanguageStringProperty (ids));
 
         }
 
-        public Builder buttonTooltip (StringProperty prop)
+        public Builder findButtonTooltip (StringProperty prop)
         {
 
-            this.buttonTooltip = prop;
+            this.findButtonTooltip = prop;
+            return this;
+
+        }
+
+        public Builder clearButtonTooltip (List<String> prefix,
+                                           String...    ids)
+        {
+
+            return this.clearButtonTooltip (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public Builder clearButtonTooltip (String... ids)
+        {
+
+            return this.clearButtonTooltip (getUILanguageStringProperty (ids));
+
+        }
+
+        public Builder clearButtonTooltip (StringProperty prop)
+        {
+
+            this.clearButtonTooltip = prop;
+            return this;
+
+        }
+
+        public Builder fileExtensionFilter (StringProperty filterDesc,
+                                            String...      exts)
+        {
+
+            if ((exts == null)
+                ||
+                (exts.length == 0)
+               )
+            {
+
+                throw new IllegalArgumentException ("At least one file extension must be provided.");
+
+            }
+
+            String v = filterDesc.getValue ();
+
+            List<String> lexts = Arrays.asList (exts);
+
+            StringBuilder b = new StringBuilder (v);
+
+            b.append (" (");
+            b.append (lexts.stream ()
+                .collect (Collectors.joining (", ")));
+            b.append (")");
+
+            this.fileExtFilter = new FileChooser.ExtensionFilter (b.toString (),
+                                                                  lexts.stream ()
+                                                                    .map (e -> "*." + e)
+                                                                    .collect (Collectors.toList ()));
             return this;
 
         }

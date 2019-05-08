@@ -33,6 +33,9 @@ import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
 import com.quollwriter.db.*;
+import com.quollwriter.text.*;
+import com.quollwriter.data.ChapterCounts;
+import com.quollwriter.data.ReadabilityIndices;
 import com.quollwriter.data.Prompt;
 import com.quollwriter.data.ObjectReference;
 import com.quollwriter.data.Project;
@@ -40,8 +43,11 @@ import com.quollwriter.data.ProjectInfo;
 import com.quollwriter.data.Chapter;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
+import com.quollwriter.uistrings.UILanguageStrings;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
@@ -522,6 +528,27 @@ public class UIUtils
 
     }
 
+    public static Button createHelpPageButton (AbstractViewer viewer,
+                                               String         helpPage,
+                                               StringProperty tooltip)
+    {
+
+        QuollButton b = QuollButton.builder ()
+            .styleClassName (StyleClassNames.HELP)
+            .tooltip (tooltip != null ? tooltip : getUILanguageStringProperty (help,button,LanguageStrings.tooltip))
+            .onAction (ev ->
+            {
+
+                UIUtils.openURL (viewer,
+                                 "help://" + helpPage);
+
+            })
+            .build ();
+
+        return b;
+
+    }
+
     public static String getQuollWriterHelpLink (String url,
                                                  String linkText)
     {
@@ -760,10 +787,9 @@ public class UIUtils
 
             }
 
-System.out.println ("D: " + diff);
             //diff = vh + diff;
             //diff -= vh;
-System.out.println ("D2: " + diff + ", " + vh);
+
             scrollPane.setVvalue (scrollPane.getVvalue () + ((diff / (heightScrollPane - heightViewPort))));
             return;
         }
@@ -832,13 +858,27 @@ System.out.println ("D2: " + diff + ", " + vh);
 
         }
 
-        boolean v = node.getPseudoClassStates ().contains (StyleClassNames.SELECTED_PSEUDO_CLASS);
+        boolean v = UIUtils.isSelected (node);
+
+        UIUtils.unselectChildren (parent);
+
+        node.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, !v);
+
+    }
+
+    public static void unselectChildren (Parent parent)
+    {
 
         parent.getChildrenUnmodifiable ().stream ()
             // Switch off the selected class for all elements.
             .forEach (c -> c.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, false));
 
-        node.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, !v);
+    }
+
+    public static boolean isSelected (Node node)
+    {
+
+        return node.getPseudoClassStates ().contains (StyleClassNames.SELECTED_PSEUDO_CLASS);
 
     }
 
@@ -1486,6 +1526,696 @@ System.out.println ("D2: " + diff + ", " + vh);
         });
 
         return box;
+
+    }
+
+    public static void doOnKeyReleased (Node     n,
+                                        KeyCode  c,
+                                        Runnable r)
+    {
+
+        n.addEventHandler (KeyEvent.KEY_RELEASED,
+                           ev ->
+        {
+
+            if (ev.getCode () == c)
+            {
+
+                UIUtils.runLater (r);
+                ev.consume ();
+
+            }
+
+        });
+
+    }
+
+    public static Node getChildNodeAt (Parent p,
+                                       double x,
+                                       double y)
+    {
+
+        if ((p.getChildrenUnmodifiable () == null)
+            ||
+            (p.getChildrenUnmodifiable ().size () == 0)
+           )
+        {
+
+            if (p.getBoundsInParent ().contains (x, y))
+            {
+
+                return p;
+
+            }
+
+        }
+
+        for (Node n : p.getChildrenUnmodifiable ())
+        {
+
+            if (n.getBoundsInParent ().contains (x, y))
+            {
+
+                if (n instanceof Parent)
+                {
+
+                    Parent np = (Parent) n;
+
+                    Point2D pp = np.parentToLocal (x, y);
+
+                    return UIUtils.getChildNodeAt (np,
+                                                   pp.getX (),
+                                                   pp.getY ());
+
+                }
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    public static <E> void expandAllNodesWithChildren (TreeItem<E> t)
+    {
+
+        t.setExpanded (true);
+
+        if (t.getChildren () != null)
+        {
+
+            t.getChildren ().stream ()
+                .forEach (c -> UIUtils.expandAllNodesWithChildren (c));
+
+        }
+
+    }
+
+    public static String getChapterInfoPreview (Chapter               c,
+                                                String                format,
+                                                AbstractProjectViewer viewer)
+    {
+
+        // If there is no key or null chapter then return.
+        if ((c == null)
+            ||
+            (c.getKey () == null)
+           )
+        {
+
+            return null;
+
+        }
+
+        String lastEd = "";
+
+        if (c.getLastModified () != null)
+        {
+
+            lastEd = String.format (getUIString (project,sidebar,chapters,preview,lastedited),
+                                    //"Last edited: %s",
+                                    Environment.formatDate (c.getLastModified ()));
+
+        } else {
+
+            lastEd = getUIString (project,sidebar,chapters,preview,notedited);
+            //"Not yet edited.";
+
+        }
+
+        String text = format;
+
+        if (text == null)
+        {
+
+            text = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
+                                       Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
+
+        }
+
+        String nl = String.valueOf ('\n');
+
+        while (text.endsWith (nl))
+        {
+
+            text = text.substring (0,
+                                   text.length () - 1);
+
+        }
+
+        text = text.toLowerCase ();
+
+        String desc = c.getDescriptionText ();
+        String descFirstLine = null;
+
+        if ((desc == null)
+            ||
+            (desc.length () == 0)
+           )
+        {
+
+            desc = getUIString (project,sidebar,chapters,preview,nodescription);
+            //"<b>No description.</b>";
+            descFirstLine = desc;
+
+        } else {
+
+            descFirstLine = new TextIterator (desc).getFirstSentence ().getText ();
+
+        }
+
+        String chapText = viewer.getCurrentChapterText (c);
+
+        if (chapText != null)
+        {
+
+            chapText = chapText.trim ();
+
+        } else {
+
+            chapText = "";
+
+        }
+
+        if (chapText.length () > 0)
+        {
+
+            chapText  = new TextIterator (chapText).getFirstSentence ().getText ();
+
+        } else {
+
+            chapText = getUIString (project,sidebar,chapters,preview,emptychapter);
+            //"{Chapter} is empty.");
+
+        }
+
+        text = StringUtils.replaceString (text,
+                                          " ",
+                                          "&nbsp;");
+        text = StringUtils.replaceString (text,
+                                          nl,
+                                          "<br />");
+
+        text = StringUtils.replaceString (text,
+                                          Constants.DESCRIPTION_TAG,
+                                          desc);
+
+        text = StringUtils.replaceString (text,
+                                          Constants.DESCRIPTION_FIRST_LINE_TAG,
+                                          descFirstLine);
+
+        text = StringUtils.replaceString (text,
+                                          Constants.CHAPTER_FIRST_LINE_TAG,
+                                          chapText);
+
+        ChapterCounts cc = viewer.getChapterCounts (c);
+
+        if (cc == null)
+        {
+
+            // Get the current text instead.
+            cc = new ChapterCounts (c.getChapterText ());
+
+        }
+
+        text = StringUtils.replaceString (text,
+                                          Constants.WORDS_TAG,
+                                          String.format (getUIString (project,sidebar,chapters,preview,words),
+                                                        //"%s words",
+                                                         Environment.formatNumber (cc.wordCount)));
+
+        text = StringUtils.replaceString (text,
+                                          Constants.LAST_EDITED_TAG,
+                                          lastEd);
+
+        int ep = c.getEditPosition ();
+
+        if (c.isEditComplete ())
+        {
+
+            ep = 100;
+
+        } else {
+
+            if (ep > 0)
+            {
+
+                if (ep > chapText.length () - 1)
+                {
+
+                    ep = chapText.length ();
+
+                }
+
+                ChapterCounts ecc = new ChapterCounts (chapText.substring (0,
+                                                                           ep));
+
+                ep = Utils.getPercent (ecc.wordCount, cc.wordCount);
+
+            }
+
+        }
+
+        if (ep < 0)
+        {
+
+            ep = 0;
+
+        }
+
+        text = StringUtils.replaceString (text,
+                                          Constants.EDIT_COMPLETE_TAG,
+                                          String.format (getUIString (project,sidebar,chapters,preview,editcomplete),
+                                          //"%s%% complete",
+                                                         Environment.formatNumber (ep)));
+
+        if (text.contains (Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG))
+        {
+
+            text = StringUtils.replaceString (text,
+                                              Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG,
+                                              String.format (getUIString (project,sidebar,chapters,preview,problemcount),
+                                                            //"%s problems",
+                                                             Environment.formatNumber (viewer.getProblems (c).size ())));
+
+        }
+
+        if (text.contains (Constants.SPELLING_ERROR_COUNT_TAG))
+        {
+
+            text = StringUtils.replaceString (text,
+                                              Constants.SPELLING_ERROR_COUNT_TAG,
+                                              String.format (getUIString (project,sidebar,chapters,preview,spellingcount),
+                                                            //"%s spelling errors",
+                                                             Environment.formatNumber (viewer.getSpellingErrors (c).size ())));
+
+        }
+
+        ReadabilityIndices ri = viewer.getReadabilityIndices (c);
+
+        if (ri == null)
+        {
+
+            ri = new ReadabilityIndices ();
+            ri.add (c.getChapterText ());
+
+        }
+
+        String na = getUIString (project,sidebar,chapters,preview,notapplicable);
+
+        String GL = na; //"N/A";
+        String RE = na; //"N/A";
+        String GF = na; //"N/A";
+
+        if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
+        {
+
+            GL = Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ()));
+            RE = Environment.formatNumber (Math.round (ri.getFleschReadingEase ()));
+            GF = Environment.formatNumber (Math.round (ri.getGunningFogIndex ()));
+
+        }
+
+        text = StringUtils.replaceString (text,
+                                          Constants.READABILITY_TAG,
+                                          String.format (getUIString (project,sidebar,chapters,preview,readability),
+                                          //"GL: %s, RE: %s, GF: %s",
+                                                         GL,
+                                                         RE,
+                                                         GF));
+
+         return text;
+
+    }
+
+    public static void showAddNewUILanguageStringsPopup (final AbstractViewer viewer)
+    {
+
+        List<String> prefix = Arrays.asList (uilanguage,_new,popup);
+
+        ComponentUtils.createTextEntryPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
+                                                            StyleClassNames.ADDNEWUILANGSTRINGS,
+                                                            getUILanguageStringProperty (Utils.newList (prefix,text)),
+                                                            null,
+                                                            // Validator.
+                                                            v ->
+                                                            {
+
+                                                                if ((v == null)
+                                                                    ||
+                                                                    (v.trim ().length () == 0)
+                                                                   )
+                                                                {
+
+                                                                    // This can be English because if the creator doesn't know English then they can't create a set of strings.
+                                                                    return new SimpleStringProperty ("Please enter the language name");
+
+                                                                }
+
+                                                                return null;
+
+                                                            },
+                                                            getUILanguageStringProperty (Utils.newList (prefix,buttons,create)),
+                                                            getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)),
+                                                            // On confirm.
+                                                            ev ->
+                                                            {
+
+                                                                // TODO Improve this...
+                                                                TextField tf = (TextField) ev.getForm ().lookup ("#text");
+
+                                                                String v = tf.getText ().trim ();
+
+                                                                 UILanguageStrings ls = new UILanguageStrings (UILanguageStringsManager.getDefaultUILanguageStrings ());
+                                                                 ls.setNativeName (v);
+                                                                 ls.setUser (true);
+
+                                                                 try
+                                                                 {
+
+                                                                     // TODO new LanguageStringsEditor (ls).init ();
+
+                                                                 } catch (Exception e) {
+
+                                                                     Environment.logError ("Unable to create language strings editor",
+                                                                                           e);
+
+                                                                     ComponentUtils.showErrorMessage (viewer,
+                                                                                                      "Unable to create strings editor.");
+
+                                                                 }
+
+                                                             },
+                                                             // On cancel
+                                                             null,
+                                                             // On close
+                                                             null,
+                                                             viewer);
+
+    }
+
+    public static void showEditUILanguageStringsSelectorPopup (final AbstractViewer viewer)
+    {
+
+        String popupId = StyleClassNames.UILANGSTRINGSSELECT;
+
+        QuollPopup qp = viewer.getPopupById (popupId);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        Set<UILanguageStrings> objs = null;
+
+        try
+        {
+
+            objs = UILanguageStringsManager.getAllUserUILanguageStrings ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get all user language strings.",
+                                  e);
+
+            ComponentUtils.showErrorMessage (viewer,
+                                             getUILanguageStringProperty (uilanguage,edit,actionerror));
+
+            return;
+
+        }
+
+        if (objs.size () == 0)
+        {
+
+            ComponentUtils.showMessage (viewer,
+                                        getUILanguageStringProperty (uilanguage,edit,novalue,title),
+                                        getUILanguageStringProperty (uilanguage,edit,novalue,text));
+
+            return;
+
+        }
+
+        objs = objs.stream ()
+            .sorted ((o1, o2) ->
+            {
+
+                if (o1.getQuollWriterVersion ().equals (o2.getQuollWriterVersion ()))
+                {
+
+                    return o1.getNativeName ().compareTo (o2.getNativeName ());
+
+                }
+
+                return -1 * o1.getQuollWriterVersion ().compareTo (o2.getQuollWriterVersion ());
+
+            })
+            //.collect (Collectors.toSet ());
+            .collect (Collectors.toCollection (() -> new LinkedHashSet<> ()));
+
+        ShowObjectSelectPopup.<UILanguageStrings>builder ()
+            .withViewer (viewer)
+            .title (getUILanguageStringProperty (uilanguage,edit,popup,title))
+            .styleClassName (StyleClassNames.UILANGSTRINGSSELECT)
+            .popupId (popupId)
+            .objects (objs)
+            .cellProvider ((obj, popupContent) ->
+            {
+
+               QuollLabel l = QuollLabel.builder ()
+                    .label (getUILanguageStringProperty (Arrays.asList (uilanguage,edit,popup,item),
+                                                         obj.getName (),
+                                                         obj.getQuollWriterVersion ().toString (),
+                                                         Environment.formatNumber (obj.getPercentComplete ())))
+                    .build ();
+
+                l.setOnMouseClicked (ev ->
+                {
+
+                    UILanguageStringsManager.editUILanguageStrings (obj,
+                                                                    obj.getQuollWriterVersion ());
+
+                    popupContent.close ();
+
+                });
+
+                return l;
+
+            })
+            .build ()
+            .show ();
+
+    }
+
+    public static void downloadDictionaryFiles (String         lang,
+                                                AbstractViewer viewer,
+                                                Runnable       onComplete)
+    {
+
+        if (UILanguageStrings.isEnglish (lang))
+        {
+
+            lang = Constants.ENGLISH;
+
+        }
+
+        final String langOrig = lang;
+        final String language = lang;
+
+        String fileLang = lang;
+
+        // Legacy, if the user doesn't have the language file but DOES have a thesaurus then just
+        // download the English-dictionary-only.zip.
+        if ((UILanguageStrings.isEnglish (lang))
+            &&
+            (!Files.exists (DictionaryProvider.getDictionaryFilePath (lang)))
+            &&
+            (Environment.hasSynonymsDirectory (lang))
+           )
+        {
+
+            fileLang = "English-dictionary-only";
+
+        }
+
+        URL url = null;
+
+        try
+        {
+
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (UserProperties.get (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+                                                                                                   "[[LANG]]",
+                                                                                                   StringUtils.replaceString (fileLang,
+                                                                                                                              " ",
+                                                                                                                              "%20")));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to download language files, cant create url",
+                                  e);
+
+            ComponentUtils.showErrorMessage (viewer,
+                                             getUILanguageStringProperty (dictionary,download,actionerror));
+                                      //"Unable to download language files");
+
+            return;
+
+        }
+
+        Environment.logDebugMessage ("Downloading language file(s) from: " + url + ", for language: " + lang);
+
+        File _file = null;
+
+        // Create a temp file for it.
+        try
+        {
+
+            _file = File.createTempFile ("quollwriter-language-" + fileLang,
+                                         null);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to download language files, cant create temp file",
+                                  e);
+
+            ComponentUtils.showErrorMessage (viewer,
+                                             getUILanguageStringProperty (dictionary,download,actionerror));
+                                    //"Unable to download language files");
+
+            return;
+
+        }
+
+        _file.deleteOnExit ();
+
+        final File file = _file;
+
+        VBox content = new VBox ();
+        content.getChildren ().add (BasicHtmlTextFlow.builder ()
+            .withViewer (viewer)
+            .text (getUILanguageStringProperty (Arrays.asList (dictionary,download,notification),
+                                                getUILanguageStringProperty (languagenames,lang)))
+                    //"The language files for <b>%s</b> are now being downloaded.",
+            .build ());
+
+        ProgressBar prog = new ProgressBar ();
+        content.getChildren ().add (prog);
+
+        Set<Node> controls = new LinkedHashSet<> ();
+
+        QuollButton stop = QuollButton.builder ()
+            .styleClassName (StyleClassNames.STOP)
+            .build ();
+        controls.add (stop);
+
+        final Notification n = viewer.addNotification (content,
+                                                       StyleClassNames.DOWNLOAD,
+                                                       -1,
+                                                       controls);
+
+        final UrlDownloader downloader = new UrlDownloader (url,
+                                                            file,
+                                                            new DownloadListener ()
+                                                            {
+
+                                                                @Override
+                                                                public void handleError (Exception e)
+                                                                {
+
+                                                                    UIUtils.runLater (() -> n.removeNotification ());
+
+                                                                    Environment.logError ("Unable to download language files for: " +
+                                                                                          langOrig,
+                                                                                          e);
+
+                                                                    ComponentUtils.showErrorMessage (viewer,
+                                                                                                     getUILanguageStringProperty (Arrays.asList (dictionary,download,actionerror),
+                                                                                                                                  getUILanguageStringProperty (languagenames,langOrig)));
+                                                                                              //"A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+
+                                                                }
+
+                                                                @Override
+                                                                public void progress (final int downloaded,
+                                                                                      final int total)
+                                                                {
+
+                                                                    UIUtils.runLater (() ->
+                                                                    {
+
+                                                                        prog.setProgress ((double) downloaded / (double) total);
+
+                                                                    });
+
+                                                                }
+
+                                                                @Override
+                                                                public void finished (int total)
+                                                                {
+
+                                                                    UIUtils.runLater (() ->
+                                                                    {
+
+                                                                        prog.setProgress (1);
+
+                                                                    });
+
+                                                                    Environment.schedule (() ->
+                                                                    {
+
+                                                                        // Now extract the file into the relevant directory.
+                                                                        try
+                                                                        {
+
+                                                                            Utils.extractZipFile (file,
+                                                                                                  Environment.getUserQuollWriterDirPath ().toFile ());
+
+                                                                        } catch (Exception e) {
+
+                                                                            Environment.logError ("Unable to extract language zip file: " +
+                                                                                                  file +
+                                                                                                  " to: " +
+                                                                                                  Environment.getUserQuollWriterDirPath (),
+                                                                                                  e);
+
+                                                                             ComponentUtils.showErrorMessage (viewer,
+                                                                                                              getUILanguageStringProperty (Arrays.asList (dictionary,download,actionerror),
+                                                                                                                                           getUILanguageStringProperty (languagenames, langOrig)));
+
+                                                                            return;
+
+                                                                        } finally {
+
+                                                                            file.delete ();
+
+                                                                        }
+
+                                                                        UIUtils.runLater (onComplete);
+
+                                                                        UIUtils.runLater (() -> n.removeNotification ());
+
+                                                                    },
+                                                                    1,
+                                                                    -1);
+
+                                                                }
+
+                                                            });
+
+        stop.setOnAction (ev ->
+        {
+
+            downloader.stop ();
+
+            file.delete ();
+
+        });
+
+        downloader.start ();
 
     }
 

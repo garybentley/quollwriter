@@ -11,7 +11,7 @@
     <description>Have 3 or more chapters, each of at least 1000 words, with a Flesch readability less than 30.</description>
   </item>
 -->
-    
+
   <item id="swear50" englishOnly="true" category="project" hidden="true" type="word" chapter="true" allowRepeats="true" count="50" words="fuck,shit,twat,cunt,piss,wank,asswipe,asshole,bollocks,buttfucker,fucker,fuckwit,motherfucker">
     <name>Language Timothy!</name>
     <description>Use 50 swear words in a chapter.</description>
@@ -46,9 +46,9 @@
     <name>One to One</name>
     <description>Have a 10 words or longer sentence that only contains single syllable words.</description>
   </item>
-  
+
 * And I'll tell you something else - Use "and" 5 times or more in a sentence with no intermediate punctuation.
-  
+
 -->
   <item id="chapter5over5000" category="project" hidden="true" icon="chapter" type="wordcount" chapter="true" count="5" wordCount="5000">
     <name>Chapters are for the weak</name>
@@ -129,7 +129,7 @@
     <name>A little of this, a little of that</name>
     <description>Edit 3 chapters in one writing session.</description>
   </item>
-  
+
   <item id="noeditdays7" category="project" type="session" days="7" action="noedit" eventName="project.close">
     <name>Thinking time</name>
     <description>Don't edit your project for 7 days.</description>
@@ -145,12 +145,12 @@
     <description>Don't edit your project for 28 days.</description>
   </item>
 
-  <item id="autosaveon" category="user" type="event" event="autosave.on">
+  <item id="autosaveon" category="user" icon="save" type="event" event="autosave.on">
     <name>Save me</name>
     <description>Turn on auto-save.</description>
   </item>
 
-  <item id="autosaveoff" category="user" type="event" event="autosave.off">
+  <item id="autosaveoff" category="user" icon="save" type="event" event="autosave.off">
     <name>I'll save myself thanks</name>
     <description>Turn off auto-save.</description>
   </item>
@@ -180,7 +180,7 @@
     <description>Turn on the spellchecker.</description>
   </item>
 
-  <item id="typewritersoundon" category="user" type="event" event="typewritersound.on">
+  <item id="typewritersoundon" category="user" icon="sound" type="event" event="typewritersound.on">
     <name>Old School</name>
     <description>Turn on the typewriter sound and listen to the clackity clack of years gone by.</description>
   </item>
@@ -279,7 +279,7 @@
     <name>Quartet plus one</name>
     <description>Add 5 {Characters}.</description>
   </item>
-  
+
   <item id="addcharacter10" category="project" type="item" icon="character" objectType="character" count="10" action="new">
     <name>I'm sorry I've completely forgotten your name</name>
     <description>Add 10 {Characters}.</description>
@@ -384,14 +384,14 @@
     <name>So noted</name>
     <description>Add a note.</description>
     <match accessor="editNeeded"
-           value="false" />    
+           value="false" />
   </item>
 
   <item id="addnote5" category="project" type="item" icon="note" objectType="note" count="5" action="new">
     <name>Scribbler</name>
     <description>Add 5 notes.</description>
     <match accessor="editNeeded"
-           value="false" />    
+           value="false" />
   </item>
 
   <item id="spellcheckreplace" category="user" type="event" icon="spellchecker" event="spellcheck.replace" count="1">
@@ -549,7 +549,7 @@
     <description>Continue the warm-up after the timer runs out/word count is reached.</description>
   </item>
 
-  <item id="settingschange" category="user" icon="fullscreen" type="event" event="textproperties.changefontcolor,textproperties.changebgcolor,textproperties.changelinespacing,textproperties.changealignment,textproperties.changefontsize,textproperties.changefont,textproperties.changehighlightwritingline,textproperties.changelineindent,textproperties.changetextborder">
+  <item id="settingschange" category="user" icon="settings" type="event" event="textproperties.changefontcolor,textproperties.changebgcolor,textproperties.changelinespacing,textproperties.changealignment,textproperties.changefontsize,textproperties.changefont,textproperties.changehighlightwritingline,textproperties.changelineindent,textproperties.changetextborder">
     <name>Setting up</name>
     <description>Change the colors/settings in normal mode.</description>
   </item>
@@ -629,8 +629,8 @@
     <description>Accept an invite from {a contact}.</description>
     <match accessor="accepted"
            value="true" />
-  </item>  
-  
+  </item>
+
   <item id="acceptinvite3"
         category="user"
         type="editor-message"
@@ -641,7 +641,7 @@
     <description>Accept 3 {contact} invites.</description>
     <match accessor="accepted"
            value="true" />
-  </item>  
+  </item>
 
   <item id="inviteaccepted"
         category="user"
@@ -654,8 +654,8 @@
     <description>Receive an invite acceptance from {a contact}.</description>
     <match accessor="accepted"
            value="true" />
-  </item>  
-  
+  </item>
+
   <item id="inviteaccepted3"
         category="user"
         type="editor-message"
@@ -667,7 +667,7 @@
     <description>Receive invite acceptances from 3 {contacts}.</description>
     <match accessor="accepted"
            value="true" />
-  </item>  
+  </item>
 
   <item id="acceptprojectinvite"
         category="user"
@@ -678,7 +678,7 @@
     <description>Accept an invite to edit a {project}.</description>
     <match accessor="accepted"
            value="true" />
-  </item>  
+  </item>
 
   <item id="acceptprojectinvite3"
         category="user"
@@ -690,7 +690,7 @@
     <description>Accept 3 invitations to edit a {project}.</description>
     <match accessor="accepted"
            value="true" />
-  </item>  
+  </item>
 
   <item id="sendproject"
         category="user"
@@ -701,7 +701,7 @@
     <name>Projecting</name>
     <description>Send a {project} to {an editor}.</description>
   </item>
-  
+
   <item id="sendproject3"
         category="user"
         type="editor-message"
@@ -729,7 +729,6 @@
         messageTypes="project-comments">
     <name>I've got something to say</name>
     <description>Send some comments about a {project}.</description>
-  </item>  
+  </item>
 
 </achievements>
-

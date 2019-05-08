@@ -3,7 +3,7 @@
     ":nativename" : "English",
     ":version" : 1,
     ":id" : ":English",
-    ":qwversion" : "2.7",
+    ":qwversion" : "2.6.14",
     ":created" : 0,
     ":user" : false,
     ":email" : "gary@quollwriter.com",
@@ -46,6 +46,21 @@
         },
         "unabletostarterror" : "Unable to start {QW}",
         "alreadyrunningerror" : "It appears that {QW} is already running.  Please close the other instance before starting {QW} again."
+    },
+    "languagenames" :
+    {
+        ":title" : "Language Names",
+        ":section" : "General",
+        ":comment" : "The names of various languages in the user's native language and alphabet, for example: Polish is Польский in Russian, 폴란드어 in Korean, polaco in Spanish, Russian is Rosyjski in Polish and so on.  My apologies if I have any of these wrong, I had to use Google-Fu and I'm not a native speaker of any of these languages, I did my best to check!  These names are used where the user will select a language, usually for things like the spellchecker.  This is not an exhaustive list of language names, at present, it just for languages Quoll Writer supports in some way, more will be added in later releases.",
+        "English" : "English",
+        "Czech" : "Czech",
+        "Dutch" : "Dutch",
+        "French" : "French",
+        "German" : "German",
+        "Italian" : "Italian",
+        "Polish" : "Polish",
+        "Russian" : "Russian",
+        "Spanish" : "Spanish"
     },
     "general" :
     {
@@ -96,12 +111,12 @@
         ":title" : "UI Language",
         "set" :
         {
+            "item" : "%1$s (%2$s, %3$s%% complete%4$s)",
+            ":scount.item" : 4,
+            ":comment.item" : "The item shown in the drop down that the user uses to select a language for the User Interface.  %1$s is the native name for the language, i.e. Polski, Pусский and Français.  %2$s is the English name of the language, i.e. Polish, Russian, French.  %3$s is the percent complete of the strings.  The %% is needed to display a literal % character.  %4$s is replaced with ${uilanguage.set.createdbyyou} if the strings were created by the user.",
+            "createdbyyou" : ", created by you",
+            ":comment.createdbyyou" : "A string used in ${uilanguage.set.item} to indicate that the user created the set of strings.",
             "actionerror" : "Unable to change the User Interface language.",
-            "restartwarning" :
-            {
-                "title" : "Restart recommended",
-                "text" : "The User Interface language has been changed.<br /><br />Note: to make full use of the selected User Interface language you must restart {QW}."
-            },
             "downloading" :
             {
                 "title" : "Download language",
@@ -148,28 +163,16 @@
             "actionerror" : "Unable to edit the language strings",
             "popup" :
             {
-                "title" : "Select a set of strings to edit"
+                "title" : "Select a set of strings to edit",
+                "item" : "%1$s (%2$s, %3$s%% complete)",
+                ":scount.item" : 3,
+                ":comment.item" : "Will be used to displayed a line for each set of strings the user has created.  %1$s is the native name of the language, %2$s is the Quoll Writer version the strings were created for, %3$s is the percentage complete for the strings.  Example: Polski (2.6.9, %100 complete).  %% is needed to display a literal % character."
             },
             "novalue" :
             {
                 "title" : "No translations",
                 "text" : "You currently have no translations."
             }
-        },
-        "select" :
-        {
-            "edit" :
-            {
-                "popup" :
-                {
-                    "title" : "Select a set of strings to edit"
-                }
-            },
-            "popup" :
-            {
-                "title" : "Select a Language"
-            },
-            "actionerror" : "Unable to select a set of language strings."
         },
         "download" :
         {
@@ -217,6 +220,7 @@
             "openproject" : "${actions.open} ${objectnames.singular.project}",
             "newproject" : "${actions.new} ${objectnames.singular.project}",
             "renameproject" : "${actions.rename} this ${objectnames.singular.project}",
+            "showcontacts" : "Show your ${objectnames.plural.contact}",
             "statistics" : "Statistics",
             "targets" : "${names.targets}",
             "createbackup" : "${actions.createbackup}",
@@ -299,7 +303,7 @@
             "popup" :
             {
                 "title" : "Edit Object Names",
-                "text" : "After saving any changes to names will appear when you next open the ${objectnames.singular.project}.",
+                "text" : "After saving any changes to names will appear immediately.",
                 "labels" :
                 {
                     "singular" : "Singular",
@@ -423,7 +427,9 @@
             {
                 "text" : "Reset",
                 "tooltip" : "Reset to the initial color"
-            }
+            },
+            "current" : "Current Colors",
+            "new" : "OR, Add a new color"
         },
         "labels" :
         {
@@ -718,6 +724,7 @@
         ":comment" : "These are various names of things within the UI.  They are re-used heavily by other items.  They are here so you can define names for things and have them change without intervention in the items that use them.",
         "ideaboard" : "Idea Board",
         "problemfinder" : "Problem Finder",
+        "readabilityindices" : "Readability Indices",
         "goals" : "Goals",
         "plan" : "Plan",
         "fkfull" : "${names.fk} grade level",
@@ -1874,6 +1881,7 @@
             ":comment.project" : "%1$s is the number of achievements the project has reached.  %2$s is the number of possible project level achievements.",
             ":scount.project" : 2
         },
+        "hideachieved" : "Hide achieved",
         "actionerror" : "Unable to view achievements."
     },
     "achievementreached" :
@@ -1887,6 +1895,7 @@
         ":title" : "The Achievements",
         ":section" : "Achievements",
         ":comment" : "These items define the achievements.",
+        "actionerror" : "Unable to view the achievements.",
         "swear50" :
         {
             "name" : "Language Timothy!",
@@ -5423,6 +5432,11 @@
                         "tooltip" : "Click to select a layout"
                     }
                 },
+                "basefontsize" : "How big should the text be? (This setting will change the size of the interface in general)",
+                "basefontsizemore" : "T",
+                ":comment.basefontsizemore" : "This text is shown to the right of the font size setting, it is shown at a larger size than the current font size to indicate that the text will be made larger by moving the slider to that side.",
+                "basefontsizeless" : "T",
+                ":comment.basefontsizeless" : "This text is shown to the left of the font size setting, it is shown at a smaller size than the current font size to indicate that the text will be made smaller by moving the slider to that side.",
                 "showtoolbar" : "Show the toolbar",
                 "belowsidebar" : "Below the sidebar",
                 "abovesidebar" : "Above the sidebar",
@@ -5449,7 +5463,7 @@
                         "title" : "Select a File",
                         "button" : "${actions.select}",
                         "tooltip" : "Click to find a .wav file",
-                        "filter" : "Supported Files (wav)"
+                        "filter" : "Supported Files"
                     }
                 },
                 "highlightdividers" :
@@ -5525,7 +5539,7 @@
                 "setspellcheckerlanguage" : "Use the following language for the spellchecker",
                 "downloadlanguagefiles" : "Download the language files",
                 "setasdefaultlanguage" : "Set as default language",
-                "nonenglishwarning" : "Please note: when changing the spell check language to something other<br />than English the following features will be disabled:<ul><li>Synonym lookups</li><li>The Problem Finder</li><li>Readability Indices</li></ul>",
+                "nonenglishwarning" : "Please note: when changing the spell check language to something other<br />than English then the ${names.problemfinder}, ${names.readabilityindices} and Synonym lookup features will be disabled.",
                 ":comment.nonenglishwarning" : "This message is shown when a non-English language is selected for the spell check language.  Certain functions don't work for none-English languages.  Most of the Problem Finder has rules based on English and the Synonym lookup is for English as are the Readability Indices.",
                 "managedictionary" : "${actions.managedictionary}"
             }
@@ -6164,6 +6178,7 @@
                 "newproject" : "${settingsmenu.items.newproject}",
                 "importfileorproject" : "${settingsmenu.items.importfileorproject}",
                 "findprojects" : "${settingsmenu.items.findprojects}",
+                "showcontacts" : "${settingsmenu.items.showcontacts}",
                 "statistics" : "${settingsmenu.items.statistics}",
                 "targets" : "${settingsmenu.items.targets}",
                 "sortprojects" : "${settingsmenu.items.sortprojects}",
@@ -7243,6 +7258,7 @@
                 "openproject" : "${settingsmenu.items.openproject}",
                 "newproject" : "${settingsmenu.items.newproject}",
                 "renameproject" : "${settingsmenu.items.renameproject}",
+                "showcontacts" : "${settingsmenu.items.showcontacts}",
                 "statistics" : "${settingsmenu.items.statistics}",
                 "createbackup" : "${settingsmenu.items.createbackup}",
                 "closeproject" : "${settingsmenu.items.closeproject}",
@@ -8456,6 +8472,7 @@
                 "openproject" : "${settingsmenu.items.openproject}",
                 "newproject" : "${settingsmenu.items.newproject}",
                 "renameproject" : "${settingsmenu.items.renameproject}",
+                "showcontacts" : "${settingsmenu.items.showcontacts}",
                 "statistics" : "${settingsmenu.items.statistics}",
                 "targets" : "${settingsmenu.items.targets}",
                 "createbackup" : "${settingsmenu.items.createbackup}",

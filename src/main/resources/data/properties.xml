@@ -300,6 +300,11 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>https://quollwriter.com</value>
   </property>
 
+  <property id="quollWriterWebsitePromptsLinks" type="string">
+    <description>The prompts links on the quoll writer website.</description>
+    <value><property id="quollWriterWebsite" />/resources#prompts</value>
+  </property>
+
   <property id="quollWriterLanguageFilesUrl" type="string">
     <description>The url to use for downloading the spell check/synonym language files for quoll writer.</description>
     <value>language-files/[[LANG]].zip</value>
@@ -548,9 +553,14 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>In Progress|Complete|Editing|On Hold|Waiting for feedback</value>
   </property>
 -->
-  <property id="closeProjectsWindowWhenProjectOpened" type="boolean">
+  <property id="closeProjectsWindowWhenProjectOpened" type="boolean" deprecated="true" use="keepProjectsWindowWhenProjectOpened">
     <description>Close the projects window when a project is opened.</description>
     <value>true</value>
+  </property>
+
+  <property id="keepProjectsWindowWhenProjectOpened" type="boolean">
+    <description>Keep the projects window when a project is opened.</description>
+    <value>false</value>
   </property>
 
   <property id="showProjectsWindowWhenNoOpenProjects" type="boolean">
@@ -672,5 +682,16 @@ Removed so that the full screen properties will inherit from the standard editor
     <description>Whether the achievement sound in normal mode is enabled.</description>
     <value>true</value>
   </property>
+
+  <property id="defaultUIBaseFontSIze" type="integer">
+    <description>The default base font size of the UI.</description>
+    <value>9</value>
+  </property>
+
+  <property id="uiBaseFontSize" type="integer">
+    <description>The base font size of the UI.</description>
+    <value>9</value>
+  </property>
+
 
 </properties>

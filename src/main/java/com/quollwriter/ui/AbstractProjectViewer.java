@@ -2945,7 +2945,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 		this.targets = new TargetsData (this.proj.getProperties ());
 
-        Environment.getAchievementsManager ().addProjectViewer (this);
+        // TODO REmove Environment.getAchievementsManager ().addProjectViewer (this);
 
         this.initSideBars ();
 
@@ -3134,7 +3134,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         Environment.incrStartupProgress ();
 
-        Environment.getAchievementsManager ().addProjectViewer (this);
+        // TODO Remove Environment.getAchievementsManager ().addProjectViewer (this);
 
         this.initSideBars ();
 

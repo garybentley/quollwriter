@@ -24,6 +24,10 @@ import javafx.scene.paint.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.ListProperty;
 
@@ -32,8 +36,13 @@ import org.jdom.*;
 import com.gentlyweb.xml.*;
 import com.gentlyweb.properties.*;
 
+import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.events.*;
+
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
 
 public class UserProperties
 {
@@ -47,7 +56,7 @@ public class UserProperties
     private static Map<String, SimpleStringProperty> mappedProperties = new HashMap<> ();
     private static SimpleStringProperty tabsLocationProp = null;
     private static SimpleStringProperty projectInfoFormatProp = null;
-    private static SimpleStringProperty editMarkerColorProp = null;
+    private static SimpleObjectProperty<Color> editMarkerColorProp = null;
     private static SimpleStringProperty sortProjectsByProp = null;
     private static ObservableSet<Path> userBGImagePaths = null;
     private static SimpleSetProperty<Path> userBGImagePathsProp = null;
@@ -57,6 +66,9 @@ public class UserProperties
     private static SetProperty<javafx.beans.property.StringProperty> projectStatusesProp = null;
     private static SimpleStringProperty noProjectStatusProp = null;
     private static SimpleStringProperty uiLayoutProp = null;
+    private static SimpleIntegerProperty chapterAutoSaveTimeProp = null;
+    private static SimpleBooleanProperty chapterAutoSaveEnabledProp = null;
+    private static SimpleFloatProperty uiBaseFontSizeProp = null;
 
     // Just used in the map above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
@@ -99,7 +111,19 @@ public class UserProperties
 
         UserProperties.tabsLocationProp = UserProperties.createMappedProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
 
-        UserProperties.editMarkerColorProp = UserProperties.createMappedProperty (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME);
+        UserProperties.editMarkerColorProp = new SimpleObjectProperty<> ();
+
+        String col = UserProperties.get (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME);
+
+        UserProperties.editMarkerColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.editMarkerColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+        });
 
         UserProperties.uiLayoutProp = UserProperties.createMappedProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
 
@@ -166,6 +190,172 @@ public class UserProperties
         }
 
         UserProperties.initProjectStatuses ();
+
+        UserProperties.chapterAutoSaveTimeProp = new SimpleIntegerProperty ();
+
+        String val = UserProperties.get (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME);
+
+        if (val != null)
+        {
+
+            try
+            {
+
+                UserProperties.chapterAutoSaveTimeProp.setValue (Integer.parseInt (val));
+
+            } catch (Exception e) {
+
+                UserProperties.chapterAutoSaveTimeProp.setValue (Constants.DEFAULT_CHAPTER_AUTO_SAVE_TIME);
+
+            }
+
+        }
+
+        UserProperties.chapterAutoSaveTimeProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME,
+                                String.valueOf (newv));
+
+        });
+
+        UserProperties.chapterAutoSaveEnabledProp = new SimpleBooleanProperty ();
+        UserProperties.chapterAutoSaveEnabledProp.setValue (UserProperties.getAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME));
+
+        UserProperties.chapterAutoSaveEnabledProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME,
+                                newv);
+
+        });
+
+        UserProperties.uiBaseFontSizeProp = new SimpleFloatProperty ();
+        UserProperties.uiBaseFontSizeProp.setValue (UserProperties.getAsFloat (Constants.UI_BASE_FONT_SIZE_PROPERTY_NAME));
+
+        UserProperties.uiBaseFontSizeProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.UI_BASE_FONT_SIZE_PROPERTY_NAME,
+                                newv.floatValue ());
+
+        });
+
+    }
+
+    public static SimpleFloatProperty uiBaseFontSizeProperty ()
+    {
+
+        return UserProperties.uiBaseFontSizeProp;
+
+    }
+
+    public static void setUIBaseFontSize (double v)
+    {
+
+        UserProperties.uiBaseFontSizeProp.setValue (v);
+
+    }
+
+    public static float getUIBaseFontSize ()
+    {
+
+        return UserProperties.uiBaseFontSizeProp.getValue ();
+
+    }
+
+    public static void setDefaultSpellCheckLanguage (String lang)
+    {
+
+        UserProperties.set (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME,
+                            lang);
+
+    }
+
+    public static String getDefaultSpellCheckLanguage ()
+    {
+
+        return UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+
+    }
+
+    public static void setChapterAutoSaveEnabled (boolean v)
+    {
+
+        UserProperties.chapterAutoSaveEnabledProp.setValue (v);
+
+    }
+
+    public static void setChapterAutoSaveTime (int millis)
+    {
+
+        UserProperties.chapterAutoSaveTimeProp.setValue (millis);
+
+    }
+
+    public static SimpleIntegerProperty chapterAutoSaveTimeProperty ()
+    {
+
+        return UserProperties.chapterAutoSaveTimeProp;
+
+    }
+
+    public static SimpleBooleanProperty chapterAutoSaveEnabledProperty ()
+    {
+
+        return UserProperties.chapterAutoSaveEnabledProp;
+
+    }
+
+    public static void saveDefaultProjectProperty (String name,
+                                                   String value)
+    {
+
+        try
+        {
+
+            Environment.saveDefaultProperty (Project.OBJECT_TYPE,
+                                              name,
+                                              value);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save default " + Project.OBJECT_TYPE + " properties",
+                                  e);
+
+            ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                             getUILanguageStringProperty (options,savepropertyerror));
+                                      //"Unable to save default project properties");
+
+        }
+
+
+    }
+
+    public static void saveDefaultProjectProperty (String  name,
+                                                   Boolean value)
+    {
+
+        try
+        {
+
+            Environment.saveDefaultProperty (Project.OBJECT_TYPE,
+                                              name,
+                                              value);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save default " + Project.OBJECT_TYPE + " properties",
+                                  e);
+
+            ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                             getUILanguageStringProperty (options,savepropertyerror));
+                                      //"Unable to save default project properties");
+
+        }
+
 
     }
 
@@ -516,7 +706,21 @@ public class UserProperties
 
     }
 
-    public static SimpleStringProperty editMarkerColorProperty ()
+    public static Color getEditMarkerColor ()
+    {
+
+        return UserProperties.editMarkerColorProp.getValue ();
+
+    }
+
+    public static void setEditMarkerColor (Color col)
+    {
+
+        UserProperties.editMarkerColorProp.setValue (col);
+
+    }
+
+    public static SimpleObjectProperty<Color> editMarkerColorProperty ()
     {
 
         return UserProperties.editMarkerColorProp;

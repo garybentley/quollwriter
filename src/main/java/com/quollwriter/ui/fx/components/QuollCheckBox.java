@@ -34,7 +34,24 @@ public class QuollCheckBox extends CheckBox
 
         }
 
-        this.setSelected (b.selected);
+        if (b.userProp != null)
+        {
+
+            this.setSelected (UserProperties.getAsBoolean (b.userProp));
+
+            this.selectedProperty ().addListener ((pr, oldv, newv) ->
+            {
+
+                UserProperties.set (b.userProp,
+                                    this.isSelected ());
+
+            });
+
+        } else {
+
+            this.setSelected (b.selected);
+
+        }
 
         if (b.styleName != null)
         {
@@ -67,9 +84,18 @@ public class QuollCheckBox extends CheckBox
         private String styleName = null;
         private Boolean selected = false;
         private EventHandler<ActionEvent> onAction = null;
+        private String userProp = null;
 
         private Builder ()
         {
+
+        }
+
+        public Builder userProperty (String name)
+        {
+
+            this.userProp = name;
+            return this;
 
         }
 

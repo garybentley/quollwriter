@@ -132,6 +132,10 @@ public class Constants
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
 
+    public static final String DEFAULT_UI_BASE_FONT_SIZE_PROPERTY_NAME = "defaultUIBaseFontSIze";
+
+    public static final String UI_BASE_FONT_SIZE_PROPERTY_NAME = "uiBaseFontSize";
+
     public static final String COPYRIGHT_PROPERTY_NAME = "copyright";
 
     public static final String SOURCE_CODE_WEBSITE_PROPERTY_NAME = "sourceCodeWebsite";
@@ -151,6 +155,8 @@ public class Constants
     public static final String SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME = "showEachChapterFindResult";
 
     public static final String CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME = "closeProjectsWindowWhenProjectOpened";
+
+    public static final String KEEP_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME = "keepProjectsWindowWhenProjectOpened";
 
     public static final String SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME = "showProjectsWindowWhenNoOpenProjects";
 
@@ -193,6 +199,8 @@ public class Constants
     public static final String SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME = "setChapterAsEditCompleteWhenEditPositionIsAtEndOfChapter";
 
     public static final String COLOR_SWATCHES_PROPERTY_NAME = "colorSwatches";
+
+    public static final Integer DEFAULT_CHAPTER_AUTO_SAVE_TIME = 5 * Constants.MIN_IN_MILLIS;
 
     public static final String CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME = "chapterAutoSaveInterval";
 
@@ -310,6 +318,8 @@ public class Constants
 
     public static final String QUOLL_WRITER_WEBSITE_PROPERTY_NAME = "quollWriterWebsite";
 
+    public static final String QUOLL_WRITER_WEBSITE_PROMPTS_LINK_PROPERTY_NAME = "quollWriterWebsitePromptsLinks";
+
     public static final String QUOLL_WRITER_DEBUG_WEBSITE_PROPERTY_NAME = "quollWriterDebugWebsite";
 
     public static final String QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME = "quollWriterLanguageFilesUrl";
@@ -399,6 +409,8 @@ public class Constants
     public static final String QUOLLWRITER_DIR_FILE_NAME = "___quollwriter_dir.txt";
 
     public static final String DATA_HBM_XML_FILE_NAME = "data.hbm.xml";
+
+    public static final String USER_DICTIONARY_WORDS_PROPERTY_NAME = "userDictionaryWords";
 
     public static final String USER_DICTIONARY_FILE_NAME = "user.dict";
 

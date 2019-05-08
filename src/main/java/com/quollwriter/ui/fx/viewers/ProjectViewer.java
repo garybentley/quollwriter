@@ -517,4 +517,85 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
+    public void addChapterToTreeAfter (Chapter newChapter,
+                                       Chapter addAfter)
+    {
+/*
+TODO
+        DefaultTreeModel model = (DefaultTreeModel) this.getChapterTree ().getModel ();
+
+        DefaultMutableTreeNode cNode = new DefaultMutableTreeNode (newChapter);
+
+        if (addAfter == null)
+        {
+
+            // Get the book node.
+            TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
+                                                            newChapter.getBook ());
+
+            if (tp != null)
+            {
+
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+
+                model.insertNodeInto (cNode,
+                                      (MutableTreeNode) node,
+                                      0);
+
+            } else
+            {
+
+                DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot ();
+
+                model.insertNodeInto (cNode,
+                                      root,
+                                      root.getChildCount ());
+
+            }
+
+        } else
+        {
+
+            // Get the "addAfter" node.
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
+                                                                                                     addAfter).getLastPathComponent ();
+
+            model.insertNodeInto (cNode,
+                                  (MutableTreeNode) node.getParent (),
+                                  node.getParent ().getIndex (node) + 1);
+
+        }
+
+        this.getChapterTree ().setSelectionPath (new TreePath (cNode.getPath ()));
+*/
+    }
+
+    public void reloadAssetTree (Asset a)
+    {
+
+        // TODO this.reloadTreeForObjectType (a.getObjectType ());
+
+    }
+
+    public void openObjectSection (Asset a)
+    {
+
+        // TODO this.sideBar.setObjectsOpen (a.getUserConfigurableObjectType ().getObjectTypeId ());
+
+    }
+
+    public void openObjectSection (String objType)
+    {
+
+        // TODO this.sideBar.setObjectsOpen (objType);
+
+    }
+
+    @Override
+    public void showOptions (String sect)
+                      throws GeneralException
+    {
+
+    }
+
 }

@@ -426,7 +426,7 @@ public class DebugConsole extends JFrame
                                            3,
                                            3));
 
-        Map<String, Set<String>> achieved = Environment.getAchievementsManager ().getAchievedAchievementIds (this.viewer);
+        Map<String, Set<String>> achieved = null; // TODO Environment.getAchievementsManager ().getAchievedAchievementIds (this.viewer);
 
         Vector data = new Vector ();
 
@@ -501,7 +501,8 @@ public class DebugConsole extends JFrame
 
                         Environment.getAchievementsManager ().removeAchievedAchievement (((String) mod.getValueAt (i, 0)).toLowerCase (),
                                                                                          id,
-                                                                                         _this.viewer);
+                                                                                         null);
+                                                                                         // TODO _this.viewer);
 
                     } catch (Exception e) {
 

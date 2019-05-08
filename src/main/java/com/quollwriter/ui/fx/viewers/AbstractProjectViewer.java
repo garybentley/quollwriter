@@ -17,6 +17,8 @@ import com.quollwriter.*;
 import com.quollwriter.db.*;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.data.*;
+import com.quollwriter.text.*;
+import com.quollwriter.text.rules.*;
 import com.quollwriter.events.PropertyChangedEvent;
 import com.quollwriter.events.PropertyChangedListener;
 import com.quollwriter.ui.fx.*;
@@ -38,8 +40,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private BooleanProperty inFullScreenModeProp = null;
     private BooleanProperty distractionFreeModeProp = null;
     private BooleanProperty typeWriterScrollingEnabledProp = null;
-    private BooleanProperty chapterAutoSaveEnabledProp = null;
-    private IntegerProperty chapterAutoSaveTimeProp = null;
     private StringProperty titleProp = null;
 
     private ChapterCounts         startWordCounts = new ChapterCounts (null);
@@ -93,25 +93,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         this.projectSpellCheckLanguageProp = new SimpleStringProperty (null);
 
-        this.chapterAutoSaveEnabledProp = new SimpleBooleanProperty (false);
-
-        this.chapterAutoSaveEnabledProp.addListener ((v, oldv, newv) ->
+        this.projectSpellCheckLanguageProp.addListener ((pr, oldv, newv) ->
         {
 
-            _this.saveDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME,
-                                              newv);
-
-
-        });
-
-        this.chapterAutoSaveTimeProp = new SimpleIntegerProperty (-1);
-
-        // TODO Move to the Environment?
-        this.chapterAutoSaveTimeProp.addListener ((v, oldv, newv) ->
-        {
-
-            _this.saveDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME,
-                                              String.valueOf (newv));
+            // This forces changes to be propagated.
 
         });
 
@@ -1630,6 +1615,13 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
 
 	}
 
+    public Set<ChapterCounts> getAllChapterCountsAsSet ()
+	{
+
+		return new LinkedHashSet<ChapterCounts> (this.chapterCounts.values ());
+
+	}
+
     public ChapterCounts getAllChapterCounts ()
     {
 
@@ -2240,6 +2232,24 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
 
     }
 
+    public void saveProjectTargets ()
+	{
+
+		try
+		{
+
+			this.saveObject (this.project,
+							 false);
+
+		} catch (Exception e) {
+
+			Environment.logError ("Unable to update project targets",
+								  e);
+
+		}
+
+	}
+
     public TargetsData getProjectTargets ()
 	{
 
@@ -2373,12 +2383,6 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
     private void initProperties ()
     {
 
-        this.chapterAutoSaveEnabledProp.setValue (this.project.getPropertyAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME));
-
-        com.gentlyweb.properties.Properties props = Environment.getDefaultProperties (Project.OBJECT_TYPE);
-
-        this.chapterAutoSaveTimeProp.setValue (Utils.getTimeAsMillis (props.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME)));
-
         this.spellCheckingEnabledProp.setValue (this.project.getPropertyAsBoolean (Constants.SPELL_CHECKING_ENABLED_PROPERTY_NAME));
 
         // TODO Bind...
@@ -2400,20 +2404,6 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
         }
 
         this.projectSpellCheckLanguageProp.setValue (c);
-
-    }
-
-    public BooleanProperty chapterAutoSaveEnabledProperty ()
-    {
-
-        return this.chapterAutoSaveEnabledProp;
-
-    }
-
-    public IntegerProperty chapterAutoSaveTimeProperty ()
-    {
-
-        return this.chapterAutoSaveTimeProp;
 
     }
 
@@ -2477,7 +2467,8 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
         }
 
     }
-
+/*
+TODO REmove
     public void saveDefaultProjectProperty (String name,
                                             String value)
     {
@@ -2529,7 +2520,7 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
 
 
     }
-
+*/
     public void showMainSideBar ()
     {
 
@@ -2610,6 +2601,205 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
     {
 
         return this.titleProp;
+
+    }
+
+    public void createActionLogEntry (NamedObject n,
+                                      String      m)
+    {
+
+        this.dBMan.createActionLogEntry (n,
+                                         m,
+                                         null,
+                                         null);
+
+    }
+
+    public void saveProject ()
+                      throws GeneralException
+    {
+
+        this.dBMan.saveObject (this.project,
+                               null);
+
+    }
+
+    public Map<Chapter, Set<Issue>> getProblemsForAllChapters ()
+    {
+
+        return this.getProblemsForAllChapters (null);
+
+    }
+
+    public Map<Chapter, Set<Issue>> getProblemsForAllChapters (Rule limitToRule)
+    {
+
+        Map<Chapter, Set<Issue>> probs = new LinkedHashMap ();
+
+        if (this.project == null)
+        {
+
+            // Closing down.
+            return probs;
+
+        }
+
+        for (Book book : this.project.getBooks ())
+        {
+
+            for (Chapter c : book.getChapters ())
+            {
+
+                Set<Issue> issues = null;
+
+                if (limitToRule != null)
+                {
+
+                    issues = this.getProblems (c,
+                                               limitToRule);
+
+                } else {
+
+                    issues = this.getProblems (c);
+
+                }
+
+                if (issues.size () > 0)
+                {
+
+                    probs.put (c, issues);
+
+                }
+
+            }
+
+        }
+
+        return probs;
+
+    }
+
+    public Set<Issue> getProblems (Chapter c,
+                                   Rule    r)
+    {
+
+        Set<Issue> ret = new LinkedHashSet ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            TextBlockIterator ti = new TextBlockIterator (ct);
+
+            TextBlock b = null;
+
+            while ((b = ti.next ()) != null)
+            {
+
+                java.util.List<Issue> issues = RuleFactory.getIssues (b,
+                                                                      r,
+                                                                      this.project.getProperties ());
+
+                for (Issue i : issues)
+                {
+
+                    ret.add (i);
+
+                    i.setChapter (c);
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Issue> getProblems (Chapter c)
+    {
+
+        Set<Issue> ret = new LinkedHashSet ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            TextBlockIterator ti = new TextBlockIterator (ct);
+
+            TextBlock b = null;
+
+            while ((b = ti.next ()) != null)
+            {
+
+                if (b instanceof Paragraph)
+                {
+
+                    ret.addAll (RuleFactory.getParagraphIssues ((Paragraph) b,
+                                                                this.project.getProperties ()));
+
+                }
+
+                if (b instanceof Sentence)
+                {
+
+                    ret.addAll (RuleFactory.getSentenceIssues ((Sentence) b,
+                                                                this.project.getProperties ()));
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Word> getSpellingErrors (Chapter c)
+    {
+
+        Set<Word> ret = new LinkedHashSet ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            DictionaryProvider2 dp = this.getDictionaryProvider ();
+
+            if (dp != null)
+            {
+
+                SpellChecker sc = null; // TODO dp.getSpellChecker ();
+
+                if (sc != null)
+                {
+
+                    TextIterator ti = new TextIterator (ct);
+
+                    for (Word w : ti.getWords ())
+                    {
+
+                        if (!sc.isCorrect (w))
+                        {
+
+                            ret.add (w);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return ret;
 
     }
 

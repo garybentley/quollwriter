@@ -42,8 +42,9 @@
 
     /*
      * The popup width.
+     * At 1em = 9pt, 37em equates to 444px.
      */
-    -qw-popup-width: 450px;
+    -qw-popup-width: 37em;
 
     -qw-error-text-color: red;
 
@@ -62,9 +63,19 @@
     -qw-window-header-font-size: 2.5em;
 }
 
+.text
+{
+    -fx-font-smoothing-type: gray;
+}
+
 .header .title
 {
     -fx-max-width: Infinity;
+}
+
+.check-box
+{
+    -fx-cursor: hand;
 }
 
 .tooltip
@@ -87,6 +98,58 @@
     -fx-text-fill: blue;
     -fx-graphic-text-gap: 0;
     -fx-padding: 0;
+    -fx-underline: false;
+}
+
+.hyperlink:hover
+{
+    -fx-underline: true;
+}
+
+.textsize
+{
+    -fx-alignment: center-left;
+}
+
+.textsize .slider
+{
+    -fx-min-width: 30em;
+    -fx-pref-width: 30em;
+    -fx-max-width: 30em;
+}
+
+.textsize .less
+{
+    -fx-font-size: 0.75em;
+}
+
+.textsize .more
+{
+    -fx-font-size: 1.5em;
+}
+
+.colorswatch
+{
+    -fx-min-width: 5em;
+    -fx-min-height: 5em;
+    -fx-max-width: 5em;
+    -fx-max-height: 5em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+:selected .colorswatch
+{
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+}
+
+:hover .colorswatch
+{
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+    -fx-border-color: red;
 }
 
 .scroll-pane
@@ -94,6 +157,7 @@
     -fx-background-color: transparent;
     -fx-padding: 0px;
     -fx-fit-to-width: true;
+    -fx-pannable: true;
 }
 
 .scroll-pane .viewport
@@ -104,6 +168,11 @@
 .list-view
 {
     -fx-min-height: 20em;
+}
+
+.combo-box .list-view
+{
+    -fx-min-height: 0px;
 }
 
 /*
@@ -134,6 +203,11 @@
                     .<button-name>
 */
 
+.radiobuttons .radio-button
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
 .separator:horizontal .line {
     -fx-border-color: -fx-text-box-border transparent transparent transparent,
         -fx-shadow-highlight-color transparent transparent transparent;
@@ -144,6 +218,513 @@
         transparent transparent transparent -fx-text-box-border;
     -fx-border-width: 3, 1;
     -fx-border-insets: 0, 0 0 0 1;
+}
+
+.bgimage
+{
+    -fx-background-size: contain;
+}
+
+/*
+ * Built-in background images
+ * Note: some of the images are resized, the point here is to try and show the user the potential repetition of the image
+ * it is not to have a completely accurate representation of the image.
+ */
+.bgimage._1-park
+{
+    -fx-background-image: url(/imgs/bgs/_1-park.jpg);
+}
+
+.bgimage._1-sand
+{
+    -fx-background-image: url(/imgs/bgs/_1-sand.jpg);
+    -fx-background-size: stretch;
+}
+
+.bgimage._1-skyline
+{
+    -fx-background-image: url(/imgs/bgs/_1-skyline.jpg);
+    -fx-background-size: stretch;
+}
+
+.bgimage.bamboo-1
+{
+    -fx-background-image: url(/imgs/bgs/bamboo-1.jpg);
+}
+
+.bgimage.bamboo-2
+{
+    -fx-background-image: url(/imgs/bgs/bamboo-2.jpg);
+}
+
+.bgimage.bamboo-3
+{
+    -fx-background-image: url(/imgs/bgs/bamboo-3.jpg);
+}
+
+.bgimage.beige-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/beige-flowers-1.jpg);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.beige-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/beige-squares-1.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.black-dots-1
+{
+    -fx-background-image: url(/imgs/bgs/black-dots-1.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.black-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/black-flowers-1.jpg);
+}
+
+.bgimage.black-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/black-squares-1.jpg);
+}
+
+.bgimage.black-squares-2
+{
+    -fx-background-image: url(/imgs/bgs/black-squares-2.gif);
+    -fx-background-size: 1em 1em;
+}
+
+.bgimage.blue-dots-1
+{
+    -fx-background-image: url(/imgs/bgs/blue-dots-1.gif);
+}
+
+.bgimage.blue-dots-2
+{
+    -fx-background-image: url(/imgs/bgs/blue-dots-2.gif);
+}
+
+.bgimage.blue-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/blue-flowers-1.jpg);
+}
+
+.bgimage.blue-snowflakes-1
+{
+    -fx-background-image: url(/imgs/bgs/blue-snowflakes-1.jpg);
+}
+
+.bgimage.blue-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/blue-squares-1.jpg);
+}
+
+.bgimage.blue-teardrops-1
+{
+    -fx-background-image: url(/imgs/bgs/blue-teardrops-1.png);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.brick-1
+{
+    -fx-background-image: url(/imgs/bgs/brick-1.jpg);
+}
+
+.bgimage.brick-2
+{
+    -fx-background-image: url(/imgs/bgs/brick-2.jpg);
+}
+
+.bgimage.brick-3
+{
+    -fx-background-image: url(/imgs/bgs/brick-3.jpg);
+}
+
+.bgimage.brick-4
+{
+    -fx-background-image: url(/imgs/bgs/brick-4.jpg);
+}
+
+.bgimage.brown-blobs-1
+{
+    -fx-background-image: url(/imgs/bgs/brown-blobs-1.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.brown-circles-1
+{
+    -fx-background-image: url(/imgs/bgs/brown-circles-1.jpg);
+}
+
+.bgimage.brown-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/brown-flowers-1.jpg);
+}
+
+.bgimage.brown-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/brown-squares-1.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.clouds-1
+{
+    -fx-background-image: url(/imgs/bgs/clouds-1.jpg);
+}
+
+.bgimage.clouds-2
+{
+    -fx-background-image: url(/imgs/bgs/clouds-2.jpg);
+}
+
+.bgimage.clouds-3
+{
+    -fx-background-image: url(/imgs/bgs/clouds-3.jpg);
+}
+
+.bgimage.clouds-4
+{
+    -fx-background-image: url(/imgs/bgs/clouds-4.jpg);
+}
+
+.bgimage.clouds-5
+{
+    -fx-background-image: url(/imgs/bgs/clouds-5.jpg);
+}
+
+.bgimage.clouds-6
+{
+    -fx-background-image: url(/imgs/bgs/clouds-6.jpg);
+}
+
+.bgimage.clouds-7
+{
+    -fx-background-image: url(/imgs/bgs/clouds-7.jpg);
+}
+
+.bgimage.grass-1
+{
+    -fx-background-image: url(/imgs/bgs/grass-1.jpg);
+}
+
+.bgimage.grass-2
+{
+    -fx-background-image: url(/imgs/bgs/grass-2.jpg);
+}
+
+.bgimage.green-circles-1
+{
+    -fx-background-image: url(/imgs/bgs/green-circles-1.jpg);
+}
+
+.bgimage.green-circles-2
+{
+    -fx-background-image: url(/imgs/bgs/green-circles-2.jpg);
+}
+
+.bgimage.green-diagonal-1
+{
+    -fx-background-image: url(/imgs/bgs/green-diagonal-1.gif);
+}
+
+.bgimage.green-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/green-flowers-1.jpg);
+}
+
+.bgimage.green-light-bulb-1
+{
+    -fx-background-image: url(/imgs/bgs/green-light-bulb-1.jpg);
+}
+
+.bgimage.green-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/green-squares-1.jpg);
+}
+
+.bgimage.grey-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/grey-squares-1.jpg);
+}
+
+.bgimage.grey-squares-2
+{
+    -fx-background-image: url(/imgs/bgs/grey-squares-2.png);
+    -fx-background-size: 12em 4em;
+}
+
+.bgimage.grey-squares-3
+{
+    -fx-background-image: url(/imgs/bgs/grey-squares-3.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.grey-tribal-1
+{
+    -fx-background-image: url(/imgs/bgs/grey-tribal-1.jpg);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.orange-diagonal
+{
+    -fx-background-image: url(/imgs/bgs/orange-diagonal.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.orange-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/orange-flowers-1.jpg);
+}
+
+.bgimage.orange-flowers-2
+{
+    -fx-background-image: url(/imgs/bgs/orange-flowers-2.jpg);
+}
+
+.bgimage.orange-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/orange-squares-1.jpg);
+}
+
+.bgimage.paper-1
+{
+    -fx-background-image: url(/imgs/bgs/paper-1.jpg);
+}
+
+.bgimage.paper-2
+{
+    -fx-background-image: url(/imgs/bgs/paper-2.jpg);
+}
+
+.bgimage.paper-3
+{
+    -fx-background-image: url(/imgs/bgs/paper-3.jpg);
+}
+
+.bgimage.paper-4
+{
+    -fx-background-image: url(/imgs/bgs/paper-4.jpg);
+}
+
+.bgimage.paper-5
+{
+    -fx-background-image: url(/imgs/bgs/paper-5.jpg);
+}
+
+.bgimage.paper-6
+{
+    -fx-background-image: url(/imgs/bgs/paper-6.jpg);
+}
+
+.bgimage.pink-butterfly-1
+{
+    -fx-background-image: url(/imgs/bgs/pink-butterfly-1.gif);
+}
+
+.bgimage.pink-circles-1
+{
+    -fx-background-image: url(/imgs/bgs/pink-circles-1.jpg);
+}
+
+.bgimage.pink-dots-1
+{
+    -fx-background-image: url(/imgs/bgs/pink-dots-1.gif);
+}
+
+.bgimage.pink-dots-2
+{
+    -fx-background-image: url(/imgs/bgs/pink-dots-2.gif);
+}
+
+.bgimage.pink-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/pink-flowers-1.png);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.pink-flowers-2
+{
+    -fx-background-image: url(/imgs/bgs/pink-flowers-2.jpg);
+}
+
+.bgimage.pink-flowers-3
+{
+    -fx-background-image: url(/imgs/bgs/pink-flowers-3.gif);
+}
+
+.bgimage.pink-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/pink-squares-1.png);
+    -fx-background-size: 12em 4em;
+}
+
+.bgimage.pink-squares-2
+{
+    -fx-background-image: url(/imgs/bgs/pink-squares-2.gif);
+}
+
+.bgimage.pink-squares-3
+{
+    -fx-background-image: url(/imgs/bgs/pink-squares-3.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.pink-squares-4
+{
+    -fx-background-image: url(/imgs/bgs/pink-squares-4.jpg);
+}
+
+.bgimage.pink-stars-1
+{
+    -fx-background-image: url(/imgs/bgs/pink-stars-1.jpg);
+    -fx-background-size: 12em 11em;
+}
+
+.bgimage.pink-stars-2
+{
+    -fx-background-image: url(/imgs/bgs/pink-stars-2.gif);
+}
+
+.bgimage.pink-strips-1
+{
+    -fx-background-image: url(/imgs/bgs/pink-strips-1.gif);
+}
+
+.bgimage.purple-dots
+{
+    -fx-background-image: url(/imgs/bgs/purple-dots.gif);
+}
+
+.bgimage.purple-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/purple-flowers-1.jpg);
+}
+
+.bgimage.purple-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/purple-squares-1.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.purple-squares-2
+{
+    -fx-background-image: url(/imgs/bgs/purple-squares-2.jpg);
+}
+
+.bgimage.purple-squares-3
+{
+    -fx-background-image: url(/imgs/bgs/purple-squares-3.png);
+    -fx-background-size: 12em 4em;
+}
+
+.bgimage.purple-stars-1
+{
+    -fx-background-image: url(/imgs/bgs/purple-stars-1.gif);
+}
+
+.bgimage.red-stars-1
+{
+    -fx-background-image: url(/imgs/bgs/red-stars-1.jpg);
+}
+
+.bgimage.trees-1
+{
+    -fx-background-image: url(/imgs/bgs/trees-1.png);
+}
+
+.bgimage.wood-1
+{
+    -fx-background-image: url(/imgs/bgs/wood-1.jpg);
+}
+
+.bgimage.wood-2
+{
+    -fx-background-image: url(/imgs/bgs/wood-2.jpg);
+}
+
+.bgimage.wood-3
+{
+    -fx-background-image: url(/imgs/bgs/wood-3.jpg);
+}
+
+.bgimage.wood-4
+{
+    -fx-background-image: url(/imgs/bgs/wood-4.jpg);
+}
+
+.bgimage.wood-5
+{
+    -fx-background-image: url(/imgs/bgs/wood-5.jpg);
+}
+
+.bgimage.wood-6
+{
+    -fx-background-image: url(/imgs/bgs/wood-6.jpg);
+}
+
+.bgimage.wood-7
+{
+    -fx-background-image: url(/imgs/bgs/wood-7.jpg);
+}
+
+.bgimage.wood-8
+{
+    -fx-background-image: url(/imgs/bgs/wood-8.jpg);
+}
+
+.bgimage.wood-9
+{
+    -fx-background-image: url(/imgs/bgs/wood-9.jpg);
+}
+
+.bgimage.wood-10
+{
+    -fx-background-image: url(/imgs/bgs/wood-10.jpg);
+}
+
+.bgimage.wood-11
+{
+    -fx-background-image: url(/imgs/bgs/wood-11.jpg);
+}
+
+.bgimage.yellow-dots-1
+{
+    -fx-background-image: url(/imgs/bgs/yellow-dots-1.gif);
+}
+
+.bgimage.yellow-flowers-1
+{
+    -fx-background-image: url(/imgs/bgs/yellow-flowers-1.jpg);
+}
+
+.bgimage.yellow-flowers-2
+{
+    -fx-background-image: url(/imgs/bgs/yellow-flowers-2.jpg);
+}
+
+.bgimage.yellow-light-bulb-1
+{
+    -fx-background-image: url(/imgs/bgs/yellow-light-bulb-1.jpg);
+}
+
+.bgimage.yellow-squares-1
+{
+    -fx-background-image: url(/imgs/bgs/yellow-squares-1.gif);
+    -fx-background-size: 3em 3em;
+}
+
+.bgimage.yellow-squares-2
+{
+    -fx-background-image: url(/imgs/bgs/yellow-squares-2.png);
+    -fx-background-size: 12em 4em;
+}
+
+.bgimage.yellow-squares-3
+{
+    -fx-background-image: url(/imgs/bgs/yellow-squares-3.png);
+    -fx-background-size: 12em 4em;
 }
 
 .splashscreen
@@ -231,6 +812,51 @@
 .menu-item.reportbug > .label { -fx-graphic: url(/imgs/bug16.png); }
 .menu-item.contactsupport > .label { -fx-graphic: url(/imgs/email16.png); }
 .menu-item.keyboardshortcuts > .label { -fx-graphic: url(/imgs/16x16-transparent.png); }
+.menu-item.contacts > .label { -fx-graphic: url(/imgs/editor16.png); }
+
+.tree .cell .chapter { -fx-graphic: url(/imgs/chapter16.png); }
+.tree .cell .character { -fx-graphic: url(/imgs/character16.png); }
+.tree .cell .object { -fx-graphic: url(/imgs/object16.png); }
+.tree .cell .location { -fx-graphic: url(/imgs/location16.png); }
+.tree .cell .researchitem { -fx-graphic: url(/imgs/researchitem16.png); }
+
+/*
+ * Tree
+ */
+.tree .cell .text
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+}
+
+.tree
+{
+    -fx-cell-indent: 1.3em;
+}
+
+.tree .cell .check-box
+{
+    -fx-padding: 0 0.25em 0 0em;
+}
+
+.tree .cell
+{
+    -fx-padding: 0.3em;
+}
+
+.tree .cell:leaf
+{
+    -fx-padding: 0.3em 0.3em 0.3em 1.7em;
+}
+
+.tree .cell .disclosure
+{
+    -fx-image: url(/imgs/tree-branch-closed16.png);
+}
+
+.tree .cell .disclosure:expanded
+{
+    -fx-image: url(/imgs/tree-branch-open16.png);
+}
 
 /*
  Control buttons
@@ -276,11 +902,6 @@
     -fx-alignment: center-left;
 }
 
-.header .icon
-{
-    -fx-padding: 0 0 0 0.5em;
-}
-
 .viewer
 {
     -fx-min-width: 500px;
@@ -306,7 +927,6 @@
     -fx-padding: 0 0.5em 0 0.5em;
     -fx-max-width: Infinity;
     -fx-text-fill: -fx-text-base-color;
-    -fx-graphic-text-gap: 0.5em;
 }
 
 .viewer .header .controls .button.viewermenu
@@ -383,19 +1003,44 @@
     -fx-padding: 0;
 }
 
-.qw-allprojects .header .name
-{
-    -fx-graphic: url(/imgs/project24.png);
-    -fx-font-size: -qw-window-header-font-size;
-}
-
 .viewer.allprojects .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
+/*
+ Experimental
+ */
+/*
+.viewer.allprojects .header .controls .add {
+    -fx-background-color: #4d4d4d;
+    -fx-smooth: true;
+    -fx-pref-height: 32px;
+    -fx-pref-width: 32px;
+    -fx-shape: "M4,0C1.791,0,0,1.789,0,4v24c0,2.211,1.791,4,4,4h24V0H4z M24,28H8V4h3.984v8.039l4-4l4.031,4.031V4 H24V28z";
+    }
+
+    .viewer.allprojects .header .controls .add:hover {
+        -fx-background-color: white;
+        }
+        .viewer.allprojects .header .controls .add { -fx-graphic: url(/imgs/book.svg); }
+
+*/
 .viewer.allprojects .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
 .viewer.allprojects .header .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
 
 .panel
 {
     -fx-background-color: #ffffff;
+}
+
+.panel .header
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.panel .header .title
+{
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-font-size: 1.7em;
+    -fx-padding: 0 0 0 0.3em;
 }
 
 .viewer.allprojects > .header .icon
@@ -448,9 +1093,9 @@
     -fx-padding: 0px;
 }
 
-.panel.allprojects .scroll-pane
+.panel.allprojects .scroll-pane, .panel.options .scroll-pane
 {
-    -fx-hbar-policy: never;
+    -fx-hbar-policy: as-needed;
     -fx-vbar-policy: as-needed;
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
@@ -514,11 +1159,6 @@
 
 }
 
-.panel.importfile
-{
-    -fx-view-order: -1;
-}
-
 .panel.importfile .title { -fx-graphic: url(/imgs/project-import24.png); }
 
 .panel.importfile .title
@@ -526,6 +1166,385 @@
     -fx-font-size: 2.5em;
     -fx-label-padding: 0 0 0 0.2em;
 }
+
+/*
+ * Achievements panel (AchievementsPanel)
+ */
+.panel.achievements .header .icon
+{
+    -fx-image: url(/imgs/achievement24.png);
+}
+
+.panel.achievements .header .controls .close
+{
+    -fx-graphic: url(/imgs/close16.png);
+}
+
+.panel.achievements .description
+{
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+}
+
+.panel.achievements .accordion > .header
+{
+    -fx-cursor: hand;
+}
+
+.panel.achievements .accordion > .header .icon
+{
+    visibility: false;
+}
+
+.panel.achievements .accordion > .header .title
+{
+    -fx-padding: 0 0 0 0.5em;
+    -fx-font-size: 1.5em;
+}
+
+.panel.achievements .achievement
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+}
+
+.achievement .title
+{
+    -fx-font-size: 1.3em;
+    -fx-padding: -0.3em 0 0 0.5em;
+    -fx-alignment: top-center;
+}
+
+.panel.achievements .achievement .description
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.panel.achievements .hide
+{
+    -fx-padding: 0 0 0.5em 1em;
+}
+
+.achievement .icon { -fx-image: url(/imgs/achievement24.png); }
+.achievement.fullscreen .icon { -fx-image: url(/imgs/fullscreen24.png); }
+.achievement.spellchecker  .icon { -fx-image: url(/imgs/spellchecker24.png); }
+.achievement.edit .icon { -fx-image: url(/imgs/edit24.png); }
+.achievement.help .icon { -fx-image: url(/imgs/help24.png); }
+.achievement.find .icon { -fx-image: url(/imgs/find24.png); }
+.achievement.clock .icon { -fx-image: url(/imgs/clock24.png); }
+.achievement.bold .icon { -fx-image: url(/imgs/bold24.png); }
+.achievement.editors .icon { -fx-image: url(/imgs/editor24.png); }
+.achievement.project-export .icon { -fx-image: url(/imgs/project-import24.png); }
+.achievement.settings .icon { -fx-image: url(/imgs/settings24.png); }
+.achievement.sound .icon { -fx-image: url(/imgs/notify24.png); }
+.achievement.warmups .icon { -fx-image: url(/imgs/warmups24.png); }
+.achievement.eye .icon { -fx-image: url(/imgs/eye24.png); }
+.achievement.project .icon { -fx-image: url(/imgs/project24.png); }
+.achievement.idea .icon { -fx-image: url(/imgs/idea24.png); }
+.achievement.bug .icon { -fx-image: url(/imgs/bug24.png); }
+.achievement.save .icon { -fx-image: url(/imgs/save24.png); }
+.achievement.snapshot .icon { -fx-image: url(/imgs/snapshot24.png); }
+.achievement.comment .icon { -fx-image: url(/imgs/comment24.png); }
+
+.achievement:achieved .achieved
+{
+    -fx-scale-x: 0.75;
+    -fx-scale-y: 0.75;
+    -fx-translate-x: 12px;
+    -fx-translate-y: 16px;
+    -fx-image: url(/imgs/ok-green16.png);
+}
+
+/*
+ * Statistics panel (StatisticsPanel)
+ */
+.panel.statistics .controls
+{
+    -fx-padding: 0.5em;
+    -fx-alignment: center-left;
+}
+
+.panel.statistics .controls .label, .panel.statistics .controls .check-box
+{
+    -fx-padding: 0 0.5em 0 0.5em;
+}
+
+.panel.statistics .detail
+{
+    -fx-padding: 0.5em 0.5em 1em 1em;
+    -fx-alignment: center;
+}
+
+.panel.statistics .markers
+{
+    -fx-vertical-grid-lines-visible: false;
+    -fx-horizontal-grid-lines-visible: false;
+    -fx-horizontal-zero-line-visible: false;
+}
+
+.panel.statistics .markers .axis
+{
+    -fx-opacity: 0;
+}
+
+.panel.statistics .detail > *
+{
+    -fx-alignment: center;
+}
+
+.panel.statistics .detail .item
+{
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.panel.statistics .detail .item .image-view
+{
+    -fx-image: url(/imgs/tree-branch-closed16.png);
+}
+
+.panel.statistics .chart
+{
+    -fx-category-gap: 10em;
+    -fx-legend-visible: false;
+    -fx-vertical-grid-lines-visible: false;
+}
+
+.panel.statistics .axis-label
+{
+    -fx-font-size: 1.2em;
+}
+
+.panel.statistics .axis > *
+{
+    -fx-font-size: 1.1em;
+}
+
+.panel.statistics .chart-plot-background
+{
+    -fx-background-color: transparent;
+}
+
+.panel.statistics .chart-bar.series0
+{
+    -fx-background-color: #f5b800;
+    -fx-min-width: 2em;
+    -fx-pref-width: 2em;
+}
+
+ .panel.statistics .header .icon
+ {
+     -fx-image: url(/imgs/chart24.png);
+ }
+
+ .panel.statistics .header .controls .close
+ {
+     -fx-graphic: url(/imgs/close16.png);
+ }
+
+/*
+ * Options panel
+ */
+
+.panel.options .header
+{
+    -fx-padding: 0.3em;
+}
+
+.panel.options .header .icon
+{
+    -fx-image: url(/imgs/options24.png);
+}
+
+.panel.options .controls .close
+{
+    -fx-graphic: url(/imgs/close16.png);
+    -fx-content-display: graphic-only;
+    -fx-padding: 0.2em;
+}
+
+.panel.options .sections
+{
+    -fx-padding: 0.5em;
+}
+
+.panel.options .sections .header
+{
+    -fx-padding: 0 0 0 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.options .sections .header .title
+{
+    -fx-font-size: 1.5em;
+    -fx-cursor: hand;
+}
+
+.panel.options .accordion
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.panel.options .accordion :closed
+{
+    -fx-padding: 0.5em 0 0 0.5em;
+}
+
+.panel.options .looks .header .icon
+{
+    -fx-image: url(/imgs/eye16.png);
+}
+
+.panel.options .naming .header .icon
+{
+    -fx-image: url(/imgs/settings16.png);
+}
+
+.panel.options .editing .header .icon
+{
+    -fx-image: url(/imgs/chapter16.png);
+}
+
+.panel.options .editing .hyperlink
+{
+    -fx-graphic: url(/imgs/view16.png);
+    -fx-graphic-text-gap: 0.5em;
+}
+
+.panel.options .header:scrolling
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.options .sections .main
+{
+    -fx-padding: 0.5em 0.5em 0.75em 0.5em;
+}
+
+.panel.options .sections .sub
+{
+    -fx-padding: 0 0 0.75em 1em;
+}
+
+.panel.options .sections .sub .item
+{
+    -fx-padding: 0 0 0.5em 0;
+    -fx-spacing: 0.5em;
+    -fx-alignment: center-left;
+}
+
+.panel.options .sections .sub .check-box
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.panel.options .ownsound
+{
+    -fx-max-width: 50em;
+}
+
+/*
+ * Layout image
+ */
+.layout
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-max-width: 12em;
+    -fx-min-width: 12em;
+    -fx-min-height: 6em;
+    -fx-cursor: hand;
+}
+
+.layout .project
+{
+    -fx-padding: 0em;
+    -fx-alignment: center;
+    -fx-background-color: #C07016;
+    -fx-pref-width: 3em;
+    -fx-max-height: 6em;
+}
+
+.layout .other
+{
+    -fx-padding: 0em;
+    -fx-alignment: center;
+    -fx-background-color: #1732AE;
+    -fx-max-height: 6em;
+}
+
+.layout .tabs
+{
+    -fx-alignment: center;
+    -fx-max-height: 6em;
+    -fx-background-color: white;
+}
+
+.layout .tabs .text
+{
+    -fx-font-weight: bold;
+}
+
+.layout .project .text, .layout .other .text
+{
+    -fx-rotate: 45;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-min-width: 3.5em;
+}
+
+.qpopup.layoutselector .header .icon
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+
+.qpopup.layoutselector .item
+{
+    -fx-padding: 0.25em;
+    -fx-cursor: hand;
+}
+
+.qpopup.layoutselector .item
+{
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+}
+
+.qpopup.layoutselector .item:selected .layout
+{
+    -fx-border-color: white;
+}
+
+.qpopup.layoutselector .item:selected, .qpopup.layoutselector .item:selected:hover
+{
+    -fx-background-color: -qw-selected-border-color;
+    -fx-border-color: -qw-selected-border-color;
+}
+
+.qpopup.layoutselector .item .description
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.qpopup.layoutselector .item:selected .description > *, .qpopup.layoutselector .item:selected:hover .description > *
+{
+    -fx-fill: white;
+    -fx-font-smoothing-type: lcd;
+}
+
+.qpopup.layoutselector .item:hover
+ {
+     -fx-background-color: -qw-hover-bg;
+     -fx-border-width: 1px;
+     -fx-border-color: -qw-border-color;
+ }
+
+ .qpopup.layoutselector .item:hover .description > *
+ {
+     -fx-fill: black;
+ }
 
 /**
  * COPIED FROM AeroFX
@@ -739,9 +1758,10 @@
     -fx-graphic: url(/imgs/options24.png);
 }
 
-.root.popup:night
+.root.popup
 {
-    -fx-background-color: green;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 200px;
 }
 
 .root.popup
@@ -800,6 +1820,11 @@
     -Xfx-effect: null;
 }
 
+.popuppane
+{
+    -fx-background-color: transparent;
+}
+
 /*
  Popup (QuollPopup)
  */
@@ -810,14 +1835,13 @@
      -fx-border-width: 1px;
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-bg-color;
-     -fx-pref-width: 450px;
-     -fx-min-width: 450px;
-     -fx-max-width: 450px;
  }
 
 .qpopup .content
 {
      -fx-padding: 0.5em 0.75em 0.5em 0.75em;
+     -fx-pref-width: -qw-popup-width;
+     -fx-min-width: -qw-popup-width;
 }
 
  .qpopup .header
@@ -829,7 +1853,6 @@
  {
      -fx-max-width: Infinity;
      -fx-text-fill: -fx-text-base-color;
-     -fx-graphic-text-gap: 0em;
      -fx-font-size: 1.5em;
      -fx-padding: 0 0 0 0.3em;
  }
@@ -851,21 +1874,6 @@
      -fx-alignment: center;
      -fx-padding: 1em 0.5em 0.5em 0.5em;
  }
-
- .qpopup .form .items
- {
-     -fx-padding: 1em 0.5em 0 0;
- }
-
-.qpopup .form .description
-{
-    -fx-max-width: 430px;
-}
-
-.qpopup .form .control
-{
-    -fx-min-width: 430px;
-}
 
  .qpopup .form .buttons
  {
@@ -906,14 +1914,14 @@
     -fx-image: url(/imgs/add16.png);
 }
 
-.qpopup.createproject .passwords
+.new-project .passwords, .qpopup.createproject .passwords
 {
     -fx-spacing: 0.5em;
     -fx-alignment: center-left;
     -fx-padding: 0.5em 0 0 0;
 }
 
-.qpopup.createproject .passwords .label
+.new-project .passwords .label, .qpopup.createproject .passwords .label
 {
     -fx-padding: 0 0 0 0.5em;
 }
@@ -929,7 +1937,7 @@
 /*
  * Contact support popup (ContactSupportPopup)
  */
-.qpopup.contactsupport .header .icon
+.qpopup.contactsupport .header .icon, .qpopup.contactuilangcreator .header .icon
 {
     -fx-image: url(/imgs/email16.png);
 }
@@ -958,9 +1966,14 @@
 /*
  * Do a warmup popup (DoWarmupExercisePopup)
  */
-.qpopup.dowarmup > .header .icon
+.qpopup.dowarmup .header .icon
 {
     -fx-image: url(/imgs/warmups16.png);
+}
+
+.qpopup.dowarmup .content .header .icon
+{
+    visibility: hidden;
 }
 
 .qpopup.dowarmup .chooseprompt .header, .qpopup.dowarmup .chooseprompt .header .title,
@@ -977,7 +1990,7 @@
 
 .qpopup.dowarmup .chooseprompt .scroll-pane
 {
-    -fx-min-height: 5em;
+    -fx-min-height: 9em;
     -fx-padding: 0 0 0 0.5em;
 }
 
@@ -1039,20 +2052,20 @@
 /*
  Select BG popup (SelectBGPopup)
 */
-.qpopup.selectbg > .header .controls .reset
+.qpopup.selectbg .header .controls .reset
 {
     -fx-graphic: url(/imgs/restore16.png);
 }
 
-.qpopup.selectbg > .header .icon
+.qpopup.selectbg .header .icon
 {
     -fx-image: url(/imgs/bg-select16.png);
 }
 
 .qpopup.selectbg .scroll-pane
 {
-    -fx-pref-height: 365px;
-    -fx-min-height: 365px;
+    -fx-pref-height: 25em;
+    -fx-min-height: 25em;
     -fx-border-width: 0;
     -fx-hbar-policy: never;
     -fx-vbar-policy: as-needed;
@@ -1073,7 +2086,7 @@
 
 .qpopup.selectbg .accordion .header
 {
-    -fx-padding: 0 0 0em 0;
+    -fx-padding: 0 0 0 0;
     -fx-cursor: hand;
     -fx-border-style: solid;
     -fx-border-width: 0 0 1px 0;
@@ -1084,8 +2097,9 @@
 {
     -fx-hgap: 0.0em;
     -fx-vgap: 0.0em;
-    -fx-padding: 0.0em 0 0 0.0em;
-    -Xfx-alignment: top-left;
+    -fx-padding: 0;
+    -fx-alignment: top-left;
+    -fx-min-width: 1px;
 }
 
 .qpopup.selectbg .accordion .content .item
@@ -1094,12 +2108,18 @@
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
     -fx-cursor: hand;
-    -fx-pref-width: 75px;
-    -fx-pref-height: 75px;
+    -fx-pref-width: 6.25em;
+    -fx-pref-height: 6.25em;
     -fx-effect: -qw-no-effect-spacer;
 }
 
 .qpopup.selectbg .accordion .content :selected .item
+{
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+}
+
+.qpopup.selectbg .accordion .content :hover .item
 {
     -fx-border-color: -qw-selected-border-color;
     -fx-effect: -qw-selected-effect;
@@ -1123,14 +2143,31 @@
 /*
  * Form (Form)
  */
-.form .label
+.form.stacked .label
 {
     -fx-padding: 0 0 0.3em 0;
+    /*-fx-text-overrun: clip;*/
 }
 
-.form .control
+.form.stacked .control
 {
     -fx-padding: 0 0 0.5em 1em;
+}
+
+.form.column .label
+{
+    -fx-alignment: center-right;
+    -fx-padding: 0 0.25em 0.5em 0;
+}
+
+.form.column .control
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.form.column .buttons
+{
+    -fx-padding: 1em 0 0.5em 0;
 }
 
 .form .error
@@ -1146,7 +2183,7 @@
 
 .form .error .message
 {
-    -fx-padding: 0 0 0 0.5em;
+    -fx-padding: 0 0 0.5em 0.5em;
 }
 
 .form .error .message > *
@@ -1183,6 +2220,8 @@
 .notification .content
 {
     -fx-padding: 0 0 0 0.5em;
+    -fx-alignment: center;
+    -fx-fill-width: true;
 }
 
 .notification .controls .button
@@ -1198,6 +2237,26 @@
 .notification .controls .stop
 {
     -fx-graphic: url(/imgs/stop16.png);
+}
+
+.notification .progress-bar
+{
+    -fx-padding: 0.5em 0 0.5em 0.5em;
+    -fx-pref-width: 30em;
+    -fx-max-width: 200em;
+    -fx-min-height: 2.5em;
+    -fx-max-height: 2.5em;
+    -fx-pref-height: 2.5em;
+}
+
+.notification.information .icon
+{
+    -fx-image: url(/imgs/information24.png);
+}
+
+.notification.download .icon
+{
+    -fx-image: url(/imgs/download24.png);
 }
 
 /*
@@ -1218,20 +2277,87 @@
 
 .filefind .button
 {
-    -fx-graphic: url(/imgs/find16.png);
     -fx-padding: 0.3em;
     -fx-cursor: hand;
 }
 
-.qpopup.colorchooser
+.filefind .button.find
 {
-    -fx-min-width: 370px;
+    -fx-graphic: url(/imgs/find16.png);
 }
 
-.qpopup.colorchooser .content
+.filefind .button.clear
 {
-    -fx-pref-width: 370px;
-    -fx-max-width: 370px;
+    -fx-graphic: url(/imgs/clear16.png);
+}
+
+.qpopup.colorchooser .header .icon
+{
+    -fx-image: url(/imgs/transparency16.png);
+}
+
+.qpopup.colorchooser .scroll-pane
+{
+    -fx-pref-height: 13em;
+}
+
+.qpopup.colorchooser .swatches
+{
+    -fx-hgap: 0em;
+    -fx-vgap: 0em;
+    -fx-padding: 0 0 0.5em 0.5em;
+}
+
+.qpopup.colorchooser .preview
+{
+    /*-fx-pref-width: 20em;*/
+    -fx-max-width: 50em;
+    -fx-pref-height: 3em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.qpopup.colorchooser :selected .colorswatch
+{
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+}
+
+.qpopup.colorchooser :hover .colorswatch
+{
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+}
+
+.qpopup.colorchooser .content .header
+{
+    -fx-padding: 0;
+}
+
+.qpopup.colorchooser .content .header .title
+{
+    -fx-padding: 0 0 0 0;
+}
+
+.qpopup.colorchooser .content .header .icon
+{
+    visibility: hidden;
+}
+
+.qpopup.colorchooser .colorswatch
+{
+    -fx-max-height: 3.5em;
+    -fx-pref-height: 3.5em;
+    -fx-min-height: 3.5em;
+    -fx-max-width: 3.5em;
+    -fx-pref-width: 3.5em;
+    -fx-min-width: 3.5em;
+    -fx-effect: -qw-no-effect-spacer;
+}
+
+.qpopup.colorchooser .form .label
+{
+    -fx-min-width: 4em;
 }
 
 .qpopup.colorchooser .items
@@ -1239,22 +2365,10 @@
     -fx-padding: 0;
 }
 
-.qpopup.colorchooser .buttons
-{
-    -fx-max-width: 350px;
-}
-
 .colorchooser .type
 {
     -fx-alignment: center-left;
-    -fx-max-width: 340px;
     -fx-spacing: 0.5em;
-}
-
-.colorchooser .type .slider
-{
-    -fx-pref-width: 255px;
-    -fx-max-width: 255px;
 }
 
 .colorchooser .type .spinner
@@ -1264,12 +2378,19 @@
 
 .colorchooser .text-field
 {
+    -fx-min-width: 7em;
+    -fx-pref-width: 7em;
     -fx-max-width: 7em;
 }
 
-.qpopup.projectstatuses > .header .icon
+.qpopup.projectstatuses .header .icon
 {
     -fx-image: url(/imgs/edit16.png);
+}
+
+.qpopup.projectstatuses .content .header .icon
+{
+    visibility: hidden;
 }
 
 .itemmanager .header, .itemmanager .header .title
@@ -1288,10 +2409,15 @@
     visiblity: hidden;
 }
 
+.itemmanager .current .list-view
+{
+    -fx-max-height: 10em;
+}
+
 .projectstatuses .buttons
 {
     -fx-alignment: center;
-    -fx-padding: 0 0 1em 0;
+    -fx-padding: 0 0 0.5em 0;
 }
 /*
 .backups .scroll-pane
@@ -1302,9 +2428,9 @@
 }
 */
 
-.qpopup.backups > .header .icon,
-.qpopup.createbackup > .header .icon,
-.qpopup.backupcreated > .header .icon
+.qpopup.backups .header .icon,
+.qpopup.createbackup .header .icon,
+.qpopup.backupcreated .header .icon
 {
     -fx-image: url(/imgs/snapshot24.png);
 }
@@ -1335,6 +2461,11 @@
 {
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
+}
+
+.backups .item .icon
+{
+    visibility: hidden;
 }
 
 .backups .item:hover
@@ -1381,9 +2512,14 @@
     -fx-padding: 0;
 }
 
-.changeprojectdisplay > .header .icon
+.changeprojectdisplay .header .icon
 {
     -fx-image: url(/imgs/edit16.png);
+}
+
+.changeprojectdisplay .content .header .icon
+{
+    visibility: hidden;
 }
 
 .changeprojectdisplay .header.example
@@ -1413,12 +2549,244 @@
     -fx-pref-height: 6em;
 }
 
+/*
+ * Change project item preview display (ChangeProjectItemPreviewDisplayPopup)
+ */
+ /**
+  * Change project display popup (ChangeProjectDisplayPopup)
+  */
+ .qpopup.projectitempreview .header .icon
+ {
+     -fx-image: url(/imgs/edit16.png);
+ }
+
+ .qpopup.projectitempreview .content .header .icon
+ {
+     visibility: hidden;
+ }
+
+ .qpopup.projectitempreview .header.example
+ {
+     -fx-padding: 0.5em 0 0.5em 0;
+     -fx-content-display: text-only;
+     -fx-graphic-text-gap: 0;
+     -fx-label-padding: 0;
+ }
+
+ .qpopup.projectitempreview .header.example .title
+ {
+     -fx-padding: 0;
+ }
+
+ .qpopup.projectitempreview .qtextarea.format, .qpopup.projectitempreview .qtextarea.format .text-area
+ {
+     -fx-min-height: 6em;
+     -fx-pref-height: 6em;
+ }
+
+ .qpopup.projectitempreview .info
+ {
+     -fx-padding: 0 0.5em 0.5em;
+ }
+
 /**
  * What's new popup.  (WhatsNewPopup)
  */
-.qpopup.whatsnew > .header .icon
+.qpopup.whatsnew .header .icon
 {
     -fx-image: url(/imgs/whats-new16.png);
+}
+
+.qpopup.whatsnew .content
+{
+    /* The height of the whats new content area can change, this ensures it's always high enough to view the content. */
+    -fx-min-height: 20em;
+}
+
+/*
+ * Import project popup (ImportPopup)
+ */
+.qpopup.import .header .icon
+{
+    -fx-image: url(/imgs/project-import16.png);
+}
+
+.qpopup.import .content
+{
+    -fx-max-height: 30em;
+    -fx-pref-height: 30em;
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+}
+
+.qpopup.import .content .header
+{
+    -fx-padding: 0;
+}
+
+.qpopup.import .content .header .title
+{
+    -fx-padding: 0;
+}
+
+.qpopup.import .content .header .icon
+{
+    visibility: hidden;
+}
+
+.qpopup.import .content .radio-button
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+.qpopup.import .content .select-project
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.qpopup.import .content .select-project .projects
+{
+    -fx-fill-width: true;
+}
+
+.qpopup.import .content .select-project .projects .label
+{
+    -fx-font-size: 1.3em;
+    -fx-padding: 0.5em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-max-width: Infinity;
+    -fx-cursor: hand;
+}
+
+.qpopup.import .content .select-project .projects .label:hover
+ {
+     -fx-background-color: -qw-hover-bg;
+ }
+
+ .qpopup.import .content .select-project .projects .label:selected
+ {
+     -fx-background-color: -qw-armed-bg;
+ }
+
+.qpopup.import .content .scroll-pane
+{
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+}
+
+.qpopup.import .content .select-items .scroll-pane
+{
+    -fx-fit-to-width: false;
+    -fx-pref-height: 20em;
+}
+
+.qpopup.import .content .tree-cell.chapter .text
+{
+    -fx-graphic: url(/imgs/chapter16.png);
+}
+
+.qpopup.import .content ._string .check-box
+{
+    visibility: hidden;
+}
+
+/*
+ * Select UI language strings to edit (ShowObjectSelectPopup with style uilangstringsselect)
+ */
+ .qpopup.uilangstringsselect .header .icon, .qpopup.addnewuilangstrings .header .icon
+ {
+     -fx-image: url(/imgs/edit16.png);
+ }
+
+ .qpopup.uilangstringsselect .scroll-pane
+ {
+     -fx-fit-to-width: true;
+ }
+
+ .qpopup.uilangstringsselect .items
+ {
+     -fx-pref-height: 20em;
+     -fx-fill-width: true;
+ }
+
+ .qpopup.uilangstringsselect .items .label
+ {
+     -fx-font-size: 1.5em;
+     -fx-cursor: hand;
+     -fx-padding: 0.5em;
+     -fx-border-width: 0 0 1px 0;
+     -fx-border-color: -qw-component-border-color;
+     -fx-max-width: Infinity;
+ }
+
+ .qpopup.uilangstringsselect .items .label:hover, .qpopup.uilangstringsselect .items .label:focused
+  {
+      -fx-background-color: -qw-hover-bg;
+  }
+
+/*
+ * Object type name change popup (ObjectTypeNameChangePopup)
+ */
+.qpopup.objecttypenamechange .header .icon
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+
+.qpopup.objecttypenamechange .items
+{
+    -fx-hgap: 0.5em;
+    -fx-vgap: 0.5em;
+    -fx-padding: 0.5em 0 0 0;
+}
+
+.qpopup.objecttypenamechange .items .chapter { -fx-image: url(/imgs/chapter16.png); }
+.qpopup.objecttypenamechange .items .outlineitem { -fx-image: url(/imgs/outlineitem16.png); }
+.qpopup.objecttypenamechange .items .scene { -fx-image: url(/imgs/scene16.png); }
+.qpopup.objecttypenamechange .items .note { -fx-image: url(/imgs/note16.png); }
+.qpopup.objecttypenamechange .items .project { -fx-image: url(/imgs/project16.png); }
+.qpopup.objecttypenamechange .items .warmup { -fx-image: url(/imgs/warmup16.png); }
+.qpopup.objecttypenamechange .items .editor { -fx-image: url(/imgs/editor16.png); }
+
+/*
+ * Edit position example popup
+ */
+.qpopup.editpositionexample .content
+{
+    -fx-pref-width: 300px;
+    -fx-min-width: 300px;
+}
+
+.qpopup.editpositionexample .content .image-view
+{
+    -fx-image: url(/data/edit-position-example.png);
+}
+
+/*
+ * Compress chapter context menu example popup
+ */
+ .qpopup.compresschaptercontextexample .content
+ {
+     -fx-pref-width: 275px;
+     -fx-min-width: 275px;
+ }
+
+.qpopup.compresschaptercontextexample .content .image-view:compressed
+{
+    -fx-image: url(/data/compressed-chapter-context-menu.png);
+}
+
+.qpopup.compresschaptercontextexample .content .image-view
+{
+    -fx-image: url(/data/none-compressed-chapter-context-menu.png);
+}
+
+/*
+ * Chapter icons example popup
+ */
+.qpopup.chaptericonsexample .content .image-view
+{
+    -fx-image: url(/data/chapter-icons-example.png);
 }
 
 /**
@@ -1460,6 +2828,9 @@
     -fx-background-color: transparent;
 }
 
+/*
+ General sidebars.
+ */
 .sidebar > .header
 {
     -fx-padding: 0em 0 0.5em 0.5em;
@@ -1468,6 +2839,11 @@
 .sidebar > .header .close.button
 {
     -fx-graphic: url(/imgs/close16.png);
+}
+
+.sidebar > .header .help.button
+{
+    -fx-graphic: url(/imgs/help16.png);
 }
 
 .sidebar > .header .other.button
@@ -1483,6 +2859,18 @@
     -fx-text-gap: 0.5em;
 }
 
+.sidebar .accordion .header
+{
+    -fx-padding: 0 0 0.5em 0;
+    -fx-cursor: hand;
+}
+
+.sidebar .accordion .header .title
+{
+    -fx-font-size: 1.3em;
+    -fx-padding: 0 0 0 0.5em;
+}
+
 .sidebar.contacts
 {
     -fx-pref-width: 200px;
@@ -1491,13 +2879,58 @@
 
 .sidebar.contacts > .header .icon
 {
-    -fx-image: url(/imgs/editors20.png);
+    -fx-image: url(/imgs/editors16.png);
 }
 
-.popuplayer
+/*
+ * Targets sidebar (TargetsSideBar)
+ */
+.sidebar.targets > .header .icon
 {
-    -fx-view-order: -10000;
-    -fx-background-color: blue;
-    -fx-pref-width: 800px;
-    -fx-pref-height: 800px;
+    -fx-image: url(/imgs/goals16.png);
+}
+
+.sidebar.targets .accordion.mywriting .header .icon
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+
+.sidebar.targets
+{
+    -fx-pref-width: 270px;
+    -fx-min-width: 270px;
+}
+
+.sidebar.targets .content
+{
+    -fx-padding: 0 0.5em 0 0.5em;
+}
+
+.sidebar.targets .spinner
+{
+    -fx-pref-width: 7em;
+    -fx-max-width: 7em;
+}
+
+.sidebar.targets .form .control .label
+{
+    -fx-padding: 0 0 0 0.5em;
+    -fx-alignment: center-left;
+}
+
+.sidebar.targets .form .control
+{
+    -fx-alignment: center-left;
+}
+
+.sidebar.targets .form .label
+{
+    -fx-alignment: center-right;
+}
+
+.sidebar.targets .mywriting .hyperlink.chart
+{
+    -fx-padding: 0.5em 0.5em 0.5em 0em;
+    -fx-graphic: url(/imgs/chart16.png);
+    -fx-graphic-text-gap: 0.5em;
 }

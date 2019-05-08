@@ -1,12 +1,13 @@
 package com.quollwriter.achievements;
 
 import java.util.*;
+import java.util.stream.*;
 import java.util.concurrent.*;
 import java.io.*;
-import java.awt.event.*;
-import javax.swing.event.*;
 
-import javax.sound.sampled.*;
+import javafx.beans.property.*;
+import javafx.scene.media.*;
+import javafx.collections.*;
 
 import org.jdom.*;
 
@@ -15,10 +16,10 @@ import com.gentlyweb.xml.*;
 import com.gentlyweb.properties.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
 
 import com.quollwriter.achievements.rules.*;
-import com.quollwriter.ui.components.ActionAdapter;
 
 public class AchievementsManager implements ProjectEventListener
 {
@@ -40,30 +41,37 @@ public class AchievementsManager implements ProjectEventListener
     }
 
     // The key here is the AchievementRule.getEventId
-    private Map<String, Set<AchievementRule>> userRules = new HashMap ();
+    private Map<String, Set<AchievementRule>> userRules = new HashMap<> ();
 
     // The inner map key is the AchievementRule.getEventId.
-    private Map<AbstractViewer, Map<String, Set<AchievementRule>>> eventRules = new HashMap ();
-    private Map<AbstractViewer, AchievementsChecker> checkers = new HashMap ();
+    // TODO Separate out into own subclass, i.e ProjectAchievementsManager.
+    private Map<AbstractProjectViewer, Map<String, Set<AchievementRule>>> eventRules = new HashMap<> ();
+    private Map<AbstractProjectViewer, AchievementsChecker> checkers = new HashMap<> ();
+    private Map<AbstractProjectViewer, SetProperty<AchievementRule>> projAchievedRules = new HashMap<> ();
 
     // The key is the id attribute of the element.
-    private Map<String, Element> ruleEls = new LinkedHashMap ();
+    private Map<String, Element> ruleEls = new LinkedHashMap<> ();
 
-    private Clip achievementSound = null;
+    private AudioClip achievementSound = null;
 
     private Map<AchievementReachedListener, Object> listeners = null;
     private Object listenerFillObj = new Object ();
 
     private boolean soundRunning = false;
+    private SetProperty<AchievementRule> userAchievedProp = null;
+    private Set<AchievementRule> userAchievedRules = null;
 
     public AchievementsManager ()
                                 throws Exception
     {
 
-        this.listeners = Collections.synchronizedMap (new WeakHashMap ());
+        this.listeners = Collections.synchronizedMap (new WeakHashMap<> ());
 
         // Load our list of user achieved achievements.
-        Set<String> achieved = this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+        Set<String> userAchievedIds = this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+
+        this.userAchievedRules = new HashSet<> ();
+        this.userAchievedProp = new SimpleSetProperty<> (FXCollections.observableSet (this.userAchievedRules));
 
         // Load the state for the user achievements.
         Map<String, Element> initEls = this.getInitElements (UserProperties.get (Constants.USER_ACHIEVEMENTS_STATE_PROPERTY_NAME));
@@ -84,7 +92,7 @@ public class AchievementsManager implements ProjectEventListener
                                                XMLConstants.item,
                                                true);
 
-        Set<AchievementRule> userSessionRules = new HashSet ();
+        Set<AchievementRule> userSessionRules = new HashSet<> ();
 
         // Get the user ones.
         for (int i = 0; i < els.size (); i++)
@@ -100,14 +108,6 @@ public class AchievementsManager implements ProjectEventListener
                                              XMLConstants.category).equals (USER))
             {
 
-                // Have we achieved this one.
-                if (achieved.contains (id))
-                {
-
-                    continue;
-
-                }
-
                 // Load the rule.
                 AchievementRule ar = AchievementRuleFactory.createRule (el);
 
@@ -116,6 +116,14 @@ public class AchievementsManager implements ProjectEventListener
 
                     throw new JDOMException ("Unable to create rule from element: " +
                                              JDOMUtils.getPath (el));
+
+                }
+
+                // Have we achieved this one.
+                if (userAchievedIds.contains (id))
+                {
+
+                    this.userAchievedRules.add (ar);
 
                 }
 
@@ -182,10 +190,47 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
-        // TODO Environment.addUserProjectEventListener (this);
+        this.userAchievedProp.addListener ((SetChangeListener<AchievementRule>) (ev ->
+        {
+
+            AchievementRule ar = ev.getElementAdded ();
+
+            if (ar == null)
+            {
+
+                return;
+
+            }
+
+            try
+            {
+
+                UserProperties.set (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                    this.userAchievedRules.stream ()
+                                        .map (r -> r.getId ())
+                                        .collect (Collectors.joining (",")));
+
+                Environment.getFocusedViewer ().showAchievement (ar);
+
+                this.playAchievementSound ();
+
+            } catch (Exception e) {
+
+                // Log the error.
+                Environment.logError ("Unable to set user achievement as reached: " +
+                                      ar,
+                                      e);
+
+            }
+
+        }));
+
+        Environment.addUserProjectEventListener (this);
 
     }
 
+/*
+TODO Remove
     public void removeAchievementReachedListener (AchievementReachedListener l)
     {
 
@@ -235,11 +280,36 @@ public class AchievementsManager implements ProjectEventListener
         });
 
     }
+*/
 
-    public Set<String> getUserAchievedIds ()
+    public SetProperty<AchievementRule> userAchievedProperty ()
     {
 
-        return this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+        return this.userAchievedProp;
+
+    }
+
+    public Set<AchievementRule> getProjectAchievedIds (AbstractProjectViewer v)
+    {
+
+        SetProperty<AchievementRule> prop = this.projAchievedRules.get (v);
+
+        if (prop == null)
+        {
+
+            return new LinkedHashSet<> ();
+
+        }
+
+        return new LinkedHashSet<> (prop.getValue ());
+
+    }
+
+    public Set<AchievementRule> getUserAchievedRules ()
+    {
+
+        return new LinkedHashSet<> (this.userAchievedRules);
+        // TODO return this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
     }
 
@@ -276,7 +346,7 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
-        Set<AchievementRule> rules = new HashSet ();
+        Set<AchievementRule> rules = new LinkedHashSet<> ();
 
         List els = JDOMUtils.getChildElements (root,
                                                XMLConstants.item,
@@ -443,13 +513,15 @@ public class AchievementsManager implements ProjectEventListener
 
     }
 
+/*
+ TODO Remove
     public Map<String, Set<String>> getAchievedAchievementIds (AbstractViewer viewer)
     {
 
-        Map<String, Set<String>> achieved = new HashMap ();
+        Map<String, Set<String>> achieved = new HashMap<> ();
 
         achieved.put (USER,
-                      this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
+                      new LinkedHashSet<> (his.userAchievedIds));
 
         if ((viewer != null)
             &&
@@ -459,15 +531,23 @@ public class AchievementsManager implements ProjectEventListener
 
             AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
 
-            achieved.put ("project",
-                          this.getAchievedIds (pv.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
+            SetProperty<String> projIds = this.projAchievedIds.get (pv);
+
+            if (projIds != null)
+            {
+
+                achieved.put (PROJECT,
+                              new LinkedHashSet<> (projIds.getValue ()));
+                              // TODO Remove this.getAchievedIds (pv.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
+
+            }
 
         }
 
         return achieved;
 
     }
-
+*/
     private Map<String, Element> getInitElements (String v)
                                                   throws Exception
     {
@@ -533,7 +613,7 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
-        Set<AchievementRule> rs = new HashSet ();
+        Set<AchievementRule> rs = new HashSet<> ();
 
         if (rules != null)
         {
@@ -560,6 +640,8 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
+        this.projAchievedRules.remove (v);
+
         if (v instanceof AbstractProjectViewer)
         {
 
@@ -584,11 +666,10 @@ public class AchievementsManager implements ProjectEventListener
 
     }
 
-    public void addViewer (Landing l)
-                           throws Exception
+    public SetProperty<AchievementRule> projectAchievedProperty (AbstractProjectViewer v)
     {
 
-        l.addProjectEventListener (this);
+        return this.projAchievedRules.get (v);
 
     }
 
@@ -599,24 +680,24 @@ public class AchievementsManager implements ProjectEventListener
         // Get the list of project/chapter achieved achievements.
         Set<String> achieved = this.getAchievedIds (v.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
+        Set<AchievementRule> achievedRules = new HashSet<> ();
+
+        SetProperty<AchievementRule> prop = new SimpleSetProperty<> (FXCollections.observableSet (achievedRules));
+
+        this.projAchievedRules.put (v,
+                                    prop);
+
         // Load the state for the achievements and init.
         Map<String, Element> initEls = this.getInitElements (v.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_STATE_PROPERTY_NAME));
 
         // The key is the event id.
-        Map<String, Set<AchievementRule>> evRules = new HashMap ();
+        Map<String, Set<AchievementRule>> evRules = new HashMap<> ();
 
-        Set<AchievementRule> constantRules = new LinkedHashSet ();
+        Set<AchievementRule> constantRules = new LinkedHashSet<> ();
 
         // Load the project/chapter achievements (not in the list above).
         for (String id : this.ruleEls.keySet ())
         {
-
-            if (achieved.contains (id))
-            {
-
-                continue;
-
-            }
 
             Element el = this.ruleEls.get (id);
 
@@ -628,6 +709,13 @@ public class AchievementsManager implements ProjectEventListener
 
                 throw new JDOMException ("Unable to create rule from element: " +
                                          JDOMUtils.getPath (el));
+
+            }
+
+            if (achieved.contains (id))
+            {
+
+                achievedRules.add (ar);
 
             }
 
@@ -695,6 +783,46 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
+        prop.addListener ((SetChangeListener<AchievementRule>) (ev ->
+        {
+
+            AchievementRule ar = ev.getElementAdded ();
+
+            try
+            {
+
+                v.getProject ().getProperties ().setProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                                              new com.gentlyweb.properties.StringProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                                                                                           achievedRules.stream ()
+                                                                                                                .map (r -> r.getId ())
+                                                                                                                .collect (Collectors.joining (","))));
+
+                v.saveProject ();
+
+                if (ar != null)
+                {
+
+                    v.showAchievement (ar);
+
+                    //this.fireAchievementReachedEvent (ar);
+
+                    this.playAchievementSound ();
+
+                    v.createActionLogEntry (v.getProject (),
+                                            "Achievement: " + ar.getId () + "[" + ar.nameProperty ().getValue () + "] reached.");
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set achievement achieved: " +
+                                      ar,
+                                      e);
+
+            }
+
+        }));
+
         v.addProjectEventListener (this);
 
     }
@@ -727,6 +855,21 @@ public class AchievementsManager implements ProjectEventListener
         try
         {
 
+            SetProperty<AchievementRule> prop = this.projAchievedRules.get (viewer);
+
+            if (prop == null)
+            {
+
+                // How did this happen?
+                return;
+
+            }
+
+            Set<AchievementRule> rules = prop.getValue ();
+
+            rules.add (ar);
+/*
+TODO Remove
             // Add to the list of project achievements.
             Set<String> achieved = this.getAchievedIds (viewer.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
@@ -738,22 +881,15 @@ public class AchievementsManager implements ProjectEventListener
             }
 
             achieved.add (ar.getId ());
-
+            */
+/*
+TODO
             viewer.getProject ().getProperties ().setProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
                                                                new StringProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
                                                                                    this.getAsString (achieved)));
 
             viewer.saveProject ();
-
-            viewer.showAchievement (ar);
-
-            this.fireAchievementReachedEvent (ar);
-
-            this.playAchievementSound ();
-
-            viewer.createActionLogEntry (viewer.getProject (),
-                                         "Achievement: " + ar.getId () + "[" + ar.getName () + "] reached.");
-
+*/
         } catch (Exception e) {
 
             Environment.logError ("Unable to set achievement achieved: " +
@@ -803,6 +939,9 @@ public class AchievementsManager implements ProjectEventListener
         try
         {
 
+            this.userAchievedRules.add (ar);
+/*
+TODO Remove
             // Add to the list of user achievements.
             Set<String> achieved = this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
@@ -814,15 +953,16 @@ public class AchievementsManager implements ProjectEventListener
             }
 
             achieved.add (ar.getId ());
-
+*/
+/*
             UserProperties.set (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
                                 this.getAsString (achieved));
-
+xxx
             this.fireAchievementReachedEvent (ar);
-
+*/
             // TODO Environment.getFocusedViewer ().showAchievement (ar);
 
-            this.playAchievementSound ();
+            //this.playAchievementSound ();
 
         } catch (Exception e) {
 
@@ -908,6 +1048,11 @@ public class AchievementsManager implements ProjectEventListener
             try
             {
 
+                // TODO Make this configurable?
+                this.achievementSound = new AudioClip (Utils.getResourceUrl (Constants.DEFAULT_ACHIEVEMENT_SOUND_FILE).toExternalForm ());
+
+/*
+TODO Remove
                 InputStream is = new BufferedInputStream (Utils.getResourceStream (Constants.DEFAULT_ACHIEVEMENT_SOUND_FILE));
 
                 // Get the clip.
@@ -916,7 +1061,7 @@ public class AchievementsManager implements ProjectEventListener
                 this.achievementSound = AudioSystem.getClip ();
 
                 this.achievementSound.open (ais);
-
+*/
             } catch (Exception e)
             {
 
@@ -940,6 +1085,30 @@ public class AchievementsManager implements ProjectEventListener
 
         final AchievementsManager _this = this;
 
+        Environment.schedule (() ->
+        {
+
+            UIUtils.runLater (() ->
+            {
+
+                try
+                {
+
+                    this.achievementSound.play ();
+
+                } finally {
+
+                    this.soundRunning = false;
+
+                }
+
+            });
+
+        },
+        1000,
+        -1);
+/*
+TODO Remove
         javax.swing.Timer t = new javax.swing.Timer (1000,
         new ActionAdapter ()
         {
@@ -972,12 +1141,15 @@ public class AchievementsManager implements ProjectEventListener
         t.setRepeats (false);
 
         t.start ();
-
+*/
     }
 
     private String getAsString (Set<String> ids)
     {
 
+        return ids.stream ()
+            .collect (Collectors.joining (","));
+/*
         StringBuilder b = new StringBuilder ();
 
         for (String id : ids)
@@ -995,7 +1167,7 @@ public class AchievementsManager implements ProjectEventListener
         }
 
         return b.toString ();
-
+*/
     }
 
     public void eventOccurred (ProjectEvent ev)
@@ -1278,7 +1450,7 @@ public class AchievementsManager implements ProjectEventListener
                 achieved.remove (id);
 
                 pv.getProject ().getProperties ().setProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
-                                                                   new StringProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                                                   new com.gentlyweb.properties.StringProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
                                                                                        this.getAsString (achieved)));
 
             }

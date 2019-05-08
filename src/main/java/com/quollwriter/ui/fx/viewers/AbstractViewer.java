@@ -23,6 +23,7 @@ import com.quollwriter.ui.fx.tips.*;
 import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.achievements.rules.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -71,16 +72,20 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         String newproject = "newproject";
         String manageprojectstatuses = "manageprojectstatuses";
         String importfile = "importfile";
+        String closepopup = "closepopup";
+        String incrementfontsize = "incrementfontsize";
+        String decrementfontsize = "decrementfontsize";
+        String resetfontsize = "resetfontsize";
 
     }
 
     private Viewer viewer = null;
     private ObjectProperty<Header> headerProp = null;
     private ScheduledThreadPoolExecutor generalTimer = null;
+    private AchievementsPopup achievementsPopup = null;
+
     private Map<String, Command> actionMap = new HashMap<> ();
     private Tips tips = null;
-
-    private boolean ignoreProjectEvents = false;
 
     private Map<String, SideBar> sideBars = new HashMap<> ();
     private Stack<SideBar>  activeSideBars = new Stack<> ();
@@ -96,6 +101,11 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     private EditorsSideBar editorsSideBar = null;
 
     private Set<QuollPopup> popups = new HashSet<> ();
+
+    private Set<ProjectEventListener> projectEventListeners = new HashSet ();
+    private boolean ignoreProjectEvents = false;
+
+    private Pane popupPane = null;
 
     public AbstractViewer ()
     {
@@ -141,12 +151,19 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         this.otherSidebarsPane.managedProperty ().bind (this.otherSidebarsPane.visibleProperty ());
         SplitPane.setResizableWithParent (this.otherSidebarsPane, false);
 
+        this.popupPane = new Pane ();
+        this.popupPane.getStyleClass ().add (StyleClassNames.POPUPPANE);
+
         this.parentPane = new SplitPane ();
         SplitPane.setResizableWithParent (this.parentPane, true);
         this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
-        this.getChildren ().add (this.parentPane);
-        VBox.setVgrow (this.parentPane,
+        this.parentPane.prefWidthProperty ().bind (this.popupPane.widthProperty ());
+        this.parentPane.prefHeightProperty ().bind (this.popupPane.heightProperty ());
+        VBox.setVgrow (this.popupPane,
                        Priority.ALWAYS);
+        this.popupPane.getChildren ().add (this.parentPane);
+
+        this.getChildren ().add (this.popupPane);
 
         try
         {
@@ -160,18 +177,47 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         }
 
-        this.initActionMappings ();
-
         this.updateForDebugMode ();
 
         // When we update our user property, update the layout property.
-        // TODO Have a better bind.
         UserProperties.uiLayoutProperty ().addListener ((prop, oldv, newv) ->
         {
 
             _this.updateLayout ();
 
         });
+
+        this.addEventHandler (ScrollEvent.SCROLL,
+                              ev ->
+        {
+
+            if ((ev.isShiftDown ())
+                &&
+                (ev.isControlDown ())
+               )
+            {
+
+                if (ev.getDeltaX () > 0)
+                {
+
+                    this.runCommand (CommandIds.incrementfontsize);
+
+                } else {
+
+                    this.runCommand (CommandIds.decrementfontsize);
+
+                }
+
+                ev.consume ();
+
+            }
+
+        });
+
+    }
+
+    public class QPopupWindow extends PopupWindow
+    {
 
     }
 
@@ -192,11 +238,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         p.setVisible (false);
         this.addPopup (p);
-        //p.setManaged (false);
-
-        //p.layout ();
-
-        //p.relocate (x, y);
 
         UIUtils.runLater (() ->
         {
@@ -239,11 +280,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
             }
 
             // Casting to a whole number is required here to prevent blurring.
-            p.resizeRelocate ((int) _x,
-                              (int) _y,
-                              w,
-                              p.prefHeight (w));
-
+            p.relocate ((int) _x,
+                        (int) _y);
             p.setVisible (true);
 
         });
@@ -255,7 +293,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         p.setVisible (false);
         this.popups.remove (p);
-        this.getChildren ().remove (p);
+        this.popupPane.getChildren ().remove (p);
 
     }
 
@@ -264,12 +302,12 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         this.popups.add (p);
 
-        p.setManaged (false);
+        //p.setManaged (false);
 
-        if (!this.getChildren ().contains (p))
+        if (!this.popupPane.getChildren ().contains (p))
         {
 
-            this.getChildren ().add (p);
+            this.popupPane.getChildren ().add (p);
 
         }
 
@@ -381,6 +419,14 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
                             KeyCode.F7);
         this.addKeyMapping (CommandIds.dowarmup,
                             KeyCode.F10);
+        this.addKeyMapping (CommandIds.closepopup,
+                            KeyCode.F4);
+        this.addKeyMapping (CommandIds.resetfontsize,
+                            KeyCode.DIGIT0, KeyCombination.CONTROL_DOWN);
+        this.addKeyMapping (CommandIds.incrementfontsize,
+                            KeyCode.EQUALS, KeyCombination.CONTROL_DOWN);
+        this.addKeyMapping (CommandIds.decrementfontsize,
+                            KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
 
     }
 
@@ -392,11 +438,78 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         this.addActionMapping (() ->
         {
 
+            UserProperties.setUIBaseFontSize (UserProperties.getAsFloat (Constants.DEFAULT_UI_BASE_FONT_SIZE_PROPERTY_NAME));
+
+        },
+        CommandIds.resetfontsize);
+
+        this.addActionMapping (() ->
+        {
+
+            float f = UserProperties.getUIBaseFontSize ();
+
+            f += f / 20;
+
+            UserProperties.setUIBaseFontSize (f);
+
+        },
+        CommandIds.incrementfontsize);
+
+        this.addActionMapping (() ->
+        {
+
+            float f = UserProperties.getUIBaseFontSize ();
+
+            f -= f / 20;
+
+            UserProperties.setUIBaseFontSize (f);
+
+        },
+        CommandIds.decrementfontsize);
+
+        this.addActionMapping (() ->
+        {
+
             NewProjectPopup p = new NewProjectPopup (_this);
             p.show ();
 
         },
         CommandIds.newproject);
+
+        this.addActionMapping (() ->
+        {
+
+            this.lookupAll ("." + StyleClassNames.QPOPUP).stream ()
+                .max ((o1, o2) ->
+                {
+
+                    if (o1 == null)
+                    {
+
+                        return 1;
+
+                    }
+
+                    if (o2 == null)
+                    {
+
+                        return -1;
+
+                    }
+
+                    return o1.viewOrderProperty ().getValue ().compareTo (o2.viewOrderProperty ().getValue ());
+
+                })
+                .ifPresent (n ->
+                {
+
+                    QuollPopup p = (QuollPopup) n;
+                    p.close ();
+
+                });
+
+        },
+        CommandIds.closepopup);
 
         this.addActionMapping (() -> this.showWarmupPromptSelect (),
                                CommandIds.dowarmup,
@@ -562,6 +675,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     {
 
         this.getViewer ().init (s);
+
+        this.initActionMappings ();
+        this.initKeyMappings ();
 
         this.updateLayout ();
 
@@ -932,8 +1048,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     {
 
         // TODO Improve to use markdown/html?
-        Text t = new Text ();
-        t.textProperty ().bind (text);
+        BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
+            .text (text)
+            .build ();
         t.setOnMouseClicked (clickListener);
 
         return this.addNotification (t,
@@ -1391,14 +1508,8 @@ TODO
 
     public abstract SideBar getMainSideBar ();
 
-    public void showOptions (String section)
-    {
-
-        // TODO
-
-    }
-
-    //public abstract boolean showOptions (String section);
+    public abstract void showOptions (String sect)
+                               throws GeneralException;
 
     //public abstract Set<String> getTitleHeaderControlIds ();
 
@@ -1619,18 +1730,23 @@ TODO Clean up?
                )
             {
 
-                QuollMenuItem mi = QuollMenuItem.builder ()
-                    .label (this.mainSideBar.activeTitleProperty ())
-                    .styleClassName (this.mainSideBar.getStyleClassName ())
-                    .onAction (ev ->
-                    {
+                if (this.mainSideBar != null)
+                {
 
-                        _this.showMainSideBar ();
+                    QuollMenuItem mi = QuollMenuItem.builder ()
+                        .label (this.mainSideBar.activeTitleProperty ())
+                        .styleClassName (this.mainSideBar.getStyleClassName ())
+                        .onAction (ev ->
+                        {
 
-                    })
-                    .build ();
+                            _this.showMainSideBar ();
 
-                m.getItems ().add (mi);
+                        })
+                        .build ();
+
+                    m.getItems ().add (mi);
+
+                }
 
             }
 
@@ -1742,7 +1858,7 @@ TODO Clean up?
 
     }
 
-    public SideBar getSideBar (String id)
+    public SideBar getSideBarById (String id)
     {
 
         return this.sideBars.get (id);
@@ -1752,7 +1868,7 @@ TODO Clean up?
     public void removeSideBar (String id)
     {
 
-        this.removeSideBar (this.getSideBar (id));
+        this.removeSideBar (this.getSideBarById (id));
 
     }
 
@@ -1843,7 +1959,7 @@ TODO
 
         }
 
-        SideBar _sb = this.getSideBar (sid);
+        SideBar _sb = this.getSideBarById (sid);
 
         if (_sb != null)
         {
@@ -2311,6 +2427,34 @@ TODO Not needed, is a function of the sidebar itself...
     {
 
         this.getViewer ().show ();
+
+    }
+
+    public void showAchievement (AchievementRule ar)
+    {
+
+        if (this.achievementsPopup == null)
+        {
+
+            this.achievementsPopup = new AchievementsPopup (this);
+
+        }
+
+        this.achievementsPopup.showAchievement (ar);
+
+    }
+
+    public void removeProjectEventListener (ProjectEventListener l)
+    {
+
+        this.projectEventListeners.remove (l);
+
+    }
+
+    public void addProjectEventListener (ProjectEventListener l)
+    {
+
+        this.projectEventListeners.add (l);
 
     }
 

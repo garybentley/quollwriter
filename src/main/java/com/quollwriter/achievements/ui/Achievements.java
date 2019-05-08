@@ -63,7 +63,7 @@ public class Achievements extends Box implements AchievementReachedListener
 
         AchievementsManager man = Environment.getAchievementsManager ();
 
-        Map<String, Set<String>> achieved = man.getAchievedAchievementIds (this.viewer);
+        Map<String, Set<String>> achieved = null; // TODO man.getAchievedAchievementIds (this.viewer);
 
         Box b = this.boxes.get (t);
 
@@ -156,7 +156,7 @@ public class Achievements extends Box implements AchievementReachedListener
 
         final AchievementsManager man = Environment.getAchievementsManager ();
 
-        man.addAchievementReachedListener (this);
+        // TODO man.addAchievementReachedListener (this);
 
         this.add (header);
 
@@ -175,7 +175,7 @@ public class Achievements extends Box implements AchievementReachedListener
 
         Set<AchievementRule> userRules = man.getUserRules ();
 
-        Map<String, Set<String>> achieved = man.getAchievedAchievementIds (this.viewer);
+        Map<String, Set<String>> achieved = null; // TODO man.getAchievedAchievementIds (this.viewer);
 
         Box main = new Box (BoxLayout.Y_AXIS);
 

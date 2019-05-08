@@ -35,9 +35,9 @@ public class QWSpellDictionaryHashMap extends SpellDictionaryHashMap
 
         if (list == null)
         {
-            
+
             return;
-            
+
         }
 
         list.removeElement (word);
@@ -48,6 +48,33 @@ public class QWSpellDictionaryHashMap extends SpellDictionaryHashMap
             mainDictionary.remove (code);
 
         }
+
+    }
+
+    public Set<String> getWords ()
+    {
+
+        Set<String> ret = new TreeSet<> ();
+
+        Collection vs = mainDictionary.values ();
+
+        Iterator iter = vs.iterator ();
+
+        while (iter.hasNext ())
+        {
+
+            Vector v = (Vector) iter.next ();
+
+            for (int i = 0; i < v.size (); i++)
+            {
+
+                ret.add (v.get (i).toString ());
+
+            }
+
+        }
+
+        return ret;
 
     }
 

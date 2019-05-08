@@ -69,7 +69,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
         Range r = doc.getRange ();
 
-        List<Object> paras = parasT.getParagraphs ();
+        List<PAPX> paras = parasT.getParagraphs ();
 
         for (int i = 0; i < paras.size (); i++)
         {

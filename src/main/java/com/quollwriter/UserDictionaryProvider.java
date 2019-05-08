@@ -2,15 +2,17 @@ package com.quollwriter;
 
 import java.io.*;
 import java.nio.file.*;
+import java.nio.charset.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 import com.quollwriter.ui.events.*;
 
 import com.quollwriter.ui.components.*;
 import com.quollwriter.text.*;
 
-import com.softcorporation.suggester.util.Constants;
+//import com.softcorporation.suggester.util.Constants;
 import com.softcorporation.suggester.util.SpellCheckConfiguration;
 import com.softcorporation.suggester.Suggestion;
 import com.softcorporation.suggester.dictionary.BasicDictionary;
@@ -42,27 +44,39 @@ public class UserDictionaryProvider implements DictionaryProvider2
 
         final UserDictionaryProvider _this = this;
 
-        if (UserDictionaryProvider.file == null)
+        Path userDictFile = DictionaryProvider.getUserDictionaryFilePath ();
+
+        String lines = null;
+
+        // Pre v3 handling.
+        if (Files.exists (userDictFile))
         {
 
-            Path userDictFile = DictionaryProvider.getUserDictionaryFilePath ();
+            lines = new String (Files.readAllBytes (userDictFile),
+                                StandardCharsets.UTF_8);
 
-            if (Files.notExists (userDictFile))
-            {
+            UserProperties.set (Constants.USER_DICTIONARY_WORDS_PROPERTY_NAME,
+                                lines);
 
-                Files.createFile (userDictFile);
-
-            }
-
-            UserDictionaryProvider.dict = new QWSpellDictionaryHashMap (userDictFile.toFile ());
-
-            UserDictionaryProvider.file = userDictFile.toFile ();
-
-            UserDictionaryProvider.spellChecker = new com.swabunga.spell.event.SpellChecker ();
-
-            UserDictionaryProvider.spellChecker.setUserDictionary (this.dict);
+            Files.delete (userDictFile);
 
         }
+
+        // Post v3 handling, get from user properties.
+        lines = UserProperties.get (Constants.USER_DICTIONARY_WORDS_PROPERTY_NAME);
+
+        if (lines == null)
+        {
+
+            lines = "";
+
+        }
+
+        UserDictionaryProvider.dict = new QWSpellDictionaryHashMap (new StringReader (lines));
+
+        UserDictionaryProvider.spellChecker = new com.swabunga.spell.event.SpellChecker ();
+
+        UserDictionaryProvider.spellChecker.setUserDictionary (this.dict);
 
         this.checker = new SpellChecker ()
         {
@@ -230,6 +244,10 @@ public class UserDictionaryProvider implements DictionaryProvider2
 
         UserDictionaryProvider.dict.removeWord (word);
 
+        this.saveDictionary ();
+
+/*
+TODO Remove
         try
         {
 
@@ -242,10 +260,26 @@ public class UserDictionaryProvider implements DictionaryProvider2
                                   e);
 
         }
-
+*/
         this.fireDictionaryEvent (new DictionaryChangedEvent (this,
                                                               DictionaryChangedEvent.WORD_REMOVED,
                                                               word));
+
+    }
+
+    public Set<String> getWords ()
+    {
+
+        return UserDictionaryProvider.dict.getWords ();
+
+    }
+
+    private void saveDictionary ()
+    {
+
+        UserProperties.set (Constants.USER_DICTIONARY_WORDS_PROPERTY_NAME,
+                            UserDictionaryProvider.dict.getWords ().stream ()
+                                .collect (Collectors.joining ("\n")));
 
     }
 
@@ -258,6 +292,9 @@ public class UserDictionaryProvider implements DictionaryProvider2
 
             UserDictionaryProvider.dict.addWord (word);
 
+            this.saveDictionary ();
+/*
+TODO REmove
             try
             {
 
@@ -270,7 +307,7 @@ public class UserDictionaryProvider implements DictionaryProvider2
                                       e);
 
             }
-
+*/
             this.fireDictionaryEvent (new DictionaryChangedEvent (this,
                                                                   DictionaryChangedEvent.WORD_ADDED,
                                                                   word));

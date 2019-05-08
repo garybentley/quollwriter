@@ -8,6 +8,7 @@ import javafx.beans.binding.*;
 import javafx.scene.control.*;
 import javafx.scene.paint.*;
 import javafx.scene.layout.*;
+import javafx.scene.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -25,6 +26,7 @@ public class QuollColorChooser extends VBox
     private TextField hex = null;
     private ObjectProperty<Color> colorProp = null;
     private boolean ignoreUpdates = false;
+    private FlowPane colorsPane = null;
 
     private QuollColorChooser (Builder b)
     {
@@ -45,6 +47,43 @@ public class QuollColorChooser extends VBox
         this.green = new NumberSelector (0, 255, 0);
         this.hex = new TextField ();
 
+        if (b.showUserColors)
+        {
+
+            Header h = Header.builder ()
+                .title (getUILanguageStringProperty (colorchooser,popup,current))
+                .build ();
+
+            this.colorsPane = new FlowPane ();
+            colorsPane.getStyleClass ().add (StyleClassNames.SWATCHES);
+
+            Set<Color> colors = new LinkedHashSet<> ();
+            colors.add (Color.WHITE);
+            colors.addAll (UserProperties.userColorsProperty ());
+            colors.add (Color.BLACK);
+            colors.stream ()
+                .forEach (col -> this.createSwatch (col, -1));
+
+            ScrollPane colSp = new ScrollPane (colorsPane);
+
+            Header hc = Header.builder ()
+                .title (getUILanguageStringProperty (colorchooser,popup,_new))
+                .build ();
+
+            this.getChildren ().addAll (h, colSp, hc);
+
+        }
+
+        Label preview = new Label ();
+        preview.getStyleClass ().add (StyleClassNames.PREVIEW);
+
+        this.colorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            preview.setBackground (new Background (new BackgroundFill (newv, null, null)));
+
+        });
+
         List<String> prefix = Arrays.asList (colorchooser,labels);
 
         Form f = Form.builder ()
@@ -56,7 +95,10 @@ public class QuollColorChooser extends VBox
                    this.blue)
             .item (getUILanguageStringProperty (colorchooser,labels,LanguageStrings.hex),
                    this.hex)
-            .confirmButton (new SimpleStringProperty ("Use Color"))
+            .item (new SimpleStringProperty ("Preview"),
+                   preview)
+            .layoutType (Form.LayoutType.column)
+            .confirmButton (new SimpleStringProperty ("Add/Use Color"))
             .cancelButton (getUILanguageStringProperty (buttons,cancel))
             .build ();
 
@@ -65,6 +107,15 @@ public class QuollColorChooser extends VBox
         {
 
             _this.fireEvent (ev);
+
+            UserProperties.addUserColor (this.colorProp.getValue ());
+
+            if (this.colorsPane != null)
+            {
+
+                this.createSwatch (this.colorProp.getValue (), 1);
+
+            }
 
         });
 
@@ -164,6 +215,79 @@ public class QuollColorChooser extends VBox
         this.getChildren ().addAll (f);
 
     }
+
+    private void createSwatch (Color   col,
+                               Integer ind)
+    {
+
+        //Label swatch = new Label ();
+        Label swatch = new Label ();
+        swatch.getStyleClass ().add (StyleClassNames.COLORSWATCH);
+        swatch.setBackground (new Background (new BackgroundFill (col, null, null)));
+        swatch.setOnMouseClicked (ev ->
+        {
+
+            if (ev.isPopupTrigger ())
+            {
+
+                return;
+
+            }
+
+            this.setColor (col);
+
+            this.fireEvent (new ObjectSelectedEvent (this.colorProp.getValue (),
+                                                     ObjectSelectedEvent.SELECTED_EVENT));
+
+        });
+
+        Group g = new Group ();
+        g.setUserData (col);
+        g.getChildren ().add (swatch);
+
+        if ((col != Color.WHITE)
+            &&
+            (col != Color.BLACK)
+           )
+        {
+
+            ContextMenu cm = new ContextMenu ();
+
+            Set<MenuItem> items = new LinkedHashSet<> ();
+
+            items.add (QuollMenuItem.builder ()
+                .label (colorchooser,LanguageStrings.swatch,popupmenu,LanguageStrings.items,remove)
+                .styleClassName (StyleClassNames.DELETE)
+                .onAction (eev ->
+                {
+
+                    //UserProperties.removeUserImagePath (s);
+                    UserProperties.removeUserColor (col);
+
+                    this.colorsPane.getChildren ().remove (g);
+
+                })
+                .build ());
+
+            cm.getItems ().addAll (items);
+
+            swatch.setContextMenu (cm);
+
+        }
+
+        if (ind > -1)
+        {
+
+            this.colorsPane.getChildren ().add (ind, g);
+
+        } else {
+
+            this.colorsPane.getChildren ().add (g);
+
+        }
+
+    };
+
 
     public void setOnColorSelected (EventHandler<ObjectSelectedEvent> ev)
     {
@@ -390,6 +514,7 @@ public class QuollColorChooser extends VBox
 
         private String styleName = null;
         private Color color = null;
+        private boolean showUserColors = false;
 
         private Builder ()
         {
@@ -408,6 +533,14 @@ public class QuollColorChooser extends VBox
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder showUserColors (boolean v)
+        {
+
+            this.showUserColors = v;
             return this;
 
         }

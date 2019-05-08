@@ -806,7 +806,7 @@ public class DictionaryProvider
     public static Path getUserDictionaryFilePath ()
     {
 
-        return DictionaryProvider.getDictionariesDirPath ().resolve (com.quollwriter.Constants.USER_DICTIONARY_FILE_NAME);
+        return Environment.getUserPath (com.quollwriter.Constants.USER_DICTIONARY_FILE_NAME);
 
     }
 

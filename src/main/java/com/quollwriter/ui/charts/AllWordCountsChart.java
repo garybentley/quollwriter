@@ -9,7 +9,7 @@ import java.util.*;
 import javax.swing.*;
 
 import org.jfree.chart.*;
-import org.jfree.ui.*;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.*;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.labels.*;

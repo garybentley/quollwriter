@@ -101,6 +101,16 @@ public class Header extends HBox
         this.getChildren ().add (this.toolbar);
         this.toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
 
+        ContextMenu cm = new ContextMenu ();
+        MenuItem conf = new MenuItem ("Configure");
+        conf.setOnAction (ev ->
+        {
+
+        });
+        cm.getItems ().add (conf);
+
+        this.toolbar.setContextMenu (cm);
+
         if (b.controls != null)
         {
 

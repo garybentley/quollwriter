@@ -68,6 +68,14 @@ public class Viewer extends Stage implements Stateful
 
     }
 
+    private void updateUIBaseFontSize ()
+    {
+
+        this.getScene ().getRoot ().setStyle (String.format ("-fx-font-size: %1$spt;",
+                                                             UserProperties.getUIBaseFontSize ()));
+
+    }
+
     @Override
     public State getState ()
     {
@@ -142,6 +150,15 @@ public class Viewer extends Stage implements Stateful
         this.setMinHeight (300);
 
         this.addStyleSheet (UserProperties.getUserStyleSheetURL ());
+
+        UserProperties.uiBaseFontSizeProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.updateUIBaseFontSize ();
+
+        });
+
+        this.updateUIBaseFontSize ();
 
         // Listen to the night mode property, add a psuedo class when it is enabled.
         Environment.nightModeProperty ().addListener ((val, oldv, newv) ->

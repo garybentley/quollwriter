@@ -10,6 +10,7 @@ public class ProjectEvent extends EventObject
     // Don't you just love compilers...
     public enum Type
     {
+        any ("any"),
         fullscreen ("fullScreen"),
         distractionfree ("distractionfree"),
         typewritersound ("typewritersound"),
@@ -45,7 +46,7 @@ public class ProjectEvent extends EventObject
         userobjecttypefield ("userobjecttypefield"),
         tags ("tags"),
         // TODO Change achievements to handle this...
-        projectobject ("projectobject"),        
+        projectobject ("projectobject"),
         tag ("tag");
 
         final String type;

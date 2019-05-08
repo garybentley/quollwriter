@@ -10,6 +10,7 @@ import javax.swing.event.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.quollwriter.UserProperties;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.data.*;
 import com.quollwriter.Constants;
@@ -137,14 +138,14 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
 
           });
 
-        this.viewer.chapterAutoSaveEnabledProperty ().addListener ((v, oldv, newv) ->
+        UserProperties.chapterAutoSaveEnabledProperty ().addListener ((v, oldv, newv) ->
         {
 
            _this.tryScheduleAutoSave ();
 
         });
 
-        this.viewer.chapterAutoSaveTimeProperty ().addListener ((v, oldv, newv) ->
+        UserProperties.chapterAutoSaveTimeProperty ().addListener ((v, oldv, newv) ->
         {
 
            _this.tryScheduleAutoSave ();
@@ -209,19 +210,17 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     private void tryScheduleAutoSave ()
     {
 
-        if (this.viewer.getProject ().getPropertyAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME))
+        if (this.autoSaveTask != null)
         {
 
-            if (this.autoSaveTask != null)
-            {
+            this.autoSaveTask.cancel (true);
 
-                this.autoSaveTask.cancel (true);
+        }
 
-            }
+        if (UserProperties.chapterAutoSaveEnabledProperty ().getValue ())
+        {
 
-            com.gentlyweb.properties.Properties props = Environment.getDefaultProperties (Project.OBJECT_TYPE);
-
-            final long autoSaveInt = Utils.getTimeAsMillis (props.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
+            final long autoSaveInt = UserProperties.chapterAutoSaveTimeProperty ().getValue ();
 
             if (autoSaveInt > 0)
             {

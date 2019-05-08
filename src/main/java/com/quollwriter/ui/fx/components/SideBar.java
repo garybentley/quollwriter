@@ -8,6 +8,7 @@ import javafx.event.*;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
+import javafx.geometry.*;
 import javafx.scene.control.*;
 
 import com.quollwriter.*;
@@ -72,10 +73,12 @@ public class SideBar extends VBox implements Stateful
 
                 ContextMenu n = viewer.getShowOtherSideBarsSelector ();
 
+                n.show (this.otherSideBarsShowButton, Side.BOTTOM, 0, 0);
+/*
                 n.show (_this.otherSideBarsShowButton,
-                        0,
-                        0);
-
+                        ev.getX (),
+                        ev.getY ());
+*/
             })
             .build ();
 
@@ -133,13 +136,15 @@ public class SideBar extends VBox implements Stateful
         this.addEventHandler (SideBarEvent.HIDE_EVENT,
                               ev ->
         {
-System.out.println ("HERE: " + _this.getWidth ());
+
             _this.otherSideBarsShowButton.setVisible (ev.getViewer ().getActiveSideBarCount () > 1 && ev.getViewer ().getActiveOtherSideBar () != null);
 
         });
 
         if (b.content != null)
         {
+
+            b.content.getStyleClass ().add (StyleClassNames.CONTENT);
 
             if (b.wrapInScrollPane)
             {

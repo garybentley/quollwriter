@@ -1470,7 +1470,7 @@ public class Utils
         if (c != null)
         {
 
-            b.append ("Caused by: ");
+            b.append ("Caused by: " + c.getMessage () + "\n");
             b.append (Utils.getStackTrace (c));
 
         }
@@ -2206,6 +2206,13 @@ public class Utils
                 0);
         gc.set (Calendar.MILLISECOND,
                 0);
+
+    }
+
+    public static URL getResourceUrl (String path)
+    {
+
+        return Environment.class.getResource (path);
 
     }
 

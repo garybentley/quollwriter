@@ -19,8 +19,12 @@ import com.quollwriter.editors.messages.*;
 
 import com.quollwriter.ui.*;
 
-import org.apache.commons.dbcp.*;
-import org.apache.commons.pool.impl.*;
+import org.apache.commons.dbcp2.PoolingDataSource;
+import org.apache.commons.dbcp2.PoolableConnection;
+import org.apache.commons.dbcp2.ConnectionFactory;
+import org.apache.commons.dbcp2.PoolableConnectionFactory;
+import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
+import org.apache.commons.pool2.impl.*;
 
 import org.h2.jdbc.*;
 
@@ -48,7 +52,7 @@ public class ObjectManager
     private File                     dir = null;
     protected Map<Class, DataHandler> handlers = new HashMap<Class, DataHandler> ();
     private String                   sequenceName = null;
-    private GenericObjectPool        connectionPool = null;
+    private GenericObjectPool<PoolableConnection>        connectionPool = null;
     private Project                  project = null;
     private Map<Class, DataHandler>  actionLogHandlers = new HashMap ();
 
@@ -465,20 +469,27 @@ public class ObjectManager
                                         e);
         }
 
-        this.connectionPool = new GenericObjectPool (null);
-        this.connectionPool.setMaxActive (20);
-        this.connectionPool.setMaxIdle (10);
-
         ConnectionFactory connectionFactory = new DriverManagerConnectionFactory (url,
                                                                                   username,
                                                                                   pwd);
 
-        new PoolableConnectionFactory (connectionFactory,
+        PoolableConnectionFactory poolf = new PoolableConnectionFactory (connectionFactory,
+                                                                         null);
+/*
+OLD? DBCP1
+        PoolableConnectionFactory poolf = new PoolableConnectionFactory (connectionFactory,
                                        this.connectionPool,
                                        null,
                                        null,
                                        false,
                                        false);
+*/
+
+        this.connectionPool = new GenericObjectPool<> (poolf);
+        // TODO Remove? this.connectionPool.setMaxActive (20);
+        this.connectionPool.setMaxTotal (50);
+        this.connectionPool.setMaxIdle (10);
+        poolf.setPool (this.connectionPool);
 
         this.ds = new PoolingDataSource (this.connectionPool);
 

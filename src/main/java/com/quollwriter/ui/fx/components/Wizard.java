@@ -37,6 +37,8 @@ public class Wizard extends VBox
     private Function<String, String> nextStepIdProvider = null;
     private Function<String, String> prevStepIdProvider = null;
     private Function<String, Step> stepProv = null;
+    private BiPredicate<String, String> nextStepCheck = null;
+    private BiPredicate<String, String> prevStepCheck = null;
 
     private Wizard (Builder b)
     {
@@ -87,7 +89,48 @@ public class Wizard extends VBox
 
         }
 
-        this.currentStepId = b.startStepId;
+        if (b.onCancel != null)
+        {
+
+            this.addEventHandler (WizardEvent.CANCEL_EVENT,
+                                  b.onCancel);
+
+        }
+
+        if (b.onFinish != null)
+        {
+
+            this.addEventHandler (WizardEvent.FINISH_EVENT,
+                                  b.onFinish);
+
+        }
+
+        this.nextStepCheck = b.nextStepCheck;
+        this.prevStepCheck = b.prevStepCheck;
+/*
+        if (b.onNextStep != null)
+        {
+
+            this.addEventHandler (WizardEvent.NEXT_STEP_SHOW_EVENT,
+                                  b.onNextStep);
+
+        }
+
+        if (b.onPrevStep != null)
+        {
+
+            this.addEventHandler (WizardEvent.PREVIOUS_STEP_SHOW_EVENT,
+                                  b.onPrevStep);
+
+        }
+*/
+        if (b.onStepShow != null)
+        {
+
+            this.addEventHandler (WizardEvent.STEP_SHOW_EVENT,
+                                  b.onStepShow);
+
+        }
 
         this.title = Header.builder ()
             .build ();
@@ -101,6 +144,19 @@ public class Wizard extends VBox
             {
 
                 String nid = _this.nextStepIdProvider.apply (_this.currentStepId);
+
+                if (_this.nextStepCheck != null)
+                {
+
+                    if (!_this.nextStepCheck.test (_this.currentStepId,
+                                                   nid))
+                    {
+
+                        return;
+
+                    }
+
+                }
 
                 if (nid == null)
                 {
@@ -118,24 +174,20 @@ public class Wizard extends VBox
 
                 }
 
-                WizardEvent wev = new WizardEvent (_this,
-                                                  _this.currentStepId,
-                                                  nid,
-                                                  _this.prevStepIdProvider.apply (_this.currentStepId),
-                                                  WizardEvent.STEP_SHOW_EVENT);
+                String pid = _this.prevStepIdProvider.apply (_this.currentStepId);
 
-                _this.fireEvent (wev);
-
-                if (wev.isConsumed ())
-                {
-
-                    // A handler/filter doesn't want the next step shown.
-                    return;
-
-                }
+                String oldcurr = _this.currentStepId;
 
                 _this.currentStepId = nid;
                 _this.update ();
+
+                WizardEvent wev = new WizardEvent (_this,
+                                       _this.currentStepId,
+                                       oldcurr,
+                                       pid,
+                                       WizardEvent.STEP_SHOW_EVENT);
+
+                _this.fireEvent (wev);
 
             })
             .build ();
@@ -146,7 +198,19 @@ public class Wizard extends VBox
             {
 
                 String pid = _this.prevStepIdProvider.apply (_this.currentStepId);
-                String nid = _this.nextStepIdProvider.apply (_this.currentStepId);
+
+                if (_this.prevStepCheck != null)
+                {
+
+                    if (!_this.prevStepCheck.test (_this.currentStepId,
+                                                   pid))
+                    {
+
+                        return;
+
+                    }
+
+                }
 
                 if (pid == null)
                 {
@@ -155,24 +219,20 @@ public class Wizard extends VBox
 
                 }
 
-                WizardEvent wev = new WizardEvent (_this,
-                                                   _this.currentStepId,
-                                                   nid,
-                                                   pid,
-                                                   WizardEvent.STEP_SHOW_EVENT);
+                String nid = _this.nextStepIdProvider.apply (_this.currentStepId);
 
-                _this.fireEvent (wev);
-
-                if (wev.isConsumed ())
-                {
-
-                    // A handler/filter doesn't want the previous step shown.
-                    return;
-
-                }
+                String oldcurr = _this.currentStepId;
 
                 _this.currentStepId = pid;
                 _this.update ();
+
+                WizardEvent wev = new WizardEvent (_this,
+                                       _this.currentStepId,
+                                       nid,
+                                       oldcurr,
+                                       WizardEvent.STEP_SHOW_EVENT);
+
+                _this.fireEvent (wev);
 
             })
             .build ();
@@ -205,7 +265,50 @@ public class Wizard extends VBox
 
         this.getChildren ().addAll (this.title, this.stepWrapper, bb);
 
+        this.showStep (b.startStepId);
+
+    }
+
+    public String getCurrentStepId ()
+    {
+
+        return this.currentStepId;
+
+    }
+
+    public boolean showStep (String stepId)
+    {
+
+        WizardEvent wev = new WizardEvent (this,
+                                           this.currentStepId,
+                                           stepId,
+                                           null,
+                                           WizardEvent.NEXT_STEP_SHOW_EVENT);
+
+        this.fireEvent (wev);
+
+        if (wev.isConsumed ())
+        {
+
+            // A handler/filter doesn't want the previous step shown.
+            return false;
+
+        }
+
+        String oldid = this.currentStepId;
+
+        this.currentStepId = stepId;
         this.update ();
+
+        wev = new WizardEvent (this,
+                               this.currentStepId,
+                               oldid,
+                               null,
+                               WizardEvent.STEP_SHOW_EVENT);
+
+        this.fireEvent (wev);
+
+        return true;
 
     }
 
@@ -327,7 +430,14 @@ public class Wizard extends VBox
         private Function<String, StringProperty> prevButtonLabelProv = null;
         private String styleName = null;
         private String startStepId = null;
+        private EventHandler<WizardEvent> onCancel = null;
+        private EventHandler<WizardEvent> onFinish = null;
+        private EventHandler<WizardEvent> onNextStep = null;
+        private EventHandler<WizardEvent> onPrevStep = null;
+        private EventHandler<WizardEvent> onStepShow = null;
         private AbstractViewer viewer = null;
+        private BiPredicate<String, String> nextStepCheck = null;
+        private BiPredicate<String, String> prevStepCheck = null;
 
         private Builder ()
         {
@@ -346,6 +456,62 @@ public class Wizard extends VBox
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder onCancel (EventHandler<WizardEvent> h)
+        {
+
+            this.onCancel = h;
+            return this;
+
+        }
+
+        public Builder onFinish (EventHandler<WizardEvent> h)
+        {
+
+            this.onFinish = h;
+            return this;
+
+        }
+
+        public Builder nextStepCheck (BiPredicate<String, String> ch)
+        {
+
+            this.nextStepCheck = ch;
+            return this;
+
+        }
+
+        public Builder previousStepCheck (BiPredicate<String, String> ch)
+        {
+
+            this.prevStepCheck = ch;
+            return this;
+
+        }
+
+        public Builder onNextStepShow (EventHandler<WizardEvent> h)
+        {
+
+            this.onNextStep = h;
+            return this;
+
+        }
+
+        public Builder onPreviousStepShow (EventHandler<WizardEvent> h)
+        {
+
+            this.onPrevStep = h;
+            return this;
+
+        }
+
+        public Builder onStepShow (EventHandler<WizardEvent> h)
+        {
+
+            this.onStepShow = h;
             return this;
 
         }
@@ -456,6 +622,8 @@ public class Wizard extends VBox
 
         public static final EventType<WizardEvent> FINISH_EVENT = new EventType<> ("wizard.finish");
         public static final EventType<WizardEvent> CANCEL_EVENT = new EventType<> ("wizard.cancel");
+        public static final EventType<WizardEvent> PREVIOUS_STEP_SHOW_EVENT = new EventType<> ("wizard.step.prevshow");
+        public static final EventType<WizardEvent> NEXT_STEP_SHOW_EVENT = new EventType<> ("wizard.step.nextshow");
         public static final EventType<WizardEvent> STEP_SHOW_EVENT = new EventType<> ("wizard.step.show");
 
         private Wizard wizard = null;

@@ -2,12 +2,18 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
+import javafx.beans.property.*;
+
 import org.jdom.*;
 
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public abstract class AbstractAchievementRule implements AchievementRule
 {
@@ -31,6 +37,8 @@ public abstract class AbstractAchievementRule implements AchievementRule
     private String icon = null;
     private String cat = null;
     private boolean hidden = false;
+    private StringProperty nameProp = null;
+    private StringProperty descProp = null;
 
     protected Set<String> eventIds = new HashSet<> ();
 
@@ -56,10 +64,9 @@ public abstract class AbstractAchievementRule implements AchievementRule
                                                             false);
 
         // Get the name from the language string.
-        this.name = Environment.getUIString (LanguageStrings.achievements,
-                                             this.id,
-                                             LanguageStrings.name);
+        this.nameProp = getUILanguageStringProperty (LanguageStrings.achievements,this.id,LanguageStrings.name);
 
+/*
         if (this.name == null)
         {
 
@@ -67,11 +74,10 @@ public abstract class AbstractAchievementRule implements AchievementRule
                                      this.id);
 
         }
+*/
+        this.descProp = getUILanguageStringProperty (achievements,this.id,description);
 
-        this.desc = Environment.getUIString (LanguageStrings.achievements,
-                                             this.id,
-                                             LanguageStrings.description);
-
+/*
         if (this.desc == null)
         {
 
@@ -79,7 +85,7 @@ public abstract class AbstractAchievementRule implements AchievementRule
                                      this.id);
 
         }
-
+*/
         this.icon = JDOMUtils.getAttributeValue (root,
                                                  XMLConstants.icon,
                                                  false);
@@ -127,7 +133,7 @@ public abstract class AbstractAchievementRule implements AchievementRule
 
                 } else {
 
-                    this.eventIds.add (type + "." + ProjectEvent.ANY);
+                    this.eventIds.add (type + "." + ProjectEvent.Type.any);
 
                 }
 
@@ -164,7 +170,8 @@ public abstract class AbstractAchievementRule implements AchievementRule
         return this.cat;
 
     }
-
+/*
+TODO Remove
     public String getDescription ()
     {
 
@@ -176,6 +183,21 @@ public abstract class AbstractAchievementRule implements AchievementRule
     {
 
         return this.name;
+
+    }
+*/
+
+    public StringProperty descriptionProperty ()
+    {
+
+        return this.descProp;
+
+    }
+
+    public StringProperty nameProperty ()
+    {
+
+        return this.nameProp;
 
     }
 

@@ -13,45 +13,45 @@ import com.quollwriter.ui.components.ImagePanel;
 
 public class AchievementBox extends Box
 {
-    
+
     private AchievementRule rule = null;
-    
+
     private ImagePanel ip = null;
-    
+
     public AchievementBox (AchievementRule ar,
                            boolean         achieved,
                            boolean         limitDescSize)
     {
-        
+
         super (BoxLayout.X_AXIS);
-        
-        this.rule = ar;        
-                        
+
+        this.rule = ar;
+
         this.ip = new ImagePanel (this.getIcon (achieved),
                                   null);
-        
+
         this.ip.setAlignmentY (JComponent.TOP_ALIGNMENT);
-        
+
         this.add (this.ip);
 
         this.add (Box.createHorizontalStrut (5));
 
         Box t = new Box (BoxLayout.Y_AXIS);
         t.setAlignmentY (JComponent.TOP_ALIGNMENT);
-        
+
         this.add (t);
-        
-        JLabel name = new JLabel (Environment.replaceObjectNames (ar.getName ()));
-        
-        name.setFont (name.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));        
+
+        JLabel name = new JLabel (Environment.replaceObjectNames (ar.nameProperty ().getValue ()));
+
+        name.setFont (name.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
 
         name.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         t.add (name);
-        
-        JTextArea desc = new JTextArea (Environment.replaceObjectNames (ar.getDescription ()));
+
+        JTextArea desc = new JTextArea (Environment.replaceObjectNames (ar.descriptionProperty ().getValue ()));
         desc.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         if (limitDescSize)
         {
 
@@ -67,45 +67,45 @@ public class AchievementBox extends Box
         desc.setBorder (new EmptyBorder (3, 5, 0, 5));
 
         t.add (desc);
-        
+
         this.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         this.setBorder (new EmptyBorder (5, 5, 5, 5));
         this.setMinimumSize (new Dimension (200,
-                                            this.getPreferredSize ().height));        
-        
+                                            this.getPreferredSize ().height));
+
     }
- 
+
     public void setAchieved (boolean achieved)
     {
-        
+
         this.ip.setIcon (this.getIcon (achieved));
-        
+
     }
- 
+
     private ImageIcon getIcon (boolean achieved)
     {
-        
+
         ImageIcon image = null;
-        
+
         try
         {
-            
+
             image = (this.rule.getIcon () != null ? Environment.getIcon (this.rule.getIcon (),
                                                                          Constants.ICON_ACHIEVEMENT_HEADER) : Environment.getAchievementIcon ());
-            
+
         } catch (Exception e) {
-            
+
             // Ignore.
-            
+
         }
-        
+
         if (image == null)
         {
-            
+
             image = Environment.getAchievementIcon ();
-            
+
         }
-        
+
         image.setImage (image.getImage ().getScaledInstance (24, 24, Image.SCALE_SMOOTH));
 
         if (achieved)
@@ -113,24 +113,24 @@ public class AchievementBox extends Box
 
             ImageIcon tick =Environment.getIcon ("tick",
                                                  Constants.ICON_ACHIEVEMENT_HEADER);
-            
+
             tick.setImage (tick.getImage ().getScaledInstance (12, 12, Image.SCALE_SMOOTH));
 
             image = UIUtils.overlayImage (image,
                                           tick,
                                           "br");
 
-        }        
-        
+        }
+
         return image;
-        
+
     }
- 
+
     public AchievementRule getRule ()
     {
-        
+
         return this.rule;
-        
+
     }
-    
+
 }

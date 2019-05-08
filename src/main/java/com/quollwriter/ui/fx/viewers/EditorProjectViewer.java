@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 
 import com.quollwriter.data.*;
 
+import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
@@ -82,6 +83,13 @@ public class EditorProjectViewer extends AbstractProjectViewer
     {
 
         return StyleClassNames.EDITOR;
+
+    }
+
+    @Override
+    public void showOptions (String sect)
+                      throws GeneralException
+    {
 
     }
 

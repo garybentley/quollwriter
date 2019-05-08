@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.popups;
 
 import javafx.beans.property.*;
+import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.layout.*;
@@ -22,7 +23,8 @@ public class ColorChooserPopup extends PopupContent
     private QuollColorChooser chooser = null;
 
     public ColorChooserPopup (AbstractViewer viewer,
-                              Color          selected)
+                              Color          selected,
+                              boolean        showUserColors)
     {
 
         super (viewer);
@@ -31,6 +33,7 @@ public class ColorChooserPopup extends PopupContent
 
         this.chooser = QuollColorChooser.builder ()
             .color (selected)
+            .showUserColors (showUserColors)
             .build ();
 
         this.chooser.addEventHandler (Form.FormEvent.CANCEL_EVENT,

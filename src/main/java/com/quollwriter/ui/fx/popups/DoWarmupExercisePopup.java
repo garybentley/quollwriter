@@ -44,9 +44,6 @@ public class DoWarmupExercisePopup extends PopupContent
 
         Prompts.shuffle ();
 
-        this.prompt = Prompts.next ();
-        this.promptProp = new SimpleObjectProperty<Prompt> (this.prompt);
-
         VBox b = new VBox ();
 
         VBox pb = new VBox ();
@@ -60,21 +57,18 @@ public class DoWarmupExercisePopup extends PopupContent
             .styleClassName (StyleClassNames.TEXT)
             .build ();
 
-        promptPreview.textProperty ().bind (Bindings.createStringBinding (() ->
+        this.promptProp = new SimpleObjectProperty<Prompt> ();
+
+        this.promptProp.addListener ((pr, oldv, newv) ->
         {
 
-            // TODO Should probably change this.
-            if (this.prompt == null)
-            {
+            promptPreview.textProperty ().unbind ();
+            promptPreview.textProperty ().bind (UIUtils.formatPrompt (this.prompt));
 
-                return null;
+        });
 
-            }
-
-            return UIUtils.formatPrompt (this.prompt).getValue ();
-
-        },
-        this.promptProp));
+        this.prompt = Prompts.next ();
+        this.promptProp.setValue (this.prompt);
 
         ScrollPane sp = new ScrollPane (promptPreview);
 
@@ -87,6 +81,9 @@ public class DoWarmupExercisePopup extends PopupContent
                         .tooltip (getUILanguageStringProperty (dowarmup,weblinks,tooltip))
                         .onAction (ev ->
                         {
+
+                            UIUtils.openURL (this.viewer,
+                                             UserProperties.get (Constants.QUOLL_WRITER_WEBSITE_PROMPTS_LINK_PROPERTY_NAME));
 
                         })
                         .build ())

@@ -9,7 +9,10 @@ import javax.net.ssl.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
 import org.jxmpp.util.*;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.roster.*;
@@ -43,7 +46,7 @@ public class EditorsMessageHandler implements ChatMessageListener
 
     private XMPPTCPConnection conn = null;
 
-    private String userJID = null;
+    private EntityFullJid userJID = null;
     private boolean loggedIn = false;
     private EditorMessageProcessor messageProcessor = null;
     private boolean logMessages = false;
@@ -148,6 +151,7 @@ public class EditorsMessageHandler implements ChatMessageListener
     }
 
     public EditorEditor.OnlineStatus getOnlineStatus (EditorEditor ed)
+                                               throws XmppStringprepException
     {
 
         if ((this.conn == null)
@@ -889,17 +893,17 @@ public class EditorsMessageHandler implements ChatMessageListener
                     XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder ()
                                                                 .setUsernameAndPassword (acc.getMessagingUsername (),
                                                                                          acc.getPassword ())
-                                                                .setServiceName (acc.getServiceName ())
+                                                                .setServiceName (JidCreate.domainBareFrom (acc.getServiceName ()))
                                                                 .setConnectTimeout (10 * 1000)
                                                                 .setCompressionEnabled (true)
                                                                 //.setDebuggerEnabled (true)
                                                                 .setPort (port)
                                                                 .build ();
-
+System.out.println ("JID: " + JidCreate.domainBareFrom (acc.getServiceName ()));
                     _this.conn = new XMPPTCPConnection (config);
 
                     _this.conn.setUseStreamManagement (true);
-                    _this.conn.setPacketReplyTimeout (30 * 3000);
+                    _this.conn.setReplyTimeout (30 * 3000);
 
                     try
                     {
@@ -956,7 +960,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                     _this.conn.addAsyncStanzaListener (new StanzaListener ()
                     {
 
-                        public void processPacket (Stanza p)
+                        public void processStanza (Stanza p)
                         {
 
                             if (p instanceof Presence)
@@ -967,8 +971,6 @@ public class EditorsMessageHandler implements ChatMessageListener
                                 final Presence pre = (Presence) p;
 
                                 final String username = EditorsMessageHandler.getUsernameFromJID (pre.getFrom ());
-
-                                final String jid = pre.getFrom ();
 
                                 final EditorEditor ed = EditorsEnvironment.getEditorByMessagingUsername (username);
 
@@ -1090,17 +1092,17 @@ public class EditorsMessageHandler implements ChatMessageListener
                     roster.addRosterListener (new RosterListener ()
                     {
 
-                        public void entriesAdded (Collection<String> addrs)
+                        public void entriesAdded (Collection<Jid> addrs)
                         {
 
                         }
 
-                        public void entriesDeleted (Collection<String> addrs)
+                        public void entriesDeleted (Collection<Jid> addrs)
                         {
 
                         }
 
-                        public void entriesUpdated (Collection<String> addrs)
+                        public void entriesUpdated (Collection<Jid> addrs)
                         {
 
                         }
@@ -1112,7 +1114,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                             {
 
                                 // Get the editor associated with the presence.
-                                String jid = p.getFrom ();
+                                Jid jid = p.getFrom ();
 
                                 String username = EditorsMessageHandler.getUsernameFromJID (jid);
 
@@ -1180,21 +1182,38 @@ public class EditorsMessageHandler implements ChatMessageListener
 
     }
 
+    private static String getUsernameFromJID (Jid jid)
+    {
+
+        return jid.getLocalpartOrThrow ().asUnescapedString ();
+
+    }
+
+/*
+TODO OLD Remove?
     private static String getJID (EditorEditor ed)
     {
 
         return ed.getMessagingUsername () + "@" + ed.getServiceName ();
 
     }
+*/
+
+    private static EntityBareJid getJID (EditorEditor ed)
+                                  throws XmppStringprepException
+    {
+
+        return JidCreate.entityBareFrom (ed.getMessagingUsername () + "@" + ed.getServiceName ());
+
+    }
 
     private void sendUnsubscribed (EditorEditor ed)
     {
 
-        // Just in case.
-        String jid = this.getJID (ed);
-
         try
         {
+
+            BareJid jid = this.getJID (ed);
 
             Presence ret = new Presence (Presence.Type.unsubscribed);
             ret.setTo (jid);
@@ -1203,7 +1222,7 @@ public class EditorsMessageHandler implements ChatMessageListener
         } catch (Exception e) {
 
             Environment.logError ("Unable to send unsubscribed presence to: " +
-                                  jid,
+                                  ed,
                                   e);
 
         }
@@ -1211,7 +1230,7 @@ public class EditorsMessageHandler implements ChatMessageListener
     }
 
     private void sendPresence (Presence.Type type,
-                               String        to)
+                               Jid           to)
     {
 
         try
@@ -1239,7 +1258,7 @@ public class EditorsMessageHandler implements ChatMessageListener
         try
         {
 
-            String jid = this.getJID (ed);
+            BareJid jid = this.getJID (ed);
 
             this.sendPresence (Presence.Type.subscribed,
                                jid);
@@ -1264,12 +1283,22 @@ public class EditorsMessageHandler implements ChatMessageListener
             public void run ()
             {
 
-                String jid = _this.getJID (ed);
+                try
+                {
 
-                _this.sendPresence (Presence.Type.unsubscribe,
-                                    jid);
-                _this.sendPresence (Presence.Type.unsubscribed,
-                                    jid);
+                    BareJid jid = _this.getJID (ed);
+
+                    _this.sendPresence (Presence.Type.unsubscribe,
+                                        jid);
+                    _this.sendPresence (Presence.Type.unsubscribed,
+                                        jid);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to unsubscribe from editor: " + ed,
+                                          e);
+
+                }
 
             }
 
@@ -1291,7 +1320,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                 try
                 {
 
-                    String jid = _this.getJID (ed);
+                    BareJid jid = _this.getJID (ed);
 
                     Roster.getInstanceFor (_this.conn).createEntry (jid,
                                                                     null,

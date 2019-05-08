@@ -9,6 +9,7 @@ import javafx.scene.text.*;
 import javafx.scene.image.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.geometry.*;
 
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -38,6 +39,7 @@ public class Form extends VBox
 
         this.setFillWidth (true);
         this.getStyleClass ().add (StyleClassNames.FORM);
+        this.getStyleClass ().add (b.layoutType == LayoutType.column ? StyleClassNames.COLUMN : StyleClassNames.STACKED);
 
         if (b.styleName != null)
         {
@@ -74,15 +76,16 @@ public class Form extends VBox
         this.errorBox.setVisible (false);
         this.getChildren ().add (this.errorBox);
 
+        int r = 0;
+
+        GridPane gp = new GridPane ();
+        gp.getStyleClass ().add (StyleClassNames.ITEMS);
+
         if (b.items != null)
         {
 
-            GridPane gp = new GridPane ();
-            gp.getStyleClass ().add (StyleClassNames.ITEMS);
-
             // We just have 2 columns here with an increasing row index.
 
-            int r = 0;
             int lc = 0;
             int cc = 1;
 
@@ -92,6 +95,22 @@ public class Form extends VBox
                 cc = 0;
 
             }
+
+            if (b.layoutType == LayoutType.column)
+            {
+
+                ColumnConstraints _cc = new ColumnConstraints ();
+                _cc.setHgrow (Priority.NEVER);
+                _cc.setHalignment (HPos.RIGHT);
+                gp.getColumnConstraints ().add (_cc);
+
+            }
+
+            ColumnConstraints _cc = new ColumnConstraints ();
+            _cc.setFillWidth (true);
+            _cc.setHgrow (Priority.ALWAYS);
+            _cc.setHalignment (HPos.LEFT);
+            gp.getColumnConstraints ().add (_cc);
 
             for (Item i : b.items)
             {
@@ -122,9 +141,6 @@ public class Form extends VBox
                 cb.setFillWidth (true);
                 cb.getStyleClass ().add (StyleClassNames.CONTROL);
 
-                ColumnConstraints _cc = new ColumnConstraints ();
-                _cc.setHgrow (Priority.ALWAYS);
-                gp.getColumnConstraints ().add (_cc);
                 GridPane.setRowIndex (cb, r);
                 GridPane.setColumnIndex (cb, cc);
 
@@ -181,7 +197,19 @@ public class Form extends VBox
                 .buttons (b.buttons)
                 .build ();
 
-            this.getChildren ().add (this.buttonBar);
+            int cc = 1;
+
+            if (b.layoutType == LayoutType.stacked)
+            {
+
+                cc = 0;
+
+            }
+
+            GridPane.setRowIndex (this.buttonBar, r);
+            GridPane.setColumnIndex (this.buttonBar, cc);
+
+            gp.getChildren ().add (this.buttonBar);
 
         }
 
@@ -299,6 +327,14 @@ public class Form extends VBox
 
         }
 
+        public Builder layoutType (LayoutType t)
+        {
+
+            this.layoutType = t;
+            return this;
+
+        }
+
         public Builder withViewer (AbstractViewer viewer)
         {
 
@@ -377,6 +413,13 @@ public class Form extends VBox
         public Builder cancelButton (StringProperty label)
         {
 
+            if (label == null)
+            {
+
+                return this;
+
+            }
+
             Button b = QuollButton.builder ()
                 .label (label)
                 .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
@@ -392,12 +435,26 @@ public class Form extends VBox
         public Builder cancelButton (String... label)
         {
 
+            if (label == null)
+            {
+
+                return this;
+
+            }
+
             return this.cancelButton (getUILanguageStringProperty (label));
 
         }
 
         public Builder confirmButton (StringProperty label)
         {
+
+            if (label == null)
+            {
+
+                return this;
+
+            }
 
             Button b = QuollButton.builder ()
                 .label (label)
@@ -413,6 +470,13 @@ public class Form extends VBox
 
         public Builder confirmButton (String... label)
         {
+
+            if (label == null)
+            {
+
+                return this;
+
+            }
 
             return this.confirmButton (getUILanguageStringProperty (label));
 

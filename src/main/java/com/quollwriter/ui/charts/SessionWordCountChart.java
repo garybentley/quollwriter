@@ -14,7 +14,7 @@ import javax.swing.tree.*;
 import javax.swing.event.*;
 
 import org.jfree.chart.*;
-import org.jfree.ui.*;
+//import org.jfree.chart.ui.*;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.data.time.*;

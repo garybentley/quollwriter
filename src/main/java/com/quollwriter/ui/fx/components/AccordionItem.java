@@ -8,6 +8,10 @@ import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 
+import javafx.util.*;
+import javafx.animation.*;
+import animatefx.animation.*;
+
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 
@@ -18,8 +22,11 @@ public class AccordionItem extends VBox implements Stateful
 {
 
     protected Header header = null;
-    private Node content = null;
+    private Node openContent = null;
+    private Node closedContent = null;
     private String accId = null;
+    private BooleanProperty contentVisibleProp = null;
+    private boolean open = false;
 
     private AccordionItem (Builder b)
     {
@@ -33,13 +40,14 @@ public class AccordionItem extends VBox implements Stateful
 
         }
 
-        if (b.content == null)
+        if (b.openContent == null)
         {
 
-            throw new IllegalArgumentException ("A content node must be provided.");
+            throw new IllegalArgumentException ("An open content node must be provided.");
 
         }
 
+        this.contentVisibleProp = new SimpleBooleanProperty ();
         this.accId = b.accId;
 
         this.getStyleClass ().add (StyleClassNames.ACCORDION);
@@ -62,27 +70,61 @@ public class AccordionItem extends VBox implements Stateful
         this.header.titleLabelProperty ().getValue ().setOnMouseClicked (ev ->
         {
 
-            _this.content.setVisible (!_this.content.isVisible ());
+            this.toggleState ();
 
         });
 
         this.getChildren ().add (this.header);
 
-        b.content.managedProperty ().bind (b.content.visibleProperty ());
-        b.content.getStyleClass ().add (StyleClassNames.CONTENT);
+        b.openContent.managedProperty ().bind (b.openContent.visibleProperty ());
+        b.openContent.getStyleClass ().add (StyleClassNames.CONTENT);
+        this.openContent = b.openContent;
+        this.openContent.pseudoClassStateChanged (StyleClassNames.OPEN_PSEUDO_CLASS, true);
 
-        this.content = b.content;
+        if (b.closedContent != null)
+        {
 
-        this.content.setVisible (b.open);
+            b.closedContent.managedProperty ().bind (b.closedContent.visibleProperty ());
+            b.closedContent.getStyleClass ().add (StyleClassNames.CONTENT);
 
-        this.getChildren ().add (b.content);
+            this.closedContent = b.closedContent;
+            this.closedContent.pseudoClassStateChanged (StyleClassNames.CLOSED_PSEUDO_CLASS, true);
+
+            this.getChildren ().add (this.closedContent);
+
+            this.contentVisibleProp.addListener ((pr, old, newv) ->
+            {
+
+                this.closedContent.setVisible (!newv);
+
+            });
+
+        }
+
+        this.setState (b.open);
+
+        this.getChildren ().add (this.openContent);
+
+    }
+
+    private void toggleState ()
+    {
+
+        this.setState (!this.open);
+
+    }
+
+    public Header getHeader ()
+    {
+
+        return this.header;
 
     }
 
     public void init (State s)
     {
 
-        this.setContentVisible (s.getAsBoolean (State.Key.open));
+        this.setState (s.getAsBoolean (State.Key.open));
 
     }
 
@@ -91,7 +133,7 @@ public class AccordionItem extends VBox implements Stateful
 
         State s = new State ();
         s.set (State.Key.open,
-               this.content.isVisible ());
+               this.open);
 
         return s;
 
@@ -104,17 +146,49 @@ public class AccordionItem extends VBox implements Stateful
 
     }
 
-    public void setContentVisible (boolean v)
+    public BooleanProperty contentVisibleProperty ()
     {
 
-        this.content.setVisible (v);
+        // TODO Make read only.
+        return this.contentVisibleProp;
 
     }
 
-    public boolean isContentVisible ()
+    private void setState (boolean open)
     {
 
-        return this.content.isVisible ();
+        this.openContent.setVisible (open);
+
+        this.open = this.openContent.isVisible ();
+        this.contentVisibleProp.setValue (this.open);
+
+    }
+
+    public void setContentVisible (boolean v)
+    {
+
+        this.setState (v);
+
+    }
+
+    public void close ()
+    {
+
+        this.setState (false);
+
+    }
+
+    public void open ()
+    {
+
+        this.setState (true);
+
+    }
+
+    public boolean isOpen ()
+    {
+
+        return this.open;
 
     }
 
@@ -135,7 +209,8 @@ public class AccordionItem extends VBox implements Stateful
     {
 
         private StringProperty title = null;
-        private Node content = null;
+        private Node openContent = null;
+        private Node closedContent = null;
         private Set<Node> headerCons = null;
         private String styleName = null;
         private String accId = null;
@@ -171,10 +246,18 @@ public class AccordionItem extends VBox implements Stateful
 
         }
 
-        public Builder content (Node n)
+        public Builder openContent (Node n)
         {
 
-            this.content = n;
+            this.openContent = n;
+            return this;
+
+        }
+
+        public Builder closedContent (Node n)
+        {
+
+            this.closedContent = n;
             return this;
 
         }
