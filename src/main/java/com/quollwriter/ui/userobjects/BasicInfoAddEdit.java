@@ -239,12 +239,12 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
         items.add (new AnyFormItem (String.format (getUIString (prefix,bigicon),
                                                    Environment.getIconPixelWidthForType (Constants.ICON_TITLE)),
                                                              //"Header Icon (24px by 24px)",
-                                    new JLabel (this.type.getIcon24x24 ())));
+                                    null)); // TODO new JLabel (this.type.getIcon24x24 ())));
 
         items.add (new AnyFormItem (String.format (getUIString (prefix,smallicon),
                                                    Environment.getIconPixelWidthForType (-1)),
                                                    //"Sidebar/Popup Icon (16px by 16px)",
-                                    new JLabel (this.type.getIcon16x16 ())));
+                                    null)); // TODO new JLabel (this.type.getIcon16x16 ())));
 
         final Form f = new Form (Form.Layout.stacked,
                                  items);
@@ -290,7 +290,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
         final ImageSelectorFormItem headerIcon = new ImageSelectorFormItem (String.format (getUIString (prefix,labels,bigicon),
                                                                                            headerIconWidth),
                                                                             UIUtils.imageFileFilter,
-                                                                            UIUtils.iconToImage (this.type.getIcon24x24 ()),
+                                                                            (BufferedImage) null, // TODO UIUtils.iconToImage (this.type.getIcon24x24 ()),
                                                                             new Dimension (headerIconWidth, headerIconWidth),
                                                                             true,
                                                                             null);
@@ -335,7 +335,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                                                                                             sidebarIconWidth),
                                                                                            //"Sidebar/Popup Icon (%spx by %spx)",
                                                                              UIUtils.imageFileFilter,
-                                                                             UIUtils.iconToImage (this.type.getIcon16x16 ()),
+                                                                             (BufferedImage) null, // TODO UIUtils.iconToImage (this.type.getIcon16x16 ()),
                                                                              new Dimension (sidebarIconWidth, sidebarIconWidth),
                                                                              true,
                                                                              null);
@@ -530,14 +530,14 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                                                             headerIconWidth,
                                                             headerIconWidth);
 
-                _this.type.setIcon24x24 (new ImageIcon (him));
+                // TODO _this.type.setIcon24x24 (new ImageIcon (him));
 
                 BufferedImage sim = UIUtils.getScaledImage (sidebarIcon.getImage (),
                                                             sidebarIconWidth,
                                                             sidebarIconWidth);
 
                 // Get the small.
-                _this.type.setIcon16x16 (new ImageIcon (sim));
+                // TODO _this.type.setIcon16x16 (new ImageIcon (sim));
 
                 return true;
 

@@ -99,7 +99,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
                     row);
 
             QuollTextField sf = QuollTextField.builder ()
-                .text (Environment.getObjectTypeName (ot))
+                .text (Environment.getObjectTypeName (ot).getValue ())
                 .build ();
 
             gp.add (sf,
@@ -110,7 +110,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
                                sf);
 
             QuollTextField pf = QuollTextField.builder ()
-                .text (Environment.getObjectTypeNamePlural (ot))
+                .text (Environment.getObjectTypeNamePlural (ot).getValue ())
                 .build ();
 
             gp.add (pf,
@@ -175,7 +175,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
 
                 TextField f = this.singular.get (ot);
 
-                f.setText (Environment.getObjectTypeName (ot));
+                f.setText (Environment.getObjectTypeName (ot).getValue ());
 
             }
 
@@ -184,7 +184,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
 
                 TextField f = this.plural.get (ot);
 
-                f.setText (Environment.getObjectTypeNamePlural (ot));
+                f.setText (Environment.getObjectTypeNamePlural (ot).getValue ());
 
             }
 
@@ -206,10 +206,10 @@ public class ObjectTypeNameChangePopup extends PopupContent
     private void save ()
     {
 
-        final Map<String, String> sing = new HashMap ();
-        final Map<String, String> plur = new HashMap ();
+        final Map<String, StringProperty> sing = new HashMap<> ();
+        final Map<String, StringProperty> plur = new HashMap<> ();
 
-        Set<UserConfigurableObjectType> updateTypes = new HashSet ();
+        Set<UserConfigurableObjectType> updateTypes = new HashSet<> ();
         for (String ot : this.singular.keySet ())
         {
 
@@ -221,7 +221,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
             {
 
                 sing.put (ot,
-                          s);
+                          new SimpleStringProperty (s));
 
             }
 
@@ -238,7 +238,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
             {
 
                 plur.put (ot,
-                          p);
+                          new SimpleStringProperty (p));
 
             }
 

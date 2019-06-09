@@ -46,7 +46,6 @@ import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.events.ProjectInfoChangedEvent;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 /*
@@ -112,12 +111,13 @@ public class Environment
 
     // TODO Needs it's own manager.
     private static Set<Tag> tags = null;
+    private static SetProperty<Tag> tagsProp = null;
 
     private static AchievementsManager achievementsManager = null;
 
     private static Set<UserConfigurableObjectType> userConfigObjTypes = new HashSet<> ();
-    private static Map<String, String> objectTypeNamesSingular = new HashMap<> ();
-    private static Map<String, String> objectTypeNamesPlural = new HashMap<> ();
+    private static Map<String, StringProperty> objectTypeNamesSingular = new HashMap<> ();
+    private static Map<String, StringProperty> objectTypeNamesPlural = new HashMap<> ();
 
     private static BooleanProperty playSoundOnKeyStrokeProp = null;
     private static ObjectProperty<Path> keyStrokeSoundPathProp = null;
@@ -534,17 +534,26 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
                 String st = ids.get (1);
 
+                StringProperty sp = null;
+
                 if (st.equals (LanguageStrings.singular))
                 {
 
-                    return Environment.objectTypeNamesSingular.get (ids.get (2));
+                    sp = Environment.objectTypeNamesSingular.get (ids.get (2));
 
                 }
 
                 if (st.equals (LanguageStrings.plural))
                 {
 
-                    return Environment.objectTypeNamesPlural.get (ids.get (2));
+                    sp = Environment.objectTypeNamesPlural.get (ids.get (2));
+
+                }
+
+                if (sp != null)
+                {
+
+                    return sp.getValue ();
 
                 }
 
@@ -578,6 +587,10 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         };
 */
+
+        // This inits the tags.
+        Environment.getAllTags ();
+
         // Init our legacy object types, if needed.
         Environment.projectInfoManager.initLegacyObjectTypes ();
 
@@ -1020,6 +1033,10 @@ TODO
 
         });
 
+        // Register our viewer types, requires the tags property.e
+        AbstractProjectViewer.registerViewerType (Project.NORMAL_PROJECT_TYPE,
+                                                  ProjectViewer.class);
+
         // Get all the projects.
         Environment.initProjectInfos ();
 
@@ -1149,7 +1166,7 @@ TODO
 
                     try
                     {
-System.out.println ("HERE: ");
+
                         Environment.updateProjectInfo (pi);
 
                     } catch (Exception e) {
@@ -1566,37 +1583,10 @@ System.out.println ("HERE: ");
 
                                         }
 
-                                        Environment.openViewersProp.remove (fpv);
-
                                         Environment.userSession.updateCurrentSessionWordCount (fpv.getSessionWordCount ());
 
-                                        if (Environment.openProjects.size () == 0)
-                                        {
-
-                                            if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
-                                            {
-
-                                                try
-                                                {
-
-                                                    Environment.showAllProjectsViewer ();
-
-                                                } catch (Exception e) {
-
-                                                    Environment.logError ("Unable to show all projects viewer",
-                                                                          e);
-
-                                                    // TODO Add message.
-
-                                                }
-
-                                                return;
-
-                                            }
-
-                                            Environment.closeDown ();
-
-                                        }
+                                        Environment.unregisterViewer (fpv,
+                                                                      null);
 
                                     }));
 
@@ -1605,8 +1595,6 @@ System.out.println ("HERE: ");
                 pv.openProject (p,
                                 null,
                                 onProjectOpen);
-
-                pv.init (null);
 
             } catch (Exception e) {
 
@@ -1928,7 +1916,8 @@ TODO Needed?
         if (viewer != null)
         {
 
-            viewer.close (true,
+            // Don't try and save changes.
+            viewer.close (false,
                           onClose);
 
         } else {
@@ -2048,55 +2037,6 @@ TODO Needed?
         return null;
 
     }
-
-    /**
-     * Inform the environment about a project closing.
-     *
-     * If <b>onClose</b> is provided then it is assumed that the caller
-     * is doing something after the project has been deregistered with the
-     * environment, for example opening another project or window.
-     *
-     * If <b>onClose</b> is not provided (null) then a check is made to see if
-     * the projects window should be shown or should shutdown occur because
-     * there are no projects open.
-     *
-     * @param pv The project viewer being closed.
-     * @param onClose The action to take once the project is deregistered.
-     * @throws Exception If something goes wrong (the list is long).
-     */
-     /*
-      TODO Remove since it's handled by the event.
-    public static void projectClosed (AbstractProjectViewer pv,
-                                      boolean               tryShowLanding)
-                               throws Exception
-    {
-
-        Project proj = pv.getProject ();
-
-        ProjectInfo p = Environment.getProjectInfo (pv.getProject ().getId (),
-                                                    pv.getProject ().getType ());
-
-        if (p != null)
-        {
-
-            Object r = Environment.openProjects.remove (p);
-
-        }
-
-        Environment.userSession.updateCurrentSessionWordCount (pv.getSessionWordCount ());
-
-        if ((tryShowLanding)
-            &&
-            (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
-           )
-        {
-
-            Environment.showAllProjectsViewerIfNoOpenProjects ();
-
-        }
-
-    }
-*/
 
     public static void updateProjectInfo (ProjectInfo pi)
                                    throws GeneralException
@@ -2459,7 +2399,7 @@ TODO Needed?
 
     public static void setKeyStrokeSoundFilePath (Path p)
     {
-System.out.println ("HERE: " + p);
+
         if (p == null)
         {
 
@@ -2548,14 +2488,14 @@ System.out.println ("HERE: " + p);
         return false;
 
     }
-
+/*
     public static AllProjectsViewer getAllProjectsViewer ()
     {
 
         return Environment.allProjectsViewer;
 
     }
-
+*/
     public static AbstractViewer showAllProjectsViewer ()
     {
 
@@ -2566,19 +2506,35 @@ System.out.println ("HERE: " + p);
             {
 
                 Environment.allProjectsViewer = new AllProjectsViewer ();
+                Environment.allProjectsViewer.createViewer ();
                 Environment.allProjectsViewer.init (null);
+
+                Environment.allProjectsViewer.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                (ev ->
+                {
+
+                    Environment.unregisterViewer (Environment.allProjectsViewer,
+                                                  null);
+
+                    Environment.allProjectsViewer = null;
+
+                }));
 
             } catch (Exception e) {
 
                 Environment.logError ("Unable to create all projects viewer.",
                                       e);
 
-                // TODO Show an error.
+                // TODO Add show error message when no viewer...
+                ComponentUtils.showErrorMessage (getUILanguageStringProperty (allprojects,actionerror));
+
+                return null;
 
             }
 
         }
 
+        Environment.allProjectsViewer.setVisible (true);
         Environment.allProjectsViewer.toFront ();
 
         return Environment.allProjectsViewer;
@@ -2794,9 +2750,9 @@ System.out.println ("HERE: " + p);
         {
 
             Environment.objectTypeNamesPlural.put (Chapter.OBJECT_TYPE,
-                                                   getUIString (objectnames,plural,Chapter.OBJECT_TYPE));
+                                                   getUILanguageStringProperty (objectnames,plural,Chapter.OBJECT_TYPE));
             Environment.objectTypeNamesSingular.put (Chapter.OBJECT_TYPE,
-                                                     getUIString (objectnames,singular,Chapter.OBJECT_TYPE));
+                                                     getUILanguageStringProperty (objectnames,singular,Chapter.OBJECT_TYPE));
 
         }
 
@@ -2816,8 +2772,50 @@ System.out.println ("HERE: " + p);
             // Use this one.
             Map t = (Map) JSONDecoder.decode (IOUtils.getFile (f.toFile ()));
 
-            Environment.updateUserObjectTypeNames ((Map) t.get (LanguageStrings.singular),
-                                                   (Map) t.get (LanguageStrings.plural));
+            Map sing = (Map) t.get (LanguageStrings.singular);
+            Map plur = (Map) t.get (LanguageStrings.plural);
+
+            Map<String, StringProperty> singv = new HashMap<> ();
+            Map<String, StringProperty> plurv = new HashMap<> ();
+
+            if (sing != null)
+            {
+
+                Iterator iter = sing.keySet ().iterator ();
+
+                while (iter.hasNext ())
+                {
+
+                    Object k = iter.next ();
+                    Object v = sing.get (k);
+
+                    singv.put (k.toString (),
+                               new SimpleStringProperty (v.toString ()));
+
+                }
+
+            }
+
+            if (plur != null)
+            {
+
+                Iterator iter = plur.keySet ().iterator ();
+
+                while (iter.hasNext ())
+                {
+
+                    Object k = iter.next ();
+                    Object v = plur.get (k);
+
+                    plurv.put (k.toString (),
+                               new SimpleStringProperty (v.toString ()));
+
+                }
+
+            }
+
+            Environment.updateUserObjectTypeNames (singv,
+                                                   plurv);
 
         } else {
 
@@ -2845,8 +2843,8 @@ System.out.println ("HERE: " + p);
     private static void loadUserConfigurableObjectTypeNames ()
     {
 
-        Map<String, String> singular = Environment.objectTypeNamesSingular;
-        Map<String, String> plural = Environment.objectTypeNamesPlural;
+        Map<String, StringProperty> singular = Environment.objectTypeNamesSingular;
+        Map<String, StringProperty> plural = Environment.objectTypeNamesPlural;
 
         // Load the names from the configurable types.
         for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
@@ -2856,9 +2854,9 @@ System.out.println ("HERE: " + p);
             {
 
                 plural.put ("asset:" + t.getKey (),
-                            t.getObjectTypeNamePlural ());
+                            t.objectTypeNamePluralProperty ());
                 singular.put ("asset:" + t.getKey (),
-                              t.getObjectTypeName ());
+                              t.objectTypeNameProperty ());
 
             }
 
@@ -2884,8 +2882,8 @@ xxx
                                            throws  Exception
     {
 
-        Map<String, String> singular = new HashMap ();
-        Map<String, String> plural = new HashMap ();
+        Map<String, StringProperty> singular = new HashMap ();
+        Map<String, StringProperty> plural = new HashMap ();
 
         List els = JDOMUtils.getChildElements (root,
                                                XMLConstants.object,
@@ -2909,7 +2907,7 @@ xxx
             {
 
                 singular.put (objType,
-                              s);
+                              new SimpleStringProperty (s));
 
             }
 
@@ -2921,7 +2919,7 @@ xxx
             {
 
                 plural.put (objType,
-                            p);
+                            new SimpleStringProperty (p));
 
             }
 
@@ -2968,7 +2966,7 @@ xxx
                                           throws Exception
     {
 
-        Map<String, Map<String, String>> t = new HashMap ();
+        Map<String, Map<String, StringProperty>> t = new HashMap ();
 
         t.put (LanguageStrings.singular,
                Environment.objectTypeNamesSingular);
@@ -3346,10 +3344,31 @@ xxx
 
         Environment.openViewers.remove (v);
 
-        if (v == Environment.allProjectsViewer)
+        if (Environment.openProjects.size () == 0)
         {
 
-            Environment.allProjectsViewer = null;
+            if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+            {
+
+                Environment.showAllProjectsViewer ();
+
+                return;
+
+            }
+
+            if ((Environment.allProjectsViewer != null)
+                &&
+                (Environment.allProjectsViewer.isVisible ())
+               )
+            {
+
+                return;
+
+            }
+
+            Environment.closeDown ();
+
+            return;
 
         }
 
@@ -3362,7 +3381,7 @@ xxx
 
         }
 
-        if (Environment.openViewersProp.size () == 0)
+        if (Environment.openViewers.size () == 0)
         {
 
             Environment.closeDown ();
@@ -4264,10 +4283,10 @@ TODO Remove
         String id = type.getObjectTypeId ();
 
         Environment.objectTypeNamesSingular.put (id,
-                                                 type.getObjectTypeName ());
+                                                 type.objectTypeNameProperty ());
 
         Environment.objectTypeNamesPlural.put (id,
-                                               type.getObjectTypeNamePlural ());
+                                               type.objectTypeNamePluralProperty ());
 
         // Tell all projects about it.
         Environment.fireUserProjectEvent (type,
@@ -4299,10 +4318,10 @@ TODO Remove
         {
 
             Environment.objectTypeNamesSingular.put (id,
-                                                     type.getObjectTypeName ());
+                                                     type.objectTypeNameProperty ());
 
             Environment.objectTypeNamesPlural.put (id,
-                                                   type.getObjectTypeNamePlural ());
+                                                   type.objectTypeNamePluralProperty ());
 
         }
 
@@ -4357,8 +4376,8 @@ TODO Remove
 
     }
 
-    public static void updateUserObjectTypeNames (Map<String, String> singular,
-                                                  Map<String, String> plural)
+    public static void updateUserObjectTypeNames (Map<String, StringProperty> singular,
+                                                  Map<String, StringProperty> plural)
                                            throws Exception
     {
 
@@ -4368,14 +4387,14 @@ TODO Remove
         if (singular.containsKey (Chapter.OBJECT_TYPE))
         {
 
-            type.setObjectTypeName (singular.get (Chapter.OBJECT_TYPE));
+            type.setObjectTypeName (singular.get (Chapter.OBJECT_TYPE).getValue ());
 
         }
 
         if (plural.containsKey (Chapter.OBJECT_TYPE))
         {
 
-            type.setObjectTypeNamePlural (plural.get (Chapter.OBJECT_TYPE));
+            type.setObjectTypeNamePlural (plural.get (Chapter.OBJECT_TYPE).getValue ());
 
         }
 
@@ -4533,9 +4552,18 @@ TODO Remove
                                                                                                null,
                                                                                                true));
 
+            Environment.tagsProp = new SimpleSetProperty<> (FXCollections.observableSet (Environment.tags));
+
         }
 
         return Environment.tags;
+
+    }
+
+    public static SetProperty<Tag> tagsProperty ()
+    {
+
+        return Environment.tagsProp;
 
     }
 
@@ -4888,21 +4916,21 @@ TODO Remove
     }
 
     // TODO Move to an ObjectTypeNameManager... singleton
-    public static Map<String, String> getObjectTypeNamePlurals ()
+    public static Map<String, StringProperty> getObjectTypeNamePlurals ()
     {
 
         return new HashMap (Environment.objectTypeNamesPlural);
 
     }
 
-    public static Map<String, String> getObjectTypeNames ()
+    public static Map<String, StringProperty> getObjectTypeNames ()
     {
 
         return new HashMap (Environment.objectTypeNamesSingular);
 
     }
 
-    public static String getObjectTypeNamePlural (DataObject t)
+    public static StringProperty getObjectTypeNamePlural (DataObject t)
     {
 
         if (t == null)
@@ -4924,7 +4952,7 @@ TODO Remove
 
             }
 
-            return ut.getObjectTypeNamePlural ();
+            return ut.objectTypeNamePluralProperty ();
 
         }
 
@@ -4936,7 +4964,7 @@ TODO Remove
 
             UserConfigurableObject ut = (UserConfigurableObject) t;
 
-            return ut.getObjectTypePluralName ();
+            return ut.objectTypeNamePluralProperty ();
 
         }
 
@@ -4958,7 +4986,7 @@ TODO Remove
 
     }
 
-    public static String getObjectTypeNamePlural (String t)
+    public static StringProperty getObjectTypeNamePlural (String t)
     {
 
         if (t == null)
@@ -4970,12 +4998,12 @@ TODO Remove
 
         t = t.toLowerCase ();
 
-        String v = Environment.objectTypeNamesPlural.get (t);
+        StringProperty v = Environment.objectTypeNamesPlural.get (t);
 
         if (v == null)
         {
 
-            v = getUIString (objectnames,plural,t);
+            v = getUILanguageStringProperty (objectnames,plural,t);
 
         }
 
@@ -4992,7 +5020,7 @@ TODO Remove
 
     }
 
-    public static String getObjectTypeName (DataObject t)
+    public static StringProperty getObjectTypeName (DataObject t)
     {
 
         if (t == null)
@@ -5007,7 +5035,7 @@ TODO Remove
 
             UserConfigurableObject ut = (UserConfigurableObject) t;
 
-            return ut.getObjectTypeName ();
+            return ut.objectTypeNameProperty ();
 
         }
 
@@ -5029,7 +5057,7 @@ TODO Remove
 
     }
 
-    public static String getObjectTypeName (String t)
+    public static StringProperty getObjectTypeName (String t)
     {
 
         if (t == null)
@@ -5044,16 +5072,16 @@ TODO Remove
         if (t.equals ("qw"))
         {
 
-            return Constants.QUOLL_WRITER_NAME;
+            return new SimpleStringProperty (Constants.QUOLL_WRITER_NAME);
 
         }
 
-        String v = Environment.objectTypeNamesSingular.get (t);
+        StringProperty v = Environment.objectTypeNamesSingular.get (t);
 
         if (v == null)
         {
 
-            v = getUIString (objectnames,singular,t);
+            v = getUILanguageStringProperty (objectnames,singular,t);
 
         }
 
@@ -5759,8 +5787,6 @@ TODO
             try
             {
 
-                v.init (null);
-
                 // Put it in the user's directory.
                 v.newProject (Environment.getUserQuollWriterDirPath (),
                               p,
@@ -5790,51 +5816,8 @@ TODO
         }
 
         WarmupProjectViewer v = new WarmupProjectViewer ();
-        v.init (null);
         v.openProject (pi,
                        null);
-
-        return v;
-
-    }
-
-    public static AbstractProjectViewer getProjectViewerForType (Project p)
-                                                          throws Exception
-    {
-
-        AbstractProjectViewer v = null;
-
-        if (p.getType ().equals (Project.NORMAL_PROJECT_TYPE))
-        {
-
-            v = new ProjectViewer ();
-
-        }
-
-        if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
-        {
-
-            v = new EditorProjectViewer ();
-
-        }
-
-        if (p.getType ().equals (Project.WARMUPS_PROJECT_TYPE))
-        {
-
-            v = new WarmupProjectViewer ();
-
-        }
-
-        if (v == null)
-        {
-
-            throw new GeneralException ("Project type: " +
-                                        p.getType () +
-                                        " is not supported.");
-
-        }
-
-        v.init (null);
 
         return v;
 

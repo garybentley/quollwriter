@@ -196,7 +196,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                 popup.add (mi);
 
                 // TODO: Abstract this.
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "S");
 
                 mi = SwingUIUtils.createMenuItem (getUIString (prefix,OutlineItem.OBJECT_TYPE),
@@ -208,7 +208,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
                 popup.add (mi);
 
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "O");
 
                 mi = SwingUIUtils.createMenuItem (getUIString (prefix,Note.OBJECT_TYPE),
@@ -220,7 +220,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
                 popup.add (mi);
 
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "N");
 
                 mi = SwingUIUtils.createMenuItem (getUIString (prefix,Note.EDIT_NEEDED_OBJECT_TYPE),

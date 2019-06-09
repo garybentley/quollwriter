@@ -31,7 +31,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     {
 
         super (objType.getObjectTypeNamePlural (),
-               objType.getIcon16x16 (),
+               (ImageIcon) null, // TODO objType.getIcon16x16 (),
                pv);
 
         this.objType = objType;
@@ -91,7 +91,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public void update ()
     {
 
-        this.getHeader ().setIcon (objType.getIcon16x16 ());
+        // TODO this.getHeader ().setIcon (objType.getIcon16x16 ());
 
         super.update ();
 

@@ -86,7 +86,7 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
 
         Header title = UIUtils.createHeader (this.getTitle (),
                                              Constants.PANEL_TITLE,
-                                             this.obj.getUserConfigurableObjectType ().getIcon24x24 (),
+                                             (ImageIcon) null, // TODO this.obj.getUserConfigurableObjectType ().getIcon24x24 (),
                                              null);
 
         title.setBorder (new CompoundBorder (UIUtils.createBottomLineWithPadding (0, 0, 2, 0),
@@ -385,7 +385,7 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
     public ImageIcon getIcon (int iconTypeSize)
     {
 
-        return this.obj.getUserConfigurableObjectType ().getIcon16x16 ();
+        return null; // TODO this.obj.getUserConfigurableObjectType ().getIcon16x16 ();
 
     }
 

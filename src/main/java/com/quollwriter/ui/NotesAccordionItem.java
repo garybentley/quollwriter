@@ -22,7 +22,7 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public NotesAccordionItem (ProjectViewer pv)
     {
 
-        super (Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE),
+        super (Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE).getValue (),
                Note.OBJECT_TYPE,
                pv);
 
@@ -32,7 +32,7 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public String getTitle ()
     {
 
-        return Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE);
+        return Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE).getValue ();
 
     }
 

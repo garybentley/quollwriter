@@ -22,6 +22,9 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class Viewer extends Stage implements Stateful
 {
 
+    public static final int DEFAULT_WINDOW_WIDTH = 800;
+	public static final int DEFAULT_WINDOW_HEIGHT = 500;
+
     private Node content = null;
     private Header header = null;
     private String styleName = null;
@@ -43,21 +46,45 @@ public class Viewer extends Stage implements Stateful
         if (s != null)
         {
 
-            this.setHeight (s.getAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME));
-            this.setWidth (s.getAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME));
+            Integer wh = s.getAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
 
-            int y = s.getAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+            if (wh == null)
+            {
 
-            if (y > 0)
+                wh = DEFAULT_WINDOW_HEIGHT;
+
+            }
+
+            Integer ww = s.getAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
+
+            if (ww == null)
+            {
+
+                ww = DEFAULT_WINDOW_WIDTH;
+
+            }
+
+            this.setHeight (wh);
+            this.setWidth (ww);
+
+            Integer y = s.getAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+
+            if ((y != null)
+                &&
+                (y > 0)
+               )
             {
 
                 this.setY (y);
 
             }
 
-            int x = s.getAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+            Integer x = s.getAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
 
-            if (x > 0)
+            if ((x != null)
+                &&
+                (x > 0)
+               )
             {
 
                 this.setX (x);
@@ -125,7 +152,8 @@ public class Viewer extends Stage implements Stateful
         }
 
         this.header = Header.builder ()
-            .controls (b.headerControlsSupplier.get ())
+            //.controls (b.headerControlsSupplier.get ())
+            .toolbar (b.headerToolbar)
             .styleClassName (StyleClassNames.HEADER)
             .build ();
         this.header.titleProperty ().bind (b.title);
@@ -185,6 +213,15 @@ public class Viewer extends Stage implements Stateful
         private String panelId = null;
         private StringProperty title = null;
         private Supplier<Set<Node>> headerControlsSupplier = null;
+        private ToolBar headerToolbar = null;
+
+        public Builder headerToolbar (ToolBar tb)
+        {
+
+            this.headerToolbar = tb;
+            return this;
+
+        }
 
         public Builder headerControls (final Set<Node> items)
         {

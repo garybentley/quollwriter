@@ -22,6 +22,13 @@ import static com.quollwriter.LanguageStrings.*;
 public class ComponentUtils
 {
 
+    public static void showErrorMessage (StringProperty message)
+    {
+
+        // TODO 
+
+    }
+
     public static QuollPopup showErrorMessage (AbstractViewer showOn,
                                                String...      message)
     {
@@ -40,7 +47,7 @@ public class ComponentUtils
                                                 //"%s<br /><br /><a href='%s:%s'>Click here to contact Quoll Writer support about this problem.</a>",
                                                 message,
                                                 Constants.ACTION_PROTOCOL,
-                                                AbstractViewer.CommandIds.reportbug))
+                                                AbstractViewer.CommandId.reportbug))
             .withViewer (UIUtils.getViewer (showOn))
             .build ();
 
@@ -477,8 +484,41 @@ public class ComponentUtils
                                                   AbstractViewer  showOn)
     {
 
-        VBox b = new VBox ();
-        b.setFillWidth (true);
+        Button confirm = QuollButton.builder ()
+            .label ((confirmButtonLabel != null ? confirmButtonLabel : getUILanguageStringProperty (buttons,LanguageStrings.confirm)))
+            .buttonType (ButtonBar.ButtonData.OK_DONE)
+            .styleClassName (StyleClassNames.CONFIRM)
+            .onAction (onConfirm)
+            .build ();
+
+        Set<Button> buts = new LinkedHashSet<> ();
+        buts.add (confirm);
+
+        QuollPopup qp = ComponentUtils.createQuestionPopup (title,
+                                                   style,
+                                                   message,
+                                                   buts,
+                                                   cancelButtonLabel,
+                                                   onCancel,
+                                                   onClose,
+                                                   showOn);
+
+        confirm.addEventHandler (ActionEvent.ACTION,
+                                 ev -> qp.close ());
+
+        return qp;
+
+    }
+
+    public static QuollPopup createQuestionPopup (StringProperty  title,
+                                                  String          style,
+                                                  StringProperty  message,
+                                                  Set<Button>     buttons,
+                                                  StringProperty  cancelButtonLabel,
+                                                  EventHandler<ActionEvent> onCancel,
+                                                  Runnable  onClose,
+                                                  AbstractViewer  showOn)
+    {
 
         BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
             .styleClassName (StyleClassNames.MESSAGE)
@@ -486,6 +526,31 @@ public class ComponentUtils
             .withViewer (showOn)
             .build ();
 
+        return ComponentUtils.createQuestionPopup (title,
+                                                   style,
+                                                   desc,
+                                                   buttons,
+                                                   cancelButtonLabel,
+                                                   onCancel,
+                                                   onClose,
+                                                   showOn);
+
+    }
+
+    public static QuollPopup createQuestionPopup (StringProperty  title,
+                                                  String          style,
+                                                  Node            message,
+                                                  Set<Button>     buttons,
+                                                  StringProperty  cancelButtonLabel,
+                                                  EventHandler<ActionEvent> onCancel,
+                                                  Runnable  onClose,
+                                                  AbstractViewer  showOn)
+    {
+
+        VBox b = new VBox ();
+        b.setFillWidth (true);
+
+/*
         Button confirm = QuollButton.builder ()
             .label ((confirmButtonLabel != null ? confirmButtonLabel : getUILanguageStringProperty (buttons,LanguageStrings.confirm)))
             .buttonType (ButtonBar.ButtonData.OK_DONE)
@@ -499,13 +564,23 @@ public class ComponentUtils
             .styleClassName (StyleClassNames.CANCEL)
             .onAction (onCancel)
             .build ();
+*/
+        Set<Button> buts = new LinkedHashSet<> (buttons);
 
-        Node bb = QuollButtonBar.builder ()
-            .button (confirm)
-            .button (cancel)
+        Button cancel = QuollButton.builder ()
+            .label ((cancelButtonLabel != null ? cancelButtonLabel : getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.cancel)))
+            .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
+            .styleClassName (StyleClassNames.CANCEL)
+            .onAction (onCancel)
             .build ();
 
-        b.getChildren ().addAll (desc, bb);
+        buts.add (cancel);
+
+        Node bb = QuollButtonBar.builder ()
+            .buttons (buts)
+            .build ();
+
+        b.getChildren ().addAll (message, bb);
 
         QuollPopup qp = QuollPopup.builder ()
             .title (title)
@@ -527,9 +602,6 @@ public class ComponentUtils
 
         cancel.addEventHandler (ActionEvent.ACTION,
                                 ev -> qp.close ());
-
-        confirm.addEventHandler (ActionEvent.ACTION,
-                                 ev -> qp.close ());
 
         qp.show ();
 

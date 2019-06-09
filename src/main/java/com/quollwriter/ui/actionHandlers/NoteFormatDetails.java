@@ -38,7 +38,7 @@ public class NoteFormatDetails<V extends AbstractViewer> implements ChapterItemF
     public String getTitle (Note item)
     {
 
-        return Environment.getObjectTypeName (item);
+        return Environment.getObjectTypeName (item).getValue ();
 
     }
 

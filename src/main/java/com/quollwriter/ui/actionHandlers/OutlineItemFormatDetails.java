@@ -26,7 +26,7 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
     public String getTitle (OutlineItem item)
     {
 
-        return Environment.getObjectTypeName (item.getObjectType ());
+        return Environment.getObjectTypeName (item.getObjectType ()).getValue ();
 
     }
 

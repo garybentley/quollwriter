@@ -121,7 +121,7 @@ public class ImportPopup extends PopupContent
                     .label (n.nameProperty ())
                     .build ();
 
-                l.setGraphic (new ImageView (SwingFXUtils.toFXImage ((java.awt.image.BufferedImage) uc.getIcon16x16 ().getImage (), null)));
+                l.setGraphic (uc.getIcon16x16 ());
 
                 return l;
 
@@ -590,8 +590,6 @@ public class ImportPopup extends PopupContent
                                                                                       a.getName ()));
 
                     }
-
-                    this.pv.reloadAssetTree (a);
 
                     this.pv.openObjectSection (a.getObjectType ());
 
@@ -1751,7 +1749,8 @@ TODO Add tool tip?
             {
 
                 TreeParentNode c = new TreeParentNode (Chapter.OBJECT_TYPE,
-                                                       Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+                                                       // Should use the property instead?
+                                                       Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE).getValue ());
 
                 CheckBoxTreeItem<NamedObject> ci = new CheckBoxTreeItem<> (c);
                 root.getChildren ().add (ci);

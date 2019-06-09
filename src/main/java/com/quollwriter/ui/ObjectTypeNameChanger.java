@@ -142,10 +142,11 @@ public class ObjectTypeNameChanger extends Box
 
                                                     try
                                                     {
-
+/*
+TODO
                                                         Environment.updateUserObjectTypeNames (sing,
                                                                                                plur);
-
+*/
                                                     } catch (Exception e) {
 
                                                         UIUtils.showErrorMessage (_this,
@@ -217,10 +218,11 @@ public class ObjectTypeNameChanger extends Box
 
                 try
                 {
-
+/*
+TODO
                     Environment.updateUserObjectTypeNames (sing,
                                                            plur);
-
+*/
                 } catch (Exception e) {
 
                     UIUtils.showErrorMessage (this,
@@ -443,8 +445,8 @@ public class ObjectTypeNameChanger extends Box
                      cc.xy (1,
                             row));
 
-        final JTextField s = new JTextField (Environment.getObjectTypeName (objType));
-        final JTextField p = new JTextField (Environment.getObjectTypeNamePlural (objType));
+        final JTextField s = new JTextField (Environment.getObjectTypeName (objType).getValue ());
+        final JTextField p = new JTextField (Environment.getObjectTypeNamePlural (objType).getValue ());
 
         this.singular.put (objType,
                            s);

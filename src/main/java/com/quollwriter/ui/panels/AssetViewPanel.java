@@ -81,14 +81,14 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
         if (w == 24)
         {
 
-            im = this.getForObject ().getUserConfigurableObjectType ().getIcon24x24 ();
+            im = null; // TODO this.getForObject ().getUserConfigurableObjectType ().getIcon24x24 ();
 
         }
 
         if (w == 16)
         {
 
-            im = this.getForObject ().getUserConfigurableObjectType ().getIcon16x16 ();
+            im = null; // TODO this.getForObject ().getUserConfigurableObjectType ().getIcon16x16 ();
 
         }
 
@@ -439,7 +439,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
     public void doRefresh ()
     {
 
-        this.getHeader ().setIcon (this.obj.getUserConfigurableObjectType ().getIcon24x24 ());
+        // TODO this.getHeader ().setIcon (this.obj.getUserConfigurableObjectType ().getIcon24x24 ());
 
         if (this.appearsInPanel != null)
         {

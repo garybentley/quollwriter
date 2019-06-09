@@ -3522,7 +3522,7 @@ TODO Remove should be handled by the property in UserProperties.
                 UserConfigurableObjectType t = (UserConfigurableObjectType) value;
 
                 this.setText (t.getObjectTypeNamePlural ());
-                this.setIcon (t.getIcon16x16 ());
+                // TODO this.setIcon (t.getIcon16x16 ());
                 this.setBorder (UIUtils.createPadding (3, 3, 3, 3));
 
                 return this;

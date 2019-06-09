@@ -15,6 +15,9 @@ import javafx.stage.*;
 import javafx.application.*;
 import javafx.beans.property.*;
 
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
+
 public class Startup_fx extends Application
 {
 
@@ -57,8 +60,6 @@ public class Startup_fx extends Application
 
             ss.updateProgress (0.6f);
 
-System.out.println ("X: " + Platform.isImplicitExit ());
-
             /*
             if (Environment.isFirstUse ())
             {
@@ -68,13 +69,13 @@ System.out.println ("X: " + Platform.isImplicitExit ());
                 return;
 
             }
-
+*/
             if (Environment.getAllProjectInfos ().size () == 0)
             {
 
                 ss.finish ();
 
-                Environment.showLanding ();
+                Environment.showAllProjectsViewer ();
 
                 return;
 
@@ -82,15 +83,15 @@ System.out.println ("X: " + Platform.isImplicitExit ());
 
             boolean showError = false;
 
-            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
+            if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
             {
 
-                Environment.showLanding ();
+                Environment.showAllProjectsViewer ();
 
             }
 
             // See if the user property is to open the last edited project.
-            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
+            if (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
             {
 
                 try
@@ -116,32 +117,26 @@ System.out.println ("X: " + Platform.isImplicitExit ());
             if (showError)
             {
 
-                Environment.showLanding ();
+                Environment.showAllProjectsViewer ();
 
-                UIUtils.showMessage ((java.awt.Component) null,
-                                     "Unable to open last {project}",
-                                     "Unable to open last edited {project}, please select another {project} or create a new one.");
+                ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,cantopenlastprojecterror,text));
 
             }
 
-            */
         } catch (Exception eee)
         {
 
             if (eee instanceof OverlappingFileLockException)
             {
 
-                ComponentUtils.showErrorMessage (null,
-                                                 new SimpleStringProperty ("It appears that Quoll Writer is already running.  Please close the other instance before starting Quoll Writer again."));
-
+                ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,alreadyrunningerror));
 
             } else {
 
                 Environment.logError ("Unable to open Quoll Writer",
                                       eee);
 
-                ComponentUtils.showErrorMessage (null,
-                                                 new SimpleStringProperty ("Unable to start Quoll Writer"));
+                ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,unabletostarterror));
 
             }
 

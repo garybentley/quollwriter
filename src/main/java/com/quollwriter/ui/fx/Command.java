@@ -8,6 +8,23 @@ public class Command
     private Runnable action = null;
     private List<String> ids = null;
 
+    protected Command (String... commandIds)
+    {
+
+        if ((commandIds == null)
+            ||
+            (commandIds.length == 0)
+           )
+        {
+
+            throw new IllegalArgumentException ("At least 1 command id must be provided.");
+
+        }
+
+        this.ids = Arrays.asList (commandIds);
+
+    }
+
     public Command (Runnable  action,
                     String... commandIds)
     {

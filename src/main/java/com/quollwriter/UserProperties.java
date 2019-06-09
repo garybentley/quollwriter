@@ -55,6 +55,7 @@ public class UserProperties
 
     private static Map<String, SimpleStringProperty> mappedProperties = new HashMap<> ();
     private static SimpleStringProperty tabsLocationProp = null;
+    private static SimpleStringProperty toolbarLocationProp = null;
     private static SimpleStringProperty projectInfoFormatProp = null;
     private static SimpleObjectProperty<Color> editMarkerColorProp = null;
     private static SimpleStringProperty sortProjectsByProp = null;
@@ -98,18 +99,11 @@ public class UserProperties
 
         UserProperties.props = props;
 
-        String v = UserProperties.get (Constants.PROJECT_INFO_FORMAT);
+        UserProperties.projectInfoFormatProp = UserProperties.createMappedProperty (Constants.PROJECT_INFO_FORMAT,
+                                                                                    Constants.DEFAULT_PROJECT_INFO_FORMAT);
 
-		if (v == null)
-		{
-
-			v = UserProperties.get (Constants.DEFAULT_PROJECT_INFO_FORMAT);
-
-		}
-
-        UserProperties.projectInfoFormatProp = UserProperties.createMappedProperty (Constants.PROJECT_INFO_FORMAT);
-
-        UserProperties.tabsLocationProp = UserProperties.createMappedProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+        UserProperties.tabsLocationProp = UserProperties.createMappedProperty (Constants.TABS_LOCATION_PROPERTY_NAME);
+        UserProperties.toolbarLocationProp = UserProperties.createMappedProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME);
 
         UserProperties.editMarkerColorProp = new SimpleObjectProperty<> ();
 
@@ -698,7 +692,25 @@ public class UserProperties
     private static SimpleStringProperty createMappedProperty (String name)
     {
 
-        SimpleStringProperty s = new SimpleStringProperty (UserProperties.get (name));
+        return UserProperties.createMappedProperty (name,
+                                                    null);
+
+    }
+
+    private static SimpleStringProperty createMappedProperty (String name,
+                                                              String defaultNameOnNull)
+    {
+
+        String v = UserProperties.get (name);
+
+        if (v == null)
+        {
+
+            v = UserProperties.get (defaultNameOnNull);
+
+        }
+
+        SimpleStringProperty s = new SimpleStringProperty (v);
         UserProperties.mappedProperties.put (name,
                                              s);
 
@@ -752,6 +764,21 @@ public class UserProperties
     {
 
         return UserProperties.tabsLocationProp;
+
+    }
+
+    // TODO Make an enum.
+    public static SimpleStringProperty toolbarLocationProperty ()
+    {
+
+        return UserProperties.toolbarLocationProp;
+
+    }
+
+    public static void setToolbarLocation (String loc)
+    {
+
+        UserProperties.toolbarLocationProp.setValue (loc);
 
     }
 
@@ -921,7 +948,7 @@ public class UserProperties
 
     }
 
-    public static boolean getAsBoolean (String name,
+    public static Boolean getAsBoolean (String name,
                                         String defOnNull)
     {
 
@@ -938,15 +965,15 @@ public class UserProperties
 
     }
 
-    public static boolean getAsBoolean (String name)
+    public static Boolean getAsBoolean (String name)
     {
 
         return UserProperties.props.getPropertyAsBoolean (name);
 
     }
 
-    public static int getAsInt (String name,
-                                String defOnNull)
+    public static Integer getAsInt (String name,
+                                    String defOnNull)
     {
 
         AbstractProperty a = UserProperties.props.getPropertyObj (name);
@@ -962,7 +989,7 @@ public class UserProperties
 
     }
 
-    public static int getAsInt (String name)
+    public static Integer getAsInt (String name)
     {
 
         return UserProperties.props.getPropertyAsInt (name);

@@ -6139,7 +6139,7 @@ TODO
         {
 
             JMenuItem mi = new JMenuItem (type.getObjectTypeName (),
-                                          type.getIcon16x16 ());
+                                          0); // TODO type.getIcon16x16 ());
 
             m.add (mi);
 
@@ -6176,7 +6176,7 @@ TODO
         for (UserConfigurableObjectType type : types)
         {
 
-            JButton but = UIUtils.createButton (type.getIcon16x16 (),
+            JButton but = UIUtils.createButton (null, // TODO type.getIcon16x16 (),
                                                 String.format (getUIString (assets,add,button,tooltip),
                                                                 //"Click to add a new %s",
                                                                type.getObjectTypeName ()),
@@ -10833,11 +10833,13 @@ TODO Moved to BackupsManager.
         //"Widgets");
         utype.setLayout (null);
         utype.setAssetObjectType (true);
+        /*
+        TODO
         utype.setIcon24x24 (Environment.getIcon ("whats-new",
                                                  Constants.ICON_TITLE));
         utype.setIcon16x16 (Environment.getIcon ("whats-new",
                                                  Constants.ICON_SIDEBAR));
-
+*/
         // Name
         ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
 

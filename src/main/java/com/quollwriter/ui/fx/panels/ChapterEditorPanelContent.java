@@ -20,8 +20,6 @@ import com.quollwriter.ui.fx.swing.*;
 public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer, P extends AbstractEditorPanel> extends NamedObjectPanelContent<E, Chapter>
 {
 
-    public static final String PANEL_ID = "chapter";
-
     private P chapterPanel = null;
 
     public ChapterEditorPanelContent (E       viewer,
@@ -86,14 +84,21 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer,
 
         Panel panel = Panel.builder ()
             // TODO .title (this.object.nameProperty ())
-            .title (new javafx.beans.property.SimpleStringProperty (this.object.getName ()))
+            .title (this.object.nameProperty ())
             .content (this)
             .styleClassName (StyleClassNames.CHAPTER)
-            .panelId (PANEL_ID + "-" + this.object.getKey ())
+            .panelId (getPanelIdForChapter (this.object))
             // TODO .headerControls ()
             .build ();
 
         return panel;
+
+    }
+
+    public static String getPanelIdForChapter (Chapter c)
+    {
+
+        return "chapter-" + c.getKey ();
 
     }
 

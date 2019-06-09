@@ -6,6 +6,7 @@ import java.util.function.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import javafx.scene.control.*;
+import javafx.scene.image.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -40,14 +41,10 @@ public class QuollMenu extends Menu
 
         }
 
+        this.setGraphic (new ImageView ());
+
     }
 
-    /**
-     * Get a builder to create a new menu item.
-     *
-     * Usage: QuollMenuItem.builder ().styleName ("hello").build ();
-     * @returns A new builder.
-     */
     public static QuollMenu.Builder builder ()
     {
 

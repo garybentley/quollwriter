@@ -23,7 +23,7 @@ import static com.quollwriter.LanguageStrings.*;
 public class Panel extends VBox implements Stateful
 {
 
-    private Node content = null;
+    private PanelContent content = null;
     private String panelId = null;
     private String styleName = null;
     private StringProperty titleProp = null;
@@ -41,6 +41,8 @@ public class Panel extends VBox implements Stateful
     public void init (State s)
                throws GeneralException
     {
+
+        this.content.init (s);
 
     }
 
@@ -99,7 +101,6 @@ public class Panel extends VBox implements Stateful
                        Priority.ALWAYS);
         this.setFillWidth (true);
         this.getChildren ().add (b.content);
-
         this.getStyleClass ().add (StyleClassNames.PANEL);
 
         if (b.styleName != null)
@@ -164,7 +165,7 @@ public class Panel extends VBox implements Stateful
     public static class Builder implements IBuilder<Builder, Panel>
     {
 
-        private Node content = null;
+        private PanelContent content = null;
         private String styleName = null;
         private String panelId = null;
         private StringProperty title = null;
@@ -235,7 +236,7 @@ public class Panel extends VBox implements Stateful
 
         }
 
-        public Builder content (Node c)
+        public Builder content (PanelContent c)
         {
 
             this.content = c;
@@ -292,7 +293,7 @@ public class Panel extends VBox implements Stateful
 
     }
 
-    public Node getContent ()
+    public PanelContent getContent ()
     {
 
         return this.content;

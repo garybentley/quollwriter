@@ -18,6 +18,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 {
 
     public static final String STATUS_PROP_NAME = "status";
+    public static final String LAST_EDITED_PROP_NAME = "lastEdited";
 
     public enum Statistic
     {
@@ -67,6 +68,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     private SetProperty<Path> backupPathsProp = null;
 
     private StringProperty statusProp = null;
+    private ObjectProperty<Date> lastEditedProp = null;
 
     public ProjectInfo ()
     {
@@ -80,7 +82,17 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         {
 
             // TODO Change to pass the property with the old/new values.
-            _this.firePropertyChangedEvent ("status",
+            _this.firePropertyChangedEvent (STATUS_PROP_NAME,
+                                            oldv,
+                                            newv);
+
+        });
+
+        this.lastEditedProp = new SimpleObjectProperty<> (this, LAST_EDITED_PROP_NAME);
+        this.lastEditedProp.addListener ((p, oldv, newv) ->
+        {
+
+            _this.firePropertyChangedEvent (LAST_EDITED_PROP_NAME,
                                             oldv,
                                             newv);
 
@@ -541,10 +553,18 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
     }
 
+    public ObjectProperty<Date> lastEditedProperty ()
+    {
+
+        return this.lastEditedProp;
+
+    }
+
     public void setLastEdited (Date d)
     {
 
         this.lastEdited = d;
+        this.lastEditedProp.setValue (d);
 
     }
 

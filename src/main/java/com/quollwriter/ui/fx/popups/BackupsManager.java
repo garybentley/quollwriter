@@ -318,7 +318,7 @@ public class BackupsManager extends PopupContent
                                                         {
 
                                                             // Close the project.
-                                                            pv.close (false,
+                                                            pv.close (true,
                                                                       doRestore);
 
                                                         } else {

@@ -43,6 +43,7 @@ public class Chapter extends LegacyUserConfigurableObject
     private IntegerProperty editPositionProp = new SimpleIntegerProperty (-1);
     private Position textEditPos = null;
     private boolean editComplete = false;
+    private BooleanProperty editCompleteProp = new SimpleBooleanProperty (false);
     private Set<Issue> problemFinderIgnores = new HashSet<> ();
 
     private ProjectVersion projVersion = null;
@@ -223,8 +224,17 @@ public class Chapter extends LegacyUserConfigurableObject
     {
 
         this.editComplete = b;
+        this.editCompleteProp.setValue (b);
 
     }
+
+    public BooleanProperty editCompleteProperty ()
+    {
+
+        return this.editCompleteProp;
+
+    }
+
     /*
     public String getMarkup ()
     {

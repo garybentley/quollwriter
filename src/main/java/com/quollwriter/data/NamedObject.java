@@ -26,11 +26,11 @@ public abstract class NamedObject extends DataObject
     private String   name = null;
     private Date     lastModified = null;
     private StringWithMarkup   description = null;
-    private Set<Link>  links = new HashSet ();
-    private Set<Note> notes = new TreeSet (new ChapterItemSorter ());
+    private Set<Link>  links = new HashSet<> ();
+    private Set<Note> notes = new TreeSet<> (new ChapterItemSorter ());
     private String     aliases = null;
-    private Set<File> files = new LinkedHashSet ();
-    private Set<Tag> tags = new LinkedHashSet ();
+    private Set<File> files = new LinkedHashSet<> ();
+    private Set<Tag> tags = new LinkedHashSet<> ();
 
     public NamedObject(String objType,
                        String name)
@@ -747,6 +747,9 @@ public abstract class NamedObject extends DataObject
 
         this.updateTags ();
 
+        this.getProject ().addTagToObject (t,
+                                           this);
+
         this.firePropertyChangedEvent (NamedObject.TAG,
                                        null,
                                        t);
@@ -766,6 +769,9 @@ public abstract class NamedObject extends DataObject
         this.tags.remove (t);
 
         this.updateTags ();
+
+        this.getProject ().removeTagFromObject (t,
+                                                this);
 
         this.firePropertyChangedEvent (NamedObject.TAG,
                                        t,
@@ -790,7 +796,7 @@ public abstract class NamedObject extends DataObject
     private void updateTags ()
     {
 
-        Set<String> tagKeys = new LinkedHashSet ();
+        Set<String> tagKeys = new LinkedHashSet<> ();
 
         for (Tag t : this.tags)
         {

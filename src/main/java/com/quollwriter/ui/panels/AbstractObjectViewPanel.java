@@ -115,7 +115,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
 
         this.title = UIUtils.createHeader (this.obj.getName (),
                                            Constants.PANEL_TITLE,
-                                           this.obj.getUserConfigurableObjectType ().getIcon24x24 (),
+                                           (ImageIcon) null, // TODO this.obj.getUserConfigurableObjectType ().getIcon24x24 (),
                                            null);
 
         final AbstractObjectViewPanel _this = this;
@@ -287,7 +287,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_D,
                                         InputEvent.CTRL_DOWN_MASK),
                 "adddocument");
-                
+
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_L,
                                         InputEvent.CTRL_DOWN_MASK),
                 "editlinkedto");

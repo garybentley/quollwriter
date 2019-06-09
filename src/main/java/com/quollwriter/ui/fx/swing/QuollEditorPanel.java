@@ -163,7 +163,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel<ProjectViewer>
                 popup.add (mi);
 
                 // TODO: Abstract this.
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "S");
 
                 mi = SwingUIUtils.createMenuItem (Environment.getUIString (prefix,
@@ -176,7 +176,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel<ProjectViewer>
 
                 popup.add (mi);
 
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "O");
 
                 mi = SwingUIUtils.createMenuItem (Environment.getUIString (prefix,
@@ -189,7 +189,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel<ProjectViewer>
 
                 popup.add (mi);
 
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "N");
 
                 mi = SwingUIUtils.createMenuItem (Environment.getUIString (prefix,

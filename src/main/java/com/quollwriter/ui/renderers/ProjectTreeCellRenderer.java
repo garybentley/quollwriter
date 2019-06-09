@@ -123,7 +123,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
            )
         {
 
-            return ((Asset) d).getUserConfigurableObjectType ().getIcon16x16 ();
+            return null; // TODO ((Asset) d).getUserConfigurableObjectType ().getIcon16x16 ();
 
         }
 

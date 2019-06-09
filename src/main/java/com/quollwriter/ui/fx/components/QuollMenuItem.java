@@ -5,6 +5,8 @@ import java.util.*;
 import javafx.beans.binding.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.scene.input.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -31,6 +33,22 @@ public class QuollMenuItem extends MenuItem
             this.getStyleClass ().add (b.styleName);
 
         }
+/*
+        if (b.tooltip != null)
+        {
+
+            UIUtils.setTooltip (this,
+                                b.tooltip);
+
+        }
+*/
+
+        if (b.accelerator != null)
+        {
+
+            this.setAccelerator (b.accelerator);
+
+        }
 
         if (b.onAction != null)
         {
@@ -38,6 +56,8 @@ public class QuollMenuItem extends MenuItem
             this.setOnAction (b.onAction);
 
         }
+
+        this.setGraphic (new ImageView ());
 
     }
 
@@ -58,6 +78,7 @@ public class QuollMenuItem extends MenuItem
     {
 
         private StringProperty text = null;
+        private KeyCombination accelerator = null;
         private String styleName = null;
         private EventHandler<ActionEvent> onAction = null;
 
@@ -122,6 +143,38 @@ public class QuollMenuItem extends MenuItem
 
         }
 
+        public Builder accelerator (KeyCombination kc)
+        {
+
+            this.accelerator = kc;
+            return this;
+
+        }
+
+/*
+        public Builder tooltip (StringProperty prop)
+        {
+
+            this.tooltip = prop;
+            return this;
+
+        }
+
+        public Builder tooltip (List<String> prefix,
+                                String...    ids)
+        {
+
+            return this.tooltip (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public Builder tooltip (String... ids)
+        {
+
+            return this.tooltip (getUILanguageStringProperty (ids));
+
+        }
+*/
     }
 
 }

@@ -91,6 +91,7 @@ public class QuollPopup extends ViewerContent
             .title (b.title)
             .controls (controls)
             .build ();
+        h.managedProperty ().bind (h.visibleProperty ());
 
         VBox vb = new VBox ();
         this.getStyleClass ().add (StyleClassNames.QPOPUP);

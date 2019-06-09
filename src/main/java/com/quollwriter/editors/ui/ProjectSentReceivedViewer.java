@@ -828,7 +828,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
     public String getChapterObjectName ()
     {
 
-        return Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
+        return Environment.getObjectTypeName (Chapter.OBJECT_TYPE).getValue ();
 
     }
 
@@ -858,7 +858,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         if (snippets.size () > 0)
         {
 
-            res.add (new ChapterFindResultsBox (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+            res.add (new ChapterFindResultsBox (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE).getValue (),
                                                 Chapter.OBJECT_TYPE,
                                                 Chapter.OBJECT_TYPE,
                                                 this,
@@ -871,7 +871,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         if (notes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<Note> (Environment.getObjectTypeNamePlural (comment),
+            res.add (new NamedObjectFindResultsBox<Note> (Environment.getObjectTypeNamePlural (comment).getValue (),
                                                         //"{Comments}",
                                                           Constants.COMMENT_ICON_NAME,
                                                           Note.OBJECT_TYPE,

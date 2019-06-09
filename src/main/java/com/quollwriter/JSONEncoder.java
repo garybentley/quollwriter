@@ -356,6 +356,15 @@ public class JSONEncoder
 
         }
 
+        if (o instanceof javafx.beans.property.StringProperty)
+        {
+
+            return JSONEncoder.encode (((javafx.beans.property.StringProperty) o).getValue ().toString (),
+                                       prettyPrint,
+                                       indent);
+
+        }
+
         if (o instanceof StringWithMarkup)
         {
 

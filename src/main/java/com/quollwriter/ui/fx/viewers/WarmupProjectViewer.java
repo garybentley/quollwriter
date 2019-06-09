@@ -65,10 +65,11 @@ public class WarmupProjectViewer extends AbstractProjectViewer
     }
 
     @Override
-    public Panel getPanelForId (String id)
+    public void openPanelForId (String id)
+                         throws GeneralException    
     {
 
-        return null;
+        super.openPanelForId (id);
 
     }
 

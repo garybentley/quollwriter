@@ -78,6 +78,12 @@
     -fx-cursor: hand;
 }
 
+/* This needs to be so tightly bound because later styles could override it. */
+.context-menu .menu-item .label.accelerator-text
+{
+    -fx-graphic: none;
+}
+
 .tooltip
 {
     -fx-font-size: 1em;
@@ -91,6 +97,11 @@
 .tooltip .text
 {
     -fx-font-size: 1em;
+}
+
+.tool-bar
+{
+    -fx-background-color: transparent;
 }
 
 .hyperlink
@@ -163,6 +174,7 @@
 .scroll-pane .viewport
 {
     -fx-background-color: transparent;
+    -fx-padding: 0px;
 }
 
 .list-view
@@ -748,86 +760,152 @@
 /*
  Icons for menu items.
  */
-.menu-item.add > .label,
-.menu-item.new > .label,
-.menu-item.newstatus > .label
+.menu-item.chapter .image-view
 {
-    -fx-graphic: url(/imgs/add16.png);
+     -fx-image: url(/imgs/chapter16.png);
 }
-.menu-item.cancel > .label,
-.menu-item.novalue > .label
+.menu-item.scene .image-view
 {
-    -fx-graphic: url(/imgs/cancel16.png);
+    -fx-image: url(/imgs/scene16.png);
 }
-.menu-item.noimage > .label
+.menu-item.outlineitem .image-view
 {
-    -fx-graphic: url(/imgs/16x16-transparent.png);
+    -fx-image: url(/imgs/outlineitem16.png);
 }
-.menu-item.mangaestatuses > .label,
-.menu-item.changedisplay > .label,
-.menu-item.managebackups > .label
+.menu-item.note .image-view
 {
-    -fx-graphic: url(/imgs/edit16.png);
+    -fx-image: url(/imgs/note16.png);
 }
-.menu-item.delete > .label
+.menu-item.editneedednote .image-view
 {
-    -fx-graphic: url(/imgs/delete16.png);
+    -fx-image: url(/imgs/edit-needed-note16.png);
 }
-.menu-item.import > .label  { -fx-graphic: url(/imgs/project-import16.png); }
-.menu-item.find > .label  { -fx-graphic: url(/imgs/find16.png); }
-.menu-item.sort > .label, .menu-item.sortmenu > .label  { -fx-graphic: url(/imgs/sort16.png); }
-.menu-item.lastedited > .label  { -fx-graphic: url(/imgs/date16.png); }
-.menu-item.name > .label  { -fx-graphic: url(/imgs/spellchecker16.png); }
-.menu-item.status > .label,
-.menu-item.setstatus > .label
-{
-    -fx-graphic: url(/imgs/star16.png);
-}
-.menu-item.wordcount > .label  { -fx-graphic: url(/imgs/wordcount16.png); }
-.menu-item.selectbg > .label { -fx-graphic: url(/imgs/bg-select16.png); }
-.menu-item.open > .label { -fx-graphic: url(/imgs/open-project16.png); }
-.menu-item.remove > .label { -fx-graphic: url(/imgs/warning16.png); }
-.menu-item.edit > .label { -fx-graphic: url(/imgs/edit16.png); }
-.menu-item.createbackup > .label
-{
-    -fx-graphic: url(/imgs/snapshot16.png);
-}
-.menu-item.showfolder > .label,
-.menu-item.folder > .label
-{
-    -fx-graphic: url(/imgs/folder16.png);
-}
-.menu-item.statistics > .label { -fx-graphic: url(/imgs/chart16.png); }
-.menu-item.targets > .label { -fx-graphic: url(/imgs/goals16.png); }
-.menu-item.warmup > .label { -fx-graphic: url(/imgs/warmup16.png); }
-.menu-item.options > .label { -fx-graphic: url(/imgs/options16.png); }
-.menu-item.achievements > .label { -fx-graphic: url(/imgs/achievement16.png); }
-.menu-item.whatsnew > .label { -fx-graphic: url(/imgs/whats-new16.png); }
-.menu-item.help > .label,
-.menu-item.viewuserguide > .label
-{
-    -fx-graphic: url(/imgs/help16.png);
-}
-.menu-item.about > .label { -fx-graphic: url(/imgs/about16.png); }
-.menu-item.reportbug > .label { -fx-graphic: url(/imgs/bug16.png); }
-.menu-item.contactsupport > .label { -fx-graphic: url(/imgs/email16.png); }
-.menu-item.keyboardshortcuts > .label { -fx-graphic: url(/imgs/16x16-transparent.png); }
-.menu-item.contacts > .label { -fx-graphic: url(/imgs/editor16.png); }
 
-.tree .cell .chapter { -fx-graphic: url(/imgs/chapter16.png); }
-.tree .cell .character { -fx-graphic: url(/imgs/character16.png); }
-.tree .cell .object { -fx-graphic: url(/imgs/object16.png); }
-.tree .cell .location { -fx-graphic: url(/imgs/location16.png); }
-.tree .cell .researchitem { -fx-graphic: url(/imgs/researchitem16.png); }
+.menu-item.add .image-view,
+.menu-item.new .image-view,
+.menu-item.newstatus .image-view
+{
+    -fx-image: url(/imgs/add16.png);
+}
+.menu-item.cancel .image-view,
+.menu-item.novalue .image-view,
+.menu-item.removeeditposition .image-view
+{
+    -fx-image: url(/imgs/cancel16.png);
+}
+.menu-item.noimage .image-view
+{
+    -fx-image: url(/imgs/16x16-transparent.png);
+}
+.menu-item.mangaestatuses .image-view,
+.menu-item.changedisplay .image-view,
+.menu-item.managebackups .image-view,
+.menu-item.editneeded .image-view
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+.menu-item.delete .image-view
+{
+    -fx-image: url(/imgs/delete16.png);
+}
+.menu-item.import .image-view  { -fx-image: url(/imgs/project-import16.png); }
+.menu-item.export .image-view  { -fx-image: url(/imgs/project-export16.png); }
+.menu-item.ideaboard .image-view  { -fx-image: url(/imgs/idea16.png); }
+.menu-item.find .image-view  { -fx-image: url(/imgs/find16.png); }
+.menu-item.sort .image-view,
+.menu-item.sortmenu .image-view
+{
+    -fx-image: url(/imgs/sort16.png);
+}
+.menu-item.lastedited .image-view { -fx-image: url(/imgs/date16.png); }
+.menu-item.name .image-view  { -fx-image: url(/imgs/spellchecker16.png); }
+.menu-item.status .image-view,
+.menu-item.setstatus .image-view
+{
+    -fx-image: url(/imgs/star16.png);
+}
+.menu-item.wordcount .image-view  { -fx-image: url(/imgs/wordcount16.png); }
+.menu-item.selectbg .image-view { -fx-image: url(/imgs/bg-select16.png); }
+.menu-item.open .image-view { -fx-image: url(/imgs/open-project16.png); }
+.menu-item.remove .image-view { -fx-image: url(/imgs/warning16.png); }
+.menu-item.edit .image-view { -fx-image: url(/imgs/edit16.png); }
+.menu-item.createbackup .image-view
+{
+    -fx-image: url(/imgs/snapshot16.png);
+}
+.menu-item.showfolder .image-view,
+.menu-item.folder .image-view
+{
+    -fx-image: url(/imgs/folder16.png);
+}
+.menu-item.statistics .image-view { -fx-image: url(/imgs/chart16.png); }
+.menu-item.targets .image-view { -fx-image: url(/imgs/goals16.png); }
+.menu-item.warmup .image-view { -fx-image: url(/imgs/warmup16.png); }
+.menu-item.options .image-view { -fx-image: url(/imgs/options16.png); }
+.menu-item.achievements .image-view { -fx-image: url(/imgs/achievement16.png); }
+.menu-item.whatsnew .image-view { -fx-image: url(/imgs/whats-new16.png); }
+.menu-item.view .image-view { -fx-image: url(/imgs/view16.png); }
+.menu-item.tag .image-view
+{
+    -fx-image: url(/imgs/tag16.png);
+}
+.menu-item.help .image-view,
+.menu-item.viewuserguide .image-view
+{
+    -fx-image: url(/imgs/help16.png);
+}
+.menu-item.no-image > .label
+{
+    -fx-content-display: text-only;
+}
+.menu-item.about .image-view { -fx-image: url(/imgs/about16.png); }
+.menu-item.reportbug .image-view { -fx-image: url(/imgs/bug16.png); }
+.menu-item.contactsupport .image-view { -fx-image: url(/imgs/email16.png); }
+.menu-item.keyboardshortcuts .image-view { -fx-image: url(/imgs/16x16-transparent.png); }
+.menu-item.contacts .image-view,
+.menu-item.contact .image-view,
+.menu-item.editor .image-view
+{
+    -fx-image: url(/imgs/editor16.png);
+}
+.menu-item.note .image-view
+{
+    -fx-image: url(/imgs/note16.png);
+}
+.menu-item.close .image-view,
+.menu-item.hide .image-view
+{
+    -fx-image: url(/imgs/close16.png);
+}
+.menu-item.editcomplete .image-view
+{
+    -fx-image: url(/imgs/edit-complete16.png);
+}
+.menu-item.rename .image-view
+{
+    -fx-image: url(/imgs/rename16.png);
+}
+.menu-item.info .image-view
+{
+    -fx-image: url(/imgs/information16.png);
+}
+.menu-item.problemfinder .image-view
+{
+    -fx-image: url(/imgs/eye16.png);
+}
+.menu-item.textproperties .image-view,
+.menu-item.editproperties .image-view
+{
+    -fx-image: url(/imgs/edit-properties16.png);
+}
+.menu-item.print .image-view
+{
+    -fx-image: url(/imgs/print16.png);
+}
 
 /*
  * Tree
  */
-.tree .cell .text
-{
-    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
-}
-
 .tree
 {
     -fx-cell-indent: 1.3em;
@@ -840,12 +918,18 @@
 
 .tree .cell
 {
-    -fx-padding: 0.3em;
+    -fx-padding: 0 0 0 0.8em;
 }
 
-.tree .cell:leaf
+.tree .cell .label
 {
-    -fx-padding: 0.3em 0.3em 0.3em 1.7em;
+    -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
+}
+
+.tree .cell:selected .label
+{
+    -fx-background-color: -qw-component-border-color;
+    -fx-text-fill: white;
 }
 
 .tree .cell .disclosure
@@ -866,7 +950,10 @@
      -fx-padding: 0 0 0 0.2em;
  }
 
-.controls .button
+.controls .button,
+.toolbar .button,
+.toolbar .menu-button,
+.controls .menu-button
  {
      -fx-border-color: transparent;
      -fx-border-width: 1px;
@@ -876,13 +963,25 @@
      -fx-padding: 0.25em;
  }
 
-.controls .button:hover, .controls .button:focused
+.controls .button:hover,
+.controls .button:focused,
+.controls .menu-button:hover,
+.controls .menu-button:focused,
+.toolbar .button:hover,
+.toolbar .button:focused,
+.toolbar .menu-button:hover,
+.toolbar .menu-button:focused,
+.toolbar .menu-button:hover,
+.toolbar .menu-button:focused
  {
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
  }
 
-.controls .button:armed
+.controls .button:armed,
+.controls .menu-button:armed,
+.toolbar .button:armed,
+.toolbar .menu-button:armed
  {
      -fx-background-color: -qw-armed-bg;
  }
@@ -929,10 +1028,16 @@
     -fx-text-fill: -fx-text-base-color;
 }
 
-.viewer .header .controls .button.viewermenu
-{
-    -fx-graphic: url(/imgs/options24.png);
-}
+/*
+ * Header button images
+ */
+.viewer .header .controls .viewermenu { -fx-graphic: url(/imgs/options24.png); }
+.viewer .header .controls .fullscreen { -fx-graphic: url(/imgs/fullscreen24.png); }
+.viewer .header .controls .find { -fx-graphic: url(/imgs/find24.png); }
+.viewer .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
+.viewer .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
+.viewer .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
+.viewer .header .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
 
 /*
  Viewer
@@ -975,19 +1080,9 @@
     -fx-background-radius: 0px;
 }
 
-.scroll-bar .increment-button, .scroll-bar .decrement-button
-{
-    visibility: hidden;
-}
-
 .scroll-bar .thumb:hover, .scroll-bar .thumb:focused, .scroll-bar .thumb:armed, .scroll-bar .thumb:pressed
 {
     -fx-background-color: -qw-focus-color;
-}
-
-.scroll-bar .increment-button, .scroll-bar .decrement-button
-{
-    /*-fx-padding: 6px;*/
 }
 
 .split-pane-divider
@@ -1003,7 +1098,6 @@
     -fx-padding: 0;
 }
 
-.viewer.allprojects .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
 /*
  Experimental
  */
@@ -1022,8 +1116,10 @@
         .viewer.allprojects .header .controls .add { -fx-graphic: url(/imgs/book.svg); }
 
 */
-.viewer.allprojects .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
-.viewer.allprojects .header .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
+
+.qpopup .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
+.qpopup .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
+.qpopup .controls .add { -fx-graphic: url(/imgs/add24.png); }
 
 .panel
 {
@@ -1052,6 +1148,7 @@
  AllProjects panel/Project list displayed in the panel.
  Panel#allprojects/Panel#allprojects.ProjectsList
 */
+
 .panel.allprojects .projectslist .project .header .controls
 {
     visibility: hidden;
@@ -1115,7 +1212,7 @@
     -fx-vgap: 0.75em;
     -fx-padding: 0.75em;
     -fx-row-valignment: top;
-    -fx-alignment: top-left;
+    -fx-alignment: top-center;
     -fx-orientation: horizontal;
 }
 
@@ -1495,6 +1592,11 @@
     -fx-min-width: 3.5em;
 }
 
+.qpopup.project .header .icon
+{
+    -fx-image: url(/imgs/save16.png);
+}
+
 .qpopup.layoutselector .header .icon
 {
     -fx-image: url(/imgs/edit16.png);
@@ -1583,115 +1685,6 @@
         linear-gradient(rgb(229,244,252) 0%, rgb(196,229,246) 49%, rgb(152,209,239) 50%, rgb(104,179,219) 100%);
 }
 
-.tab-pane{
-    -fx-tab-min-height: 1.8333em;
-    -fx-tab-max-height: 1.8333em;
-}
-
-.tab-pane:top > .tab-content-area {
-    -fx-border-color: transparent rgb(137,140,149) rgb(137,140,149) rgb(137,140,149);
-    -fx-background-color: -qw-bg-col;
-}
-
-.tab-pane:top > .tab-header-area {
-    -fx-padding: 0;
-}
-
-.tab-pane:bottom > .tab-header-area {
-    -fx-padding: 0;
-}
-
-.tab-pane > *.tab-header-area > .headers-region {
-    -fx-translate-x: -5px;
-}
-
-.tab-pane > *.tab-header-area > *.tab-header-background{
-    -fx-background-color: rgb(240,240,240);
-    -fx-border-color: transparent transparent rgb(137,140,149) transparent ;
-    -fx-background-color: transparent;
-}
-
-.tab-pane > .tab-header-area > .headers-region > .tab{
-    -fx-padding: 0.083333em 0.5em 0.083333em 0.5em;
-    -fx-border-color: rgb(137,140,149);
-    -fx-background-color:
-        rgb(255,255,255),
-        linear-gradient(to bottom, rgb(242,242,242) 0%, rgb(235,235,235) 49%, rgb(221,221,221) 50%, rgb(207,207,207) 100%);
-    -fx-background-insets: 0,2 2 0 2;
-}
-
-.tab-pane > .tab-header-area > .headers-region > .tab:top{
-    -fx-border-color: rgb(244,0,0), rgb(137,140,149), rgb(137,140,149), rgb(137,140,149);
-    -fx-border-width: 1 1 1 1;
-    -fx-pref-height: 1.8em;
-}
-
-.tab-pane > .tab-header-area > .headers-region > .tab:bottom{
-    -fx-border-color: rgb(244,0,0), rgb(137,140,149), rgb(137,140,149), rgb(137,140,149);
-    -fx-border-width: 1 1 1 1;
-    -fx-pref-height: 1.8em;
-}
-
-.tab-pane > .tab-header-area > .headers-region > .tab:hover{
-    -fx-border-color: rgb(60,127,177);
-    -fx-background-color:
-        rgb(255,255,255),
-        linear-gradient(to bottom, rgb(234,246,253) 0%, rgb(217,240,252) 49%, rgb(190,230,253) 50%, rgb(167,217,245) 100%);
-    -fx-background-insets: 0,2 2 0 2;
-}
-
-.tab-pane > .tab-header-area > .headers-region > .tab:selected{
-    -fx-border-color: rgb(137,140,149);
-    -fx-border-width: 1 1 0 1;
-    -fx-background-color: rgb(255,255,255);
-    -fx-pref-height: 2em;
-}
-
-.tab-pane > .tab-header-area > .headers-region > .tab:selected .focus-indicator{
-    -fx-border-width: 0;
-    -fx-border-color: transparent;
-}
-
-.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
-    -fx-alignment: CENTER;
-    -fx-text-fill: -fx-text-base-color;
-}
-
-.tab-pane.floating > .tab-content-area {
-    -fx-background-color: -fx-outer-border, -fx-background;
-    -fx-background-insets: 0, 1;
-    -fx-background-radius: 3, 2;
-    -fx-padding: 2;
-}
-
-/*
-.tab-pane .tab
-{
-    -fx-padding: 0;
-}
-
-.tab-pane .tab-label
-{
-    -fx-padding: 0 0 0 0;
-    -fx-background-color: transparent;
-}
-
-.tab-pane .tab .header
-{
-    -fx-padding: 0;
-    -fx-border-width: 0;
-}
-
-.tab-pane .tab .header .name
-{
-    -fx-font-size: 9pt;
-}
-
-.tab-label .button
-{
-
-}
-*/
 .progress-bar .track
 {
     -fx-border-width: 0;
@@ -1751,11 +1744,6 @@
 .viewer.allprojects .projectslist .project:hover .title, .viewer.allprojects .projectslist .project:hover .info
 {
     -fx-text-fill: #333333;
-}
-
-.viewer .header .controls .button.viewermenu
-{
-    -fx-graphic: url(/imgs/options24.png);
 }
 
 .root.popup
@@ -2208,7 +2196,7 @@
 
 .notification
 {
-    -fx-alignment: center;
+    -fx-alignment: center-left;
     -fx-padding: 0.25em 0.25em 0.25em 0.5em;
 }
 
@@ -2219,7 +2207,7 @@
 
 .notification .content
 {
-    -fx-padding: 0 0 0 0.5em;
+    -fx-padding: 0.5em;
     -fx-alignment: center;
     -fx-fill-width: true;
 }
@@ -2257,6 +2245,21 @@
 .notification.download .icon
 {
     -fx-image: url(/imgs/download24.png);
+}
+
+.notification.wordcounts .icon
+{
+    -fx-image: url(/imgs/wordcount24.png);
+}
+
+.notification.readability .icon
+{
+    -fx-image: url(/imgs/readability24.png);
+}
+
+.notification.readability .content, .notification.wordcounts .content
+{
+    -fx-cursor: hand;
 }
 
 /*
@@ -2808,13 +2811,13 @@
     -fx-border-color: -qw-error-text-color;
 }
 
-.scroll-bar:vertical .thumb
+.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb
 {
     -fx-padding: 0;
     -fx-background-insets: 0 0 0 2px;
 }
 
-.scroll-bar:vertical .track-background, .scroll-bar:vertical .track
+.scroll-bar:vertical .track-background, .scroll-bar:vertical .track, .scroll-bar:horizontal .track-background, .scroll-bar:horizontal .track
 {
     -fx-padding: 0em;
     -fx-background-color: transparent;
@@ -2873,8 +2876,8 @@
 
 .sidebar.contacts
 {
-    -fx-pref-width: 200px;
-    -fx-min-width: 200px;
+    -fx-pref-width: 20em;
+    -fx-min-width: 20em;
 }
 
 .sidebar.contacts > .header .icon
@@ -2933,4 +2936,283 @@
     -fx-padding: 0.5em 0.5em 0.5em 0em;
     -fx-graphic: url(/imgs/chart16.png);
     -fx-graphic-text-gap: 0.5em;
+}
+
+:dragging, :dragover
+{
+    -fx-cursor: closed-hand;
+}
+
+.controls .button:dragging, .controls .button:dragover
+ {
+     -fx-cursor: closed-hand;
+ }
+
+.qpopup.headerconfigure
+{
+    -fx-effect: null;
+}
+
+.qpopup.headerconfigure .content
+{
+    -fx-pref-width: 20em;
+    -fx-min-width: 20em;
+}
+
+.qpopup.headerconfigure .content .tool-bar
+{
+    -fx-min-width: 18em;
+    -fx-border-width: 1px;
+    -fx-border-style: segments(0.3em, 0.3em);
+    -fx-border-color: -qw-component-border-color;
+}
+
+.qpopup.headerconfigure .description
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+.header .controls.configuring
+{
+    -fx-min-width: 20.1em;
+    -fx-border-width: 1px;
+    -fx-border-style: segments(0.3em, 0.3em);
+    -fx-border-color: -qw-component-border-color;
+}
+
+.viewer .sidebar .scroll-pane
+{
+    -fx-hbar-policy: as-needed;
+    -fx-vbar-policy: as-needed;
+}
+
+.viewer.project > .header .icon
+{
+    -fx-image: url(/imgs/project24.png);
+}
+
+.viewer.project .sidebar .scroll-pane
+{
+    -fx-fit-to-width: false;
+    -fx-fit-to-height: false;
+}
+
+.sidebar.project
+{
+    -fx-pref-width: 16em;
+    -fx-min-width: 16em;
+}
+
+.sidebar.project .accordion.chapter .header,
+.sidebar.project .accordion.asset .header
+{
+    -fx-padding: 0 0 0.2em 0.5em;
+}
+
+.sidebar.project .accordion.chapter .header .image-view
+{
+    -fx-image: url(/imgs/chapter16.png);
+}
+
+.sidebar.project .accordion .tree .cell
+{
+    -fx-cursor: hand;
+}
+
+.sidebar.project .accordion.asset .tree .cell .image-view
+{
+    visibility: hidden;
+}
+
+.sidebar.project .accordion.chapter .tree .cell .chapter:editposition
+{
+    -fx-graphic: url(/imgs/edit-in-progress16.png);
+}
+
+.sidebar.project .accordion.chapter .tree .cell .chapter:editcomplete
+{
+    -fx-graphic: url(/imgs/edit-complete16.png);
+}
+
+.sidebar.project .accordion.chapter .label.outlineitem
+{
+    -fx-graphic: url(/imgs/outlineitem16.png);
+}
+
+.sidebar.project .accordion.chapter .label.scene
+{
+    -fx-graphic: url(/imgs/scene16.png);
+}
+
+.viewer.project .sidebar.project .items
+{
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.viewer.project .sidebar.project > .header
+{
+    visibility: hidden;
+}
+
+.viewer.project .sidebar.project .accordion .header .title
+{
+    -fx-font-size: 1.6em;
+    -fx-font-weight: normal;
+}
+
+.viewer.project .sidebar.project .accordion .header .controls
+{
+    visibility: hidden;
+}
+
+.viewer.project .sidebar .toolbar .tool-bar
+{
+    -fx-padding: 0.2em;
+}
+
+.viewer.project .sidebar .toolbar:bottom
+{
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.viewer.project .sidebar .toolbar:top
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.viewer.project .sidebar .toolbar .save { -fx-graphic: url(/imgs/save20.png); }
+.viewer.project .sidebar .toolbar .new { -fx-graphic: url(/imgs/add20.png); }
+.viewer.project .sidebar .toolbar .info { -fx-graphic: url(/imgs/information20.png); }
+.viewer.project .sidebar .toolbar .wordcount { -fx-graphic: url(/imgs/wordcount20.png); }
+.viewer.project .sidebar .toolbar .spellcheck:enabled { -fx-graphic: url(/imgs/spellchecker-turn-off20.png); }
+.viewer.project .sidebar .toolbar .spellcheck:disabled { -fx-graphic: url(/imgs/spellchecker-turn-on20.png); -fx-opacity: 1; }
+.viewer.project .sidebar .toolbar .delete { -fx-graphic: url(/imgs/delete20.png); }
+.viewer.project .sidebar .toolbar .tools { -fx-graphic: url(/imgs/tools20.png); }
+
+.viewer.project .sidebar .toolbar .button
+{
+    -fx-content-display: graphic-only;
+}
+/*
+.tab-header-background
+{
+    -fx-background-color: transparent;
+
+}
+
+.tab-content-area
+{
+}
+
+.tab-header-area
+{
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: -qw-component-border-color;
+
+}
+*/
+
+.tab-header-area
+{
+    -fx-padding: 0 0 0.5em 0.1em;
+}
+
+.tab-header-background
+{
+    -fx-background-color: transparent;
+}
+
+.tab-header-area .tab
+{
+    -fx-background-radius: 0;
+    -fx-background-insets: 1 1 1 0;
+}
+
+.tab-header-area .tab:selected
+{
+    -fx-background-radius: 0;
+    -fx-background-insets: 1 1 1 0;
+    -fx-background-color: white;
+}
+
+.tab-header-area .headers-region
+{
+    -fx-background-color: -qw-component-border-color;
+}
+
+.tab.chapter .tab-label
+{
+    -fx-padding: 0.3em;
+    -fx-graphic: url(/imgs/chapter16.png);
+}
+
+.menu-button .label
+{
+    -fx-padding: 0 0.1em 0 0;
+}
+
+.menu-button .arrow-button
+{
+    -fx-padding: 16px 0 0 -2px;
+}
+
+.project .sidebar .toolbar:bottom .menu-button .arrow-button
+{
+    -fx-rotate: 180;
+}
+
+/*
+ * Rename project popup.
+ */
+.qpopup.rename .header .icon
+{
+    -fx-image: url(/imgs/rename16.png);
+}
+
+.qpopup.rename .content .form .control
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.qpopup.rename .content .form .buttons
+{
+    -fx-padding: 0.5em 0.5em 0.5em 0;
+}
+
+/*
+ * Chapters over readability target (ChaptersOverReadabilityTargetPopup)
+ */
+.qpopup.readability .header .icon
+{
+    -fx-image: url(/imgs/readability16.png);
+}
+
+.qpopup.readability .items .hyperlink, .qpopup.readability .items .label
+{
+    -fx-padding: 0.25em;
+}
+
+.qpopup.readability .items .over
+{
+    -fx-text-fill: red;
+}
+
+/*
+ * Chapters over word count target (ChaptersOverWordCountTargetPopup)
+ */
+.qpopup.wordcount .header .icon
+{
+    -fx-image: url(/imgs/wordcount16.png);
+}
+
+.qpopup.wordcount .items .hyperlink, .qpopup.wordcount .items .label
+{
+    -fx-padding: 0.25em;
+}
+
+.qpopup.wordcount .items .over
+{
+    -fx-text-fill: red;
 }

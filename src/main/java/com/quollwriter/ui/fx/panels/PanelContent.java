@@ -13,7 +13,7 @@ import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
 
 /**
- * A base class for content that is suitable for display within a sidebar.
+ * A base class for content that is suitable for display within a panel.
  */
 public abstract class PanelContent<E extends AbstractViewer> extends ViewerContent<E> implements Stateful, PanelCreator
 {
@@ -22,6 +22,7 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
 
     public interface CommandIds
     {
+        
         String selectbackground = "selectbackground";
 
     }
@@ -197,13 +198,6 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
     {
 
         final PanelContent _this = this;
-
-        if (this.panel != null)
-        {
-
-            this.panel.init (s);
-
-        }
 
         if (s == null)
         {

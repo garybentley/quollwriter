@@ -93,6 +93,8 @@ public class SideBar extends VBox implements Stateful
 
         hcontrols.add (this.otherSideBarsShowButton);
 
+        this.canCloseProp = new SimpleBooleanProperty (b.canClose);
+
         if (b.canClose)
         {
 
@@ -116,6 +118,8 @@ public class SideBar extends VBox implements Stateful
             .title (b.title != null ? b.title : null)
             .contextMenu (b.contextMenuItemSupplier)
             .build ();
+
+        this.header.managedProperty ().bind (this.header.visibleProperty ());
 
         this.titleProp = this.header.titleProperty ();
 
@@ -145,23 +149,41 @@ public class SideBar extends VBox implements Stateful
         {
 
             b.content.getStyleClass ().add (StyleClassNames.CONTENT);
+            this.content = b.content;
 
             if (b.wrapInScrollPane)
             {
 
                 this.scrollPane = new ScrollPane (b.content);
 
+                VBox.setVgrow (this.scrollPane,
+                               Priority.ALWAYS);
+
                 this.getChildren ().add (this.scrollPane);
 
             } else {
+
+                VBox.setVgrow (b.content,
+                               Priority.ALWAYS);
 
                 this.getChildren ().add (b.content);
 
             }
 
+            this.content.managedProperty ().bind (this.content.visibleProperty ());
+            VBox.setVgrow (this.content,
+                           Priority.ALWAYS);
+
         }
 
         this.managedProperty ().bind (this.visibleProperty ());
+
+    }
+
+    public Node getContent ()
+    {
+
+        return this.content;
 
     }
 

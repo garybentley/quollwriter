@@ -47,6 +47,12 @@ public class ProjectEvent extends EventObject
         tags ("tags"),
         // TODO Change achievements to handle this...
         projectobject ("projectobject"),
+        scene ("scene"),
+        note ("note"),
+        outlineitem ("outlineitem"),
+        chapter ("chapter"),
+        asset ("asset"),
+        project ("project"),
         tag ("tag");
 
         final String type;

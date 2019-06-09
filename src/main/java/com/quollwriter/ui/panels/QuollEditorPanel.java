@@ -164,7 +164,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                 popup.add (mi);
 
                 // TODO: Abstract this.
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "S");
 
                 mi = UIUtils.createMenuItem (getUIString (prefix,
@@ -177,7 +177,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 popup.add (mi);
 
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "O");
 
                 mi = UIUtils.createMenuItem (getUIString (prefix,
@@ -190,7 +190,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 popup.add (mi);
 
-                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0)));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).getValue ().charAt (0)));
                 mi.setToolTipText (pref + "N");
 
                 mi = UIUtils.createMenuItem (getUIString (prefix,

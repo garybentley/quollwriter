@@ -41,6 +41,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
             .name (this.object.getLegacyTypeField (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID).getFormName ())
             .value (this.object.getDescription ())
             .update (v -> _this.object.setDescription (v))
+            .withViewer (viewer)
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();
 
@@ -49,15 +50,17 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
             .name (this.object.getLegacyTypeField (Chapter.GOALS_LEGACY_FIELD_ID).getFormName ())
             .value (this.object.getGoals ())
             .update (v -> _this.object.setGoals (v))
+            .withViewer (viewer)
             .bulleted (true)
             .styleClassName (StyleClassNames.GOALS)
             .build ();
 
-        this.goals = ChapterField.builder ()
+        this.plan = ChapterField.builder ()
         // TODO Use a property for the name...
             .name (_this.object.getLegacyTypeField (Chapter.PLAN_LEGACY_FIELD_ID).getFormName ())
             .value (_this.object.getPlan ())
             .update (v -> _this.object.setPlan (v))
+            .withViewer (viewer)
             .bulleted (true)
             .styleClassName (StyleClassNames.PLAN)
             .build ();
@@ -85,14 +88,28 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
             //.headerControls ()?
             .withViewer (this.viewer)
             .content (this)
-            .sideBarId (ID + this.object.getKey ())
+            .sideBarId (ChapterInformationSideBar.getSideBarIdForChapter (this.object))
             .build ();
+
+    }
+
+    public static String getSideBarIdForChapter (Chapter c)
+    {
+
+        return ID + c.getKey ();
 
     }
 
     @Override
     public void init (State state)
     {
+
+        if (state == null)
+        {
+
+            return;
+
+        }
 
         List open = state.getAs (State.Key.open,
                                  List.class);

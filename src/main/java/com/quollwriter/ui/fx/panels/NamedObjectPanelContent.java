@@ -15,6 +15,7 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
 
     protected O object = null;
     private BooleanProperty unsavedChangesProp = null;
+    private boolean unsavedChanges = false;
 
     public NamedObjectPanelContent (E viewer,
                                     O object)
@@ -34,6 +35,21 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
 
     }
 
+    public void setHasUnsavedChanged (boolean v)
+    {
+
+        this.unsavedChanges = v;
+        this.unsavedChangesProp.setValue (v);
+
+    }
+
+    public boolean hasUnsavedChanges ()
+    {
+
+        return this.unsavedChanges;
+
+    }
+
     public ReadOnlyBooleanProperty unsavedChangesProperty ()
     {
 
@@ -48,7 +64,7 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
         this.viewer.saveObject (this.object,
                                 true);
 
-        this.unsavedChangesProp.setValue (false);
+        this.setHasUnsavedChanged (false);
 
         // Fire an event to interested parties.
         this.fireEvent (new Panel.PanelEvent (this.getPanel (),

@@ -617,7 +617,7 @@ public class SwingUIUtils
         {
 
             JMenuItem mi = new JMenuItem (type.getObjectTypeName (),
-                                          type.getIcon16x16 ());
+                                          null); // TODO type.getIcon16x16 ());
 
             m.add (mi);
 
@@ -656,10 +656,10 @@ public class SwingUIUtils
         for (UserConfigurableObjectType type : types)
         {
 
-            JButton but = createButton (type.getIcon16x16 (),
+            JButton but = createButton (null, // TODO type.getIcon16x16 (),
                                                 String.format (getUIString (assets,add,button,tooltip),
                                                                 //"Click to add a new %s",
-                                                               type.getObjectTypeName ()),
+                                                               type.objectTypeNameProperty ().getValue ()),
                                                 null);
 
             buts.add (but);

@@ -151,7 +151,7 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
              if (s.obj instanceof UserConfigurableObjectType)
              {
 
-                ic = ((UserConfigurableObjectType) s.obj).getIcon16x16 ();
+                ic = null; // TODO ((UserConfigurableObjectType) s.obj).getIcon16x16 ();
 
              } else {
 

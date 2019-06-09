@@ -209,7 +209,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
                         JPopupMenu p = new JPopupMenu ();
 
-                        String oName = Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
+                        String oName = Environment.getObjectTypeName (Chapter.OBJECT_TYPE).getValue ();
 
                         JMenuItem mi = new JMenuItem (oName,
                                                       Environment.getIcon (Chapter.OBJECT_TYPE,
@@ -697,7 +697,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
                         if (type != null)
                         {
 
-                            this.getHeader ().setIcon (type.getIcon16x16 ());
+                            // TODO this.getHeader ().setIcon (type.getIcon16x16 ());
 
                         }
 
@@ -1501,7 +1501,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
             for (UserConfigurableObjectType type : Environment.getAssetUserConfigurableObjectTypes (true))
             {
 
-                this.addNewType (Environment.getObjectTypeNamePlural (type),
+                this.addNewType (Environment.getObjectTypeNamePlural (type).getValue (),
                                 //type.getObjectTypeNamePlural (),
                                  type.getObjectTypeId (), //getIcon16x16 (),
                                  false);

@@ -70,6 +70,13 @@ public class AccordionItem extends VBox implements Stateful
         this.header.titleLabelProperty ().getValue ().setOnMouseClicked (ev ->
         {
 
+            if (ev.isPopupTrigger ())
+            {
+
+                return;
+
+            }
+
             this.toggleState ();
 
         });
@@ -123,6 +130,13 @@ public class AccordionItem extends VBox implements Stateful
 
     public void init (State s)
     {
+
+        if (s == null)
+        {
+
+            return;
+
+        }
 
         this.setState (s.getAsBoolean (State.Key.open));
 

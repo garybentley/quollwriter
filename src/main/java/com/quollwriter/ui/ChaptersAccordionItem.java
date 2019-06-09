@@ -24,7 +24,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     public ChaptersAccordionItem (AbstractProjectViewer pv)
     {
 
-        super (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+        super (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE).getValue (),
                Chapter.OBJECT_TYPE,
                pv);
 
@@ -34,7 +34,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     public String getTitle ()
     {
 
-        return Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE);
+        return Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE).getValue ();
 
     }
 
@@ -184,7 +184,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 final Chapter c = (Chapter) d;
 
-                final String chapterObjTypeName = Environment.getObjectTypeName (c);
+                final String chapterObjTypeName = Environment.getObjectTypeName (c).getValue ();
 
                 m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
                                                                         LanguageStrings.edit),

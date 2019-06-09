@@ -374,6 +374,34 @@ public abstract class DataObject
 
     }
 
+    public Project getProject ()
+    {
+
+        if (this.parent != null)
+        {
+
+            if (this.parent instanceof Project)
+            {
+
+                return (Project) this.parent;
+
+            }
+
+            return this.parent.getProject ();
+
+        }
+
+        return null;
+
+    }
+
+    public void setProject (Project p)
+    {
+
+        this.setParent (p);
+
+    }
+
     public DataObject getParent ()
     {
 

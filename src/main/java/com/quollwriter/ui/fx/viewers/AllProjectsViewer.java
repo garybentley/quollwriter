@@ -33,7 +33,7 @@ public class AllProjectsViewer extends AbstractViewer
     private StringProperty titleProp = null;
     private StackPane content = null;
 
-    public interface CommandIds extends AbstractViewer.CommandIds
+    public interface CommandId extends AbstractViewer.CommandId
     {
         String findprojects = "findprojects";
         String changeprojectdetails = "changeprojectdetails";
@@ -74,18 +74,25 @@ public class AllProjectsViewer extends AbstractViewer
         this.initKeyMappings ();
 
         this.initActionMappings ();
-
+/*
+TODO READD
         this.setOnDragExited (ev ->
         {
 
-            _this.showProjectsPanel ();
+            // Will be a null source since it is coming from outside the window.
+            if (ev.getGestureSource () == null)
+            {
+
+                _this.showProjectsPanel ();
+
+                ev.consume ();
+
+            }
 
         });
 
         this.setOnDragEntered (ev ->
         {
-
-            ev.consume ();
 
             _this.checkDragFileImport (ev);
 
@@ -94,8 +101,6 @@ public class AllProjectsViewer extends AbstractViewer
         this.setOnDragOver (ev ->
         {
 
-            ev.consume ();
-
             _this.checkDragFileImport (ev);
 
         });
@@ -103,10 +108,39 @@ public class AllProjectsViewer extends AbstractViewer
         this.setOnDragDropped (ev ->
         {
 
-            // TODO Show the import file...
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if (files != null)
+            {
+
+                if (files.size () > 1)
+                {
+
+                    return;
+
+                }
+
+                File f = files.get (0);
+
+                if (f.getName ().endsWith (Constants.DOCX_FILE_EXTENSION))
+                {
+
+                    ev.setDropCompleted (true);
+
+                    System.out.println ("HERE");
+
+                    this.showProjectsPanel ();
+
+                    // TODO Show the import.
+
+                    ev.consume ();
+
+                }
+
+            }
 
         });
-
+*/
         this.update ();
 
     }
@@ -215,6 +249,8 @@ public class AllProjectsViewer extends AbstractViewer
 
                 this.showImportPanel ();
 
+                ev.consume ();
+
             }
 
         }
@@ -275,7 +311,7 @@ public class AllProjectsViewer extends AbstractViewer
             new FindProjectsPopup (_this).show ();
 
         },
-        CommandIds.findprojects);
+        CommandId.findprojects);
 
         this.addActionMapping (() ->
         {
@@ -283,7 +319,7 @@ public class AllProjectsViewer extends AbstractViewer
             new ImportPopup (_this).show ();
 
         },
-        CommandIds.importfile);
+        CommandId.importfile);
 
         this.addActionMapping (() ->
         {
@@ -305,8 +341,8 @@ public class AllProjectsViewer extends AbstractViewer
             }
 
         },
-        CommandIds.viewtargets,
-        CommandIds.targets);
+        CommandId.viewtargets,
+        CommandId.targets);
 
         this.addActionMapping (() ->
         {
@@ -327,8 +363,8 @@ public class AllProjectsViewer extends AbstractViewer
             }
 
         },
-        CommandIds.viewachievements,
-        CommandIds.achievements);
+        CommandId.viewachievements,
+        CommandId.achievements);
 
         this.addActionMapping (() ->
         {
@@ -349,8 +385,8 @@ public class AllProjectsViewer extends AbstractViewer
             }
 
         },
-        CommandIds.showoptions,
-        CommandIds.options);
+        CommandId.showoptions,
+        CommandId.options);
 
         this.addActionMapping (() ->
         {
@@ -372,9 +408,9 @@ public class AllProjectsViewer extends AbstractViewer
            }
 
         },
-        AbstractViewer.CommandIds.showstatistics,
-        AbstractViewer.CommandIds.statistics,
-        AbstractViewer.CommandIds.charts);
+        AbstractViewer.CommandId.showstatistics,
+        AbstractViewer.CommandId.statistics,
+        AbstractViewer.CommandId.charts);
 
         this.addActionMapping (() ->
         {
@@ -394,7 +430,7 @@ public class AllProjectsViewer extends AbstractViewer
             }
 
         },
-        CommandIds.manageprojectstatuses);
+        CommandId.manageprojectstatuses);
 
     }
 
@@ -463,7 +499,30 @@ public class AllProjectsViewer extends AbstractViewer
         if (s == null)
         {
 
-            s = new State (UserProperties.get (VIEWER_STATE_ID));
+            String vs = UserProperties.get (VIEWER_STATE_ID);
+
+            if (vs != null)
+            {
+
+                s = new State (vs);
+
+            } else {
+
+                // Defaults.
+                s = new State ();
+
+                // Legacy, pre v3
+                int wh = UserProperties.getAsInt ("landing-window-height");
+
+                s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
+                       wh);
+
+                int ww = UserProperties.getAsInt ("landing-window-width");
+
+                s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
+                       ww);
+
+            }
 
         }
 
@@ -519,7 +578,7 @@ public class AllProjectsViewer extends AbstractViewer
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AllProjectsViewer.CommandIds.newproject);
+                        _this.runCommand (AllProjectsViewer.CommandId.newproject);
 
                     })
                     .build ());
@@ -530,7 +589,7 @@ public class AllProjectsViewer extends AbstractViewer
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AllProjectsViewer.CommandIds.importfile);
+                        _this.runCommand (AllProjectsViewer.CommandId.importfile);
 
                     })
                     .build ());
@@ -541,7 +600,7 @@ public class AllProjectsViewer extends AbstractViewer
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AllProjectsViewer.CommandIds.findprojects);
+                        _this.runCommand (AllProjectsViewer.CommandId.findprojects);
 
                     })
                     .build ());
@@ -554,7 +613,7 @@ public class AllProjectsViewer extends AbstractViewer
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AllProjectsViewer.CommandIds.contacts);
+                        _this.runCommand (AllProjectsViewer.CommandId.contacts);
 
                     })
                     .build ());
@@ -565,7 +624,7 @@ public class AllProjectsViewer extends AbstractViewer
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AllProjectsViewer.CommandIds.statistics);
+                        _this.runCommand (AllProjectsViewer.CommandId.statistics);
 
                     })
                     .build ());
@@ -576,7 +635,7 @@ public class AllProjectsViewer extends AbstractViewer
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AllProjectsViewer.CommandIds.targets);
+                        _this.runCommand (AllProjectsViewer.CommandId.targets);
 
                     })
                     .build ());
@@ -650,7 +709,7 @@ TODO Removed, not valid here.
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.manageprojectstatuses);
+                        _this.runCommand (AbstractViewer.CommandId.manageprojectstatuses);
 
                     })
                     .build ());
@@ -675,7 +734,7 @@ TODO Remove as not appropriate.
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.selectbackground);
+                        _this.runCommand (AbstractViewer.CommandId.selectbackground);
 
                     })
                     .build ());
@@ -688,7 +747,7 @@ TODO Remove as not appropriate.
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.warmup);
+                        _this.runCommand (AbstractViewer.CommandId.warmup);
 
                     })
                     .build ());
@@ -720,7 +779,7 @@ TODO Remove as not appropriate.
                 .onAction (ev ->
                 {
 
-                    this.runCommand (AllProjectsViewer.CommandIds.newproject);
+                    this.runCommand (AllProjectsViewer.CommandId.newproject);
 
                 })
                 .build ());
@@ -731,7 +790,7 @@ TODO Remove as not appropriate.
                 .onAction (ev ->
                 {
 
-                    this.runCommand (AllProjectsViewer.CommandIds.importfile);
+                    this.runCommand (AllProjectsViewer.CommandId.importfile);
 
                 })
                 .build ());
@@ -883,9 +942,7 @@ TODO Remove as not appropriate.
         if (sb == null)
         {
 
-            sb = new TargetsSideBar (this).createSideBar ();
-
-            this.addSideBar (sb);
+            this.addSideBar (new TargetsSideBar (this));
 
         }
 

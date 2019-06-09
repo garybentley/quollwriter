@@ -1528,7 +1528,7 @@ public class FirstUseWizard extends PopupWizard
             {
 
                 TreeParentNode c = new TreeParentNode (Chapter.OBJECT_TYPE,
-                                                       Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+                                                       Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE).getValue ());
 
                 SelectableDataObject sd = new SelectableDataObject (c);
 

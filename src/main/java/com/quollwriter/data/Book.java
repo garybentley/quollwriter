@@ -4,6 +4,8 @@ import java.io.*;
 
 import java.util.*;
 
+import javafx.collections.*;
+
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
@@ -31,8 +33,8 @@ public class Book extends NamedObject
 
     }
 
-    private Project       project = null;
-    private List<Chapter> chapters = new ArrayList ();
+    // TODO Change to use a set.
+    private ObservableList<Chapter> chapters = FXCollections.observableList (new ArrayList<> ());
     private ChapterSorter sort = null;
 
     public Book()
@@ -47,9 +49,7 @@ public class Book extends NamedObject
 
         super (Book.OBJECT_TYPE);
 
-        this.project = p;
-
-        this.setParent (p);
+        this.setProject (p);
 
     }
 
@@ -68,13 +68,13 @@ public class Book extends NamedObject
     {
 
         super.fillToStringProperties (props);
-        
+
         this.addToStringProperties (props,
                                     "chapterCount",
                                     this.chapters.size ());
-            
+
     }
-    
+
     public void setChapterSorter (ChapterSorter c)
     {
 
@@ -116,89 +116,75 @@ public class Book extends NamedObject
 
     public void removeAllChapters ()
     {
-        
+
         synchronized (this)
         {
-        
+
             for (Chapter c : this.chapters)
             {
-                
+
                 c.setBook (null);
-                
+
             }
 
-            this.chapters = new ArrayList ();
-            
+            this.chapters.clear ();
+
         }
-        
+
     }
-    
+/*
+TODO Remove
     private void setChapters (List<Chapter> c)
     {
 
         this.chapters = c;
 
     }
-
-    void setProject (Project p)
-    {
-
-        this.project = p;
-
-        this.setParent (p);
-
-    }
-
-    public Project getProject ()
-    {
-
-        return this.project;
-
-    }
+*/
 
     public Chapter getFirstChapter ()
     {
-        
+
         if (this.chapters == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         if (this.chapters.size () == 0)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return this.chapters.get (0);
-        
-    }
-    
-    public Chapter getLastChapter ()
-    {
-        
-        if (this.chapters == null)
-        {
-            
-            return null;
-            
-        }
-        
-        if (this.chapters.size () == 0)
-        {
-            
-            return null;
-            
-        }
-        
-        return this.chapters.get (this.chapters.size () - 1);
-        
+
     }
 
-    public List<Chapter> getChapters ()
+    public Chapter getLastChapter ()
+    {
+
+        if (this.chapters == null)
+        {
+
+            return null;
+
+        }
+
+        if (this.chapters.size () == 0)
+        {
+
+            return null;
+
+        }
+
+        return this.chapters.get (this.chapters.size () - 1);
+
+    }
+
+    public ObservableList<Chapter> getChapters ()
     {
 
         return this.chapters;
@@ -207,54 +193,54 @@ public class Book extends NamedObject
 
     public int getChapterWordCount ()
     {
-        
+
         int i = 0;
-        
+
         for (Chapter c : this.chapters)
         {
-            
+
             String t = (c.getText () != null ? c.getText ().getText () : null);
-            
+
             i += TextUtilities.getWordCount (t);
-            
+
         }
-        
+
         return i;
-        
+
     }
-    
+
     public int getChapterIndex (Chapter c)
     {
 
         // This can happen for imports when no key has been assigned yet.
         if (c.getKey () == null)
         {
-            
+
             for (int i = 0; i < this.chapters.size (); i++)
             {
-                
+
                 Chapter cc = this.chapters.get (i);
-                
+
                 if (cc.getName ().equals (c.getName ()))
                 {
-                    
+
                     return i;
-                    
+
                 }
-                
+
             }
-            
+
             return -1;
-            
+
         }
 
         int ind = this.chapters.indexOf (c);
-        
+
         if (ind > -1)
         {
-            
+
             ind++;
-            
+
         }
 
         return ind;
@@ -291,7 +277,7 @@ public class Book extends NamedObject
     {
 
         c.setBook (null);
-    
+
         this.chapters.remove (c);
 
     }
@@ -299,13 +285,13 @@ public class Book extends NamedObject
     public void moveChapter (Chapter c,
                              int     newIndex)
     {
-    
+
         Book b = c.getBook ();
-    
+
         this.removeChapter (c);
 
         c.setBook (b);
-        
+
         this.chapters.add (newIndex,
                            c);
 
@@ -334,9 +320,9 @@ public class Book extends NamedObject
 
     public Set<Chapter> getAllChaptersWithName (String name)
     {
-        
+
         Set<Chapter> ret = new LinkedHashSet ();
-        
+
         for (int i = 0; i < this.chapters.size (); i++)
         {
 
@@ -354,7 +340,7 @@ public class Book extends NamedObject
         return ret;
 
     }
-    
+
     public Chapter getChapterByName (String name)
     {
 
@@ -425,7 +411,7 @@ public class Book extends NamedObject
 
     public void addChapter (Chapter c)
     {
-    
+
         this.addChapter (c,
                          -1);
 
@@ -437,11 +423,11 @@ public class Book extends NamedObject
 
         if (this.chapters.contains (c))
         {
-            
+
             return;
-            
+
         }
-    
+
         if ((where > this.chapters.size ()) ||
             (where < 0))
         {
@@ -451,7 +437,7 @@ public class Book extends NamedObject
         }
 
         c.setBook (this);
-        
+
         this.chapters.add (where,
                            c);
 

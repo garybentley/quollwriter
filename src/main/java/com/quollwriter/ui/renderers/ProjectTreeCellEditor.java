@@ -42,17 +42,17 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
         this.lastChapter = c;
 
     }
-    
+
     public void editingCanceled (ChangeEvent ev)
     {
 
         if (this.lastPath == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         ((DefaultMutableTreeNode) this.lastPath.getLastPathComponent ()).setUserObject (this.editing);
 
         this.editing = null;
@@ -173,8 +173,8 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
 
         }
 
-        Set<String> oldNames = a.getAllNames ();        
-        
+        Set<String> oldNames = a.getAllNames ();
+
         a.setName (newName);
         //a.setProject (this.projectViewer.getProject ());
 
@@ -189,17 +189,17 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
 
             //((DefaultTreeModel) this.tree.getModel ()).removeNodeFromParent ((DefaultMutableTreeNode) this.lastPath.getLastPathComponent ());
 
-            this.projectViewer.reloadTreeForObjectType (a.getObjectType ());                
+            this.projectViewer.reloadTreeForObjectType (a.getObjectType ());
 
         } catch (Exception e)
         {
 
-            Environment.logError ("Unable to add new " + Environment.getObjectTypeName (a).toLowerCase () + " with name: " +
+            Environment.logError ("Unable to add new " + Environment.getObjectTypeName (a).getValue ().toLowerCase () + " with name: " +
                                   newName,
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (a) + ".");
+                                      "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (a).getValue () + ".");
 
             return false;
 
@@ -207,10 +207,10 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
 
         this.projectViewer.updateProjectDictionaryForNames (oldNames,
                                                             a);
-                
+
         return true;
-        
-/*        
+
+/*
         //this.projectViewer.viewObject (a);
 
         } else
@@ -344,20 +344,20 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
         {
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Already have a " + Environment.getObjectTypeName (other).toLowerCase () + " called: " +
+                                      "Already have a " + Environment.getObjectTypeName (other).getValue ().toLowerCase () + " called: " +
                                       other.getName ());
 
             return false;
 
-        }        
-        
+        }
+
         try
         {
 
             c.setName (newName);
 
             // Inform the chapter tree that something has changed.
-            this.projectViewer.reloadTreeForObjectType (c.getObjectType ());                
+            this.projectViewer.reloadTreeForObjectType (c.getObjectType ());
 
             this.projectViewer.saveObject (c,
                                            true);

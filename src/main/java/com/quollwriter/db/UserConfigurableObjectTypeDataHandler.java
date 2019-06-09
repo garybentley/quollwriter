@@ -1,8 +1,6 @@
 package com.quollwriter.db;
 
 import java.sql.*;
-import java.awt.event.*;
-import javax.swing.*;
 
 import java.util.*;
 
@@ -10,7 +8,7 @@ import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
 
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.data.*;
 
 public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserConfigurableObjectType, NamedObject>
@@ -64,11 +62,13 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             t.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
 
-            t.setIcon24x24 (new ImageIcon (UIUtils.getImage (rs.getBytes (ind++))));
-            t.setIcon16x16 (new ImageIcon (UIUtils.getImage (rs.getBytes (ind++))));
+            t.setIcon24x24 (UIUtils.getImage (rs.getBytes (ind++)));
+            t.setIcon16x16 (UIUtils.getImage (rs.getBytes (ind++)));
             t.setLayout (rs.getString (ind++));
             t.setAssetObjectType (rs.getBoolean (ind++));
-            t.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke (rs.getString (ind++)));
+            // TODO Need to remove this.
+            rs.getString (ind++);
+            // TODO t.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke (rs.getString (ind++)));
             t.setLastModified (rs.getTimestamp (ind++));
             t.setDateCreated (rs.getTimestamp (ind++));
             t.setPropertiesAsString (rs.getString (ind++));
@@ -203,8 +203,8 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
                                              Arrays.asList (t.getKey (),
                                                             t.getUserObjectType (),
                                                             t.getActualObjectTypeNamePlural (),
-                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())),
-                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())),
+                                                            UIUtils.getImageBytes (t.getIcon24x24 ().getImage ()),
+                                                            UIUtils.getImageBytes (t.getIcon16x16 ().getImage ()),
                                                             t.getLayout (),
                                                             t.isAssetObjectType (),
                                                             Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ())),
@@ -239,8 +239,8 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
 
         this.objectManager.executeStatement ("UPDATE userobjecttype SET pluralname = ?, icon24x24 = ?, icon16x16 = ?, layout = ?, createshortcutkey = ? WHERE dbkey = ?",
                                              Arrays.asList (t.getActualObjectTypeNamePlural (),
-                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())),
-                                                            UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())),
+                                                            UIUtils.getImageBytes (t.getIcon24x24 ().getImage ()),
+                                                            UIUtils.getImageBytes (t.getIcon16x16 ().getImage ()),
                                                             t.getLayout (),
                                                             Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ()),
                                                             t.getKey ()),

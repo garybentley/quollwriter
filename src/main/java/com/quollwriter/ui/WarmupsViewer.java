@@ -1092,7 +1092,7 @@ public class WarmupsViewer extends AbstractProjectViewer
     public String getChapterObjectName ()
     {
 
-        return Environment.getObjectTypeName (Warmup.OBJECT_TYPE);
+        return Environment.getObjectTypeName (Warmup.OBJECT_TYPE).getValue ();
 
     }
 

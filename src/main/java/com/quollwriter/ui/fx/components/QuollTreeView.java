@@ -95,6 +95,41 @@ public class QuollTreeView<T> extends Pane
 
     }
 
+    public void select (Object o)
+    {
+
+        this.clearSelection ();
+
+        this.cells.keySet ().stream ()
+            .forEach (ti ->
+            {
+
+                if (ti.getValue ().equals (o))
+                {
+
+                    QuollTreeCell c = this.cells.get (ti);
+
+                    if (c != null)
+                    {
+
+                        c.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, true);
+
+                    }
+
+                }
+
+            });
+
+    }
+
+    public void clearSelection ()
+    {
+
+        this.cells.values ().stream ()
+            .forEach (c -> c.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, false));
+
+    }
+
     public void setShowRoot (boolean v)
     {
 
@@ -389,6 +424,54 @@ public class QuollTreeView<T> extends Pane
 
     }
 
+    @Override
+    public double computePrefHeight (double width)
+    {
+
+        return this.calcPrefHeight (this.root,
+                                    width,
+                                    0);
+
+    }
+
+    private double calcPrefHeight (TreeItem<T> ti,
+                                   double      width,
+                                   double      total)
+    {
+
+        QuollTreeCell rc = this.cells.get (ti);
+
+        if ((ti != this.root)
+            ||
+            ((ti == this.root)
+             &&
+             (this.showRoot)
+            )
+           )
+        {
+
+            total += rc.prefHeight (width);
+
+        }
+
+        if (ti.isExpanded ())
+        {
+
+            for (TreeItem<T> ci : ti.getChildren ())
+            {
+
+                total += this.calcPrefHeight (ci,
+                                              width,
+                                              0);
+
+            }
+
+        }
+
+        return total;
+
+    }
+
     private double layoutTreeItem (int         indent,
                                    double      yoffset,
                                    TreeItem<T> ti)
@@ -412,7 +495,6 @@ public class QuollTreeView<T> extends Pane
         double right = 0; //snapSpaceX(insets.getRight());
         //double space = snapSpaceY(getSpacing());
 
-        // Make indent configurable.
         double x = left + (indent * cellIndent.getValue ());
         double y = top + yoffset;// + computeYOffset(height - top - bottom, contentHeight, vpos);
         double contentWidth = width - left - right;
@@ -479,10 +561,33 @@ public class QuollTreeView<T> extends Pane
             this.disclosureNodeWrapper = new StackPane ();
             this.disclosureNodeWrapper.getChildren ().add (this.disclosureNode);
             this.disclosureNode.getStyleClass ().add ("disclosure");
-            this.disclosureNodeWrapper.managedProperty ().bind (this.disclosureNodeWrapper.visibleProperty ());
+            //this.disclosureNodeWrapper.managedProperty ().bind (this.disclosureNodeWrapper.visibleProperty ());
             this.getStyleClass ().add (StyleClassNames.CELL);
             this.getChildren ().add (this.disclosureNodeWrapper);
+/*
+            if (ti.isLeaf ())
+            {
 
+                if (ti.getParent () != null)
+                {
+
+                    for (TreeItem ci : ti.getParent ().getChildren ())
+                    {
+
+                        if (!ci.isLeaf ())
+                        {
+
+                            // Add an indent.
+
+
+                        }
+
+                    }
+
+                }
+
+            }
+*/
             if (ti instanceof CheckBoxTreeItem)
             {
 

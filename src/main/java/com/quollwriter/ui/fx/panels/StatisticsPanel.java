@@ -196,6 +196,8 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
                throws GeneralException
     {
 
+        super.init (s);
+
         if (s == null)
         {
 
@@ -239,6 +241,13 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
                 show = qc;
 
             }
+
+        }
+
+        if (show == null)
+        {
+
+            show = this.charts.iterator ().next ();
 
         }
 

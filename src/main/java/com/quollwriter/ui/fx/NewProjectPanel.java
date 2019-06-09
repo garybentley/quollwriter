@@ -156,7 +156,7 @@ public class NewProjectPanel extends VBox
         try
         {
 
-            pj = Environment.getProjectViewerForType (proj);
+            pj = AbstractProjectViewer.createProjectViewerForType (proj);
 
         } catch (Exception e)
         {

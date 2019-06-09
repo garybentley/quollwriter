@@ -3,6 +3,11 @@ package com.quollwriter.data;
 import java.io.*;
 
 import java.util.*;
+import java.util.stream.*;
+
+import javafx.collections.*;
+import javafx.beans.property.*;
+import javafx.beans.value.*;
 
 import com.quollwriter.*;
 import com.quollwriter.editors.*;
@@ -49,7 +54,7 @@ public class Project extends NamedObject
 
     public static final String BOOK_ADDED = "book_added";
 
-    private List<Book>         books = new ArrayList ();
+    private List<Book>         books = new ArrayList<> ();
     private int                lastBookId = 0;
     private File               projectDirectory = null;
     private File               backupDirectory = null;
@@ -63,8 +68,8 @@ public class Project extends NamedObject
     private List<QObject>      objects = new ArrayList ();
     private List<ResearchItem> researchItems = new ArrayList ();
     */
-    private List<IdeaType>     ideaTypes = new ArrayList ();
-    private Map<UserConfigurableObjectType, Set<Asset>> assets = new HashMap ();
+    private List<IdeaType>     ideaTypes = new ArrayList<> ();
+    private Map<UserConfigurableObjectType, ObservableSet<Asset>> assets = new HashMap<> ();
     private String             filePassword = null;
     private boolean            noCredentials = false;
     private String             type = Project.NORMAL_PROJECT_TYPE;
@@ -75,6 +80,11 @@ public class Project extends NamedObject
     //private EditorEditor       forEditor = null;
     private Set<ProjectEditor> projectEditors = null;
     private ProjectVersion     projVer = null;
+
+    private Map<Tag, ObservableSet<NamedObject>> taggedObjects = new HashMap<> ();
+
+    private StringProperty toolbarLocationProp = null;
+    private ObjectProperty<Date> lastEditedProp = null;
 
     public Project (Element pEl)
                     throws  Exception
@@ -226,6 +236,8 @@ public class Project extends NamedObject
 
         super (Project.OBJECT_TYPE);
 
+        this.init ();
+
     }
 
     public Project(String name)
@@ -233,6 +245,44 @@ public class Project extends NamedObject
 
         super (Project.OBJECT_TYPE,
                name);
+
+        this.init ();
+
+    }
+
+    private void init ()
+    {
+
+        Environment.tagsProperty ().addListener ((SetChangeListener<Tag>) ev ->
+        {
+
+            Tag t = ev.getElementRemoved ();
+
+            if (t != null)
+            {
+
+                this.taggedObjects.remove (t);
+
+            }
+
+        });
+
+        this.lastEditedProp = new SimpleObjectProperty<> ();
+
+    }
+
+    public StringProperty toolbarLocationProperty ()
+    {
+
+        if (this.toolbarLocationProp == null)
+        {
+
+            this.toolbarLocationProp = new SimpleStringProperty ();
+            this.toolbarLocationProp.setValue (this.getProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME));
+
+        }
+
+        return this.toolbarLocationProp;
 
     }
 
@@ -835,26 +885,26 @@ public class Project extends NamedObject
 
     }
 
-    public Set<NamedObject> getAllObjectsWithTag (Tag tag)
+    public ObservableSet<NamedObject> getAllObjectsWithTag (Tag tag)
     {
 
-        Set<NamedObject> objs = this.getAllNamedChildObjects ();
+        ObservableSet<NamedObject> objs = this.taggedObjects.get (tag);
 
-        Set<NamedObject> ret = new LinkedHashSet ();
-
-        for (NamedObject n : objs)
+        if (objs != null)
         {
 
-            if (n.hasTag (tag))
-            {
-
-                ret.add (n);
-
-            }
+            return objs;
 
         }
 
-        return ret;
+        objs = FXCollections.observableSet (this.getAllNamedChildObjects ().stream ()
+            .filter (o -> o.hasTag (tag))
+            .collect (Collectors.toSet ()));
+
+        this.taggedObjects.put (tag,
+                                objs);
+
+        return objs;
 
     }
 
@@ -1238,14 +1288,14 @@ public class Project extends NamedObject
 
     }
 
-    public Set<Asset> getAssets (UserConfigurableObjectType type)
+    public ObservableSet<Asset> getAssets (UserConfigurableObjectType type)
     {
 
         return this.assets.get (type);
 
     }
 
-    public Map<UserConfigurableObjectType, Set<Asset>> getAssets ()
+    public Map<UserConfigurableObjectType, ObservableSet<Asset>> getAssets ()
     {
 
         return this.assets;
@@ -1367,12 +1417,21 @@ public class Project extends NamedObject
 
     }
 
+    public ObjectProperty<Date> lastEditedProperty ()
+    {
+
+        return this.lastEditedProp;
+
+    }
+
     public void setLastEdited (Date d)
     {
 
         Date oldDate = this.lastEdited;
 
         this.lastEdited = d;
+
+        this.lastEditedProp.setValue (d);
 
         this.firePropertyChangedEvent (Project.LAST_EDITED,
                                        oldDate,
@@ -1537,7 +1596,7 @@ public class Project extends NamedObject
             as = new LinkedHashSet ();
 
             this.assets.put (a.getUserConfigurableObjectType (),
-                             as);
+                             FXCollections.observableSet (as));
 
         }
 
@@ -2154,6 +2213,39 @@ public class Project extends NamedObject
         }
 
         return lang;
+
+    }
+
+    public void addTagToObject (Tag         tag,
+                                NamedObject n)
+    {
+
+        Set<NamedObject> objs = this.taggedObjects.get (tag);
+
+        if (objs == null)
+        {
+
+            objs = new HashSet<> ();
+
+            this.taggedObjects.put (tag,
+                                    FXCollections.observableSet (objs));
+
+        }
+
+    }
+
+    public void removeTagFromObject (Tag         tag,
+                                     NamedObject n)
+    {
+
+        Set<NamedObject> objs = this.taggedObjects.get (tag);
+
+        if (objs != null)
+        {
+
+            objs.remove (n);
+
+        }
 
     }
 

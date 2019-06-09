@@ -79,7 +79,7 @@ public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
     public Icon getIcon (int iconSizeType)
     {
 
-        return this.object.getUserConfigurableObjectType ().getIcon16x16 ();
+        return null; // TODO this.object.getUserConfigurableObjectType ().getIcon16x16 ();
 
     }
 

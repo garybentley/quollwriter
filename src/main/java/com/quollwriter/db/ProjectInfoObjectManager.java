@@ -528,11 +528,13 @@ public class ProjectInfoObjectManager extends ObjectManager
         //chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
         chapterType.setLayout (null);
         chapterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift H"));
+        /*
+        TODO
         chapterType.setIcon24x24 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
                                                              Constants.ICON_TITLE));
         chapterType.setIcon16x16 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
                                                              Constants.ICON_SIDEBAR));
-
+        */
         chapterType.setUserObjectType (Chapter.OBJECT_TYPE);
 
         // Add the fields.
@@ -591,10 +593,13 @@ public class ProjectInfoObjectManager extends ObjectManager
         characterType.setLayout (null);
         characterType.setAssetObjectType (true);
         characterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift C"));
+        /*
+        TODO
         characterType.setIcon24x24 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
                                                                Constants.ICON_TITLE));
         characterType.setIcon16x16 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
                                                                Constants.ICON_SIDEBAR));
+        */
         characterType.setUserObjectType (QCharacter.OBJECT_TYPE);
 
         // Name
@@ -649,10 +654,13 @@ public class ProjectInfoObjectManager extends ObjectManager
         locType.setLayout (null);
         locType.setAssetObjectType (true);
         locType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift L"));
+        /*
+        TODO?
         locType.setIcon24x24 (Environment.getObjectIcon (Location.OBJECT_TYPE,
                                                          Constants.ICON_TITLE));
         locType.setIcon16x16 (Environment.getObjectIcon (Location.OBJECT_TYPE,
                                                          Constants.ICON_SIDEBAR));
+        */
         locType.setUserObjectType (Location.OBJECT_TYPE);
 
         // Name
@@ -692,10 +700,13 @@ public class ProjectInfoObjectManager extends ObjectManager
         qobjType.setLayout (null);
         qobjType.setAssetObjectType (true);
         qobjType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift I"));
+        /*
+        TODO
         qobjType.setIcon24x24 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
                                                           Constants.ICON_TITLE));
         qobjType.setIcon16x16 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
                                                           Constants.ICON_SIDEBAR));
+        */
         qobjType.setUserObjectType (QObject.OBJECT_TYPE);
 
         // Name
@@ -779,10 +790,13 @@ public class ProjectInfoObjectManager extends ObjectManager
         riType.setLayout (null);
         riType.setAssetObjectType (true);
         riType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift R"));
+        /*
+        TODO
         riType.setIcon24x24 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
                                                         Constants.ICON_TITLE));
         riType.setIcon16x16 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
                                                         Constants.ICON_SIDEBAR));
+        */
         riType.setUserObjectType (ResearchItem.OBJECT_TYPE);
 
         // Name

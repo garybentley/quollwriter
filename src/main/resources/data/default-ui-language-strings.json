@@ -614,7 +614,7 @@
                     "text" : "Current maximum ${objectnames.singular.chapter} word count <b>%1$s words</b>.",
                     ":comment.text" : "%1$s is the number of words.",
                     ":scount.text" : 1,
-                    "overlimit" : "${objectnames.plural.chapter} in red are 25% over the target, consider splitting them into two.",
+                    "overlimit" : "${objectnames.plural.chapter} in red are 25%% over the target, consider splitting them into two.",
                     "buttons" :
                     {
                         "close" : "${actions.close}"
@@ -3266,9 +3266,8 @@
         "confirmpopup" :
         {
             "title" : "Save changes before exiting?",
-            "text" : "The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%1$s</ul>Do you wish to save the changes before exiting?",
-            ":comment.text" : "The %1$s is a list of items that the user can click on to open up the tab with unsaved changes.  It is recommended you DO NOT change this.  Each item will be formatted within a li html tag.",
-            ":scount.text" : 1
+            "prefix" : "The following items have unsaved changes (click on an item to go to the relevant tab):",
+            "suffix" : "Do you wish to save the changes before exiting?"
         }
     },
     "closepanel" :
@@ -7644,6 +7643,14 @@
                 "seteditposition" :
                 {
                     "actionerror" : "Unable to set edit position."
+                },
+                "save" :
+                {
+                    "actionerror" : "Unable to save."
+                },
+                "autosave" :
+                {
+                    "actionerror" : "Unable to auto-save."
                 }
             }
         },

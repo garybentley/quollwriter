@@ -22,7 +22,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
     public WarmupsAccordionItem (WarmupsViewer pv)
     {
 
-        super (Environment.getObjectTypeNamePlural (Warmup.OBJECT_TYPE),
+        super (Environment.getObjectTypeNamePlural (Warmup.OBJECT_TYPE).getValue (),
                Warmup.OBJECT_TYPE,
                pv);
 

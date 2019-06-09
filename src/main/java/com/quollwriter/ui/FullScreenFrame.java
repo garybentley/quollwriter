@@ -957,7 +957,7 @@ TODO
 
                     JPopupMenu p = new JPopupMenu ();
 
-                    String oName = Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
+                    String oName = Environment.getObjectTypeName (Chapter.OBJECT_TYPE).getValue ();
 
                     JMenuItem mi = new JMenuItem (Environment.getUIString (LanguageStrings.fullscreen,
                                                                            LanguageStrings.popupmenu,

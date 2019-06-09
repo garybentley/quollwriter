@@ -26,7 +26,7 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene, Proje
     public String getTitle (Scene item)
     {
 
-        return Environment.getObjectTypeName (item.getObjectType ());
+        return Environment.getObjectTypeName (item.getObjectType ()).getValue ();
 
     }
 

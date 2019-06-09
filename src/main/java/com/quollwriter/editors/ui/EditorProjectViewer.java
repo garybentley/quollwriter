@@ -1637,7 +1637,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
     public String getChapterObjectName ()
     {
 
-        return Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
+        return Environment.getObjectTypeName (Chapter.OBJECT_TYPE).getValue ();
 
     }
 

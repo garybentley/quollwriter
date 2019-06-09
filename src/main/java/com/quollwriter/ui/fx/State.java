@@ -256,6 +256,48 @@ public class State
 
     }
 
+    public <T> Set<T> getAsSet (String name,
+                                Class  itemExpect)
+    {
+
+        Object v = this.get (name);
+
+        if (v == null)
+        {
+
+            return null;
+
+        }
+
+        if (!Collection.class.isAssignableFrom (v.getClass ()))
+        {
+
+            throw new IllegalArgumentException ("Unable to convert item data for: " + name + " to set of type: " + itemExpect.getName ());
+
+        }
+
+        Collection c = (Collection) v;
+
+        Set<T> items = new LinkedHashSet<> ();
+
+        for (Object o : c)
+        {
+
+            if (!itemExpect.isAssignableFrom (o.getClass ()))
+            {
+
+                throw new IllegalArgumentException ("Unable to convert collection item: " + o.getClass ().getName () + " to type: " + itemExpect.getName ());
+
+            }
+
+            items.add ((T) o);
+
+        }
+
+        return items;
+
+    }
+
     private <T> T checkGet (String   name,
                             Class<T> expect)
     {

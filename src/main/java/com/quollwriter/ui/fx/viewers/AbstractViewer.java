@@ -36,11 +36,13 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         contacts,
         reportbetabug,
         reportbug,
-        dowarmup
+        dowarmup,
+        fullscreen,
+        find
     };
 
     // Using an interface to reduce typing :)
-    public interface CommandIds
+    public interface CommandId
     {
 
         String debug = "debug";
@@ -76,6 +78,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         String incrementfontsize = "incrementfontsize";
         String decrementfontsize = "decrementfontsize";
         String resetfontsize = "resetfontsize";
+        String edittags = "edittags";
+        String find = "find";
+        String fullscreen = "fullscreen";
 
     }
 
@@ -200,11 +205,11 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
                 if (ev.getDeltaX () > 0)
                 {
 
-                    this.runCommand (CommandIds.incrementfontsize);
+                    this.runCommand (CommandId.incrementfontsize);
 
                 } else {
 
-                    this.runCommand (CommandIds.decrementfontsize);
+                    this.runCommand (CommandId.decrementfontsize);
 
                 }
 
@@ -232,36 +237,67 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     }
 
     public void showPopup (QuollPopup p,
+                           Node       n,
+                           Side       s)
+    {
+
+        Bounds b = n.localToScene (n.getBoundsInLocal ());
+        b = this.sceneToLocal (b);
+
+        p.setVisible (false);
+        this.addPopup (p);
+
+        this.showPopup (p,
+                        b.getMinX (),
+                        b.getMaxY ());
+
+    }
+
+    public void showPopup (QuollPopup p,
                            double     x,
                            double     y)
     {
 
         p.setVisible (false);
         this.addPopup (p);
+        p.applyCss ();
+        p.requestLayout ();
 
         UIUtils.runLater (() ->
         {
 
-            double w = p.getPrefWidth ();
-
-            w = w > -1 ? w : 450;
-
             double _x = x;
             double _y = y;
 
+            Bounds nb = p.getLayoutBounds ();
+
             Bounds b = this.getLayoutBounds ();
+
+            if ((y + nb.getHeight ()) > b.getHeight ())
+            {
+
+                _y = b.getHeight () - nb.getHeight ();
+
+            }
+
+            if ((x + nb.getWidth ()) > b.getWidth ())
+            {
+
+                _x = b.getWidth () - nb.getWidth ();
+
+            }
 
             if (_x == -1)
             {
 
-                _x = ((b.getWidth () / 2) - (w / 2d));
+                _x = ((b.getWidth () / 2) - (nb.getWidth () / 2d));
 
             }
 
             if (_y == -1)
             {
 
-                _y = ((b.getHeight () / 2) - (p.prefHeight (w) / 2d));
+                _y = ((b.getHeight () / 2) - (nb.getHeight () / 2d));
 
             }
 
@@ -407,25 +443,25 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     private void initKeyMappings ()
     {
 
-        this.addKeyMapping (CommandIds.debug,
+        this.addKeyMapping (CommandId.debug,
                             KeyCode.F12, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
-        this.addKeyMapping (CommandIds.debugmode,
+        this.addKeyMapping (CommandId.debugmode,
                             KeyCode.F1, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
-        this.addKeyMapping (CommandIds.whatsnew,
+        this.addKeyMapping (CommandId.whatsnew,
                             KeyCode.F11);
-        this.addKeyMapping (CommandIds.showoptions,
+        this.addKeyMapping (CommandId.showoptions,
                             KeyCode.F3);
-        this.addKeyMapping (CommandIds.vieweditors,
+        this.addKeyMapping (CommandId.vieweditors,
                             KeyCode.F7);
-        this.addKeyMapping (CommandIds.dowarmup,
+        this.addKeyMapping (CommandId.dowarmup,
                             KeyCode.F10);
-        this.addKeyMapping (CommandIds.closepopup,
+        this.addKeyMapping (CommandId.closepopup,
                             KeyCode.F4);
-        this.addKeyMapping (CommandIds.resetfontsize,
+        this.addKeyMapping (CommandId.resetfontsize,
                             KeyCode.DIGIT0, KeyCombination.CONTROL_DOWN);
-        this.addKeyMapping (CommandIds.incrementfontsize,
+        this.addKeyMapping (CommandId.incrementfontsize,
                             KeyCode.EQUALS, KeyCombination.CONTROL_DOWN);
-        this.addKeyMapping (CommandIds.decrementfontsize,
+        this.addKeyMapping (CommandId.decrementfontsize,
                             KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
 
     }
@@ -441,7 +477,29 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
             UserProperties.setUIBaseFontSize (UserProperties.getAsFloat (Constants.DEFAULT_UI_BASE_FONT_SIZE_PROPERTY_NAME));
 
         },
-        CommandIds.resetfontsize);
+        CommandId.resetfontsize);
+
+        this.addActionMapping (() ->
+        {
+/*
+TODO
+            QuollPopup qp = this.getPopupById (TagsManager.POPUP_ID);
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            new TagsManager (this.viewer).show ();
+*/
+            this.fireProjectEvent (ProjectEvent.Type.tags,
+                                   ProjectEvent.Action.edit);
+
+        },
+        CommandId.edittags);
 
         this.addActionMapping (() ->
         {
@@ -453,7 +511,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
             UserProperties.setUIBaseFontSize (f);
 
         },
-        CommandIds.incrementfontsize);
+        CommandId.incrementfontsize);
 
         this.addActionMapping (() ->
         {
@@ -465,7 +523,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
             UserProperties.setUIBaseFontSize (f);
 
         },
-        CommandIds.decrementfontsize);
+        CommandId.decrementfontsize);
 
         this.addActionMapping (() ->
         {
@@ -474,7 +532,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
             p.show ();
 
         },
-        CommandIds.newproject);
+        CommandId.newproject);
 
         this.addActionMapping (() ->
         {
@@ -509,13 +567,13 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
                 });
 
         },
-        CommandIds.closepopup);
+        CommandId.closepopup);
 
         this.addActionMapping (() -> this.showWarmupPromptSelect (),
-                               CommandIds.dowarmup,
-                               CommandIds.warmup);
+                               CommandId.dowarmup,
+                               CommandId.warmup);
         this.addActionMapping (() -> new DebugConsole (_this),
-                               CommandIds.debug);
+                               CommandId.debug);
         this.addActionMapping (() ->
         {
 
@@ -529,7 +587,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
                                    10);
 
         },
-        CommandIds.debugmode);
+        CommandId.debugmode);
 
         this.addActionMapping (() ->
         {
@@ -540,13 +598,13 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
             _this.showWhatsNew (true);
 
         },
-        CommandIds.whatsnew);
+        CommandId.whatsnew);
 
         this.addActionMapping (() -> this.showContactSupport (),
-                               CommandIds.contactsupport,
-                               CommandIds.contact);
+                               CommandId.contactsupport,
+                               CommandId.contact);
         this.addActionMapping (() -> _this.showObjectTypeNameChanger (),
-                               CommandIds.editobjectnames);
+                               CommandId.editobjectnames);
         /* TODO
         this.addActionMapping (() -> EditorsUIUtils.showInviteEditor (_this),
                                Command.showinviteeditor);
@@ -570,19 +628,26 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
             }
 
         },
-        CommandIds.vieweditors,
-        CommandIds.editors,
-        CommandIds.contacts,
-        CommandIds.showundealtwitheditormessages);
+        CommandId.vieweditors,
+        CommandId.editors,
+        CommandId.contacts,
+        CommandId.showundealtwitheditormessages);
 
         this.addActionMapping (() -> _this.showReportProblem (),
-                               CommandIds.reportbug);
+                               CommandId.reportbug);
 
         this.addActionMapping (() -> _this.showAbout (),
-                               CommandIds.about);
+                               CommandId.about);
 
         this.addActionMapping (() -> _this.showDictionaryManager (),
-                               CommandIds.dictionarymanager);
+                               CommandId.dictionarymanager);
+
+    }
+
+    public Command getActionMapping (String id)
+    {
+
+        return this.actionMap.get (id);
 
     }
 
@@ -679,8 +744,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         this.initActionMappings ();
         this.initKeyMappings ();
 
-        this.updateLayout ();
-
         Environment.doNewsAndVersionCheck (this);
 
         this.handleWhatsNew ();
@@ -688,10 +751,12 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         this.handleShowTips ();
 
         // We show later to ensure that the init has worked.
+        Environment.registerViewer (this);
 
         UIUtils.runLater (() ->
         {
 
+            this.updateLayout ();
             this.show ();
 
         });
@@ -705,13 +770,11 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         this.generalTimer.shutdown ();
 
-        this.close ();
+        this.getViewer ().close ();
 
         // Fire an event.
         this.fireEvent (new Viewer.ViewerEvent (this.getViewer (),
                                                 Viewer.ViewerEvent.CLOSE_EVENT));
-
-        UIUtils.runLater (afterClose);
 
     }
 
@@ -1248,6 +1311,13 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         }
 
+        if (this.generalTimer.isShutdown ())
+        {
+
+            throw new IllegalStateException ("Unable to run due to previous shutdown of timer: " + r);
+
+        }
+
         if (r == null)
         {
 
@@ -1405,7 +1475,7 @@ TODO
 
         final AbstractViewer _this = this;
 
-        java.util.List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
+        List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
 
         if (control == HeaderControl.reportbug)
         {
@@ -1416,7 +1486,39 @@ TODO
                 .onAction (ev ->
                 {
 
-                    _this.runCommand (AbstractViewer.CommandIds.reportbug);
+                    _this.runCommand (CommandId.reportbug);
+
+                })
+                .build ();
+
+        }
+
+        if (control == HeaderControl.find)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,find,tooltip)
+                .styleClassName (StyleClassNames.FIND)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.find);
+
+                })
+                .build ();
+
+        }
+
+        if (control == HeaderControl.fullscreen)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,fullscreen,tooltip)
+                .styleClassName (StyleClassNames.FULLSCREEN)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.fullscreen);
 
                 })
                 .build ();
@@ -1432,7 +1534,7 @@ TODO
                 .onAction (ev ->
                 {
 
-                    _this.runCommand (AbstractViewer.CommandIds.dowarmup);
+                    _this.runCommand (CommandId.dowarmup);
 
                 })
                 .build ();
@@ -1483,7 +1585,7 @@ TODO
 
                         }
 
-                        _this.runCommand (AbstractViewer.CommandIds.contacts);
+                        _this.runCommand (CommandId.contacts);
 
                     })
                     .build ();
@@ -1561,6 +1663,7 @@ TODO
     {
 
         this.mainSideBar = sb;
+        this.addSideBar (sb);
         this.sidebarsPane.getChildren ().clear ();
         this.sidebarsPane.getChildren ().add (sb);
         this.updateLayout ();
@@ -1933,6 +2036,13 @@ TODO
 
     }
 
+    public Set<SideBar> getSideBars ()
+    {
+
+        return new HashSet<> (this.sideBars.values ());
+
+    }
+
     public void addSideBar (SideBarContent sb)
     {
 
@@ -1940,7 +2050,7 @@ TODO
 
     }
 
-    public void addSideBar (SideBar sb)
+    private void addSideBar (SideBar sb)
     {
 
         if (sb == null)
@@ -2006,7 +2116,7 @@ TODO
 
       final AbstractViewer _this = this;
 
-      this.runCommand (AbstractViewer.CommandIds.vieweditors,
+      this.runCommand (AbstractViewer.CommandId.vieweditors,
                        () ->
       {
 
@@ -2083,7 +2193,7 @@ TODO
 
         final AbstractViewer _this = this;
 
-        this.runCommand (AbstractViewer.CommandIds.vieweditors,
+        this.runCommand (AbstractViewer.CommandId.vieweditors,
                          () ->
         {
 
@@ -2187,7 +2297,7 @@ TODO Not needed, is a function of the sidebar itself...
         if (this.viewer == null)
         {
 
-            this.viewer = this.createViewer ();
+            throw new IllegalStateException ("Viewer has not been created.");
 
         }
 
@@ -2197,6 +2307,7 @@ TODO Not needed, is a function of the sidebar itself...
 
     @Override
     public Viewer createViewer ()
+                         throws GeneralException
     {
 
         final AbstractViewer _this = this;
@@ -2216,72 +2327,64 @@ TODO Not needed, is a function of the sidebar itself...
 
         List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
 
-        headerCons.add (QuollButton.builder ()
+        QuollMenuButton context = QuollMenuButton.builder ()
             .styleClassName (StyleClassNames.VIEWERMENU)
             .tooltip (prefix,projectmenu,tooltip)
-            .onAction (evv ->
+            .items (() ->
             {
-//Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
-                ContextMenu menu = new ContextMenu ();
+        //Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
 
                 Supplier<Set<MenuItem>> menuItemSupp = _this.getSettingsMenuSupplier ();
 
-                Set<MenuItem> items = null;
+                Set<MenuItem> items = new LinkedHashSet<> ();
 
                 if (menuItemSupp != null)
                 {
 
-                     items = menuItemSupp.get ();
+                     items.addAll (menuItemSupp.get ());
 
                  }
 
-                if (items != null)
+                if (items.size () > 0)
                 {
 
-                    menu.getItems ().addAll (items);
-
-                    if (items.size () > 0)
-                    {
-
-                        menu.getItems ().add (new SeparatorMenuItem ());
-
-                    }
+                    items.add (new SeparatorMenuItem ());
 
                 }
 
                 List<String> mprefix = Arrays.asList (LanguageStrings.project,settingsmenu,LanguageStrings.items);
 
-                menu.getItems ().add (QuollMenuItem.builder ()
+                items.add (QuollMenuItem.builder ()
                     .label (mprefix,options)
                     .styleClassName (StyleClassNames.OPTIONS)
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.options);
+                        _this.runCommand (AbstractViewer.CommandId.options);
 
                     })
                     .build ());
 
-                menu.getItems ().add (QuollMenuItem.builder ()
+                items.add (QuollMenuItem.builder ()
                     .label (mprefix,achievements)
                     .styleClassName (StyleClassNames.ACHIEVEMENTS)
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.viewachievements);
+                        _this.runCommand (AbstractViewer.CommandId.viewachievements);
 
                     })
                     .build ());
 
-                menu.getItems ().add (new SeparatorMenuItem ());
+                items.add (new SeparatorMenuItem ());
 
-                menu.getItems ().add (QuollMenuItem.builder ()
+                items.add (QuollMenuItem.builder ()
                     .label (mprefix,whatsnew)
                     .styleClassName (StyleClassNames.WHATSNEW)
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.whatsnew);
+                        _this.runCommand (AbstractViewer.CommandId.whatsnew);
 
                     })
                     .build ());
@@ -2291,7 +2394,7 @@ TODO Not needed, is a function of the sidebar itself...
                     .styleClassName (StyleClassNames.HELP)
                     .build ();
 
-                menu.getItems ().add (helpMenu);
+                items.add (helpMenu);
 
                 // Report Bug/Problem
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
@@ -2300,7 +2403,7 @@ TODO Not needed, is a function of the sidebar itself...
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.reportbug);
+                        _this.runCommand (AbstractViewer.CommandId.reportbug);
 
                     })
                     .build ());
@@ -2312,7 +2415,7 @@ TODO Not needed, is a function of the sidebar itself...
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.contactsupport);
+                        _this.runCommand (AbstractViewer.CommandId.contactsupport);
 
                     })
                     .build ());
@@ -2344,13 +2447,13 @@ TODO Not needed, is a function of the sidebar itself...
                     .build ());
 
                 // About Quoll Writer
-                menu.getItems ().add (QuollMenuItem.builder ()
+                items.add (QuollMenuItem.builder ()
                     .label (mprefix,about)
                     .styleClassName (StyleClassNames.ABOUT)
                     .onAction (ev ->
                     {
 
-                        _this.runCommand (AbstractViewer.CommandIds.about);
+                        _this.runCommand (AbstractViewer.CommandId.about);
 
                     })
                     .build ());
@@ -2359,26 +2462,37 @@ TODO Not needed, is a function of the sidebar itself...
                 {
 
                     // Debug Console
-                    menu.getItems ().add (QuollMenuItem.builder ()
+                    items.add (QuollMenuItem.builder ()
                         .label ("Debug Console")
                         .styleClassName (StyleClassNames.DEBUGCONSOLE)
                         .onAction (ev ->
                         {
 
-                            _this.runCommand (AbstractViewer.CommandIds.debugconsole);
+                            _this.runCommand (AbstractViewer.CommandId.debugconsole);
 
                         })
                         .build ());
 
                 }
 
-                menu.show ((Node) evv.getSource (), Side.BOTTOM, 0, 0);
+                return items;
 
             })
-            .build ());
+            .build ();
+        headerCons.add (context);
+
+        Set<Node> visItems = new LinkedHashSet<> ();
+        visItems.add (context);
+
+        ConfigurableToolbar ctb = ConfigurableToolbar.builder ()
+            .items (headerCons)
+            .visibleItems (headerCons)
+            .withViewer (this)
+            .build ();
 
         Viewer v = Viewer.builder ()
-            .headerControls (headerCons)
+            //.headerControls (headerCons)
+            .headerToolbar (ctb)
             .styleClassName (this.getStyleClassName ())
             .content (this)
             .title (this.titleProperty ())
@@ -2393,6 +2507,8 @@ TODO Not needed, is a function of the sidebar itself...
         });
 
         v.setResizable (true);
+
+        v.init (null);
 
         Environment.registerViewer (this);
 
@@ -2413,13 +2529,6 @@ TODO Not needed, is a function of the sidebar itself...
     {
 
         this.getViewer ().toFront ();
-
-    }
-
-    public void close ()
-    {
-
-        this.getViewer ().close ();
 
     }
 

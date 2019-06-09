@@ -1,8 +1,11 @@
 package com.quollwriter.ui.fx.viewers;
 
 import java.util.*;
+import java.util.stream.*;
+import java.util.function.*;
 import java.nio.file.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
@@ -11,6 +14,7 @@ import javafx.scene.*;
 import javafx.scene.text.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.input.*;
 import javafx.geometry.*;
 
 import com.quollwriter.*;
@@ -25,14 +29,27 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.ui.fx.charts.*;
+import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.uistrings.UILanguageStrings;
 import com.quollwriter.uistrings.UILanguageStringsManager;
+import com.quollwriter.achievements.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
 public abstract class AbstractProjectViewer extends AbstractViewer implements PropertyChangedListener
 {
+
+    private static final Map<String, Class> viewerTypes = new HashMap<> ();
+
+    public interface CommandId extends AbstractViewer.CommandId
+    {
+
+        String textproperties = "textproperties";
+        String print = "print";
+
+    }
 
     protected Project project = null;
     private BooleanProperty spellCheckingEnabledProp = null;
@@ -43,11 +60,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private StringProperty titleProp = null;
 
     private ChapterCounts         startWordCounts = new ChapterCounts (null);
-    private Map<Chapter, ChapterCounts> chapterCounts = new WeakHashMap ();
-    private Map<Chapter, ReadabilityIndices> noEditorReadabilityIndices = new WeakHashMap ();
+    private Map<Chapter, ChapterCounts> chapterCounts = new WeakHashMap<> ();
+    private Map<Chapter, ReadabilityIndices> noEditorReadabilityIndices = new WeakHashMap<> ();
 
     private TabPane tabs = null;
     private Map<String, Panel> panels = new HashMap<> ();
+    private ObjectProperty<Panel> currentPanelProp = null;
     private VBox toolbarWrapper = null;
 
     private ScheduledFuture autoSaveTask = null;
@@ -57,8 +75,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private SynonymProvider       synProv = null;
     protected ObjectManager       dBMan = null;
 
+    private Date                  sessionStart = new Date ();
+
     private TargetsData targets = null;
-    private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap ();
+    private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap<> ();
 
     public AbstractProjectViewer ()
     {
@@ -66,6 +86,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         final AbstractProjectViewer _this = this;
 
         this.titleProp = new SimpleStringProperty ();
+        this.currentPanelProp = new SimpleObjectProperty<> ();
 
         this.spellCheckingEnabledProp = new SimpleBooleanProperty (false);
 
@@ -102,20 +123,38 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         this.tabs = new TabPane ();
         this.setContent (this.tabs);
+        this.tabs.setTabClosingPolicy (TabPane.TabClosingPolicy.ALL_TABS);
+        this.tabs.setSide (UserProperties.tabsLocationProperty ().getValue ().equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
         this.tabs.setTabDragPolicy (TabPane.TabDragPolicy.REORDER);
         this.tabs.selectionModelProperty ().getValue ().selectedIndexProperty ().addListener ((ind, oldi, newi) ->
         {
+
+            if (newi.intValue () < 0)
+            {
+
+                return;
+
+            }
 
             Tab t = _this.tabs.getTabs ().get (_this.tabs.selectionModelProperty ().getValue ().getSelectedIndex ());
 
             Panel qp = (Panel) t.getContent ();
 
-            _this.updateToolbarForPanel (qp);
+            this.currentPanelProp.setValue (qp);
 
             qp.fireEvent (new Panel.PanelEvent (qp,
                                                 Panel.PanelEvent.SHOW_EVENT));
 
         });
+
+        UIUtils.doOnKeyReleased (this.tabs,
+                                 KeyCode.F4,
+                                 () ->
+                                 {
+
+                                     this.removeCurrentPanel (null);
+
+                                 });
 
         this.toolbarWrapper = new VBox ();
 
@@ -123,17 +162,53 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         {
 
             // TODO Update the tabs location.
+            this.tabs.setSide (newv.equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
 
         });
 
-        // TODO Init the tabs location.
-        /*
-        Not needed, if a function of the project sidebar...
-        this.addToSidebarWrapper (Side.BOTTOM,
-                                  this.toolbarWrapper);
-                                  */
-
         this.initActionMappings ();
+
+    }
+
+    public static void registerViewerType (String projType,
+                                           Class  viewerClass)
+    {
+
+        if (!AbstractProjectViewer.class.isAssignableFrom (viewerClass))
+        {
+
+            throw new IllegalArgumentException ("Viewer class: " + viewerClass.getName () + ", for project type: " + projType + " is not a subclass of: " + AbstractProjectViewer.class.getName ());
+
+        }
+
+        try
+        {
+
+            viewerClass.getDeclaredConstructor ().newInstance ();
+
+        } catch (Exception e) {
+
+            throw new IllegalArgumentException ("Viewer class: " + viewerClass.getName () + ", for project type: " + projType + " does not have a zero arg constructor or cannot be created",
+                                                e);
+
+        }
+
+        AbstractProjectViewer.viewerTypes.put (projType,
+                                               viewerClass);
+
+    }
+
+    public Panel getCurrentPanel ()
+    {
+
+        return this.currentPanelProp.getValue ();
+
+    }
+
+    public ObjectProperty<Panel> currentPanelProperty ()
+    {
+
+        return this.currentPanelProp;
 
     }
 
@@ -360,15 +435,64 @@ TODO
 
 	}
 
+    public void printChapter (Chapter c)
+    {
+
+        // TODO
+        // See javafx.print javafx.print.PrinterJob
+
+    }
+
     private void initActionMappings ()
     {
 
         final AbstractProjectViewer _this = this;
 
-        this.addActionMapping (() -> _this.viewAchievements (),
-                               AbstractViewer.CommandIds.achievements,
-                               AbstractViewer.CommandIds.viewachievements);
+        this.addActionMapping (() ->
+        {
 
+            try
+            {
+
+                _this.viewAchievements ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view achievements",
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this,
+                                                 getUILanguageStringProperty (achievements,actionerror));
+
+            }
+
+        },
+        CommandId.viewachievements,
+        CommandId.achievements);
+
+        this.addActionMapping (() ->
+        {
+
+           try
+           {
+
+               this.viewStatistics ();
+
+           } catch (Exception e) {
+
+               Environment.logError ("Unable to view the statistics",
+                                     e);
+
+               ComponentUtils.showErrorMessage (this,
+                                                getUILanguageStringProperty (statistics,actionerror));
+                                                 //"Unable to view the statistics");
+
+           }
+
+        },
+        CommandId.showstatistics,
+        CommandId.statistics,
+        CommandId.charts);
 
     }
 
@@ -453,73 +577,11 @@ TODO
 
         this.project.addPropertyChangedListener (this);
 
-        this.titleProp.setValue (this.project.getName ());
-        // TODO this.titleProp.bind (this.project.nameProperty ());
-
-		this.initChapterCounts ();
-
-		this.targets = new TargetsData (this.project.getProperties ());
-
         Environment.incrStartupProgress ();
-
-        // TODO Environment.addToAchievementsManager (this);
-
-        // TODO ? this.initSideBars ();
-
-        this.initDictionaryProvider ();
 
         this.handleOpenProject ();
 
-        Environment.incrStartupProgress ();
-
-        this.restoreTabs ();
-
-        Environment.incrStartupProgress ();
-
-/*
-TODO Needed?
-final java.util.List<Runner> inits = new ArrayList ();
-
-        // Init all the panels.
-        for (Panel qp : this.panels.values ())
-        {
-
-            Runner r = this.getInitPanelStateRunner (qp,
-                                                     (qp == this.getCurrentlyVisibleTab ()));
-                                                     //lastOpen.equals (qp.getPanelId ()));
-
-            // The init for the panel should have set it as ready for use so switch that off.
-            qp.setReadyForUse (false);
-
-            if (r != null)
-            {
-
-                inits.add (r);
-
-            }
-
-        }
-
-        UIUtils.doLater (new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                for (Runner r : inits)
-                {
-
-                    r.run ();
-
-                }
-
-            }
-
-        });
-*/
-        Environment.incrStartupProgress ();
-
-		this.startAutoBackups ();
+        this.init (null);
 
         Environment.incrStartupProgress ();
 
@@ -576,9 +638,11 @@ final java.util.List<Runner> inits = new ArrayList ();
                                   this.project,
                                   e);
 
-        }
+            // TODO Show an error
 
-        this.scheduleA4PageCountUpdate ();
+            return;
+
+        }
 
 		UIUtils.runLater (onOpen);
 
@@ -591,9 +655,9 @@ final java.util.List<Runner> inits = new ArrayList ();
 
 				int wc = _this.getProjectTargets ().getMaxChapterCount ();
 
-				Set<Chapter> chaps = _this.getChaptersOverWordTarget ();
+				Set<Chapter> wchaps = _this.getChaptersOverWordTarget ();
 
-				int s = chaps.size ();
+				int s = wchaps.size ();
 
 				if ((wc > 0)
 					&&
@@ -601,7 +665,7 @@ final java.util.List<Runner> inits = new ArrayList ();
 				   )
 				{
 
-					for (Chapter c : chaps)
+					for (Chapter c : wchaps)
 					{
 
 						_this.chapterWordCountTargetWarned.put (c,
@@ -618,10 +682,11 @@ final java.util.List<Runner> inits = new ArrayList ();
 
                     }
 
-                    Text m = new Text ();
-                    m.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets, chaptersoverwcmaximum,t),
-                                                                         chaps.size (),
-                                                                         wc));
+                    BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
+                        .text (getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets, chaptersoverwcmaximum,t),
+                                                            wchaps.size (),
+                                                            wc))
+                        .build ();
 
 					final Notification n = _this.addNotification (m,
 																  StyleClassNames.WORDCOUNTS,
@@ -630,20 +695,27 @@ final java.util.List<Runner> inits = new ArrayList ();
                       m.setOnMouseClicked (ev ->
                       {
 
-/*
- TODO
-                          Targets.showChaptersOverWordTarget (_this,
-                                                              n);
-*/
                           n.removeNotification ();
+
+                          QuollPopup qp = this.getPopupById (ChaptersOverWordCountTargetPopup.POPUP_ID);
+
+                          if (qp != null)
+                          {
+
+                              qp.toFront ();
+                              return;
+
+                          }
+
+                          new ChaptersOverWordCountTargetPopup (this).show ();
 
                       });
 
 				}
 
-				chaps = _this.getChaptersOverReadabilityTarget ();
+				Set<Chapter> rchaps = _this.getChaptersOverReadabilityTarget ();
 
-				s = chaps.size ();
+				s = rchaps.size ();
 
 				if (s > 0)
 				{
@@ -657,9 +729,10 @@ final java.util.List<Runner> inits = new ArrayList ();
 
                     }
 
-                    Text m = new Text ();
-                    m.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets, chaptersoverreadabilitymaximum,t),
-                                                                         chaps.size ()));
+                    BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
+                        .text (getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets, chaptersoverreadabilitymaximum,t),
+                                                            rchaps.size ()))
+                        .build ();
 
 					final Notification n = _this.addNotification (m,
 																  StyleClassNames.READABILITY,
@@ -668,12 +741,28 @@ final java.util.List<Runner> inits = new ArrayList ();
                       m.setOnMouseClicked (ev ->
                       {
 
-/*
- TODO
-                          Targets.showChaptersOverReadabilityTarget (_this,
-                                                                     n);
-*/
                           n.removeNotification ();
+
+                          Set<Chapter> chaps = this.getChaptersOverReadabilityTarget ();
+
+                          if (chaps.size () == 0)
+                          {
+
+                              return;
+
+                          }
+
+                          QuollPopup qp = this.getPopupById (ChaptersOverReadabilityTargetPopup.POPUP_ID);
+
+                          if (qp != null)
+                          {
+
+                              qp.toFront ();
+                              return;
+
+                          }
+
+                          new ChaptersOverReadabilityTargetPopup (this).show ();
 
                       });
 
@@ -917,25 +1006,9 @@ TODO
 
         this.project.addPropertyChangedListener (this);
 
-		this.targets = new TargetsData (this.project.getProperties ());
-
-        // TODO Environment.getAchievementsManager ().addProjectViewer (this);
-
-        // TODO Needed? this.initSideBars ();
-
-        this.initDictionaryProvider ();
-
         this.handleNewProject ();
 
-		this.initChapterCounts ();
-
-		this.startAutoBackups ();
-
-        this.showMainSideBar ();
-
-        //this.handleWhatsNew ();
-
-        //this.handleShowTips ();
+        this.init (null);
 
         this.setIgnoreProjectEvents (false);
 
@@ -958,8 +1031,6 @@ TODO
                                   e);
 
         }
-
-        this.scheduleA4PageCountUpdate ();
 
 		UIUtils.runLater (onOpen);
 
@@ -1171,6 +1242,13 @@ TODO
 
     }
 
+    public void toggleSpellChecking ()
+    {
+
+        this.setSpellCheckingEnabled (!this.isSpellCheckingEnabled ());
+
+    }
+
     public boolean isSpellCheckingEnabled ()
     {
 
@@ -1224,7 +1302,7 @@ TODO
 
         Tab tab = this.addPanel (qp.getPanel ());
         // TODO Remove
-qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
+
         tab.textProperty ().bind (Bindings.createStringBinding (() ->
         {
 
@@ -1268,6 +1346,14 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
         });
 
         return tab;
+
+    }
+
+    public Tab addPanel (final PanelContent qp)
+                  throws GeneralException
+    {
+
+        return this.addPanel (qp.getPanel ());
 
     }
 
@@ -1464,6 +1550,14 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
 
         qp.fireEvent (new Panel.PanelEvent (qp,
                                             Panel.PanelEvent.CLOSE_EVENT));
+
+    }
+
+    public void removeCurrentPanel (Runnable onRemove)
+    {
+
+        this.removePanel (this.currentPanelProp.getValue (),
+                          onRemove);
 
     }
 
@@ -1861,10 +1955,20 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
 
     }
 
-    public void viewAchievements ()
+    public static AbstractProjectViewer createProjectViewerForType (String  t)
+                                                             throws Exception
     {
 
-        // TODO
+        Class c = AbstractProjectViewer.viewerTypes.get (t);
+
+        if (c == null)
+        {
+
+            throw new IllegalArgumentException ("No viewer class registered for type: " + t);
+
+        }
+
+        return (AbstractProjectViewer) c.getDeclaredConstructor ().newInstance ();
 
     }
 
@@ -1872,39 +1976,15 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
                                                              throws Exception
     {
 
-        AbstractProjectViewer v = null;
+        return AbstractProjectViewer.createProjectViewerForType (p.getType ());
 
-        if (p.getType ().equals (Project.NORMAL_PROJECT_TYPE))
-        {
+    }
 
-            v = new ProjectViewer ();
+    public static AbstractProjectViewer createProjectViewerForType (Project p)
+                                                             throws Exception
+    {
 
-        }
-
-        if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
-        {
-
-            v = new EditorProjectViewer ();
-
-        }
-
-        if (p.getType ().equals (Project.WARMUPS_PROJECT_TYPE))
-        {
-
-            v = new WarmupProjectViewer ();
-
-        }
-
-        if (v == null)
-        {
-
-            throw new GeneralException ("Project type: " +
-                                        p.getType () +
-                                        " is not supported.");
-
-        }
-
-        return v;
+        return AbstractProjectViewer.createProjectViewerForType (p.getType ());
 
     }
 
@@ -2050,6 +2130,14 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
 
 	}
 
+    protected void restoreSideBars ()
+                             throws GeneralException
+    {
+
+        // TODO
+
+    }
+
     /**
      * Responsible for setting up the panels that should be open when the project is opened.
      * If you override this method ensure that you do:
@@ -2161,40 +2249,54 @@ qp.getPanel ().setStyle ("-fx-border-color: #ff0000; -fx-border-width: 3px;");
             if (d == null)
             {
 
-                Panel p = this.getPanelForId (panelId);
-
-                if (p == null)
+                try
                 {
 
+                    this.openPanelForId (panelId);
+
+                } catch (Exception e) {
+
                     Environment.logError ("Unable to open panel for id: " +
-                                          panelId);
+                                          panelId,
+                                          e);
 
                     continue;
 
                 }
 
-                this.addPanel (p);
-
             } else
             {
 
-                try
-                {
-
-                    this.viewObject (d);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to open object: " +
-                                          d,
-                                          e);
-
-                }
+                this.viewObject (d);
 
             }
 
         }
 
+    }
+
+    public boolean showPanel (String pid)
+    {
+
+        AtomicBoolean b = new AtomicBoolean (false);
+
+        this.tabs.getTabs ().stream ()
+            .forEach (t ->
+            {
+
+                Panel p = (Panel) t.getContent ();
+
+                if (p.getPanelId ().equals (pid))
+                {
+
+                    this.tabs.getSelectionModel ().select (t);
+                    b.set (true);
+
+                }
+
+            });
+
+        return b.get ();
 
     }
 
@@ -2521,13 +2623,6 @@ TODO REmove
 
     }
 */
-    public void showMainSideBar ()
-    {
-
-        this.showSideBar (this.getMainSideBarId ());
-
-    }
-
     public boolean isHighlightWritingLine ()
     {
 
@@ -2551,7 +2646,6 @@ TODO REmove
     }
 
     public void viewObject (DataObject d)
-                     throws GeneralException
     {
 
         this.viewObject (d,
@@ -2588,11 +2682,364 @@ TODO REmove
 
     }
 
-    public void close (boolean  noConfirm,
+    @Override
+    public void close (Runnable afterClose)
+    {
+
+        this.close (true,
+                    afterClose);
+
+    }
+
+    public void close (boolean  preventCloseOnUnsavedChanges,
                        Runnable afterClose)
     {
 
-        // TODO
+        this.exitFullScreen ();
+
+        if (preventCloseOnUnsavedChanges)
+        {
+
+            VBox c = new VBox ();
+
+            AtomicBoolean hasChanges = new AtomicBoolean (false);
+
+            c.getChildren ().add (BasicHtmlTextFlow.builder ()
+                .text (getUILanguageStringProperty (closeproject,confirmpopup,prefix))
+                .withViewer (this)
+                .build ());
+
+            c.getChildren ().addAll (this.panels.values ().stream ()
+                // We are only interested in named object panels.
+                .filter (p ->
+                {
+
+                    if (p.getContent () instanceof NamedObjectPanelContent)
+                    {
+
+                        NamedObjectPanelContent np = (NamedObjectPanelContent) p.getContent ();
+
+                        return np.hasUnsavedChanges ();
+
+                    }
+
+                    return false;
+
+                })
+                .map (p ->
+                {
+
+                    NamedObjectPanelContent np = (NamedObjectPanelContent) p.getContent ();
+
+                    hasChanges.set (true);
+
+                    return QuollHyperlink.builder ()
+                        .label (p.titleProperty ())
+                        .onAction (ev ->
+                        {
+
+                            this.viewObject (np.getObject ());
+
+                        })
+                        .build ();
+
+                })
+                .collect (Collectors.toList ()));
+
+            c.getChildren ().add (BasicHtmlTextFlow.builder ()
+                .text (getUILanguageStringProperty (closeproject,confirmpopup,suffix))
+                .withViewer (this)
+                .build ());
+
+    /*
+            for (Panel p : this.panels.values ())
+            {
+
+    			if (p.getContent () instanceof NamedObjectPanelContent)
+    			{
+
+    				NamedObjectPanelContent pqp = (NamedObjectPanelContent) p;
+
+    				if (pqp.hasUnsavedChanges ())
+    				{
+
+    					hasChanges = true;
+
+    					if (pqp.getForObject () instanceof NamedObject)
+    					{
+
+    						b.append ("<li>" + pqp.getTitle () + "</li>");
+
+    					}
+
+    				}
+
+    			}
+
+            }
+    */
+            if (hasChanges.get ())
+            {
+
+                final AbstractProjectViewer _this = this;
+
+                Set<Button> buttons = new LinkedHashSet<> ();
+
+                buttons.add (QuollButton.builder ()
+                    .label (getUILanguageStringProperty (LanguageStrings.buttons,savechanges))
+                    .onAction (ev ->
+                    {
+
+                        this.closeInternal (true,
+                                            afterClose);
+
+                    })
+                    .build ());
+
+                buttons.add (QuollButton.builder ()
+                    .label (getUILanguageStringProperty (LanguageStrings.buttons,discardchanges))
+                    .onAction (ev ->
+                    {
+
+                        this.closeInternal (false,
+                                            afterClose);
+
+                    })
+                    .build ());
+
+                ComponentUtils.createQuestionPopup (getUILanguageStringProperty (closeproject,confirmpopup,title),
+                                                    StyleClassNames.PROJECT,
+                                                    c,
+                                                    buttons,
+                                                    null,
+                                                    null,
+                                                    null,
+                                                    this);
+
+                return;
+
+            }
+
+        }
+
+        this.closeInternal (false,
+                            afterClose);
+
+    }
+
+    private boolean closeInternal (boolean  saveUnsavedChanges,
+                                   Runnable afterClose)
+    {
+
+        if (saveUnsavedChanges)
+        {
+
+            // Save all.
+            for (Panel p : this.panels.values ())
+            {
+
+				if (p.getContent () instanceof NamedObjectPanelContent)
+				{
+
+					NamedObjectPanelContent pqp = (NamedObjectPanelContent) p.getContent ();
+
+					if (pqp.hasUnsavedChanges ())
+					{
+
+						boolean showError = true;
+
+						try
+						{
+
+							pqp.saveObject ();
+
+						} catch (Exception e)
+						{
+
+                            showError = true;
+
+							Environment.logError ("Unable to save unsaved changes for: " +
+												  pqp.getObject (),
+												  e);
+
+						}
+
+						if (showError)
+						{
+
+							ComponentUtils.showErrorMessage (this,
+													         getUILanguageStringProperty (Arrays.asList (closeproject,actionerror),
+                                                                                          pqp.getPanel ().titleProperty ()));
+
+							// Switch to the tab.
+							this.viewObject (pqp.getObject ());
+
+							return false;
+
+						}
+
+					}
+
+				}
+
+            }
+
+        }
+
+        // Need to manually remove from the achievements managers since it updates the achievements property.
+        try
+        {
+
+            Environment.getAchievementsManager ().removeViewer (this);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to remove viewer from achievements managers",
+                                  e);
+
+        }
+
+        this.removeAllNotifications ();
+
+        // Close all sidebars.
+        for (SideBar sb : new ArrayList<SideBar> (this.getSideBars ()))
+        {
+
+            this.removeSideBar (sb);
+
+        }
+
+        // Save it.
+        try
+        {
+
+            Panel vqp = this.currentPanelProp.getValue ();
+
+            String panelId = null;
+
+            if (vqp != null)
+            {
+
+                panelId = vqp.getPanelId ();
+
+            }
+
+            // See if we have a project version.
+            ProjectVersion pv = this.project.getProjectVersion ();
+
+            String suffix = "";
+
+            if (pv != null)
+            {
+
+                suffix = ":" + pv.getKey ();
+
+            }
+
+            this.project.setProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME + suffix,
+                                      panelId);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save open tab id for project: " +
+                                  this.project,
+                                  e);
+
+        }
+
+        try
+        {
+
+            String s = this.tabs.getTabs ().stream ()
+                .filter (t -> t.getContent () instanceof Panel)
+                .map (t -> ((Panel) t.getContent ()).getPanelId ())
+                .collect (Collectors.joining (","));
+
+            this.project.setProperty (this.getOpenTabsPropertyName (),
+                                      s);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save open tab ids for project: " +
+                                  this.project,
+                                  e);
+
+        }
+
+        for (Panel qp : new LinkedHashSet<> (this.panels.values ()))
+        {
+
+            // We close, rather than remove.  The close calls remove.
+            this.closePanel (qp,
+                             null);
+
+        }
+
+        this.project.setLastEdited (new Date ());
+
+        try
+        {
+
+            this.saveProject ();
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save project: " +
+                                  this.project,
+                                  e);
+
+            return false;
+
+        }
+
+        this.project.removePropertyChangedListener (this);
+
+        ChapterDataHandler ch = (ChapterDataHandler) this.dBMan.getHandler (Chapter.class);
+
+        ch.saveWordCounts (this.project,
+                           this.sessionStart,
+                           new Date ());
+
+        this.dBMan.createActionLogEntry (this.project,
+                                         "Closed project",
+                                         null,
+                                         null);
+
+        // Fire our last event.
+        this.fireProjectEvent (ProjectEvent.Type.project,
+                               ProjectEvent.Action.close);
+
+        // Close all the db connections.
+        this.dBMan.closeConnectionPool ();
+
+        super.close (afterClose);
+
+        return true;
+
+    }
+
+    @Override
+    public void removeSideBar (SideBar sb)
+    {
+
+        try
+        {
+
+            this.project.setProperty ("sidebarState-" + sb.getSideBarId (),
+                                      sb.getState ().asString ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save state for sidebar: " +
+                                  id,
+                                  e);
+
+        }
+
+        super.removeSideBar (sb);
 
     }
 
@@ -2803,12 +3250,306 @@ TODO REmove
 
     }
 
-    public abstract Panel getPanelForId (String id)
-                                  throws GeneralException;
+    public void removePanel (NamedObject n)
+    {
+
+        this.removePanel (n,
+                          null);
+
+    }
+
+    public void removePanel (NamedObjectPanelContent p)
+    {
+
+        this.removePanel (p.getPanel (),
+                          null);
+
+    }
+
+    public void removeAllSideBarsForObject (NamedObject n)
+    {
+
+        this.getSideBars ().stream ()
+            .filter (s ->
+            {
+
+                Node c = s.getContent ();
+
+                if ((c instanceof NamedObjectSideBarContent)
+                    &&
+                    (((NamedObjectSideBarContent) c).getObject () == n)
+                   )
+                {
+
+                    return true;
+
+                }
+
+                return false;
+
+            })
+            .forEach (s -> this.removeSideBar (s));
+
+    }
+
+    public void removeAllPanelsForObject (NamedObject n)
+    {
+
+        for (NamedObjectPanelContent p : this.getAllPanelsForObject (n))
+        {
+
+            this.removePanel (p);
+
+        }
+
+    }
+
+    public Set<NamedObjectPanelContent> getAllPanelsForObject (NamedObject n)
+    {
+
+        return this.panels.values ().stream ()
+            .filter (p ->
+            {
+
+                Node c = p.getContent ();
+
+                if ((c instanceof NamedObjectPanelContent)
+                    &&
+                    (((NamedObjectPanelContent) c).getObject () == n)
+                   )
+                {
+
+                    return true;
+
+                }
+
+                return false;
+
+            })
+            .map (p -> (NamedObjectPanelContent) p.getContent ())
+            .collect (Collectors.toSet ());
+
+    }
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        if (this.project == null)
+        {
+
+            throw new IllegalStateException ("No project set.");
+
+        }
+
+        this.initChapterCounts ();
+        this.targets = new TargetsData (this.project.getProperties ());
+        this.startAutoBackups ();
+
+        this.titleProp.bind (this.project.nameProperty ());
+
+        this.restoreSideBars ();
+        this.restoreTabs ();
+
+        this.initDictionaryProvider ();
+        this.scheduleA4PageCountUpdate ();
+
+        // This is done here because the achievements manager needs the project.
+        try
+        {
+
+            Environment.getAchievementsManager ().addProjectViewer (this);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to add viewer to achievements manager.",
+                                        e);
+
+        }
+
+        super.init (s);
+
+    }
+
+    public void setMainSideBar (SideBarContent sb)
+    {
+
+        this.setMainSideBar (sb.getSideBar ());
+
+    }
+
+    @Override
+    public void setMainSideBar (SideBar sb)
+    {
+
+        if (sb == null)
+        {
+
+            throw new IllegalArgumentException ("No sidebar provided.");
+
+        }
+
+        State state = null;
+
+        String id = sb.getId ();
+
+        if (id != null)
+        {
+
+            state = new State (this.project.getProperty ("sidebarState-" + id));
+
+        }
+
+        sb.init (state);
+
+        // TODO Make this nicer.
+        if (sb.getContent () instanceof SideBarContent)
+        {
+
+            ((SideBarContent) sb.getContent ()).init (state);
+
+        }
+
+        super.setMainSideBar (sb);
+
+    }
+
+    @Override
+    public void addSideBar (SideBarContent sb)
+    {
+
+        if (sb == null)
+        {
+
+            throw new IllegalArgumentException ("No sidebar provided.");
+
+        }
+
+        State state = null;
+
+        String id = sb.getId ();
+
+        if (id != null)
+        {
+
+            state = new State (this.project.getProperty ("sidebarState-" + id));
+
+        }
+
+        sb.init (state);
+
+        super.addSideBar (sb);
+
+    }
+
+    public void exitFullScreen ()
+    {
+
+        try
+        {
+/*
+            if (this.fsf != null)
+            {
+
+                this.fsf.close ();
+
+                this.tabs.setVisible (true);
+
+                this.fullScreenOverlay.setVisible (false);
+
+            }
+
+            this.setUILayout (this.layout);
+*/
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to exit full screen",
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (fullscreen,actions,exit,actionerror));
+
+        } finally {
+
+            this.setVisible (true);
+
+        }
+
+    }
+
+    @Override
+    public Supplier<Set<Node>> getTitleHeaderControlsSupplier ()
+    {
+
+        return () ->
+        {
+
+            Set<Node> controls = new LinkedHashSet<> ();
+
+            controls.add (this.getTitleHeaderControl (HeaderControl.contacts));
+            controls.add (this.getTitleHeaderControl (HeaderControl.find));
+            controls.add (this.getTitleHeaderControl (HeaderControl.fullscreen));
+
+            return controls;
+
+        };
+
+    }
+
+    public void viewStatistics ()
+                         throws GeneralException
+    {
+
+        if (this.showPanel (StatisticsPanel.PANEL_ID))
+        {
+
+            return;
+
+        }
+
+        StatisticsPanel a = new StatisticsPanel (this,
+                                                 null,
+                                                 new SessionWordCountChart (this));
+        this.addPanel (a);
+        this.showPanel (a.getPanelId ());
+
+    }
+
+    public void viewAchievements ()
+                         throws GeneralException
+    {
+
+        if (this.showPanel (AchievementsPanel.PANEL_ID))
+        {
+
+            return;
+
+        }
+
+        AchievementsPanel a = new AchievementsPanel (this,
+                                                     null);
+        this.addPanel (a);
+        this.showPanel (a.getPanelId ());
+
+    }
+
+    public void openPanelForId (String id)
+                         throws GeneralException
+    {
+
+        if (id.equals (StatisticsPanel.PANEL_ID))
+        {
+
+            this.viewStatistics ();
+            return;
+
+        }
+
+    }
 
     public abstract void viewObject (DataObject d,
-                                     Runnable   doAfterView)
-                              throws GeneralException;
+                                     Runnable   doAfterView);
 
     public abstract void handleOpenProject ()
                                      throws Exception;

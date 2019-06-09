@@ -42,6 +42,19 @@ public class QuollLabel extends Label
 
         }
 
+        this.graphicProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv != null)
+            {
+
+                newv.managedProperty ().unbind ();
+                newv.managedProperty ().bind (newv.visibleProperty ());
+
+            }
+
+        });
+
     }
 
     /**

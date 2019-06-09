@@ -223,7 +223,7 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
 
                 final Chapter c = (Chapter) d;
 
-                final String chapterObjTypeName = Environment.getObjectTypeName (c);
+                final String chapterObjTypeName = Environment.getObjectTypeName (c).getValue ();
 
                 m.add (UIUtils.createMenuItem (getUIString (prefix,view),
                                                 //"Edit {Chapter}",

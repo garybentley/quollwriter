@@ -4,6 +4,9 @@ import java.util.*;
 
 import javax.swing.*;
 
+import javafx.beans.property.*;
+import javafx.scene.image.*;
+
 import org.jdom.*;
 
 import com.quollwriter.*;
@@ -21,9 +24,12 @@ public class UserConfigurableObjectType extends NamedObject
     public static final String OBJECT_TYPE = "userconfigobjtype";
 
     private String objectTypeNamePlural = null;
-    private ImageIcon icon24x24 = null;
-    private ImageIcon icon16x16 = null;
-    private Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet ();
+    private StringProperty objectTypeNamePluralProp = null;
+    private ImageView icon24x24 = null;
+    private ImageView icon16x16 = null;
+    private ObjectProperty<ImageView> icon16x16Prop = null;
+    private ObjectProperty<ImageView> icon24x24Prop = null;
+    private Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
     private String layout = null;
     private String userObjectType = null;
     private boolean isAsset = false;
@@ -35,6 +41,10 @@ public class UserConfigurableObjectType extends NamedObject
     {
 
         super (OBJECT_TYPE);
+
+        this.objectTypeNamePluralProp = new SimpleStringProperty ();
+        this.icon16x16Prop = new SimpleObjectProperty<> ();
+        this.icon24x24Prop = new SimpleObjectProperty<> ();
 
     }
 
@@ -373,43 +383,59 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
-    public void setIcon24x24 (ImageIcon ic)
+    public void setIcon24x24 (Image im)
     {
 
-        ImageIcon oldIc = this.icon24x24;
+        Image oldim = (this.icon24x24 != null ? this.icon24x24.getImage () : null);
 
-        this.icon24x24 = ic;
+        this.icon24x24 = new ImageView (im);
+        this.icon24x24Prop.setValue (this.icon24x24);
 
         this.firePropertyChangedEvent (ICON24,
-                                       oldIc,
-                                       ic);
+                                       oldim,
+                                       im);
 
     }
 
-    public ImageIcon getIcon24x24 ()
+    public ImageView getIcon24x24 ()
     {
 
         return this.icon24x24;
 
     }
 
-    public void setIcon16x16 (ImageIcon ic)
+    public ObjectProperty<ImageView> icon24x24Property ()
     {
 
-        ImageIcon oldIc = this.icon16x16;
-
-        this.icon16x16 = ic;
-
-        this.firePropertyChangedEvent (ICON16,
-                                       oldIc,
-                                       ic);
+        return this.icon24x24Prop;
 
     }
 
-    public ImageIcon getIcon16x16 ()
+    public void setIcon16x16 (Image im)
+    {
+
+        Image oldim = (this.icon16x16 != null ? this.icon16x16.getImage () : null);
+
+        this.icon16x16 = new ImageView (im);
+        this.icon16x16Prop.setValue (this.icon16x16);
+
+        this.firePropertyChangedEvent (ICON16,
+                                       oldim,
+                                       im);
+
+    }
+
+    public ImageView getIcon16x16 ()
     {
 
         return this.icon16x16;
+
+    }
+
+    public ObjectProperty<ImageView> icon16x16Property ()
+    {
+
+        return this.icon16x16Prop;
 
     }
 
@@ -441,6 +467,13 @@ public class UserConfigurableObjectType extends NamedObject
         return Environment.getUIString (objectnames,singular,this.userObjectType);
 
         //return this.getName ();
+
+    }
+
+    public StringProperty objectTypeNameProperty ()
+    {
+
+        return this.nameProperty ();
 
     }
 
@@ -486,6 +519,15 @@ public class UserConfigurableObjectType extends NamedObject
                                        n);
 
         this.pluralNameSet = (n != null);
+
+        this.objectTypeNamePluralProp.setValue (this.objectTypeNamePlural);
+
+    }
+
+    public StringProperty objectTypeNamePluralProperty ()
+    {
+
+        return this.objectTypeNamePluralProp;
 
     }
 

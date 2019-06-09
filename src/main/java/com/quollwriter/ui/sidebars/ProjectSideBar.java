@@ -1318,7 +1318,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         if (Note.OBJECT_TYPE.equals (objType))
         {
 
-            name = Environment.getObjectTypeNamePlural (objType);
+            name = Environment.getObjectTypeNamePlural (objType).getValue ();
 
             count = this.viewer.getProject ().getAllNamedChildObjects (Note.class).size ();
 
@@ -1461,7 +1461,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             if (t != null)
             {
 
-                return t.getIcon16x16 ();
+                return null; // TODO t.getIcon16x16 ();
 
             }
 
@@ -1477,7 +1477,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         if (this.legacyAssetObjTypes.contains (objType))
         {
 
-            return Environment.getUserConfigurableObjectType (objType).getIcon16x16 ();
+            return null; // TODO Environment.getUserConfigurableObjectType (objType).getIcon16x16 ();
 
         }
 

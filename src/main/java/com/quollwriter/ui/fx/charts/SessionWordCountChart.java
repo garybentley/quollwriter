@@ -559,7 +559,7 @@ public class SessionWordCountChart extends AnchorPane implements QuollChart
                                                             try
                                                             {
 
-                                                                _this.viewer.runCommand (AbstractViewer.CommandIds.viewtargets);
+                                                                _this.viewer.runCommand (AbstractViewer.CommandId.viewtargets);
 
                                                             } catch (Exception e) {
 

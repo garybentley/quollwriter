@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx.viewers;
 
+import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
@@ -10,6 +11,7 @@ import com.quollwriter.ui.fx.components.*;
 public interface ViewerCreator
 {
 
-    Viewer createViewer ();
+    Viewer createViewer ()
+                  throws GeneralException;
 
 }

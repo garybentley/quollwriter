@@ -6,6 +6,7 @@ import java.util.function.*;
 import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.image.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 
@@ -28,6 +29,7 @@ public class Header extends HBox
     private Label title = null;
     private ToolBar toolbar = null;
     private ObjectProperty<Label> titleLabelProp = null;
+    private Tooltip origTooltip = null;
 
     private Header (Builder b)
     {
@@ -71,7 +73,11 @@ public class Header extends HBox
 
                     m.getItems ().addAll (items);
 
-                    _this.title.setContextMenu (m);
+                    ev.consume ();
+
+                    m.setAutoHide (true);
+
+					m.show (_this, ev.getScreenX (), ev.getScreenY ());
 
                 }
 
@@ -96,39 +102,115 @@ public class Header extends HBox
 
         }
 
-        this.toolbar = new ToolBar ();
-        this.toolbar.managedProperty ().bind (this.toolbar.visibleProperty ());
-        this.getChildren ().add (this.toolbar);
-        this.toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
-
-        ContextMenu cm = new ContextMenu ();
-        MenuItem conf = new MenuItem ("Configure");
-        conf.setOnAction (ev ->
+        if (b.toolbar == null)
         {
 
-        });
-        cm.getItems ().add (conf);
+            this.toolbar = new ToolBar ();
+            this.toolbar.managedProperty ().bind (this.toolbar.visibleProperty ());
 
-        this.toolbar.setContextMenu (cm);
-
-        if (b.controls != null)
-        {
-
-            for (Node n : b.controls)
+            if (b.controls != null)
             {
 
-                if (n == null)
+                for (Node n : b.controls)
                 {
 
-                    continue;
+                    if (n == null)
+                    {
 
+                        continue;
+
+                    }
+
+                    this.toolbar.getItems ().add (n);
+
+    /*
+                    n.setOnDragDetected (ev ->
+                    {
+
+                        Dragboard db = n.startDragAndDrop (TransferMode.ANY);
+
+                        n.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
+
+                        db.setDragView (null, null);
+
+                        // Need to add something otherwise the drag isn't registered.
+                        ClipboardContent c = new ClipboardContent ();
+                        c.put (JAVA_FORMAT, "HERE");
+                        db.setContent (c);
+
+                        ev.consume ();
+
+                    });
+
+                    n.setOnDragEntered (ev ->
+                    {
+
+                        if ((ev.getGestureSource () != n)
+                            &&
+                            (ev.getDragboard ().getContent (JAVA_FORMAT) != null)
+                           )
+                        {
+
+                            n.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, true);
+
+                        }
+
+                        ev.consume ();
+
+                    });
+
+                    n.setOnDragOver (ev ->
+                    {
+    System.out.println ("OVER");
+                        ev.acceptTransferModes (TransferMode.MOVE);
+
+                        int indexOf = this.toolbar.getItems ().indexOf (n);
+
+                        int indexOfOther = this.toolbar.getItems ().indexOf (ev.getGestureSource ());
+
+                        if (indexOf != indexOfOther)
+                        {
+
+                            this.toolbar.getItems ().remove ((Node) ev.getGestureSource ());
+                            this.toolbar.getItems ().add (indexOf,
+                                                          (Node) ev.getGestureSource ());
+
+                        }
+
+                        ev.consume ();
+
+                    });
+
+                    n.setOnDragExited (ev ->
+                    {
+    System.out.println ("EXITED");
+                        n.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+                        ev.consume ();
+
+                    });
+
+                    n.setOnDragDropped (ev ->
+                    {
+
+                        n.setCursor (Cursor.DEFAULT);
+                        n.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+                        n.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+                        ev.consume ();
+
+                    });
+*/
                 }
-
-                this.toolbar.getItems ().add (n);
 
             }
 
+        } else {
+
+            this.toolbar = b.toolbar;
+
         }
+
+        this.getChildren ().add (this.toolbar);
+        this.toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
 
         if (b.cursor != null)
         {
@@ -151,10 +233,10 @@ public class Header extends HBox
 
     }
 
-    public ObjectProperty<Node> iconProperty ()
+    public ImageView getIcon ()
     {
 
-        return this.title.graphicProperty ();
+        return this.image;
 
     }
 
@@ -194,6 +276,7 @@ public class Header extends HBox
         private Node icon = null;
         private String styleName = null;
         private Set<Node> controls = null;
+        private ToolBar toolbar = null;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
 
         private Builder ()
@@ -259,6 +342,14 @@ TODO Remove
 
             this.controls = c;
 
+            return this;
+
+        }
+
+        public Builder toolbar (ToolBar t)
+        {
+
+            this.toolbar = t;
             return this;
 
         }

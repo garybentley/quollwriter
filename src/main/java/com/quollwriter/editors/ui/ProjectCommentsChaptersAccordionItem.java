@@ -193,7 +193,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
 
                 final Chapter c = (Chapter) d;
 
-                final String chapterObjTypeName = Environment.getObjectTypeName (c);
+                final String chapterObjTypeName = Environment.getObjectTypeName (c).getValue ();
 
                 // Is this a project we have sent?
                 if (!this.viewer.getMessage ().isSentByMe ())

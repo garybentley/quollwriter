@@ -137,40 +137,40 @@ public class HTMLDocumentImporter implements DocumentImporter
                 }
 
                 // Work out what to create.
-                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).toLowerCase () + ":"))
+                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).getValue ().toLowerCase () + ":"))
                 {
 
                     // Create a character.
                     this.n = new QCharacter ();
 
-                    name = text.substring (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
+                    name = text.substring (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
                 }
 
-                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (Location.OBJECT_TYPE).toLowerCase () + ":"))
+                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (Location.OBJECT_TYPE).getValue ().toLowerCase () + ":"))
                 {
 
                     // Create a character.
                     this.n = new Location ();
 
-                    name = text.substring (Environment.getObjectTypeName (Location.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
+                    name = text.substring (Environment.getObjectTypeName (Location.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
                 }
 
-                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).toLowerCase () + ":"))
+                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).getValue ().toLowerCase () + ":"))
                 {
 
                     // Create a character.
                     this.n = new ResearchItem ();
 
-                    name = text.substring (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
+                    name = text.substring (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
                 }
 
-                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (QObject.OBJECT_TYPE).toLowerCase () + ":"))
+                if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (QObject.OBJECT_TYPE).getValue ().toLowerCase () + ":"))
                 {
 
                     // Create a character.
                     this.n = new QObject ();
 
-                    name = text.substring (Environment.getObjectTypeName (QObject.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
+                    name = text.substring (Environment.getObjectTypeName (QObject.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
 
                 }
 

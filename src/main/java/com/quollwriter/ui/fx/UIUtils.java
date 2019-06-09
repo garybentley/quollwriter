@@ -41,7 +41,11 @@ import com.quollwriter.data.ObjectReference;
 import com.quollwriter.data.Project;
 import com.quollwriter.data.ProjectInfo;
 import com.quollwriter.data.Chapter;
+import com.quollwriter.data.Tag;
+import com.quollwriter.data.NamedObject;
+import com.quollwriter.data.UserConfigurableObjectType;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.editors.*;
@@ -596,7 +600,33 @@ public class UIUtils
 
     }
 
-    public static byte[] getImageBytes (WritableImage im)
+    public static Image getImage (byte[] bytes)
+                           throws GeneralException
+    {
+
+        if (bytes == null)
+        {
+
+            return null;
+
+        }
+
+        try
+        {
+
+            return SwingFXUtils.toFXImage (ImageIO.read (new ByteArrayInputStream (bytes)),
+                                           null);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to convert bytes to an image",
+                                        e);
+
+        }
+
+    }
+
+    public static byte[] getImageBytes (Image im)
                                  throws GeneralException
     {
 
@@ -719,7 +749,7 @@ public class UIUtils
             if (p == null)
             {
 
-                return null;
+                return b;
 
             }
 
@@ -2216,6 +2246,237 @@ public class UIUtils
         });
 
         downloader.start ();
+
+    }
+
+    public static Menu createTagsMenu (final NamedObject           obj,
+                                        final AbstractProjectViewer viewer)
+    {
+
+        Menu tagMenu = QuollMenu.builder ()
+            .label (getUILanguageStringProperty (tags,popupmenu,title))
+            .styleClassName (StyleClassNames.TAG)
+            .items (() ->
+            {
+
+                Set<Tag> allTags = null;
+
+                try
+                {
+
+                    allTags = Environment.getAllTags ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get all tags",
+                                          e);
+
+                    return null;
+
+                }
+
+                Set<MenuItem> items = new LinkedHashSet<> ();
+
+                for (Tag t : allTags)
+                {
+
+                    CheckMenuItem cmi = new CheckMenuItem ();
+                    cmi.setSelected (obj.hasTag (t));
+                    cmi.textProperty ().bind (t.nameProperty ());
+                    cmi.setOnAction (ev ->
+                    {
+
+                        if (cmi.isSelected ())
+                        {
+
+                            obj.addTag (t);
+
+                        } else {
+
+                            obj.removeTag (t);
+
+                        }
+
+                        try
+                        {
+
+                            viewer.saveObject (obj,
+                                               false);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to update object: " +
+                                                  obj,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (viewer,
+                                                             getUILanguageStringProperty (tags,actions,apply,actionerror));
+                                                      //"Unable to add/remove tag.");
+
+                            return;
+
+                        }
+
+                        // TODO viewer.reloadTreeForObjectType (TaggedObjectSidebarItem.ID_PREFIX + t.getKey ());
+
+                    });
+
+                    items.add (cmi);
+
+                }
+
+                if (allTags.size () > 0)
+                {
+
+                    items.add (new SeparatorMenuItem ());
+
+                }
+
+                items.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.ADD)
+                    .label (getUILanguageStringProperty (tags,popupmenu,_new))
+                    .onAction (ev ->
+                    {
+/*
+TODO
+                        new AddNewTagActionHandler (obj,
+                                                    viewer).actionPerformed (ev);
+*/
+                    })
+                    .build ());
+
+                return items;
+
+            })
+            .build ();
+        //"Tags");
+
+        return tagMenu;
+
+    }
+
+    public static ImageView getImageView (BufferedImage i)
+    {
+
+        return new ImageView (SwingFXUtils.toFXImage (i, null));
+
+    }
+
+    public static void showObjectTypeEdit (UserConfigurableObjectType utype,
+                                           AbstractViewer             viewer)
+    {
+
+// TODO, Turn into own popup
+/*
+        final QPopup p = UIUtils.createClosablePopup (String.format (getUIString (userobjects,type,edit,popup,title),
+                                                                    //"Edit the %s information",
+                                                                     utype.getObjectTypeName ()),
+                                                      Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                           Constants.ICON_POPUP),
+                                                      null);
+
+        Box b = new Box (BoxLayout.Y_AXIS);
+
+        b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
+        JTextPane m = UIUtils.createHelpTextPane (String.format (getUIString (userobjects,type,edit,popup,text),
+                                                                //"Use this popup to add or edit the fields, layout and information for your %s.",
+                                                                 utype.getObjectTypeNamePlural ()),
+                                                  viewer);
+
+        m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                  m.getPreferredSize ().height));
+        m.setBorder (null);
+
+        b.add (m);
+
+        b.add (Box.createVerticalStrut (5));
+
+        b.add (UserConfigurableObjectTypeEdit.getAsTabs (viewer,
+                                                         utype));
+
+        JButton finishb = new JButton (getUIString (userobjects,type,edit,popup,buttons,finish));
+        //"Finish");
+
+        finishb.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.closePopupParent (p);
+
+            }
+
+        });
+
+        JButton[] fbuts = new JButton[] { finishb };
+
+        JPanel bp = UIUtils.createButtonBar2 (fbuts,
+                                              Component.CENTER_ALIGNMENT);
+        bp.setOpaque (false);
+
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        b.add (Box.createVerticalStrut (10));
+
+        b.add (bp);
+
+        p.setContent (b);
+
+        b.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                           b.getPreferredSize ().height));
+
+        viewer.showPopupAt (p,
+                            UIUtils.getCenterShowPosition (viewer,
+                                                           p),
+                                 false);
+        p.setDraggable (viewer);
+*/
+    }
+
+    public static Set<MenuItem> getNewAssetMenuItems (final ProjectViewer viewer)
+    {
+
+        String pref = getUIString (general,shortcut);
+        //"Shortcut: ";
+
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+
+        Set<MenuItem> ret = new LinkedHashSet<> ();
+
+        for (UserConfigurableObjectType type : types)
+        {
+
+            QuollMenuItem i = QuollMenuItem.builder ()
+                .label (type.getObjectTypeName ())
+                .onAction (ev ->
+                {
+
+                    viewer.runCommand (ProjectViewer.CommandId.newasset,
+                                       type);
+
+                })
+                .build ();
+
+            i.setGraphic (type.getIcon16x16 ());
+
+            ret.add (i);
+
+/*
+TODO
+            KeyStroke k = type.getCreateShortcutKeyStroke ();
+
+            if (k != null)
+            {
+
+                mi.setMnemonic (k.getKeyChar ());
+                mi.setToolTipText (pref + Utils.keyStrokeToString (k));
+
+            }
+*/
+        }
+
+        return ret;
 
     }
 

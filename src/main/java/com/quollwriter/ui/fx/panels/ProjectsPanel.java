@@ -149,7 +149,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
                     .onAction (ev ->
                     {
 
-                        _this.viewer.runCommand (AbstractViewer.CommandIds.newproject);
+                        _this.viewer.runCommand (AbstractViewer.CommandId.newproject);
 
                     })
                     .build ());
@@ -160,7 +160,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
                     .onAction (ev ->
                     {
 
-                        _this.viewer.runCommand (AbstractViewer.CommandIds.importfile);
+                        _this.viewer.runCommand (AbstractViewer.CommandId.importfile);
 
                     })
                     .build ());
@@ -171,7 +171,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
                     .onAction (ev ->
                     {
 
-                        _this.viewer.runCommand (AllProjectsViewer.CommandIds.findprojects);
+                        _this.viewer.runCommand (AllProjectsViewer.CommandId.findprojects);
 
                     })
                     .build ());
@@ -245,7 +245,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
                     .onAction (ev ->
                     {
 
-                        _this.viewer.runCommand (AbstractViewer.CommandIds.manageprojectstatuses);
+                        _this.viewer.runCommand (AbstractViewer.CommandId.manageprojectstatuses);
 
                     })
                     .build ());
@@ -283,7 +283,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
             if (ev.getClickCount () == 2)
             {
 
-                _this.viewer.runCommand (AbstractViewer.CommandIds.newproject);
+                _this.viewer.runCommand (AbstractViewer.CommandId.newproject);
 
             }
 
@@ -838,7 +838,8 @@ TODO Remove
             },
             UILanguageStringsManager.uilangProperty (),
             UserProperties.projectInfoFormatProperty (),
-            this.project.statusProperty ()));
+            this.project.statusProperty (),
+            this.project.lastEditedProperty ()));
 
             this.info = BasicHtmlTextFlow.builder ()
                 .text (this.infoProp)

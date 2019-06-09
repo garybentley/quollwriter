@@ -155,7 +155,7 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
                 {
 
                     TreeParentNode c = new TreeParentNode (Chapter.OBJECT_TYPE,
-                                                           Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+                                                           Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE).getValue ());
 
                     SelectableDataObject sd = new SelectableDataObject (c);
 
