@@ -459,13 +459,16 @@ public class SwingUIUtils
         l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
         l.setVerticalAlignment (SwingConstants.TOP);
         l.setVerticalTextPosition (SwingConstants.TOP);
+        /*
+        TODO Remove
         makeClickable (l,
                                onClick);
-
+*/
         return l;
 
     }
-
+/*
+TODO Remove
     public static void makeClickable (final JLabel l,
                                       final ActionListener onClick)
     {
@@ -501,7 +504,7 @@ public class SwingUIUtils
         l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
 
     }
-
+*/
     public static JButton createToolBarButton (String         icon,
                                                String         tooltip,
                                                String         actionCommand,
@@ -774,7 +777,7 @@ public class SwingUIUtils
 
             JComponent b = buttons.get (i);
 
-            setAsButton2 (b);
+            //setAsButton2 (b);
             tb.add (b);
 
         }
@@ -870,6 +873,8 @@ public class SwingUIUtils
 
     }
 
+/*
+TODO Remove
     public static void setAsButton2 (Component c)
     {
 
@@ -907,7 +912,7 @@ public class SwingUIUtils
         }
 
     }
-
+*/
     public static Header createHeader (String     title,
                                        int        titleType)
     {
@@ -1217,7 +1222,8 @@ public class SwingUIUtils
                                    createPadding (top, left, bottom, right));
 
     }
-
+/*
+TODO Remove
     public static Box createLinkedToItemsBox (final NamedObject           obj,
                                               final AbstractProjectViewer pv,
                                               final QPopup                p,
@@ -1307,7 +1313,7 @@ public class SwingUIUtils
         return pa;
 
     }
-
+*/
     public static JLabel createLabel (String message)
     {
 
@@ -1385,9 +1391,11 @@ public class SwingUIUtils
         {
 
             l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+/*
+TODO
             makeClickable (l,
                                    onClick);
-
+*/
         }
 
         l.setVerticalAlignment (SwingConstants.TOP);
@@ -2672,6 +2680,14 @@ TODO
         Rectangle2D r = comp.modelToView2D (offset);
 
         return new Rectangle ((int) r.getX (), (int) r.getY (), (int) r.getWidth (), (int) r.getHeight ());
+
+    }
+
+    public static Border createTestLineBorder ()
+    {
+
+        return new LineBorder (Color.RED,
+                               1);
 
     }
 

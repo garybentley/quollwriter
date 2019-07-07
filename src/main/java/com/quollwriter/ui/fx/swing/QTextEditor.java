@@ -17,6 +17,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
+import com.quollwriter.ui.fx.*;
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
@@ -53,13 +54,18 @@ public class QTextEditor extends JTextPane implements TextStylable
     private LineHighlighter  lineHighlighter = null;
     private boolean               canCopy = true;
     private boolean               canFormat = true;
+    private TextProperties textProperties = null;
+    private Point mousePosition = null;
 
     public QTextEditor(DictionaryProvider2 prov,
-                       boolean             spellCheckerEnabled)
+                       boolean             spellCheckerEnabled,
+                       TextProperties      props)
     {
 
         this.setCaret (new QCaret ());
         this.getCaret ().setBlinkRate (500);
+
+        final QTextEditor _this = this;
 
         this.undoManager = new CompoundUndoManager (this);
 
@@ -146,12 +152,36 @@ public class QTextEditor extends JTextPane implements TextStylable
   */
         this.initDocument ();
 
+        this.addMouseMotionListener (new MouseMotionAdapter ()
+        {
+
+            @Override
+            public void mouseMoved (MouseEvent ev)
+            {
+
+                _this.mousePosition = ev.getPoint ();
+
+            }
+
+        });
+
+        this.addMouseListener (new MouseAdapter ()
+        {
+
+            @Override
+            public void mouseExited (MouseEvent ev)
+            {
+
+                _this.mousePosition = null;
+
+            }
+
+        });
+
         this.setMargin (new Insets (5,
                                     5,
                                     0,
                                     5));
-
-        final QTextEditor _this = this;
 
         this.undoManager.discardAllEdits ();
 
@@ -427,6 +457,96 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.lineHighlighter = new LineHighlighter (Color.LIGHT_GRAY);
 
+        this.textProperties = props;
+
+        props.fontFamilyProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setFontFamily (newv);
+
+        });
+
+        props.fontSizeProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setFontSize (newv.intValue ());
+
+        });
+
+        props.backgroundColorProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setBackgroundColor (SwingUIUtils.toSwingColor (newv));
+
+        });
+
+        props.textColorProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setTextColor (SwingUIUtils.toSwingColor (newv));
+
+        });
+
+        props.highlightWritingLineProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setHighlightWritingLine (newv);
+
+        });
+
+        props.textBorderProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setTextBorder (newv.intValue ());
+
+        });
+
+        props.writingLineColorProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setWritingLineColor (SwingUIUtils.toSwingColor (newv));
+
+        });
+
+        props.lineSpacingProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setLineSpacing (newv.floatValue ());
+
+        });
+
+        props.alignmentProperty ().addListener ((prv, oldv, newv) ->
+        {
+
+            this.setAlignment (newv);
+
+        });
+
+        props.firstLineIndentProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setFirstLineIndent (newv);
+
+        });
+
+        this.setFirstLineIndent (props.getFirstLineIndent ());
+        this.setAlignment (props.getAlignment ());
+        this.setLineSpacing (props.getLineSpacing ());
+        this.setWritingLineColor (SwingUIUtils.toSwingColor (props.getWritingLineColor ()));
+        this.setTextBorder (props.getTextBorder ());
+        this.setHighlightWritingLine (props.isHighlightWritingLine ());
+        this.setTextColor (SwingUIUtils.toSwingColor (props.getTextColor ()));
+        this.setBackgroundColor (SwingUIUtils.toSwingColor (props.getBackgroundColor ()));
+        this.setFontFamily (props.getFontFamily ());
+        this.setFontSize (props.getFontSize ());
+
+    }
+
+    public Point getMousePosition ()
+    {
+
+        return this.mousePosition;
+
     }
 
     public void initDocument ()
@@ -602,7 +722,8 @@ public class QTextEditor extends JTextPane implements TextStylable
     {
 
         QTextEditor qt = new QTextEditor (null,
-                                          false);
+                                          false,
+                                          this.textProperties);
 
         qt.setSectionBreak (this.sectionBreak);
 
@@ -1148,6 +1269,7 @@ public class QTextEditor extends JTextPane implements TextStylable
     {
 
         // Do nothing.
+        this.setBorder (SwingUIUtils.createPadding (0, v, 0, v));
 
     }
 

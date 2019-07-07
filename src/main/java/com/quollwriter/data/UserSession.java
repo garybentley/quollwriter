@@ -3,8 +3,13 @@ package com.quollwriter.data;
 import java.util.*;
 import java.util.stream.*;
 
+import javafx.collections.*;
+import javafx.beans.property.*;
+
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+//import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 /**
  * Holds state information about the user session.
@@ -17,6 +22,7 @@ public class UserSession extends Session
     private int lastSnapshotSessionWordCount = 0;
     private Date lastSnapshotSessionEnd = null;
     private int currentSessionWordCount = 0;
+    private IntegerProperty currentSessionWordCountProp = null;
     private Date dailyTargetReachedPopupShownDate = null;
     private Date weeklyTargetReachedPopupShownDate = null;
     private Date monthlyTargetReachedPopupShownDate = null;
@@ -43,6 +49,40 @@ public class UserSession extends Session
 
     private void init ()
     {
+
+        this.currentSessionWordCountProp = new SimpleIntegerProperty (0);
+
+        Environment.openViewersProperty ().addListener ((SetChangeListener<AbstractViewer>) ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                if (ev.getElementAdded () instanceof AbstractProjectViewer)
+                {
+
+                    ((AbstractProjectViewer) ev.getElementAdded ()).sessionWordCountProperty ().addListener ((pr, oldv, newv) ->
+                    {
+
+                        this.currentSessionWordCount = Environment.openViewersProperty ().getValue ().stream ()
+                            .filter (v -> v instanceof AbstractProjectViewer)
+                            .map (v -> (AbstractProjectViewer) v)
+                            .collect (Collectors.summingInt (v -> v.getSessionWordCount ()));
+
+                        UIUtils.runLater (() ->
+                        {
+
+                            this.currentSessionWordCountProp.setValue (this.currentSessionWordCount);
+
+                        });
+
+                    });
+
+                }
+
+            }
+
+        });
 
         String dv = UserProperties.get (Constants.TARGET_DAILY_TARGET_REACHED_POPUP_SHOWN_DATE);
 
@@ -255,52 +295,17 @@ public class UserSession extends Session
 
     }
 
-    public void updateCurrentSessionWordCount (int wordCount)
-    {
-
-        this.currentSessionWordCount += wordCount;
-
-    }
-
     public int getCurrentSessionWordCount ()
     {
 
-        int c = Environment.getOpenProjectViewers ().stream ()
-            .collect (Collectors.summingInt (pv ->
-            {
+        return this.currentSessionWordCount;
 
-                if (pv.getProject ().isEditorProject ())
-                {
+    }
 
-                    return 0;
+    public IntegerProperty currentSessionWordCountProperty ()
+    {
 
-                }
-
-                return pv.getSessionWordCount ();
-
-            }));
-/*
-TODO Remove
-        Map<ProjectInfo, AbstractProjectViewer> pvs = Environment.openProjectsProperty ().getValue ();
-
-        int c = this.currentSessionWordCount;
-
-        for (AbstractProjectViewer pv : pvs.values ())
-        {
-
-            // Don't include editor projects.
-            if (pv.getProject ().isEditorProject ())
-            {
-
-                continue;
-
-            }
-
-            c += pv.getSessionWordCount ();
-
-        }
-*/
-        return c;
+        return this.currentSessionWordCountProp;
 
     }
 

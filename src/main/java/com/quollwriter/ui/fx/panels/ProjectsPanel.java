@@ -803,6 +803,7 @@ TODO Remove
 
 		private ProjectInfo project = null;
 		private ProjectsPanel parent = null;
+        private ContextMenu contextMenu = null;
 
 		public ProjectInfo getProjectInfo ()
 		{
@@ -1153,12 +1154,21 @@ TODO
 
 					}
 
+                    if (this.contextMenu != null)
+                    {
+
+                        this.contextMenu.hide ();
+
+                    }
+
                     evv.consume ();
 
                     cm.setAutoHide (true);
                     cm.getItems ().addAll (items);
 
 					cm.show (_this, evv.getScreenX (), evv.getScreenY ());
+
+                    this.contextMenu = cm;
 
             });
 

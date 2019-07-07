@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.*;
 
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
-
+import javafx.collections.*;
 import javafx.scene.*;
 import javafx.scene.text.*;
 import javafx.scene.control.*;
@@ -48,6 +48,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         String textproperties = "textproperties";
         String print = "print";
+        String chaptersoverwordcounttarget = "chaptersoverwordcounttarget";
+        String chaptersoverreadabilitytarget = "chaptersoverreadabilitytarget";
+        String openproject = "openproject";
+        String closeproject = "closeproject";
+        String closepanel = "closepanel";
+        String showwordcounts = "showwordcounts";
 
     }
 
@@ -59,7 +65,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private BooleanProperty typeWriterScrollingEnabledProp = null;
     private StringProperty titleProp = null;
 
-    private ChapterCounts         startWordCounts = new ChapterCounts (null);
+    private ChapterCounts         startWordCounts = new ChapterCounts ();
+    private ChapterCounts allChapterCounts = new ChapterCounts ();
     private Map<Chapter, ChapterCounts> chapterCounts = new WeakHashMap<> ();
     private Map<Chapter, ReadabilityIndices> noEditorReadabilityIndices = new WeakHashMap<> ();
 
@@ -79,6 +86,15 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     private TargetsData targets = null;
     private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap<> ();
+    private ObservableSet<Chapter> chaptersOverWordCountTarget = FXCollections.observableSet (new HashSet<> ());
+    private SetProperty<Chapter> chaptersOverWordCountTargetProp = null;
+    private ObservableSet<Chapter> chaptersOverReadabilityTarget = FXCollections.observableSet (new HashSet<> ());
+    private SetProperty<Chapter> chaptersOverReadabilityTargetProp = null;
+
+    private ObjectProperty<Chapter> chapterCurrentlyEditedProp = null;
+    private StringProperty selectedTextProp = null;
+    private int sessionWordCount = 0;
+    private IntegerProperty sessionWordCountProp = null;
 
     public AbstractProjectViewer ()
     {
@@ -87,6 +103,29 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         this.titleProp = new SimpleStringProperty ();
         this.currentPanelProp = new SimpleObjectProperty<> ();
+        this.selectedTextProp = new SimpleStringProperty ();
+        this.sessionWordCountProp = new SimpleIntegerProperty (0);
+
+        this.chapterCurrentlyEditedProp = new SimpleObjectProperty<> ();
+
+        this.currentPanelProp.addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv.getContent () instanceof ChapterEditorPanelContent)
+            {
+
+                ChapterEditorPanelContent pc = (ChapterEditorPanelContent) newv.getContent ();
+
+                // Need to cast here because otherwise we have to get into generics...
+                this.chapterCurrentlyEditedProp.setValue ((Chapter) pc.getObject ());
+
+            } else {
+
+                this.chapterCurrentlyEditedProp.setValue (null);
+
+            }
+
+        });
 
         this.spellCheckingEnabledProp = new SimpleBooleanProperty (false);
 
@@ -126,6 +165,40 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.tabs.setTabClosingPolicy (TabPane.TabClosingPolicy.ALL_TABS);
         this.tabs.setSide (UserProperties.tabsLocationProperty ().getValue ().equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
         this.tabs.setTabDragPolicy (TabPane.TabDragPolicy.REORDER);
+        this.tabs.getTabs ().addListener ((ListChangeListener<Tab>) ev ->
+        {
+
+            if (this.tabs.getSelectionModel ().getSelectedIndex () < 0)
+            {
+
+                return;
+
+            }
+
+            Tab t = _this.tabs.getTabs ().get (_this.tabs.selectionModelProperty ().getValue ().getSelectedIndex ());
+
+            Panel qp = (Panel) t.getContent ();
+
+            this.currentPanelProp.setValue (qp);
+
+            PanelContent pc = qp.getContent ();
+
+            this.selectedTextProp.unbind ();
+
+            if (pc instanceof ChapterEditorPanelContent)
+            {
+
+                ChapterEditorPanelContent cec = (ChapterEditorPanelContent) pc;
+
+                this.selectedTextProp.bind (cec.selectedTextProperty ());
+
+            }
+
+            qp.fireEvent (new Panel.PanelEvent (qp,
+                                                Panel.PanelEvent.SHOW_EVENT));
+
+        });
+
         this.tabs.selectionModelProperty ().getValue ().selectedIndexProperty ().addListener ((ind, oldi, newi) ->
         {
 
@@ -165,6 +238,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             this.tabs.setSide (newv.equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
 
         });
+
+        this.chaptersOverWordCountTargetProp = new SimpleSetProperty<> (this.chaptersOverWordCountTarget);
+        this.chaptersOverReadabilityTargetProp = new SimpleSetProperty<> (this.chaptersOverReadabilityTarget);
 
         this.initActionMappings ();
 
@@ -427,11 +503,64 @@ TODO
 		for (Chapter c : chapters)
 		{
 
-			this.updateChapterCounts (c);
+			this.initChapterCounts (c);
 
 		}
 
-		this.startWordCounts = this.getAllChapterCounts ();
+        b.getChapters ().addListener ((ListChangeListener<Chapter>) ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                for (Chapter c : ev.getAddedSubList ())
+                {
+
+                    this.initChapterCounts (c);
+
+                }
+
+                return;
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                for (Chapter c : ev.getRemoved ())
+                {
+
+                    this.chapterCounts.remove (c);
+
+                }
+
+                return;
+
+            }
+
+        });
+
+        // We have to do something special here for the initial counts.
+        // Each chapter has its counts inited in a separate thread.
+        this.schedule (() ->
+        {
+
+            this.startWordCounts = new ChapterCounts ();
+
+            for (Chapter c : chapters)
+    		{
+
+                String t = c.getText ().getText ();
+
+                ChapterCounts ncc = new ChapterCounts (t);
+
+                this.startWordCounts.add (ncc);
+
+    		}
+
+        },
+        1,
+        -1);
 
 	}
 
@@ -447,6 +576,120 @@ TODO
     {
 
         final AbstractProjectViewer _this = this;
+
+        this.addActionMapping (() ->
+        {
+
+            this.showWordCounts ();
+
+        },
+        CommandId.showwordcounts);
+
+        this.addActionMapping (new CommandWithArgs<NamedObject> (objs ->
+        {
+
+            this.closePanel (objs[0],
+                             null);
+
+        },
+        CommandId.closepanel));
+
+        this.addActionMapping (() ->
+        {
+
+            Environment.showAllProjectsViewer ();
+
+        },
+        CommandId.openproject);
+
+        this.addActionMapping (() ->
+        {
+
+            try
+            {
+
+                _this.showOptions (null);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view options",
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this,
+                                                 getUILanguageStringProperty (options,actionerror));
+
+            }
+
+        },
+        CommandId.showoptions,
+        CommandId.options);
+
+        this.addActionMapping (() ->
+        {
+
+            this.close (null);
+
+        },
+        CommandId.closeproject);
+
+        this.addActionMapping (() ->
+        {
+
+            try
+            {
+
+                _this.showChaptersOverWordCountTarget ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view chatpers over word count target",
+                                      e);
+
+            }
+
+        },
+        CommandId.chaptersoverwordcounttarget);
+
+        this.addActionMapping (() ->
+        {
+
+            try
+            {
+
+                _this.showChaptersOverReadabilityTarget ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view chatpers over readability target",
+                                      e);
+
+            }
+
+        },
+        CommandId.chaptersoverreadabilitytarget);
+
+        this.addActionMapping (() ->
+        {
+
+            try
+            {
+
+                _this.viewTargets ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view targets",
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this,
+                                                 getUILanguageStringProperty (LanguageStrings.targets,actionerror));
+                                                  //"Unable to view targets.");
+
+            }
+
+        },
+        CommandId.viewtargets,
+        CommandId.targets);
 
         this.addActionMapping (() ->
         {
@@ -470,29 +713,43 @@ TODO
         CommandId.viewachievements,
         CommandId.achievements);
 
-        this.addActionMapping (() ->
+        this.addActionMapping (new CommandWithArgs ((args) ->
         {
+
+            String chartType = null;
+
+            if (args != null)
+            {
+
+                if (args.length == 1)
+                {
+
+                    chartType = (String) args[0];
+
+                }
+
+            }
 
            try
            {
 
-               this.viewStatistics ();
+               _this.viewStatistics (chartType);
 
            } catch (Exception e) {
 
                Environment.logError ("Unable to view the statistics",
                                      e);
 
-               ComponentUtils.showErrorMessage (this,
+               ComponentUtils.showErrorMessage (_this,
                                                 getUILanguageStringProperty (statistics,actionerror));
                                                  //"Unable to view the statistics");
 
            }
 
         },
-        CommandId.showstatistics,
-        CommandId.statistics,
-        CommandId.charts);
+        AbstractViewer.CommandId.showstatistics,
+        AbstractViewer.CommandId.statistics,
+        AbstractViewer.CommandId.charts));
 
     }
 
@@ -697,17 +954,16 @@ TODO
 
                           n.removeNotification ();
 
-                          QuollPopup qp = this.getPopupById (ChaptersOverWordCountTargetPopup.POPUP_ID);
+                          Set<Chapter> chaps = this.getChaptersOverWordTarget ();
 
-                          if (qp != null)
+                          if (chaps.size () == 0)
                           {
 
-                              qp.toFront ();
                               return;
 
                           }
 
-                          new ChaptersOverWordCountTargetPopup (this).show ();
+                          this.showChaptersOverWordCountTarget ();
 
                       });
 
@@ -752,17 +1008,7 @@ TODO
 
                           }
 
-                          QuollPopup qp = this.getPopupById (ChaptersOverReadabilityTargetPopup.POPUP_ID);
-
-                          if (qp != null)
-                          {
-
-                              qp.toFront ();
-                              return;
-
-                          }
-
-                          new ChaptersOverReadabilityTargetPopup (this).show ();
+                          this.showChaptersOverReadabilityTarget ();
 
                       });
 
@@ -818,8 +1064,10 @@ TODO
 
 						final Chapter _c = c;
 
-						if (cc.wordCount > wc)
+						if (cc.getWordCount () > wc)
 						{
+
+                            this.chaptersOverWordCountTarget.add (c);
 
 							if (!_this.chapterWordCountTargetWarned.containsKey (c))
 							{
@@ -832,6 +1080,8 @@ TODO
 							}
 
 						} else {
+
+                            this.chaptersOverWordCountTarget.remove (c);
 
 							Date od = _this.chapterWordCountTargetWarned.get (c);
 
@@ -902,11 +1152,8 @@ TODO
 
                             showDetail.setOnAction (ev ->
                             {
-/*
-TODO
-                                Targets.showChaptersOverWordTarget (_this,
-                                                                    null);
-*/
+
+                                this.showChaptersOverWordCountTarget ();
                                 qp.close ();
 
                             });
@@ -1059,8 +1306,8 @@ TODO
                 try
                 {
 
-                    cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                             t);
+                    cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                               t));
 
                 } catch (Exception e) {
 
@@ -1301,6 +1548,7 @@ TODO
     {
 
         Tab tab = this.addPanel (qp.getPanel ());
+
         // TODO Remove
 
         tab.textProperty ().bind (Bindings.createStringBinding (() ->
@@ -1363,28 +1611,7 @@ TODO
 
         final AbstractProjectViewer _this = this;
 
-        Tab tab = new Tab ();
-        tab.textProperty ().bind (qp.titleProperty ());
-        tab.getStyleClass ().add (qp.getStyleClassName ());
-        tab.setContent (qp);
-
         final String panelId = qp.getPanelId ();
-
-        this.panels.put (panelId,
-                         qp);
-
-        tab.setOnCloseRequest (ev ->
-        {
-
-            _this.closePanel (qp,
-                              null);
-
-            ev.consume ();
-
-        });
-
-        this.tabs.getTabs ().add (0,
-                                  tab);
 
         final String s = this.project.getProperty (panelId + "-state");
 
@@ -1397,7 +1624,40 @@ TODO
 
         }
 
-        qp.init (state);
+        qp.getContent ().init (state);
+
+        Tab tab = new Tab ();
+        tab.textProperty ().bind (qp.titleProperty ());
+        tab.getStyleClass ().add (qp.getStyleClassName ());
+        tab.setContent (qp);
+
+        this.panels.put (panelId,
+                         qp);
+
+        tab.setOnCloseRequest (ev ->
+        {
+
+            ev.consume ();
+
+            PanelContent pc = qp.getContent ();
+
+            if (pc instanceof NamedObjectPanelContent)
+            {
+
+                this.closePanel ((NamedObjectPanelContent) pc,
+                                 null);
+
+                return;
+
+            }
+
+            this.closePanel (qp,
+                             null);
+
+        });
+
+        this.tabs.getTabs ().add (0,
+                                  tab);
 
         return tab;
 
@@ -1416,7 +1676,7 @@ TODO
 
         }
 
-        this.closePanel (c.getPanel (),
+        this.closePanel (c,
                          onClose);
 
     }
@@ -1433,6 +1693,9 @@ TODO
             (!this.project.hasObject (p.getObject ()))
            )
         {
+
+            this.closePanel (p.getPanel (),
+                             onClose);
 
             return;
 
@@ -1705,9 +1968,16 @@ TODO
 	public int getSessionWordCount ()
 	{
 
-		return this.getAllChapterCounts ().wordCount - this.startWordCounts.wordCount;
+		return this.sessionWordCount;
 
 	}
+
+    public IntegerProperty sessionWordCountProperty ()
+    {
+
+        return this.sessionWordCountProp;
+
+    }
 
     public Set<ChapterCounts> getAllChapterCountsAsSet ()
 	{
@@ -1716,19 +1986,41 @@ TODO
 
 	}
 
-    public ChapterCounts getAllChapterCounts ()
+    private void updateAllChapterCounts ()
     {
 
-		ChapterCounts all = new ChapterCounts ();
+        int wc = 0;
+        int pc = 0;
+        int sc = 0;
 
-		for (ChapterCounts cc : this.chapterCounts.values ())
+        for (ChapterCounts cc : this.chapterCounts.values ())
 		{
 
-			all.add (cc);
+            wc += cc.getWordCount ();
+            pc += cc.getStandardPageCount ();
+            sc += cc.getSentenceCount ();
 
 		}
 
-        return all;
+        this.allChapterCounts.setWordCount (wc);
+        this.allChapterCounts.setSentenceCount (sc);
+        this.allChapterCounts.setStandardPageCount (pc);
+
+        this.sessionWordCount = this.allChapterCounts.getWordCount () - this.startWordCounts.getWordCount ();
+
+        UIUtils.runLater (() ->
+        {
+
+            this.sessionWordCountProp.setValue (this.sessionWordCount);
+
+        });
+
+    }
+
+    public ChapterCounts getAllChapterCounts ()
+    {
+
+        return this.allChapterCounts;
 
     }
 
@@ -1830,26 +2122,78 @@ TODO
 
     }
 
-    public void updateChapterCounts (final Chapter c)
+    public void initChapterCounts (final Chapter c)
 	{
 
+        ChapterCounts cc = new ChapterCounts ();
+
+        cc.wordCountProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.updateAllChapterCounts ();
+
+        });
+
+        cc.sentenceCountProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.updateAllChapterCounts ();
+
+        });
+
+        cc.standardPageCountProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.updateAllChapterCounts ();
+
+        });
+
+        this.chapterCounts.put (c,
+                                cc);
+
+        this.schedule (() ->
+        {
+
+            try
+            {
+
+                final String t = this.getCurrentChapterText (c);
+
+                final ChapterCounts ncc = new ChapterCounts (t);
+
+                cc.setWordCount (ncc.getWordCount ());
+
+                cc.setSentenceCount (ncc.getSentenceCount ());
+                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                           t));
+
+                this.updateAllChapterCounts ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get a4 page count for chapter: " +
+                                      c,
+                                      e);
+
+            }
+
+        },
+        1 * Constants.SEC_IN_MILLIS,
+        -1);
+
+/*
         final AbstractProjectViewer _this = this;
 
         final String t = this.getCurrentChapterText (c);
 
         final ChapterCounts cc = new ChapterCounts (t);
 
-        ChapterCounts _cc = this.getChapterCounts (c);
+        ChapterCounts _cc = _this.getChapterCounts (c);
 
-        if (_cc != null)
-        {
+        _cc.setWordCount (cc.getWordCount ());
+        _cc.setSentenceCount (cc.getSentenceCount ());
 
-            cc.standardPageCount = _cc.standardPageCount;
-
-        }
-
-        this.chapterCounts.put (c,
-                                cc);
+        _this.updateAllChapterCounts ();
 
         // Don't try and calculate the a4 page count before the window is ready otherwise
         // strange errors result.  The initChapterCounts and scheduleA4PageCountUpdate will handle the initial counts.
@@ -1865,8 +2209,10 @@ TODO
                 try
                 {
 
-                    cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                             t);
+                    _cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                                t));
+
+                    _this.updateAllChapterCounts ();
 
                 } catch (Exception e) {
 
@@ -1882,10 +2228,10 @@ TODO
 
         this.chapterCountsUpdater = _this.schedule (r,
                                                     // Start in 2 seconds
-                                                    2 * Constants.SEC_IN_MILLIS,
+                                                    0 * Constants.SEC_IN_MILLIS,
                                                     // Do it once.
                                                     0);
-
+*/
 	}
 
 	public int getChapterA4PageCount (Chapter c)
@@ -1914,7 +2260,14 @@ TODO
 
         }
 
-		return t.getText ();
+        if (t != null)
+        {
+
+            return t.getText ();
+
+        }
+
+		return null;
 
 	}
 
@@ -2393,7 +2746,7 @@ TODO
 
                     ChapterCounts cc = this.getChapterCounts (c);
 
-                    if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                    if (cc.getWordCount () < Constants.MIN_READABILITY_WORD_COUNT)
                     {
 
                         continue;
@@ -2465,7 +2818,7 @@ TODO
 
                     ChapterCounts count = this.getChapterCounts (c);
 
-                    if (count.wordCount > tcc)
+                    if (count.getWordCount () > tcc)
                     {
 
                         chaps.add (c);
@@ -2846,7 +3199,7 @@ TODO REmove
 					if (pqp.hasUnsavedChanges ())
 					{
 
-						boolean showError = true;
+						boolean showError = false;
 
 						try
 						{
@@ -3025,17 +3378,22 @@ TODO REmove
     public void removeSideBar (SideBar sb)
     {
 
-        try
+        if (sb != null)
         {
 
-            this.project.setProperty ("sidebarState-" + sb.getSideBarId (),
-                                      sb.getState ().asString ());
+            try
+            {
 
-        } catch (Exception e) {
+                this.project.setProperty ("sidebarState-" + sb.getSideBarId (),
+                                          sb.getState ().asString ());
 
-            Environment.logError ("Unable to save state for sidebar: " +
-                                  id,
-                                  e);
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to save state for sidebar: " +
+                                      id,
+                                      e);
+
+            }
 
         }
 
@@ -3344,6 +3702,7 @@ TODO REmove
         }
 
         this.initChapterCounts ();
+        this.initDictionaryProvider ();
         this.targets = new TargetsData (this.project.getProperties ());
         this.startAutoBackups ();
 
@@ -3352,7 +3711,6 @@ TODO REmove
         this.restoreSideBars ();
         this.restoreTabs ();
 
-        this.initDictionaryProvider ();
         this.scheduleA4PageCountUpdate ();
 
         // This is done here because the achievements manager needs the project.
@@ -3497,7 +3855,7 @@ TODO REmove
 
     }
 
-    public void viewStatistics ()
+    public void viewStatistics (String chartType)
                          throws GeneralException
     {
 
@@ -3513,6 +3871,13 @@ TODO REmove
                                                  new SessionWordCountChart (this));
         this.addPanel (a);
         this.showPanel (a.getPanelId ());
+
+        if (chartType != null)
+        {
+
+            a.showChart (chartType);
+
+        }
 
     }
 
@@ -3534,6 +3899,114 @@ TODO REmove
 
     }
 
+    private void viewTargets ()
+                       throws GeneralException
+    {
+
+        SideBar sb = this.getSideBarById (TargetsSideBar.SIDEBAR_ID);
+
+        if (sb == null)
+        {
+
+            this.addSideBar (new TargetsSideBar (this));
+
+        }
+
+        this.showSideBar (TargetsSideBar.SIDEBAR_ID);
+
+    }
+
+    @Override
+    public void showOptions (String section)
+                      throws GeneralException
+    {
+
+        if (this.showPanel (OptionsPanel.PANEL_ID))
+        {
+
+            return;
+
+        }
+
+        OptionsPanel a = new OptionsPanel (this,
+                                           null,
+                                           Options.Section.Id.project,
+     									   Options.Section.Id.look,
+     									   Options.Section.Id.naming,
+     									   Options.Section.Id.editing,
+                                           Options.Section.Id.assets,
+     									   Options.Section.Id.start,
+     									   Options.Section.Id.editors,
+     									   Options.Section.Id.itemsAndRules,
+     									   Options.Section.Id.warmups,
+     									   Options.Section.Id.achievements,
+     									   Options.Section.Id.problems,
+     									   Options.Section.Id.betas,
+                                           Options.Section.Id.website);
+
+        a.showSection (section);
+        this.addPanel (a);
+        this.showPanel (a.getPanelId ());
+
+    }
+
+    public void showChaptersOverReadabilityTarget ()
+    {
+
+        QuollPopup qp = this.getPopupById (ChaptersOverReadabilityTargetPopup.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        new ChaptersOverReadabilityTargetPopup (this).show ();
+
+    }
+
+    public void showChaptersOverWordCountTarget ()
+    {
+
+        QuollPopup qp = this.getPopupById (ChaptersOverWordCountTargetPopup.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        new ChaptersOverWordCountTargetPopup (this).show ();
+
+    }
+
+    public SetProperty<Chapter> chaptersOverWordCountTargetProperty ()
+    {
+
+        return this.chaptersOverWordCountTargetProp;
+
+    }
+
+    public void showWordCounts ()
+    {
+
+        SideBar sb = this.getSideBarById (WordCountsSideBar.SIDEBAR_ID);
+
+        if (sb == null)
+        {
+
+            this.addSideBar (new WordCountsSideBar (this));
+
+        }
+
+        this.showSideBar (WordCountsSideBar.SIDEBAR_ID);
+
+    }
+
     public void openPanelForId (String id)
                          throws GeneralException
     {
@@ -3541,10 +4014,62 @@ TODO REmove
         if (id.equals (StatisticsPanel.PANEL_ID))
         {
 
-            this.viewStatistics ();
+            this.viewStatistics (null);
             return;
 
         }
+
+        if (id.equals (OptionsPanel.PANEL_ID))
+        {
+
+            this.showOptions (null);
+            return;
+
+        }
+
+        if (id.equals (AchievementsPanel.PANEL_ID))
+        {
+
+            this.viewAchievements ();
+            return;
+
+        }
+
+    }
+
+    public StringProperty selectedTextProperty ()
+    {
+
+        return this.selectedTextProp;
+
+    }
+
+    public String getSelectedText ()
+    {
+
+        if (this.selectedTextProp.isBound ())
+        {
+
+            return this.selectedTextProp.getValue ();
+
+        }
+
+        return null;
+
+    }
+
+    public ObjectProperty<Chapter> chapterCurrentlyEditedProperty ()
+    {
+
+        return this.chapterCurrentlyEditedProp;
+
+    }
+
+    public Chapter getChapterCurrentlyEdited ()
+    {
+
+        // TODO Do this properly...
+        return this.chapterCurrentlyEditedProp.getValue ();
 
     }
 

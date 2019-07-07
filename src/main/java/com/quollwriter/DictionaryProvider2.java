@@ -6,7 +6,7 @@ import java.util.*;
 
 import com.quollwriter.ui.events.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.text.*;
 
 import com.softcorporation.suggester.util.Constants;

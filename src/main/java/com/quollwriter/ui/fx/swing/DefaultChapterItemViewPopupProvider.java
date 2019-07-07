@@ -261,14 +261,15 @@ TODO
             if ((it.getLinks () != null) &&
                 (it.getLinks ().size () > 0))
             {
-
+/*
+TODO
                 pb.add (SwingUIUtils.createLinkedToItemsBox (it,
                                                         viewer,
                                                         popup,
                                                         true),
                         cc.xy (2,
                                row++));
-
+*/
             }
 
             List<JComponent> buts = new ArrayList<> ();

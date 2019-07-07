@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx;
 
+import javafx.beans.property.*;
 import javafx.scene.paint.*;
 
 public class TextProperties implements TextStylable
@@ -7,15 +8,25 @@ public class TextProperties implements TextStylable
 
     private TextStylable setOn = null;
     private String fontFamily = null;
+    private StringProperty fontFamilyProp = null;
     private int fontSize = -1;
+    private IntegerProperty fontSizeProp = null;
     private String alignment = null;
+    private StringProperty alignmentProp = null;
     private boolean firstLineIndent = false;
+    private BooleanProperty firstLineIndentProp = null;
     private float lineSpacing = 0;
+    private FloatProperty lineSpacingProp = null;
     private Color textColor = null;
+    private ObjectProperty<Color> textColorProp = null;
     private Color bgColor = null;
+    private ObjectProperty<Color> bgColorProp = null;
     private Color writingLineColor = null;
+    private ObjectProperty<Color> writingLineColorProp = null;
     private boolean highlightWritingLine = false;
+    private BooleanProperty highlightWritingLineProp = null;
     private int textBorder = 0;
+    private IntegerProperty textBorderProp = null;
 
     protected TextProperties ()
     {
@@ -129,16 +140,28 @@ public class TextProperties implements TextStylable
                                   int          textBorder)
     {
 
-        this.fontFamily = fontFamily;
-        this.fontSize = fontSize;
-        this.alignment = alignment;
-        this.firstLineIndent = firstLineIndent;
-        this.lineSpacing = lineSpacing;
-        this.textColor = textColor;
-        this.bgColor = bgColor;
-        this.writingLineColor = writingLineColor;
-        this.highlightWritingLine = highlightWritingLine;
-        this.textBorder = textBorder;
+        this.fontFamilyProp = new SimpleStringProperty ();
+        this.fontSizeProp = new SimpleIntegerProperty ();
+        this.alignmentProp = new SimpleStringProperty ();
+        this.firstLineIndentProp = new SimpleBooleanProperty ();
+        this.lineSpacingProp = new SimpleFloatProperty ();
+        this.textColorProp = new SimpleObjectProperty<> ();
+        this.bgColorProp = new SimpleObjectProperty<> ();
+        this.writingLineColorProp = new SimpleObjectProperty<> ();
+        this.highlightWritingLineProp = new SimpleBooleanProperty ();
+        this.textBorderProp = new SimpleIntegerProperty ();
+
+        this.setFontFamily (fontFamily);
+        //this.fontFamily = fontFamily;
+        this.setFontSize (fontSize);
+        this.setAlignment (alignment);
+        this.setFirstLineIndent (firstLineIndent);
+        this.setLineSpacing (lineSpacing);
+        this.setTextColor (textColor);
+        this.setBackgroundColor (bgColor);
+        this.setWritingLineColor (writingLineColor);
+        this.setHighlightWritingLine (highlightWritingLine);
+        this.setTextBorder (textBorder);
 
     }
 
@@ -173,18 +196,28 @@ public class TextProperties implements TextStylable
 
     }
 
+    public BooleanProperty highlightWritingLineProperty ()
+    {
+
+        return this.highlightWritingLineProp;
+
+    }
+
     public void setHighlightWritingLine (boolean v)
     {
 
         this.highlightWritingLine = v;
+        this.highlightWritingLineProp.setValue (v);
 
+/*
+TODO Remove?
         if (this.setOn != null)
         {
 
             this.setOn.setHighlightWritingLine (v);
 
         }
-
+*/
     }
 
     public int getTextBorder ()
@@ -194,17 +227,34 @@ public class TextProperties implements TextStylable
 
     }
 
+    public IntegerProperty textBorderProperty ()
+    {
+
+        return this.textBorderProp;
+
+    }
+
     public void setTextBorder (int v)
     {
 
         this.textBorder = v;
+        this.textBorderProp.setValue (v);
 
+/*
+TODO Remove?
         if (this.setOn != null)
         {
 
             this.setOn.setTextBorder (v);
 
         }
+*/
+    }
+
+    public ObjectProperty<Color> writingLineColorProperty ()
+    {
+
+        return this.writingLineColorProp;
 
     }
 
@@ -212,7 +262,10 @@ public class TextProperties implements TextStylable
     {
 
         this.writingLineColor = c;
+        this.writingLineColorProp.setValue (c);
 
+/*
+TODO Remove?
         if ((this.setOn != null)
             &&
             (this.writingLineColor != null)
@@ -222,7 +275,7 @@ public class TextProperties implements TextStylable
             this.setOn.setWritingLineColor (c);
 
         }
-
+*/
     }
 
     public Color getWritingLineColor ()
@@ -239,11 +292,21 @@ public class TextProperties implements TextStylable
 
     }
 
+    public StringProperty fontFamilyProperty ()
+    {
+
+        return this.fontFamilyProp;
+
+    }
+
     public void setFontFamily (String f)
     {
 
         this.fontFamily = f;
+        this.fontFamilyProp.setValue (f);
 
+/*
+TODO REmove?
         if ((this.setOn != null)
             &&
             (this.fontFamily != null)
@@ -253,7 +316,7 @@ public class TextProperties implements TextStylable
             this.setOn.setFontFamily (f);
 
         }
-
+*/
     }
 
     public int getFontSize ()
@@ -263,11 +326,21 @@ public class TextProperties implements TextStylable
 
     }
 
+    public IntegerProperty fontSizeProperty ()
+    {
+
+        return this.fontSizeProp;
+
+    }
+
     public void setFontSize (int v)
     {
 
         this.fontSize = v;
+        this.fontSizeProp.setValue (v);
 
+/*
+TODO Remove
         if ((this.setOn != null)
             &&
             (this.fontSize > 0)
@@ -277,7 +350,7 @@ public class TextProperties implements TextStylable
             this.setOn.setFontSize (v);
 
         }
-
+*/
     }
 
     public String getAlignment ()
@@ -287,11 +360,20 @@ public class TextProperties implements TextStylable
 
     }
 
+    public StringProperty alignmentProperty ()
+    {
+
+        return this.alignmentProp;
+
+    }
+
     public void setAlignment (String v)
     {
 
         this.alignment = v;
-
+        this.alignmentProp.setValue (v);
+/*
+TODO Remove
         if ((this.setOn != null)
             &&
             (this.alignment != null)
@@ -301,7 +383,7 @@ public class TextProperties implements TextStylable
             this.setOn.setAlignment (v);
 
         }
-
+*/
     }
 
     public boolean getFirstLineIndent ()
@@ -311,18 +393,28 @@ public class TextProperties implements TextStylable
 
     }
 
+    public BooleanProperty firstLineIndentProperty ()
+    {
+
+        return this.firstLineIndentProp;
+
+    }
+
     public void setFirstLineIndent (boolean v)
     {
 
         this.firstLineIndent = v;
+        this.firstLineIndentProp.setValue (v);
 
+/*
+TODO Remove
         if (this.setOn != null)
         {
 
             this.setOn.setFirstLineIndent (v);
 
         }
-
+*/
     }
 
     public float getLineSpacing ()
@@ -332,11 +424,20 @@ public class TextProperties implements TextStylable
 
     }
 
+    public FloatProperty lineSpacingProperty ()
+    {
+
+        return this.lineSpacingProp;
+
+    }
+
     public void setLineSpacing (float v)
     {
 
         this.lineSpacing = v;
-
+        this.lineSpacingProp.setValue (v);
+/*
+TODO Remove
         if ((this.setOn != null)
             &&
             (this.lineSpacing > 0)
@@ -346,7 +447,7 @@ public class TextProperties implements TextStylable
             this.setOn.setLineSpacing (v);
 
         }
-
+*/
     }
 
     public Color getTextColor ()
@@ -356,11 +457,20 @@ public class TextProperties implements TextStylable
 
     }
 
+    public ObjectProperty<Color> textColorProperty ()
+    {
+
+        return this.textColorProp;
+
+    }
+
     public void setTextColor (Color c)
     {
 
         this.textColor = c;
-
+        this.textColorProp.setValue (c);
+/*
+TODO REmove
         if ((this.setOn != null)
             &&
             (this.textColor != null)
@@ -370,7 +480,7 @@ public class TextProperties implements TextStylable
             this.setOn.setTextColor (c);
 
         }
-
+*/
     }
 
     public Color getBackgroundColor ()
@@ -380,11 +490,20 @@ public class TextProperties implements TextStylable
 
     }
 
+    public ObjectProperty<Color> backgroundColorProperty ()
+    {
+
+        return this.bgColorProp;
+
+    }
+
     public void setBackgroundColor (Color c)
     {
 
         this.bgColor = c;
-
+        this.bgColorProp.setValue (c);
+/*
+TODO Remove
         if ((this.setOn != null)
             &&
             (this.bgColor != null)
@@ -394,7 +513,7 @@ public class TextProperties implements TextStylable
             this.setOn.setBackgroundColor (c);
 
         }
-
+*/
     }
 
     public void resetToDefaults ()

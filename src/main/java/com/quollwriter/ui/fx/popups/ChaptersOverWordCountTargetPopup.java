@@ -75,13 +75,13 @@ public class ChaptersOverWordCountTargetPopup extends PopupContent<AbstractProje
 
             ChapterCounts count = viewer.getChapterCounts (c);
 
-            int diff = count.wordCount - tcc;
+            int diff = count.getWordCount () - tcc;
 
             int perc = Utils.getPercent (diff, tcc);
 
             gp.add (QuollLabel.builder ()
                 .label (new SimpleStringProperty (String.format ("%1$s",
-                                                                 count.wordCount)))
+                                                                 count.getWordCount ())))
                 .build (),
                 1,
                 row);
@@ -89,7 +89,7 @@ public class ChaptersOverWordCountTargetPopup extends PopupContent<AbstractProje
             gp.add (QuollLabel.builder ()
                 .styleClassName ((perc >= 25 ? StyleClassNames.OVER : null))
                 .label (new SimpleStringProperty (String.format ("+%1$s",
-                                                                 Environment.formatNumber (count.wordCount - tcc))))
+                                                                 Environment.formatNumber (count.getWordCount () - tcc))))
                 .build (),
                 2,
                 row);

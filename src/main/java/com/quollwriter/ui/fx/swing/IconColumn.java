@@ -167,6 +167,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
         };
 */
+/*
         this.addMouseListener (new MouseEventHandler ()
         {
 
@@ -192,6 +193,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                                                                                      ev.getPoint ()),
                                              null,
                                              null);
+                                             xxx
 
                 popup.add (mi);
 
@@ -242,7 +244,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
             }
 
         });
-
+*/
         this.chapter.addPropertyChangedListener (this.editPosChange);
 
         UserProperties.editMarkerColorProperty ().addListener ((p, oldv, newv) ->
@@ -1285,7 +1287,7 @@ TODO
 
         this.setMovable (item);
 
-        p.addMouseListener (new MouseEventHandler ()
+        p.addMouseListener (new MouseEventHandler (null)
         {
 
             @Override

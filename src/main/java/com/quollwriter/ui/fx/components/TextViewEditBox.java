@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.components;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
@@ -26,6 +27,7 @@ public class TextViewEditBox extends StackPane
     private TextArea editText = null;
     private StringWithMarkup text = null;
     private boolean typed = false;
+    private Function<StringWithMarkup, Boolean> onSave = null;
     private EventHandler<ActionEvent> onView = null;
     private EventHandler<ActionEvent> onEdit = null;
     private StringProperty viewPlaceHolder = null;
@@ -51,73 +53,50 @@ public class TextViewEditBox extends StackPane
 
         this.view = new VBox ();
         this.view.getStyleClass ().add (StyleClassNames.VIEW);
+        this.view.managedProperty ().bind (this.view.visibleProperty ());
 
         this.edit = new VBox ();
         this.edit.getStyleClass ().add (StyleClassNames.EDIT);
+        this.edit.managedProperty ().bind (this.edit.visibleProperty ());
+        this.edit.setVisible (false);
 
         this.viewPlaceHolder = b.viewPlaceHolder;
 
         this.editText = new TextArea ();
+        this.editText.promptTextProperty ().bind (b.editPlaceHolder);
         this.edit.getChildren ().add (this.editText);
 
         if (b.editPlaceHolder != null)
         {
 
-            this.editText.setText (b.editPlaceHolder.getValue ());
+            this.editText.promptTextProperty ().bind (b.editPlaceHolder);
 
         }
 
-        this.editText.setOnKeyPressed (ev ->
+        this.onSave = b.onSave;
+
+        UIUtils.addDoOnReturnPressed (this.editText,
+                                      () ->
         {
 
-            if ((ev.isControlDown ())
-                &&
-                (ev.getCode () == KeyCode.ENTER)
-               )
-            {
-
-                if (b.onSave != null)
-                {
-
-                    b.onSave.handle (new ActionEvent (_this,
-                                                      _this));
-
-                }
-
-            }
+            this.doSave ();
 
         });
 
-        java.util.List<String> prefix = new ArrayList<> ();
-        // TODO Remove reference to project OR add string props for the tooltips...
-        prefix.add (LanguageStrings.project);
-        prefix.add (LanguageStrings.sidebar);
-        prefix.add (LanguageStrings.chapterinfo);
-        prefix.add (LanguageStrings.edit);
-
         QuollButton saveB = QuollButton.builder ()
-            .tooltip (prefix,buttons,save,tooltip)
+            .tooltip (b.saveButtonTooltip)
             .styleClassName (StyleClassNames.SAVE)
             .buttonType (ButtonBar.ButtonData.APPLY)
             .onAction (ev ->
             {
 
-                _this.text = new StringWithMarkup (_this.editText.getText ());
-
-                if (b.onSave != null)
-                {
-
-                    b.onSave.handle (ev);
-
-                }
-
-                _this.showView ();
+                this.doSave ();
 
             })
             .build ();
 
         QuollButton cancelB = QuollButton.builder ()
-            .tooltip (prefix,buttons,cancel,tooltip)
+            .tooltip (b.cancelButtonTooltip)
             .styleClassName (StyleClassNames.CANCEL)
             .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
             .onAction (b.onCancel)
@@ -127,20 +106,49 @@ public class TextViewEditBox extends StackPane
                                  ev ->
         {
 
-            _this.showView ();
+            if (b.onCancel != null)
+            {
+
+                b.onCancel.handle (ev);
+
+            }
+
+            this.showView ();
 
         });
 
-        ButtonBar bb = new ButtonBar ();
-        bb.getButtons ().addAll (saveB, cancelB);
+        ToolBar bb = new ToolBar ();
+        bb.getStyleClass ().add (StyleClassNames.BUTTONS);
+        bb.getItems ().addAll (saveB, cancelB);
+
         this.edit.getChildren ().add (bb);
 
-        if (b.text != null)
+        this.setText (b.text);
+
+        this.getChildren ().addAll (this.view, this.edit);
+
+    }
+
+    private void doSave ()
+    {
+
+        StringWithMarkup ntext = new StringWithMarkup (this.editText.getText ());
+
+        if (this.onSave != null)
         {
 
-            this.setText (b.text);
+            if (!this.onSave.apply (ntext))
+            {
+
+                return;
+
+            }
 
         }
+
+        this.text = ntext;
+
+        this.showView ();
 
     }
 
@@ -156,21 +164,22 @@ public class TextViewEditBox extends StackPane
 
         final TextViewEditBox _this = this;
 
-        this.view.getChildren ().removeAll ();
+        this.view.getChildren ().clear ();
 
         if ((t == null)
             ||
-            (t.hasText ())
+            (!t.hasText ())
            )
         {
 
             if (this.viewPlaceHolder != null)
             {
 
-                Hyperlink l = new Hyperlink ();
-                l.textProperty ().bind (this.viewPlaceHolder);
-                l.getStyleClass ().add (StyleClassNames.PLACEHOLDER);
-                l.setOnAction (ev -> _this.showEdit ());
+                QuollHyperlink l = QuollHyperlink.builder ()
+                    .label (this.viewPlaceHolder)
+                    .styleClassName (StyleClassNames.PLACEHOLDER)
+                    .onAction (ev -> _this.showEdit ())
+                    .build ();
 
                 this.view.getChildren ().add (l);
 
@@ -181,13 +190,11 @@ public class TextViewEditBox extends StackPane
         } else {
 
             // Handle bulleted.
-            Text text = new Text (t.getText ());
-
-            this.view.getChildren ().add (text);
+            this.view.getChildren ().add (BasicHtmlTextFlow.builder ()
+                .text (t.getMarkedUpText ())
+                .build ());
 
         }
-
-        this.editText.setText (t.getText ());
 
         this.text = t;
 
@@ -196,8 +203,15 @@ public class TextViewEditBox extends StackPane
     public void showEdit ()
     {
 
-        this.edit.setViewOrder (0d);
-        this.view.setViewOrder (1d);
+        this.view.setVisible (false);
+        this.edit.setVisible (true);
+
+        if (this.text != null)
+        {
+
+            this.editText.setText (this.text.getText ());
+
+        }
 
         if (this.onEdit != null)
         {
@@ -211,8 +225,10 @@ public class TextViewEditBox extends StackPane
     public void showView ()
     {
 
-        this.edit.setViewOrder (1d);
-        this.view.setViewOrder (0d);
+        this.view.setVisible (true);
+        this.edit.setVisible (false);
+
+        this.setText (this.text);
 
         if (this.onView != null)
         {
@@ -244,11 +260,13 @@ public class TextViewEditBox extends StackPane
         private String styleName = null;
         private boolean bulleted = false;
         private boolean showTyping = false;
-        private EventHandler<ActionEvent> onSave = null;
+        private Function<StringWithMarkup, Boolean> onSave = null;
         private EventHandler<ActionEvent> onCancel = null;
         private EventHandler<ActionEvent> onEdit = null;
         private EventHandler<ActionEvent> onView = null;
         private StringWithMarkup text = null;
+        private StringProperty saveButtonTooltip = null;
+        private StringProperty cancelButtonTooltip = null;
 
         private Builder ()
         {
@@ -271,10 +289,34 @@ public class TextViewEditBox extends StackPane
 
         }
 
-        public Builder onSave (EventHandler<ActionEvent> ev)
+        public Builder saveButtonTooltip (StringProperty p)
+        {
+
+            this.saveButtonTooltip = p;
+            return this;
+
+        }
+
+        public Builder cancelButtonTooltip (StringProperty p)
+        {
+
+            this.cancelButtonTooltip = p;
+            return this;
+
+        }
+
+        public Builder onSave (Function<StringWithMarkup, Boolean> ev)
         {
 
             this.onSave = ev;
+            return this;
+
+        }
+
+        public Builder onCancel (EventHandler<ActionEvent> ev)
+        {
+
+            this.onCancel = ev;
             return this;
 
         }

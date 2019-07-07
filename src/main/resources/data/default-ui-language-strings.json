@@ -6045,7 +6045,7 @@
             "clicktohide" : "Click to hide the item tree",
             "clicktoview" : "Click to link to other items"
         },
-        "nolinksedit" : "<i>No Links set, click to edit.</i>",
+        "nolinksedit" : "No Links set, click to edit.",
         ":comment.nolinksedit" : "This text is shown as a clickable link when there are no Links set for the object.  Clicking on the link will show the edit form.",
         "view" :
         {
@@ -7987,7 +7987,7 @@
                 },
                 "view" :
                 {
-                    "novalue" : "<i>No %1$s set, click to edit.</i>",
+                    "novalue" : "No %1$s set, click to edit.",
                     ":comment.novalue" : "%1$s is the field name we are editing.",
                     ":scount.novalue" : 1
                 },
@@ -8282,7 +8282,7 @@
                 ":comment.actionerror" : "%1$s is the name of the chapter.",
                 ":scount.actionerror" : 1,
                 "deletetype" : "${objectnames.singular.chapter}",
-                "warning" : "Warning!  Once deleted a ${objectnames.singular.chapter} cannot be restored."
+                "warning" : "<br /><br />Warning!  Once deleted a ${objectnames.singular.chapter} cannot be restored."
             },
             "renameproject" :
             {

@@ -228,6 +228,9 @@ public abstract class QuollPanel<E extends AbstractProjectViewer> extends Box /*
 
         final QuollPanel _this = this;
 
+        return null;
+
+        /*
         return new MouseEventHandler ()
         {
 
@@ -242,7 +245,7 @@ public abstract class QuollPanel<E extends AbstractProjectViewer> extends Box /*
             }
 
         };
-
+*/
     }
 
     public E getViewer ()
@@ -697,7 +700,8 @@ System.out.println ("CALLED: " + c);
 
             final QuollPanel _this = this;
             final boolean    hideVia = hideViaVisibility;
-
+/*
+TODO Remove
             // Need to do it this way because mouse events aren't being forwarded/delivered.
             MouseEventHandler m = new MouseEventHandler ()
             {
@@ -737,7 +741,9 @@ System.out.println ("CALLED: " + c);
                 }
 
             };
-
+*/
+/*
+TODO Remove
             List<Component> comps = this.getTopLevelComponents ();
 
             if (comps != null)
@@ -751,7 +757,7 @@ System.out.println ("CALLED: " + c);
                 }
 
             }
-
+*/
         }
 
     }

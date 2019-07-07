@@ -15,6 +15,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
+import javafx.beans.property.*;
+
 import com.gentlyweb.properties.*;
 
 import com.jgoodies.forms.builder.*;
@@ -44,6 +46,7 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
     private java.util.List                          actionListeners = new ArrayList ();
     private java.util.List<PropertyChangedListener> propertyChangedListeners = new ArrayList ();
     private boolean                                 hasUnsavedChanges = false;
+    private javafx.beans.property.BooleanProperty unsavedChangesProp = null;
 
     public ProjectObjectQuollPanel (E       pv,
                                     Chapter obj)
@@ -52,6 +55,7 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
         super (pv);
 
         this.chapter = obj;
+        this.unsavedChangesProp = new SimpleBooleanProperty (false);
 
     }
 
@@ -80,6 +84,13 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
         this.propertyChangedListeners.add (l);
 
         this.chapter.addPropertyChangedListener (l);
+
+    }
+
+    public javafx.beans.property.BooleanProperty unsavedChangesProperty ()
+    {
+
+        return this.unsavedChangesProp;
 
     }
 
@@ -118,6 +129,7 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
     {
 
         this.hasUnsavedChanges = hasChanges;
+        this.unsavedChangesProp.setValue (hasChanges);
 
         this.fireActionEvent (new ActionEvent (this,
                                                UNSAVED_CHANGES_ACTION_EVENT,

@@ -326,24 +326,24 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
 
                     ChapterCounts cc = this.viewer.getChapterCounts (c);
 
-                    if (cc.wordCount > 0)
+                    if (cc.getWordCount () > 0)
                     {
 
                         chapterCount++;
 
                     }
 
-                    totalWords += cc.wordCount;
+                    totalWords += cc.getWordCount ();
 
-                    if (cc.wordCount > maxWords)
+                    if (cc.getWordCount () > maxWords)
                     {
 
                         maxChap = c;
-                        maxWords = cc.wordCount;
+                        maxWords = cc.getWordCount ();
 
                     }
 
-                    ds.addValue (cc.wordCount,
+                    ds.addValue (cc.getWordCount (),
                                  "Chapters",
                                  c.getName ());
 
@@ -478,7 +478,7 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
 
             ChapterCounts cc = this.viewer.getChapterCounts (c);
 
-            if (cc.wordCount > targetWords)
+            if (cc.getWordCount () > targetWords)
             {
 
                 over++;

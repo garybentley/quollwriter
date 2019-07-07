@@ -65,7 +65,6 @@ public class Header extends HBox
             {
 
                 ContextMenu m = new ContextMenu ();
-
                 Set<MenuItem> items = b.contextMenuItemSupplier.get ();
 
                 if (items != null)
@@ -73,11 +72,20 @@ public class Header extends HBox
 
                     m.getItems ().addAll (items);
 
+                    if (this.title.getContextMenu () != null)
+                    {
+
+                        this.title.getContextMenu ().hide ();
+
+                    }
+
                     ev.consume ();
 
                     m.setAutoHide (true);
 
 					m.show (_this, ev.getScreenX (), ev.getScreenY ());
+
+                    this.title.setContextMenu (m);
 
                 }
 

@@ -277,6 +277,24 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
 
     }
 
+    public void showChart (String c)
+    {
+
+        this.charts.stream ()
+            .forEach (ch ->
+            {
+
+                if (ch.getType ().equals (c))
+                {
+
+                    this.updateChart (ch);
+
+                }
+
+            });
+
+    }
+
     private void updateChart (QuollChart chart)
     {
 

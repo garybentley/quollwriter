@@ -1,6 +1,7 @@
 package com.quollwriter.data;
 
 import java.util.*;
+import javafx.beans.property.*;
 
 import org.jdom.*;
 
@@ -12,6 +13,13 @@ public class BlankNamedObject extends NamedObject
     {
 
         super (null);
+
+    }
+
+    public BlankNamedObject (String objType)
+    {
+
+        super (objType);
 
     }
 

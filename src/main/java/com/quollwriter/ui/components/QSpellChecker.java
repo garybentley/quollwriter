@@ -29,7 +29,7 @@ public class QSpellChecker implements DocumentListener,
     private static final char NULL_CHAR = (char) 0;
 
     private QTextEditor        text = null;
-    private SpellChecker       checker = null;
+    private com.quollwriter.ui.fx.SpellChecker       checker = null;
     private LinePainter        painter = new LinePainter (Color.RED);
     private Map                elsToCheck = new WeakHashMap ();
     private boolean            enabled = false;

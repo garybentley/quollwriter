@@ -273,11 +273,11 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
                 ChapterCounts sc = new ChapterCounts (sel);
 
-                this.selectedWordCount.setText (Environment.formatNumber (sc.wordCount));
+                this.selectedWordCount.setText (Environment.formatNumber (sc.getWordCount ()));
 
                 this.selectedItems.setVisible (true);
 
-                if ((sc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
+                if ((sc.getWordCount () > Constants.MIN_READABILITY_WORD_COUNT)
                     &&
                     (this.viewer.isLanguageEnglish ())
                    )
@@ -320,8 +320,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                     ChapterCounts sc = new ChapterCounts (editText);
 
                     this.editPointWordCount.setText (String.format (valueperc,
-                                                                    Environment.formatNumber (sc.wordCount),
-                                                                    Environment.formatNumber (Utils.getPercent (sc.wordCount, chc.wordCount))));
+                                                                    Environment.formatNumber (sc.getWordCount ()),
+                                                                    Environment.formatNumber (Utils.getPercent (sc.getWordCount (), chc.getWordCount ()))));
 
                     this.chapterEditPointBox.setVisible (true);
 
@@ -333,17 +333,17 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             {
 
                 this.chapterWordCount.setText (String.format (valueperc,
-                                                              Environment.formatNumber (chc.wordCount),
-                                                              Environment.formatNumber (Utils.getPercent (chc.wordCount, achc.wordCount))));
+                                                              Environment.formatNumber (chc.getWordCount ()),
+                                                              Environment.formatNumber (Utils.getPercent (chc.getWordCount (), achc.getWordCount ()))));
 
-                this.chapterPages.setText (Environment.formatNumber (chc.standardPageCount));
+                this.chapterPages.setText (Environment.formatNumber (chc.getStandardPageCount ()));
 
                 this.chapterReadability.setVisible (false);
                 this.chapterReadabilityHeader.setVisible (false);
 
                 if ((this.viewer.isLanguageEnglish ())
                     &&
-                    (chc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
+                    (chc.getWordCount () >= Constants.MIN_READABILITY_WORD_COUNT)
                    )
                 {
 
@@ -390,7 +390,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                             if (wordCounts.size () == 0)
                             {
 
-                                wordCounts.add (new WordCount (chc.wordCount,
+                                wordCounts.add (new WordCount (chc.getWordCount (),
                                                                null,
                                                                Utils.zeroTimeFieldsForDate (new Date ())));
 
@@ -404,7 +404,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                                 Date d = new Date (System.currentTimeMillis () - (7 * 24 * 60 * 60 * 1000));
 
                                 wordCounts.add (0,
-                                                new WordCount (chc.wordCount,
+                                                new WordCount (chc.getWordCount (),
                                                                null,
                                                                Utils.zeroTimeFieldsForDate (d)));
 
@@ -495,7 +495,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
         if ((this.viewer.isLanguageEnglish ())
             &&
-            (achc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
+            (achc.getWordCount () >= Constants.MIN_READABILITY_WORD_COUNT)
            )
         {
 
@@ -512,9 +512,9 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
         }
 
-        this.allChaptersWordCount.setText (Environment.formatNumber (achc.wordCount));
+        this.allChaptersWordCount.setText (Environment.formatNumber (achc.getWordCount ()));
 
-        this.allChaptersPages.setText (Environment.formatNumber (achc.standardPageCount)); //this.viewer.getAllChaptersA4PageCount ()));
+        this.allChaptersPages.setText (Environment.formatNumber (achc.getStandardPageCount ())); //this.viewer.getAllChaptersA4PageCount ()));
 
         this.allChaptersEditPointBox.setVisible (false);
 
@@ -581,8 +581,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             ChapterCounts allc = new ChapterCounts (buf.toString ());
 
             this.allEditPointWordCount.setText (String.format (valueperc,
-                                                               Environment.formatNumber (allc.wordCount),
-                                                               Environment.formatNumber (Utils.getPercent (allc.wordCount, achc.wordCount))));
+                                                               Environment.formatNumber (allc.getWordCount ()),
+                                                               Environment.formatNumber (Utils.getPercent (allc.getWordCount (), achc.getWordCount ()))));
 
             this.allChaptersEditCount.setText (String.format (valueperc,
                                                               Environment.formatNumber (editComplete),

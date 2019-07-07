@@ -98,7 +98,7 @@ public abstract class AbstractEditableEditorPanel<E extends AbstractProjectViewe
                               }
 
                           });
-
+/*
         this.actions.put (INSERT_SECTION_BREAK_ACTION_NAME,
                           new ActionAdapter ()
                           {
@@ -121,19 +121,22 @@ public abstract class AbstractEditableEditorPanel<E extends AbstractProjectViewe
                               }
 
                           });
-
+*/
         InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
-
+/*
+TODO Remove
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_S,
                                         InputEvent.CTRL_DOWN_MASK),
                 SAVE_ACTION_NAME);
-
+*/
+/*
+TODO Remove
         im = this.editor.getInputMap (JComponent.WHEN_FOCUSED);
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ENTER,
                                         InputEvent.CTRL_DOWN_MASK),
                 INSERT_SECTION_BREAK_ACTION_NAME);
-
+*/
     }
 
     public abstract void doFillPopupMenu (MouseEvent eve,

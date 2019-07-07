@@ -133,7 +133,8 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel<ProjectViewer>
                                                          new DefaultChapterItemViewPopupProvider ());
 
         //this.iconColumn.addMouseListener (this);
-
+/*
+TODO Remove
         this.iconColumn.addMouseListener (new MouseEventHandler ()
         {
 
@@ -212,7 +213,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel<ProjectViewer>
             }
 
         });
-
+*/
         final java.util.List<String> prefix = new ArrayList<> ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.editorpanel);
@@ -1562,19 +1563,6 @@ TODO
 
         this.editor.setSpellCheckEnabled (v);
 
-        String type = (v ? "off" : "on");
-
-        String tooltip = getUIString (LanguageStrings.dictionary,
-                                                  LanguageStrings.spellcheck,
-                                                  LanguageStrings.buttons,
-                                                  (v ? "off" : "on"),
-                                                  LanguageStrings.tooltip);
-
-        this.setToolBarButtonIcon ("toggle-spellcheck",
-                                   tooltip,
-                                   //"Click turn the spell checker " + type,
-                                   "spellchecker-turn-" + type);
-
     }
 
     public void reinitIconColumn ()
@@ -1687,7 +1675,7 @@ TODO
                                          tb);
 
         this.problemFinderPanel.add (h);
-        this.problemFinderPanel.setVisible (false);
+        //this.problemFinderPanel.setVisible (false);
         this.problemFinderPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.problemFinder = null;
@@ -1822,7 +1810,7 @@ TODO
 
         this.updateIgnoredProblemsLabel ();
 
-        this.ignoredProblemsLabel.addMouseListener (new MouseEventHandler ()
+        this.ignoredProblemsLabel.addMouseListener (new MouseEventHandler (null)
         {
 
             @Override

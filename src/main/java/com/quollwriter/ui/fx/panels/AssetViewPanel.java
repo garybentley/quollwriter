@@ -54,7 +54,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         this.leftSplitPane.getItems ().addAll (new AssetDetailsPanel (this.object), new AppearsInChaptersPanel (this.object));
 
-        this.rightSplitPane.getItems ().addAll (new DocumentsPanel (this.object), new LinkedToPanel (this.object));
+        this.rightSplitPane.getItems ().addAll (new DocumentsPanel (this.object), new LinkedToPanel (this.object, pv));
 
         this.getChildren ().addAll (header, this.mainSplitPane);
 

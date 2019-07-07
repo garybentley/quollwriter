@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.gentlyweb.xml.*;
 
+import javafx.collections.*;
 import javafx.beans.property.*;
 
 import com.quollwriter.*;
@@ -26,30 +27,35 @@ public abstract class NamedObject extends DataObject
     private String   name = null;
     private Date     lastModified = null;
     private StringWithMarkup   description = null;
-    private Set<Link>  links = new HashSet<> ();
-    private Set<Note> notes = new TreeSet<> (new ChapterItemSorter ());
+    private ObservableSet<Link>  links = null;
+    private ObservableSet<Note> notes = FXCollections.observableSet (new TreeSet<> (new ChapterItemSorter ()));
     private String     aliases = null;
     private Set<File> files = new LinkedHashSet<> ();
     private Set<Tag> tags = new LinkedHashSet<> ();
 
-    public NamedObject(String objType,
-                       String name)
-    {
-
-        super (objType);
-
-        this.name = name;
-
-        this.nameProp = new SimpleStringProperty (this.name);
-
-    }
-
-    public NamedObject(String objType)
+    public NamedObject (String objType,
+                        String name)
     {
 
         super (objType);
 
         this.nameProp = new SimpleStringProperty ();
+        this.links = FXCollections.observableSet (new HashSet<> ());
+
+        if (name != null)
+        {
+
+            this.setName (name);
+
+        }
+
+    }
+
+    public NamedObject (String objType)
+    {
+
+        this (objType,
+              null);
 
     }
 
@@ -161,7 +167,9 @@ public abstract class NamedObject extends DataObject
     public synchronized void reindex ()
     {
 
-        TreeSet<Note> nnotes = new TreeSet (new ChapterItemSorter ());
+        /*
+        TODO Is this needed?
+        Set<Note> nnotes = new TreeSet (new ChapterItemSorter ());
 
         nnotes.addAll (this.notes);
 
@@ -173,6 +181,7 @@ public abstract class NamedObject extends DataObject
             n.reindex ();
 
         }
+        */
 
     }
 
@@ -351,7 +360,7 @@ public abstract class NamedObject extends DataObject
 
     }
 
-    public Set<Note> getNotes ()
+    public ObservableSet<Note> getNotes ()
     {
 
         return this.notes;
@@ -415,24 +424,43 @@ public abstract class NamedObject extends DataObject
 
     }
 
-    public void clearLinks ()
+    public void removeAllLinks ()
     {
 
-        this.links.clear ();
+        new HashSet<> (this.links).stream ()
+            .forEach (l -> this.removeLink (l));
 
     }
 
     public void removeLink (Link l)
     {
 
+        if (!this.links.contains (l))
+        {
+
+            return;
+
+        }
+
         this.links.remove (l);
+
+        l.getOtherObject (this).removeLink (l);
 
     }
 
     public void addLink (Link l)
     {
 
+        if (this.links.contains (l))
+        {
+
+            return;
+
+        }
+
         this.links.add (l);
+
+        l.getOtherObject (this).addLink (l);
 
     }
 
@@ -471,7 +499,7 @@ public abstract class NamedObject extends DataObject
 
     }
 
-    public Set<Link> getLinks ()
+    public ObservableSet<Link> getLinks ()
     {
 
         return this.links;
@@ -481,6 +509,7 @@ public abstract class NamedObject extends DataObject
     public void removeLinkFor (NamedObject n)
     {
 
+        Link rem = null;
         Iterator<Link> iter = this.links.iterator ();
 
         while (iter.hasNext ())
@@ -488,23 +517,23 @@ public abstract class NamedObject extends DataObject
 
             Link l = iter.next ();
 
-            if (l.getObject1 () == n)
+            if (l.getOtherObject (this) == n)
             {
 
-                iter.remove ();
+                rem = l;
 
-                return;
+                break;
 
             }
 
         }
 
-    }
+        if (rem != null)
+        {
 
-    public void setLinks (Set<Link> l)
-    {
+            this.removeLink (rem);
 
-        this.links.addAll (l);
+        }
 
     }
 
@@ -560,6 +589,16 @@ public abstract class NamedObject extends DataObject
 
     public void setName (String n)
     {
+
+        /*
+        TODO Add this, currently causes problems with editors.
+        if (n == null)
+        {
+
+            throw new IllegalArgumentException ("Name cannot be null.");
+
+        }
+        */
 
         String oldName = this.name;
 

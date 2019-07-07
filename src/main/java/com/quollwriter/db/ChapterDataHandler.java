@@ -609,7 +609,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
                     params.add (c.getKey ());
 
-                    params.add (cc.wordCount);
+                    params.add (cc.getWordCount ());
                     params.add (start);
                     params.add (end);
 

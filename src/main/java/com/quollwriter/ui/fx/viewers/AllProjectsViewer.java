@@ -388,13 +388,27 @@ TODO READD
         CommandId.showoptions,
         CommandId.options);
 
-        this.addActionMapping (() ->
+        this.addActionMapping (new CommandWithArgs ((args) ->
         {
+
+            String chartType = null;
+
+            if (args != null)
+            {
+
+                if (args.length == 1)
+                {
+
+                    chartType = (String) args[0];
+
+                }
+
+            }
 
            try
            {
 
-               _this.viewStatistics ();
+               _this.viewStatistics (chartType);
 
            } catch (Exception e) {
 
@@ -410,7 +424,7 @@ TODO READD
         },
         AbstractViewer.CommandId.showstatistics,
         AbstractViewer.CommandId.statistics,
-        AbstractViewer.CommandId.charts);
+        AbstractViewer.CommandId.charts));
 
         this.addActionMapping (() ->
         {
@@ -830,8 +844,17 @@ TODO Remove as not appropriate.
         OptionsPanel a = new OptionsPanel (this,
                                            cons,
                                            Options.Section.Id.look,
-                                           Options.Section.Id.naming,
-                                           Options.Section.Id.editing);
+   										   Options.Section.Id.naming,
+   										   Options.Section.Id.editing,
+                                           Options.Section.Id.assets,
+   										   Options.Section.Id.start,
+   										   Options.Section.Id.editors,
+   										   Options.Section.Id.itemsAndRules,
+   										   Options.Section.Id.warmups,
+   										   Options.Section.Id.achievements,
+   										   Options.Section.Id.problems,
+   										   Options.Section.Id.betas,
+                                           Options.Section.Id.website);                                           
 
         a.showSection (section);
 
@@ -857,7 +880,7 @@ TODO Remove as not appropriate.
 
     }
 
-    public void viewStatistics ()
+    public void viewStatistics (String chartType)
                          throws GeneralException
     {
 
@@ -893,6 +916,13 @@ TODO Remove as not appropriate.
                                  });
         this.addPanel (a);
         this.showPanel (a.getPanelId ());
+
+        if (chartType != null)
+        {
+
+            a.showChart (chartType);
+
+        }
 
     }
 

@@ -62,6 +62,8 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
     public void showSection (String sectId)
     {
 
+        // TODO
+
     }
 
     public void showSection (Options.Section.Id sectId)
@@ -73,10 +75,8 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
     public Panel createPanel ()
     {
 
-        StringProperty title = getUILanguageStringProperty (allprojects,noprojects);
-
         Panel panel = Panel.builder ()
-            .title (title)
+            .title (getUILanguageStringProperty (options,title))
             .content (this)
             .styleClassName (StyleClassNames.OPTIONS)
             .panelId (PANEL_ID)

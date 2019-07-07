@@ -37,10 +37,10 @@ import static com.quollwriter.LanguageStrings.*;
 import javafx.beans.value.*;
 import javafx.collections.*;
 
-public class ImportPopup extends PopupContent
+public class ExportProjectPopup extends PopupContent
 {
 
-    public static final String POPUP_ID = "import";
+    public static final String POPUP_ID = "exportproject";
 
     public static final String SELECT_ITEMS_STAGE = "select-items";
     public static final String SELECT_FILE_STAGE = "select-file";
@@ -70,7 +70,7 @@ public class ImportPopup extends PopupContent
 
     private Map<String, Wizard.Step> steps = new HashMap<> ();
 
-    public ImportPopup (AbstractViewer viewer)
+    public ExportProjectPopup (AbstractProjectViewer viewer)
     {
 
         super (viewer);
@@ -80,11 +80,8 @@ public class ImportPopup extends PopupContent
 
             this.pv = (ProjectViewer) viewer;
 
-            this.addToProject = QuollRadioButton.builder ()
-                .onAction (ev -> this.wizard.enableButton (Wizard.NEXT_BUTTON_ID, true))
-                .label (getUILanguageStringProperty (Arrays.asList (importproject,stages,decide,options,addtoproject),
-                                                     pv.getProject ().nameProperty ()))
-                .build ();
+            this.addToProject.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (importproject,stages,decide,options,addtoproject),
+                                                                                 pv.getProject ().nameProperty ()));
 
         } else {
 
@@ -214,6 +211,10 @@ public class ImportPopup extends PopupContent
             .onAction (hand)
             .build ();
 
+        this.addToProject = QuollRadioButton.builder ()
+            .onAction (ev -> this.wizard.enableButton (Wizard.NEXT_BUTTON_ID, true))
+            .build ();
+
         this.createNewProject = QuollRadioButton.builder ()
             .label (getUILanguageStringProperty (importproject,stages,decide,options,newproject))
             .onAction (ev -> this.wizard.enableButton (Wizard.NEXT_BUTTON_ID, true))
@@ -315,7 +316,7 @@ public class ImportPopup extends PopupContent
                                      String newStepId)
     {
 
-        final ImportPopup _this = this;
+        final ExportProjectPopup _this = this;
 
         if (SELECT_PROJECT_STAGE.equals (oldStepId)
             &&
@@ -771,7 +772,7 @@ public class ImportPopup extends PopupContent
     public Wizard.Step getStep (String stepId)
     {
 
-        final ImportPopup _this = this;
+        final ExportProjectPopup _this = this;
 
         Wizard.Step ws = this.steps.get (stepId);
 
@@ -1620,7 +1621,7 @@ TODO Add tool tip?
     private boolean checkForFileToImport ()
     {
 
-        final ImportPopup _this = this;
+        final ExportProjectPopup _this = this;
 
         this.selectFileForm.hideError ();
 

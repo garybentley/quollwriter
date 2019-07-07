@@ -22,6 +22,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
+import javafx.beans.property.*;
+
 import com.gentlyweb.properties.*;
 
 import com.jgoodies.forms.builder.*;
@@ -74,6 +76,8 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
     private long lastWordCountUpdateTime = 0;
     private boolean isScrolling = false;
 
+    private javafx.beans.property.StringProperty selectedTextProp = null;
+
     public AbstractEditorPanel(final E       pv,
                                final Chapter c)
                         throws GeneralException
@@ -81,6 +85,8 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
 
         super (pv,
                c);
+
+        this.selectedTextProp = new javafx.beans.property.SimpleStringProperty ();
 
         //this.chapter = c;
 
@@ -117,42 +123,12 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
         }
 
         this.editor = new QTextEditor (dp,
-                                       pv.isSpellCheckingEnabled ());
+                                       pv.isSpellCheckingEnabled (),
+                                       Environment.getProjectTextProperties ());
 
         this.origEditorBorder = this.editor.getBorder ();
 
         this.editor.setSynonymProvider (sp);//Environment.getSynonymProvider ());
-
-        this.editor.getDocument ().addDocumentListener (new DocumentListener ()
-        {
-
-            @Override
-            public void insertUpdate (DocumentEvent ev)
-            {
-
-                _this.scheduleWordCountUpdate ();
-
-            }
-
-            @Override
-            public void changedUpdate (DocumentEvent ev)
-            {
-
-                _this.scheduleWordCountUpdate ();
-
-            }
-
-            @Override
-            public void removeUpdate (DocumentEvent ev)
-            {
-
-                _this.scheduleWordCountUpdate ();
-
-            }
-
-
-        });
-
 
         // This ensures that the viewport is always in sync with the text area size.
         this.editor.addKeyListener (new KeyAdapter ()
@@ -199,74 +175,9 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
 
         super.setActionMap (this.actions);
 
-        this.actions.put (Constants.SHOW_FIND_ACTION,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  // TODO _this.viewer.showFind (null);
-
-                              }
-
-                          });
-
-        this.actions.put (TOGGLE_SPELLCHECK_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  // TODO _this.viewer.setSpellCheckingEnabled (!_this.editor.isSpellCheckEnabled ());
-
-                              }
-
-                          });
-
-        this.actions.put (TOGGLE_WORDCOUNTS_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  // TODO _this.viewer.viewWordCounts ();
-
-                              }
-
-                          });
-
-        this.actions.put (EDIT_TEXT_PROPERTIES_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                    try
-                                    {
-
-                                        // TODO _this.showTextProperties ();
-
-                                    } catch (Exception e) {
-
-                                        Environment.logError ("Unable to show text properties",
-                                                              e);
-
-                                        ComponentUtils.showErrorMessage (_this.viewer,
-                                                                         getUILanguageStringProperty (LanguageStrings.project,editorpanel,LanguageStrings.actions,edittextproperties,actionerror));
-                                                                  //"Unable to show text properties.");
-
-                                    }
-
-                              }
-
-                          });
-
         InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
-
+/*
+TODO Remove
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_E,
                                         InputEvent.CTRL_DOWN_MASK),
                 EDIT_TEXT_PROPERTIES_ACTION_NAME);
@@ -276,19 +187,25 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_L,
                                         InputEvent.CTRL_DOWN_MASK),
                 TOGGLE_SPELLCHECK_ACTION_NAME);
-
+*/
         im = this.editor.getInputMap (JComponent.WHEN_FOCUSED);
 
         this.addComponentListener (new ComponentAdapter ()
         {
 
+            @Override
             public void componentResized (ComponentEvent ev)
             {
 
                 if (_this.isReadyForUse ())
                 {
 
-                    _this.scrollCaretIntoView ();
+                    SwingUIUtils.doLater (() ->
+                    {
+
+                        _this.scrollCaretIntoView ();
+
+                    });
 
                 }
 
@@ -309,6 +226,13 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
 
         };
 */
+
+    }
+
+    public javafx.beans.property.StringProperty selectedTextProperty ()
+    {
+
+        return this.selectedTextProp;
 
     }
 
@@ -390,51 +314,6 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
 
     }
 
-    private void scheduleWordCountUpdate ()
-    {
-
-        final AbstractEditorPanel _this = this;
-
-        if (this.wordCountUpdate != null)
-        {
-
-            return;
-
-        }
-
-        this.wordCountUpdate = new Runnable ()
-        {
-
-            @Override
-            public void run ()
-            {
-
-                try
-                {
-
-                    _this.viewer.updateChapterCounts (_this.chapter);
-
-                    _this.wordCountUpdate = null;
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to determine word count for chapter: " +
-                                          _this.chapter,
-                                          e);
-
-                }
-
-            }
-
-        };
-
-        this.viewer.schedule (this.wordCountUpdate,
-                              1 * 1000,
-                              -1);
-
-
-    }
-
     public abstract JComponent getEditorWrapper (QTextEditor editor);
 
     public void setWritingLineColor (javafx.scene.paint.Color c)
@@ -457,130 +336,6 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
 
     }
 
-    public void showTextProperties ()
-                             throws GeneralException
-    {
-/*
- TODO
-        this.viewer.showTextProperties ();
-        */
-
-    }
-/*
-    public JButton createToolbarButton (String icon,
-                                        String toolTipText,
-                                        String actionCommand)
-    {
-
-        return this.createButton (icon,
-                                  Constants.ICON_TOOLBAR,
-                                  toolTipText,
-                                  actionCommand);
-
-    }
-
-    public JButton createButton (String         icon,
-                                 int            iconType,
-                                 String         toolTipText,
-                                 String actionCommand)
-    {
-
-        JButton but = UIUtils.createButton (icon,
-                                            iconType,
-                                            toolTipText,
-                                            this.performAction);
-
-        but.setActionCommand (actionCommand);
-
-        return but;
-
-    }
-
-    public JButton createButton (String         icon,
-                                 int            iconType,
-                                 String         toolTipText,
-                                 String         actionCommand,
-                                 ActionListener list)
-    {
-
-        JButton but = UIUtils.createButton (icon,
-                                            iconType,
-                                            toolTipText,
-                                            list);
-
-        but.setActionCommand (actionCommand);
-
-        return but;
-
-    }
-
-    public JMenuItem createMenuItem (String label,
-                                     String icon,
-                                     String         actionCommand,
-                                     KeyStroke      accel,
-                                     ActionListener list)
-    {
-
-        JMenuItem mi = UIUtils.createMenuItem (label,
-                                               icon,
-                                               list);
-
-        mi.setActionCommand (actionCommand);
-
-        mi.setAccelerator (accel);
-
-        return mi;
-
-
-    }
-
-    public JMenuItem createMenuItem (String label,
-                                     String icon,
-                                     String         actionCommand,
-                                     KeyStroke      accel)
-    {
-
-        JMenuItem mi = this.createMenuItem (label,
-                                            icon,
-                                            actionCommand);
-
-        mi.setAccelerator (accel);
-
-        return mi;
-
-
-    }
-
-    public JMenuItem createMenuItem (String label,
-                                     String icon,
-                                     String actionCommand)
-    {
-
-        JMenuItem mi = UIUtils.createMenuItem (label,
-                                               icon,
-                                               this.performAction);
-
-        mi.setActionCommand (actionCommand);
-
-        return mi;
-
-    }
-    */
-/*
-    public void addPerformActionListener (AbstractButton b)
-    {
-
-        b.addActionListener (this.performAction);
-
-    }
-
-    public ActionListener getPerformActionListener ()
-    {
-
-        return this.performAction;
-
-    }
-*/
     protected void setReadabilityIndices (ReadabilityIndices r)
     {
 
@@ -625,7 +380,11 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
 
         }
 
+        this.ignoreDocumentChange = true;
+
         this.editor.setTextWithMarkup (this.chapter.getText ());
+
+        this.ignoreDocumentChange = false;
 
         JComponent p = this.getEditorWrapper (this.editor);
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -642,7 +401,7 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
         this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
 
         this.origEditorMargin = this.editor.getMargin ();
-        this.add (p);//this.scrollPane);
+        this.add (this.scrollPane);
         this.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
 
         this.scrollPane.addMouseWheelListener (new MouseWheelListener ()

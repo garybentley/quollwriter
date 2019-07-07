@@ -3,17 +3,38 @@ package com.quollwriter.ui.fx.panels;
 /*
 import javax.swing.*;
 */
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.Insets;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.KeyAdapter;
+import java.awt.Rectangle;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.*;
+import javax.swing.text.*;
 
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.beans.property.*;
 import javafx.geometry.*;
+import javafx.scene.layout.*;
+import javafx.scene.image.*;
 
 import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 import java.util.concurrent.*;
 
+import com.quollwriter.StringWithMarkup;
 import com.quollwriter.UserProperties;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.data.*;
@@ -23,6 +44,7 @@ import com.quollwriter.Environment;
 import com.quollwriter.GeneralException;
 import com.quollwriter.DictionaryProvider2;
 import com.quollwriter.Utils;
+import com.quollwriter.text.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
@@ -31,13 +53,22 @@ import com.quollwriter.ui.fx.swing.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<ProjectViewer, QuollEditorPanel> implements ToolBarSupported
+public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<ProjectViewer, JComponent> implements ToolBarSupported
 {
 
     private ScheduledFuture autoSaveTask = null;
-    private QuollEditorPanel panel = null;
+    //private QuollEditorPanel panel = null;
     private Runnable wordCountUpdate = null;
+    private ScheduledFuture a4PageCountUpdater = null;
     private ToolBar toolbar = null;
+
+    private IconColumn iconColumn = null;
+    private QTextEditor editor = null;
+    private JScrollPane scrollPane = null;
+    private boolean ignoreDocumentChange = false;
+    private boolean isScrolling = false;
+    private Insets origEditorMargin = null;
+    private Map<String, ContextMenu> contextMenus = new HashMap<> ();
 
     public ProjectChapterEditorPanelContent (ProjectViewer viewer,
                                              Chapter       chapter)
@@ -47,115 +78,151 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
         super (viewer,
                chapter);
 
-        final ProjectChapterEditorPanelContent _this = this;
-
-        this.panel = new QuollEditorPanel (viewer,
-                                           chapter);
-
-        DictionaryProvider2 dp = null;
-
-          try
-          {
-
-              dp = viewer.getDictionaryProvider ();
-
-          } catch (Exception e)
-          {
-
-              throw new GeneralException ("Unable to get dictionary provider.",
-                                          e);
-
-          }
-
-          SynonymProvider sp = null;
-
-          try
-          {
-
-              sp = viewer.getSynonymProvider ();
-
-          } catch (Exception e)
-          {
-
-              throw new GeneralException ("Unable to get synonym provider.",
-                                          e);
-
-          }
-
-          this.panel.setSynonymProvider (sp);//Environment.getSynonymProvider ());
-
-          viewer.spellCheckingEnabledProperty ().addListener ((v, oldv, newv) ->
-          {
-
-              _this.panel.setSpellCheckingEnabled (newv);
-
-          });
-
-          viewer.projectSpellCheckLanguageProperty ().addListener ((v, oldv, newv) ->
-          {
-
-              _this.panel.setDictionaryProvider (viewer.getDictionaryProvider ());
-
-              try
-              {
-
-                  _this.panel.setSynonymProvider (viewer.getSynonymProvider ());
-
-              } catch (Exception e) {
-
-                  Environment.logError ("Unable to set synonym provider.",
-                                        e);
-
-                  // TODO Should error.
-
-              }
-
-
-          });
-
-          this.panel.getEditor ().getDocument ().addDocumentListener (new DocumentListener ()
-          {
-
-              @Override
-              public void insertUpdate (DocumentEvent ev)
-              {
-
-                  _this.scheduleWordCountUpdate ();
-
-              }
-
-              @Override
-              public void changedUpdate (DocumentEvent ev)
-              {
-
-                  _this.scheduleWordCountUpdate ();
-
-              }
-
-              @Override
-              public void removeUpdate (DocumentEvent ev)
-              {
-
-                  _this.scheduleWordCountUpdate ();
-
-              }
-
-
-          });
-
         UserProperties.chapterAutoSaveEnabledProperty ().addListener ((v, oldv, newv) ->
         {
 
-           _this.tryScheduleAutoSave ();
+           this.tryScheduleAutoSave ();
 
         });
 
         UserProperties.chapterAutoSaveTimeProperty ().addListener ((v, oldv, newv) ->
         {
 
-           _this.tryScheduleAutoSave ();
+           this.tryScheduleAutoSave ();
 
         });
+
+        this.viewer.addKeyMapping (ProjectViewer.CommandId.showwordcounts,
+                                   KeyCode.W,
+                                   KeyCombination.SHORTCUT_DOWN);
+
+        this.viewer.addKeyMapping (ProjectViewer.CommandId.togglespellchecking,
+                                   KeyCode.L,
+                                   KeyCombination.SHORTCUT_DOWN);
+
+        this.viewer.addKeyMapping (() ->
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.insertSectionBreak ();
+
+            });
+
+        },
+        KeyCode.ENTER,
+        KeyCombination.SHORTCUT_DOWN);
+
+        this.viewer.addKeyMapping (() ->
+        {
+
+            try
+            {
+
+                this.saveObject ();
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to save chapter: " + this.object,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (editorpanel,actions,save,actionerror));
+
+            }
+
+        },
+        KeyCode.S,
+        KeyCombination.SHORTCUT_DOWN);
+
+/*
+TODO
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_E,
+                                        InputEvent.CTRL_DOWN_MASK),
+                EDIT_TEXT_PROPERTIES_ACTION_NAME);
+*/
+
+    }
+
+    public void scrollCaretIntoView (final Runnable runAfterScroll)
+    {
+
+        final ProjectChapterEditorPanelContent _this = this;
+
+        SwingUIUtils.doLater (() ->
+        {
+
+            try
+            {
+
+                int c = _this.editor.getCaret ().getDot ();
+
+                if (c > -1)
+                {
+
+                    _this.scrollToPosition (c);
+
+                }
+
+                _this.updateViewportPositionForTypewriterScrolling ();
+
+                if (runAfterScroll != null)
+                {
+
+                    SwingUIUtils.doLater (runAfterScroll);
+
+                }
+
+            } catch (Exception e)
+            {
+
+                // Ignore it.
+
+            }
+
+        });
+
+    }
+
+    public void setUseTypewriterScrolling (boolean v)
+    {
+
+        // TODO Check for full screen.
+
+        if (!v)
+        {
+
+            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            // Reset the margin.
+            this.editor.setMargin (this.origEditorMargin);
+
+        } else {
+
+            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+        }
+
+        this.scrollCaretIntoView (null);
+
+        this.scrollPane.getViewport ().setViewSize (this.editor.getPreferredSize ());
+
+        this.editor.grabFocus ();
+
+    }
+
+    private void setIgnoreDocumentChanges (boolean v)
+    {
+
+        this.ignoreDocumentChange = v;
+
+    }
+
+    private boolean isIgnoreDocumentChanges ()
+    {
+
+        return this.ignoreDocumentChange;
 
     }
 
@@ -201,10 +268,12 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                         .label (getUILanguageStringProperty (Utils.newList (mprefix, com.quollwriter.data.Scene.OBJECT_TYPE,text)))
                         .styleClassName (com.quollwriter.data.Scene.OBJECT_TYPE)
                         //.tooltip (new SimpleStringProperty (pref + "S"))
+                        .accelerator (Environment.getNewObjectTypeKeyCombination (com.quollwriter.data.Scene.OBJECT_TYPE))
                         .onAction (eev ->
                         {
 
                             this.viewer.runCommand (ProjectViewer.CommandId.newscene,
+                                                    null,
                                                     this.object);
 
                         })
@@ -214,10 +283,12 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                         .label (getUILanguageStringProperty (Utils.newList (mprefix, OutlineItem.OBJECT_TYPE,text)))
                         .styleClassName (OutlineItem.OBJECT_TYPE)
                         //.tooltip (new SimpleStringProperty (pref + "O"))
+                        .accelerator (Environment.getNewObjectTypeKeyCombination (OutlineItem.OBJECT_TYPE))
                         .onAction (eev ->
                         {
 
                             this.viewer.runCommand (ProjectViewer.CommandId.newoutlineitem,
+                                                    null,
                                                     this.object);
 
                         })
@@ -226,11 +297,12 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                     items.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.OBJECT_TYPE,text)))
                         .styleClassName (Note.OBJECT_TYPE)
-                        //.tooltip (new SimpleStringProperty (pref + "N"))
+                        .accelerator (Environment.getNewObjectTypeKeyCombination (Note.OBJECT_TYPE))
                         .onAction (eev ->
                         {
 
                             this.viewer.runCommand (ProjectViewer.CommandId.newnote,
+                                                    null,
                                                     this.object);
 
                         })
@@ -239,10 +311,12 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                     items.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.EDIT_NEEDED_OBJECT_TYPE,text)))
                         .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+                        .accelerator (Environment.getNewObjectTypeKeyCombination (Note.EDIT_NEEDED_OBJECT_TYPE))
                         .onAction (eev ->
                         {
 
                             this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
+                                                    null,
                                                     this.object);
 
                         })
@@ -251,13 +325,12 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                     items.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (mprefix, Chapter.OBJECT_TYPE,text)))
                         .styleClassName (Chapter.OBJECT_TYPE)
-                        .accelerator (new KeyCharacterCombination ("E",
-                                                                   KeyCombination.SHORTCUT_DOWN,
-                                                                   KeyCombination.SHIFT_DOWN))
+                        .accelerator (Environment.getNewObjectTypeKeyCombination (Chapter.OBJECT_TYPE))
                         .onAction (eev ->
                         {
 
                             this.viewer.runCommand (ProjectViewer.CommandId.newchapter,
+                                                    null,
                                                     this.object);
 
                         })
@@ -277,6 +350,7 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                 {
 
                     this.viewer.runCommand (ProjectViewer.CommandId.showchapterinfo,
+                                            null,
                                             this.object);
 
                 })
@@ -288,7 +362,7 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                 .onAction (ev ->
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.showwordcounts);
+                    this.viewer.runCommand (AbstractProjectViewer.CommandId.showwordcounts);
 
                 })
                 .build ());
@@ -396,6 +470,7 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
                         {
 
                             this.viewer.runCommand (ProjectViewer.CommandId.print,
+                                                    null,
                                                     this.object);
 
                         })
@@ -417,7 +492,27 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     private void showProblemFinder ()
     {
 
-        this.panel.showProblemFinder ();
+        // TODO this.panel.showProblemFinder ();
+
+    }
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        SwingUIUtils.doLater (() ->
+        {
+
+            this.setIgnoreDocumentChanges (true);
+
+            this.editor.setTextWithMarkup (this.object.getText ());
+
+            this.setIgnoreDocumentChanges (false);
+
+        });
+
+        super.init (s);
 
     }
 
@@ -428,7 +523,7 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
         try
         {
 
-            this.object.setText (this.panel.getEditor ().getTextWithMarkup ());
+            this.object.setText (this.editor.getTextWithMarkup ());
 
             super.saveObject ();
 
@@ -462,9 +557,18 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
             try
             {
 
-                _this.viewer.updateChapterCounts (_this.object);
+                ChapterCounts cc = this.viewer.getChapterCounts (this.object);
+
+                final String t = this.getText ().getText ();
+
+                final ChapterCounts ncc = new ChapterCounts (t);
+
+                cc.setWordCount (ncc.getWordCount ());
+                cc.setSentenceCount (ncc.getSentenceCount ());
 
                 _this.wordCountUpdate = null;
+
+                this.scheduleA4PageCountUpdate ();
 
             } catch (Exception e) {
 
@@ -477,23 +581,1615 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
         };
 
         this.viewer.schedule (this.wordCountUpdate,
-                              1 * 1000,
+                              1 * Constants.SEC_IN_MILLIS,
                               -1);
 
     }
 
-    @Override
-    public QuollEditorPanel getChapterPanel ()
+    private void scheduleA4PageCountUpdate ()
     {
 
-        return this.panel;
+        this.viewer.unschedule (this.a4PageCountUpdater);
+
+        this.a4PageCountUpdater = this.viewer.schedule (() ->
+        {
+
+            try
+            {
+
+                ChapterCounts cc = this.viewer.getChapterCounts (this.object);
+
+                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (this.object,
+                                                                           this.getText ().getText ()));
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get a4 page count for chapter: " +
+                                      this.object,
+                                      e);
+
+            }
+
+        },
+        // Start in 2 seconds
+        2 * Constants.SEC_IN_MILLIS,
+        // Do it once.
+        0);
+
+    }
+
+    @Override
+    public JComponent getChapterPanel ()
+                                throws GeneralException
+    {
+
+        if (this.scrollPane == null)
+        {
+
+            final ProjectChapterEditorPanelContent _this = this;
+
+            if (javafx.application.Platform.isFxApplicationThread ())
+            {
+
+                throw new GeneralException ("Wrong thread.");
+
+            }
+
+            // *** NEW
+            JPanel p = new ScrollablePanel (new BorderLayout ());
+            this.scrollPane = new JScrollPane (p);
+            this.scrollPane.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
+            this.scrollPane.setBorder (null);
+            this.scrollPane.setAlignmentX (Component.LEFT_ALIGNMENT);
+            this.scrollPane.getViewport ().setOpaque (true);
+            this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
+            this.scrollPane.addMouseWheelListener (ev ->
+            {
+
+                if (this.viewer.typeWriterScrollingEnabledProperty ().getValue ())
+                {
+
+                    try
+                    {
+
+                        int c = ev.getWheelRotation ();
+
+                        Rectangle r = SwingUIUtils.getRectForOffset (_this.editor,
+                                                                     _this.editor.getCaret ().getDot ());
+
+                        int ny = r.y + (c * r.height);
+
+                        int d = _this.editor.viewToModel2D (new Point (r.x,
+                                                                      ny));
+
+                        _this.editor.getCaret ().setDot (d);
+
+                    } catch (Exception e) {
+
+                        // Just ignore
+
+                    }
+
+                }
+
+            });
+
+            DictionaryProvider2 dp = null;
+
+            try
+            {
+
+               dp = this.viewer.getDictionaryProvider ();
+
+            } catch (Exception e)
+            {
+
+               throw new GeneralException ("Unable to get dictionary provider.",
+                                           e);
+
+            }
+
+            this.editor = new QTextEditor (dp,
+                                           this.viewer.isSpellCheckingEnabled (),
+                                           Environment.getProjectTextProperties ());
+
+            try
+            {
+
+               SynonymProvider syp = this.viewer.getSynonymProvider ();
+
+               this.editor.setSynonymProvider (syp);//Environment.getSynonymProvider ());
+
+            } catch (Exception e)
+            {
+
+                throw new GeneralException ("Unable to get synonym provider.",
+                                            e);
+
+            }
+
+            this.editor.addCaretListener (ev ->
+            {
+
+                this.selectedTextProp.setValue (this.editor.getSelectedText ());
+
+            });
+
+            this.editor.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
+            this.editor.setMinimumSize (new Dimension (200, 200));
+            this.editor.setAlignmentY (Component.TOP_ALIGNMENT);
+            this.editor.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+            this.iconColumn = new IconColumn<ProjectViewer> (new ChapterItemViewer<ProjectViewer> ()
+            {
+
+                @Override
+                public void addPopup (Component c,
+                                      boolean   hideOnClick,
+                                      boolean   hideViaVisibility)
+                {
+
+                }
+
+                @Override
+                public void showPopupAt (Component c,
+                                         Point     p,
+                                         boolean   hideOnClick)
+                {
+
+                }
+
+                @Override
+                public void showPopupAt (Component c,
+                                         Component at,
+                                         boolean   hideOnClick)
+                {
+
+                }
+
+                @Override
+                public void removePopup (Component c)
+                {
+
+                }
+
+                @Override
+                public ProjectViewer getViewer ()
+                {
+
+                    return _this.viewer;
+
+                }
+
+                @Override
+                public int getIconColumnXOffset (ChapterItem c)
+                {
+
+                   int xOffset = 36;
+
+                   if (c instanceof OutlineItem)
+                   {
+
+                       xOffset = 22;
+
+                   }
+
+                   return xOffset;
+
+                }
+
+                @Override
+                public JScrollPane getScrollPane ()
+                {
+
+                    return _this.scrollPane;
+
+                }
+
+                @Override
+                public Point getLastMousePosition ()
+                {
+
+                    // TODO
+                    return null;
+
+                }
+
+                @Override
+                public QTextEditor getEditor ()
+                {
+
+                    return _this.editor;
+
+                }
+
+                @Override
+                public IconColumn<ProjectViewer> getIconColumn ()
+                {
+
+                    return _this.iconColumn;
+
+                }
+
+                @Override
+                public ChapterItemTransferHandler getChapterItemTransferHandler ()
+                {
+
+                    return null;
+
+                }
+
+                @Override
+                public <T extends ChapterItem> void removeItem (T c)
+                {
+
+                    // TODO
+
+                }
+
+                @Override
+                public <T extends ChapterItem> void addItem (T c)
+                                                      throws GeneralException
+                {
+
+                    // TODO
+
+                }
+
+                @Override
+                public void highlightItemTextInEditor (ChapterItem c)
+                {
+
+                    // TODO
+
+                }
+
+                @Override
+                public void removeItemHighlightTextFromEditor (ChapterItem c)
+                {
+
+                    // TODO
+
+                }
+
+            },
+            this.object,
+            SwingUIUtils.iconProvider,
+            new DefaultChapterItemViewPopupProvider ());
+
+            MouseEventHandler h = new MouseEventHandler (this)
+            {
+
+                @Override
+                public void addItemsToPopupMenu (ContextMenu cm)
+                {
+
+                    Set<MenuItem> items = new LinkedHashSet<> ();
+
+                    Point p = _this.editor.getMousePosition ();
+
+                    // TODO? this.lastMousePosition = p;
+
+                    if (p != null)
+                    {
+
+                        TextIterator iter = new TextIterator (_this.editor.getText ());
+
+                        final Word w = iter.getWordAt (_this.editor.viewToModel2D (p));
+
+                        if (w != null)
+                        {
+
+                            final String word = w.getText ();
+
+                            final int loc = w.getAllTextStartOffset ();
+
+                            List<String> l = _this.editor.getSpellCheckSuggestions (w);
+
+                            if (l != null)
+                            {
+
+                                List<String> prefix = Arrays.asList (dictionary,spellcheck,popupmenu,LanguageStrings.items);
+
+                                if (l.size () == 0)
+                                {
+
+                                    MenuItem mi = QuollMenuItem.builder ()
+                                        .label (getUILanguageStringProperty (Utils.newList (prefix,nosuggestions)))
+                                        .styleClassName (StyleClassNames.NOSUGGESTIONS)
+                                        .onAction (ev ->
+                                        {
+
+                                            _this.editor.addWordToDictionary (word);
+
+                                            _this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                                           ProjectEvent.Action.addword,
+                                                                           word);
+
+                                        })
+                                        .build ();
+                                    mi.setDisable (true);
+                                    items.add (mi);
+
+                                } else
+                                {
+
+                                    if (l.size () > 15)
+                                    {
+
+                                        l = l.subList (0, 15);
+
+                                    }
+
+                                    Consumer<String> replace = (repWord ->
+                                    {
+
+                                        _this.editor.replaceText (loc,
+                                                                  loc + word.length (),
+                                                                  repWord);
+
+                                        _this.viewer.fireProjectEvent (ProjectEvent.Type.spellcheck,
+                                                                       ProjectEvent.Action.replace,
+                                                                       repWord);
+
+                                    });
+
+                                    List<String> more = null;
+
+                                    if (l.size () > 5)
+                                    {
+
+                                        more = l.subList (5, l.size ());
+                                        l = l.subList (0, 5);
+
+                                    }
+
+                                    items.addAll (l.stream ()
+                                        .map (repWord ->
+                                        {
+
+                                            return QuollMenuItem.builder ()
+                                                .label (new SimpleStringProperty (repWord))
+                                                .onAction (ev -> replace.accept (repWord))
+                                                .build ();
+
+                                        })
+                                        .collect (Collectors.toList ()));
+
+                                    if (more != null)
+                                    {
+
+                                        items.add (QuollMenu.builder ()
+                                            .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.more)))
+                                            .styleClassName (StyleClassNames.MORE)
+                                            .items (new LinkedHashSet<> (more.stream ()
+                                                .map (repWord ->
+                                                {
+
+                                                    return QuollMenuItem.builder ()
+                                                        .label (new SimpleStringProperty (repWord))
+                                                        .onAction (ev -> replace.accept (repWord))
+                                                        .build ();
+
+                                                })
+                                                .collect (Collectors.toList ())))
+                                            .build ());
+
+                                    }
+
+                                }
+
+                                items.add (QuollMenuItem.builder ()
+                                    .label (getUILanguageStringProperty (Utils.newList (prefix,add)))
+                                    .styleClassName (StyleClassNames.ADDWORD)
+                                    .onAction (ev ->
+                                    {
+
+                                        _this.editor.addWordToDictionary (word);
+
+                                        _this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                                       ProjectEvent.Action.addword,
+                                                                       word);
+
+                                    })
+                                    .build ());
+
+                                items.add (new SeparatorMenuItem ());
+
+                            } else
+                            {
+
+                                if (_this.viewer.synonymLookupsSupported ())
+                                {
+
+                                    // TODO Check this...
+                                    if (_this.viewer.isLanguageFunctionAvailable ())
+                                    {
+
+                                        if ((word != null) &&
+                                            (word.length () > 0))
+                                        {
+
+                                            //String mt = "No synonyms found for: " + word;
+
+                                            try
+                                            {
+
+                                                // See if there are any synonyms.
+                                                if (_this.editor.getSynonymProvider ().hasSynonym (word))
+                                                {
+
+                                                    items.add (QuollMenuItem.builder ()
+                                                        .styleClassName (StyleClassNames.FIND)
+                                                        .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,find),
+                                                                                             word))
+                                                        .onAction (ev ->
+                                                        {
+
+                                                            // TODO Show synonyms...
+
+                                                        })
+                                                        .build ());
+
+                                                } else {
+
+                                                    MenuItem mi = QuollMenuItem.builder ()
+                                                        .styleClassName (StyleClassNames.NOSYNONYMS)
+                                                        .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,nosynonyms),
+                                                                                             word))
+                                                        .build ();
+                                                    mi.setDisable (true);
+                                                    items.add (mi);
+
+                                                }
+
+                                                items.add (new SeparatorMenuItem ());
+
+                                            } catch (Exception e) {
+
+                                                Environment.logError ("Unable to determine whether word: " +
+                                                                      word +
+                                                                      " has synonyms.",
+                                                                      e);
+
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    cm.getItems ().addAll (items);
+
+                    boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+
+                    cm.getItems ().addAll (_this.getContextMenuItems (compress));
+
+                    ContextMenu _cm = _this.contextMenus.get ("chapter");
+
+                    if (_cm != null)
+                    {
+
+                        _cm.hide ();
+                        _this.contextMenus.remove ("chapter");
+
+                    }
+
+                    _cm = _this.contextMenus.get ("iconcolumn");
+
+                    if (_cm != null)
+                    {
+
+                        _cm.hide ();
+                        _this.contextMenus.remove ("iconcolumn");
+
+                    }
+
+                    _this.contextMenus.put ("chapter", cm);
+
+                }
+
+            };
+
+            this.iconColumn.addMouseListener (h);
+            this.editor.addMouseListener (h);
+
+            this.iconColumn.addMouseListener (new MouseEventHandler (this)
+            {
+
+                @Override
+                public void handleDoublePress (MouseEvent ev)
+                {
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        List<String> prefix = Arrays.asList (iconcolumn,doubleclickmenu,items);
+
+                        ContextMenu cm = new ContextMenu ();
+
+                        Set<MenuItem> items = new LinkedHashSet<> ();
+
+                        items.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE)))
+                            .styleClassName (StyleClassNames.SCENE)
+                            .accelerator (new KeyCharacterCombination ("S",
+                                                                       KeyCombination.SHORTCUT_DOWN,
+                                                                       KeyCombination.SHIFT_DOWN))
+                            .onAction (eev ->
+                            {
+
+                                _this.viewer.runCommand (ProjectViewer.CommandId.newscene,
+                                                         _this.object,
+                                                         _this.getTextPositionForMousePosition (ev.getPoint ()));
+
+                            })
+                            .build ());
+
+                        items.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.OutlineItem.OBJECT_TYPE)))
+                            .styleClassName (StyleClassNames.OUTLINEITEM)
+                            .accelerator (new KeyCharacterCombination ("O",
+                                                                       KeyCombination.SHORTCUT_DOWN,
+                                                                       KeyCombination.SHIFT_DOWN))
+                            .onAction (eev ->
+                            {
+
+                                _this.viewer.runCommand (ProjectViewer.CommandId.newoutlineitem,
+                                                         _this.object,
+                                                         _this.getTextPositionForMousePosition (ev.getPoint ()));
+
+                            })
+                            .build ());
+
+                        items.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Note.OBJECT_TYPE)))
+                            .styleClassName (StyleClassNames.NOTE)
+                            .accelerator (new KeyCharacterCombination ("N",
+                                                                       KeyCombination.SHORTCUT_DOWN,
+                                                                       KeyCombination.SHIFT_DOWN))
+                            .onAction (eev ->
+                            {
+
+                                _this.viewer.runCommand (ProjectViewer.CommandId.newnote,
+                                                         _this.object,
+                                                         _this.getTextPositionForMousePosition (ev.getPoint ()));
+
+                            })
+                            .build ());
+
+                        items.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.editneedednote)))
+                            .accelerator (new KeyCharacterCombination ("E",
+                                                                       KeyCombination.SHORTCUT_DOWN,
+                                                                       KeyCombination.SHIFT_DOWN))
+                            .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+                            .onAction (eev ->
+                            {
+
+                                _this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
+                                                         _this.object,
+                                                         _this.getTextPositionForMousePosition (ev.getPoint ()));
+
+                            })
+                            .build ());
+
+                        cm.getItems ().addAll (items);
+
+                        cm.setAutoHide (true);
+
+                        cm.show (_this, ev.getXOnScreen (), ev.getYOnScreen ());
+
+                        ContextMenu _cm = _this.contextMenus.get ("iconcolumn");
+
+                        if (_cm != null)
+                        {
+
+                            _cm.hide ();
+                            _this.contextMenus.remove ("iconcolumn");
+
+                        }
+
+                        _this.contextMenus.put ("iconcolumn", cm);
+
+                    });
+
+                }
+
+            });
+
+            this.iconColumn.setAlignmentY (Component.TOP_ALIGNMENT);
+            this.iconColumn.setAlignmentX (Component.LEFT_ALIGNMENT);
+            this.iconColumn.setMinimumSize (new Dimension (50, 200));
+            this.iconColumn.setPreferredSize (new Dimension (50, 200));
+            this.iconColumn.setMaximumSize (new Dimension (50, Integer.MAX_VALUE));
+
+            p.setOpaque (false);
+
+            p.add (this.iconColumn,
+                   BorderLayout.WEST);
+
+            p.add (this.editor,
+                   BorderLayout.CENTER);
+
+            _this.iconColumn.addMouseListener (new MouseEventHandler (null)
+            {
+
+               @Override
+               public void handlePress (MouseEvent ev)
+               {
+
+                   if (!ev.isPopupTrigger ())
+                   {
+
+                       _this.hideAllContextMenus ();
+
+                   }
+
+               }
+
+            });
+
+            _this.editor.addKeyListener (new KeyAdapter ()
+            {
+
+                @Override
+                public void keyReleased (java.awt.event.KeyEvent ev)
+                {
+
+                    _this.hideAllContextMenus ();
+
+                }
+
+            });
+
+            _this.editor.addMouseListener (new MouseEventHandler (null)
+            {
+
+               @Override
+               public void handlePress (MouseEvent ev)
+               {
+
+                   if (!ev.isPopupTrigger ())
+                   {
+
+                       _this.hideAllContextMenus ();
+
+                   }
+
+               }
+
+            });
+
+            this.viewer.typeWriterScrollingEnabledProperty ().addListener ((pr, oldv, newv) ->
+            {
+
+                this.setUseTypewriterScrolling (newv);
+
+            });
+
+            this.setUseTypewriterScrolling (this.viewer.typeWriterScrollingEnabledProperty ().getValue ());
+
+            /// *** END NEW
+
+            this.viewer.spellCheckingEnabledProperty ().addListener ((v, oldv, newv) ->
+            {
+
+                SwingUIUtils.doLater (() ->
+                {
+
+                    _this.editor.setSpellCheckEnabled (newv);
+
+                });
+
+            });
+
+            this.viewer.projectSpellCheckLanguageProperty ().addListener ((v, oldv, newv) ->
+            {
+
+                SwingUIUtils.doLater (() ->
+                {
+
+                    _this.editor.setDictionaryProvider (viewer.getDictionaryProvider ());
+
+                    try
+                    {
+
+                        _this.editor.setSynonymProvider (viewer.getSynonymProvider ());
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to set synonym provider.",
+                                              e);
+
+                        // TODO Should error.
+
+                    }
+
+              });
+
+            });
+
+            final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
+
+            this.editor.getDocument ().addDocumentListener (new DocumentAdapter ()
+            {
+
+                @Override
+                public void insertUpdate (DocumentEvent ev)
+                {
+
+                  final int offset = ev.getOffset ();
+
+                  if (ev.getLength () > 0)
+                  {
+
+                      // TODO Check that any dependent achievements still work.
+                      _this.viewer.fireProjectEvent (ProjectEvent.Type.projectobject,
+                                                     ProjectEvent.Action.edit,
+                                                     _this.object);
+
+                  }
+
+                  boolean add = false;
+
+                  try
+                  {
+
+                      if (ev.getLength () == 1)
+                      {
+
+                          if (offset == 0)
+                          {
+
+                              Set<OutlineItem> its = _this.object.getOutlineItemsAt (0);
+
+                              for (OutlineItem it : its)
+                              {
+
+                                  it.setTextPosition (_this.editor.getDocument ().createPosition (it.getPosition () + 1));
+
+                              }
+
+                              Set<com.quollwriter.data.Scene> ss = _this.object.getScenesAt (0);
+
+                              for (com.quollwriter.data.Scene s : ss)
+                              {
+
+                                  s.setTextPosition (_this.editor.getDocument ().createPosition (s.getPosition () + 1));
+
+                              }
+
+                              Set<Note> nn = _this.object.getNotesAt (0);
+
+                              for (Note n : nn)
+                              {
+
+                                  n.setTextPosition (_this.editor.getDocument ().createPosition (n.getPosition () + 1));
+
+                              }
+
+                          }
+
+                          String t = doc.getText (offset,
+                                                  ev.getLength ());
+
+                          String nl = String.valueOf ('\n');
+
+                          if (t.equals (nl))
+                          {
+
+                              String te = doc.getText (offset - Constants.SECTION_BREAK_FIND.length (),
+                                                       Constants.SECTION_BREAK_FIND.length ());
+
+                              if (te.equals (Constants.SECTION_BREAK_FIND))
+                              {
+
+                                  add = true;
+
+                              }
+
+                              if (doc.getLogicalStyle (offset) == _this.editor.sectionBreakStyle)
+                              {
+
+                                  SwingUIUtils.doLater (() ->
+                                  {
+
+                                      Style ls = doc.addStyle (null,
+                                                               null);
+                                      StyleConstants.setAlignment (ls,
+                                                                   StyleConstants.ALIGN_LEFT);
+
+                                      doc.setParagraphAttributes (offset + 1,
+                                                                  1,
+                                                                  ls,
+                                                                  false);
+
+                                  });
+
+                              }
+
+                          }
+
+                      }
+
+                  } catch (Exception e)
+                  {
+
+                      // Ignore.
+
+                  }
+
+                  if (add)
+                  {
+
+                      SwingUIUtils.doLater (() ->
+                      {
+
+                          try
+                          {
+
+                              String ins = String.valueOf ('\n') + String.valueOf ('\n') + Constants.SECTION_BREAK + String.valueOf ('\n') + String.valueOf ('\n');
+
+                              doc.replace (offset - Constants.SECTION_BREAK_FIND.length (),
+                                           Constants.SECTION_BREAK_FIND.length () + 1,
+                                           ins,
+                                           _this.editor.sectionBreakStyle);
+
+                              doc.setParagraphAttributes (offset + 2,
+                                                          Constants.SECTION_BREAK.length (),
+                                                          _this.editor.sectionBreakStyle,
+                                                          false);
+
+                              doc.setLogicalStyle (offset + 2,
+                                                   _this.editor.sectionBreakStyle);
+
+                              Style ls = doc.addStyle (null,
+                                                       null);
+                              StyleConstants.setAlignment (ls,
+                                                           StyleConstants.ALIGN_LEFT);
+
+                              doc.setParagraphAttributes (offset + Constants.SECTION_BREAK.length (),
+                                                          2,
+                                                          ls,
+                                                          false);
+
+                          } catch (Exception e)
+                          {
+
+                              Environment.logError ("Unable to add section breaks",
+                                                    e);
+
+                          }
+
+                      });
+
+                  }
+
+              }
+
+              public void removeUpdate (DocumentEvent ev)
+              {
+
+                  if (ev.getLength () > 0)
+                  {
+
+                      _this.viewer.fireProjectEvent (ProjectEvent.Type.projectobject,
+                                                     ProjectEvent.Action.edit,
+                                                     _this.object);
+
+                  }
+
+                  final int offset = ev.getOffset ();
+
+                  if (doc.getLogicalStyle (offset) == _this.editor.sectionBreakStyle)
+                  {
+
+                      SwingUIUtils.doLater (() ->
+                      {
+
+                          try
+                          {
+
+                              doc.replace (offset - Constants.SECTION_BREAK_FIND.length (),
+                                           Constants.SECTION_BREAK_FIND.length (),
+                                           null,
+                                           null);
+
+                          } catch (Exception e)
+                          {
+
+                          }
+
+                      });
+
+                  }
+
+              }
+
+            });
+
+
+              this.editor.getDocument ().addDocumentListener (new DocumentListener ()
+              {
+
+                  @Override
+                  public void insertUpdate (DocumentEvent ev)
+                  {
+
+                      if (_this.isIgnoreDocumentChanges ())
+                      {
+
+                          return;
+
+                      }
+
+                      UIUtils.runLater (() ->
+                      {
+
+                          _this.setHasUnsavedChanges (true);
+
+                      });
+
+                      _this.scheduleWordCountUpdate ();
+
+                  }
+
+                  @Override
+                  public void changedUpdate (DocumentEvent ev)
+                  {
+
+                      if (_this.isIgnoreDocumentChanges ())
+                      {
+
+                          return;
+
+                      }
+
+                      UIUtils.runLater (() ->
+                      {
+
+                          _this.setHasUnsavedChanges (true);
+
+                      });
+
+                      _this.scheduleWordCountUpdate ();
+
+                  }
+
+                  @Override
+                  public void removeUpdate (DocumentEvent ev)
+                  {
+
+                      if (_this.isIgnoreDocumentChanges ())
+                      {
+
+                          return;
+
+                      }
+
+                      UIUtils.runLater (() ->
+                      {
+
+                          _this.setHasUnsavedChanges (true);
+
+                      });
+
+                      _this.scheduleWordCountUpdate ();
+
+                  }
+
+
+              });
+
+        }
+
+        return this.scrollPane;
+
+    }
+
+    public QTextEditor getEditor ()
+    {
+
+        return this.editor;
+
+    }
+
+    public Set<MenuItem> getContextMenuItems (boolean    compress)
+    {
+
+        final ProjectChapterEditorPanelContent _this = this;
+
+        Set<MenuItem> ret = new LinkedHashSet<> ();
+
+        // Get the mouse position, don't get it later since the mouse could have moved.
+        Point mP = this.editor.getMousePosition ();
+
+        if (mP == null)
+        {
+
+            mP = this.iconColumn.getMousePosition ();
+
+        }
+
+        final Point mouseP = mP;
+
+        int pos = this.getTextPositionForMousePosition (mP);
+
+        // This is needed to move to the correct character, the call above seems to get the character
+        // before what was clicked on.
+        // pos++;
+
+        List<String> prefix = Arrays.asList (project,editorpanel,popupmenu,Chapter.OBJECT_TYPE,items);
+
+        if (compress)
+        {
+
+            List<Node> row1 = new ArrayList<> ();
+            row1.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.SAVE)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,save,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.saveObject ();
+
+                })
+                .build ());
+
+            if ((this.editor.getCaret ().getDot () > 0)
+                ||
+                (this.editor.getSelectionStart () > 0)
+               )
+            {
+
+               if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
+               {
+
+                   row1.add (QuollButton.builder ()
+                       .styleClassName (StyleClassNames.SPLIT)
+                       .tooltip (getUILanguageStringProperty (Utils.newList (prefix,splitchapter,tooltip)))
+                       .onAction (ev ->
+                       {
+
+                           this.showSplitChapter ();
+
+                       })
+                       .build ());
+
+               }
+
+            }
+
+            row1.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.PROBLEMFINDER)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,problemfinder,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.showProblemFinder ();
+
+                })
+                .build ());
+
+            row1.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.EDITPROPERTIES)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,textproperties,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.textproperties);
+
+                })
+                .build ());
+
+            row1.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.FIND)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,find,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.find);
+
+                })
+                .build ());
+
+            List<Node> row2 = new ArrayList<> ();
+
+            row2.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.SETEDITPOSITION)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.viewer.setChapterEditPosition (this.object,
+                                                        pos);
+
+                })
+                .build ());
+
+            if (this.object.getEditPosition () > 0)
+            {
+
+                row2.add (QuollButton.builder ()
+                    .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
+                    .tooltip (getUILanguageStringProperty (Utils.newList (prefix,removeeditposition,tooltip)))
+                    .onAction (ev ->
+                    {
+
+                        this.viewer.removeChapterEditPosition (this.object);
+
+                    })
+                    .build ());
+
+            }
+
+            if (!this.object.isEditComplete ())
+            {
+
+                row2.add (QuollButton.builder ()
+                    .styleClassName (StyleClassNames.EDITCOMPLETE)
+                    .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,tooltip)))
+                    .onAction (ev ->
+                    {
+
+                        this.viewer.setChapterEditComplete (this.object,
+                                                            true);
+
+                    })
+                    .build ());
+
+            } else {
+
+                row2.add (QuollButton.builder ()
+                    .styleClassName (StyleClassNames.EDITNEEDED)
+                    .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,tooltip)))
+                    .onAction (ev ->
+                    {
+
+                        this.viewer.setChapterEditComplete (this.object,
+                                                            false);
+
+                    })
+                    .build ());
+
+            }
+
+            CustomMenuItem n = UIUtils.createCompressedMenuItem (getUILanguageStringProperty (project,editorpanel,popupmenu,Chapter.OBJECT_TYPE,compresstext),
+                                                                 row1,
+                                                                 row2);
+
+            ret.add (n);
+
+            ret.add (new SeparatorMenuItem ());
+
+            ret.add (this.getCompressedNewItemsForContextMenu (pos,
+                                                               null,
+                                                               null));
+
+            MenuItem fmi = this.getCompressedFormatItemsForContextMenu ();
+            MenuItem emi = this.getCompressedEditItemsForContextMenu ();
+
+            if ((fmi != null)
+                ||
+                (emi != null)
+               )
+            {
+
+                ret.add (new SeparatorMenuItem ());
+
+                if (fmi != null)
+                {
+
+                    ret.add (fmi);
+
+                }
+
+                if (emi != null)
+                {
+
+                    ret.add (emi);
+
+                }
+
+            }
+
+        } else {
+
+            // Save.
+            ret.add (QuollMenuItem.builder ()
+                .styleClassName (StyleClassNames.SAVE)
+                .label (getUILanguageStringProperty (Utils.newList (prefix,save,text)))
+                .accelerator (new KeyCodeCombination (KeyCode.S,
+                                                      KeyCombination.SHORTCUT_DOWN))
+                .onAction (ev ->
+                {
+
+                    this.saveObject ();
+
+                })
+                .build ());
+
+            Set<MenuItem> citems = new LinkedHashSet<> ();
+
+            if ((this.editor.getCaret ().getDot () > 0)
+                ||
+                (this.editor.getSelectionStart () > 0)
+               )
+            {
+
+               if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
+               {
+
+                   citems.add (QuollMenuItem.builder ()
+                       .styleClassName (StyleClassNames.SPLIT)
+                       .label (getUILanguageStringProperty (Utils.newList (prefix,splitchapter,text)))
+                       .onAction (ev ->
+                       {
+
+                           this.showSplitChapter ();
+
+                       })
+                       .build ());
+
+               }
+
+            }
+
+            citems.add (QuollMenuItem.builder ()
+                .styleClassName (StyleClassNames.SETEDITPOSITION)
+                .label (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,text)))
+                .onAction (ev ->
+                {
+
+                    this.viewer.setChapterEditPosition (this.object,
+                                                        pos);
+
+                })
+                .build ());
+
+            if (this.object.getEditPosition () > 0)
+            {
+
+                citems.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,removeeditposition,text)))
+                    .onAction (ev ->
+                    {
+
+                        this.viewer.removeChapterEditPosition (this.object);
+
+                    })
+                    .build ());
+
+            }
+
+            if (!this.object.isEditComplete ())
+            {
+
+                citems.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.EDITCOMPLETE)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,text)))
+                    .onAction (ev ->
+                    {
+
+                        this.viewer.setChapterEditComplete (this.object,
+                                                            true);
+
+                    })
+                    .build ());
+
+            } else {
+/*
+TODO?
+                citems.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.EDITNEEDED)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,text)))
+                    .onAction (ev ->
+                    {
+
+                        this.viewer.setChapterEditComplete (this.object,
+                                                            false);
+
+                    })
+                    .build ());
+*/
+            }
+
+            citems.add (QuollMenuItem.builder ()
+                .styleClassName (StyleClassNames.PROBLEMFINDER)
+                .label (getUILanguageStringProperty (Utils.newList (prefix,problemfinder,text)))
+                .accelerator (new KeyCodeCombination (KeyCode.P,
+                                                      KeyCombination.SHORTCUT_DOWN,
+                                                      KeyCombination.SHIFT_DOWN))
+                .onAction (ev ->
+                {
+
+                    this.showProblemFinder ();
+
+                })
+                .build ());
+
+            // Add the new items.
+            // TODO
+            citems.add (QuollMenuItem.builder ()
+                .styleClassName (StyleClassNames.EDITPROPERTIES)
+                .label (getUILanguageStringProperty (Utils.newList (prefix,textproperties,text)))
+                .accelerator (new KeyCodeCombination (KeyCode.E,
+                                                      KeyCombination.SHORTCUT_DOWN))
+                .onAction (ev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.textproperties);
+
+                })
+                .build ());
+
+            citems.add (QuollMenuItem.builder ()
+                .styleClassName (StyleClassNames.FIND)
+                .label (getUILanguageStringProperty (Utils.newList (prefix,find,text)))
+                .accelerator (new KeyCodeCombination (KeyCode.F,
+                                                      KeyCombination.SHORTCUT_DOWN))
+                .onAction (ev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.find);
+
+                })
+                .build ());
+
+            QuollMenu m = QuollMenu.builder ()
+                .styleClassName (StyleClassNames.EDIT)
+                .label (project,editorpanel,popupmenu,Chapter.OBJECT_TYPE,text)
+                .items (citems)
+                .build ();
+
+            ret.add (m);
+
+            citems = new LinkedHashSet<> ();
+
+            List<String> mprefix = Arrays.asList (project,editorpanel,popupmenu,_new,items);
+
+            citems.add (QuollMenuItem.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (mprefix, com.quollwriter.data.Scene.OBJECT_TYPE,text)))
+                .styleClassName (com.quollwriter.data.Scene.OBJECT_TYPE)
+                //.tooltip (new SimpleStringProperty (pref + "S"))
+                .accelerator (Environment.getNewObjectTypeKeyCombination (com.quollwriter.data.Scene.OBJECT_TYPE))
+                .onAction (eev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.newscene,
+                                            null,
+                                            this.object);
+
+                })
+                .build ());
+
+            citems.add (QuollMenuItem.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (mprefix, OutlineItem.OBJECT_TYPE,text)))
+                .styleClassName (OutlineItem.OBJECT_TYPE)
+                //.tooltip (new SimpleStringProperty (pref + "O"))
+                .accelerator (Environment.getNewObjectTypeKeyCombination (OutlineItem.OBJECT_TYPE))
+                .onAction (eev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.newoutlineitem,
+                                            null,
+                                            this.object);
+
+                })
+                .build ());
+
+            citems.add (QuollMenuItem.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.OBJECT_TYPE,text)))
+                .styleClassName (Note.OBJECT_TYPE)
+                .accelerator (Environment.getNewObjectTypeKeyCombination (Note.OBJECT_TYPE))
+                .onAction (eev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.newnote,
+                                            null,
+                                            this.object);
+
+                })
+                .build ());
+
+            citems.add (QuollMenuItem.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.EDIT_NEEDED_OBJECT_TYPE,text)))
+                .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+                .accelerator (Environment.getNewObjectTypeKeyCombination (Note.EDIT_NEEDED_OBJECT_TYPE))
+                .onAction (eev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
+                                            null,
+                                            this.object);
+
+                })
+                .build ());
+
+            citems.add (QuollMenuItem.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (mprefix, Chapter.OBJECT_TYPE,text)))
+                .styleClassName (Chapter.OBJECT_TYPE)
+                .accelerator (Environment.getNewObjectTypeKeyCombination (Chapter.OBJECT_TYPE))
+                .onAction (eev ->
+                {
+
+                    this.viewer.runCommand (ProjectViewer.CommandId.newchapter,
+                                            null,
+                                            this.object);
+
+                })
+                .build ());
+
+            citems.addAll (UIUtils.getNewAssetMenuItems (this.viewer));
+
+            m = QuollMenu.builder ()
+                .styleClassName (StyleClassNames.NEW)
+                .label (project,editorpanel,popupmenu,_new,text)
+                .items (citems)
+                .build ();
+
+            ret.add (m);
+
+            String sel = this.editor.getSelectedText ();
+
+            if (!sel.equals (""))
+            {
+
+                ret.add (new SeparatorMenuItem ());
+
+                List<String> fprefix = Arrays.asList (formatting,format,popupmenu,items);
+
+                // Add the bold/italic/underline.
+                ret.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (fprefix,bold,text)))
+                    .styleClassName (StyleClassNames.BOLD)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.BOLD_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.toggleBold ();
+
+                    })
+                    .build ());
+
+                ret.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (fprefix,italic,text)))
+                    .styleClassName (StyleClassNames.ITALIC)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.ITALIC_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.toggleItalic ();
+
+                    })
+                    .build ());
+
+                ret.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (fprefix,underline,text)))
+                    .styleClassName (StyleClassNames.UNDERLINE)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.UNDERLINE_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.toggleUnderline ();
+
+                    })
+                    .build ());
+
+            }
+
+            Set<MenuItem> eitems = new LinkedHashSet<> ();
+
+            List<String> eprefix = Arrays.asList (formatting,edit,popupmenu,items);
+
+            if (!sel.equals (""))
+            {
+
+                eitems.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (eprefix,cut,text)))
+                    .styleClassName (StyleClassNames.CUT)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.CUT_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.cut ();
+
+                    })
+                    .build ());
+
+                eitems.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (eprefix,copy,text)))
+                    .styleClassName (StyleClassNames.COPY)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.COPY_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.copy ();
+
+                    })
+                    .build ());
+
+            }
+
+            // Only show if there is something in the clipboard.
+            if (UIUtils.clipboardHasContent ())
+            {
+
+                eitems.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (eprefix,paste,text)))
+                    .styleClassName (StyleClassNames.PASTE)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.PASTE_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.paste ();
+
+                    })
+                    .build ());
+
+            }
+
+            if (this.editor.getUndoManager ().canUndo ())
+            {
+
+                eitems.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (eprefix,undo,text)))
+                    .styleClassName (StyleClassNames.UNDO)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.UNDO_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.getUndoManager ().undo ();
+
+                    })
+                    .build ());
+
+            }
+
+            if (this.editor.getUndoManager ().canRedo ())
+            {
+
+                eitems.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (eprefix,redo,text)))
+                    .styleClassName (StyleClassNames.REDO)
+                    .accelerator (Environment.getActionKeyCombination (QTextEditor.REDO_ACTION_NAME))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.getUndoManager ().redo ();
+
+                    })
+                    .build ());
+
+            }
+
+            if (eitems.size () > 0)
+            {
+
+                ret.add (new SeparatorMenuItem ());
+                ret.addAll (eitems);
+
+            }
+
+        }
+
+        return ret;
 
     }
 
     public void showItem (ChapterItem item)
     {
 
-        this.panel.showItem (item);
+        // TODO this.panel.showItem (item);
 
     }
 
@@ -561,4 +2257,677 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
 
     }
 
+    public void insertSectionBreak ()
+    {
+
+        final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
+
+        final int offset = this.editor.getCaret ().getDot ();
+
+        try
+        {
+
+            this.editor.startCompoundEdit ();
+
+            String ins = String.valueOf ('\n') + String.valueOf ('\n') + Constants.SECTION_BREAK + String.valueOf ('\n') + String.valueOf ('\n');
+
+            doc.insertString (offset,
+                              ins,
+                              this.editor.sectionBreakStyle);
+
+            doc.setParagraphAttributes (offset + 2,
+                                        Constants.SECTION_BREAK.length (),
+                                        this.editor.sectionBreakStyle,
+                                        false);
+
+            doc.setLogicalStyle (offset + 2,
+                                 this.editor.sectionBreakStyle);
+
+            this.editor.endCompoundEdit ();
+
+        } catch (Exception e)
+        {
+
+        }
+
+    }
+
+    public void updateViewportPositionForTypewriterScrolling ()
+    {
+
+        if (!this.viewer.typeWriterScrollingEnabledProperty ().getValue ())
+        {
+
+            return;
+
+        }
+
+        final ProjectChapterEditorPanelContent _this = this;
+
+        SwingUIUtils.doLater (() ->
+        {
+
+            int dot = _this.editor.getCaret ().getDot ();
+
+            Rectangle r = null;
+
+            try
+            {
+
+                r = SwingUIUtils.getRectForOffset (_this.editor,
+                                                   dot);
+
+            } catch (Exception e) {
+
+                // Ignore.
+                return;
+
+            }
+
+            if (r == null)
+            {
+
+                return;
+
+            }
+
+            Insets i = _this.editor.getMargin ();
+            int hh = _this.scrollPane.getSize ().height / 2;
+            int y = r.y;
+
+            if (i != null)
+            {
+
+                y -= i.top;
+
+            }
+
+            if ((y - hh) < 0)
+            {
+
+                _this.editor.setMargin (new Insets (-1 * (y - hh),
+                                                          _this.origEditorMargin.left,
+                                                          _this.origEditorMargin.bottom,
+                                                          _this.origEditorMargin.right));
+
+                _this.scrollPane.getViewport ().setViewPosition (new Point (0, 0));
+
+            } else {
+
+                if (y > (_this.editor.getSize ().height - hh - i.bottom - (r.height / 2)))
+                {
+
+                    _this.editor.setMargin (new Insets (_this.origEditorMargin.top,
+                                                        _this.origEditorMargin.left,
+                                                        //hh - (_this.editor.getSize ().height - y - i.bottom - (r.height / 2)),
+                                                        hh - (_this.editor.getSize ().height - y - i.bottom - Math.round ((float) r.height / 2f)),
+                                                        _this.origEditorMargin.right));
+
+                } else {
+
+                    _this.editor.setMargin (new Insets (_this.origEditorMargin.top,
+                                                        _this.origEditorMargin.left,
+                                                        _this.origEditorMargin.bottom,
+                                                        _this.origEditorMargin.right));
+
+                }
+
+                Point p = new Point (0, y - hh + (r.height /2));
+
+                _this.scrollPane.getViewport ().setViewPosition (p);
+
+            }
+
+            _this.scrollPane.validate ();
+            _this.scrollPane.repaint ();
+
+        });
+
+    }
+
+    public void scrollToPosition (final int p)
+                           throws GeneralException
+    {
+
+        if (this.viewer.typeWriterScrollingEnabledProperty ().getValue ())
+        {
+
+            // Not compatible with typewriter scrolling.
+            return;
+
+        }
+
+        if (this.isScrolling)
+        {
+
+            final ProjectChapterEditorPanelContent _this = this;
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                try
+                {
+
+                    _this.scrollToPosition (p);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to scroll to: " + p,
+                                          e);
+
+                }
+
+            });
+
+            return;
+
+        }
+
+        try
+        {
+
+            this.isScrolling = true;
+
+            Rectangle r = null;
+
+            try
+            {
+
+                r = SwingUIUtils.getRectForOffset (this.editor,
+                                                   p);
+
+            } catch (Exception e)
+            {
+
+                // BadLocationException!
+                throw new GeneralException ("Position: " +
+                                            p +
+                                            " is not valid.",
+                                            e);
+
+            }
+
+            if (r == null)
+            {
+
+                throw new GeneralException ("Position: " +
+                                            p +
+                                            " is not valid.");
+
+            }
+
+            int y = r.y - r.height;
+
+            if (y < 0)
+            {
+
+                y = 0;
+
+            }
+
+            this.scrollPane.getVerticalScrollBar ().setValue (y);
+
+        } finally {
+
+            this.isScrolling = false;
+
+        }
+
+    }
+
+    public int getTextPositionForMousePosition (Point p)
+    {
+
+       Point pp = p;
+
+       if (this.iconColumn.getMousePosition () != null)
+       {
+
+          pp = new Point (0,
+                          p.y);
+
+       }
+
+       return this.editor.viewToModel2D (pp);
+
+    }
+
+    private void hideAllContextMenus ()
+    {
+
+        UIUtils.runLater (() ->
+        {
+
+            this.contextMenus.values ().stream ()
+                .forEach (cm -> cm.hide ());
+
+        });
+
+    }
+
+    public void showSplitChapter ()
+    {
+
+        // TODO
+
+    }
+
+    private MenuItem getCompressedEditItemsForContextMenu ()
+    {
+
+        List<String> prefix = Arrays.asList (formatting,edit,popupmenu,items);
+
+        String sel = this.editor.getSelectedText ();
+
+        List<Node> buts = new ArrayList<> ();
+
+        // Only add if there is something to cut.
+        if (!sel.equals (""))
+        {
+
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.CUT)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,cut,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.editor.cut ();
+
+                })
+                .build ());
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.COPY)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,copy,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.editor.copy ();
+
+                })
+                .build ());
+
+        }
+
+        if (UIUtils.clipboardHasContent ())
+        {
+
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.PASTE)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,paste,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.editor.paste ();
+
+                })
+                .build ());
+
+        }
+
+        if (this.editor.getUndoManager ().canUndo ())
+        {
+
+            // Only add if there is an undo available.
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.UNDO)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,undo,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.editor.getUndoManager ().undo ();
+
+                })
+                .build ());
+
+        }
+
+        if (this.editor.getUndoManager ().canRedo ())
+        {
+
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.REDO)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,redo,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.editor.getUndoManager ().redo ();
+
+                })
+                .build ());
+
+        }
+
+        if (buts.size () > 0)
+        {
+
+            return UIUtils.createCompressedMenuItem (getUILanguageStringProperty (formatting,edit,popupmenu,title),
+                                                     buts);
+
+
+        }
+
+        return null;
+
+    }
+
+    private MenuItem getCompressedFormatItemsForContextMenu ()
+    {
+
+        String sel = this.editor.getSelectedText ();
+
+        if (!sel.equals (""))
+        {
+
+            List<String> prefix = Arrays.asList (formatting,format,popupmenu,items);
+
+            List<Node> buts = new ArrayList<> ();
+
+            buts.add (QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,bold,tooltip)))
+                .styleClassName (StyleClassNames.BOLD)
+                .onAction (ev ->
+                {
+
+                    this.editor.toggleBold ();
+
+                })
+                .build ());
+
+            buts.add (QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,italic,tooltip)))
+                .styleClassName (StyleClassNames.ITALIC)
+                .onAction (ev ->
+                {
+
+                    this.editor.toggleItalic ();
+
+                })
+                .build ());
+
+            buts.add (QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,underline,tooltip)))
+                .styleClassName (StyleClassNames.UNDERLINE)
+                .onAction (ev ->
+                {
+
+                    this.editor.toggleUnderline ();
+
+                })
+                .build ());
+
+            return UIUtils.createCompressedMenuItem (getUILanguageStringProperty (formatting,format,popupmenu,title),
+                                                     buts);
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
+    private MenuItem getCompressedNewItemsForContextMenu (int    pos,
+                                                          String name,
+                                                          String desc)
+    {
+
+        List<String> prefix = Arrays.asList (project,editorpanel,popupmenu,_new,items);
+
+        List<Node> buts = new ArrayList<> ();
+
+        buts.add (QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE,tooltip)))
+            .styleClassName (StyleClassNames.SCENE)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.newscene,
+                                        this.object,
+                                        pos);
+
+            })
+            .build ());
+
+        buts.add (QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,OutlineItem.OBJECT_TYPE,tooltip)))
+            .styleClassName (StyleClassNames.OUTLINEITEM)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.newoutlineitem,
+                                        this.object,
+                                        pos);
+
+            })
+            .build ());
+
+        buts.add (QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,Note.OBJECT_TYPE,tooltip)))
+            .styleClassName (StyleClassNames.NOTE)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.newnote,
+                                        this.object,
+                                        pos);
+
+            })
+            .build ());
+
+        buts.add (QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,Note.EDIT_NEEDED_OBJECT_TYPE,tooltip)))
+            .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
+                                        this.object,
+                                        pos);
+
+            })
+            .build ());
+
+        buts.add (QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,Chapter.OBJECT_TYPE,tooltip)))
+            .styleClassName (StyleClassNames.CHAPTER)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.newchapter);
+
+            })
+            .build ());
+
+        List<Node> buts2 = new ArrayList<> ();
+
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+
+        for (UserConfigurableObjectType type : types)
+        {
+
+            QuollButton b = QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Arrays.asList (assets,add,button,tooltip),
+                                                       type.getObjectTypeName ()))
+                .onAction (ev ->
+                {
+
+                    Asset a = null;
+
+                    try
+                    {
+
+                        a = Asset.createAsset (type);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to create new asset for object type: " +
+                                              type,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         getUILanguageStringProperty (Arrays.asList (assets,add,actionerror),
+                                                                                      type.getObjectTypeName ()));
+                                                  //"Unable to create new asset type.");
+
+                        return;
+
+                    }
+
+                    if (a == null)
+                    {
+
+                        Environment.logError ("Unable to create new asset for object type: " +
+                                              type);
+
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         getUILanguageStringProperty (Arrays.asList (assets,add,actionerror),
+                                                                                      type.getObjectTypeName ()));
+                                                  //"Unable to create new asset type.");
+
+                        return;
+
+                    }
+
+                    if (name != null)
+                    {
+
+                        a.setName (name);
+
+                    }
+
+                    if (desc != null)
+                    {
+
+                        a.setDescription (new StringWithMarkup (desc));
+
+                    }
+
+                    this.viewer.showAddNewAsset (a);
+
+                })
+                .build ();
+
+            b.setGraphic (new ImageView (type.getIcon16x16 ()));
+
+            buts2.add (b);
+
+        }
+
+        return UIUtils.createCompressedMenuItem (getUILanguageStringProperty (project,editorpanel,popupmenu,_new,text),
+                                                 buts,
+                                                 buts2);
+
+    }
+/*
+            if (popup instanceof JPopupMenu)
+            {
+
+               JPopupMenu pm = (JPopupMenu) popup;
+
+               pm.addSeparator ();
+
+               popup.add (SwingUIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.project,
+                                                                                     LanguageStrings.editorpanel,
+                                                                                     LanguageStrings.popupmenu,
+                                                                                     LanguageStrings._new,
+                                                                                     LanguageStrings.text),
+                                                                                     //"New",
+                                                            pm,
+                                                            buts));
+
+               UIUtils.addNewAssetItemsAsToolbarToPopupMenu (pm,
+                                                             null,
+                                                             (ProjectViewer) this.projectViewer,
+                                                             null,
+                                                             null);
+
+               pm.addSeparator ();
+
+            }
+
+        } else {
+
+            String pref = Environment.getUIString (LanguageStrings.general,LanguageStrings.shortcutprefix);
+
+            //"Shortcut: Ctrl+Shift+";
+
+            JMenuItem mi = null;
+
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Scene.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+//Environment.getObjectTypeName (Scene.OBJECT_TYPE),
+                                      Scene.OBJECT_TYPE,
+                                      NEW_SCENE_ACTION_NAME,
+                                      null,
+                                      aa);
+
+            popup.add (mi);
+
+            mi.setMnemonic ('S');
+            mi.setToolTipText (pref + "S");
+
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               OutlineItem.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
+                                      OutlineItem.OBJECT_TYPE,
+                                      NEW_OUTLINE_ITEM_ACTION_NAME,
+                                      null,
+                                      aa);
+
+            popup.add (mi);
+
+            mi.setMnemonic ('O');
+            mi.setToolTipText (pref + "O");
+
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Note.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                      Note.OBJECT_TYPE,
+                                      NEW_NOTE_ACTION_NAME,
+                                      null,
+                                      aa);
+
+            popup.add (mi);
+
+            mi.setMnemonic ('N');
+            mi.setToolTipText (pref + "N");
+
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Note.EDIT_NEEDED_OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                      Constants.EDIT_NEEDED_NOTE_ICON_NAME,
+                                      NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                                      null,
+                                      aa);
+
+            popup.add (mi);
+
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Chapter.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Environment.getObjectTypeName (Chapter.OBJECT_TYPE),
+                                      Chapter.OBJECT_TYPE,
+                                      NEW_CHAPTER_ACTION_NAME,
+                                      null,
+                                      aa);
+
+            popup.add (mi);
+
+            mi.setMnemonic ('E');
+            mi.setToolTipText (pref + "E");
+
+            UIUtils.addNewAssetItemsToPopupMenu (popup,
+                                                 showAt,
+                                                 this.projectViewer,
+                                                 null,
+                                                 null);
+
+        }
+
+    }
+*/
 }

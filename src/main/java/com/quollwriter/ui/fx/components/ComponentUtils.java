@@ -25,7 +25,7 @@ public class ComponentUtils
     public static void showErrorMessage (StringProperty message)
     {
 
-        // TODO 
+        // TODO
 
     }
 
@@ -344,9 +344,6 @@ public class ComponentUtils
             qp.close ();
 
         };
-
-        UIUtils.addDoOnReturnPressed (tf,
-                                      r);
 
         f.setOnConfirm (ev ->
         {

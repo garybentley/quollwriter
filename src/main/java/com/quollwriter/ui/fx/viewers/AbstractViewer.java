@@ -367,7 +367,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     {
 
         this.runCommand (command,
-                         null);
+                         (Runnable) null);
 
     }
 
@@ -395,6 +395,43 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     }
 
+    public <E> void runCommand (String   command,
+                                E...     args)
+    {
+
+        this.runCommand (command,
+                         null,
+                         args);
+
+    }
+
+    public <E> void runCommand (String   command,
+                                Runnable doAfter,
+                                E...     args)
+    {
+
+        Command c = this.actionMap.get (command);
+
+        if (c == null)
+        {
+
+            throw new IllegalArgumentException (String.format ("Command %1$s is not supported.", command));
+
+        }
+
+        if (c instanceof CommandWithArgs)
+        {
+
+            CommandWithArgs v = (CommandWithArgs) c;
+
+            // TODO Check error handling.
+            v.run (doAfter,
+                   args);
+
+        }
+
+    }
+
     protected void addActionMapping (Command command)
     {
 
@@ -417,7 +454,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     }
 
-    protected void addKeyMapping (String           command,
+    public void addKeyMapping (String           command,
                                   KeyCode           code,
                                   KeyCombination.Modifier... modifiers)
     {
@@ -428,7 +465,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     }
 
-    protected void addKeyMapping (Runnable          action,
+    public void addKeyMapping (Runnable          action,
                                   KeyCode           code,
                                   KeyCombination.Modifier... modifiers)
     {
@@ -444,9 +481,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
     {
 
         this.addKeyMapping (CommandId.debug,
-                            KeyCode.F12, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
+                            KeyCode.F12, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.debugmode,
-                            KeyCode.F1, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
+                            KeyCode.F1, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.whatsnew,
                             KeyCode.F11);
         this.addKeyMapping (CommandId.showoptions,

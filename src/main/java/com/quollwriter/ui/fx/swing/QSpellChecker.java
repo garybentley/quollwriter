@@ -47,7 +47,7 @@ public class QSpellChecker implements DocumentListener,
 
         this.text.getDocument ().addDocumentListener (this);
         this.text.addCaretListener (this);
-
+System.out.println ("HERE XXX");
         this.setDictionaryProvider (prov);
 
     }
@@ -86,27 +86,13 @@ public class QSpellChecker implements DocumentListener,
 
         }
 
-        // TODO this.checker = dp.getSpellChecker ();
+        this.checker = dp.getSpellChecker ();
 
         //this.checker = new SpellChecker ();
 
         this.dictProvider = dp;
         this.dictProvider.addDictionaryChangedListener (this);
-/*
-        List dicts = dp.getDictionaries ();
 
-        for (int i = 0; i < dicts.size (); i++)
-        {
-
-            this.checker.addDictionary ((SpellDictionaryHashMap) (dicts.get (i)));
-
-        }
-
-        this.checker.setUserDictionary (dp.getUserDictionary ());
-
-        this.dictProvider = dp;
-        this.dictProvider.addDictionaryChangedListener (this);
-*/
     }
 
     public void dictionaryChanged (DictionaryChangedEvent ev)

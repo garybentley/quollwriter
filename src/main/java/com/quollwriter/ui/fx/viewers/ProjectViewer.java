@@ -1,5 +1,7 @@
 package com.quollwriter.ui.fx.viewers;
 
+import java.awt.geom.Rectangle2D;
+
 import java.util.*;
 import java.util.function.*;
 
@@ -16,6 +18,7 @@ import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.charts.*;
 import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.ui.fx.swing.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -46,16 +49,15 @@ public class ProjectViewer extends AbstractProjectViewer
         String togglespellchecking = "togglespellchecking";
         String newchapter = "newchapter";
         String deletechapter = "deletechapter";
-        String showwordcounts = "showwordcounts";
+        String renamechapter = "renamechapter";
         String showchapterinfo = "showchapterinfo";
         String newnote = "newnote";
         String neweditneedednote = "neweditneedednote";
         String createbackup = "createbackup";
         String exportproject = "exportproject";
-        String closeproject = "closeproject";
         String deleteproject = "deleteproject";
-        String openproject = "openproject";
         String renameproject = "renameproject";
+        String viewobject = "viewchapter";
 
     }
 
@@ -85,13 +87,148 @@ public class ProjectViewer extends AbstractProjectViewer
     private void initActionMappings ()
     {
 
+        this.addActionMapping (new CommandWithArgs<Chapter> (objs ->
+        {
+
+            Chapter c = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                c = objs[0];
+
+            }
+
+            if (c == null)
+            {
+
+                throw new IllegalArgumentException ("No chapter provided.");
+
+            }
+
+            /*
+            TODO Needs more thought...
+            // See if the chapter is empty.
+            if (c.isEmpty ())
+            {
+
+                this.deleteObject (c);
+                return;
+
+            }
+            */
+
+            Chapter _c = c;
+
+            UIUtils.showDeleteObjectPopup (getUILanguageStringProperty (LanguageStrings.project,actions,deletechapter,deletetype),
+                                           c.nameProperty (),
+                                           StyleClassNames.DELETE,
+                                           getUILanguageStringProperty (LanguageStrings.project,actions,deletechapter,warning),
+                                           ev ->
+                                           {
+
+                                               this.deleteChapter (_c);
+
+                                           },
+                                           null,
+                                           this);
+
+        },
+        CommandId.deletechapter));
+
+        this.addActionMapping (new CommandWithArgs<DataObject> (objs ->
+        {
+
+            DataObject o = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                o = objs[0];
+
+            }
+
+            if (o == null)
+            {
+
+                throw new IllegalArgumentException ("No object provided.");
+
+            }
+
+            this.viewObject (o);
+
+        },
+        CommandId.viewobject));
+
+        this.addActionMapping (new CommandWithArgs (objs ->
+        {
+
+            Chapter addBelow = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                addBelow = (Chapter) objs[0];
+
+            }
+
+            this.showAddNewChapter (addBelow);
+
+        },
+        CommandId.newchapter));
+
         this.addActionMapping (() ->
         {
 
-            Environment.showAllProjectsViewer ();
+            this.showIdeaBoard ();
 
         },
-        CommandId.openproject);
+        CommandId.ideaboard);
+
+        this.addActionMapping (() ->
+        {
+
+            new ImportPopup (this).show ();
+
+        },
+        CommandId.importfile);
+
+        this.addActionMapping (() ->
+        {
+
+            new ExportProjectPopup (this).show ();
+
+        },
+        CommandId.exportproject);
+
+        this.addActionMapping (() ->
+        {
+
+            UIUtils.showDeleteProjectPopup (this.project,
+                                            null,
+                                            this);
+
+        },
+        CommandId.deleteproject);
+
+        this.addActionMapping (() ->
+        {
+
+            BackupsManager.showCreateBackup (this.project,
+                                             this.project.getFilePassword (),
+                                             this);
+
+        },
+        CommandId.createbackup);
 
         this.addActionMapping (() ->
         {
@@ -120,8 +257,7 @@ public class ProjectViewer extends AbstractProjectViewer
         },
         CommandId.togglespellchecking);
 
-        this.addActionMapping (new ProjectViewerCommand<NamedObject> (this,
-                                                                      (viewer, objs) ->
+        this.addActionMapping (new CommandWithArgs<NamedObject> (objs ->
         {
 
             if ((objs == null)
@@ -147,8 +283,7 @@ public class ProjectViewer extends AbstractProjectViewer
         },
         CommandId.print));
 
-        this.addActionMapping (new ProjectViewerCommand (this,
-                                                         (viewer, objs) ->
+        this.addActionMapping (new CommandWithArgs<Chapter> (objs ->
         {
 
             if ((objs == null)
@@ -163,60 +298,78 @@ public class ProjectViewer extends AbstractProjectViewer
 
             Chapter c = (Chapter) objs[0];
 
-            SideBar sb = viewer.getSideBarById (ChapterInformationSideBar.getSideBarIdForChapter (c));
+            this.renameChapter (c);
+
+        },
+        CommandId.renamechapter));
+
+        this.addActionMapping (new CommandWithArgs (objs ->
+        {
+
+            if ((objs == null)
+                ||
+                (objs.length == 0)
+               )
+            {
+
+                throw new IllegalArgumentException ("No chapter provided.");
+
+            }
+
+            Chapter c = (Chapter) objs[0];
+
+            SideBar sb = this.getSideBarById (ChapterInformationSideBar.getSideBarIdForChapter (c));
 
             if (sb != null)
             {
 
-                viewer.showSideBar (sb);
+                this.showSideBar (sb);
 
                 return;
 
             }
 
-            ChapterInformationSideBar csb = new ChapterInformationSideBar (viewer,
+            ChapterInformationSideBar csb = new ChapterInformationSideBar (this,
                                                                            c);
 
-            viewer.addSideBar (csb);
+            this.addSideBar (csb);
 
-            viewer.showSideBar (csb.getSideBar ());
+            this.showSideBar (csb.getSideBar ());
 
         },
         CommandId.showchapterinfo));
 
-        ProjectViewerCommand<ChapterItem> f = new ProjectViewerCommand<> (this,
-                                                                          (viewer, objs) ->
-                                                                          {
+        this.addActionMapping (new CommandWithArgs (objs ->
+        {
 
-                                                                                if ((objs == null)
-                                                                                    ||
-                                                                                    (objs.length == 0)
-                                                                                   )
-                                                                                {
+            if ((objs == null)
+                ||
+                (objs.length == 0)
+               )
+            {
 
-                                                                                    throw new IllegalArgumentException ("No chapter item provided.");
+                throw new IllegalArgumentException ("No chapter item provided.");
 
-                                                                                }
+            }
 
-                                                                                ChapterItem ci = (ChapterItem) objs[0];
+            ChapterItem ci = (ChapterItem) objs[0];
 
-                                                                                viewer.editChapter (ci.getChapter (),
-                                                                                                    () ->
-                                                                                                    {
+            this.editChapter (ci.getChapter (),
+                              () ->
+                              {
 
-                                                                                                        viewer.getEditorForChapter (ci.getChapter ()).editItem (ci);
+                                  this.getEditorForChapter (ci.getChapter ()).editItem (ci);
 
-                                                                                                   });
+                              });
 
-                                                                          },
-                                                                          CommandId.editscene,
-                                                                          CommandId.editoutlineitem);
-
-        this.addActionMapping (f);
+        },
+        CommandId.editscene,
+        CommandId.editoutlineitem));
 
     }
-
+/*
     public void runCommand (String        id,
+                            Runnable      runAfter,
                             DataObject... context)
     {
 
@@ -236,10 +389,16 @@ public class ProjectViewer extends AbstractProjectViewer
 
             pvc.run (context);
 
+            return;
+
         }
 
-    }
+        super.<DataObject>runCommand (id,
+                          runAfter,
+                          context);
 
+    }
+*/
     @Override
     public void init (State s)
                throws GeneralException
@@ -254,10 +413,18 @@ public class ProjectViewer extends AbstractProjectViewer
 
     @Override
     public void openPanelForId (String id)
-                         throws GeneralException    
+                         throws GeneralException
     {
 
         super.openPanelForId (id);
+
+        if (id.equals (IdeaBoard.PANEL_ID))
+        {
+
+            this.showIdeaBoard ();
+            return;
+
+        }
 
     }
 
@@ -592,14 +759,18 @@ public class ProjectViewer extends AbstractProjectViewer
     public void renameChapter (Chapter c)
     {
 
-        // TODO
+        QuollPopup qp = this.getPopupById (RenameChapterPopup.getPopupIdForChapter (c));
 
-    }
+        if (qp != null)
+        {
 
-    public void addNewChapterBelow (Chapter addBelow)
-    {
+            qp.toFront ();
+            return;
 
-        // TODO
+        }
+
+        new RenameChapterPopup (this,
+                                c).show ();
 
     }
 
@@ -743,9 +914,6 @@ public class ProjectViewer extends AbstractProjectViewer
 
             ProjectChapterEditorPanelContent p = new ProjectChapterEditorPanelContent (this,
                                                                                        c);
-
-            // TODO
-            p.init (null);
 
             this.addPanel (p);
 
@@ -942,10 +1110,35 @@ TODO
 
     }
 
-    @Override
-    public void showOptions (String sect)
-                      throws GeneralException
+    public void showIdeaBoard ()
     {
+
+        if (this.showPanel (IdeaBoard.PANEL_ID))
+        {
+
+            return;
+
+        }
+
+        try
+        {
+
+            IdeaBoard i = new IdeaBoard (this);
+
+            this.addPanel (i);
+            this.showPanel (i.getPanelId ());
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to view idea board",
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (ideaboard,actionerror));
+                                      //"Unable to view idea board");
+
+        }
 
     }
 
@@ -1275,6 +1468,12 @@ TODO
 
     }
 
+    /**
+     * Actually delete a chapter from the project.
+     * To get user interfaction for the delete call runCommand(CommandId.deletechapter)
+     *
+     * @param c The chapter.
+     */
     public void deleteChapter (Chapter c)
     {
 
@@ -1292,10 +1491,8 @@ TODO
 
             b.removeChapter (c);
 
-            // TODO this.refreshObjectPanels (otherObjects);
-
             // See if there is a chapter information sidebar.
-            this.removeSideBar ("chapterinfo-" + c.getKey ());
+            this.removeSideBar (ChapterInformationSideBar.getSideBarIdForChapter (c));
 
             this.fireProjectEvent (ProjectEvent.Type.chapter,
                                    ProjectEvent.Action.delete,
@@ -1316,9 +1513,6 @@ TODO
             return;
 
         }
-
-        // Inform the chapter tree about the change.
-        // TODO this.reloadTreeForObjectType (c.getObjectType ());
 
 		this.removeAllSideBarsForObject (c);
 
@@ -1349,13 +1543,6 @@ TODO
 
     }
 
-    public void addNewChapter ()
-    {
-
-        // TODO
-
-    }
-
     public void setChapterEditComplete (Chapter chapter,
                                         boolean editComplete)
     {
@@ -1364,9 +1551,8 @@ TODO
         {
 
             chapter.setEditComplete (editComplete);
-/*
-TODO
-            AbstractEditorPanel p = (AbstractEditorPanel) this.getEditorForChapter (chapter);
+
+            ProjectChapterEditorPanelContent p = (ProjectChapterEditorPanelContent) this.getEditorForChapter (chapter);
 
             int pos = 0;
 
@@ -1384,7 +1570,7 @@ TODO
             }
 
             chapter.setEditPosition (pos);
-*/
+
             this.saveObject (chapter,
                              false);
 
@@ -1403,53 +1589,74 @@ TODO
 
     public void setChapterEditPosition (Chapter chapter,
                                         int     textPos)
-                                 throws Exception
     {
-/*
-TODO
-        AbstractEditorPanel p = (AbstractEditorPanel) this.getEditorForChapter (chapter);
 
-        int l = 0;
+        final ProjectViewer _this = this;
 
-        if (p != null)
+        ProjectChapterEditorPanelContent p = (ProjectChapterEditorPanelContent) this.getEditorForChapter (chapter);
+
+        SwingUIUtils.doLater (() ->
         {
 
-            l = Utils.stripEnd (p.getEditor ().getText ()).length ();
-
-            textPos = Math.min (textPos, l);
-
-            // See if we are on the last line (it may be that the user is in the icon
-            // column).
-            Rectangle pp = p.getEditor ().modelToView (textPos);
-
-            if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
+            try
             {
 
-                if (textPos <= l)
+                int _textPos = 0;
+                int l = 0;
+
+                if (p != null)
                 {
 
-                    Rectangle ep = p.getEditor ().modelToView (l);
+                    l = Utils.stripEnd (p.getEditor ().getText ()).length ();
 
-                    chapter.setEditComplete ((ep.y == pp.y));
+                    _textPos = Math.min (textPos, l);
+
+                    // See if we are on the last line (it may be that the user is in the icon
+                    // column).
+                    Rectangle2D pp = p.getEditor ().modelToView2D (_textPos);
+
+                    if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
+                    {
+
+                        if (_textPos <= l)
+                        {
+
+                            Rectangle2D ep = p.getEditor ().modelToView2D (l);
+
+                            chapter.setEditComplete ((Math.round (ep.getY ()) == Math.round (pp.getY ())));
+
+                        }
+
+                    }
+
+                } else {
+
+                    String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
+
+                    l = Utils.stripEnd (t).length ();
 
                 }
 
+                _textPos = Math.min (_textPos, l);
+
+                chapter.setEditPosition (_textPos);
+
+                this.saveObject (chapter,
+                                 false);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set edit position for: " + chapter,
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this,
+                                                 getUILanguageStringProperty (LanguageStrings.project,editorpanel,actions,seteditposition,actionerror));
+
+                return;
+
             }
 
-        } else {
-
-            String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
-
-            l = Utils.stripEnd (t).length ();
-
-        }
-
-        textPos = Math.min (textPos, l);
-
-        chapter.setEditPosition (textPos);
-*/
-        this.saveObject (chapter,
-                         false);
+        });
 
     }
 
@@ -1478,18 +1685,13 @@ TODO
 
     }
 
-    public void viewChapterInformation (Chapter c)
+    public void showAddNewChapter (Chapter addBelow)
     {
 
-/*
-TODO
-        ChapterInformationSideBar cb = new ChapterInformationSideBar (this,
-                                                                      c);
-
-        this.addSideBar (cb);
-
-        this.showSideBar (cb.getId ());
-*/
+        new NewChapterPopup (null,
+                             this,
+                             addBelow,
+                             null).show ();
 
     }
 
@@ -1498,6 +1700,13 @@ TODO
     {
 
         return super.getState ();
+
+    }
+
+    public void showAddNewAsset (Asset a)
+    {
+
+        // TODOwwa dw
 
     }
 

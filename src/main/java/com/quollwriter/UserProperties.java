@@ -53,6 +53,7 @@ public class UserProperties
     private static Map<UserPropertyListener, Object> listeners = null;
     private static Path qwDir = null;
 
+    private static Map<String, SimpleBooleanProperty> mappedBooleanProperties = new HashMap<> ();
     private static Map<String, SimpleStringProperty> mappedProperties = new HashMap<> ();
     private static SimpleStringProperty tabsLocationProp = null;
     private static SimpleStringProperty toolbarLocationProp = null;
@@ -70,6 +71,8 @@ public class UserProperties
     private static SimpleIntegerProperty chapterAutoSaveTimeProp = null;
     private static SimpleBooleanProperty chapterAutoSaveEnabledProp = null;
     private static SimpleFloatProperty uiBaseFontSizeProp = null;
+    private static SimpleBooleanProperty showEditPositionIconInChapterListProp = null;
+    private static SimpleBooleanProperty showEditCompleteIconInChapterListProp = null;
 
     // Just used in the map above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
@@ -120,6 +123,10 @@ public class UserProperties
         });
 
         UserProperties.uiLayoutProp = UserProperties.createMappedProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+
+        UserProperties.showEditPositionIconInChapterListProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
+
+        UserProperties.showEditCompleteIconInChapterListProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
 
         UserProperties.userBGImagePaths = FXCollections.observableSet (new LinkedHashSet<> ());
 
@@ -718,6 +725,19 @@ public class UserProperties
 
     }
 
+    private static SimpleBooleanProperty createMappedBooleanProperty (String name)
+    {
+
+        boolean v = UserProperties.getAsBoolean (name);
+
+        SimpleBooleanProperty s = new SimpleBooleanProperty (v);
+        UserProperties.mappedBooleanProperties.put (name,
+                                                    s);
+
+        return s;
+
+    }
+
     public static Color getEditMarkerColor ()
     {
 
@@ -787,6 +807,50 @@ public class UserProperties
     {
 
         UserProperties.tabsLocationProp.setValue (loc);
+
+    }
+
+    public static boolean isShowEditPositionIconInChapterList ()
+    {
+
+        return UserProperties.showEditPositionIconInChapterListProp.getValue ();
+
+    }
+
+    public static void setShowEditPositionIconInChapterList (boolean v)
+    {
+
+        UserProperties.set (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME,
+                            v);
+
+    }
+
+    public static SimpleBooleanProperty showEditPositionIconInChapterListProperty ()
+    {
+
+        return UserProperties.showEditPositionIconInChapterListProp;
+
+    }
+
+    public static boolean isShowEditCompleteIconInChapterList ()
+    {
+
+        return UserProperties.showEditCompleteIconInChapterListProp.getValue ();
+
+    }
+
+    public static void setShowEditCompleteIconInChapterList (boolean v)
+    {
+
+        UserProperties.set (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME,
+                            v);
+
+    }
+
+    public static SimpleBooleanProperty showEditCompleteIconInChapterListProperty ()
+    {
+
+        return UserProperties.showEditCompleteIconInChapterListProp;
 
     }
 
@@ -910,6 +974,8 @@ public class UserProperties
 
         }
 
+        UserProperties.save ();
+
     }
 
     public static void set (String  name,
@@ -919,6 +985,22 @@ public class UserProperties
         UserProperties.set (name,
                             new BooleanProperty (name,
                                                  value));
+
+        SimpleBooleanProperty p = UserProperties.mappedBooleanProperties.get (name);
+
+        if (p == null)
+        {
+
+            p = UserProperties.createMappedBooleanProperty (name);
+
+        }
+
+        if (p != null)
+        {
+
+            p.setValue (value);
+
+        }
 
         UserProperties.save ();
 

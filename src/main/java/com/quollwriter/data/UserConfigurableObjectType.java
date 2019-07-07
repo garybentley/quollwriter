@@ -25,10 +25,10 @@ public class UserConfigurableObjectType extends NamedObject
 
     private String objectTypeNamePlural = null;
     private StringProperty objectTypeNamePluralProp = null;
-    private ImageView icon24x24 = null;
-    private ImageView icon16x16 = null;
-    private ObjectProperty<ImageView> icon16x16Prop = null;
-    private ObjectProperty<ImageView> icon24x24Prop = null;
+    private Image icon24x24 = null;
+    private Image icon16x16 = null;
+    private ObjectProperty<Image> icon16x16Prop = null;
+    private ObjectProperty<Image> icon24x24Prop = null;
     private Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
     private String layout = null;
     private String userObjectType = null;
@@ -386,9 +386,9 @@ public class UserConfigurableObjectType extends NamedObject
     public void setIcon24x24 (Image im)
     {
 
-        Image oldim = (this.icon24x24 != null ? this.icon24x24.getImage () : null);
+        Image oldim = this.icon24x24;
 
-        this.icon24x24 = new ImageView (im);
+        this.icon24x24 = im;
         this.icon24x24Prop.setValue (this.icon24x24);
 
         this.firePropertyChangedEvent (ICON24,
@@ -397,14 +397,14 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
-    public ImageView getIcon24x24 ()
+    public Image getIcon24x24 ()
     {
 
         return this.icon24x24;
 
     }
 
-    public ObjectProperty<ImageView> icon24x24Property ()
+    public ObjectProperty<Image> icon24x24Property ()
     {
 
         return this.icon24x24Prop;
@@ -414,9 +414,9 @@ public class UserConfigurableObjectType extends NamedObject
     public void setIcon16x16 (Image im)
     {
 
-        Image oldim = (this.icon16x16 != null ? this.icon16x16.getImage () : null);
+        Image oldim = this.icon16x16;
 
-        this.icon16x16 = new ImageView (im);
+        this.icon16x16 = im;
         this.icon16x16Prop.setValue (this.icon16x16);
 
         this.firePropertyChangedEvent (ICON16,
@@ -425,14 +425,14 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
-    public ImageView getIcon16x16 ()
+    public Image getIcon16x16 ()
     {
 
         return this.icon16x16;
 
     }
 
-    public ObjectProperty<ImageView> icon16x16Property ()
+    public ObjectProperty<Image> icon16x16Property ()
     {
 
         return this.icon16x16Prop;

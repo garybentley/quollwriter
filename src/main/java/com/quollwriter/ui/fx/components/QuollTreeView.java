@@ -10,6 +10,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.ui.fx.*;
 
@@ -114,11 +115,58 @@ public class QuollTreeView<T> extends Pane
 
                         c.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, true);
 
+                        UIUtils.scrollIntoView (c,
+                                                VPos.CENTER);
+
                     }
 
                 }
 
             });
+
+    }
+
+    public void expandPathToRoot (TreeItem<T> item)
+    {
+
+        TreeItem<T> p = item.getParent ();
+
+        if (p == null)
+        {
+
+            return;
+
+        }
+
+        p.setExpanded (true);
+
+        this.expandPathToRoot (p);
+
+    }
+
+    public void walkTree (Consumer<TreeItem<T>> processor)
+    {
+
+        if (this.root == null)
+        {
+
+            return;
+
+        }
+
+        this.walkTree (this.root,
+                       processor);
+
+    }
+
+    public void walkTree (TreeItem<T>           item,
+                          Consumer<TreeItem<T>> processor)
+    {
+
+        processor.accept (item);
+
+        item.getChildren ().stream ()
+            .forEach (i -> this.walkTree (i, processor));
 
     }
 
@@ -173,21 +221,7 @@ public class QuollTreeView<T> extends Pane
         } else {
 
             this.root.setExpanded (true);
-/*
-            this.root.getChildren ().stream ()
-                .forEach (ti ->
-                {
 
-                    QuollTreeCell c = new QuollTreeCell (ti,
-                                                         this.cellProvider.apply (ti));
-
-                    this.cells.put (ti,
-                                    c);
-
-                    this.getChildren ().add (c);
-
-                });
-*/
         }
 
         // Walk the tree and add any expanded cells.
@@ -197,12 +231,38 @@ public class QuollTreeView<T> extends Pane
         ev ->
         {
 
-            // Remove any removed cells.
-            for (TreeItem<T> ti : ev.getRemovedChildren ())
+            if (ev.wasRemoved ())
             {
 
-                this.getChildren ().remove (this.cells.remove (ti));
+                // Remove any removed cells.
+                for (TreeItem<T> ti : ev.getRemovedChildren ())
+                {
 
+                    this.removeBranch (ti);
+
+                }
+
+                return;
+
+            }
+
+            if (ev.wasAdded ())
+            {
+
+                for (TreeItem<T> ti : ev.getAddedChildren ())
+                {
+
+                    QuollTreeCell c = new QuollTreeCell (ti,
+                                           this.cellProvider.apply (ti));
+
+                    this.cells.put (ti,
+                                    c);
+
+                    this.getChildren ().add (c);
+
+                }
+
+                return;
 
             }
 
@@ -225,35 +285,27 @@ public class QuollTreeView<T> extends Pane
             } else {
 
                 this.createExpandedCells (ev.getTreeItem ());
-/*
-                for (TreeItem<T> c : ev.getTreeItem ().getChildren ())
-                {
 
-                    QuollTreeCell qc = this.cells.get (c);
-
-                    if (qc == null)
-                    {
-
-                        qc = new QuollTreeCell (c, this.cellProvider.apply (c));
-                        qc.managedProperty ().bind (qc.visibleProperty ());
-
-                        this.cells.put (c, qc);
-                        this.getChildren ().add (qc);
-
-                    } else {
-
-                        qc.setVisible (true);
-
-                    }
-
-                }
-*/
             }
 
             // Do a layout pass.
             this.requestLayout ();
 
         });
+
+    }
+
+    private void removeBranch (TreeItem<T> ti)
+    {
+
+        this.getChildren ().remove (this.cells.remove (ti));
+
+        for (TreeItem<T> ci : ti.getChildren ())
+        {
+
+            this.removeBranch (ci);
+
+        }
 
     }
 
@@ -607,6 +659,16 @@ public class QuollTreeView<T> extends Pane
                 {
 
                     cbti.setSelected (cb.isSelected ());
+
+                    this.requestLayout ();
+
+                });
+
+                content.addEventHandler (MouseEvent.MOUSE_CLICKED,
+                                         ev ->
+                {
+
+                    cbti.setSelected (!cbti.isSelected ());
 
                     this.requestLayout ();
 

@@ -635,7 +635,7 @@ public class Project extends NamedObject
 
             ChapterCounts allc = new ChapterCounts (buf.toString ());
 
-            return allc.wordCount;
+            return allc.getWordCount ();
 
         }
 

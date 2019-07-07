@@ -34,6 +34,7 @@ import com.gentlyweb.utils.*;
 import com.quollwriter.*;
 import com.quollwriter.db.*;
 import com.quollwriter.text.*;
+import com.quollwriter.data.comparators.*;
 import com.quollwriter.data.ChapterCounts;
 import com.quollwriter.data.ReadabilityIndices;
 import com.quollwriter.data.Prompt;
@@ -44,6 +45,11 @@ import com.quollwriter.data.Chapter;
 import com.quollwriter.data.Tag;
 import com.quollwriter.data.NamedObject;
 import com.quollwriter.data.UserConfigurableObjectType;
+import com.quollwriter.data.Note;
+import com.quollwriter.data.BlankNamedObject;
+import com.quollwriter.data.Book;
+import com.quollwriter.data.ChapterItem;
+import com.quollwriter.data.Asset;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
@@ -106,7 +112,7 @@ public class UIUtils
     {
 
         // TODO
-        return 0;
+        return -1;
 
     }
 
@@ -703,6 +709,28 @@ public class UIUtils
 
     }
 
+    public static void addDoOnReturnPressed (TextArea f,
+                                             Runnable r)
+    {
+
+        f.addEventHandler (KeyEvent.KEY_PRESSED,
+                           ev ->
+        {
+
+            if ((ev.getCode () == KeyCode.ENTER)
+                &&
+                (ev.isShortcutDown ())
+               )
+            {
+
+                r.run ();
+
+            }
+
+        });
+
+    }
+
     public static void scrollIntoView (Node node,
                                        VPos pos)
     {
@@ -780,6 +808,13 @@ public class UIUtils
         {
 
             return;
+
+        }
+
+        if (pos == null)
+        {
+
+            pos = VPos.CENTER;
 
         }
 
@@ -1171,6 +1206,26 @@ public class UIUtils
 
     }
 
+    public static void showDeleteProjectPopup (Project        proj,
+                                               Runnable       onDelete,
+                                               AbstractViewer viewer)
+    {
+
+        ProjectInfo pi = Environment.getProjectInfo (proj);
+
+        if (pi == null)
+        {
+
+            throw new IllegalArgumentException ("Unable to find project info for project: " + proj);
+
+        }
+
+        UIUtils.showDeleteProjectPopup (pi,
+                                        onDelete,
+                                        viewer);
+
+    }
+
     public static void showDeleteProjectPopup (ProjectInfo    proj,
                                                Runnable       onDelete,
                                                AbstractViewer viewer)
@@ -1183,7 +1238,7 @@ public class UIUtils
 
         UIUtils.showDeleteObjectPopup (getUILanguageStringProperty (project,actions,deleteproject,deletetype),
                                        proj.nameProperty (),
-                                       StyleClassNames.PROJECT,
+                                       StyleClassNames.DELETE,
                                        warning,
                                        ev ->
                                        {
@@ -1773,7 +1828,7 @@ public class UIUtils
                                           Constants.WORDS_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,words),
                                                         //"%s words",
-                                                         Environment.formatNumber (cc.wordCount)));
+                                                         Environment.formatNumber (cc.getWordCount ())));
 
         text = StringUtils.replaceString (text,
                                           Constants.LAST_EDITED_TAG,
@@ -1801,7 +1856,7 @@ public class UIUtils
                 ChapterCounts ecc = new ChapterCounts (chapText.substring (0,
                                                                            ep));
 
-                ep = Utils.getPercent (ecc.wordCount, cc.wordCount);
+                ep = Utils.getPercent (ecc.getWordCount (), cc.getWordCount ());
 
             }
 
@@ -1858,7 +1913,7 @@ public class UIUtils
         String RE = na; //"N/A";
         String GF = na; //"N/A";
 
-        if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
+        if (cc.getWordCount () > Constants.MIN_READABILITY_WORD_COUNT)
         {
 
             GL = Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ()));
@@ -2458,7 +2513,10 @@ TODO
                 })
                 .build ();
 
-            i.setGraphic (type.getIcon16x16 ());
+            ImageView iv = new ImageView ();
+            iv.imageProperty ().bind (type.icon16x16Property ());
+
+            i.setGraphic (iv);
 
             ret.add (i);
 
@@ -2477,6 +2535,449 @@ TODO
         }
 
         return ret;
+
+    }
+
+    public static void createSelectableTree (TreeItem         root,
+                                             Chapter          chap,
+                                             Set<NamedObject> selected,
+                                             Set<NamedObject> exclude)
+    {
+
+        if (exclude.contains (chap))
+        {
+
+            return;
+
+        }
+
+        CheckBoxTreeItem<NamedObject> ci = new CheckBoxTreeItem<> (chap);
+        ci.setSelected ((selected == null ? false : selected.contains (chap)));
+        ci.setIndependent (true);
+
+        root.getChildren ().add (ci);
+
+        root = ci;
+
+        List<ChapterItem> items = new ArrayList<> (chap.getScenes ());
+
+        items.addAll (chap.getOutlineItems ());
+
+        Collections.sort (items,
+                          new ChapterItemSorter ());
+
+        root.getChildren ().addAll (items.stream ()
+            .filter (i -> (exclude == null ? true : !exclude.contains (i)))
+            .map (chi ->
+            {
+
+                CheckBoxTreeItem<NamedObject> cii = new CheckBoxTreeItem<> (chi);
+                cii.setIndependent (true);
+                cii.setSelected ((selected == null ? false : selected.contains (chi)));
+
+                if (chi instanceof com.quollwriter.data.Scene)
+                {
+
+                    com.quollwriter.data.Scene s = (com.quollwriter.data.Scene) chi;
+
+                    cii.getChildren ().addAll (s.getOutlineItems ().stream ()
+                        .filter (i -> !exclude.contains (i))
+                        .map (oitem ->
+                        {
+
+                            CheckBoxTreeItem<NamedObject> oii = new CheckBoxTreeItem<> (oitem);
+                            oii.setIndependent (true);
+                            oii.setSelected ((selected == null ? false : selected.contains (oitem)));
+
+                            return oii;
+
+                        })
+                        .collect (Collectors.toList ()));
+
+                }
+
+                return cii;
+
+            })
+            .collect (Collectors.toList ()));
+
+    }
+
+    public static TreeItem<NamedObject> createTree (Chapter          chap,
+                                                    Set<NamedObject> include)
+    {
+
+        if ((include != null)
+            &&
+            (!include.contains (chap))
+           )
+        {
+
+            return null;
+
+        }
+
+        TreeItem<NamedObject> ci = new TreeItem<> (chap);
+
+        List<ChapterItem> items = new ArrayList<> (chap.getScenes ());
+
+        items.addAll (chap.getOutlineItems ());
+
+        Collections.sort (items,
+                          new ChapterItemSorter ());
+
+        ci.getChildren ().addAll (items.stream ()
+            .filter (i -> (include == null ? true : include.contains (i)))
+            .map (chi ->
+            {
+
+                TreeItem<NamedObject> cii = new TreeItem<> (chi);
+
+                if (chi instanceof com.quollwriter.data.Scene)
+                {
+
+                    com.quollwriter.data.Scene s = (com.quollwriter.data.Scene) chi;
+
+                    cii.getChildren ().addAll (s.getOutlineItems ().stream ()
+                        .filter (i -> (include == null ? true : include.contains (i)))
+                        .map (oitem ->
+                        {
+
+                            TreeItem<NamedObject> oii = new TreeItem<> (oitem);
+
+                            return oii;
+
+                        })
+                        .collect (Collectors.toList ()));
+
+                }
+
+                return cii;
+
+            })
+            .collect (Collectors.toList ()));
+
+        return ci;
+
+    }
+
+    public static void createChaptersSelectableTree (TreeItem         root,
+                                                     Project          proj,
+                                                     Set<NamedObject> selected,
+                                                     Set<NamedObject> exclude)
+    {
+
+        BlankNamedObject bdo = new BlankNamedObject (Chapter.OBJECT_TYPE);
+        bdo.nameProperty ().bind (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+
+        TreeItem<NamedObject> croot = new TreeItem<> (bdo);
+        root.getChildren ().add (croot);
+
+        proj.getBooks ().get (0).getChapters ().stream ()
+            .filter (c -> (exclude == null ? true : !exclude.contains (c)))
+            .forEach (c ->
+            {
+
+                UIUtils.createSelectableTree (croot,
+                                              c,
+                                              selected,
+                                              exclude);
+
+            });
+
+    }
+
+    public static void createChaptersTree (TreeItem         root,
+                                           Project          proj,
+                                           Set<NamedObject> include)
+    {
+
+        List<TreeItem<NamedObject>> its = proj.getBooks ().get (0).getChapters ().stream ()
+            .filter (c -> (include == null ? true : include.contains (c)))
+            .map (c ->
+            {
+
+                return UIUtils.createTree (c,
+                                           include);
+
+            })
+            .filter (ti -> ti != null)
+            .collect (Collectors.toList ());
+
+        if (its.size () > 0)
+        {
+
+            BlankNamedObject bdo = new BlankNamedObject (Chapter.OBJECT_TYPE);
+            bdo.nameProperty ().bind (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+
+            TreeItem<NamedObject> croot = new TreeItem<> (bdo);
+            root.getChildren ().add (croot);
+
+            croot.getChildren ().addAll (its);
+
+        }
+
+    }
+
+    public static void createAssetsSelectableTree (TreeItem         root,
+                                                   UserConfigurableObjectType type,
+                                                   Set<Asset>       assets,
+                                                   Set<NamedObject> selected,
+                                                   Set<NamedObject> exclude)
+    {
+
+        if ((assets == null)
+            ||
+            (assets.size () == 0)
+           )
+        {
+
+            return;
+
+        }
+
+        List<TreeItem<NamedObject>> its = assets.stream ()
+            .filter (a -> (exclude == null ? true : !exclude.contains (a)))
+            .map (a ->
+            {
+
+                CheckBoxTreeItem<NamedObject> ci = new CheckBoxTreeItem<> (a);
+                ci.setSelected ((selected == null ? false : selected.contains (a)));
+                return ci;
+
+            })
+            .collect (Collectors.toList ());
+
+        if (its.size () > 0)
+        {
+
+            TreeItem<NamedObject> nroot = new TreeItem<> (type);
+            root.getChildren ().add (nroot);
+
+            nroot.getChildren ().addAll (its);
+
+        }
+
+    }
+
+    public static void createAssetsTree (TreeItem                   root,
+                                         UserConfigurableObjectType type,
+                                         Set<Asset>                 assets,
+                                         Set<NamedObject>           include)
+    {
+
+        if ((assets == null)
+            ||
+            (assets.size () == 0)
+           )
+        {
+
+            return;
+
+        }
+
+        List<TreeItem<NamedObject>> its = assets.stream ()
+            .filter (a -> (include == null ? true : include.contains (a)))
+            .map (a ->
+            {
+
+                TreeItem<NamedObject> ci = new TreeItem<> (a);
+                return ci;
+
+            })
+            .collect (Collectors.toList ());
+
+        if (its.size () > 0)
+        {
+
+            TreeItem<NamedObject> nroot = new TreeItem<> (type);
+
+            root.getChildren ().add (nroot);
+
+            nroot.getChildren ().addAll (its);
+
+        }
+
+    }
+
+    public static void createNotesSelectableTree (TreeItem         root,
+                                                  Project          proj,
+                                                  Set<NamedObject> selected,
+                                                  Set<NamedObject> exclude)
+    {
+
+        Map<String, Set<Note>> allNotes = new TreeMap<> ();
+
+        for (Book b : proj.getBooks ())
+        {
+
+            for (Chapter c : b.getChapters ())
+            {
+
+                for (Note n : c.getNotes ())
+                {
+
+                    String t = n.getType ();
+
+                    Set<Note> l = allNotes.get (t);
+
+                    if (l == null)
+                    {
+
+                        l = new TreeSet (new ChapterItemSorter ());
+
+                        allNotes.put (t,
+                                      l);
+
+                    }
+
+                    l.add (n);
+
+                }
+
+            }
+
+        }
+
+        root.getChildren ().addAll (allNotes.keySet ().stream ()
+            .map (t ->
+            {
+
+                BlankNamedObject bdo = new BlankNamedObject (Note.OBJECT_TYPE,
+                                                             t);
+
+                TreeItem<NamedObject> nroot = new TreeItem<> (bdo);
+
+                nroot.getChildren ().addAll (allNotes.get (t).stream ()
+                    .filter (n -> (exclude == null ? true : !exclude.contains (n)))
+                    .map (n ->
+                    {
+
+                        CheckBoxTreeItem<NamedObject> ni = new CheckBoxTreeItem<> (n);
+                        ni.setSelected (selected.contains (n));
+                        return ni;
+
+                    })
+                    .collect (Collectors.toList ()));
+
+                return nroot;
+
+            })
+            .collect (Collectors.toList ()));
+
+    }
+
+    public static void createNotesTree (TreeItem         root,
+                                        Project          proj,
+                                        Set<NamedObject> limitTo)
+    {
+
+        Map<String, Set<Note>> allNotes = new TreeMap<> ();
+
+        for (Book b : proj.getBooks ())
+        {
+
+            for (Chapter c : b.getChapters ())
+            {
+
+                for (Note n : c.getNotes ())
+                {
+
+                    String t = n.getType ();
+
+                    Set<Note> l = allNotes.get (t);
+
+                    if (l == null)
+                    {
+
+                        l = new TreeSet (new ChapterItemSorter ());
+
+                        allNotes.put (t,
+                                      l);
+
+                    }
+
+                    l.add (n);
+
+                }
+
+            }
+
+        }
+
+        root.getChildren ().addAll (allNotes.keySet ().stream ()
+            .map (t ->
+            {
+
+                List<TreeItem<NamedObject>> its = allNotes.get (t).stream ()
+                    .filter (n -> (limitTo == null ? true : limitTo.contains (n)))
+                    .map (n ->
+                    {
+
+                        TreeItem<NamedObject> ni = new TreeItem<> (n);
+                        return ni;
+
+                    })
+                    .collect (Collectors.toList ());
+
+                if (its.size () > 0)
+                {
+
+                    BlankNamedObject bdo = new BlankNamedObject (Note.OBJECT_TYPE,
+                                                                 t);
+
+                    TreeItem<NamedObject> nroot = new TreeItem<> (bdo);
+
+                    nroot.getChildren ().addAll (its);
+
+                    return nroot;
+
+                }
+
+                return null;
+
+            })
+            .filter (ti -> ti != null)
+            .collect (Collectors.toList ()));
+
+    }
+
+    public static CustomMenuItem createCompressedMenuItem (StringProperty title,
+                                                           List<Node>...  rows)
+    {
+
+        HBox _row = new HBox ();
+        _row.getChildren ().add (QuollLabel.builder ()
+            .label (title)
+            .styleClassName (StyleClassNames.COMPRESSEDMENUTITLE)
+            .build ());
+
+        CustomMenuItem mi = new CustomMenuItem (_row);
+        mi.getStyleClass ().add ("compressedmenu");
+
+        VBox chItemRows = new VBox ();
+        _row.getChildren ().add (chItemRows);
+
+        for (List<Node> r : rows)
+        {
+
+            ToolBar tb = new ToolBar ();
+            tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
+
+            tb.getItems ().addAll (r);
+
+            chItemRows.getChildren ().add (tb);
+
+        }
+
+        return mi;
+
+    }
+
+    public static boolean clipboardHasContent ()
+    {
+
+        return Clipboard.getSystemClipboard ().hasString ();
 
     }
 

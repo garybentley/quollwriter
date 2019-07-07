@@ -1711,12 +1711,12 @@ TODO
 
                     if ((maxChapWC > 0)
                         &&
-                        (cc.wordCount > maxChapWC)
+                        (cc.getWordCount () > maxChapWC)
                        )
                     {
 
                         t = String.format (", %s",
-                                           Environment.formatNumber (cc.wordCount - maxChapWC));
+                                           Environment.formatNumber (cc.getWordCount () - maxChapWC));
 
                     }
 
@@ -1727,7 +1727,7 @@ TODO
 
                     pl = LanguageStrings.words;
 
-                    if (cc.wordCount == 1)
+                    if (cc.getWordCount () == 1)
                     {
 
                         pl = LanguageStrings.word;
@@ -1735,7 +1735,7 @@ TODO
                     }
 
                     chapWords.setText (String.format ("%s %s%s",
-                                                      Environment.formatNumber (cc.wordCount),
+                                                      Environment.formatNumber (cc.getWordCount ()),
                                                       Environment.getUIString (prefix,
                                                                                pl),
                                                       t));

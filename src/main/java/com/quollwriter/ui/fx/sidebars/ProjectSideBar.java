@@ -398,7 +398,7 @@ TODO Needed?
 
                 QuollMenuItem mi = QuollMenuItem.builder ()
                     .label (mName)
-                    //.styleClassName (style)
+                    .styleClassName ((style != null ? style : sect))
                     .onAction (ev ->
                     {
 
@@ -632,8 +632,27 @@ TODO Needed?
 
                     Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
 
-                    return _this.getHeaderContextMenuItemSupplier (objType,
-                                                                   items);
+                    return () ->
+                    {
+
+                        Set<MenuItem> items2 = new LinkedHashSet<> (items);
+
+                        items2.add (_this.getHideSectionMenuItem (Chapter.OBJECT_TYPE));
+
+                        Set<MenuItem> its = _this.getAddSectionMenu (Chapter.OBJECT_TYPE);
+
+                        if (its.size () > 0)
+                        {
+
+                            items2.add (new SeparatorMenuItem ());
+
+                        }
+
+                        items2.addAll (its);
+
+                        return items2;
+
+                    };
 
                 }
 
@@ -1107,7 +1126,10 @@ TODO
             if (t != null)
             {
 
-                return t.getIcon16x16 ();
+                ImageView iv = new ImageView ();
+                iv.imageProperty ().bind (t.icon16x16Property ());
+
+                return iv;
 
             }
 
@@ -1116,7 +1138,9 @@ TODO
         if (this.legacyAssetObjTypes.contains (objType))
         {
 
-            return Environment.getUserConfigurableObjectType (objType).getIcon16x16 ();
+            ImageView iv = new ImageView ();
+            iv.imageProperty ().bind (Environment.getUserConfigurableObjectType (objType).icon16x16Property ());
+            return iv;
 
         }
 

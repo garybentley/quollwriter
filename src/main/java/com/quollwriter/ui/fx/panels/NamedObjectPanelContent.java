@@ -35,7 +35,7 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
 
     }
 
-    public void setHasUnsavedChanged (boolean v)
+    public void setHasUnsavedChanges (boolean v)
     {
 
         this.unsavedChanges = v;
@@ -64,7 +64,7 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
         this.viewer.saveObject (this.object,
                                 true);
 
-        this.setHasUnsavedChanged (false);
+        this.setHasUnsavedChanges (false);
 
         // Fire an event to interested parties.
         this.fireEvent (new Panel.PanelEvent (this.getPanel (),

@@ -136,6 +136,39 @@ public class Form extends VBox
                 }
 
                 Node c = i.control;
+
+                if (c instanceof TextField)
+                {
+
+                    TextField tf = (TextField) c;
+
+                    UIUtils.addDoOnReturnPressed (tf,
+                                                  () ->
+                    {
+
+                        this.fireEvent (new FormEvent (this,
+                                                       FormEvent.CONFIRM_EVENT));
+
+                    });
+
+                }
+
+                if (c instanceof TextArea)
+                {
+
+                    TextArea tf = (TextArea) c;
+
+                    UIUtils.addDoOnReturnPressed (tf,
+                                                  () ->
+                    {
+
+                        this.fireEvent (new FormEvent (this,
+                                                       FormEvent.CONFIRM_EVENT));
+
+                    });
+
+                }
+
                 VBox cb = new VBox ();
                 cb.getChildren ().add (c);
                 cb.setFillWidth (true);

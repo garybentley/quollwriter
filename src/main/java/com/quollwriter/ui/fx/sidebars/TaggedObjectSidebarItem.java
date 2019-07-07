@@ -76,7 +76,10 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
                     .label (n.nameProperty ())
                     .build ();
 
-                l.graphicProperty ().bind (uc.icon16x16Property ());
+                ImageView iv = new ImageView ();
+                iv.imageProperty ().bind (uc.icon16x16Property ());
+
+                l.setGraphic (iv);
 
             } else {
 

@@ -2,6 +2,7 @@ package com.quollwriter.ui.fx.sidebars;
 
 import java.util.*;
 
+import javafx.beans.binding.*;
 import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -14,6 +15,7 @@ import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.charts.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -122,26 +124,29 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
             .onAction (ev ->
             {
 
-                /*
-                TODO
                 try
                 {
 
-                    _this.viewer.showChart (SessionWordCountChart.CHART_TYPE);
+                    viewer.runCommand (AbstractViewer.CommandId.charts,
+                                       null,
+                                       SessionWordCountChart.CHART_TYPE);
 
                 } catch (Exception e) {
 
                     Environment.logError ("Unable to show session word counts",
                                           e);
 
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              getUIString (charts,view,actionerror));
+                    ComponentUtils.showErrorMessage (viewer,
+                                                     getUILanguageStringProperty (charts,view,actionerror));
                                               //"Unable to show chart.");
 
                 }
-                */
+
             })
             .build ();
+
+        VBox content = new VBox ();
+        this.getChildren ().add (content);
 
         VBox wb = new VBox ();
 
@@ -153,7 +158,7 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
             .openContent (wb)
             .build ();
 
-        this.getChildren ().add (my);
+        content.getChildren ().add (my);
 
         if (this.viewer instanceof AbstractProjectViewer)
         {
@@ -170,6 +175,7 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
             chapterS.valueProperty ().addListener ((p, oldv, newv) ->
             {
 
+                // TODO Make a property.
                 projTargets.setMaxChapterCount (newv);
 
                 pv.saveProjectTargets ();
@@ -197,16 +203,25 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
 
             QuollHyperlink chsOver = QuollHyperlink.builder ()
                 .styleClassName (StyleClassNames.WARNING)
+                .label (getUILanguageStringProperty (Arrays.asList (project,LanguageStrings.sidebar,targets,labels,chaptersovermaxtarget),
+                                                     Environment.formatNumber (pv.getChaptersOverWordTarget ().size ())))
                 .onAction (ev ->
                 {
 
-                    this.showChaptersOverWordTarget ();
+                    pv.runCommand (AbstractProjectViewer.CommandId.chaptersoverwordcounttarget);
 
                 })
                 .build ();
 
             chsOver.managedProperty ().bind (chsOver.visibleProperty ());
-            chsOver.setVisible (false);
+            chsOver.setVisible (pv.getChaptersOverWordTarget ().size () > 0);
+            chsOver.visibleProperty ().bind (Bindings.createBooleanBinding (() ->
+            {
+
+                return pv.getChaptersOverWordTarget ().size () > 0;
+
+            },
+            pv.chaptersOverWordCountTargetProperty ()));
 
             chapterS.valueProperty ().addListener ((p, oldv, newv) ->
             {
@@ -232,24 +247,24 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
                 .onAction (ev ->
                 {
 
-                    /*
-                    TODO
                     try
                     {
-
-                        _this.viewer.showChart (PerChapterWordCountsChart.CHART_TYPE);
-
+/*
+TODO
+                        pv.runCommand (AbstractViewer.CommandId.charts,
+                                       PerChapterWordCountsChart.CHART_TYPE);
+*/
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to show per chapter word counts",
                                               e);
 
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  getUIString (charts,actionerror));
+                        ComponentUtils.showErrorMessage (pv,
+                                                         getUILanguageStringProperty (charts,actionerror));
                                                   //"Unable to show chart.")
 
                     }
-                    */
+
                 })
                 .build ();
 
@@ -259,11 +274,11 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
 
             AccordionItem chs = AccordionItem.builder ()
                 .title (project,LanguageStrings.sidebar,targets,sectiontitles,chapterwordcount)
-                .styleClassName (StyleClassNames.CHAPTERS)
+                .styleClassName (StyleClassNames.CHAPTER)
                 .openContent (chsb)
                 .build ();
 
-            this.getChildren ().add (chs);
+            content.getChildren ().add (chs);
 
             QuollSpinner fkS = QuollSpinner.builder ()
                 .initialValue (projTargets.getReadabilityFK ())
@@ -293,6 +308,18 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
 
             });
 
+            QuollHyperlink rOver = QuollHyperlink.builder ()
+                .styleClassName (StyleClassNames.WARNING)
+                .label (getUILanguageStringProperty (Arrays.asList (project,LanguageStrings.sidebar,targets,labels,chaptersoverreadabilitytarget),
+                                                     Environment.formatNumber (pv.getChaptersOverReadabilityTarget ().size ())))
+                .onAction (ev ->
+                {
+
+                    pv.runCommand (AbstractProjectViewer.CommandId.chaptersoverreadabilitytarget);
+
+                })
+                .build ();
+
             f = Form.builder ()
                 .layoutType (Form.LayoutType.column)
                 .item (getUILanguageStringProperty (Utils.newList (prefix,fk)),
@@ -301,18 +328,8 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
                        gfS)
                 .build ();
 
-            QuollHyperlink rOver = QuollHyperlink.builder ()
-                .styleClassName (StyleClassNames.WARNING)
-                .onAction (ev ->
-                {
-
-                    this.showChaptersOverReadabilityTarget ();
-
-                })
-                .build ();
-
-            rOver.managedProperty ().bind (chsOver.visibleProperty ());
-            rOver.setVisible (false);
+            rOver.managedProperty ().bind (rOver.visibleProperty ());
+            rOver.setVisible (pv.getChaptersOverReadabilityTarget ().size () > 0);
 
             fkS.valueProperty ().addListener ((p, oldv, newv) ->
             {
@@ -360,24 +377,26 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
                 .onAction (ev ->
                 {
 
-                    /*
-                    TODO
                     try
                     {
 
-                        _this.viewer.showChart (ReadabilityIndicesChart.CHART_TYPE);
-
+                        // TODO
+                        /*
+                        pv.runCommand (AbstractViewer.CommandId.charts,
+                                       null,
+                                       ReadabilityIndicesChart.CHART_TYPE);
+*/
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to show per chapter word counts",
                                               e);
 
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  getUIString (charts,actionerror));
+                        ComponentUtils.showErrorMessage (pv,
+                                                         getUILanguageStringProperty (charts,actionerror));
                                                   //"Unable to show chart.")
 
                     }
-                    */
+
                 })
                 .build ();
 
@@ -391,12 +410,13 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
                 .openContent (rsb)
                 .build ();
 
-            this.getChildren ().add (rs);
+            content.getChildren ().add (rs);
 
         }
 
     }
 
+/*
     public void showChaptersOverReadabilityTarget ()
     {
 
@@ -564,7 +584,8 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
                                                     buttons);
 
     }
-
+/*
+/*
     public void showChaptersOverWordTarget ()
     {
 
@@ -708,7 +729,7 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
                                                     buttons);
 
     }
-
+*/
     private Node createWordsSpinnerLine (Spinner s)
     {
 

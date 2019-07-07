@@ -369,12 +369,12 @@ _this.showPreview ();
             {
 
                 @Override
-                public SpellChecker getSpellChecker ()
+                public com.quollwriter.ui.fx.SpellChecker getSpellChecker ()
                 {
 
-                    final SpellChecker sp = super.getSpellChecker ();
+                    final com.quollwriter.ui.fx.SpellChecker sp = super.getSpellChecker ();
 
-                    return new SpellChecker ()
+                    return new com.quollwriter.ui.fx.SpellChecker ()
                     {
 
                         @Override

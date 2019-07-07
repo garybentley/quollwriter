@@ -3024,8 +3024,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                     try
                     {
 
-                        cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                                 t);
+                        cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                                   t));
 
                     } catch (Exception e) {
 
@@ -3432,7 +3432,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 							final Chapter _c = c;
 
-							if (cc.wordCount > wc)
+							if (cc.getWordCount () > wc)
 							{
 
 								if (!_this.chapterWordCountTargetWarned.containsKey (c))
@@ -5997,6 +5997,8 @@ TODO
                     throws GeneralException
     {
 
+/*
+TODO
         // Do it here to get all the links that may be removed.
         java.util.Set<NamedObject> otherObjects = o.getOtherObjectsInLinks ();
 
@@ -6007,7 +6009,7 @@ TODO
         otherObjects.addAll (o.getOtherObjectsInLinks ());
 
         this.refreshObjectPanels (otherObjects);
-
+*/
     }
 
     public void saveObject (NamedObject o,
@@ -6297,7 +6299,7 @@ TODO
         if (_cc != null)
         {
 
-            cc.standardPageCount = _cc.standardPageCount;
+            cc.setStandardPageCount (_cc.getStandardPageCount ());
 
         }
 
@@ -6325,8 +6327,8 @@ TODO
                 try
                 {
 
-                    cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                             t);
+                    cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                               t));
 
                 } catch (Exception e) {
 
@@ -6582,7 +6584,7 @@ TODO
 	public int getSessionWordCount ()
 	{
 
-		return this.getAllChapterCounts ().wordCount - this.startWordCounts.wordCount;
+		return this.getAllChapterCounts ().getWordCount () - this.startWordCounts.getWordCount ();
 
 	}
 
@@ -7260,7 +7262,7 @@ TODO
 
                     ChapterCounts cc = this.getChapterCounts (c);
 
-                    if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                    if (cc.getWordCount () < Constants.MIN_READABILITY_WORD_COUNT)
                     {
 
                         continue;
@@ -7332,7 +7334,7 @@ TODO
 
                     ChapterCounts count = this.getChapterCounts (c);
 
-                    if (count.wordCount > tcc)
+                    if (count.getWordCount () > tcc)
                     {
 
                         chaps.add (c);
@@ -7499,7 +7501,7 @@ TODO
             if (dp != null)
             {
 
-                SpellChecker sc = dp.getSpellChecker ();
+                com.quollwriter.ui.fx.SpellChecker sc = dp.getSpellChecker ();
 
                 if (sc != null)
                 {

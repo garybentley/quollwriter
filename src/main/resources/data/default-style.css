@@ -107,9 +107,19 @@
 .hyperlink
 {
     -fx-text-fill: blue;
-    -fx-graphic-text-gap: 0;
+    -fx-graphic-text-gap: 0.25em;
     -fx-padding: 0;
     -fx-underline: false;
+}
+
+.hyperlink.warning
+{
+    -fx-graphic: url(/imgs/warning16.png);
+}
+
+.hyperlink.linkedto
+{
+    -fx-graphic: url(/imgs/link16.png);
 }
 
 .hyperlink:hover
@@ -759,50 +769,67 @@
 
 /*
  Icons for menu items.
+ The > * > for menu-items is deliberate and used to prevent cascade issues for submenus.
  */
-.menu-item.chapter .image-view
+.menu-item.chapter .image-view,
+.button.chapter
 {
      -fx-image: url(/imgs/chapter16.png);
+     -fx-graphic: url(/imgs/chapter16.png);
 }
-.menu-item.scene .image-view
+.menu-item.scene .image-view,
+.button.scene
 {
     -fx-image: url(/imgs/scene16.png);
+    -fx-graphic: url(/imgs/scene16.png);
 }
-.menu-item.outlineitem .image-view
+.menu-item.outlineitem .image-view,
+.button.outlineitem
 {
     -fx-image: url(/imgs/outlineitem16.png);
+    -fx-graphic: url(/imgs/outlineitem16.png);
 }
-.menu-item.note .image-view
-{
-    -fx-image: url(/imgs/note16.png);
-}
-.menu-item.editneedednote .image-view
+.menu-item.editneedednote .image-view,
+.button.editneedednote
 {
     -fx-image: url(/imgs/edit-needed-note16.png);
+    -fx-graphic: url(/imgs/edit-needed-note16.png);
+}
+
+.menu-item.note .image-view,
+.menu-item.note .image-view.note,
+.button.note
+{
+    -fx-image: url(/imgs/note16.png);
+    -fx-graphic: url(/imgs/note16.png);
 }
 
 .menu-item.add .image-view,
-.menu-item.new .image-view,
+.menu-item.new > * > .image-view,
 .menu-item.newstatus .image-view
 {
     -fx-image: url(/imgs/add16.png);
 }
 .menu-item.cancel .image-view,
 .menu-item.novalue .image-view,
-.menu-item.removeeditposition .image-view
+.menu-item.removeeditposition .image-view,
+.button.removeeditposition
 {
+    -fx-graphic: url(/imgs/cancel16.png);
     -fx-image: url(/imgs/cancel16.png);
 }
-.menu-item.noimage .image-view
+.menu-item.noimage > .image-view
 {
     -fx-image: url(/imgs/16x16-transparent.png);
 }
 .menu-item.mangaestatuses .image-view,
 .menu-item.changedisplay .image-view,
 .menu-item.managebackups .image-view,
-.menu-item.editneeded .image-view
+.menu-item.editneeded .image-view,
+.button.editneeded
 {
     -fx-image: url(/imgs/edit16.png);
+    -fx-graphic: url(/imgs/edit16.png);
 }
 .menu-item.delete .image-view
 {
@@ -811,7 +838,12 @@
 .menu-item.import .image-view  { -fx-image: url(/imgs/project-import16.png); }
 .menu-item.export .image-view  { -fx-image: url(/imgs/project-export16.png); }
 .menu-item.ideaboard .image-view  { -fx-image: url(/imgs/idea16.png); }
-.menu-item.find .image-view  { -fx-image: url(/imgs/find16.png); }
+.menu-item.find .image-view,
+.button.find
+{
+    -fx-graphic: url(/imgs/find16.png);
+    -fx-image: url(/imgs/find16.png);
+}
 .menu-item.sort .image-view,
 .menu-item.sortmenu .image-view
 {
@@ -828,7 +860,14 @@
 .menu-item.selectbg .image-view { -fx-image: url(/imgs/bg-select16.png); }
 .menu-item.open .image-view { -fx-image: url(/imgs/open-project16.png); }
 .menu-item.remove .image-view { -fx-image: url(/imgs/warning16.png); }
-.menu-item.edit .image-view { -fx-image: url(/imgs/edit16.png); }
+.menu-item.edit > * > .image-view
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+.menu-item.save > * > .image-view
+{
+    -fx-image: url(/imgs/save16.png);
+}
 .menu-item.createbackup .image-view
 {
     -fx-image: url(/imgs/snapshot16.png);
@@ -849,12 +888,12 @@
 {
     -fx-image: url(/imgs/tag16.png);
 }
-.menu-item.help .image-view,
+.menu-item.help > * > .image-view,
 .menu-item.viewuserguide .image-view
 {
     -fx-image: url(/imgs/help16.png);
 }
-.menu-item.no-image > .label
+.menu-item.no-image .label
 {
     -fx-content-display: text-only;
 }
@@ -868,18 +907,16 @@
 {
     -fx-image: url(/imgs/editor16.png);
 }
-.menu-item.note .image-view
-{
-    -fx-image: url(/imgs/note16.png);
-}
 .menu-item.close .image-view,
 .menu-item.hide .image-view
 {
     -fx-image: url(/imgs/close16.png);
 }
-.menu-item.editcomplete .image-view
+.menu-item.editcomplete .image-view,
+.button.editcomplete
 {
     -fx-image: url(/imgs/edit-complete16.png);
+    -fx-graphic: url(/imgs/edit-complete16.png);
 }
 .menu-item.rename .image-view
 {
@@ -889,18 +926,99 @@
 {
     -fx-image: url(/imgs/information16.png);
 }
-.menu-item.problemfinder .image-view
+.menu-item.problemfinder .image-view,
+.button.problemfinder
 {
     -fx-image: url(/imgs/eye16.png);
+    -fx-graphic: url(/imgs/eye16.png);
 }
 .menu-item.textproperties .image-view,
-.menu-item.editproperties .image-view
+.menu-item.editproperties .image-view,
+.button.editproperties
 {
     -fx-image: url(/imgs/edit-properties16.png);
+    -fx-graphic: url(/imgs/edit-properties16.png);
 }
 .menu-item.print .image-view
 {
     -fx-image: url(/imgs/print16.png);
+}
+
+.menu-item.split .image-view,
+.button.split
+{
+    -fx-graphic: url(/imgs/chapter-split16.png);
+    -fx-image: url(/imgs/chapter-split16.png);
+}
+
+.menu-item.seteditposition .image-view,
+.button.seteditposition
+{
+    -fx-graphic: url(/imgs/edit-in-progress16.png);
+    -fx-image: url(/imgs/edit-in-progress16.png);
+}
+
+.menu-item.addword .image-view,
+.button.addword
+{
+    -fx-image: url(/imgs/add16.png);
+    -fx-graphic: url(/imgs/add16.png);
+}
+
+.menu-item.bold .image-view,
+.button.bold
+{
+    -fx-image: url(/imgs/bold16.png);
+    -fx-graphic: url(/imgs/bold16.png);
+}
+
+.menu-item.italic .image-view,
+.button.italic
+{
+    -fx-image: url(/imgs/italic16.png);
+    -fx-graphic: url(/imgs/italic16.png);
+}
+
+.menu-item.underline .image-view,
+.button.underline
+{
+    -fx-image: url(/imgs/underline16.png);
+    -fx-graphic: url(/imgs/underline16.png);
+}
+
+.menu-item.cut .image-view,
+.button.cut
+{
+    -fx-image: url(/imgs/cut16.png);
+    -fx-graphic: url(/imgs/cut16.png);
+}
+
+.menu-item.copy .image-view,
+.button.copy
+{
+    -fx-image: url(/imgs/copy16.png);
+    -fx-graphic: url(/imgs/copy16.png);
+}
+
+.menu-item.paste .image-view,
+.button.paste
+{
+    -fx-image: url(/imgs/paste16.png);
+    -fx-graphic: url(/imgs/paste16.png);
+}
+
+.menu-item.undo .image-view,
+.button.undo
+{
+    -fx-image: url(/imgs/undo16.png);
+    -fx-graphic: url(/imgs/undo16.png);
+}
+
+.menu-item.redo .image-view,
+.button.redo
+{
+    -fx-image: url(/imgs/redo16.png);
+    -fx-graphic: url(/imgs/redo16.png);
 }
 
 /*
@@ -919,6 +1037,7 @@
 .tree .cell
 {
     -fx-padding: 0 0 0 0.8em;
+    -fx-alignment: center-left;
 }
 
 .tree .cell .label
@@ -953,7 +1072,8 @@
 .controls .button,
 .toolbar .button,
 .toolbar .menu-button,
-.controls .menu-button
+.controls .menu-button,
+.chapterinfo .buttons .button
  {
      -fx-border-color: transparent;
      -fx-border-width: 1px;
@@ -972,7 +1092,9 @@
 .toolbar .menu-button:hover,
 .toolbar .menu-button:focused,
 .toolbar .menu-button:hover,
-.toolbar .menu-button:focused
+.toolbar .menu-button:focused,
+.chapterinfo .buttons .button:hover,
+.chapterinfo .buttons .button:focused
  {
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
@@ -981,7 +1103,8 @@
 .controls .button:armed,
 .controls .menu-button:armed,
 .toolbar .button:armed,
-.toolbar .menu-button:armed
+.toolbar .menu-button:armed,
+.chapterinfo .buttons .button:armed
  {
      -fx-background-color: -qw-armed-bg;
  }
@@ -2254,7 +2377,7 @@
 
 .notification.readability .icon
 {
-    -fx-image: url(/imgs/readability24.png);
+    -fx-image: url(/imgs/eye24.png);
 }
 
 .notification.readability .content, .notification.wordcounts .content
@@ -2898,6 +3021,16 @@
     -fx-image: url(/imgs/edit16.png);
 }
 
+.sidebar.targets .accordion.chapter .header .icon
+{
+    -fx-image: url(/imgs/chapter16.png);
+}
+
+.sidebar.targets .accordion.readability .header .icon
+{
+    -fx-image: url(/imgs/eye16.png);
+}
+
 .sidebar.targets
 {
     -fx-pref-width: 270px;
@@ -2906,7 +3039,12 @@
 
 .sidebar.targets .content
 {
-    -fx-padding: 0 0.5em 0 0.5em;
+    -fx-padding: 0 0.5em 1em 0.5em;
+}
+
+.sidebar.targets .hyperlink.warning
+{
+    -fx-padding: 0.5em 0 0 0;
 }
 
 .sidebar.targets .spinner
@@ -2931,7 +3069,7 @@
     -fx-alignment: center-right;
 }
 
-.sidebar.targets .mywriting .hyperlink.chart
+.sidebar.targets .hyperlink.chart
 {
     -fx-padding: 0.5em 0.5em 0.5em 0em;
     -fx-graphic: url(/imgs/chart16.png);
@@ -3003,15 +3141,19 @@
     -fx-min-width: 16em;
 }
 
-.sidebar.project .accordion.chapter .header,
-.sidebar.project .accordion.asset .header
+.sidebar.project .accordion .header
 {
     -fx-padding: 0 0 0.2em 0.5em;
 }
 
-.sidebar.project .accordion.chapter .header .image-view
+.sidebar.project .accordion.chapter .header .icon
 {
     -fx-image: url(/imgs/chapter16.png);
+}
+
+.sidebar.project .accordion.tag .header .icon
+{
+    -fx-image: url(/imgs/tag16.png);
 }
 
 .sidebar.project .accordion .tree .cell
@@ -3148,6 +3290,39 @@
     -fx-graphic: url(/imgs/chapter16.png);
 }
 
+.tab.options .tab-label
+{
+    -fx-padding: 0.3em;
+    -fx-graphic: url(/imgs/settings16.png);
+}
+
+.tab.ideaboard .tab-label
+{
+    -fx-padding: 0.3em;
+    -fx-graphic: url(/imgs/idea16.png);
+}
+
+.tab.achievements .tab-label
+{
+    -fx-graphic: url(/imgs/achievement16.png);
+}
+
+.tab.statistics .tab-label
+{
+    -fx-graphic: url(/imgs/chart16.png);
+}
+
+.tab-pane .control-buttons-tab
+{
+    -fx-padding: 0.25em;
+}
+
+.tab-pane .tab-down-button .arrow
+{
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+}
+
 .menu-button .label
 {
     -fx-padding: 0 0.1em 0 0;
@@ -3186,7 +3361,7 @@
  */
 .qpopup.readability .header .icon
 {
-    -fx-image: url(/imgs/readability16.png);
+    -fx-image: url(/imgs/eye16.png);
 }
 
 .qpopup.readability .items .hyperlink, .qpopup.readability .items .label
@@ -3215,4 +3390,288 @@
 .qpopup.wordcount .items .over
 {
     -fx-text-fill: red;
+}
+
+
+
+.linkedto .scroll-pane
+{
+    -fx-pref-height: 15em;
+    -fx-fit-to-width: false;
+    -fx-padding: 0.5em 0 0 0.5em;
+}
+
+.linkedto .tree .cell
+{
+    -fx-cursor: hand;
+}
+
+.linkedto .tree .cell .label
+{
+    -fx-padding: 0.1em;
+}
+
+.linkedto .tree .cell .label.header.chapter
+{
+    -fx-graphic: url(/imgs/chapter16.png);
+}
+
+.linkedto .tree .cell .label.header.note
+{
+    -fx-graphic: url(/imgs/note16.png);
+}
+
+.linkedto .tree .cell .label.scene
+{
+    -fx-graphic: url(/imgs/scene16.png);
+}
+
+.linkedto .tree .cell .label.outlineitem
+{
+    -fx-graphic: url(/imgs/outlineitem16.png);
+}
+
+.linkedto .tree .cell .label.outlineitem
+{
+    -fx-graphic: url(/imgs/outlineitem16.png);
+}
+
+/*
+ * Chapter information sidebar (ChapterInformationSideBar)
+ */
+.sidebar.chapterinfo .header .icon
+{
+    -fx-image: url(/imgs/chapter-information16.png);
+}
+
+.sidebar.chapterinfo .accordion .header .controls .edit
+{
+    -fx-graphic: url(/imgs/edit16.png);
+}
+
+.sidebar.chapterinfo .accordion .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0 0 0 0;
+}
+
+.sidebar.chapterinfo .accordion .header .controls
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+}
+
+.sidebar.chapterinfo .accordion
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.sidebar.chapterinfo .accordion .edit .text-area
+{
+    -fx-max-width: Infinity;
+    -fx-min-width: 10em;
+    -fx-pref-width: 15em;
+}
+
+.sidebar.chapterinfo .accordion .content .edit
+{
+    -fx-padding: 0.5em 0.5em 0 0.75em;
+}
+
+.sidebar.chapterinfo .accordion .content .view
+{
+    -fx-padding: 0.25em;
+}
+
+.sidebar.chapterinfo .accordion .buttons
+{
+    -fx-padding: 0.25em;
+    -fx-alignment: center-right;
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.sidebar.chapterinfo .accordion .button.save,
+.button.save
+{
+    -fx-graphic: url(/imgs/save16.png);
+}
+
+.sidebar.chapterinfo .accordion .button.cancel
+{
+    -fx-graphic: url(/imgs/cancel16.png);
+}
+
+.sidebar.chapterinfo .accordion .placeholder
+{
+    -fx-font-style: italic;
+}
+
+.chapterinfo .accordion.description .header .icon
+{
+    -fx-image: url(/imgs/chapter-information16.png);
+}
+
+.chapterinfo .accordion.goals .header .icon
+{
+    -fx-image: url(/imgs/goals16.png);
+}
+
+.chapterinfo .accordion.plan .header .icon
+{
+    -fx-image: url(/imgs/plan16.png);
+}
+
+.chapterinfo .accordion.linkedto .header .icon
+{
+    -fx-image: url(/imgs/link16.png);
+}
+
+.viewer.project .sidebar.chapterinfo .scroll-pane
+{
+    -fx-hbar-policy: as-needed;
+    -fx-vbar-policy: as-needed;
+    -fx-fit-to-height: false;
+    -fx-fit-to-width: true;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .content .linkedto
+{
+    -fx-padding: 0 0 0.25em 0;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .cell
+{
+    -fx-padding: 0;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .cell .header
+{
+    -fx-border-width: 0;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .content
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0;
+}
+
+.sidebar.chapterinfo .accordion.linkedto .buttons
+{
+    -fx-border-width: 1px 0 0 0;
+}
+
+/*
+ * Word counts sidebar (WordCountsSideBar)
+ */
+ .sidebar.wordcounts .header .icon
+ {
+     -fx-image: url(/imgs/wordcount16.png);
+ }
+
+ .sidebar.wordcounts .accordion
+ {
+     -fx-padding: 0 0.5em 0.5em 0.5em;
+ }
+
+ .sidebar.wordcounts .accordion .header
+ {
+     -fx-border-width: 0 0 1px 0;
+     -fx-border-color: -qw-component-border-color;
+     -fx-padding: 0 0 0.25em 0;
+ }
+
+ .viewer.project .sidebar.wordcounts .scroll-pane
+ {
+     -fx-fit-to-width: true;
+ }
+
+ .sidebar.wordcounts .accordion .content
+ {
+     -fx-padding: 0.5em 0 0.5em 0.5em;
+ }
+
+ .sidebar.wordcounts .accordion.selected .header .icon
+ {
+     -fx-image: url(/imgs/edit16.png);
+ }
+
+ .sidebar.wordcounts .accordion.session .header .icon
+ {
+     -fx-image: url(/imgs/clock16.png);
+ }
+
+.sidebar.wordcounts .accordion.chapter .header .icon
+{
+    -fx-image: url(/imgs/chapter16.png);
+}
+
+.sidebar.wordcounts .accordion.allchapters .header .icon
+{
+    -fx-image: url(/imgs/book16.png);
+}
+
+.sidebar.wordcounts .subtitle
+{
+    -fx-font-style: italic;
+    -fx-padding: 0.25em;
+}
+
+.sidebar.wordcounts .value
+{
+    -fx-alignment: center-right;
+    -fx-pref-width: 7em;
+    -fx-padding: 0 0.5em 0.25em 0;
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+}
+
+.sidebar.wordcounts .hyperlink
+{
+    -fx-padding: 0.25em 0.5 0.25em 0.5em;
+}
+.sidebar.wordcounts .hyperlink.detail
+{
+    -fx-graphic: url(/imgs/chart16.png);
+}
+
+.sidebar.wordcounts .hyperlink.help
+{
+    -fx-graphic: url(/imgs/help16.png);
+}
+
+.qpopup.save .header .icon
+{
+    -fx-image: url(/imgs/save16.png);
+}
+
+.nosynonyms
+{
+    -fx-font-style: italic;
+}
+
+.nosynonyms:focused
+{
+    -fx-background-color: transparent;
+}
+
+.nosynonyms:disabled .label
+{
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.compressedmenutitle
+{
+    -fx-padding: 0.5em 1em 0.5em 1.6em;
+    -fx-font-style: italic;
+    -fx-pref-width: 7em;
+}
+
+.compressedmenu:focused .compressedmenutitle
+{
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.compressedmenu:focused, .compressedmenu:active, .compressedmenu:pressed
+{
+    -fx-background-color: transparent;
 }

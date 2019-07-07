@@ -3,15 +3,31 @@ package com.quollwriter.ui.fx.swing;
 import java.awt.Component;
 import java.awt.event.*;
 
+import java.util.*;
+import java.util.function.*;
+
 import javax.swing.*;
 
+import javafx.scene.*;
+import javafx.scene.control.*;
+
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+//import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 
 public class MouseEventHandler extends MouseAdapter
 {
 
     //public boolean redispatchToParent = false;
+
+    private Node parentNode = null;
+
+    public MouseEventHandler (Node parent)
+    {
+
+        this.parentNode = parent;
+
+    }
 
     public void redispatch (MouseEvent e)
     {
@@ -52,7 +68,8 @@ public class MouseEventHandler extends MouseAdapter
     {
 
         final MouseEventHandler _this = this;
-
+/*
+TODO
         JButton but = UIUtils.createButton (icon,
                                             iconType,
                                             toolTipText,
@@ -69,8 +86,8 @@ public class MouseEventHandler extends MouseAdapter
                                             });
 
         but.setActionCommand (actionCommand);
-
-        return but;
+*/
+        return null; //but;
 
     }
 
@@ -97,7 +114,8 @@ public class MouseEventHandler extends MouseAdapter
     {
 
         final MouseEventHandler _this = this;
-
+/*
+TODO
         JMenuItem mi = UIUtils.createMenuItem (label,
                                                icon,
                                                new ActionListener ()
@@ -113,8 +131,8 @@ public class MouseEventHandler extends MouseAdapter
                                                });
 
         mi.setActionCommand (actionCommand);
-
-        return mi;
+*/
+        return null; //mi;
 
     }
 
@@ -124,7 +142,8 @@ public class MouseEventHandler extends MouseAdapter
                                      KeyStroke      accel,
                                      ActionListener list)
     {
-
+/*
+TODO
         JMenuItem mi = UIUtils.createMenuItem (label,
                                                icon,
                                                list);
@@ -134,7 +153,13 @@ public class MouseEventHandler extends MouseAdapter
         mi.setAccelerator (accel);
 
         return mi;
+*/
+        return null;
 
+    }
+
+    public void addItemsToPopupMenu (ContextMenu cm)
+    {
 
     }
 
@@ -159,8 +184,10 @@ public class MouseEventHandler extends MouseAdapter
 
     }
 
-    private void _handlePress (MouseEvent ev)
+    private void _handlePress (final MouseEvent ev)
     {
+
+        final MouseEventHandler _this = this;
 
         if (SwingUtilities.isMiddleMouseButton (ev))
         {
@@ -174,25 +201,25 @@ public class MouseEventHandler extends MouseAdapter
         if (ev.isPopupTrigger ())
         {
 
-            JPopupMenu m = new JPopupMenu ();
-
-            this.fillPopup (m,
-                            ev);
-
-            if (m.getComponentCount () == 0)
+            UIUtils.runLater (() ->
             {
 
-                return;
+                ContextMenu cm = new ContextMenu ();
 
-            }
+                this.addItemsToPopupMenu (cm);
 
-            Component c = (Component) ev.getSource ();
+                if (cm.getItems ().size () == 0)
+                {
 
-            m.show (c,
-                    ev.getX (),
-                    ev.getY ());
+                    return;
 
-            return;
+                }
+
+                cm.setAutoHide (true);
+
+                cm.show (_this.parentNode, ev.getXOnScreen (), ev.getYOnScreen ());
+
+            });
 
         }
 

@@ -262,7 +262,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
 
             }
 
-            if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
+            if (cc.getWordCount () > Constants.MIN_READABILITY_WORD_COUNT)
             {
 
                 init.add (c);
@@ -307,7 +307,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
 
                     ChapterCounts cc = _this.viewer.getChapterCounts (c);
 
-                    return cc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT;
+                    return cc.getWordCount () >= Constants.MIN_READABILITY_WORD_COUNT;
 
                 }
 
@@ -326,7 +326,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
 
                     ChapterCounts cc = _this.viewer.getChapterCounts (c);
 
-                    if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                    if (cc.getWordCount () < Constants.MIN_READABILITY_WORD_COUNT)
                     {
 
                         return getUIString (charts,readability,excluded,single,tooltip);
@@ -413,7 +413,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
 
                         ChapterCounts cc = _this.viewer.getChapterCounts (c);
 
-                        if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                        if (cc.getWordCount () < Constants.MIN_READABILITY_WORD_COUNT)
                         {
 
                             return;
@@ -488,7 +488,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
                     ChapterCounts cc = this.viewer.getChapterCounts (c);
 
                     // Filter out chapters with less than the min readability word count.
-                    if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                    if (cc.getWordCount () < Constants.MIN_READABILITY_WORD_COUNT)
                     {
 
                         filteredCount++;

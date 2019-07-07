@@ -10708,7 +10708,7 @@ TODO Moved to BackupsManager.
                                           Constants.WORDS_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,words),
                                                         //"%s words",
-                                                         Environment.formatNumber (cc.wordCount)));
+                                                         Environment.formatNumber (cc.getWordCount ())));
 
         text = StringUtils.replaceString (text,
                                           Constants.LAST_EDITED_TAG,
@@ -10736,7 +10736,7 @@ TODO Moved to BackupsManager.
                 ChapterCounts ecc = new ChapterCounts (chapText.substring (0,
                                                                            ep));
 
-                ep = Utils.getPercent (ecc.wordCount, cc.wordCount);
+                ep = Utils.getPercent (ecc.getWordCount (), cc.getWordCount ());
 
             }
 
@@ -10793,7 +10793,7 @@ TODO Moved to BackupsManager.
         String RE = na; //"N/A";
         String GF = na; //"N/A";
 
-        if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
+        if (cc.getWordCount () > Constants.MIN_READABILITY_WORD_COUNT)
         {
 
             GL = Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ()));

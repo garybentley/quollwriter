@@ -171,7 +171,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         super.init (ss);
 
-        this.getAccordionItem ().getHeader ().getIcon ().imageProperty ().bind (new SimpleObjectProperty<javafx.scene.image.Image> (this.objType.icon16x16Property ().getValue ().getImage ()));
+        this.getAccordionItem ().getHeader ().getIcon ().imageProperty ().bind (this.objType.icon16x16Property ());
 
         Number sortFieldKey = (ss != null ? ss.getAsInt ("sortFieldKey") : null);
 

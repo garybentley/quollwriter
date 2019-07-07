@@ -34,8 +34,7 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     protected AbstractLanguageStrings ()
     {
 
-        super (OBJECT_TYPE,
-               null);
+        super (OBJECT_TYPE);
 
         this.strings = new BaseStrings (null);
 

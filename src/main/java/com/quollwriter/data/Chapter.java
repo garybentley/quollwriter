@@ -7,6 +7,7 @@ import java.util.*;
 import javax.swing.text.Position;
 import javax.swing.text.Document;
 
+import javafx.collections.*;
 import javafx.beans.property.*;
 
 import com.gentlyweb.utils.*;
@@ -24,9 +25,7 @@ public class Chapter extends LegacyUserConfigurableObject
 {
 
     public static final String PLAN_LEGACY_FIELD_ID = "plan";
-    //public static final String PLAN_LEGACY_FIELD_FORM_NAME = "Plan";
     public static final String GOALS_LEGACY_FIELD_ID = "goals";
-    //public static final String GOALS_LEGACY_FIELD_FORM_NAME = "Goals";
 
     public static final String OBJECT_TYPE = "chapter";
     public static final String INFORMATION_OBJECT_TYPE = "chapterinformation";
@@ -36,8 +35,9 @@ public class Chapter extends LegacyUserConfigurableObject
     private StringWithMarkup  text = null;
     private StringWithMarkup  goals = null;
     private StringWithMarkup  plan = null;
-    private Set<OutlineItem> outlineItems = new HashSet (); //TreeSet (new ChapterItemSorter ());
-    private Set<Scene>       scenes = new HashSet (); //TreeSet (new ChapterItemSorter ());
+    private ObjectProperty<StringWithMarkup> planProp = new SimpleObjectProperty<> ();
+    private ObservableSet<OutlineItem> outlineItems = FXCollections.observableSet (new TreeSet<> (new ChapterItemSorter ()));
+    private ObservableSet<Scene>       scenes = FXCollections.observableSet (new TreeSet<> (new ChapterItemSorter ()));
     private int editPosition = -1;
 
     private IntegerProperty editPositionProp = new SimpleIntegerProperty (-1);
@@ -882,26 +882,31 @@ public class Chapter extends LegacyUserConfigurableObject
 
     }
 
-    public Set<Scene> getScenes ()
+    public ObservableSet<Scene> getScenes ()
     {
 
+        return this.scenes;
+/*
         Set<Scene> items = new TreeSet (new ChapterItemSorter ());
 
         items.addAll (this.scenes);
 
         return items;
-
+*/
     }
 
-    public Set<OutlineItem> getOutlineItems ()
+    public ObservableSet<OutlineItem> getOutlineItems ()
     {
 
+        return this.outlineItems;
+
+/*
         Set<OutlineItem> items = new TreeSet (new ChapterItemSorter ());
 
         items.addAll (this.outlineItems);
 
         return items;
-
+*/
     }
 /*
     private void setOutlineItems (List<OutlineItem> l)
@@ -1072,6 +1077,13 @@ public class Chapter extends LegacyUserConfigurableObject
 
     }
 
+    public ObjectProperty<StringWithMarkup> planProperty ()
+    {
+
+        return this.planProp;
+
+    }
+
     public StringWithMarkup getPlan ()
     {
 
@@ -1123,6 +1135,7 @@ public class Chapter extends LegacyUserConfigurableObject
         }
 
         this.plan = t;
+        this.planProp.setValue (t);
 
         this.setLastModified (new Date ());
 

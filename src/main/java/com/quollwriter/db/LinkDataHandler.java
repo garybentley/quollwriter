@@ -85,4 +85,18 @@ public class LinkDataHandler implements DataHandler<Link, NamedObject>
 
     }
 
+    public void deleteAllLinks (NamedObject obj,
+                                Connection  conn)
+                         throws GeneralException
+    {
+
+        this.objectManager.executeStatement ("DELETE FROM link WHERE (object1dbkey = ? AND object1objtype = ?) OR (object2dbkey = ? AND object2objtype = ?)",
+                                             Arrays.asList (obj.getKey (),
+                                                            obj.getObjectType (),
+                                                            obj.getKey (),
+                                                            obj.getObjectType ()),
+                                            conn);
+
+    }
+
 }

@@ -67,8 +67,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
            public ChapterCounts getChapterCounts (Chapter c)
            {
 
-               ChapterCounts cc = new ChapterCounts ();
-               cc.wordCount = new TextIterator (_bogus.getChapterText ()).getWords ().size ();
+               ChapterCounts cc = new ChapterCounts (_bogus.getChapterText ());
 
                return cc;
 

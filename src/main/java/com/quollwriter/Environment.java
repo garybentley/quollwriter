@@ -19,6 +19,7 @@ import javafx.beans.property.*;
 import javafx.scene.media.*;
 import javafx.application.*;
 import javafx.scene.image.*;
+import javafx.scene.input.*;
 
 import org.jdom.*;
 
@@ -44,6 +45,7 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.events.ProjectInfoChangedEvent;
+import com.quollwriter.ui.fx.swing.QTextEditor;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -1583,8 +1585,6 @@ TODO
 
                                         }
 
-                                        Environment.userSession.updateCurrentSessionWordCount (fpv.getSessionWordCount ());
-
                                         Environment.unregisterViewer (fpv,
                                                                       null);
 
@@ -1893,11 +1893,9 @@ TODO Needed?
 
                 }
 
-/*
-TODO Needed?
-                Environment.fireProjectInfoChangedEvent (pr,
-                                                         ProjectInfoChangedEvent.DELETED);
-*/
+                Environment.openProjects.remove (pr);
+                Environment.allProjects.remove (pr);
+
                 if (onDelete != null)
                 {
 
@@ -5139,6 +5137,13 @@ TODO Remove
 
     }
 
+    public static IntegerProperty sessionWordCountProperty ()
+    {
+
+        return Environment.userSession.currentSessionWordCountProperty ();
+
+    }
+
     public static int getSessionWordCount ()
     {
 
@@ -6064,6 +6069,130 @@ TODO
         ret.add (enStrs.getInfo ());
 
         return ret;
+
+    }
+
+    public static KeyCombination getActionKeyCombination (String action)
+    {
+
+        if (action.equals (QTextEditor.BOLD_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.B,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        if (action.equals (QTextEditor.ITALIC_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.I,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        if (action.equals (QTextEditor.UNDERLINE_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.U,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        if (action.equals (QTextEditor.CUT_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.X,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        if (action.equals (QTextEditor.COPY_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.C,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        if (action.equals (QTextEditor.PASTE_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.V,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        if (action.equals (QTextEditor.UNDO_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.Z,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        if (action.equals (QTextEditor.REDO_ACTION_NAME))
+        {
+
+            return new KeyCodeCombination (KeyCode.Y,
+                                           KeyCombination.SHORTCUT_DOWN);
+
+        }
+
+        throw new IllegalArgumentException ("Action: " + action + " is not supported.");
+
+    }
+
+    public static KeyCombination getNewObjectTypeKeyCombination (String objType)
+    {
+
+        // TODO, make nicer.
+        if (objType.equals (com.quollwriter.data.Scene.OBJECT_TYPE))
+        {
+
+            return new KeyCodeCombination (KeyCode.S,
+                                           KeyCombination.SHORTCUT_DOWN,
+                                           KeyCombination.SHIFT_DOWN);
+
+        }
+
+        if (objType.equals (OutlineItem.OBJECT_TYPE))
+        {
+
+            return new KeyCodeCombination (KeyCode.O,
+                                           KeyCombination.SHORTCUT_DOWN,
+                                           KeyCombination.SHIFT_DOWN);
+
+        }
+
+        if (objType.equals (Chapter.OBJECT_TYPE))
+        {
+
+            return new KeyCodeCombination (KeyCode.H,
+                                           KeyCombination.SHORTCUT_DOWN,
+                                           KeyCombination.SHIFT_DOWN);
+
+        }
+
+        if (objType.equals (Note.EDIT_NEEDED_OBJECT_TYPE))
+        {
+
+            return new KeyCodeCombination (KeyCode.E,
+                                           KeyCombination.SHORTCUT_DOWN,
+                                           KeyCombination.SHIFT_DOWN);
+
+        }
+
+        if (objType.equals (Note.OBJECT_TYPE))
+        {
+
+            return new KeyCodeCombination (KeyCode.N,
+                                           KeyCombination.SHORTCUT_DOWN,
+                                           KeyCombination.SHIFT_DOWN);
+
+        }
+
+        throw new IllegalArgumentException ("Object type: " + objType + " not supported.");
 
     }
 

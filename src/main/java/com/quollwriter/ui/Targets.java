@@ -699,7 +699,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
             ChapterCounts count = viewer.getChapterCounts (c);
 
-            int diff = count.wordCount - tcc;
+            int diff = count.getWordCount () - tcc;
 
             int perc = Utils.getPercent (diff, tcc);
 
@@ -709,7 +709,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
             {
 
                 diffl = UIUtils.createErrorLabel (String.format ("+%s",
-                                                                 Environment.formatNumber (count.wordCount - tcc)));
+                                                                 Environment.formatNumber (count.getWordCount () - tcc)));
 
                 diffl.setIcon (null);
 
@@ -718,7 +718,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
             } else {
 
                 diffl = UIUtils.createLabel (String.format ("+%s",
-                                                            Environment.formatNumber (count.wordCount - tcc)));
+                                                            Environment.formatNumber (count.getWordCount () - tcc)));
 
             }
 
@@ -726,7 +726,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
                    cc.xy (5, r));
 
             b.addLabel (String.format ("%s",
-                                       Environment.formatNumber (count.wordCount)),
+                                       Environment.formatNumber (count.getWordCount ())),
                         cc.xy (3, r));
 
             b.add (l,

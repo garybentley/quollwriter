@@ -578,16 +578,13 @@ OLD? DBCP1
     }
 
     public void updateLinks (NamedObject d,
-                             Set<Link>   newLinks)
+                             Set<Link>   newLinks,
+                             Connection  c)
                       throws GeneralException
     {
 
-        Connection c = null;
-
         try
         {
-
-            c = this.getConnection ();
 
             this.deleteLinks (d,
                               c);
@@ -598,6 +595,14 @@ OLD? DBCP1
             {
 
                 Link l = iter.next ();
+
+                if (l.getKey () != null)
+                {
+
+                    // We don't support updating links only adding new ones.
+                    continue;
+
+                }
 
                 if ((l.getObject1 () == null)
                     ||
@@ -633,10 +638,6 @@ OLD? DBCP1
                                  "Unable to update links for: " +
                                  d,
                                  e);
-
-        } finally {
-
-            this.releaseConnection (c);
 
         }
 
@@ -693,8 +694,6 @@ OLD? DBCP1
 
         try
         {
-
-            d.clearLinks ();
 
             List params = new ArrayList ();
             params.add (d.getKey ());
@@ -1304,6 +1303,11 @@ OLD? DBCP1
         try
         {
 
+            LinkDataHandler dh = (LinkDataHandler) this.getHandler (Link.class);
+
+            dh.deleteAllLinks (n,
+                               conn);
+/*
             this.getLinks (n,
                            conn);
 
@@ -1316,9 +1320,14 @@ OLD? DBCP1
 
                 Link l = iter.next ();
 
-                this.deleteObject (l,
-                                   false,
-                                   conn);
+                if (l.getKey () != null)
+                {
+
+                    this.deleteObject (l,
+                                       false,
+                                       conn);
+
+                }
 
                 iter.remove ();
 
@@ -1327,7 +1336,7 @@ OLD? DBCP1
                 l.getObject2 ().removeLink (l);
 
             }
-
+*/
         } catch (Exception e) {
 
             this.throwException (conn,
@@ -2070,7 +2079,9 @@ OLD? DBCP1
                             }
 
                             this.updateLinks (n,
-                                              n.getLinks ());
+                                              // Create a new set so we don't lose these.
+                                              new HashSet<> (n.getLinks ()),
+                                              conn);
 
                         }
 
@@ -2152,6 +2163,23 @@ OLD? DBCP1
 
                             this.saveObject (nn,
                                              conn);
+
+                        }
+
+                        if (!(n instanceof Link))
+                        {
+
+                            for (Note nn : n.getNotes ())
+                            {
+
+                                this.saveObject (nn,
+                                                 conn);
+
+                            }
+
+                            this.updateLinks (n,
+                                              new HashSet<> (n.getLinks ()),
+                                              conn);
 
                         }
 

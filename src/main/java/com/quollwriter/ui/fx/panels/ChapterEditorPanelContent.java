@@ -1,8 +1,7 @@
 package com.quollwriter.ui.fx.panels;
 
-import javax.swing.*;
-import javax.swing.event.*;
-
+import javafx.scene.input.*;
+import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.embed.swing.*;
 
@@ -17,10 +16,11 @@ import com.quollwriter.ui.fx.swing.*;
 /**
  * A base class for content that is suitable for display within a panel for a specific named object.
  */
-public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer, P extends AbstractEditorPanel> extends NamedObjectPanelContent<E, Chapter>
+public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer, P extends javax.swing.JComponent> extends NamedObjectPanelContent<E, Chapter>
 {
 
     private P chapterPanel = null;
+    protected javafx.beans.property.StringProperty selectedTextProp = null;
 
     public ChapterEditorPanelContent (E       viewer,
                                       Chapter chapter)
@@ -28,6 +28,15 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer,
 
         super (viewer,
                chapter);
+
+        this.selectedTextProp = new SimpleStringProperty ();
+
+    }
+
+    public StringProperty selectedTextProperty ()
+    {
+
+        return this.selectedTextProp;
 
     }
 
@@ -38,6 +47,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer,
 
         final ChapterEditorPanelContent _this = this;
 
+/*
         SwingUIUtils.doLater (() ->
         {
 
@@ -55,28 +65,43 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer,
             }
 
         });
-
+*/
         super.init (s);
 
     }
 
-    public abstract P getChapterPanel ();
+    public abstract P getChapterPanel ()
+                                throws Exception;
 
     @Override
     public Panel createPanel ()
     {
 
-        final ChapterEditorPanelContent _this = this;
-
-        //this.chapterPanel = this.getChapterPanel ();
-
         SwingNode n = new SwingNode ();
 
-        _this.chapterPanel = _this.getChapterPanel ();
+        SwingUIUtils.doLater (() ->
+        {
 
-        n.setContent (_this.chapterPanel);
+            try
+            {
 
-        //this.getChildren ().add (n);
+                this.chapterPanel = this.getChapterPanel ();
+                //this.chapterPanel.init (null);
+                n.setContent (this.chapterPanel);
+
+            } catch (Exception e) {
+
+                // TODO Improve.
+                Environment.logError ("HERE",
+                                      e);
+
+            }
+
+            try{
+    this.init (null);
+    }catch(Exception e) {e.printStackTrace ();}
+
+        });
 
         VBox.setVgrow (n, Priority.ALWAYS);
 
@@ -95,6 +120,19 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer,
 
     }
 
+/*
+TODO ? Remove?
+    @Override
+    public void saveObject ()
+                     throws Exception
+    {
+
+        this.object.setText (this.getChapterPanel ().getEditor ().getTextWithMarkup ());
+
+        super.saveObject ();
+
+    }
+*/
     public static String getPanelIdForChapter (Chapter c)
     {
 
@@ -105,14 +143,16 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer,
     public ReadabilityIndices getReadabilityIndices ()
     {
 
-        return this.chapterPanel.getReadabilityIndices ();
+        // TODO return this.chapterPanel.getReadabilityIndices ();
+        return null;
 
     }
 
     public StringWithMarkup getText ()
     {
 
-        return this.chapterPanel.getEditor ().getTextWithMarkup ();
+        return null;
+        // TODO return this.chapterPanel.getEditor ().getTextWithMarkup ();
 
     }
 

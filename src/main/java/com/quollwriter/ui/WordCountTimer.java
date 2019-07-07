@@ -30,9 +30,9 @@ public class WordCountTimer
     private java.util.Set<WordCountTimerListener> listeners = new java.util.LinkedHashSet ();
     private int percentComplete = 0;
     private int wordsRemaining = 0;
-    private int minsRemaining = 0; 
+    private int minsRemaining = 0;
     private AbstractProjectViewer projectViewer = null;
-    
+
     private int startCount = 0;
 
     public WordCountTimer (AbstractProjectViewer pv,
@@ -45,7 +45,7 @@ public class WordCountTimer
         this.minsCount = mins;
 
         final WordCountTimer _this = this;
-        
+
         this.timer = new javax.swing.Timer (5 * 1000,
                                             new ActionAdapter ()
                                             {
@@ -84,17 +84,17 @@ public class WordCountTimer
 
                                                         // Get the word count.
                                                         ChapterCounts cc = _this.projectViewer.getAllChapterCounts ();
-                                                        
+
                                                         // Can happen if shutting down.
                                                         if (cc == null)
                                                         {
-                                                            
+
                                                             return;
-                                                            
+
                                                         }
-                                                        
-                                                        wc = cc.wordCount;
-                                                        
+
+                                                        wc = cc.getWordCount ();
+
                                                         wc -= _this.initWordCount;
 
                                                         if (wc > 0)
@@ -112,12 +112,12 @@ public class WordCountTimer
                                                                         wp);
 
                                                     _this.percentComplete = max;
-                                                    
+
                                                     if (max >= 100)
                                                     {
 
-                                                        _this.timer.stop ();                                                    
-                                                    
+                                                        _this.timer.stop ();
+
                                                         _this.projectViewer.fireProjectEvent (Warmup.OBJECT_TYPE,
                                                                                               ProjectEvent.TIME_REACHED);
                                                         _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
@@ -132,12 +132,12 @@ public class WordCountTimer
                                                         for (WordCountTimerListener l : new java.util.ArrayList<WordCountTimerListener> (_this.listeners))
                                                         {
 
-                                                            l.timerFinished (wev); 
+                                                            l.timerFinished (wev);
 
                                                         }
-                                                    
+
                                                     } else {
-                                                        
+
                                                         WordCountTimerEvent wev = new WordCountTimerEvent (_this,
                                                                                                            wc,
                                                                                                            wp,
@@ -147,60 +147,60 @@ public class WordCountTimer
                                                         for (WordCountTimerListener l : _this.listeners)
                                                         {
 
-                                                            l.timerUpdated (wev); 
+                                                            l.timerUpdated (wev);
 
-                                                        }                                                        
-                                                        
+                                                        }
+
                                                     }
 
                                                 }
 
-                                            });        
-        
+                                            });
+
     }
 
     public int getStartCount ()
     {
-        
+
         return this.startCount;
-        
+
     }
-    
+
     public int getPercentComplete ()
     {
-        
+
         return this.percentComplete;
-        
+
     }
-    
+
     public int getWordsRemaining ()
     {
-        
+
         return this.wordsRemaining;
-        
+
     }
-    
+
     public int getMinutesRemaining ()
     {
-        
+
         return this.minsRemaining;
-        
+
     }
-    
+
     public int getMinutes ()
     {
-        
+
         return this.minsCount;
-        
+
     }
-    
+
     public int getWords ()
     {
-        
+
         return this.wordCount;
-        
+
     }
-    
+
     public void stop ()
     {
 
@@ -216,27 +216,27 @@ public class WordCountTimer
     public void start (int mins,
                        int words)
     {
-                
+
         this.wordCount = words;
         this.minsCount = mins;
-        
+
         this.start ();
-        
+
     }
-    
+
     public void start ()
     {
 
-        this.startCount++;    
-    
+        this.startCount++;
+
         final WordCountTimer _this = this;
 
         this.percentComplete = 0;
         this.wordsRemaining = this.wordCount;
         this.minsRemaining = this.minsCount;
-        
-        this.initWordCount = this.projectViewer.getAllChapterCounts ().wordCount;
-        
+
+        this.initWordCount = this.projectViewer.getAllChapterCounts ().getWordCount ();
+
         this.startTime = System.currentTimeMillis ();
 
         // Start the thread that monitors progress.
@@ -251,28 +251,28 @@ public class WordCountTimer
         for (WordCountTimerListener l : this.listeners)
         {
 
-            l.timerStarted (wev); 
+            l.timerStarted (wev);
 
         }
-        
+
         // Only fire in full screen mode.
         if (this.projectViewer.isInFullScreen ())
         {
-            
+
             this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
                                                  (this.startCount > 1 ? ProjectEvent.TIMER_RESTART : ProjectEvent.TIMER_STARTED));
 
-        }        
-        
+        }
+
     }
 
     public void removeTimerListener (WordCountTimerListener l)
     {
-        
+
         this.listeners.remove (l);
-        
+
     }
-    
+
     public void addTimerListener (WordCountTimerListener l)
     {
 

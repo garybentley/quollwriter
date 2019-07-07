@@ -29,6 +29,13 @@ public class ChapterField extends NamedObjectContent<ProjectViewer, Chapter>
         super (b.viewer,
                b.chapter);
 
+       if (b.chapter == null)
+       {
+
+           throw new IllegalArgumentException ("Chapter must be provided.");
+
+       }
+
        if (b.name == null)
        {
 
@@ -44,30 +51,42 @@ public class ChapterField extends NamedObjectContent<ProjectViewer, Chapter>
             .viewPlaceHolder (getUILanguageStringProperty (Utils.newList (prefix,view,novalue),
                                                            b.name))
             .editPlaceHolder (getUILanguageStringProperty (Utils.newList (prefix,edit,text)))
+            .saveButtonTooltip (getUILanguageStringProperty (project,sidebar,chapterinfo,edit,buttons,save,tooltip))
+            .cancelButtonTooltip (getUILanguageStringProperty (project,sidebar,chapterinfo,edit,buttons,cancel,tooltip))
             .bulleted (b.bulleted)
-            .onSave (ev ->
+            .onSave (newText ->
             {
 
                 try
                 {
 
-                    b.update.accept (_this.box.getText ());
+                    b.update.accept (newText);
 
-                    _this.viewer.saveObject (_this.object,
-                                             true);
+                    this.viewer.saveObject (this.object,
+                                            true);
+
+                    _this.showEditButton.setVisible (true);
+
+                    return true;
 
                 } catch (Exception e) {
 
                     Environment.logError (String.format ("Unable to save %1$s for chapter: %2$s",
                                                          b.name,
-                                                         _this.object),
+                                                         this.object),
                                           e);
 
                     ComponentUtils.showErrorMessage (_this.viewer,
                                                      project,sidebar,chapterinfo,edit,actionerror);
                                               //"Unable to save the " + this.getFieldNamePlural ());
 
+                    return false;
+
                 }
+
+            })
+            .onCancel (ev ->
+            {
 
                 _this.showEditButton.setVisible (true);
 
@@ -259,6 +278,7 @@ public class ChapterField extends NamedObjectContent<ProjectViewer, Chapter>
     private void showEdit ()
     {
 
+        this.setContentVisible (true);
         this.box.showEdit ();
         this.showEditButton.setVisible (false);
 

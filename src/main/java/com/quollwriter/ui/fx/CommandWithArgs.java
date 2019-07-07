@@ -1,22 +1,17 @@
 package com.quollwriter.ui.fx;
 
-import com.quollwriter.data.*;
-import com.quollwriter.ui.fx.viewers.*;
+import java.util.*;
 
-public class ProjectViewerCommand<E extends DataObject> extends Command
+public class CommandWithArgs<E> extends Command
 {
 
     private Action<E> f = null;
-    private ProjectViewer viewer = null;
 
-    public ProjectViewerCommand (ProjectViewer viewer,
-                                 Action<E>     f,
-                                 String...     ids)
+    public CommandWithArgs (Action<E>     f,
+                            String...     ids)
     {
 
         super (ids);
-
-        this.viewer = viewer;
         this.f = f;
 
     }
@@ -53,8 +48,7 @@ public class ProjectViewerCommand<E extends DataObject> extends Command
         UIUtils.runLater (() ->
         {
 
-            this.f.apply (this.viewer,
-                          objs);
+            this.f.apply (objs);
 
             if (doAfter != null)
             {
@@ -69,11 +63,10 @@ public class ProjectViewerCommand<E extends DataObject> extends Command
     }
 
     @FunctionalInterface
-    public interface Action<E extends DataObject>
+    public interface Action<E>
     {
 
-        void apply (ProjectViewer viewer,
-                    E...          objs);
+        void apply (E... objs);
 
     }
 

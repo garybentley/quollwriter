@@ -2,7 +2,10 @@ package com.quollwriter.ui.fx.sidebars;
 
 import java.util.*;
 
+import javafx.scene.*;
+import javafx.scene.control.*;
 import javafx.beans.property.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -25,7 +28,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
     private ChapterField goals = null;
     private ChapterField desc = null;
     private ChapterField plan = null;
-    private LinkedToPanel linkedTo = null;
+    private AccordionItemLinkedToPanel linkedTo = null;
 
     public ChapterInformationSideBar (ProjectViewer viewer,
                                       Chapter       chapter)
@@ -38,6 +41,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
 
         this.desc = ChapterField.builder ()
         // TODO Use a property for the name...
+            .withChapter (this.object)
             .name (this.object.getLegacyTypeField (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID).getFormName ())
             .value (this.object.getDescription ())
             .update (v -> _this.object.setDescription (v))
@@ -47,6 +51,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
 
         this.goals = ChapterField.builder ()
         // TODO Use a property for the name...
+            .withChapter (this.object)
             .name (this.object.getLegacyTypeField (Chapter.GOALS_LEGACY_FIELD_ID).getFormName ())
             .value (this.object.getGoals ())
             .update (v -> _this.object.setGoals (v))
@@ -57,6 +62,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
 
         this.plan = ChapterField.builder ()
         // TODO Use a property for the name...
+            .withChapter (this.object)
             .name (_this.object.getLegacyTypeField (Chapter.PLAN_LEGACY_FIELD_ID).getFormName ())
             .value (_this.object.getPlan ())
             .update (v -> _this.object.setPlan (v))
@@ -65,9 +71,58 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
             .styleClassName (StyleClassNames.PLAN)
             .build ();
 
-        this.linkedTo = new LinkedToPanel (this.object);
+        this.linkedTo = new AccordionItemLinkedToPanel (this.object,
+                                                        this.viewer,
+                                                        links ->
+        {
 
-        this.getChildren ().addAll (this.desc, this.goals, this.plan, this.linkedTo);
+            try
+            {
+
+                chapter.removeAllLinks ();
+
+                links.stream ()
+                    .forEach (o -> chapter.addLinkTo (o));
+
+                viewer.saveObject (chapter,
+                                   true);
+
+                return true;
+
+            } catch (Exception e) {
+
+                Environment.logError (String.format ("Unable to save links for chapter: %1$s",
+                                                     chapter),
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this.viewer,
+                                                 linkedto,save,actionerror);
+
+                return false;
+
+            }
+
+        },
+        // On cancel
+        null);
+
+        VBox.setVgrow (this.linkedTo,
+                       Priority.ALWAYS);
+                       /*
+        VBox.setVgrow (this.goals,
+                       Priority.ALWAYS);
+        VBox.setVgrow (this.plan,
+                       Priority.ALWAYS);
+        VBox.setVgrow (this.desc,
+                       Priority.ALWAYS);
+*/
+        VBox content = new VBox ();
+        VBox.setVgrow (content,
+                       Priority.ALWAYS);
+
+        content.getChildren ().addAll (this.desc, this.goals, this.plan, this.linkedTo);
+
+        this.getChildren ().add (content);
 
     }
 
@@ -152,7 +207,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
 
         }
 
-        if (this.linkedTo.isContentVisible ())
+        if (this.linkedTo.isOpen ())
         {
 
             its.add (SECT_LINKED);

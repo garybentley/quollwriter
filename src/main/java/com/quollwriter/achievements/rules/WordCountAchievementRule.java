@@ -100,7 +100,7 @@ public class WordCountAchievementRule extends AbstractAchievementRule
             for (ChapterCounts cc : counts)
             {
 
-                if (cc.wordCount >= this.wordCount)
+                if (cc.getWordCount () >= this.wordCount)
                 {
 
                     c++;
@@ -118,7 +118,7 @@ public class WordCountAchievementRule extends AbstractAchievementRule
 
         }
 
-        if (viewer.getAllChapterCounts ().wordCount >= this.wordCount)
+        if (viewer.getAllChapterCounts ().getWordCount () >= this.wordCount)
         {
 
             return true;
