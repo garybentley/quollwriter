@@ -40,7 +40,9 @@ public class Startup_fx extends Application
             ss = Splashscreen.builder ().build ();
 
             ss.show ();
+
             javafx.geometry.Rectangle2D rb = Screen.getPrimary ().getBounds ();
+
             ss.setX (((rb.getWidth () - ss.getWidth ()) / 2));
             ss.setY (((rb.getHeight () - ss.getHeight ()) / 2));
 
@@ -57,7 +59,7 @@ public class Startup_fx extends Application
             Environment.init ();
 
             Environment.showAllProjectsViewer ();
-
+System.out.println ("HEREX1");
             ss.updateProgress (0.6f);
 
             /*

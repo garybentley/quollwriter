@@ -65,7 +65,19 @@ public class SelectBGPopup extends PopupContent
 
         }
 
-        URL bgImagesURL = Utils.getResourceUrl (Constants.BACKGROUND_IMGS_DIR);
+        URL bgImagesURL = null;
+
+        try
+        {
+
+            bgImagesURL = Utils.getResourceUrl (Constants.BACKGROUND_IMGS_DIR);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to get background images url",
+                                        e);
+
+        }
 
         try
         {

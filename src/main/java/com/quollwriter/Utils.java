@@ -2210,9 +2210,39 @@ public class Utils
     }
 
     public static URL getResourceUrl (String path)
+                               throws Exception
     {
 
-        return Environment.class.getResource (path);
+        URL u = Environment.class.getResource (path);
+
+        URI ui = null;
+
+        try
+        {
+
+            ui = u.toURI ();
+
+        } catch (Exception e) {
+
+            throw new IllegalArgumentException ("Unable to convert path: " + path + " to a uri.",
+                                                e);
+
+        }
+/*
+        try
+        {
+
+            FileSystems.getFileSystem (ui);
+
+        } catch (Exception e) {
+
+            Map<String, String> env = new HashMap<> ();
+            env.put ("create", "true");
+            FileSystems.newFileSystem (ui, env);
+
+        }
+*/
+        return u;
 
     }
 

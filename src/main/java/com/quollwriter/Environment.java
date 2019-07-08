@@ -651,7 +651,17 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         String sf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
 
-        Environment.setKeyStrokeSoundFilePath ((sf != null ? Paths.get (sf) : null));
+        try
+        {
+
+            Environment.setKeyStrokeSoundFilePath ((sf != null ? Paths.get (Utils.getResourceUrl (sf).toURI ()) : null));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to load key stroke sound from: " + sf,
+                                  e);
+
+        }
 
         Environment.incrStartupProgress ();
 /*

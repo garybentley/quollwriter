@@ -15,7 +15,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import netscape.javascript.JSException;
 
 import java.util.Set;
 
@@ -40,7 +39,6 @@ public final class WebViewFitContent extends Region {
             @Override
             public void changed(ObservableValue<? extends State> arg0, State oldState, State newState)         {
                 if (newState == State.SUCCEEDED) {
-                    adjustHeight();
                 }
             }
         });
@@ -87,27 +85,6 @@ public final class WebViewFitContent extends Region {
         double w = getWidth();
         double h = getHeight();
         layoutInArea(webview,0,0,w,h,0, HPos.CENTER, VPos.CENTER);
-    }
-
-    private void adjustHeight() {
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                try {
-                    Object result = webEngine.executeScript(
-                            "var myDiv = document.getElementById('mydiv');" +
-                                    "if (myDiv != null) myDiv.offsetHeight");
-                    if (result instanceof Integer) {
-                        Integer i = (Integer) result;
-                        double height = new Double(i);
-System.out.println ("H: " + height);
-                        webview.setPrefHeight(height);
-                    }
-                } catch (JSException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     private String getHtml(String content) {
