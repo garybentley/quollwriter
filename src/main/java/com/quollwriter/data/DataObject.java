@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
 
+import org.reactfx.*;
+
 import com.gentlyweb.properties.*;
 
 import com.gentlyweb.xml.*;
@@ -25,7 +27,7 @@ import com.quollwriter.events.*;
 import org.jdom.*;
 
 
-public abstract class DataObject
+public abstract class DataObject implements IPropertyBinder
 {
 
     private String       objType = null;
@@ -44,6 +46,8 @@ public abstract class DataObject
 
     // Just used in the maps above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
+
+    private PropertyBinder binder = new PropertyBinder ();
 
     public DataObject(String objType)
     {
@@ -726,6 +730,21 @@ public abstract class DataObject
         return new ObjectReference (this.getObjectType (),
                                     this.getKey (),
                                     ((this.parent == null) ? null : this.parent.getObjectReference ()));
+
+    }
+
+    @Override
+    public IPropertyBinder getBinder ()
+    {
+
+        return this.binder;
+
+    }
+
+    public void dispose ()
+    {
+
+        this.binder.dispose ();
 
     }
 

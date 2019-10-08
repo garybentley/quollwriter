@@ -253,7 +253,8 @@ public class Project extends NamedObject
     private void init ()
     {
 
-        Environment.tagsProperty ().addListener ((SetChangeListener<Tag>) ev ->
+        this.addSetChangeListener (Environment.getAllTags (),
+                                   ev ->
         {
 
             Tag t = ev.getElementRemoved ();

@@ -15,16 +15,27 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 
-public abstract class ProjectObjectsSidebarItem<E extends AbstractProjectViewer> implements Stateful
+public abstract class ProjectObjectsSidebarItem<E extends AbstractProjectViewer> implements Stateful, IPropertyBinder
 {
 
     protected E viewer = null;
     protected AccordionItem item = null;
+    private IPropertyBinder binder = null;
 
-    public ProjectObjectsSidebarItem (E pv)
+    public ProjectObjectsSidebarItem (E               pv,
+                                      IPropertyBinder binder)
     {
 
         this.viewer = pv;
+        this.binder = binder;
+
+    }
+
+    @Override
+    public IPropertyBinder getBinder ()
+    {
+
+        return this.binder;
 
     }
 

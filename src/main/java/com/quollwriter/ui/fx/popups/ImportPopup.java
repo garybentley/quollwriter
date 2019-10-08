@@ -666,11 +666,12 @@ public class ImportPopup extends PopupContent
             this.pv.fireProjectEvent (ProjectEvent.Type._import,
                                       ProjectEvent.Action.any);
 
-            ComponentUtils.showMessage (this.pv,
-                                        getUILanguageStringProperty (importproject,importcompletepopup,title),
-                                        //"Import complete",
-                                        getUILanguageStringProperty (importproject,importcompletepopup,text));
-                                 //String.format ("The items have been imported into your {project}"));
+            QuollPopup.messageBuilder ()
+                .title (importproject,importcompletepopup,title)
+                .withViewer (this.pv)
+                .withHandler (this.pv)
+                .message (importproject,importcompletepopup,text)
+                .build ();
 
         } else {
 

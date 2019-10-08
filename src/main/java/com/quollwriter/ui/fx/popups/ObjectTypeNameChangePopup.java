@@ -40,7 +40,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
         VBox content = new VBox ();
         content.getChildren ().add (BasicHtmlTextFlow.builder ()
             .text (getUILanguageStringProperty (objectnames,changer,LanguageStrings.popup,text))
-            .withViewer (viewer)
+            .withHandler (viewer)
             .build ());
 
         List<String> objTypes = new ArrayList<> ();

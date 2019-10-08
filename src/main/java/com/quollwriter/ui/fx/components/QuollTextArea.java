@@ -162,6 +162,23 @@ public class QuollTextArea extends VBox
 
     }
 
+    // TODO Support markup.
+    public void setText (StringWithMarkup text)
+    {
+
+        if (text == null)
+        {
+
+            this.setText ("");
+
+        } else {
+
+            this.setText (text.getText ());
+
+        }
+
+    }
+
     public void setText (String text)
     {
 

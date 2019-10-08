@@ -14,6 +14,8 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
     public ProjectTextProperties ()
     {
 
+        super ();
+
         this.initInternal (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
                            UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),

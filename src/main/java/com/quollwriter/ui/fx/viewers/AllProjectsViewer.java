@@ -11,6 +11,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.*;
 
+// TODO REmove
+import org.fxmisc.flowless.*;
+
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
@@ -53,6 +56,51 @@ public class AllProjectsViewer extends AbstractViewer
         this.addPanel (new NoProjectsPanel (this));
         this.addPanel (new ImportFilePanel (this));
 
+        // TODO Remove
+        this.addPanel (new PanelContent<AllProjectsViewer> (this)
+        {
+
+            @Override
+            public Panel createPanel ()
+            {
+
+                TextEditor editor = TextEditor.builder ()
+                    .text (new StringWithMarkup ("This is a test\nAnother test."))
+                    .build ();
+
+                VirtualizedScrollPane<TextEditor> vsPane = new VirtualizedScrollPane<> (editor);
+                //ScrollPane vsPane = new ScrollPane (this.editor);
+                VBox.setVgrow (vsPane, Priority.ALWAYS);
+
+                TabPane tabs = new TabPane ();
+                Tab tab = new Tab ();
+                tab.setText ("TEST");
+                tab.setContent (vsPane);
+                VBox.setVgrow (tabs, Priority.ALWAYS);
+                //tab.textProperty ().bind (qp.titleProperty ());
+
+                tabs.getTabs ().add (tab);
+
+                SplitPane sp = new SplitPane ();
+                sp.getItems ().addAll (new Pane (), tabs);
+
+                this.getChildren ().add (sp);
+
+                Panel panel = Panel.builder ()
+                    // TODO .title (this.object.nameProperty ())
+                    .title (new SimpleStringProperty ("TEST"))
+                    .content (this)
+                    .styleClassName (StyleClassNames.CHAPTER)
+                    .panelId ("test")
+                    // TODO .headerControls ()
+                    .build ();
+
+                return panel;
+
+            }
+
+        });
+
         this.showPanel (ProjectsPanel.PANEL_ID);
 
         this.setContent (this.content);
@@ -68,8 +116,6 @@ public class AllProjectsViewer extends AbstractViewer
         UILanguageStringsManager.uilangProperty (),
         Environment.objectTypeNameChangedProperty (),
         Environment.allProjectsProperty ()));
-
-        Environment.allProjectsProperty ().addListener ((val, oldv, newv) -> this.update ());
 
         this.initKeyMappings ();
 
@@ -555,6 +601,9 @@ TODO READD
 
         }
 
+        this.addChangeListener (Environment.allProjectsProperty (),
+                                (val, oldv, newv) -> this.update ());
+
         super.init (s);
 
         this.state = s;
@@ -854,7 +903,7 @@ TODO Remove as not appropriate.
    										   Options.Section.Id.achievements,
    										   Options.Section.Id.problems,
    										   Options.Section.Id.betas,
-                                           Options.Section.Id.website);                                           
+                                           Options.Section.Id.website);
 
         a.showSection (section);
 

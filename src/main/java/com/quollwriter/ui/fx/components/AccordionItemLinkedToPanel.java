@@ -28,15 +28,19 @@ public class AccordionItemLinkedToPanel extends VBox
     private Button editCon = null;
     private Hyperlink noitems = null;
     private NamedObject object = null;
+    private IPropertyBinder binder = null;
 
     public AccordionItemLinkedToPanel (NamedObject                         obj,
+                                       IPropertyBinder                     binder,
                                        AbstractProjectViewer               viewer,
                                        Function<Set<NamedObject>, Boolean> onSave,
                                        Runnable                            onCancel)
     {
 
         this.object = obj;
+        this.binder = binder;
         this.linkedToPanel = new LinkedToPanel (obj,
+                                                binder,
                                                 viewer);
 
         QuollButton saveB = QuollButton.builder ()
@@ -105,7 +109,8 @@ public class AccordionItemLinkedToPanel extends VBox
         noitems.managedProperty ().bind (noitems.visibleProperty ());
         noitems.setVisible (obj.getLinks ().size () == 0);
 
-        obj.getLinks ().addListener ((SetChangeListener<Link>) ev ->
+        this.binder.addSetChangeListener (obj.getLinks (),
+                                          ev ->
         {
 
             noitems.setVisible (obj.getLinks ().size () == 0);

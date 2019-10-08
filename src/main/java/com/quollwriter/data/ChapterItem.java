@@ -2,6 +2,9 @@ package com.quollwriter.data;
 
 import java.util.*;
 
+import javafx.beans.value.*;
+import javafx.beans.property.*;
+
 import javax.swing.text.Position;
 
 import com.quollwriter.data.comparators.*;
@@ -13,14 +16,16 @@ public abstract class ChapterItem extends NamedObject
     private int       endPosition = -1;
     private Position  textPos = null;
     private Position  endTextPos = null;
+    private com.quollwriter.ui.fx.components.TextEditor.Position textPos2 = null;
     protected Chapter chapter = null;
     protected Scene   scene = null;
+    private SimpleIntegerProperty positionProp = new SimpleIntegerProperty ();
 
     public static Set<? extends ChapterItem> getEmptyChapterItemSet ()
     {
-        
+
         return new TreeSet (new ChapterItemSorter ());
-        
+
     }
 
     protected ChapterItem(String objType)
@@ -37,7 +42,7 @@ public abstract class ChapterItem extends NamedObject
 
         this (objType);
 
-        this.position = at;
+        this.setPosition (at);
         this.chapter = c;
 
     }
@@ -56,12 +61,31 @@ public abstract class ChapterItem extends NamedObject
 
     }
 
+    public void dispose ()
+    {
+
+        if (this.textPos2 != null)
+        {
+
+            this.textPos2.dispose ();
+
+        }
+
+    }
+
+    public SimpleIntegerProperty positionProperty ()
+    {
+
+        return this.positionProp;
+
+    }
+
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {
 
         super.fillToStringProperties (props);
-        
+
         this.addToStringProperties (props,
                                     "position",
                                     this.position);
@@ -80,9 +104,9 @@ public abstract class ChapterItem extends NamedObject
         this.addToStringProperties (props,
                                     "chapter",
                                     this.chapter);
-                        
-    }    
-    
+
+    }
+
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
@@ -105,32 +129,32 @@ public abstract class ChapterItem extends NamedObject
             (this.chapter == c)
            )
         {
-            
+
             // Already set.
             return;
-            
+
         }
-    
+
         if ((this.chapter != null)
             &&
             (this.chapter != c)
            )
         {
-            
+
             // Remove this item from the existing chapter.
             this.chapter.removeChapterItem (this);
-            
+
         }
-    
+
         this.chapter = c;
 
         if (this.scene == null)
         {
 
             this.chapter.addChapterItem (this);
-            
+
         }
-        
+
     }
 
     public Scene getScene ()
@@ -142,11 +166,27 @@ public abstract class ChapterItem extends NamedObject
 
     public void setScene (Scene s)
     {
-    
+
         this.scene = s;
 
     }
-    
+
+    public void setTextPosition2 (com.quollwriter.ui.fx.components.TextEditor.Position t)
+    {
+
+        if (this.textPos2 != null)
+        {
+
+            this.textPos2.dispose ();
+
+        }
+
+        this.textPos2 = t;
+        this.positionProp.unbind ();
+        this.positionProp.bind (t.positionProperty ());
+
+    }
+
     public void setTextPosition (Position t)
     {
 
@@ -163,11 +203,11 @@ public abstract class ChapterItem extends NamedObject
 
     public Position getTextPosition ()
     {
-        
+
         return this.textPos;
-        
+
     }
-    
+
     public void setEndPosition (int p)
     {
 
@@ -223,6 +263,8 @@ public abstract class ChapterItem extends NamedObject
     {
 
         this.position = p;
+        this.positionProp.unbind ();
+        this.positionProp.setValue (p);
 
         this.textPos = null;
 
@@ -234,7 +276,7 @@ public abstract class ChapterItem extends NamedObject
         this.setPosition (this.getPosition () + p);
 
         this.setEndPosition (this.getEndPosition () + p);
-        
+
     }
 
     public int getPosition ()
@@ -262,6 +304,58 @@ public abstract class ChapterItem extends NamedObject
     {
 
         return this.getName ();
+
+    }
+
+    public static class ChapterItemEvent
+    {
+
+        public enum Type
+        {
+            positionchange
+        }
+
+        private ChapterItem item = null;
+        private Type type = null;
+        private ObservableValue<? extends Number> pos = null;
+        private Integer oldV = null;
+        private Integer newV = null;
+
+        public ChapterItemEvent (ChapterItem     i,
+                                 Type            t,
+                                 ObservableValue<? extends Number> pos,
+                                 Integer         oldV,
+                                 Integer         newV)
+        {
+
+            this.item = i;
+            this.type = t;
+            this.pos = pos;
+            this.oldV = oldV;
+            this.newV = newV;
+
+        }
+
+        public ChapterItem getItem ()
+        {
+
+            return this.item;
+
+        }
+
+        public Integer getOld ()
+        {
+
+            return this.oldV;
+
+        }
+
+        public Integer getNew ()
+        {
+
+            return this.newV;
+
+        }
 
     }
 

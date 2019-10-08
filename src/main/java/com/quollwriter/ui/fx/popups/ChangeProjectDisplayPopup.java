@@ -114,7 +114,7 @@ public class ChangeProjectDisplayPopup extends PopupContent
         BasicHtmlTextFlow info = BasicHtmlTextFlow.builder ()
             .text (infoProp)
             .styleClassName (StyleClassNames.INFO)
-            .withViewer (this.getViewer ())
+            .withHandler (this.getViewer ())
             .build ();
 
         exb.getChildren ().addAll (name, info);
@@ -157,104 +157,7 @@ public class ChangeProjectDisplayPopup extends PopupContent
             .build ();
 
         b.getChildren ().add (bb);
-/*
-        final BackupsManager _this = this;
 
-        BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
-            .text (getUILanguageStringProperty (Arrays.asList (backups,text),
-                                                proj.nameProperty ()))
-            .withViewer (viewer)
-            .styleClassName (StyleClassNames.DESCRIPTION)
-            .build ();
-
-        this.viewBackupsDir = QuollHyperlink.builder ()
-            .label (backups,viewbackupsdir)
-            .styleClassName (StyleClassNames.VIEW)
-            .onAction (ev ->
-            {
-
-                UIUtils.showFile (viewer,
-                                  _this.proj.getBackupDirPath ());
-
-            })
-            .build ();
-
-        this.noBackups = BasicHtmlTextFlow.builder ()
-            .text (getUILanguageStringProperty (LanguageStrings.backups,nobackups))
-            .withViewer (viewer)
-            .styleClassName (StyleClassNames.NOBACKUPS)
-            .build ();
-        this.noBackups.managedProperty ().bind (this.noBackups.visibleProperty ());
-
-        this.backupsBox = new VBox ();
-        this.backupsBox.managedProperty ().bind (this.backupsBox.visibleProperty ());
-        this.backupsBox.getStyleClass ().add (StyleClassNames.ITEMS);
-
-        this.backupsScroll = new ScrollPane (this.backupsBox);
-        this.backupsScroll.managedProperty ().bind (this.backupsScroll.visibleProperty ());
-
-        QuollButtonBar bb = QuollButtonBar.builder ()
-            .button (QuollButton.builder ()
-                        .buttonType (ButtonBar.ButtonData.OTHER)
-                        .label (backups,show,buttons,createbackup)
-                        .onAction (ev ->
-                        {
-
-                            BackupsManager.showCreateBackup (proj,
-                                                             null,
-                                                             _this.viewer);
-
-                        })
-                        .build ())
-            .button (QuollButton.builder ()
-                        .buttonType (ButtonBar.ButtonData.FINISH)
-                        .label (backups,show,buttons,finish)
-                        .onAction (ev ->
-                        {
-
-                            _this.close ();
-
-                        })
-                        .build ())
-            .build ();
-
-        b.getChildren ().addAll (desc, this.viewBackupsDir, this.noBackups, this.backupsScroll, bb);
-
-        // Ugh, the compiler needs more help here.
-        proj.backupPathsProperty ().addListener ((SetChangeListener<Path>) (ev ->
-        {
-
-            // We only care about add events, remove is already handled below.
-            if (ev.wasAdded ())
-            {
-
-                try
-                {
-
-                    Header h = _this.createBackupItem (ev.getElementAdded ());
-
-                    _this.backupsBox.getChildren ().add (0,
-                                                         h);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to add backup path to list: " +
-                                          ev.getElementAdded (),
-                                          e);
-
-                    ComponentUtils.showErrorMessage (_this.viewer,
-                                                     // Not really the right error to show but this will happen so infrequently that it
-                                                     // won't make a difference.
-                                                     getUILanguageStringProperty (backups,show,actionerror));
-
-                }
-
-            }
-
-        }));
-
-        this.update ();
-*/
     }
 
     @Override

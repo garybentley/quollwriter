@@ -47,7 +47,7 @@ public class QSpellChecker implements DocumentListener,
 
         this.text.getDocument ().addDocumentListener (this);
         this.text.addCaretListener (this);
-System.out.println ("HERE XXX");
+
         this.setDictionaryProvider (prov);
 
     }

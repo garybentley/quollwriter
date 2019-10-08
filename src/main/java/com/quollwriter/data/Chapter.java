@@ -19,6 +19,8 @@ import org.incava.util.diff.*;
 
 import org.jdom.*;
 
+import org.reactfx.*;
+
 import com.quollwriter.text.*;
 
 public class Chapter extends LegacyUserConfigurableObject
@@ -48,10 +50,158 @@ public class Chapter extends LegacyUserConfigurableObject
 
     private ProjectVersion projVersion = null;
 
+    private EventSource<CollectionEvent<? extends ChapterItem>> chapterItemsEventSource = new EventSource<> ();
+    private EventSource<ChapterItem.ChapterItemEvent> chapterItemsPositionEventSource = new EventSource<> ();
+    private Map<ChapterItem, List<Subscription>> eventSourceSubscriptions = new HashMap<> ();
+
     public Chapter()
     {
 
         super (Chapter.OBJECT_TYPE);
+
+        this.outlineItems.addListener ((SetChangeListener<OutlineItem>) ev ->
+        {
+
+            if (ev.wasRemoved ())
+            {
+
+                OutlineItem it = ev.getElementRemoved ();
+
+                it.dispose ();
+
+                this.chapterItemsEventSource.push (new CollectionEvent<ChapterItem> (this.outlineItems,
+                                                                                     it,
+                                                                                     CollectionEvent.Type.remove));
+
+            }
+
+            if (ev.wasAdded ())
+            {
+
+                OutlineItem it = ev.getElementAdded ();
+
+                this.chapterItemsEventSource.push (new CollectionEvent<ChapterItem> (this.outlineItems,
+                                                                                     it,
+                                                                                     CollectionEvent.Type.add));
+
+                it.addChangeListener (it.positionProperty (),
+                                      (pr, oldv, newv) ->
+                {
+
+                    this.chapterItemsPositionEventSource.push (new ChapterItem.ChapterItemEvent (it,
+                                                                                  ChapterItem.ChapterItemEvent.Type.positionchange,
+                                                                                  pr,
+                                                                                  oldv.intValue (),
+                                                                                  newv.intValue ()));
+
+                });
+
+            }
+
+        });
+
+        this.scenes.addListener ((SetChangeListener<Scene>) ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                Scene it = ev.getElementAdded ();
+
+                this.chapterItemsEventSource.push (new CollectionEvent<ChapterItem> (this.scenes,
+                                                                                     it,
+                                                                                     CollectionEvent.Type.add));
+
+                it.addChangeListener (it.positionProperty (),
+                                      (pr, oldv, newv) ->
+                {
+
+                    this.chapterItemsPositionEventSource.push (new ChapterItem.ChapterItemEvent (it,
+                                                                                    ChapterItem.ChapterItemEvent.Type.positionchange,
+                                                                                    pr,
+                                                                                    oldv.intValue (),
+                                                                                    newv.intValue ()));
+
+                });
+
+                List<Subscription> subs = new ArrayList<> ();
+                subs.add (it.outlineItemsPositionEvents ().subscribe (oev ->
+                {
+
+                    this.chapterItemsPositionEventSource.push (oev);
+
+                }));
+                subs.add (it.outlineItemsEvents ().subscribe (oev ->
+                {
+
+                    this.chapterItemsEventSource.push (oev);
+
+                }));
+
+                this.eventSourceSubscriptions.put (it,
+                                                   subs);
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                Scene s = ev.getElementRemoved ();
+
+                s.dispose ();
+
+                // Need to unsubscribe from the scene AND the outline items set...
+                this.eventSourceSubscriptions.get (s).stream ()
+                    .forEach (ss -> ss.unsubscribe ());
+
+                this.chapterItemsEventSource.push (new CollectionEvent<ChapterItem> (this.scenes,
+                                                                                     ev.getElementRemoved (),
+                                                                                     CollectionEvent.Type.remove));
+
+            }
+
+        });
+
+        this.getNotes ().addListener ((SetChangeListener<Note>) ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                Note it = ev.getElementAdded ();
+
+                this.chapterItemsEventSource.push (new CollectionEvent<ChapterItem> (this.getNotes (),
+                                                                                     it,
+                                                                                     CollectionEvent.Type.add));
+
+                it.addChangeListener (it.positionProperty (),
+                                      (pr, oldv, newv) ->
+                {
+
+                    this.chapterItemsPositionEventSource.push (new ChapterItem.ChapterItemEvent (it,
+                                                                                    ChapterItem.ChapterItemEvent.Type.positionchange,
+                                                                                    pr,
+                                                                                    oldv.intValue (),
+                                                                                    newv.intValue ()));
+
+                });
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                Note s = ev.getElementRemoved ();
+
+                // NamedObject handles the removal and disposes.
+
+                this.chapterItemsEventSource.push (new CollectionEvent<ChapterItem> (this.getNotes (),
+                                                                                     ev.getElementRemoved (),
+                                                                                     CollectionEvent.Type.remove));
+
+            }
+
+        });
 
     }
 
@@ -78,6 +228,20 @@ public class Chapter extends LegacyUserConfigurableObject
     {
 
         super (objType);
+
+    }
+
+    public EventStream<CollectionEvent<? extends ChapterItem>> chapterItemsEvents ()
+    {
+
+        return this.chapterItemsEventSource;
+
+    }
+
+    public EventStream<ChapterItem.ChapterItemEvent> chapterItemsPositionEvents ()
+    {
+
+        return this.chapterItemsPositionEventSource;
 
     }
 

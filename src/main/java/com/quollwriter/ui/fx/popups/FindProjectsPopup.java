@@ -50,7 +50,7 @@ public class FindProjectsPopup extends PopupContent
                    find)
             .confirmButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,LanguageStrings.find)))
             .cancelButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)))
-            .withViewer (viewer)
+            .withHandler (viewer)
             .build ();
 
 /*

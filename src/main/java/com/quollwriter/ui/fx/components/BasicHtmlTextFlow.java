@@ -1,5 +1,7 @@
 package com.quollwriter.ui.fx.components;
 
+import java.util.*;
+
 import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.scene.*;
@@ -14,11 +16,14 @@ import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
+
 public class BasicHtmlTextFlow extends TextFlow
 {
 
     private StringProperty textProp = null;
-    private AbstractViewer viewer = null;
+    private URLActionHandler urlActionHandler = null;
 
     private BasicHtmlTextFlow (Builder b)
     {
@@ -26,8 +31,7 @@ public class BasicHtmlTextFlow extends TextFlow
         final BasicHtmlTextFlow _this = this;
 
         this.textProp = new SimpleStringProperty ();
-
-        this.viewer = b.viewer;
+        this.urlActionHandler = b.urlActionHandler;
 
         if (b.styleName != null)
         {
@@ -45,13 +49,6 @@ public class BasicHtmlTextFlow extends TextFlow
         });
 
         this.update ();
-
-    }
-
-    public AbstractViewer getViewer ()
-    {
-
-        return this.viewer;
 
     }
 
@@ -157,8 +154,29 @@ public class BasicHtmlTextFlow extends TextFlow
                     t.setOnMouseClicked (ev ->
                     {
 
-                        UIUtils.openURL (_this.viewer,
-                                         el.attributes ().get ("href"));
+                        String url = el.attributes ().get ("href");
+
+                        try
+                        {
+
+                            UIUtils.openURL (this.urlActionHandler,
+                                             null,
+                                             url);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to browse to: " +
+                                                  url,
+                                                  e);
+
+                            AbstractViewer viewer = Environment.getFocusedViewer ();
+
+                            ComponentUtils.showErrorMessage (viewer,
+                                                             getUILanguageStringProperty (Arrays.asList (general,unabletoopenwebpage),
+                                                                                          url));
+                                                      //"Unable to open web page: " + url);
+
+                        }
 
                     });
 
@@ -187,7 +205,7 @@ public class BasicHtmlTextFlow extends TextFlow
     {
 
         private StringProperty text = null;
-        private AbstractViewer viewer = null;
+        private URLActionHandler urlActionHandler = null;
         private String styleName = null;
 
         private Builder ()
@@ -219,10 +237,10 @@ public class BasicHtmlTextFlow extends TextFlow
 
         }
 
-        public Builder withViewer (AbstractViewer v)
+        public Builder withHandler (URLActionHandler v)
         {
 
-            this.viewer = v;
+            this.urlActionHandler = v;
             return this;
 
         }

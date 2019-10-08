@@ -13,6 +13,8 @@ import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
+import javafx.beans.value.*;
+import javafx.collections.*;
 
 import com.quollwriter.*;
 import com.quollwriter.editors.*;
@@ -24,11 +26,16 @@ import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.achievements.rules.*;
+import com.quollwriter.data.IPropertyBinder;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public abstract class AbstractViewer extends VBox implements ViewerCreator, Stateful
+public abstract class AbstractViewer extends VBox implements ViewerCreator,
+                                                             Stateful,
+                                                             PopupsViewer,
+                                                             URLActionHandler,
+                                                             IPropertyBinder
 {
 
     public enum HeaderControl
@@ -81,6 +88,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
         String edittags = "edittags";
         String find = "find";
         String fullscreen = "fullscreen";
+        String viewobject = "viewobject";
+        String editobject = "editobject";
+        String deleteobject = "deleteobject";
 
     }
 
@@ -91,6 +101,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     private Map<String, Command> actionMap = new HashMap<> ();
     private Tips tips = null;
+
+    private Map<String, Object> tempOptions = new HashMap<> ();
 
     private Map<String, SideBar> sideBars = new HashMap<> ();
     private Stack<SideBar>  activeSideBars = new Stack<> ();
@@ -184,14 +196,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
         this.updateForDebugMode ();
 
-        // When we update our user property, update the layout property.
-        UserProperties.uiLayoutProperty ().addListener ((prop, oldv, newv) ->
-        {
-
-            _this.updateLayout ();
-
-        });
-
         this.addEventHandler (ScrollEvent.SCROLL,
                               ev ->
         {
@@ -221,11 +225,15 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     }
 
-    public class QPopupWindow extends PopupWindow
+    @Override
+    public IPropertyBinder getBinder ()
     {
+
+        return this.getViewer ().getBinder ();
 
     }
 
+    @Override
     public QuollPopup getPopupById (String id)
     {
 
@@ -236,23 +244,24 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     }
 
+    @Override
     public void showPopup (QuollPopup p,
                            Node       n,
                            Side       s)
     {
 
-        Bounds b = n.localToScene (n.getBoundsInLocal ());
-        b = this.sceneToLocal (b);
+        Bounds b = n.localToScreen (n.getBoundsInLocal ());
+        b = this.popupPane.screenToLocal (b);
 
         p.setVisible (false);
         this.addPopup (p);
-
         this.showPopup (p,
                         b.getMinX (),
                         b.getMaxY ());
 
     }
 
+    @Override
     public void showPopup (QuollPopup p,
                            double     x,
                            double     y)
@@ -324,6 +333,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     }
 
+    @Override
     public void removePopup (QuollPopup p)
     {
 
@@ -333,6 +343,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
 
     }
 
+    @Override
     public void addPopup (QuollPopup p)
     {
 
@@ -494,6 +505,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator, Stat
                             KeyCode.F10);
         this.addKeyMapping (CommandId.closepopup,
                             KeyCode.F4);
+        this.addKeyMapping (CommandId.fullscreen,
+                            KeyCode.F5);
         this.addKeyMapping (CommandId.resetfontsize,
                             KeyCode.DIGIT0, KeyCombination.CONTROL_DOWN);
         this.addKeyMapping (CommandId.incrementfontsize,
@@ -688,7 +701,8 @@ TODO
 
     }
 
-    public void handleHTMLPanelAction (String v)
+    @Override
+    public void handleURLAction (String v)
     {
 
         StringTokenizer t = new StringTokenizer (v,
@@ -700,7 +714,7 @@ TODO
             while (t.hasMoreTokens ())
             {
 
-                this.handleHTMLPanelAction (t.nextToken ().trim ());
+                this.handleURLAction (t.nextToken ().trim ());
 
             }
 
@@ -786,6 +800,15 @@ TODO
         this.handleWhatsNew ();
 
         this.handleShowTips ();
+
+        // When we update our user property, update the layout property.
+        this.addChangeListener (UserProperties.uiLayoutProperty (),
+                                (prop, oldv, newv) ->
+        {
+
+            this.updateLayout ();
+
+        });
 
         // We show later to ensure that the init has worked.
         Environment.registerViewer (this);
@@ -1004,23 +1027,18 @@ TODO
 
                 double _w = w;
 
-                UIUtils.runLater (() ->
+                double mw = _w;
+
+                if (mw < 1)
                 {
 
-                    double mw = _w;
+                    mw = Math.min (sb.prefWidth (this.parentPane.getHeight ()), _w);
 
-                    if (mw < 1)
-                    {
+                }
 
-                        mw = Math.min (sb.prefWidth (this.parentPane.getHeight ()), _w);
+                double pw = this.parentPane.getWidth ();
 
-                    }
-
-                    double pw = this.parentPane.getWidth ();
-
-                    this.parentPane.setDividerPositions (mw / pw);
-
-                });
+                this.parentPane.setDividerPositions (mw / pw);
 
             }
 
@@ -1089,7 +1107,7 @@ TODO
     public void removeAllNotifications ()
     {
 
-        this.notifications.getChildren ().removeAll ();
+        this.notifications.getChildren ().clear ();
 
     }
 
@@ -1156,6 +1174,70 @@ TODO
         return this.addNotification (t,
                                      type,
                                      duration);
+
+    }
+
+    public void showNotificationPopup (StringProperty title,
+                                       StringProperty message,
+                                       int            showFor)
+    {
+
+        Node m = null;
+
+        if (message != null)
+        {
+
+            m = BasicHtmlTextFlow.builder ()
+                .styleClassName (StyleClassNames.MESSAGE)
+                .text (message)
+                .build ();
+
+        }
+
+        QuollPopup popup = QuollPopup.builder ()
+            .title (title)
+            .styleClassName (StyleClassNames.INFORMATION)
+            .content (m)
+            .removeOnClose (true)
+            .build ();
+
+        if (m != null)
+        {
+
+            m.setOnMousePressed (ev ->
+            {
+
+                popup.close ();
+
+            });
+
+        }
+
+        this.showPopup (popup,
+                        10,
+                        10);
+
+        if (showFor > 0)
+        {
+
+            ScheduledFuture t = this.schedule (() ->
+            {
+
+                popup.close ();
+
+            },
+            showFor * Constants.SEC_IN_MILLIS,
+            -1);
+
+            popup.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
+                                   ev ->
+            {
+
+                t.cancel (true);
+
+            });
+
+        }
 
     }
 
@@ -1267,6 +1349,28 @@ TODO
 
                     java.util.List<String> prefix = Arrays.asList (tipspanel,stop,popup);
 
+                    QuollPopup.questionBuilder ()
+                        .styleClassName (StyleClassNames.STOP)
+                        .title (prefix, LanguageStrings.title)
+                        .confirmButtonLabel (getUILanguageStringProperty (prefix,buttons,confirm))
+                        .cancelButtonLabel (getUILanguageStringProperty (prefix,buttons,cancel))
+                        .message (getUILanguageStringProperty (prefix,LanguageStrings.text))
+                        .withHandler (this)
+                        .withViewer (this)
+                        .onConfirm (fev ->
+                        {
+
+                              _this.fireProjectEvent (ProjectEvent.Type.tips,
+                                                      ProjectEvent.Action.off);
+
+                              UserProperties.set (Constants.SHOW_TIPS_PROPERTY_NAME,
+                                                  false);
+
+                              _this.removeNotification (n);
+
+                         })
+                        .build ();
+/*
                     ComponentUtils.createQuestionPopup (getUILanguageStringProperty (prefix, LanguageStrings.title),
                                                         //"Stop showing tips?",
                                                         StyleClassNames.STOP,
@@ -1290,7 +1394,7 @@ TODO
 
                                                          },
                                                          _this);
-
+*/
                 });
 
             } catch (Exception e) {
@@ -1551,7 +1655,7 @@ TODO
 
             return QuollButton.builder ()
                 .tooltip (prefix,fullscreen,tooltip)
-                .styleClassName (StyleClassNames.FULLSCREEN)
+                .styleClassName (StyleClassNames.FULLSCREENENTER)
                 .onAction (ev ->
                 {
 
@@ -1732,6 +1836,20 @@ TODO
 
     }
 
+    public String getCurrentOtherSideBarId ()
+    {
+
+        if (this.currentOtherSideBar != null)
+        {
+
+            return this.currentOtherSideBar.getSideBarId ();
+
+        }
+
+        return null;
+
+    }
+
     public void showSideBar (String   id,
                              Runnable doAfterView)
     {
@@ -1785,7 +1903,7 @@ TODO
             this.currentOtherSideBar = b;
             this.currentOtherSideBar.setVisible (true);
 
-            this.otherSidebarsPane.getChildren ().removeAll ();
+            this.otherSidebarsPane.getChildren ().clear ();
             this.otherSidebarsPane.getChildren ().add (this.currentOtherSideBar);
 
             this.activeSideBars.remove (b);
@@ -2465,6 +2583,7 @@ TODO Not needed, is a function of the sidebar itself...
                     {
 
                         UIUtils.openURL (_this,
+                                         _this,
                                          "help:getting-started");
 
                     })
@@ -2478,6 +2597,7 @@ TODO Not needed, is a function of the sidebar itself...
                     {
 
                         UIUtils.openURL (_this,
+                                         _this,
                                          "help:keyboard-shortcuts");
 
                     })
@@ -2601,6 +2721,52 @@ TODO Not needed, is a function of the sidebar itself...
     {
 
         this.projectEventListeners.add (l);
+
+    }
+
+    public boolean hasTempOption (String name)
+    {
+
+        return this.getTempOption (name) != null;
+
+    }
+
+    public boolean isTempOption (String name)
+    {
+
+        Object o = this.getTempOption (name);
+
+        if (o == null)
+        {
+
+            return false;
+
+        }
+
+        if (o instanceof Boolean)
+        {
+
+            return ((Boolean) o).booleanValue ();
+
+        }
+
+        return false;
+
+    }
+
+    public Object getTempOption (String name)
+    {
+
+        return this.tempOptions.get (name);
+
+    }
+
+    public void setTempOption (String name,
+                               Object value)
+    {
+
+        this.tempOptions.put (name,
+                              value);
 
     }
 

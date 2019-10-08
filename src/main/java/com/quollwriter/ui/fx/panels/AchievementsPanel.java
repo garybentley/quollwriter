@@ -42,7 +42,8 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
         final AchievementsManager man = Environment.getAchievementsManager ();
 
         // Compiler needs help here.
-        man.userAchievedProperty ().addListener ((SetChangeListener<AchievementRule>) (ev ->
+        this.addSetChangeListener (man.userAchievedProperty (),
+                                   ev ->
         {
 
             AchievementRule add = ev.getElementAdded ();
@@ -63,7 +64,7 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
 
             }
 
-        }));
+        });
 
         VBox content = new VBox ();
         this.getChildren ().add (content);
@@ -76,7 +77,7 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
         BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
             .text (getUILanguageStringProperty (achievementspanel,text))
             .styleClassName (StyleClassNames.DESCRIPTION)
-            .withViewer (this.viewer)
+            .withHandler (this.viewer)
             .build ();
 
         this.hide = QuollCheckBox.builder ()

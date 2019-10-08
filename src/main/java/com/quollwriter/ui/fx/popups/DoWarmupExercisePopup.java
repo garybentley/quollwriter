@@ -83,6 +83,7 @@ public class DoWarmupExercisePopup extends PopupContent
                         {
 
                             UIUtils.openURL (this.viewer,
+                                             this.viewer,
                                              UserProperties.get (Constants.QUOLL_WRITER_WEBSITE_PROMPTS_LINK_PROPERTY_NAME));
 
                         })
@@ -116,9 +117,11 @@ public class DoWarmupExercisePopup extends PopupContent
                                 this.prompt = null;
                                 this.promptProp.setValue (null);
 
-                                ComponentUtils.showMessage (this.viewer,
-                                                            getUILanguageStringProperty (dowarmup,allpromptsexcluded));
-                                                     //"You have excluded all the prompts.");
+                                QuollPopup.messageBuilder ()
+                                    .message (dowarmup,allpromptsexcluded)
+                                    .withViewer (this.viewer)
+                                    .withHandler (this.viewer)
+                                    .build ();
 
                             }
 
@@ -156,9 +159,11 @@ public class DoWarmupExercisePopup extends PopupContent
                                 this.prompt = null;
                                 this.promptProp.setValue (null);
 
-                                ComponentUtils.showMessage (this.viewer,
-                                                            getUILanguageStringProperty (dowarmup,allpromptsexcluded));
-                                                     //"You have excluded all the prompts.");
+                                QuollPopup.messageBuilder ()
+                                    .message (dowarmup,allpromptsexcluded)
+                                    .withViewer (this.viewer)
+                                    .withHandler (this.viewer)
+                                    .build ();
 
                             }
 

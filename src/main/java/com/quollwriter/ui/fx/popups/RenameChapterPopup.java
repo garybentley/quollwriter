@@ -37,7 +37,7 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
         this.chapter = chapter;
         BasicHtmlTextFlow mess = BasicHtmlTextFlow.builder ()
             .styleClassName (StyleClassNames.DESCRIPTION)
-            .withViewer (viewer)
+            .withHandler (viewer)
             .text (getUILanguageStringProperty (LanguageStrings.project,actions,renamechapter,text))
             .build ();
 
@@ -46,7 +46,7 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
             .build ();
 
         Form f = Form.builder ()
-            .withViewer (this.viewer)
+            .withHandler (this.viewer)
             .confirmButton (LanguageStrings.project,actions,renamechapter,confirm)
             .cancelButton (actions,cancel)
             .item (text)

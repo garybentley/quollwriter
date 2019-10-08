@@ -15,6 +15,7 @@ import java.util.stream.*;
 import java.util.concurrent.*;
 
 import javafx.collections.*;
+import javafx.scene.text.*;
 import javafx.beans.property.*;
 import javafx.scene.media.*;
 import javafx.application.*;
@@ -80,6 +81,7 @@ public class Environment
     private static boolean isFirstUse = false;
 
     private static long styleSheetLastModified = 0;
+    private static ScheduledFuture styleSheetModifiedChecker = null;
 
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
     private static DecimalFormat floatNumFormat = new DecimalFormat ("###,###.#");
@@ -112,8 +114,7 @@ public class Environment
     private static TargetsData targets = null;
 
     // TODO Needs it's own manager.
-    private static Set<Tag> tags = null;
-    private static SetProperty<Tag> tagsProp = null;
+    private static ObservableSet<Tag> tags = null;
 
     private static AchievementsManager achievementsManager = null;
 
@@ -142,6 +143,8 @@ public class Environment
     private static final Object listenerFillObj = new Object ();
 
     private static int startupProgress = 0;
+
+    private static ObservableSet<URL> styleSheets = FXCollections.observableSet (new LinkedHashSet<> ());
 
     static
     {
@@ -312,8 +315,9 @@ public class Environment
 
         Environment.isLinux = System.getProperty ("os.name").startsWith ("Linux");
 
-        //System.setProperty ("prism.lcdtext", "false");
-
+        System.setProperty ("prism.lcdtext", "false");
+        //System.setProperty("prism.lcdtext", "true");
+                //System.setProperty("prism.text", "t2k");
         // TODO Handle night mode.
         Environment.nightModeProp = new SimpleBooleanProperty (false);
 
@@ -322,28 +326,6 @@ public class Environment
 
         Environment.dateFormatter = new SimpleDateFormat ("d MMM yyyy");
         Environment.timeFormatter = new SimpleDateFormat ("HH:mm");
-
-        // Try and get a lock on the file.
-        // Change to Path?
-
-        Path l = Environment.getUserPath ("___quollwriter_lock.lock");
-
-        // Try and gain a lock.
-        FileLock lock = FileChannel.open (l,
-                                          StandardOpenOption.CREATE,
-                                          StandardOpenOption.READ,
-                                          StandardOpenOption.WRITE).tryLock ();
-
-        if (lock == null)
-        {
-
-            throw new OverlappingFileLockException ();
-
-        }
-
-        Environment.lock = lock;
-
-        l.toFile ().deleteOnExit ();
 
         Environment.appVersion = new Version (Utils.getResourceFileAsString (Constants.VERSION_FILE).trim ());
 
@@ -380,6 +362,28 @@ public class Environment
         UserProperties.init (sysProps);
 
         UILanguageStringsManager.init ();
+
+        // Try and get a lock on the file.
+        // Change to Path?
+
+        Path l = Environment.getUserPath ("___quollwriter_lock.lock");
+
+        // Try and gain a lock.
+        FileLock lock = FileChannel.open (l,
+                                          StandardOpenOption.CREATE,
+                                          StandardOpenOption.READ,
+                                          StandardOpenOption.WRITE).tryLock ();
+
+        if (lock == null)
+        {
+
+            throw new OverlappingFileLockException ();
+
+        }
+
+        Environment.lock = lock;
+
+        l.toFile ().deleteOnExit ();
 
         com.gentlyweb.properties.Properties userProps = sysProps;
 
@@ -596,6 +600,11 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
         // Init our legacy object types, if needed.
         Environment.projectInfoManager.initLegacyObjectTypes ();
 
+        Environment.tags = FXCollections.observableSet (new LinkedHashSet<Tag> ((List<Tag>) Environment.projectInfoManager.getObjects (Tag.class,
+                                                                                           null,
+                                                                                           null,
+                                                                                           true)));
+
         // The user session needs the properties.
         Environment.userSession = new UserSession ();
 
@@ -734,6 +743,29 @@ TODO
                                       e);
 
             }
+
+        },
+        1 * Constants.SEC_IN_MILLIS,
+        -1);
+
+        // Try and preload the font families.
+        Environment.schedule (() ->
+        {
+
+            Font.getFamilies ().stream ()
+                .forEach (n ->
+                {
+
+                    try
+                    {
+
+                        Font _f = Font.font (n);
+
+                    } catch (Exception e) {
+
+                    }
+
+                });
 
         },
         1 * Constants.SEC_IN_MILLIS,
@@ -1020,13 +1052,13 @@ TODO
 
                             AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                            ComponentUtils.showMessage (viewer,
-                                                        getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets,writingtargetreachedpopup,title)),
-                                                        //"Writing targets reached",
-                                                        getUILanguageStringProperty (Arrays.asList(LanguageStrings.targets,writingtargetreachedpopup,text),
-                                                //"You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
-                                                                                     repVals));
-
+                            QuollPopup.messageBuilder ()
+                                .withViewer (viewer)
+                                .title (LanguageStrings.targets,writingtargetreachedpopup,title)
+                                .message (getUILanguageStringProperty (Arrays.asList(LanguageStrings.targets,writingtargetreachedpopup,text),
+                        //"You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
+                                                                       repVals))
+                                .build ();
 
                         }
 
@@ -1058,9 +1090,11 @@ TODO
         if (Files.exists (p))
         {
 
+            Environment.styleSheets.add (p.toUri ().toURL ());
+
             Environment.styleSheetLastModified = Files.getLastModifiedTime (p).toMillis ();
 
-            Environment.schedule (() ->
+            Environment.styleSheetModifiedChecker = Environment.schedule (() ->
             {
 
                 long t = 0;
@@ -1073,8 +1107,7 @@ TODO
                 } catch (Exception e) {
 
                     // Has the file been removed?
-                    // TODO Unschedule.
-                    Environment.printStackTrace (e);
+                    Environment.styleSheetModifiedChecker.cancel (true);
                     return;
 
                 }
@@ -1100,9 +1133,30 @@ TODO
                 if (t != Environment.styleSheetLastModified)
                 {
 
-                    Environment.doForOpenViewers (pv ->
+                    UIUtils.runLater (() ->
                     {
 
+                        try
+                        {
+
+                            Environment.styleSheets.remove (p.toUri ().toURL ());
+                            Environment.styleSheets.add (p.toUri ().toURL ());
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to update stylesheet: " + p,
+                                                  e);
+
+                        }
+
+                    });
+
+                    Environment.styleSheetLastModified = t;
+
+/*
+                    Environment.doForOpenViewers (pv ->
+                    {
+xxx
                         try
                         {
 
@@ -1119,8 +1173,7 @@ TODO
                         }
 
                     });
-
-                    Environment.styleSheetLastModified = t;
+*/
 
                 }
 
@@ -1129,6 +1182,13 @@ TODO
             1000);
 
         }
+
+    }
+
+    public static ObservableSet<URL> getStyleSheets ()
+    {
+
+        return Environment.styleSheets;
 
     }
 
@@ -4545,33 +4605,11 @@ TODO Remove
      * Get all the tags.
      *
      * @return The tags.
-     * @throws GeneralException if the tags can't be retrieved from the db.
      */
-    public static Set<Tag> getAllTags ()
-                                throws GeneralException
+    public static ObservableSet<Tag> getAllTags ()
     {
-
-        if (Environment.tags == null)
-        {
-
-            // TODO Remove nasty cast.
-            Environment.tags = new LinkedHashSet<Tag> ((List<Tag>) Environment.projectInfoManager.getObjects (Tag.class,
-                                                                                               null,
-                                                                                               null,
-                                                                                               true));
-
-            Environment.tagsProp = new SimpleSetProperty<> (FXCollections.observableSet (Environment.tags));
-
-        }
 
         return Environment.tags;
-
-    }
-
-    public static SetProperty<Tag> tagsProperty ()
-    {
-
-        return Environment.tagsProp;
 
     }
 
@@ -5807,11 +5845,11 @@ TODO
                               p,
                               null);
 
-                ComponentUtils.showMessage (null,
-                                            getUILanguageStringProperty (dowarmup,createwarmupsproject,title),
-                                            //"{Warmups} project",
-                                            getUILanguageStringProperty (dowarmup,createwarmupsproject,text));
-                                            //"A {Warmups} {project} will now be created to hold your {warmups}.",
+                QuollPopup.messageBuilder ()
+                    .withViewer (v)
+                    .title (dowarmup,createwarmupsproject,title)
+                    .message (dowarmup,createwarmupsproject,text)
+                    .build ();
 
                 return v;
 

@@ -34,12 +34,49 @@ public class ComponentUtils
     {
 
         return ComponentUtils.showErrorMessage (showOn,
-                                                getUILanguageStringProperty (message));
+                                                showOn,
+                                                message);
 
     }
 
     public static QuollPopup showErrorMessage (AbstractViewer showOn,
                                                StringProperty message)
+    {
+System.out.println ("HERE: " + message.getValue ());
+        return ComponentUtils.showErrorMessage (showOn,
+                                                showOn,
+                                                message);
+
+    }
+
+    public static QuollPopup showErrorMessage (URLActionHandler handler,
+                                               PopupsViewer     showOn,
+                                               String...        message)
+    {
+
+        return ComponentUtils.showErrorMessage (handler,
+                                                showOn,
+                                                getUILanguageStringProperty (message));
+
+    }
+
+    public static QuollPopup showErrorMessage (URLActionHandler handler,
+                                               PopupsViewer     showOn,
+                                               StringProperty   message)
+    {
+
+        return QuollPopup.errorBuilder ()
+            .withViewer (showOn)
+            .withHandler (handler)
+            .message (message)
+            .build ();
+
+    }
+/*
+TODO Remove
+    public static QuollPopup showErrorMessage (URLActionHandler handler,
+                                               PopupsViewer     showOn,
+                                               StringProperty   message)
     {
 
         TextFlow t = BasicHtmlTextFlow.builder ()
@@ -48,7 +85,7 @@ public class ComponentUtils
                                                 message,
                                                 Constants.ACTION_PROTOCOL,
                                                 AbstractViewer.CommandId.reportbug))
-            .withViewer (UIUtils.getViewer (showOn))
+            .withHandler (handler)
             .build ();
 
         Button b = QuollButton.builder ()
@@ -75,18 +112,61 @@ public class ComponentUtils
         return qp;
 
     }
-
+*/
+/*
     public static QuollPopup showMessage (AbstractViewer showOn,
                                           StringProperty message)
     {
 
         return ComponentUtils.showMessage (showOn,
-                                           getUILanguageStringProperty (generalmessage,title),
+                                           showOn,
                                            message);
 
     }
-
+*/
+/*
+TODO Remove
     public static QuollPopup showMessage (AbstractViewer showOn,
+                                          String...      message)
+    {
+
+        return ComponentUtils.showMessage (showOn,
+                                           showOn,
+                                           message);
+
+    }
+    */
+/*
+TODO Remove
+    public static QuollPopup showMessage (URLActionHandler handler,
+                                          PopupsViewer     showOn,
+                                          String...        message)
+    {
+
+        return ComponentUtils.showMessage (handler,
+                                           showOn,
+                                           getUILanguageStringProperty (message));
+
+    }
+    */
+/*
+TODO Remove
+    public static QuollPopup showMessage (URLActionHandler handler,
+                                          PopupsViewer     showOn,
+                                          StringProperty   message)
+    {
+
+        return QuollPopup.messageBuilder ()
+            .withViewer (showOn)
+            .withHandler (handler)
+            .message (message)
+            .build ();
+
+    }
+*/
+/*
+TODO Remove
+    public static QuollPopup showMessage (PopupsViewer   showOn,
                                           String         styleName,
                                           StringProperty title,
                                           Node           content,
@@ -126,14 +206,31 @@ public class ComponentUtils
         return qp;
 
     }
-
+    */
+/*
+TODO remove
     public static QuollPopup showMessage (AbstractViewer showOn,
                                           StringProperty title,
                                           StringProperty message)
     {
 
+        return ComponentUtils.showMessage (showOn,
+                                           showOn,
+                                           title,
+                                           message);
+
+    }
+    */
+/*
+TODO Remove
+    public static QuollPopup showMessage (URLActionHandler handler,
+                                          PopupsViewer     showOn,
+                                          StringProperty   title,
+                                          StringProperty   message)
+    {
+
         BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
-            .withViewer (showOn)
+            .withHandler (handler)
             .text (message)
             .build ();
 
@@ -142,8 +239,10 @@ public class ComponentUtils
                                            t);
 
     }
-
-    public static QuollPopup showMessage (AbstractViewer showOn,
+    */
+/*
+TODO Remove
+    public static QuollPopup showMessage (PopupsViewer showOn,
                                           StringProperty title,
                                           Node           message)
     {
@@ -168,7 +267,7 @@ public class ComponentUtils
         return qp;
 
     }
-
+*/
     public static Button createCloseButton (EventHandler<ActionEvent> onAction)
     {
 
@@ -179,8 +278,9 @@ public class ComponentUtils
             .build ();
 
     }
-
-    public static QuollPopup showMessage (AbstractViewer showOn,
+/*
+TODO Remove
+    public static QuollPopup showMessage (PopupsViewer   showOn,
                                           String         styleName,
                                           StringProperty title,
                                           Node           message)
@@ -202,14 +302,17 @@ public class ComponentUtils
         return qp;
 
     }
-
+*/
+/*
+TODO Remove
     public static QuollPopup createQuestionPopup (StringProperty title,
                                                   String         style,
                                                   StringProperty message,
                                                   StringProperty confirmButtonLabel,
                                                   StringProperty cancelButtonLabel,
                                                   EventHandler<ActionEvent> onConfirm,
-                                                  AbstractViewer showOn)
+                                                  URLActionHandler handler,
+                                                  PopupsViewer   showOn)
     {
 
         return ComponentUtils.createQuestionPopup (title,
@@ -220,10 +323,13 @@ public class ComponentUtils
                                             onConfirm,
                                             null,
                                             null,
+                                            handler,
                                             showOn);
 
     }
-
+*/
+/*
+TODO Remove
     public static QuollPopup createYesConfirmPopup (StringProperty  title,
                                                     String          style,
                                                     StringProperty  message,
@@ -233,7 +339,36 @@ public class ComponentUtils
                                                    final EventHandler<Form.FormEvent>  onConfirm,
                                                    final EventHandler<Form.FormEvent>  onCancel,
                                                    final Runnable  onClose,
-                                                   AbstractViewer  showOn)
+                                                   AbstractViewer  viewer)
+    {
+
+        return ComponentUtils.createYesConfirmPopup (title,
+                                                     style,
+                                                     message,
+                                                     entryLabel,
+                                                     confirmButtonLabel,
+                                                     cancelButtonLabel,
+                                                     onConfirm,
+                                                     onCancel,
+                                                     onClose,
+                                                     viewer,
+                                                     viewer);
+
+    }
+    */
+/*
+TODO REmove
+    public static QuollPopup createYesConfirmPopup (StringProperty  title,
+                                                    String          style,
+                                                    StringProperty  message,
+                                                    StringProperty  entryLabel,
+                                                    StringProperty  confirmButtonLabel,
+                                                   StringProperty  cancelButtonLabel,
+                                                   final EventHandler<Form.FormEvent>  onConfirm,
+                                                   final EventHandler<Form.FormEvent>  onCancel,
+                                                   final Runnable  onClose,
+                                                   URLActionHandler handler,
+                                                   PopupsViewer  showOn)
     {
 
         return ComponentUtils.createTextEntryPopup (title,
@@ -262,10 +397,13 @@ public class ComponentUtils
                                                     onConfirm,
                                                     onCancel,
                                                     onClose,
+                                                    handler,
                                                     showOn);
 
     }
-
+    */
+/*
+TODO Remove
     public static QuollPopup createTextEntryPopup (StringProperty  title,
                                                    String          style,
                                                    StringProperty  message,
@@ -276,7 +414,38 @@ public class ComponentUtils
                                                    final EventHandler<Form.FormEvent>  onConfirm,
                                                    final EventHandler<Form.FormEvent>  onCancel,
                                                    final Runnable  onClose,
-                                                   AbstractViewer  showOn)
+                                                   AbstractViewer  viewer)
+    {
+
+        return ComponentUtils.createTextEntryPopup (title,
+                                                    style,
+                                                    message,
+                                                    entryLabel,
+                                                    validator,
+                                                    confirmButtonLabel,
+                                                    cancelButtonLabel,
+                                                    onConfirm,
+                                                    onCancel,
+                                                    onClose,
+                                                    viewer,
+                                                    viewer);
+
+    }
+*/
+/*
+TODO Remove
+    public static QuollPopup createTextEntryPopup (StringProperty  title,
+                                                   String          style,
+                                                   StringProperty  message,
+                                                   StringProperty  entryLabel,
+                                                   ValueValidator<String> validator,
+                                                   StringProperty  confirmButtonLabel,
+                                                   StringProperty  cancelButtonLabel,
+                                                   final EventHandler<Form.FormEvent>  onConfirm,
+                                                   final EventHandler<Form.FormEvent>  onCancel,
+                                                   final Runnable  onClose,
+                                                   URLActionHandler handler,
+                                                   PopupsViewer  showOn)
     {
 
         if (validator == null)
@@ -294,6 +463,7 @@ public class ComponentUtils
         Form f = Form.builder ()
             .styleClassName (StyleClassNames.TEXTENTRY)
             .description (message)
+            .withHandler (handler)
             .item (entryLabel,
                    tf)
             .confirmButton ((confirmButtonLabel != null ? confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
@@ -364,6 +534,34 @@ public class ComponentUtils
         return qp;
 
     }
+*/
+    public static QuollPopup createPasswordEntryPopup (StringProperty  title,
+                                                       String          style,
+                                                       StringProperty  message,
+                                                       StringProperty  entryLabel,
+                                                       ValueValidator<String> validator,
+                                                       StringProperty  confirmButtonLabel,
+                                                       StringProperty  cancelButtonLabel,
+                                                       final Consumer<String> onProvided,
+                                                       final Runnable         onCancel,
+                                                       final Runnable  onClose,
+                                                       AbstractViewer  viewer)
+    {
+
+        return ComponentUtils.createPasswordEntryPopup (title,
+                                                        style,
+                                                        message,
+                                                        entryLabel,
+                                                        validator,
+                                                        confirmButtonLabel,
+                                                        cancelButtonLabel,
+                                                        onProvided,
+                                                        onCancel,
+                                                        onClose,
+                                                        viewer,
+                                                        viewer);
+
+    }
 
     public static QuollPopup createPasswordEntryPopup (StringProperty  title,
                                                        String          style,
@@ -375,7 +573,8 @@ public class ComponentUtils
                                                        final Consumer<String> onProvided,
                                                        final Runnable         onCancel,
                                                        final Runnable  onClose,
-                                                       AbstractViewer  showOn)
+                                                       URLActionHandler handler,
+                                                       PopupsViewer  showOn)
     {
 
         if (validator == null)
@@ -392,6 +591,7 @@ public class ComponentUtils
         Form f = Form.builder ()
             .styleClassName (style != null ? style : StyleClassNames.PASSWORD)
             .description (message)
+            .withHandler (handler)
             .item (entryLabel,
                    tf)
             .confirmButton ((confirmButtonLabel != null ? confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
@@ -478,7 +678,32 @@ public class ComponentUtils
                                                   EventHandler<ActionEvent> onConfirm,
                                                   EventHandler<ActionEvent> onCancel,
                                                   Runnable  onClose,
-                                                  AbstractViewer  showOn)
+                                                  AbstractViewer  viewer)
+    {
+
+        return ComponentUtils.createQuestionPopup (title,
+                                                   style,
+                                                   message,
+                                                   confirmButtonLabel,
+                                                   cancelButtonLabel,
+                                                   onConfirm,
+                                                   onCancel,
+                                                   onClose,
+                                                   viewer,
+                                                   viewer);
+
+    }
+
+    public static QuollPopup createQuestionPopup (StringProperty  title,
+                                                  String          style,
+                                                  StringProperty  message,
+                                                  StringProperty  confirmButtonLabel,
+                                                  StringProperty  cancelButtonLabel,
+                                                  EventHandler<ActionEvent> onConfirm,
+                                                  EventHandler<ActionEvent> onCancel,
+                                                  Runnable  onClose,
+                                                  URLActionHandler handler,
+                                                  PopupsViewer  showOn)
     {
 
         Button confirm = QuollButton.builder ()
@@ -498,6 +723,7 @@ public class ComponentUtils
                                                    cancelButtonLabel,
                                                    onCancel,
                                                    onClose,
+                                                   handler,
                                                    showOn);
 
         confirm.addEventHandler (ActionEvent.ACTION,
@@ -513,14 +739,58 @@ public class ComponentUtils
                                                   Set<Button>     buttons,
                                                   StringProperty  cancelButtonLabel,
                                                   EventHandler<ActionEvent> onCancel,
+                                                  AbstractViewer viewer)
+    {
+
+        return ComponentUtils.createQuestionPopup (title,
+                                                   style,
+                                                   message,
+                                                   buttons,
+                                                   cancelButtonLabel,
+                                                   onCancel,
+                                                   // On close
+                                                   null,
+                                                   viewer);
+
+    }
+
+    public static QuollPopup createQuestionPopup (StringProperty  title,
+                                                  String          style,
+                                                  StringProperty  message,
+                                                  Set<Button>     buttons,
+                                                  StringProperty  cancelButtonLabel,
+                                                  EventHandler<ActionEvent> onCancel,
                                                   Runnable  onClose,
-                                                  AbstractViewer  showOn)
+                                                  AbstractViewer viewer)
+    {
+
+        return ComponentUtils.createQuestionPopup (title,
+                                                   style,
+                                                   message,
+                                                   buttons,
+                                                   cancelButtonLabel,
+                                                   onCancel,
+                                                   onClose,
+                                                   viewer,
+                                                   viewer);
+
+    }
+
+    public static QuollPopup createQuestionPopup (StringProperty  title,
+                                                  String          style,
+                                                  StringProperty  message,
+                                                  Set<Button>     buttons,
+                                                  StringProperty  cancelButtonLabel,
+                                                  EventHandler<ActionEvent> onCancel,
+                                                  Runnable  onClose,
+                                                  URLActionHandler handler,
+                                                  PopupsViewer  showOn)
     {
 
         BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
             .styleClassName (StyleClassNames.MESSAGE)
             .text (message)
-            .withViewer (showOn)
+            .withHandler (handler)
             .build ();
 
         return ComponentUtils.createQuestionPopup (title,
@@ -541,7 +811,7 @@ public class ComponentUtils
                                                   StringProperty  cancelButtonLabel,
                                                   EventHandler<ActionEvent> onCancel,
                                                   Runnable  onClose,
-                                                  AbstractViewer  showOn)
+                                                  PopupsViewer  showOn)
     {
 
         VBox b = new VBox ();

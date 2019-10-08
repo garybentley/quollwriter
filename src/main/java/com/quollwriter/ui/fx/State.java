@@ -135,6 +135,24 @@ public class State
 
     }
 
+    public Float getAsFloat (String  name,
+                             Float   def)
+    {
+
+        Number n = this.getAsNumber (name,
+                                     def);
+
+        if (n != null)
+        {
+
+            return n.floatValue ();
+
+        }
+
+        return def;
+
+    }
+
     public Number getAsNumber (Key    name,
                                Number def)
     {

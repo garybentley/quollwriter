@@ -112,11 +112,11 @@ public class Startup
 
                 Environment.showAllProjectsViewer ();
 
-                ComponentUtils.showMessage (Environment.getFocusedViewer (),
-                                            getUILanguageStringProperty (startup,cantopenlastprojecterror,title),
-                                            //"Unable to open last {project}",
-                                            getUILanguageStringProperty (startup,cantopenlastprojecterror,text));
-                                    //"Unable to open last edited {project}, please select another {project} or create a new one.");
+                QuollPopup.messageBuilder ()
+                    .withViewer (Environment.getFocusedViewer ())
+                    .title (startup,cantopenlastprojecterror,title)
+                    .message (startup,cantopenlastprojecterror,text)
+                    .build ();
 
             }
 

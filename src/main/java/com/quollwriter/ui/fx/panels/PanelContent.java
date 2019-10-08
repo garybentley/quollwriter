@@ -5,24 +5,27 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.scene.input.*;
+import javafx.collections.*;
+import javafx.beans.value.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.data.IPropertyBinder;
 
 /**
  * A base class for content that is suitable for display within a panel.
  */
-public abstract class PanelContent<E extends AbstractViewer> extends ViewerContent<E> implements Stateful, PanelCreator
+public abstract class PanelContent<E extends AbstractViewer> extends ViewerContent<E> implements Stateful, PanelCreator, IPropertyBinder
 {
 
     public static final String BG_STATE_ID = "bg";
 
     public interface CommandIds
     {
-        
+
         String selectbackground = "selectbackground";
 
     }
@@ -30,9 +33,9 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
     protected Panel panel = null;
     private BooleanProperty readyForUseProp = null;
     private Map<String, Command> actionMap = new HashMap<> ();
-    private Pane background = null;
+    private BackgroundPane background = null;
 
-    private BackgroundObject backgroundObject = null;
+    //private BackgroundObject backgroundObject = null;
 
     public PanelContent (E viewer)
     {
@@ -42,10 +45,9 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
         final PanelContent _this = this;
 
         this.readyForUseProp = new SimpleBooleanProperty (false);
-        this.background = new Pane ();
-        this.background.getStyleClass ().add (StyleClassNames.BACKGROUND);
-        this.backgroundObject = new BackgroundObject ();
-        this.backgroundObject.backgroundProperty ().addListener ((p, oldv, newv) ->
+        this.background = new BackgroundPane (viewer);
+
+        this.background.getBackgroundObject ().backgroundProperty ().addListener ((p, oldv, newv) ->
         {
 
             _this.updateBackground ();
@@ -65,7 +67,7 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
                )
             {
 
-                double o = _this.background.getOpacity ();
+                double o = this.background.getOpacity ();
 
                 if (ev.getDeltaX () > 0)
                 {
@@ -92,7 +94,14 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
 
                 }
 
-                _this.background.setOpacity (o);
+                if (o < 0)
+                {
+
+                    o = 0;
+
+                }
+
+                this.background.setOpacity (o);
                 ev.consume ();
 
             }
@@ -105,6 +114,8 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
             try
             {
 
+                this.background.showBackgroundSelector ();
+/*
                 QuollPopup qp = _this.viewer.getPopupById (SelectBGPopup.POPUP_ID);
 
                 if (qp != null)
@@ -137,7 +148,7 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
                     }
 
                 });
-
+*/
             } catch (Exception e) {
 
                 Environment.logError ("Unable to show background selector",
@@ -150,18 +161,26 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
 
     }
 
+    @Override
+    public IPropertyBinder getBinder ()
+    {
+
+        return this.getPanel ().getBinder ();
+
+    }
+
     public void setBackgroundObject (Object v)
                               throws Exception
     {
 
-        this.backgroundObject.update (v);
+        this.background.setBackgroundObject (v);
 
     }
 
     public BackgroundObject getBackgroundObject ()
     {
 
-        return this.backgroundObject;
+        return this.background.getBackgroundObject ();
 
     }
 
@@ -169,24 +188,9 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
     public State getState ()
     {
 
-        State s = null;
-
-        if (this.panel != null)
-        {
-
-            s = this.panel.getState ();
-
-        }
-
-        if (s == null)
-        {
-
-            s = new State ();
-
-        }
-
+        State s = new State ();
         s.set (BG_STATE_ID,
-               this.backgroundObject.getAsString ());
+               this.background.getState ());
 
         return s;
 
@@ -206,30 +210,33 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
 
         }
 
-        String bgid = s.getAsString (BG_STATE_ID);
-
         try
         {
 
-            this.backgroundObject.update (BackgroundObject.createBackgroundObjectForId (bgid));
+            this.background.init (s.getAsState (BG_STATE_ID));
 
         } catch (Exception e) {
 
-            // TODO Show message?
-            Environment.logError ("Unable to set background object for id: " + bgid,
-                                  e);
+            Environment.logError ("Unable to init background from state: " +
+                                  s.get (BG_STATE_ID));
 
         }
+
+    }
+
+    public BackgroundPane getBackgroundPane ()
+    {
+
+        return this.background;
 
     }
 
     private void updateBackground ()
     {
 
-        this.background.setBackground (this.backgroundObject.getBackground ());
-        this.getPanel ().pseudoClassStateChanged (StyleClassNames.USERIMAGE_PSEUDO_CLASS, this.backgroundObject.isUserPath ());
+        this.getPanel ().pseudoClassStateChanged (StyleClassNames.USERIMAGE_PSEUDO_CLASS, this.background.getBackgroundObject ().isUserPath ());
 
-        boolean isImage = this.backgroundObject.isImage ();
+        boolean isImage = this.background.getBackgroundObject ().isImage ();
 
         this.getPanel ().pseudoClassStateChanged (StyleClassNames.BGCOLOR_PSEUDO_CLASS, isImage);
         this.getPanel ().pseudoClassStateChanged (StyleClassNames.BGIMAGE_PSEUDO_CLASS, !isImage);

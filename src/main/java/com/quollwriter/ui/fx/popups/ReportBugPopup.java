@@ -71,7 +71,7 @@ public class ReportBugPopup extends PopupContent
                    this.email)
             .item (this.sendLogFiles)
             .item (this.sendScreenshot)
-            .withViewer (this.viewer)
+            .withHandler (this.viewer)
             .build ();
 
         f.setOnCancel (ev -> _this.getPopup ().close ());
@@ -153,11 +153,12 @@ public class ReportBugPopup extends PopupContent
 
                     desc.setText ("");
 
-                    ComponentUtils.showMessage (_this.getViewer (),
-                                                getUILanguageStringProperty (Utils.newList (prefix,confirmpopup, LanguageStrings.title)),
-                                                //"Problem/Bug reported",
-                                                getUILanguageStringProperty (Utils.newList (prefix,confirmpopup,text)));
-                                                //"Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+                    QuollPopup.messageBuilder ()
+                        .title (prefix,confirmpopup,title)
+                        .message (prefix,confirmpopup,text)
+                        .withViewer (this.getViewer ())
+                        .withHandler (this.getViewer ())
+                        .build ();
 
                     _this.getViewer ().fireProjectEvent (ProjectEvent.Type.bugreport,
                                                          ProjectEvent.Action.submit);

@@ -72,6 +72,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
             .build ();
 
         this.linkedTo = new AccordionItemLinkedToPanel (this.object,
+                                                        this.getBinder (),
                                                         this.viewer,
                                                         links ->
         {

@@ -10,15 +10,18 @@ import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
+import javafx.beans.value.*;
+import javafx.collections.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.data.IPropertyBinder;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class SideBar extends VBox implements Stateful
+public class SideBar extends BaseVBox implements Stateful
 {
 
     private AbstractViewer viewer = null;
@@ -142,6 +145,14 @@ public class SideBar extends VBox implements Stateful
         {
 
             _this.otherSideBarsShowButton.setVisible (ev.getViewer ().getActiveSideBarCount () > 1 && ev.getViewer ().getActiveOtherSideBar () != null);
+
+        });
+
+        this.addEventHandler (SideBarEvent.CLOSE_EVENT,
+                              ev ->
+        {
+
+            this.dispose ();
 
         });
 

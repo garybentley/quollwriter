@@ -332,7 +332,7 @@ public class WhatsNewPopup extends PopupContent
                 BasicHtmlTextFlow text = BasicHtmlTextFlow.builder ()
                     .text (item.descriptionProp)
                     .styleClassName (StyleClassNames.DESCRIPTION)
-                    .withViewer (this.viewer)
+                    .withHandler (this.viewer)
                     .build ();
 
                 b.getChildren ().add (text);

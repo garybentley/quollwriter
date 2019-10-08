@@ -29,6 +29,8 @@ import com.quollwriter.synonyms.SynonymProvider;
 public class QTextEditor extends JTextPane implements TextStylable
 {
 
+    // TODO Add an exception/error handler for the dispatch thread issue.
+
     public static final String ALIGN_LEFT = "Left";
     public static final String ALIGN_RIGHT = "Right";
     public static final String ALIGN_JUSTIFIED = "Justified";
@@ -56,6 +58,7 @@ public class QTextEditor extends JTextPane implements TextStylable
     private boolean               canFormat = true;
     private TextProperties textProperties = null;
     private Point mousePosition = null;
+    private boolean ignoreDocumentChange = false;
 
     public QTextEditor(DictionaryProvider2 prov,
                        boolean             spellCheckerEnabled,
@@ -457,88 +460,85 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.lineHighlighter = new LineHighlighter (Color.LIGHT_GRAY);
 
-        this.textProperties = props;
+        this.textProperties = new TextProperties ();
 
-        props.fontFamilyProperty ().addListener ((pr, oldv, newv) ->
+        this.bindTo (props);
+
+        this.textProperties.fontFamilyProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setFontFamily (newv);
+            this.applyStyles ();
 
         });
 
-        props.fontSizeProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.fontSizeProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setFontSize (newv.intValue ());
+            this.applyStyles ();
 
         });
 
-        props.backgroundColorProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.backgroundColorProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setBackgroundColor (SwingUIUtils.toSwingColor (newv));
 
         });
 
-        props.textColorProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.textColorProperty ().addListener ((pr, oldv, newv) ->
         {
-
+System.out.println ("HERE: " + newv);
             this.setTextColor (SwingUIUtils.toSwingColor (newv));
+            this.applyStyles ();
 
         });
 
-        props.highlightWritingLineProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.highlightWritingLineProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setHighlightWritingLine (newv);
 
         });
 
-        props.textBorderProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.textBorderProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setTextBorder (newv.intValue ());
 
         });
 
-        props.writingLineColorProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.writingLineColorProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setWritingLineColor (SwingUIUtils.toSwingColor (newv));
 
         });
 
-        props.lineSpacingProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.lineSpacingProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setLineSpacing (newv.floatValue ());
+            this.applyStyles ();
 
         });
 
-        props.alignmentProperty ().addListener ((prv, oldv, newv) ->
+        this.textProperties.alignmentProperty ().addListener ((prv, oldv, newv) ->
         {
 
             this.setAlignment (newv);
+            this.applyStyles ();
 
         });
 
-        props.firstLineIndentProperty ().addListener ((pr, oldv, newv) ->
+        this.textProperties.firstLineIndentProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setFirstLineIndent (newv);
+            this.applyStyles ();
 
         });
-
-        this.setFirstLineIndent (props.getFirstLineIndent ());
-        this.setAlignment (props.getAlignment ());
-        this.setLineSpacing (props.getLineSpacing ());
-        this.setWritingLineColor (SwingUIUtils.toSwingColor (props.getWritingLineColor ()));
-        this.setTextBorder (props.getTextBorder ());
-        this.setHighlightWritingLine (props.isHighlightWritingLine ());
-        this.setTextColor (SwingUIUtils.toSwingColor (props.getTextColor ()));
-        this.setBackgroundColor (SwingUIUtils.toSwingColor (props.getBackgroundColor ()));
-        this.setFontFamily (props.getFontFamily ());
-        this.setFontSize (props.getFontSize ());
 
     }
 
@@ -624,6 +624,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void paste ()
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.paste ();
+
+            });
+
+            return;
+
+        }
+
         if (!this.canCopy)
         {
 
@@ -669,6 +683,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setWritingLineColor (Color c)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setWritingLineColor (c);
+
+            });
+
+            return;
+
+        }
+
         this.lineHighlighter.setPaint (c);
         this.validate ();
         this.repaint ();
@@ -677,6 +705,20 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setHighlightWritingLine (boolean v)
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setHighlightWritingLine (v);
+
+            });
+
+            return;
+
+        }
 
         if (v)
         {
@@ -708,6 +750,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setSynonymProvider (SynonymProvider sp)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setSynonymProvider (sp);
+
+            });
+
+            return;
+
+        }
+
         if (this.spellChecker != null)
         {
 
@@ -717,9 +773,75 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public void unbindTextProperties ()
+    {
+
+        this.textProperties.unbindAll ();
+
+    }
+
+    public void bindTo (TextProperties props)
+    {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.bindTo (props);
+
+            });
+
+            return;
+
+        }
+
+        this.setIgnoreDocumentChanges (true);
+        this.setFirstLineIndent (props.getFirstLineIndent ());
+        this.setAlignment (props.getAlignment ());
+        this.setLineSpacing (props.getLineSpacing ());
+        this.setWritingLineColor (SwingUIUtils.toSwingColor (props.getWritingLineColor ()));
+        this.setTextBorder (props.getTextBorder ());
+        this.setHighlightWritingLine (props.isHighlightWritingLine ());
+        this.setTextColor (SwingUIUtils.toSwingColor (props.getTextColor ()));
+        this.setBackgroundColor (SwingUIUtils.toSwingColor (props.getBackgroundColor ()));
+        this.setFontFamily (props.getFontFamily ());
+        this.setFontSize (props.getFontSize ());
+        this.applyStyles ();
+        this.setIgnoreDocumentChanges (false);
+
+        this.textProperties.bindTo (props);
+
+    }
+
     public boolean _print ()
                     throws java.awt.print.PrinterException
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                try
+                {
+
+                    this._print ();
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException ("Unable to print",
+                                                e);
+
+                }
+
+            });
+
+            return false;
+
+        }
 
         QTextEditor qt = new QTextEditor (null,
                                           false,
@@ -756,6 +878,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setDictionaryProvider (DictionaryProvider2 dp)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setDictionaryProvider (dp);
+
+            });
+
+            return;
+
+        }
+
         this.spellChecker.setDictionaryProvider (dp);
 
         this.checkSpelling ();
@@ -767,6 +903,31 @@ public class QTextEditor extends JTextPane implements TextStylable
                             int    end)
                      throws Exception
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                try
+                {
+
+                    this.applyStyle (style,
+                                     start,
+                                     end);
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException ("Unable to apply style");
+
+                }
+
+            });
+
+            return;
+
+        }
 
         MutableAttributeSet attrs = new SimpleAttributeSet ();
         attrs.addAttribute (style,
@@ -872,6 +1033,21 @@ public class QTextEditor extends JTextPane implements TextStylable
                           TextRange           range)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setStyle (attrs,
+                               range);
+
+            });
+
+            return;
+
+        }
+
         if (range.start != range.end)
         {
 
@@ -892,6 +1068,20 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void toggleBold ()
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.toggleBold ();
+
+            });
+
+            return;
+
+        }
 
         if (!this.canFormat)
         {
@@ -943,6 +1133,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void toggleItalic ()
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.toggleItalic ();
+
+            });
+
+            return;
+
+        }
+
         if (!this.canFormat)
         {
 
@@ -992,6 +1196,20 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void toggleUnderline ()
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.toggleUnderline ();
+
+            });
+
+            return;
+
+        }
 
         if (!this.canFormat)
         {
@@ -1043,6 +1261,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void replaceText (String replace)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.replaceText (replace);
+
+            });
+
+            return;
+
+        }
+
         if (this.getText ().length () == 0)
         {
 
@@ -1065,13 +1297,28 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.getCaret ().setDot (caret);
 
-
     }
 
     public void replaceText (int    start,
                              int    end,
                              String replace)
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.replaceText (start,
+                                  end,
+                                  replace);
+
+            });
+
+            return;
+
+        }
 
         int caret = this.getCaret ().getDot ();
 
@@ -1163,10 +1410,22 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setAlignment (int v)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setAlignment (v);
+
+            });
+
+            return;
+
+        }
+
         StyleConstants.setAlignment (this.styles,
                                      v);
-
-        this.applyStyles ();
 
     }
 
@@ -1180,6 +1439,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setFirstLineIndent (boolean v)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setFirstLineIndent (v);
+
+            });
+
+            return;
+
+        }
+
         float f = 0f;
 
         if (v)
@@ -1191,8 +1464,6 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         StyleConstants.setFirstLineIndent (this.styles,
                                            f);
-
-        this.applyStyles ();
 
     }
 
@@ -1250,13 +1521,25 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setFontColor (Color c)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setFontColor (c);
+
+            });
+
+            return;
+
+        }
+
         // Change the caret color to match.
         this.setCaretColor (c);
 
         StyleConstants.setForeground (this.styles,
                                       c);
-
-        this.applyStyles ();
 
     }
 
@@ -1268,7 +1551,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setTextBorder (int v)
     {
 
-        // Do nothing.
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setTextBorder (v);
+
+            });
+
+            return;
+
+        }
+
         this.setBorder (SwingUIUtils.createPadding (0, v, 0, v));
 
     }
@@ -1292,10 +1588,25 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setFontSize (int v)
     {
 
-        StyleConstants.setFontSize (this.styles,
-                                    v);
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
 
-        this.applyStyles ();
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setFontSize (v);
+
+            });
+
+            return;
+
+        }
+
+        // Need to take the current screen resolution into account.
+        int _v = Math.round ((float) v * ((float) java.awt.Toolkit.getDefaultToolkit ().getScreenResolution () / 72f));
+
+        StyleConstants.setFontSize (this.styles,
+                                    _v);
 
         this.fireStyleChangeEvent (0,
                                    this.doc.getEndPosition ().getOffset (),
@@ -1321,10 +1632,22 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         }
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setFontFamily (name);
+
+            });
+
+            return;
+
+        }
+
         StyleConstants.setFontFamily (this.styles,
                                       name);
-
-        this.applyStyles ();
 
         this.fireStyleChangeEvent (0,
                                    this.doc.getEndPosition ().getOffset (),
@@ -1333,13 +1656,29 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
-    private void applyStyles ()
+    public void applyStyles ()
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.applyStyles ();
+
+            });
+
+        }
+
+        this.setIgnoreDocumentChanges (true);
 
         this.doc.setParagraphAttributes (0,
                                          this.doc.getEndPosition ().getOffset (),
                                          this.styles,
                                          true);
+
+        this.setIgnoreDocumentChanges (false);
 
         this.initSectionBreaks (this.getText ());
 
@@ -1365,10 +1704,22 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setLineSpacing (float v)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setLineSpacing (v);
+
+            });
+
+            return;
+
+        }
+
         StyleConstants.setLineSpacing (this.styles,
                                        v - 1);
-
-        this.applyStyles ();
 
     }
 
@@ -1386,6 +1737,20 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setSpellCheckEnabled (boolean v)
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setSpellCheckEnabled (v);
+
+            });
+
+            return;
+
+        }
 
         if (this.spellChecker != null)
         {
@@ -1490,6 +1855,20 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void removeHighlight (Object o)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.removeHighlight (o);
+
+            });
+
+            return;
+
+        }
+
         this.getHighlighter ().removeHighlight (o);
 
     }
@@ -1499,6 +1878,13 @@ public class QTextEditor extends JTextPane implements TextStylable
                                 Highlighter.HighlightPainter painter,
                                 boolean                      removeHighlightOnActivity)
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            throw new IllegalStateException ("Not on swing event dispatch thread.");
+
+        }
 
         final Highlighter h = this.getHighlighter ();
 
@@ -1559,6 +1945,22 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void removeAllHighlights (Highlighter.HighlightPainter painter)
     {
 
+        Highlighter.HighlightPainter _painter = painter;
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.removeAllHighlights (_painter);
+
+            });
+
+            return;
+
+        }
+
         Highlighter h = this.getHighlighter ();
 
         Highlighter.Highlight[] highlights = h.getHighlights ();
@@ -1589,6 +1991,23 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void removeHighlightsForElement (Element                      el,
                                             Highlighter.HighlightPainter painter)
     {
+
+        Highlighter.HighlightPainter _painter = painter;
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.removeHighlightsForElement (el,
+                                                 _painter);
+
+            });
+
+            return;
+
+        }
 
         int i = el.getStartOffset ();
         int j = el.getEndOffset ();
@@ -1640,9 +2059,23 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setTextWithMarkup (StringWithMarkup text)
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setTextWithMarkup (text);
+
+            });
+
+            return;
+
+        }
+
         boolean enabled = false;
 
-        this.undoManager.setRecordUndos (false);
+        this.setIgnoreDocumentChanges (true);
 
         if (this.spellChecker != null)
         {
@@ -1692,7 +2125,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         }
 
-        this.undoManager.setRecordUndos (true);
+        this.setIgnoreDocumentChanges (false);
 
         if (this.spellChecker != null)
         {
@@ -1705,6 +2138,20 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void checkSpelling ()
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.checkSpelling ();
+
+            });
+
+            return;
+
+        }
 
         if (this.spellChecker != null)
         {
@@ -1724,6 +2171,30 @@ public class QTextEditor extends JTextPane implements TextStylable
                      throws BadLocationException
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                try
+                {
+
+                    this.appendText (t);
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException ("Unable to append text: " + t,
+                                                e);
+
+                }
+
+            });
+
+            return;
+
+        }
+
         this.doc.insertString (this.doc.getEndPosition ().getOffset () - 1,
                                t,
                                null);
@@ -1734,6 +2205,31 @@ public class QTextEditor extends JTextPane implements TextStylable
                             String t)
                      throws BadLocationException
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                try
+                {
+
+                    this.insertText (where,
+                                     t);
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException ("Unable to insert text at: " + where,
+                                                e);
+
+                }
+
+            });
+
+            return;
+
+        }
 
         this.doc.insertString (where,
                                t,
@@ -1746,6 +2242,31 @@ public class QTextEditor extends JTextPane implements TextStylable
                      throws BadLocationException
     {
 
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                try
+                {
+
+                    this.removeText (where,
+                                     length);
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException ("Unable to remove text from: " + where,
+                                                e);
+
+                }
+
+            });
+
+            return;
+
+        }
+
         this.doc.remove (where,
                          length);
 
@@ -1755,6 +2276,20 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setBackgroundColor (Color c)
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setBackgroundColor (c);
+
+            });
+
+            return;
+
+        }
 
         this.setBackground (c);
 
@@ -1787,6 +2322,22 @@ public class QTextEditor extends JTextPane implements TextStylable
         }
 
         return p >= cl;
+
+    }
+
+    public void setIgnoreDocumentChanges (boolean v)
+    {
+
+        this.ignoreDocumentChange = v;
+
+        this.undoManager.setRecordUndos (!v);
+
+    }
+
+    public boolean isIgnoreDocumentChanges ()
+    {
+
+        return this.ignoreDocumentChange;
 
     }
 

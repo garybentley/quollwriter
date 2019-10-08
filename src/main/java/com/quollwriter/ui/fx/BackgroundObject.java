@@ -225,6 +225,21 @@ public class BackgroundObject
     public void updateForBuiltInImage (String id)
     {
 
+        if (id.startsWith (BG_IMAGE_PREFIX))
+        {
+
+            id = id.substring (BG_IMAGE_PREFIX.length ());
+
+            // Legacy per v3
+            if (id.startsWith ("1-"))
+            {
+
+                id = "_" + id;
+
+            }
+
+        }
+
         this.userPath = null;
         this.color = null;
 

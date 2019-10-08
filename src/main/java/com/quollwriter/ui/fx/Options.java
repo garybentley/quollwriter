@@ -35,11 +35,21 @@ public class Options extends VBox
     private static final String LAYOUT_POPUP_ID = "layoutselector";
 
     private AbstractViewer viewer = null;
+    private IPropertyBinder propertyBinder = null;
 
-    public Options (AbstractViewer viewer,
-                    Section.Id...  sects)
+    public void dispose ()
     {
 
+        //this.propertyBinder.dispose ();
+
+    }
+
+    public Options (AbstractViewer  viewer,
+                    IPropertyBinder binder,
+                    Section.Id...   sects)
+    {
+
+        this.propertyBinder = binder;
         this.viewer = viewer;
 
         for (Section.Id id : sects)
@@ -88,12 +98,6 @@ public class Options extends VBox
 
     }
 
-    private <T> void addChangeListener (String propName,
-                                        ObservableValue<T> value)
-    {
-
-    }
-
     private Node createLayoutSelector ()
     {
 
@@ -104,12 +108,13 @@ public class Options extends VBox
         Label l = new Label ();
         l.setGraphic (this.getLayoutPanel (currLayout));
 
-        UserProperties.uiLayoutProperty ().addListener ((pr, oldv, newv) ->
-        {
+        this.propertyBinder.addChangeListener (UserProperties.uiLayoutProperty (),
+                                         (pr, oldv, newv) ->
+                                         {
 
-            l.setGraphic (this.getLayoutPanel (newv));
+                                             l.setGraphic (this.getLayoutPanel (newv));
 
-        });
+                                         });
 
         l.setOnMouseClicked (ev ->
         {
@@ -164,7 +169,7 @@ public class Options extends VBox
                 BasicHtmlTextFlow text = BasicHtmlTextFlow.builder ()
                     .styleClassName (StyleClassNames.DESCRIPTION)
                     .text (getUILanguageStringProperty (options,lookandsound,interfacelayouts,lt))
-                    .withViewer (_this.viewer)
+                    .withHandler (_this.viewer)
                     .build ();
                 HBox.setHgrow (text,
                                Priority.ALWAYS);
@@ -513,9 +518,11 @@ public class Options extends VBox
                )
             {
 
-                ComponentUtils.showMessage (this.viewer,
-                                            getUILanguageStringProperty (options,editingchapters,labels,nonenglishwarning));
-                                     //"Please note: when changing the spell check language to something other<br />than English the following features will be disabled:<ul><li>Synonym lookups</li><li>The Problem Finder</li><li>Readability Indices</li></ul>");
+                QuollPopup.messageBuilder ()
+                    .message (options,editingchapters,labels,nonenglishwarning)
+                    .withViewer (this.viewer)
+                    .withHandler (this.viewer)
+                    .build ();
 
             }
 
@@ -791,11 +798,14 @@ public class Options extends VBox
 
                                }
 
-                               qp = ComponentUtils.showMessage (this.viewer,
-                                                                StyleClassNames.CHAPTERICONSEXAMPLE,
-                                                                getUILanguageStringProperty (names,example),
-                                                                new ImageView ());
-                               qp.setPopupId (pid);
+                               QuollPopup.messageBuilder ()
+                                    .title (names,example)
+                                    .styleClassName (StyleClassNames.CHAPTERICONSEXAMPLE)
+                                    .message (new ImageView ())
+                                    .withViewer (this.viewer)
+                                    .withHandler (this.viewer)
+                                    .popupId (pid)
+                                    .build ();
 
                            })
                            .build ())
@@ -822,11 +832,14 @@ public class Options extends VBox
 
                               }
 
-                              qp = ComponentUtils.showMessage (this.viewer,
-                                                               StyleClassNames.EDITPOSITIONEXAMPLE,
-                                                               getUILanguageStringProperty (names,example),
-                                                               new ImageView ());
-                              qp.setPopupId (pid);
+                              QuollPopup.messageBuilder ()
+                                .title (names,example)
+                                .styleClassName (StyleClassNames.EDITPOSITIONEXAMPLE)
+                                .message (new ImageView ())
+                                .withViewer (this.viewer)
+                                .withHandler (this.viewer)
+                                .popupId (pid)
+                                .build ();
 
                           })
                           .build ())
@@ -855,11 +868,14 @@ public class Options extends VBox
                     ImageView iv = new ImageView ();
                     iv.pseudoClassStateChanged (StyleClassNames.COMPRESSED_PSEUDO_CLASS, compressChapterContextMenu.isSelected ());
 
-                    qp = ComponentUtils.showMessage (this.viewer,
-                                                     StyleClassNames.COMPRESSCHAPTERCONTEXTEXAMPLE,
-                                                     getUILanguageStringProperty (names,example),
-                                                     iv);
-                    qp.setPopupId (pid);
+                    QuollPopup.messageBuilder ()
+                        .styleClassName (StyleClassNames.COMPRESSCHAPTERCONTEXTEXAMPLE)
+                        .message (iv)
+                        .title (names,example)
+                        .withViewer (this.viewer)
+                        .withHandler (this.viewer)
+                        .popupId (pid)
+                        .build ();
 
                 })
                 .build ())
@@ -1039,9 +1055,11 @@ TODO Remove NO longer needed.
             if (ls == null)
             {
 
-                ComponentUtils.showMessage (viewer,
-                                            getUILanguageStringProperty (uilanguage,set,downloading,title),
-                                            getUILanguageStringProperty (uilanguage,set,downloading,text));
+                QuollPopup.messageBuilder ()
+                    .withViewer (viewer)
+                    .title (uilanguage,set,downloading,title)
+                    .message (uilanguage,set,downloading,text)
+                    .build ();
 
                 UILanguageStringsManager.downloadUILanguageFile (uid,
                                                                  setLang,
@@ -1343,7 +1361,8 @@ TODO Remove NO longer needed.
 
         });
 
-        UserProperties.uiBaseFontSizeProperty ().addListener ((pr, oldv, newv) ->
+        this.propertyBinder.addChangeListener (UserProperties.uiBaseFontSizeProperty (),
+                                               (pr, oldv, newv) ->
         {
 
             if (newv.floatValue () != textSize.valueProperty ().floatValue ())

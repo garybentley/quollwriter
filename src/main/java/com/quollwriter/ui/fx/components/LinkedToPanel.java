@@ -24,6 +24,7 @@ public class LinkedToPanel extends StackPane
     private AbstractProjectViewer viewer = null;
 
     public LinkedToPanel (NamedObject           obj,
+                          IPropertyBinder       binder,
                           AbstractProjectViewer viewer)
     {
 
@@ -32,12 +33,13 @@ public class LinkedToPanel extends StackPane
 
         this.getStyleClass ().add (StyleClassNames.LINKEDTO);
 
-        obj.getLinks ().addListener (new WeakSetChangeListener<Link> (ev ->
+        binder.addSetChangeListener (obj.getLinks (),
+                                     ev ->
         {
 
             this.update ();
 
-        }));
+        });
 
         Function<TreeItem<NamedObject>, Node> cellProvider = (treeItem) ->
         {
@@ -313,6 +315,13 @@ public class LinkedToPanel extends StackPane
         });
         this.viewTree.setVisible (false);
         this.editTree.setVisible (true);
+
+    }
+
+    public boolean isEditVisible ()
+    {
+
+        return this.editTree.isVisible ();
 
     }
 

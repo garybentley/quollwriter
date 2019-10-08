@@ -12,7 +12,6 @@ import javafx.scene.layout.*;
 import javafx.geometry.*;
 
 import com.quollwriter.ui.fx.*;
-import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -54,7 +53,7 @@ public class Form extends VBox
             BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
                 .styleClassName (StyleClassNames.DESCRIPTION)
                 .text (b.description)
-                .withViewer (b.viewer)
+                .withHandler (b.handler)
                 .build ();
 
             this.getChildren ().add (desc);
@@ -67,7 +66,7 @@ public class Form extends VBox
         ImageView img = new ImageView ();
         this.error = BasicHtmlTextFlow.builder ()
             .styleClassName (StyleClassNames.MESSAGE)
-            .withViewer (b.viewer)
+            .withHandler (b.handler)
             .build ();
         HBox.setHgrow (this.error,
                        Priority.ALWAYS);
@@ -248,6 +247,7 @@ public class Form extends VBox
 
     }
 
+    // TODO Add support for multiple errors.
     public void showError (StringProperty err)
     {
 
@@ -337,7 +337,7 @@ public class Form extends VBox
         private Button confirm = null;
         private Button cancel = null;
         private LayoutType layoutType = LayoutType.stacked;
-        private AbstractViewer viewer = null;
+        private URLActionHandler handler = null;
 
         private Builder ()
         {
@@ -368,10 +368,10 @@ public class Form extends VBox
 
         }
 
-        public Builder withViewer (AbstractViewer viewer)
+        public Builder withHandler (URLActionHandler handler)
         {
 
-            this.viewer = viewer;
+            this.handler = handler;
             return this;
 
         }

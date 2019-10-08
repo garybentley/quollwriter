@@ -27,6 +27,9 @@ public class UserSession extends Session
     private Date weeklyTargetReachedPopupShownDate = null;
     private Date monthlyTargetReachedPopupShownDate = null;
 
+    private PropertyBinder binder = new PropertyBinder ();
+    private Map<AbstractProjectViewer, IPropertyBinder.ListenerHandle> listenerHandles = new HashMap<> ();
+
     public UserSession ()
     {
 
@@ -52,8 +55,16 @@ public class UserSession extends Session
 
         this.currentSessionWordCountProp = new SimpleIntegerProperty (0);
 
+        // The UserSession object has the same life span as the Environment so this is ok.
         Environment.openViewersProperty ().addListener ((SetChangeListener<AbstractViewer>) ev ->
         {
+
+            if (ev.wasRemoved ())
+            {
+
+                this.listenerHandles.remove (ev.getElementRemoved ());
+
+            }
 
             if (ev.wasAdded ())
             {
@@ -61,7 +72,11 @@ public class UserSession extends Session
                 if (ev.getElementAdded () instanceof AbstractProjectViewer)
                 {
 
-                    ((AbstractProjectViewer) ev.getElementAdded ()).sessionWordCountProperty ().addListener ((pr, oldv, newv) ->
+                    AbstractProjectViewer pv = (AbstractProjectViewer) ev.getElementAdded ();
+
+                    this.listenerHandles.put (pv,
+                                              this.binder.addChangeListener (pv.sessionWordCountProperty (),
+                                                                             (pr, oldv, newv) ->
                     {
 
                         this.currentSessionWordCount = Environment.openViewersProperty ().getValue ().stream ()
@@ -76,7 +91,7 @@ public class UserSession extends Session
 
                         });
 
-                    });
+                    }));
 
                 }
 

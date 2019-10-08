@@ -208,7 +208,9 @@ public class UIUtils
         // the tooltip height is too large.
         t.widthProperty ().addListener ((v, oldv, newv) ->
         {
+
             t.setPrefHeight (tf.prefHeight (newv.doubleValue ()));
+
         });
 
         Tooltip.install (node,
@@ -233,8 +235,43 @@ public class UIUtils
 
     }
 
-    public static void openURL (AbstractViewer viewer,
-                                String         url)
+    public static void openURL (URLActionHandler handler,
+                                PopupsViewer     viewer,
+                                String           url)
+    {
+
+        URL u = null;
+
+        try
+        {
+
+            u = new URL (url);
+
+            UIUtils.openURL (handler,
+                             u);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to browse to: " +
+                                  url,
+                                  e);
+
+            ComponentUtils.showErrorMessage (handler,
+                                             viewer,
+                                             getUILanguageStringProperty (Arrays.asList (general,unabletoopenwebpage),
+                                                                          url));
+                                      //"Unable to open web page: " + url);
+
+            return;
+
+        }
+
+    }
+
+    public static void openURL (AbstractProjectViewer viewer,
+                                String                url)
+                         throws GeneralException
     {
 
         URL u = null;
@@ -265,9 +302,40 @@ public class UIUtils
 
     }
 
-    public static void openURL (AbstractViewer viewer,
-                                URL            url)
-                         throws GeneralException
+    public static void openURL (AbstractProjectViewer viewer,
+                                URL                   url)
+                         throws Exception
+    {
+
+        if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
+        {
+
+            if (viewer != null)
+            {
+
+                if (viewer instanceof AbstractProjectViewer)
+                {
+
+                    AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+
+                    pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
+
+                    return;
+
+                }
+
+            }
+
+        }
+
+        UIUtils.openURL (viewer,
+                         url);
+
+    }
+
+    public static void openURL (URLActionHandler handler,
+                                URL              url)
+                         throws Exception
     {
 
         if (url == null)
@@ -322,11 +390,9 @@ public class UIUtils
             } catch (Exception e)
             {
 
-                Environment.logError ("Unable to open url: " +
-                                      u,
-                                      e);
-
-                return;
+                throw new GeneralException ("Unable to open url: " +
+                                            u,
+                                            e);
 
             }
 
@@ -364,22 +430,15 @@ public class UIUtils
             } catch (Exception e)
             {
 
-                Environment.logError ("Unable to open url: " +
-                                      u,
-                                      e);
-
-                return;
+                throw new GeneralException ("Unable to open url: " +
+                                            u,
+                                            e);
 
             }
 
-            if (viewer != null)
-            {
-
-                Environment.fireUserProjectEvent (new ProjectEvent (viewer,
-                                                                     ProjectEvent.Type.help,
-                                                                     ProjectEvent.Action.show));
-
-            }
+            Environment.fireUserProjectEvent (new ProjectEvent (Environment.getFocusedViewer (),
+                                                                 ProjectEvent.Type.help,
+                                                                 ProjectEvent.Action.show));
 
         }
 
@@ -399,8 +458,8 @@ public class UIUtils
 
             } catch (Exception e) {
 
-                Environment.logError ("Unable to get project for id: " + projId,
-                                      e);
+                throw new GeneralException ("Unable to get project for id: " + projId,
+                                            e);
 
             }
 
@@ -434,8 +493,8 @@ public class UIUtils
 
             } catch (Exception e) {
 
-                Environment.logError ("Unable to get message for key: " + key,
-                                      e);
+                throw new GeneralException ("Unable to get message for key: " + key,
+                                            e);
 
             }
 
@@ -443,6 +502,7 @@ public class UIUtils
             {
 
                 // Need to work out what to do.
+                // TODO?
                 //EditorsEnvironment.openEditorMessage (mess);
 
             }
@@ -451,37 +511,15 @@ public class UIUtils
 
         }
 
-        if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
-        {
-
-            if (viewer != null)
-            {
-
-                if (viewer instanceof AbstractProjectViewer)
-                {
-
-                    AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
-
-                    pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
-
-                    return;
-
-                }
-
-            }
-
-        }
-
-
         if (url.getProtocol ().equals (Constants.ACTION_PROTOCOL))
         {
 
             String action = url.getPath ();
 
-            if (viewer != null)
+            if (handler != null)
             {
 
-                viewer.handleHTMLPanelAction (action);
+                handler.handleURLAction (action);
 
                 return;
 
@@ -496,24 +534,7 @@ public class UIUtils
 
         }
 
-        try
-        {
-
-            Desktop.getDesktop ().browse (url.toURI ());
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to browse to: " +
-                                  url,
-                                  e);
-
-            ComponentUtils.showErrorMessage (viewer,
-                                             getUILanguageStringProperty (Arrays.asList (general,unabletoopenwebpage),
-                                                                          url));
-                                      //"Unable to open web page: " + url);
-
-        }
+        Desktop.getDesktop ().browse (url.toURI ());
 
     }
 
@@ -550,6 +571,7 @@ public class UIUtils
             {
 
                 UIUtils.openURL (viewer,
+                                 viewer,
                                  "help://" + helpPage);
 
             })
@@ -1261,10 +1283,13 @@ public class UIUtils
                                                            Environment.deleteProject (proj,
                                                                                       onDelete);
 
-                                                           ComponentUtils.showMessage (viewer,
-                                                                                       getUILanguageStringProperty (project,actions,deleteproject,editorproject,confirmpopup,title),
-                                                                                       getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,editorproject,confirmpopup,text),
-                                                                                                                    proj.getForEditor ().getShortName ()));
+                                                           QuollPopup.messageBuilder ()
+                                                            .withViewer (viewer)
+                                                            .withHandler (viewer)
+                                                            .title (project,actions,deleteproject,editorproject,confirmpopup,title)
+                                                            .message (getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,editorproject,confirmpopup,text),
+                                                                                                   proj.getForEditor ().getShortName ()))
+                                                            .build ();
 
                                                        });
 
@@ -1299,6 +1324,20 @@ public class UIUtils
                                                               objName,
                                                               extraMessage != null ? extraMessage : new SimpleStringProperty (""));
 
+        QuollPopup.yesConfirmTextEntryBuilder ()
+            .title (getUILanguageStringProperty (Arrays.asList (deleteitem,title),
+                                                 deleteType))
+            .description (message)
+            .confirmButtonLabel (deleteitem,confirm)
+            .cancelButtonLabel (deleteitem,cancel)
+            .onConfirm (onConfirm)
+            .onCancel (onCancel)
+            .withHandler (viewer)
+            .withViewer (viewer)
+            .styleClassName (style)
+            .build ();
+            /*
+            TODO Remove
         ComponentUtils.createYesConfirmPopup (getUILanguageStringProperty (Arrays.asList (deleteitem,title),
                                                                            deleteType),
                                               style,
@@ -1310,7 +1349,7 @@ public class UIUtils
                                               onCancel,
                                               null,
                                               viewer);
-
+*/
     }
 
     public static StringProperty formatPrompt (Prompt p)
@@ -1939,6 +1978,62 @@ public class UIUtils
 
         List<String> prefix = Arrays.asList (uilanguage,_new,popup);
 
+        QuollPopup.textEntryBuilder ()
+            .withViewer (viewer)
+            .withHandler (viewer)
+            .title (prefix,title)
+            .description (prefix,text)
+            .styleClassName (StyleClassNames.ADDNEWUILANGSTRINGS)
+            .confirmButtonLabel (prefix,buttons,create)
+            .cancelButtonLabel (prefix,buttons,cancel)
+            .onConfirm (ev ->
+            {
+
+                // TODO Improve this...
+                TextField tf = (TextField) ev.getForm ().lookup ("#text");
+
+                String v = tf.getText ().trim ();
+
+                 UILanguageStrings ls = new UILanguageStrings (UILanguageStringsManager.getDefaultUILanguageStrings ());
+                 ls.setNativeName (v);
+                 ls.setUser (true);
+
+                 try
+                 {
+
+                     // TODO new LanguageStringsEditor (ls).init ();
+
+                 } catch (Exception e) {
+
+                     Environment.logError ("Unable to create language strings editor",
+                                           e);
+
+                     ComponentUtils.showErrorMessage (viewer,
+                                                      "Unable to create strings editor.");
+
+                 }
+
+            })
+            .validator (v ->
+            {
+
+                if ((v == null)
+                    ||
+                    (v.trim ().length () == 0)
+                   )
+                {
+
+                    // This can be English because if the creator doesn't know English then they can't create a set of strings.
+                    return new SimpleStringProperty ("Please enter the language name");
+
+                }
+
+                return null;
+
+            })
+            .build ();
+            /*
+            TODO Remove
         ComponentUtils.createTextEntryPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
                                                             StyleClassNames.ADDNEWUILANGSTRINGS,
                                                             getUILanguageStringProperty (Utils.newList (prefix,text)),
@@ -1997,7 +2092,7 @@ public class UIUtils
                                                              // On close
                                                              null,
                                                              viewer);
-
+*/
     }
 
     public static void showEditUILanguageStringsSelectorPopup (final AbstractViewer viewer)
@@ -2037,9 +2132,11 @@ public class UIUtils
         if (objs.size () == 0)
         {
 
-            ComponentUtils.showMessage (viewer,
-                                        getUILanguageStringProperty (uilanguage,edit,novalue,title),
-                                        getUILanguageStringProperty (uilanguage,edit,novalue,text));
+            QuollPopup.messageBuilder ()
+                .title (uilanguage,edit,novalue,title)
+                .message (uilanguage,edit,novalue,text)
+                .withViewer (viewer)
+                .build ();
 
             return;
 
@@ -2181,7 +2278,7 @@ public class UIUtils
 
         VBox content = new VBox ();
         content.getChildren ().add (BasicHtmlTextFlow.builder ()
-            .withViewer (viewer)
+            .withHandler (viewer)
             .text (getUILanguageStringProperty (Arrays.asList (dictionary,download,notification),
                                                 getUILanguageStringProperty (languagenames,lang)))
                     //"The language files for <b>%s</b> are now being downloaded.",
@@ -2978,6 +3075,55 @@ TODO
     {
 
         return Clipboard.getSystemClipboard ().hasString ();
+
+    }
+
+    public static Node createColorSelectorSwatch (AbstractViewer  viewer,
+                                                  String          popupId,
+                                                  StringProperty  popupTitle,
+                                                  Color           initColor,
+                                                  Consumer<Color> onColorSelected)
+    {
+
+        Region swatch = new Region ();
+        swatch.setBackground (new Background (new BackgroundFill (initColor, null, null)));
+        swatch.getStyleClass ().add (StyleClassNames.COLORSWATCH);
+
+        swatch.setOnMouseClicked (ev ->
+        {
+
+            QuollPopup qp = viewer.getPopupById (popupId);
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            ColorChooserPopup p = new ColorChooserPopup (viewer,
+                                                         initColor,
+                                                         true);
+            p.getPopup ().setTitle (popupTitle);
+            p.getPopup ().setPopupId (popupId);
+            p.getChooser ().setOnColorSelected (eev ->
+            {
+
+                Color c = p.getChooser ().colorProperty ().getValue ();
+
+                swatch.setBackground (new Background (new BackgroundFill (c, null, null)));
+                p.close ();
+
+                onColorSelected.accept (c);
+
+            });
+
+            p.show ();
+
+        });
+
+        return swatch;
 
     }
 

@@ -17,14 +17,17 @@ public class HyperlinkLinkedToPanel extends VBox
 {
 
     private LinkedToPanel linkedToPanel = null;
+    private IPropertyBinder binder = null;
 
     public HyperlinkLinkedToPanel (NamedObject           obj,
+                                   IPropertyBinder       binder,
                                    AbstractProjectViewer viewer)
     {
 
         this.getStyleClass ().add (StyleClassNames.LINKEDTO);
 
         this.linkedToPanel = new LinkedToPanel (viewer.getProject (),
+                                                binder,
                                                 viewer);
         this.linkedToPanel.showEdit ();
 

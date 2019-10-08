@@ -60,7 +60,7 @@ public class ContactUILanguageStringsCreatorPopup extends PopupContent
                    this.desc)
             .item (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,LanguageStrings.email,text)),
                    this.email)
-            .withViewer (this.viewer)
+            .withHandler (this.viewer)
             .build ();
 
         f.setOnCancel (ev -> _this.getPopup ().close ());
@@ -110,9 +110,11 @@ public class ContactUILanguageStringsCreatorPopup extends PopupContent
 
                     desc.setText ("");
 
-                    ComponentUtils.showMessage (_this.getViewer (),
-                                                getUILanguageStringProperty (Utils.newList (prefix,confirmpopup, LanguageStrings.title)),
-                                                getUILanguageStringProperty (Utils.newList (prefix,confirmpopup,text)));
+                    QuollPopup.messageBuilder ()
+                        .withViewer (this.getViewer ())
+                        .title (prefix,confirmpopup, LanguageStrings.title)
+                        .message (prefix,confirmpopup, LanguageStrings.text)
+                        .build ();
 
                 });
 

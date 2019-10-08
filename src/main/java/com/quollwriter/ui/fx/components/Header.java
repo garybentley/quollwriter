@@ -248,6 +248,14 @@ public class Header extends HBox
 
     }
 
+    public void setTitle (StringProperty t)
+    {
+
+        this.title.textProperty ().unbind ();
+        this.title.textProperty ().bind (t);
+
+    }
+
     public StringProperty titleProperty ()
     {
 

@@ -15,11 +15,13 @@ import javafx.scene.layout.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.data.IPropertyBinder;
+import com.quollwriter.data.PropertyBinder;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class QuollPopup extends ViewerContent
+public class QuollPopup extends StackPane implements IPropertyBinder
 {
 
     private SimpleObjectProperty<Header> headerProp = null;
@@ -32,13 +34,32 @@ public class QuollPopup extends ViewerContent
     private Boolean removeOnClose = false;
     private Set<QuollPopup> childPopups = null;
     private boolean moving = false;
+    private PopupsViewer viewer = null;
+    private PropertyBinder binder = null;
 
     private QuollPopup (Builder b)
     {
 
-        super (b.viewer);
+        if (b.viewer == null)
+        {
+
+            throw new IllegalArgumentException ("Viewer must be specified.");
+
+        }
+
+        this.binder = new PropertyBinder ();
 
         this.childPopups = new HashSet<> ();
+
+        this.viewer = b.viewer;
+
+        this.viewer.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                     ev ->
+        {
+
+            this.close ();
+
+        });
 
         //this.setPrefSize (javafx.scene.layout.Region.USE__SIZE, javafx.scene.layout.Region.USE_COMPUTED_SIZE);
         //this.setMaxSize (javafx.scene.layout.Region.USE_PREF_SIZE, javafx.scene.layout.Region.USE_PREF_SIZE);
@@ -265,10 +286,32 @@ _this.moving = false;
 */
     }
 
+    @Override
+    public IPropertyBinder getBinder ()
+    {
+
+        return this.binder;
+
+    }
+
+    public void setTitle (StringProperty t)
+    {
+
+        this.getHeader ().setTitle (t);
+
+    }
+
     public void addChildPopup (QuollPopup qp)
     {
 
         this.childPopups.add (qp);
+
+    }
+
+    public Header getHeader ()
+    {
+
+        return this.headerProp.getValue ();
 
     }
 
@@ -289,6 +332,48 @@ _this.moving = false;
     {
 
         return new Builder ();
+
+    }
+
+    public static QuestionBuilder questionBuilder ()
+    {
+
+        return new QuestionBuilder ();
+
+    }
+
+    public static YesConfirmTextEntryBuilder yesConfirmTextEntryBuilder ()
+    {
+
+        return new YesConfirmTextEntryBuilder ();
+
+    }
+
+    public static TextEntryBuilder textEntryBuilder ()
+    {
+
+        return new TextEntryBuilder ();
+
+    }
+
+    public static <E extends FormBuilder<E>> FormBuilder<E> formBuilder ()
+    {
+
+        return new FormBuilder<E> ();
+
+    }
+
+    public static <E extends MessageBuilder<E>> MessageBuilder<E> messageBuilder ()
+    {
+
+        return new MessageBuilder<E> ();
+
+    }
+
+    public static ErrorBuilder errorBuilder ()
+    {
+
+        return new ErrorBuilder ();
 
     }
 
@@ -320,6 +405,8 @@ _this.moving = false;
             this.viewer.removePopup (this);
 
         }
+
+        this.binder.dispose ();
 
         this.fireEvent (new PopupEvent (this,
                                         PopupEvent.CLOSED_EVENT));
@@ -360,22 +447,685 @@ _this.moving = false;
 
     }
 
-    public static class Builder implements IBuilder<Builder, QuollPopup>
+    public static class YesConfirmTextEntryBuilder extends TextEntryBuilder
     {
 
-        private StringProperty title = null;
-        private String styleName = null;
+        @Override
+        public QuollPopup build ()
+        {
+
+            this.validator (v ->
+            {
+
+                if ((v == null)
+                    ||
+                    (!v.trim ().equalsIgnoreCase (getUILanguageStringProperty (form,affirmativevalue).getValue ()))
+                   )
+                {
+
+                    return getUILanguageStringProperty (form,errors,affirmativevalue);
+                    //"Please enter the word Yes below.";
+
+                }
+
+                return null;
+
+            });
+
+            return super.build ();
+
+        }
+
+    }
+
+    public static class TextEntryBuilder extends FormBuilder<TextEntryBuilder>
+    {
+
+        private ValueValidator<String> validator = null;
+        private StringProperty description = null;
+        private EventHandler<Form.FormEvent> onCancel = null;
+        private EventHandler<Form.FormEvent> onConfirm = null;
+        private StringProperty confirmButtonLabel = null;
+        private StringProperty cancelButtonLabel = null;
+        private StringProperty entryLabel = null;
+        private URLActionHandler handler = null;
+
+        public TextEntryBuilder withHandler (URLActionHandler h)
+        {
+
+            this.handler = h;
+            return _this ();
+
+        }
+
+        public TextEntryBuilder entryLabel (StringProperty prop)
+        {
+
+            this.entryLabel = prop;
+            return _this ();
+
+        }
+
+        public TextEntryBuilder entryLabel (List<String> prefix,
+                                            String...    ids)
+        {
+
+            return this.entryLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public TextEntryBuilder entryLabel (String... ids)
+        {
+
+            return this.entryLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public TextEntryBuilder confirmButtonLabel (StringProperty prop)
+        {
+
+            this.confirmButtonLabel = prop;
+            return _this ();
+
+        }
+
+        public TextEntryBuilder confirmButtonLabel (List<String> prefix,
+                                                    String...    ids)
+        {
+
+            return this.confirmButtonLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public TextEntryBuilder confirmButtonLabel (String... ids)
+        {
+
+            return this.confirmButtonLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public TextEntryBuilder cancelButtonLabel (StringProperty prop)
+        {
+
+            this.cancelButtonLabel = prop;
+            return _this ();
+
+        }
+
+        public TextEntryBuilder cancelButtonLabel (List<String> prefix,
+                                                   String...    ids)
+        {
+
+            return this.cancelButtonLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public TextEntryBuilder cancelButtonLabel (String... ids)
+        {
+
+            return this.cancelButtonLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public TextEntryBuilder onConfirm (EventHandler<Form.FormEvent> c)
+        {
+
+            this.onConfirm = c;
+            return this;
+
+        }
+
+        public TextEntryBuilder onCancel (EventHandler<Form.FormEvent> c)
+        {
+
+            this.onCancel = c;
+            return this;
+
+        }
+
+        public TextEntryBuilder description (String... m)
+        {
+
+            return this.description (getUILanguageStringProperty (m));
+
+        }
+
+        public TextEntryBuilder description (List<String> prefix,
+                                             String...    m)
+        {
+
+            return this.description (getUILanguageStringProperty (Utils.newList (prefix, m)));
+
+        }
+
+        public TextEntryBuilder description (StringProperty m)
+        {
+
+            this.description = m;
+            return _this ();
+
+        }
+
+        public TextEntryBuilder validator (ValueValidator<String> v)
+        {
+
+            this.validator = v;
+            return _this ();
+
+        }
+
+        @Override
+        public TextEntryBuilder _this ()
+        {
+
+            return this;
+
+        }
+
+        @Override
+        public QuollPopup build ()
+        {
+
+            QuollTextField tf = QuollTextField.builder ()
+                .build ();
+            // TODO Make a constant.
+            tf.setId ("text");
+
+            if (this.styleName == null)
+            {
+
+                this.styleName = StyleClassNames.QUESTION;
+
+            }
+
+            Form f = Form.builder ()
+                .styleClassName (StyleClassNames.TEXTENTRY)
+                .description (this.description)
+                .withHandler (this.handler)
+                .item (this.entryLabel,
+                       tf)
+                .confirmButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
+                .cancelButton ((this.cancelButtonLabel != null ? this.cancelButtonLabel : getUILanguageStringProperty (buttons,cancel)))
+                .build ();
+
+            this.form (f);
+
+            QuollPopup qp = super.build ();
+
+            Runnable r = () ->
+            {
+
+                f.hideError ();
+
+                StringProperty m = validator.isValid (tf.getText ());
+
+                if (m != null)
+                {
+
+                    f.showError (m);
+                    return;
+
+                }
+
+                this.onConfirm.handle (new Form.FormEvent (f,
+                                                           Form.FormEvent.CONFIRM_EVENT));
+
+                qp.close ();
+
+            };
+
+            f.setOnCancel (this.onCancel);
+
+            f.setOnConfirm (ev ->
+            {
+
+                UIUtils.runLater (r);
+
+            });
+
+            UIUtils.runLater (() ->
+            {
+
+                tf.requestFocus ();
+
+            });
+
+            return qp;
+
+        }
+
+    }
+
+    public static class FormBuilder<X extends FormBuilder<X>> extends Builder<X>
+    {
+
+        private Form form = null;
+
+        @Override
+        public X _this ()
+        {
+
+            // TODO Dodgy cast, fix?
+            return (X) this;
+
+        }
+
+        public X form (Form f)
+        {
+
+            this.form = f;
+            return _this ();
+
+        }
+
+        public QuollPopup build ()
+        {
+
+            this.withClose (true);
+            this.hideOnEscape (true);
+            this.removeOnClose (true);
+            this.show ();
+
+            if (this.styleName == null)
+            {
+
+                this.styleClassName (StyleClassNames.QUESTION);
+
+            }
+
+            if (this.form == null)
+            {
+
+                throw new IllegalArgumentException ("Form must be provided.");
+
+            }
+
+            this.content (this.form);
+
+            QuollPopup qp = super.build ();
+
+            Button cancel = this.form.getCancelButton ();
+
+            if (cancel != null)
+            {
+
+                cancel.addEventHandler (ActionEvent.ACTION,
+                                        ev -> qp.close ());
+
+            }
+
+            return qp;
+
+        }
+
+    }
+
+    public static class MessageBuilder<X extends MessageBuilder<X>> extends Builder<X>
+    {
+
+        protected StringProperty message = null;
+        private Node messageNode = null;
+        protected Set<Button> buttons = null;
+        private URLActionHandler handler = null;
+
+        public X message (Node n)
+        {
+
+            this.messageNode = n;
+            return _this ();
+
+        }
+
+        @Override
+        public X _this ()
+        {
+
+            // TODO Dodgy cast, fix?
+            return (X) this;
+
+        }
+
+        public X withHandler (URLActionHandler h)
+        {
+
+            this.handler = h;
+            return _this ();
+
+        }
+
+        public X message (String... m)
+        {
+
+            return this.message (getUILanguageStringProperty (m));
+
+        }
+
+        public X message (List<String> prefix,
+                          String...    m)
+        {
+
+            return this.message (getUILanguageStringProperty (Utils.newList (prefix, m)));
+
+        }
+
+        public X message (StringProperty m)
+        {
+
+            this.message = m;
+            return _this ();
+
+        }
+
+        public X buttons (Set<Button> bs)
+        {
+
+            this.buttons = bs;
+            return _this ();
+
+        }
+
+        @Override
+        public QuollPopup build ()
+        {
+
+            this.withClose (true);
+            this.hideOnEscape (true);
+            this.removeOnClose (true);
+            this.show ();
+
+            VBox b = new VBox ();
+
+            Node content = null;
+
+            if (this.messageNode == null)
+            {
+
+                if (this.message == null)
+                {
+
+                    throw new IllegalArgumentException ("Message must be provided.");
+
+                }
+
+                content = BasicHtmlTextFlow.builder ()
+                    .text (this.message)
+                    .styleClassName (StyleClassNames.MESSAGE)
+                    .withHandler (this.handler)
+                    .build ();
+
+            } else {
+
+                content = this.messageNode;
+
+            }
+
+            if (content == null)
+            {
+
+                throw new IllegalArgumentException ("No message or messageNode provided.");
+
+            }
+
+            b.getChildren ().add (content);
+
+            if (this.title == null)
+            {
+
+                this.title (generalmessage,LanguageStrings.title);
+
+            }
+
+            if (this.styleName == null)
+            {
+
+                this.styleClassName (StyleClassNames.MESSAGE);
+
+            }
+
+            if (this.buttons != null)
+            {
+
+                Node bb = QuollButtonBar.builder ()
+                    .buttons (this.buttons)
+                    .build ();
+
+                b.getChildren ().add (bb);
+
+            }
+
+            this.content (b);
+
+            QuollPopup qp = new QuollPopup (this);
+
+            UIUtils.runLater (() ->
+            {
+
+                qp.toFront ();
+
+            });
+
+            return qp;
+
+        }
+
+    }
+
+    public static class ErrorBuilder extends MessageBuilder<ErrorBuilder>
+    {
+
+        private EventHandler<ActionEvent> onConfirm = null;
+
+        @Override
+        public QuollPopup build ()
+        {
+
+            Button b = QuollButton.builder ()
+                .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
+                .label (getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.close))
+                .build ();
+
+            Set<Button> buttons = new LinkedHashSet<> ();
+            buttons.add (b);
+            this.buttons (buttons);
+            this.message (getUILanguageStringProperty (Arrays.asList (errormessage,text),
+                                                //"%s<br /><br /><a href='%s:%s'>Click here to contact Quoll Writer support about this problem.</a>",
+                                                this.message,
+                                                Constants.ACTION_PROTOCOL,
+                                                AbstractViewer.CommandId.reportbug));
+
+            if (this.title == null)
+            {
+
+                this.title (errormessage,LanguageStrings.title);
+
+            }
+
+            if (this.styleName == null)
+            {
+
+                this.styleClassName (StyleClassNames.ERROR);
+
+            }
+
+            this.hideOnEscape (true);
+            this.removeOnClose (true);
+            this.withClose (true);
+            this.show ();
+
+            QuollPopup qp = super.build ();
+
+            b.setOnAction (ev ->
+            {
+
+                qp.close ();
+
+            });
+
+            return qp;
+
+        }
+
+    }
+
+    public static class QuestionBuilder extends MessageBuilder<QuestionBuilder>
+    {
+
+        private EventHandler<ActionEvent> onConfirm = null;
+        private EventHandler<ActionEvent> onCancel = null;
+        private StringProperty confirmButtonLabel = null;
+        private StringProperty cancelButtonLabel = null;
+
+        protected QuestionBuilder ()
+        {
+
+        }
+
+        @Override
+        public QuestionBuilder _this ()
+        {
+
+            return this;
+
+        }
+
+        public QuestionBuilder confirmButtonLabel (StringProperty prop)
+        {
+
+            this.confirmButtonLabel = prop;
+            return _this ();
+
+        }
+
+        public QuestionBuilder confirmButtonLabel (List<String> prefix,
+                                                   String...    ids)
+        {
+
+            return this.confirmButtonLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public QuestionBuilder confirmButtonLabel (String... ids)
+        {
+
+            return this.confirmButtonLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public QuestionBuilder cancelButtonLabel (StringProperty prop)
+        {
+
+            this.cancelButtonLabel = prop;
+            return _this ();
+
+        }
+
+        public QuestionBuilder cancelButtonLabel (List<String> prefix,
+                                                  String...    ids)
+        {
+
+            return this.cancelButtonLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public QuestionBuilder cancelButtonLabel (String... ids)
+        {
+
+            return this.cancelButtonLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public QuestionBuilder onConfirm (EventHandler<ActionEvent> c)
+        {
+
+            this.onConfirm = c;
+            return this;
+
+        }
+
+        public QuestionBuilder onCancel (EventHandler<ActionEvent> c)
+        {
+
+            this.onCancel = c;
+            return this;
+
+        }
+
+        @Override
+        public QuollPopup build ()
+        {
+
+            Set<Button> buts = new LinkedHashSet<> ();
+
+            if (this.buttons != null)
+            {
+
+                buts.addAll (this.buttons);
+
+            } else {
+
+                if (this.onConfirm == null)
+                {
+
+                    throw new IllegalArgumentException ("If no buttons are specified then onConfirm must be specified.");
+
+                }
+
+                Button confirm = QuollButton.builder ()
+                    .label ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.confirm)))
+                    .buttonType (ButtonBar.ButtonData.OK_DONE)
+                    .styleClassName (StyleClassNames.CONFIRM)
+                    .onAction (this.onConfirm)
+                    .build ();
+
+                buts.add (confirm);
+
+            }
+
+            Button cancel = QuollButton.builder ()
+                .label ((this.cancelButtonLabel != null ? this.cancelButtonLabel : getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.cancel)))
+                .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
+                .styleClassName (StyleClassNames.CANCEL)
+                .onAction (this.onCancel)
+                .build ();
+
+            buts.add (cancel);
+
+            this.buttons (buts);
+
+            if (this.styleName == null)
+            {
+
+                this.styleClassName (StyleClassNames.QUESTION);
+
+            }
+
+            QuollPopup qp = super.build ();
+
+            cancel.addEventHandler (ActionEvent.ACTION,
+                                    ev -> qp.close ());
+
+            return qp;
+
+        }
+
+    }
+
+    public static class Builder<X extends Builder<X>> implements IBuilder<X, QuollPopup>
+    {
+
+        protected StringProperty title = null;
+        protected String styleName = null;
         private Set<Node> controls = null;
         private Node content = null;
         private boolean withClose = false;
         private boolean hideOnEscape = false;
         private Runnable onClose = null;
         private String popupId = null;
-        private AbstractViewer viewer = null;
+        private PopupsViewer viewer = null;
         private boolean show = false;
         private boolean removeOnClose = false;
 
-        private Builder ()
+        protected Builder ()
         {
 
         }
@@ -389,112 +1139,112 @@ _this.moving = false;
         }
 
         @Override
-        public Builder _this ()
+        public X _this ()
         {
 
-            return this;
+            return (X) this;
 
         }
 
-        public Builder show ()
+        public X show ()
         {
 
             this.show = true;
-            return this;
+            return _this ();
 
         }
 
-        public Builder withViewer (AbstractViewer viewer)
+        public X withViewer (PopupsViewer viewer)
         {
 
             this.viewer = viewer;
-            return this;
+            return _this ();
 
         }
 
-        public Builder popupId (String id)
+        public X popupId (String id)
         {
 
             this.popupId = id;
-            return this;
+            return _this ();
 
         }
 
-        public Builder removeOnClose (Boolean b)
+        public X removeOnClose (Boolean b)
         {
 
             this.removeOnClose = b;
-            return this;
+            return _this ();
 
         }
 
-        public Builder onClose (Runnable r)
+        public X onClose (Runnable r)
         {
 
             this.onClose = r;
-            return this;
+            return _this ();
 
         }
 
-        public Builder hideOnEscape (boolean v)
+        public X hideOnEscape (boolean v)
         {
 
             this.hideOnEscape = v;
-            return this;
+            return _this ();
 
         }
 
-        public Builder withClose (boolean v)
+        public X withClose (boolean v)
         {
 
             this.withClose = v;
-            return this;
+            return _this ();
 
         }
 
-        public Builder content (Node c)
+        public X content (Node c)
         {
 
             this.content = c;
-            return this;
+            return _this ();
 
         }
 
-        public Builder controls (Set<Node> c)
+        public X controls (Set<Node> c)
         {
 
             this.controls = c;
 
-            return this;
+            return _this ();
 
         }
 
-        public Builder styleClassName (String n)
+        public X styleClassName (String n)
         {
 
             this.styleName = n;
 
-            return this;
+            return _this ();
 
         }
 
-        public Builder title (StringProperty prop)
+        public X title (StringProperty prop)
         {
 
             this.title = prop;
-            return this;
+            return _this ();
 
         }
 
-        public Builder title (List<String> prefix,
-                              String...    ids)
+        public X title (List<String> prefix,
+                                 String...    ids)
         {
 
             return this.title (getUILanguageStringProperty (Utils.newList (prefix, ids)));
 
         }
 
-        public Builder title (String... ids)
+        public X title (String... ids)
         {
 
             return this.title (getUILanguageStringProperty (ids));

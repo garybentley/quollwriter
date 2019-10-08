@@ -545,6 +545,36 @@ public class SessionWordCountChart extends AnchorPane implements QuollChart
 
                     List<String> prefix = Arrays.asList (charts,sessionwordcount,notarget,popup);
 
+                    QuollPopup.questionBuilder ()
+                        .withViewer (this.viewer)
+                        .title (prefix,title)
+                        .styleClassName (StyleClassNames.TARGETS)
+                        .message (prefix,text)
+                        .confirmButtonLabel (prefix,buttons,confirm)
+                        .cancelButtonLabel (prefix,buttons,cancel)
+                        .onConfirm (eev ->
+                        {
+
+                            try
+                            {
+
+                                _this.viewer.runCommand (AbstractViewer.CommandId.viewtargets);
+
+                            } catch (Exception e) {
+
+                                Environment.logError ("Unable to show targets",
+                                                      e);
+
+                                ComponentUtils.showErrorMessage (_this.viewer,
+                                                                 getUILanguageStringProperty (charts,sessionwordcount,notarget,actionerror));
+                                                         //"Unable to show targets.");
+
+                            }
+
+                        })
+                        .build ();
+/*
+TODO Remove
                     ComponentUtils.createQuestionPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
                                                         StyleClassNames.TARGETS,
                                                         getUILanguageStringProperty (Utils.newList (prefix,text)),
@@ -574,7 +604,7 @@ public class SessionWordCountChart extends AnchorPane implements QuollChart
 
                                                         },
                                                         _this.viewer);
-
+*/
                     this.showTarget.setSelected (false);
 
                     return;

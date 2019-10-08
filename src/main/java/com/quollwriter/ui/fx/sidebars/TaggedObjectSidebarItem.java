@@ -33,11 +33,13 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
     private IntegerProperty count = new SimpleIntegerProperty (0);
     private QuollTreeView<NamedObject> tree = null;
 
-    public TaggedObjectSidebarItem (Tag           tag,
-                                    ProjectViewer pv)
+    public TaggedObjectSidebarItem (Tag             tag,
+                                    IPropertyBinder binder,
+                                    ProjectViewer   pv)
     {
 
-        super (pv);
+        super (pv,
+               binder);
 
         TaggedObjectSidebarItem _this = this;
 
@@ -49,7 +51,8 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
         this.items = its;
 
-        its.addListener ((SetChangeListener<NamedObject>) ev ->
+        this.addSetChangeListener (its,
+                                   ev ->
         {
 
             // We are just adding a change listener here to help us trigger a reload.

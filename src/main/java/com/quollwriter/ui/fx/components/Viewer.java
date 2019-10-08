@@ -5,21 +5,25 @@ import java.util.*;
 import java.util.function.*;
 
 import javafx.css.*;
+import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.event.*;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.beans.value.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.data.IPropertyBinder;
+import com.quollwriter.data.PropertyBinder;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class Viewer extends Stage implements Stateful
+public class Viewer extends Stage implements Stateful, IPropertyBinder
 {
 
     public static final int DEFAULT_WINDOW_WIDTH = 800;
@@ -30,11 +34,50 @@ public class Viewer extends Stage implements Stateful
     private String styleName = null;
     private StringProperty titleProp = null;
     private Supplier<Set<Node>> headerControlsSupplier = null;
+    private IPropertyBinder binder = null;
 
     private Viewer (Builder b)
     {
 
+        this.binder = new PropertyBinder ();
+
+        this.addSetChangeListener (Environment.getStyleSheets (),
+                                   ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                this.addStyleSheet (ev.getElementAdded ());
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                this.removeStyleSheet (ev.getElementRemoved ());
+
+            }
+
+        });
+
+        this.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                              ev ->
+        {
+
+            this.binder.dispose ();
+
+        });
+
         this._init (b);
+
+    }
+
+    @Override
+    public IPropertyBinder getBinder ()
+    {
+
+        return this.binder;
 
     }
 
@@ -177,9 +220,16 @@ public class Viewer extends Stage implements Stateful
         this.setMinWidth (300);
         this.setMinHeight (300);
 
-        this.addStyleSheet (UserProperties.getUserStyleSheetURL ());
+        Environment.getStyleSheets ().stream ()
+            .forEach (u ->
+            {
 
-        UserProperties.uiBaseFontSizeProperty ().addListener ((pr, oldv, newv) ->
+                this.addStyleSheet (u);
+
+            });
+
+        this.addChangeListener (UserProperties.uiBaseFontSizeProperty (),
+                                (pr, oldv, newv) ->
         {
 
             this.updateUIBaseFontSize ();
@@ -189,7 +239,8 @@ public class Viewer extends Stage implements Stateful
         this.updateUIBaseFontSize ();
 
         // Listen to the night mode property, add a psuedo class when it is enabled.
-        Environment.nightModeProperty ().addListener ((val, oldv, newv) ->
+        this.addChangeListener (Environment.nightModeProperty (),
+                                (val, oldv, newv) ->
         {
 
             box.pseudoClassStateChanged (StyleClassNames.NIGHT_MODE_PSEUDO_CLASS, newv);
@@ -348,6 +399,8 @@ public class Viewer extends Stage implements Stateful
 
         public static final EventType<ViewerEvent> CLOSE_EVENT = new EventType<> ("viewer.close");
         public static final EventType<ViewerEvent> SHOW_EVENT = new EventType<> ("viewer.show");
+        public static final EventType<ViewerEvent> FULL_SCREEN_ENTERED_EVENT = new EventType<> ("viewer.fullscreen.entered");
+        public static final EventType<ViewerEvent> FULL_SCREEN_EXITED_EVENT = new EventType<> ("viewer.fullscreen.exited");
 
         private Viewer viewer = null;
 

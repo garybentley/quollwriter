@@ -94,11 +94,11 @@ public class UILanguageStringsManager
 
                                                     }
 
-                                                    ComponentUtils.showMessage (Environment.getFocusedViewer (),
-                                                                                UILanguageStringsManager.getUILanguageStringProperty (uilanguage,set,downloading,redownload,confirmpopup,title),
-                                                                                //"Language strings re-downloaded",
-                                                                                UILanguageStringsManager.getUILanguageStringProperty (uilanguage,set,downloading,redownload,confirmpopup,text));
-                                                                                //"Quoll Writer has re-downloaded the User Interface language strings you are using because they were missing from your local system.  In the interim the User Interface has fallen back to using English.<br /><br />To return to using your selected language Quoll Writer must be restarted.",
+                                                    QuollPopup.messageBuilder ()
+                                                        .withViewer (Environment.getFocusedViewer ())
+                                                        .title (uilanguage,set,downloading,redownload,confirmpopup,title)
+                                                        .message (uilanguage,set,downloading,redownload,confirmpopup,text)
+                                                        .build ();
 
                                                  },
                                                  // On error.
@@ -139,11 +139,11 @@ public class UILanguageStringsManager
 
                                                         }
 
-                                                        ComponentUtils.showMessage (Environment.getFocusedViewer (),
-                                                                                    UILanguageStringsManager.getUILanguageStringProperty (uilanguage,set,downloading,update,confirmpopup,title),
-                                                                                    //"Language strings updated",
-                                                                                    UILanguageStringsManager.getUILanguageStringProperty (uilanguage,set,downloading,update,confirmpopup,text));
-                                                                                    //"Quoll Writer has updated the User Interface language strings you are using because a new version was available.<br /><br />To make full use of the updated strings Quoll Writer must be restarted.",
+                                                        QuollPopup.messageBuilder ()
+                                                            .withViewer (Environment.getFocusedViewer ())
+                                                            .title (uilanguage,set,downloading,update,confirmpopup,title)
+                                                            .message (uilanguage,set,downloading,update,confirmpopup,text)
+                                                            .build ();
 
                                                     },
                                                     // On error.
@@ -801,9 +801,11 @@ TODO
             }
 
             // TODO Check this...
-            ComponentUtils.showMessage (Environment.getFocusedViewer (),
-                                        new SimpleStringProperty ("Restart recommended"),
-                                        new SimpleStringProperty ("The user interface language has been reset to " + Constants.ENGLISH + ", a restart is recommended."));
+            QuollPopup.messageBuilder ()
+                .withViewer (Environment.getFocusedViewer ())
+                .title (new SimpleStringProperty ("Restart recommended"))
+                .message (new SimpleStringProperty ("The user interface language has been reset to " + Constants.ENGLISH + ", a restart is recommended."))
+                .build ();
 
         }
 

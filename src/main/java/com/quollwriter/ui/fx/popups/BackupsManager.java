@@ -51,7 +51,7 @@ public class BackupsManager extends PopupContent
         BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
             .text (getUILanguageStringProperty (Arrays.asList (backups,text),
                                                 proj.nameProperty ()))
-            .withViewer (viewer)
+            .withHandler (viewer)
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();
 
@@ -69,7 +69,7 @@ public class BackupsManager extends PopupContent
 
         this.noBackups = BasicHtmlTextFlow.builder ()
             .text (getUILanguageStringProperty (LanguageStrings.backups,nobackups))
-            .withViewer (viewer)
+            .withHandler (viewer)
             .styleClassName (StyleClassNames.NOBACKUPS)
             .build ();
         this.noBackups.managedProperty ().bind (this.noBackups.visibleProperty ());
@@ -109,7 +109,8 @@ public class BackupsManager extends PopupContent
         b.getChildren ().addAll (desc, this.viewBackupsDir, this.noBackups, this.backupsScroll, bb);
 
         // Ugh, the compiler needs more help here.
-        proj.backupPathsProperty ().addListener ((SetChangeListener<Path>) (ev ->
+        this.addSetChangeListener (proj.backupPathsProperty (),
+                                   ev ->
         {
 
             // We only care about add events, remove is already handled below.
@@ -139,7 +140,7 @@ public class BackupsManager extends PopupContent
 
             }
 
-        }));
+        });
 
         this.update ();
 
@@ -160,11 +161,191 @@ public class BackupsManager extends PopupContent
 
                 List<String> prefix = Arrays.asList (LanguageStrings.backups,restore,LanguageStrings.popup);
 
+                QuollPopup.questionBuilder ()
+                    .title (prefix,title)
+                    .styleClassName (StyleClassNames.RESTORE)
+                    .message (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                           this.proj.nameProperty (),
+                                                           backupPath.toString ()))
+                    .confirmButtonLabel (prefix,buttons,confirm)
+                    .cancelButtonLabel (prefix,buttons,cancel)
+                    .onConfirm (fv ->
+                    {
+
+                        final AbstractProjectViewer pv = Environment.getProjectViewer (this.proj);
+
+                        Runnable doRestore = () ->
+                        {
+
+                            Runnable _doRestore = () ->
+                            {
+
+                                try
+                                {
+
+                                    // Create a backup.
+                                    Path f = BackupsManager.createBackupForProject (_this.proj,
+                                                                                    true);
+
+                                } catch (Exception e) {
+
+                                    Environment.logError ("Unable to create backup for project: " +
+                                                          _this.proj,
+                                                          e);
+
+                                    ComponentUtils.showErrorMessage (_this.viewer,
+                                                                     getUILanguageStringProperty (backups,_new,actionerror));
+                                                              //"Unable to create a backup of the {project} in its current state.");
+
+                                    return;
+
+                                }
+
+                                // Restore using our file.
+                                try
+                                {
+
+                                    BackupsManager.restoreBackupForProject (_this.proj,
+                                                                            backupPath);
+
+                                } catch (Exception e) {
+
+                                    Environment.logError ("Unable to restore project with file: " +
+                                                          backupPath +
+                                                          ", project: " +
+                                                          _this.proj,
+                                                          e);
+
+                                    ComponentUtils.showErrorMessage (_this.viewer,
+                                                                     getUILanguageStringProperty (backups,restore,actionerror));
+                                                                     //"Unable to restore backup");
+
+                                    return;
+
+                                }
+
+                                List<String> prefix2 = Arrays.asList (backups,restore,confirmpopup);
+
+                                if (pv != null)
+                                {
+
+                                    try
+                                    {
+
+                                        // Reopen the project.
+                                        Environment.openProject (_this.proj);
+
+                                        AbstractProjectViewer p = Environment.getProjectViewer (_this.proj);
+
+                                        // Show confirmation.
+                                        QuollPopup.messageBuilder ()
+                                            .withViewer (p)
+                                            .title (prefix2, title)
+                                            .message (getUILanguageStringProperty (Utils.newList (prefix2,text),
+                                                                         //"The {project} has been restored from file <b>%s</b>.",
+                                                                                   backupPath.getFileName ().toString ()))
+                                            .build ();
+
+                                        p.fireProjectEventLater (ProjectEvent.Type.backups,
+                                                                 ProjectEvent.Action.restore);
+
+                                    } catch (Exception e) {
+
+                                        Environment.logError ("Unable to reopen project: " +
+                                                              _this.proj,
+                                                              e);
+
+                                        ComponentUtils.showErrorMessage (_this.viewer,
+                                                                         getUILanguageStringProperty (Utils.newList (prefix2,actionerror)));
+                                                                         //"Unable to re-open backup");
+
+                                        return;
+
+                                    }
+
+                                    return;
+
+                                }
+
+                                // Show confirmation.
+                                QuollPopup.messageBuilder ()
+                                    .withViewer (_this.viewer)
+                                    .title (prefix2, title)
+                                    .message (getUILanguageStringProperty (Utils.newList (prefix2,text),
+                                                                 //"{Project} <b>%s</b> has been restored using file <b>%s</b>.",
+                                                                           _this.proj.nameProperty (),
+                                                                           backupPath.getFileName ().toString ()))
+                                    .build ();
+                                    /*
+                                    TODO remove
+                                ComponentUtils.showMessage (_this.viewer,
+                                                            getUILanguageStringProperty (Utils.newList (prefix2,title)),
+                                                            //"{Project} restored",
+                                                            getUILanguageStringProperty (Utils.newList (prefix2,text),
+                                                                                         //"{Project} <b>%s</b> has been restored using file <b>%s</b>.",
+                                                                                         _this.proj.nameProperty (),
+                                                                                         backupPath.getFileName ().toString ()));
+*/
+                            };
+
+                            UIUtils.askForPasswordForProject (_this.proj,
+                                                              null,
+                                                              password ->
+                                                              {
+
+                                                                  _this.proj.setFilePassword (password);
+
+                                                                  UIUtils.runLater (_doRestore);
+
+                                                              },
+                                                              () ->
+                                                              {
+
+                                                                  // On cancel reopen the project.
+                                                                  try
+                                                                  {
+
+                                                                      Environment.openProject (_this.proj);
+
+                                                                  } catch (Exception e) {
+
+                                                                      Environment.logError ("Unable to reopen project: " +
+                                                                                            _this.proj,
+                                                                                            e);
+
+                                                                      ComponentUtils.showErrorMessage (null,
+                                                                                                       getUILanguageStringProperty (backups,restore,confirmpopup,actionerror));
+                                                                                                       //"Unable to re-open backup");
+
+                                                                      return;
+
+                                                                  }
+
+                                                              },
+                                                              _this.viewer);
+
+                        };
+
+                        if (pv != null)
+                        {
+
+                            // Close the project.
+                            pv.close (true,
+                                      doRestore);
+
+                        } else {
+
+                            UIUtils.runLater (doRestore);
+
+                        }
+
+                    })
+                    .build ();
+/*
+TODO Remove
                 ComponentUtils.createQuestionPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
                                                     StyleClassNames.RESTORE,
-                                                    getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                                                 this.proj.nameProperty (),
-                                                                                 backupPath.toString ()),
+                                                    ,
                                                     getUILanguageStringProperty (Utils.newList (prefix,buttons,confirm)),
                                                     getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)),
                                                     fv ->
@@ -329,7 +510,7 @@ public class BackupsManager extends PopupContent
 
                                                     },
                                                     _this.viewer);
-
+*/
             })
             .build ());
 
@@ -341,6 +522,36 @@ public class BackupsManager extends PopupContent
 
                 List<String> prefix = Arrays.asList (backups,delete,confirmpopup);
 
+                QuollPopup.questionBuilder ()
+                    .title (prefix,title)
+                    .withViewer (this.viewer)
+                    .withHandler (this.viewer)
+                    .styleClassName (StyleClassNames.DELETE)
+                    .message (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                           backupPath.toString ()))
+                    .confirmButtonLabel (prefix,buttons,confirm)
+                    .cancelButtonLabel (prefix,buttons,cancel)
+                    .onConfirm (fv ->
+                    {
+
+                        try
+                        {
+
+                            _this.removeBackup (backupPath);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to remove backup: " + backupPath,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (_this.viewer,
+                                                             backups,delete,actionerror);
+
+                        }
+
+                    })
+                    .build ();
+/*
                 ComponentUtils.createQuestionPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
                                                     StyleClassNames.DELETE,
                                                     getUILanguageStringProperty (Utils.newList (prefix,text),
@@ -367,7 +578,7 @@ public class BackupsManager extends PopupContent
 
                                                     },
                                                     _this.viewer);
-
+*/
             })
             .build ());
 
@@ -613,6 +824,80 @@ public class BackupsManager extends PopupContent
                                          final AbstractViewer viewer)
     {
 
+        QuollPopup.questionBuilder ()
+            .title (backups,_new,LanguageStrings.popup,title)
+            .styleClassName (StyleClassNames.CREATEBACKUP)
+            .message (getUILanguageStringProperty (Arrays.asList (backups,_new,LanguageStrings.popup,text),
+                        //"Please confirm you wish to create a backup of {project} <b>%s</b>.",
+                                                   proj.getName ()))
+            .confirmButtonLabel (backups,_new,LanguageStrings.popup,buttons,confirm)
+            .cancelButtonLabel (backups,_new,LanguageStrings.popup,buttons,cancel)
+            .withViewer (viewer)
+            .withHandler (viewer)
+            .onConfirm (fev ->
+            {
+
+                try
+                {
+
+                    Path p = BackupsManager.createBackupForProject (proj,
+                                                                    false);
+
+                    VBox b = new VBox ();
+
+                    BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
+                        .styleClassName (StyleClassNames.MESSAGE)
+                        .text (getUILanguageStringProperty (Arrays.asList (backups,_new,confirmpopup,text),
+                                                            p.getParent ().toUri ().toString (),
+                                                            p.toString ()))
+                        .withHandler (viewer)
+                        .build ();
+
+                    QuollHyperlink l = QuollHyperlink.builder ()
+                        .styleClassName (StyleClassNames.VIEW)
+                        .label (getUILanguageStringProperty (backups,_new,confirmpopup,labels,view))
+                        .onAction (ev ->
+                        {
+
+                            BackupsManager.showForProject (proj,
+                                                           viewer);
+
+                        })
+                        .build ();
+
+                    b.getChildren ().addAll (m, l);
+
+                    QuollPopup.messageBuilder ()
+                        .message (b)
+                        .title (backups,_new,confirmpopup,title)
+                        .styleClassName (StyleClassNames.BACKUPCREATED)
+                        .withViewer (viewer)
+                        .build ();
+/*
+TODO REmove
+                    ComponentUtils.showMessage (viewer,
+                                                StyleClassNames.BACKUPCREATED,
+                                                getUILanguageStringProperty (backups,_new,confirmpopup,title),
+                                                //"Backup created",
+                                                b);
+*/
+                } catch (Exception e)
+                {
+
+                    Environment.logError ("Unable to create backup of project: " +
+                                          proj,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (viewer,
+                                                     getUILanguageStringProperty (backups,_new,actionerror));
+                                              //"Unable to create backup.");
+
+                }
+
+            })
+            .build ();
+/*
+TODO Remove
         ComponentUtils.createQuestionPopup (getUILanguageStringProperty (backups,_new,LanguageStrings.popup,title),
                                             StyleClassNames.CREATEBACKUP,
                                             getUILanguageStringProperty (Arrays.asList (backups,_new,LanguageStrings.popup,text),
@@ -638,7 +923,7 @@ public class BackupsManager extends PopupContent
                                                         .text (getUILanguageStringProperty (Arrays.asList (backups,_new,confirmpopup,text),
                                                                                             p.getParent ().toUri ().toString (),
                                                                                             p.toString ()))
-                                                        .withViewer (viewer)
+                                                        .withHandler (viewer)
                                                         .build ();
 
                                                     QuollHyperlink l = QuollHyperlink.builder ()
@@ -676,7 +961,7 @@ public class BackupsManager extends PopupContent
 
                                             },
                                             viewer);
-
+*/
     }
 
     public static Path createBackupForProject (Project p,

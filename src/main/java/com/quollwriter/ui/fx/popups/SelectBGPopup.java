@@ -260,7 +260,8 @@ public class SelectBGPopup extends PopupContent
                                                                 initCol,
                                                                 false);
                 colp.show ();
-                colp.getChooser ().colorProperty ().addListener ((_p, oldv, newv) ->
+                this.addChangeListener (colp.getChooser ().colorProperty (),
+                                        (_p, oldv, newv) ->
                 {
 
                     _this.selectedProp.setValue (newv);//UIUtils.colorToHex (newv));

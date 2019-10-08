@@ -67,7 +67,8 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         this.getChildren ().add (this.contentWrapper);
 
-        Environment.tagsProperty ().addListener ((SetChangeListener<Tag>) ev ->
+        this.addSetChangeListener (Environment.getAllTags (),
+                                   ev ->
         {
 
             Tag t = ev.getElementRemoved ();
@@ -81,7 +82,8 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         });
 
-        this.viewer.currentPanelProperty ().addListener ((pr, oldv, newv) ->
+        this.addChangeListener (this.viewer.currentPanelProperty (),
+                                (pr, oldv, newv) ->
         {
 
             this.updateToolbar ();
@@ -222,7 +224,8 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         }
 
         // Add listener to toolbar location position.
-        this.viewer.getProject ().toolbarLocationProperty ().addListener ((pr, oldv, newv) ->
+        this.addChangeListener (this.viewer.getProject ().toolbarLocationProperty (),
+                                (pr, oldv, newv) ->
         {
 
             this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (oldv), false);
@@ -494,6 +497,7 @@ TODO Needed?
         final ProjectSideBar _this = this;
 
         return new AssetsSidebarItem (type,
+                                      this,
                                       this.viewer)
         {
 
@@ -623,7 +627,8 @@ TODO Needed?
         if (objType.equals (Chapter.OBJECT_TYPE))
         {
 
-            return new ChaptersSidebarItem (this.viewer)
+            return new ChaptersSidebarItem (this.viewer,
+                                            this)
             {
 
                 @Override
@@ -734,6 +739,7 @@ TODO
             }
 
             return new TaggedObjectSidebarItem (tag,
+                                                this,
                                                 this.viewer)
             {
 

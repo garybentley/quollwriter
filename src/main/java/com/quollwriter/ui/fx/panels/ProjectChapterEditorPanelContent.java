@@ -10,7 +10,7 @@ import java.awt.Point;
 import java.awt.Insets;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseEvent;
+//import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.KeyAdapter;
 import java.awt.Rectangle;
@@ -18,26 +18,36 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.event.*;
+//import javax.swing.event.*;
 import javax.swing.text.*;
+import javax.swing.SwingUtilities;
 
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.beans.property.*;
+import javafx.beans.value.*;
 import javafx.geometry.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
+import javafx.collections.*;
+import javafx.event.*;
+import javafx.css.*;
+import javafx.css.converter.*;
 
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
 
+import org.reactfx.*;
+import org.fxmisc.wellbehaved.event.*;
+
 import com.quollwriter.StringWithMarkup;
 import com.quollwriter.UserProperties;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.data.*;
+import com.quollwriter.data.comparators.*;
 import com.quollwriter.Constants;
 import com.quollwriter.LanguageStrings;
 import com.quollwriter.Environment;
@@ -49,11 +59,12 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.swing.*;
+import com.quollwriter.ui.fx.popups.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<ProjectViewer, JComponent> implements ToolBarSupported
+public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<ProjectViewer> implements ToolBarSupported
 {
 
     private ScheduledFuture autoSaveTask = null;
@@ -63,12 +74,17 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     private ToolBar toolbar = null;
 
     private IconColumn iconColumn = null;
-    private QTextEditor editor = null;
+    //private QTextEditor editor = null;
     private JScrollPane scrollPane = null;
-    private boolean ignoreDocumentChange = false;
     private boolean isScrolling = false;
     private Insets origEditorMargin = null;
     private Map<String, ContextMenu> contextMenus = new HashMap<> ();
+    private List<QuollPopup> popupsToCloseOnClick = new ArrayList<> ();
+    private Map<ChapterItem, Node> itemNodes = new HashMap<> ();
+    private Map<ParagraphIconMargin, Integer> margins = new WeakHashMap<> ();
+    private Subscription itemsSubscription = null;
+    private Subscription itemsPositionSubscription = null;
+    private ObservableList<ChapterItem> newItems = FXCollections.observableList (new ArrayList<> ());
 
     public ProjectChapterEditorPanelContent (ProjectViewer viewer,
                                              Chapter       chapter)
@@ -76,16 +92,30 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     {
 
         super (viewer,
-               chapter);
+               chapter,
+               viewer.getTextProperties ());
 
-        UserProperties.chapterAutoSaveEnabledProperty ().addListener ((v, oldv, newv) ->
+        this.editor.setEditable (true);
+
+        final ProjectChapterEditorPanelContent _this = this;
+
+        this.newItems.addListener ((ListChangeListener<ChapterItem>) ev ->
+        {
+
+            this.updateMargins ();
+
+        });
+
+        this.addChangeListener (UserProperties.chapterAutoSaveEnabledProperty (),
+                                (v, oldv, newv) ->
         {
 
            this.tryScheduleAutoSave ();
 
         });
 
-        UserProperties.chapterAutoSaveTimeProperty ().addListener ((v, oldv, newv) ->
+        this.addChangeListener (UserProperties.chapterAutoSaveTimeProperty (),
+                                (v, oldv, newv) ->
         {
 
            this.tryScheduleAutoSave ();
@@ -103,39 +133,34 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
         this.viewer.addKeyMapping (() ->
         {
 
-            SwingUIUtils.doLater (() ->
-            {
-
-                this.insertSectionBreak ();
-
-            });
+            this.insertSectionBreak ();
 
         },
         KeyCode.ENTER,
         KeyCombination.SHORTCUT_DOWN);
 
-        this.viewer.addKeyMapping (() ->
-        {
+        Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.S, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
 
-            try
-            {
+                                                 try
+                                                 {
 
-                this.saveObject ();
+                                                     this.saveObject ();
 
-            } catch (Exception e)
-            {
+                                                 } catch (Exception e)
+                                                 {
 
-                Environment.logError ("Unable to save chapter: " + this.object,
-                                      e);
+                                                     Environment.logError ("Unable to save chapter: " + this.object,
+                                                                           e);
 
-                ComponentUtils.showErrorMessage (this.viewer,
-                                                 getUILanguageStringProperty (editorpanel,actions,save,actionerror));
+                                                     ComponentUtils.showErrorMessage (this.viewer,
+                                                                                      getUILanguageStringProperty (editorpanel,actions,save,actionerror));
 
-            }
+                                                 }
 
-        },
-        KeyCode.S,
-        KeyCombination.SHORTCUT_DOWN);
+                                             }));
 
 /*
 TODO
@@ -144,52 +169,534 @@ TODO
                 EDIT_TEXT_PROPERTIES_ACTION_NAME);
 */
 
-    }
+        Pane marginbg = new Pane ();
+        marginbg.getStyleClass ().add ("margin-bg");
+        marginbg.prefHeightProperty ().bind (this.getBackgroundPane ().heightProperty ());
 
-    public void scrollCaretIntoView (final Runnable runAfterScroll)
-    {
+        this.getBackgroundPane ().getChildren ().add (marginbg);
 
-        final ProjectChapterEditorPanelContent _this = this;
+        this.object.getScenes ().stream ()
+            .forEach (s ->
+            {
 
-        SwingUIUtils.doLater (() ->
+                s.setTextPosition2 (this.editor.createTextPosition (s.getPosition ()));
+
+                s.getOutlineItems ().stream ()
+                    .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
+
+            });
+
+        this.object.getOutlineItems ().stream ()
+            .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
+
+        this.object.getNotes ().stream ()
+            .forEach (n -> n.setTextPosition2 (this.editor.createTextPosition (n.getPosition ())));
+
+        this.itemsSubscription = this.object.chapterItemsEvents ().subscribe (ev ->
         {
 
-            try
+            if (ev.getType () == CollectionEvent.Type.add)
             {
 
-                int c = _this.editor.getCaret ().getDot ();
+                ev.getSource ().setTextPosition2 (this.editor.createTextPosition (ev.getSource ().getPosition ()));
 
-                if (c > -1)
-                {
+            }
 
-                    _this.scrollToPosition (c);
+            this.updateParagraphForItem (ev.getSource ());
 
-                }
+        });
 
-                _this.updateViewportPositionForTypewriterScrolling ();
+        this.itemsPositionSubscription = this.object.chapterItemsPositionEvents ().subscribe (ev ->
+        {
 
-                if (runAfterScroll != null)
-                {
+            int oldParaNo = this.editor.getParagraphForOffset (ev.getOld ().intValue ());
+            int newParaNo = this.editor.getParagraphForOffset (ev.getNew ().intValue ());
 
-                    SwingUIUtils.doLater (runAfterScroll);
-
-                }
-
-            } catch (Exception e)
+            // Inform the margins.
+            for (ParagraphIconMargin m : this.margins.keySet ())
             {
 
-                // Ignore it.
+                if ((m.getParagraph () == oldParaNo)
+                    ||
+                    (m.getParagraph () == newParaNo)
+                   )
+                {
+
+                    m.requestLayout ();
+
+                }
 
             }
 
         });
 
+        Runnable r = () ->
+        {
+
+            this.editor.setParagraphGraphicFactory (paraNo ->
+            {
+
+                BorderPane bp = new BorderPane ();
+
+                if (paraNo == -1)
+                {
+
+                    return bp;
+
+                }
+
+                ParagraphIconMargin margin = new ParagraphIconMargin (this.viewer,
+                                                       this.editor,
+                                                       paraNo,
+                                                       this.object,
+                                                       (item, node) ->
+                                                       {
+
+                                                           this.itemNodes.put (item,
+                                                                               node);
+
+                                                       },
+                                                       item ->
+                                                       {
+
+                                                           this.showItem (item,
+                                                                          true);
+
+                                                       },
+                                                       range ->
+                                                       {
+
+                                                           return this.getNewItemsForRange (range);
+
+                                                       },
+                                                       item ->
+                                                       {
+
+                                                           if (item instanceof ChapterItem)
+                                                           {
+
+                                                               return 0d;
+
+                                                           } else {
+
+                                                               return 0d;
+
+                                                           }
+
+                                                       });
+                margin.getStyleClass ().add (StyleClassNames.MARGIN);
+                bp.setCenter (margin);
+
+                this.margins.put (margin,
+                                  paraNo);
+
+                return bp;
+
+            });
+
+        };
+
+        if (this.viewer.getViewer ().isShowing ())
+        {
+
+            r.run ();
+
+        } else {
+
+            this.viewer.getViewer ().addEventHandler (javafx.stage.WindowEvent.WINDOW_SHOWN,
+                                                      ev ->
+            {
+
+                r.run ();
+
+            });
+
+        }
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.process (EventPattern.keyPressed (),
+                                             ev ->
+                                             {
+
+                                                 this.hidePopups ();
+
+                                                 return InputHandler.Result.PROCEED;
+
+                                             }));
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.process (EventPattern.mousePressed (),
+                                             ev ->
+                                             {
+
+                                                  this.popupsToCloseOnClick.stream ()
+                                                     .forEach (p -> p.close ());
+
+                                                  return InputHandler.Result.PROCEED;
+
+                                             }));
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.process (EventPattern.mouseReleased (),
+                                              ev ->
+                                              {
+
+                                                  this.setContextMenu ();
+
+                                                  return InputHandler.Result.PROCEED;
+
+                                              }));
+
+        this.addChangeListener (this.viewer.projectSpellCheckLanguageProperty (),
+                                (v, oldv, newv) ->
+        {
+
+           this.editor.setDictionaryProvider (this.viewer.getDictionaryProvider ());
+
+           try
+           {
+
+              this.editor.setSynonymProvider (viewer.getSynonymProvider ());
+
+           } catch (Exception e) {
+
+               Environment.logError ("Unable to set synonym provider.",
+                                     e);
+
+              // TODO Should error.
+
+           }
+
+        });
+
+        UIUtils.runLater (() ->
+        {
+
+            this.updateMargins ();
+
+        });
+
     }
 
-    public void setUseTypewriterScrolling (boolean v)
+    private List<ChapterItem> getNewItemsForRange (IndexRange range)
     {
 
-        // TODO Check for full screen.
+        List<ChapterItem> items = new ArrayList<> ();
+
+        for (ChapterItem i : this.newItems)
+        {
+
+            if ((i.getPosition () >= range.getStart ())
+                &&
+                (i.getPosition () <= range.getEnd ())
+               )
+            {
+
+                items.add (i);
+
+            }
+
+        }
+
+        return items;
+
+    }
+
+    private void setContextMenu ()
+    {
+
+        Set<MenuItem> items = new LinkedHashSet<> ();
+
+        Point2D p = this.editor.getMousePosition ();
+
+        // TODO? this.lastMousePosition = p;
+
+        if (p != null)
+        {
+
+            TextIterator iter = new TextIterator (this.editor.getText ());
+
+            final Word w = iter.getWordAt (this.editor.getTextPositionForMousePosition (p.getX (),
+                                                                                        p.getY ()));
+
+            if (w != null)
+            {
+
+                final String word = w.getText ();
+
+                final int loc = w.getAllTextStartOffset ();
+
+                List<String> l = this.editor.getSpellCheckSuggestions (w);
+
+                if (l != null)
+                {
+
+                    List<String> prefix = Arrays.asList (dictionary,spellcheck,popupmenu,LanguageStrings.items);
+
+                    if (l.size () == 0)
+                    {
+
+                        MenuItem mi = QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,nosuggestions)))
+                            .styleClassName (StyleClassNames.NOSUGGESTIONS)
+                            .onAction (ev ->
+                            {
+
+                                this.editor.addWordToDictionary (word);
+
+                                this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                              ProjectEvent.Action.addword,
+                                                              word);
+
+                            })
+                            .build ();
+                        mi.setDisable (true);
+                        items.add (mi);
+
+                    } else
+                    {
+
+                        if (l.size () > 15)
+                        {
+
+                            l = l.subList (0, 15);
+
+                        }
+
+                        Consumer<String> replace = (repWord ->
+                        {
+
+                            int cp = this.editor.getCaretPosition ();
+
+                            this.editor.replaceText (loc,
+                                                     loc + word.length (),
+                                                     repWord);
+
+                            this.editor.moveTo (cp - 1);
+
+                            this.viewer.fireProjectEvent (ProjectEvent.Type.spellcheck,
+                                                          ProjectEvent.Action.replace,
+                                                          repWord);
+
+                        });
+
+                        List<String> more = null;
+
+                        if (l.size () > 5)
+                        {
+
+                            more = l.subList (5, l.size ());
+                            l = l.subList (0, 5);
+
+                        }
+
+                        items.addAll (l.stream ()
+                            .map (repWord ->
+                            {
+
+                                return QuollMenuItem.builder ()
+                                    .label (new SimpleStringProperty (repWord))
+                                    .onAction (ev -> replace.accept (repWord))
+                                    .build ();
+
+                            })
+                            .collect (Collectors.toList ()));
+
+                        if (more != null)
+                        {
+
+                            items.add (QuollMenu.builder ()
+                                .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.more)))
+                                .styleClassName (StyleClassNames.MORE)
+                                .items (new LinkedHashSet<> (more.stream ()
+                                    .map (repWord ->
+                                    {
+
+                                        return QuollMenuItem.builder ()
+                                            .label (new SimpleStringProperty (repWord))
+                                            .onAction (ev -> replace.accept (repWord))
+                                            .build ();
+
+                                    })
+                                    .collect (Collectors.toList ())))
+                                .build ());
+
+                        }
+
+                    }
+
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,add)))
+                        .styleClassName (StyleClassNames.ADDWORD)
+                        .onAction (ev ->
+                        {
+
+                            this.editor.addWordToDictionary (word);
+
+                            this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                          ProjectEvent.Action.addword,
+                                                          word);
+
+                        })
+                        .build ());
+
+                    items.add (new SeparatorMenuItem ());
+
+                } else
+                {
+
+                    if (this.viewer.synonymLookupsSupported ())
+                    {
+
+                        // TODO Check this...
+                        if (this.viewer.isLanguageFunctionAvailable ())
+                        {
+
+                            if ((word != null) &&
+                                (word.length () > 0))
+                            {
+
+                                //String mt = "No synonyms found for: " + word;
+
+                                try
+                                {
+
+                                    // See if there are any synonyms.
+                                    if (this.editor.getSynonymProvider ().hasSynonym (word))
+                                    {
+
+                                        items.add (QuollMenuItem.builder ()
+                                            .styleClassName (StyleClassNames.FIND)
+                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,find),
+                                                                                 word))
+                                            .onAction (ev ->
+                                            {
+
+                                                // TODO Show synonyms...
+
+                                            })
+                                            .build ());
+
+                                    } else {
+
+                                        MenuItem mi = QuollMenuItem.builder ()
+                                            .styleClassName (StyleClassNames.NOSYNONYMS)
+                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,nosynonyms),
+                                                                                 word))
+                                            .build ();
+                                        mi.setDisable (true);
+                                        items.add (mi);
+
+                                    }
+
+                                    items.add (new SeparatorMenuItem ());
+
+                                } catch (Exception e) {
+
+                                    Environment.logError ("Unable to determine whether word: " +
+                                                          word +
+                                                          " has synonyms.",
+                                                          e);
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        ContextMenu cm = new ContextMenu ();
+        cm.getItems ().addAll (items);
+
+        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+
+        cm.getItems ().addAll (this.getContextMenuItems (compress));
+
+        this.editor.setContextMenu (cm);
+
+    }
+
+    private void updateParagraphForItem (ChapterItem i)
+    {
+
+        if (i != null)
+        {
+
+            int paraNo = this.editor.getParagraphForOffset (i.getPosition ());
+
+            // Inform the margins.
+            for (ParagraphIconMargin m : this.margins.keySet ())
+            {
+
+                if (m.getParagraph () == paraNo)
+                {
+
+                    m.requestLayout ();
+
+                }
+
+            }
+
+        }
+
+    }
+
+    public void showIconColumn (boolean v)
+    {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.showIconColumn (v);
+
+            });
+
+            return;
+
+        }
+
+         this.iconColumn.setVisible (v);
+
+         this.scrollPane.validate ();
+         this.scrollPane.repaint ();
+
+    }
+
+    public void bindTextPropertiesTo (TextProperties p)
+    {
+
+        this.editor.bindTo (p);
+
+    }
+
+    private void setUseTypewriterScrolling (boolean v)
+    {
+/*
+TODO
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setUseTypewriterScrolling (v);
+
+            });
+
+            return;
+
+        }
 
         if (!v)
         {
@@ -197,10 +704,12 @@ TODO
             this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
             // Reset the margin.
             this.editor.setMargin (this.origEditorMargin);
+            this.showIconColumn (true);
 
         } else {
 
             this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+            this.showIconColumn (false);
 
         }
 
@@ -208,22 +717,59 @@ TODO
 
         this.scrollPane.getViewport ().setViewSize (this.editor.getPreferredSize ());
 
-        this.editor.grabFocus ();
-
+        this.editor.requestFocus ();
+*/
     }
 
-    private void setIgnoreDocumentChanges (boolean v)
+    public void scrollCaretIntoView (final Runnable runAfterScroll)
     {
 
-        this.ignoreDocumentChange = v;
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
 
-    }
+            SwingUIUtils.doLater (() ->
+            {
 
-    private boolean isIgnoreDocumentChanges ()
-    {
+                this.scrollCaretIntoView (runAfterScroll);
 
-        return this.ignoreDocumentChange;
+            });
 
+            return;
+
+        }
+
+        final ProjectChapterEditorPanelContent _this = this;
+
+/*
+TODO
+        try
+        {
+
+            int c = _this.editor.getCaret ().getDot ();
+
+            if (c > -1)
+            {
+
+                _this.scrollToPosition (c);
+
+            }
+
+            _this.updateViewportPositionForTypewriterScrolling ();
+
+            if (runAfterScroll != null)
+            {
+
+                SwingUIUtils.doLater (runAfterScroll);
+
+            }
+
+        } catch (Exception e)
+        {
+
+            // Ignore it.
+
+        }
+*/
     }
 
     @Override
@@ -272,9 +818,8 @@ TODO
                         .onAction (eev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.newscene,
-                                                    null,
-                                                    this.object);
+                            this.viewer.createNewScene (this.object,
+                                                        this.editor.getCaretPosition ());
 
                         })
                         .build ());
@@ -378,7 +923,8 @@ TODO
                 })
                 .build ();
 
-            this.viewer.spellCheckingEnabledProperty ().addListener ((pr, oldv, newv) ->
+            this.addChangeListener (this.viewer.spellCheckingEnabledProperty (),
+                                    (pr, oldv, newv) ->
             {
 
                 sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
@@ -501,18 +1047,18 @@ TODO
                throws GeneralException
     {
 
-        SwingUIUtils.doLater (() ->
+        super.init (s);
+
+        this.getPanel ().addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
+                                          ev ->
         {
 
-            this.setIgnoreDocumentChanges (true);
+            this.itemsSubscription.unsubscribe ();
+            this.itemsPositionSubscription.unsubscribe ();
 
-            this.editor.setTextWithMarkup (this.object.getText ());
-
-            this.setIgnoreDocumentChanges (false);
+            this.editor.dispose ();
 
         });
-
-        super.init (s);
 
     }
 
@@ -558,6 +1104,16 @@ TODO
             {
 
                 ChapterCounts cc = this.viewer.getChapterCounts (this.object);
+
+                if (this.getText () == null)
+                {
+
+                    _this.wordCountUpdate = null;
+                    this.scheduleWordCountUpdate ();
+
+                    return;
+
+                }
 
                 final String t = this.getText ().getText ();
 
@@ -618,6 +1174,8 @@ TODO
 
     }
 
+/*
+TODO
     @Override
     public JComponent getChapterPanel ()
                                 throws GeneralException
@@ -640,6 +1198,7 @@ TODO
             this.scrollPane = new JScrollPane (p);
             this.scrollPane.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
             this.scrollPane.setBorder (null);
+            this.scrollPane.setDoubleBuffered (true);
             this.scrollPane.setAlignmentX (Component.LEFT_ALIGNMENT);
             this.scrollPane.getViewport ().setOpaque (true);
             this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
@@ -1282,38 +1841,28 @@ TODO
             this.viewer.spellCheckingEnabledProperty ().addListener ((v, oldv, newv) ->
             {
 
-                SwingUIUtils.doLater (() ->
-                {
-
-                    _this.editor.setSpellCheckEnabled (newv);
-
-                });
+                _this.editor.setSpellCheckEnabled (newv);
 
             });
 
             this.viewer.projectSpellCheckLanguageProperty ().addListener ((v, oldv, newv) ->
             {
 
-                SwingUIUtils.doLater (() ->
+                _this.editor.setDictionaryProvider (viewer.getDictionaryProvider ());
+
+                try
                 {
 
-                    _this.editor.setDictionaryProvider (viewer.getDictionaryProvider ());
+                    _this.editor.setSynonymProvider (viewer.getSynonymProvider ());
 
-                    try
-                    {
+                } catch (Exception e) {
 
-                        _this.editor.setSynonymProvider (viewer.getSynonymProvider ());
+                    Environment.logError ("Unable to set synonym provider.",
+                                          e);
 
-                    } catch (Exception e) {
+                    // TODO Should error.
 
-                        Environment.logError ("Unable to set synonym provider.",
-                                              e);
-
-                        // TODO Should error.
-
-                    }
-
-              });
+                }
 
             });
 
@@ -1331,10 +1880,15 @@ TODO
                   if (ev.getLength () > 0)
                   {
 
-                      // TODO Check that any dependent achievements still work.
-                      _this.viewer.fireProjectEvent (ProjectEvent.Type.projectobject,
-                                                     ProjectEvent.Action.edit,
-                                                     _this.object);
+                      UIUtils.runLater (() ->
+                      {
+
+                          // TODO Check that any dependent achievements still work.
+                          _this.viewer.fireProjectEvent (ProjectEvent.Type.projectobject,
+                                                         ProjectEvent.Action.edit,
+                                                         _this.object);
+
+                    });
 
                   }
 
@@ -1399,20 +1953,15 @@ TODO
                               if (doc.getLogicalStyle (offset) == _this.editor.sectionBreakStyle)
                               {
 
-                                  SwingUIUtils.doLater (() ->
-                                  {
+                                  Style ls = doc.addStyle (null,
+                                                           null);
+                                  StyleConstants.setAlignment (ls,
+                                                               StyleConstants.ALIGN_LEFT);
 
-                                      Style ls = doc.addStyle (null,
-                                                               null);
-                                      StyleConstants.setAlignment (ls,
-                                                                   StyleConstants.ALIGN_LEFT);
-
-                                      doc.setParagraphAttributes (offset + 1,
-                                                                  1,
-                                                                  ls,
-                                                                  false);
-
-                                  });
+                                  doc.setParagraphAttributes (offset + 1,
+                                                              1,
+                                                              ls,
+                                                              false);
 
                               }
 
@@ -1430,46 +1979,41 @@ TODO
                   if (add)
                   {
 
-                      SwingUIUtils.doLater (() ->
+                      try
                       {
 
-                          try
-                          {
+                          String ins = String.valueOf ('\n') + String.valueOf ('\n') + Constants.SECTION_BREAK + String.valueOf ('\n') + String.valueOf ('\n');
 
-                              String ins = String.valueOf ('\n') + String.valueOf ('\n') + Constants.SECTION_BREAK + String.valueOf ('\n') + String.valueOf ('\n');
+                          doc.replace (offset - Constants.SECTION_BREAK_FIND.length (),
+                                       Constants.SECTION_BREAK_FIND.length () + 1,
+                                       ins,
+                                       _this.editor.sectionBreakStyle);
 
-                              doc.replace (offset - Constants.SECTION_BREAK_FIND.length (),
-                                           Constants.SECTION_BREAK_FIND.length () + 1,
-                                           ins,
-                                           _this.editor.sectionBreakStyle);
+                          doc.setParagraphAttributes (offset + 2,
+                                                      Constants.SECTION_BREAK.length (),
+                                                      _this.editor.sectionBreakStyle,
+                                                      false);
 
-                              doc.setParagraphAttributes (offset + 2,
-                                                          Constants.SECTION_BREAK.length (),
-                                                          _this.editor.sectionBreakStyle,
-                                                          false);
+                          doc.setLogicalStyle (offset + 2,
+                                               _this.editor.sectionBreakStyle);
 
-                              doc.setLogicalStyle (offset + 2,
-                                                   _this.editor.sectionBreakStyle);
+                          Style ls = doc.addStyle (null,
+                                                   null);
+                          StyleConstants.setAlignment (ls,
+                                                       StyleConstants.ALIGN_LEFT);
 
-                              Style ls = doc.addStyle (null,
-                                                       null);
-                              StyleConstants.setAlignment (ls,
-                                                           StyleConstants.ALIGN_LEFT);
+                          doc.setParagraphAttributes (offset + Constants.SECTION_BREAK.length (),
+                                                      2,
+                                                      ls,
+                                                      false);
 
-                              doc.setParagraphAttributes (offset + Constants.SECTION_BREAK.length (),
-                                                          2,
-                                                          ls,
-                                                          false);
+                      } catch (Exception e)
+                      {
 
-                          } catch (Exception e)
-                          {
+                          Environment.logError ("Unable to add section breaks",
+                                                e);
 
-                              Environment.logError ("Unable to add section breaks",
-                                                    e);
-
-                          }
-
-                      });
+                      }
 
                   }
 
@@ -1481,9 +2025,14 @@ TODO
                   if (ev.getLength () > 0)
                   {
 
-                      _this.viewer.fireProjectEvent (ProjectEvent.Type.projectobject,
-                                                     ProjectEvent.Action.edit,
-                                                     _this.object);
+                      UIUtils.runLater (() ->
+                      {
+
+                          _this.viewer.fireProjectEvent (ProjectEvent.Type.projectobject,
+                                                         ProjectEvent.Action.edit,
+                                                         _this.object);
+
+                      });
 
                   }
 
@@ -1492,30 +2041,24 @@ TODO
                   if (doc.getLogicalStyle (offset) == _this.editor.sectionBreakStyle)
                   {
 
-                      SwingUIUtils.doLater (() ->
+                      try
                       {
 
-                          try
-                          {
+                          doc.replace (offset - Constants.SECTION_BREAK_FIND.length (),
+                                       Constants.SECTION_BREAK_FIND.length (),
+                                       null,
+                                       null);
 
-                              doc.replace (offset - Constants.SECTION_BREAK_FIND.length (),
-                                           Constants.SECTION_BREAK_FIND.length (),
-                                           null,
-                                           null);
+                      } catch (Exception e)
+                      {
 
-                          } catch (Exception e)
-                          {
-
-                          }
-
-                      });
+                      }
 
                   }
 
               }
 
             });
-
 
               this.editor.getDocument ().addDocumentListener (new DocumentListener ()
               {
@@ -1524,7 +2067,7 @@ TODO
                   public void insertUpdate (DocumentEvent ev)
                   {
 
-                      if (_this.isIgnoreDocumentChanges ())
+                      if (_this.editor.isIgnoreDocumentChanges ())
                       {
 
                           return;
@@ -1546,7 +2089,7 @@ TODO
                   public void changedUpdate (DocumentEvent ev)
                   {
 
-                      if (_this.isIgnoreDocumentChanges ())
+                      if (_this.editor.isIgnoreDocumentChanges ())
                       {
 
                           return;
@@ -1568,7 +2111,7 @@ TODO
                   public void removeUpdate (DocumentEvent ev)
                   {
 
-                      if (_this.isIgnoreDocumentChanges ())
+                      if (_this.editor.isIgnoreDocumentChanges ())
                       {
 
                           return;
@@ -1589,13 +2132,17 @@ TODO
 
               });
 
+              // Finally set the text.
+              // TODO this.editor.setTextWithMarkup (this.object.getText ());
+
         }
 
         return this.scrollPane;
 
     }
-
-    public QTextEditor getEditor ()
+*/
+    public TextEditor getEditor ()
+    // TODO public QTextEditor getEditor ()
     {
 
         return this.editor;
@@ -1610,18 +2157,20 @@ TODO
         Set<MenuItem> ret = new LinkedHashSet<> ();
 
         // Get the mouse position, don't get it later since the mouse could have moved.
-        Point mP = this.editor.getMousePosition ();
-
+        Point2D mP = this.editor.getMousePosition ();
+/*
+TODO
         if (mP == null)
         {
 
             mP = this.iconColumn.getMousePosition ();
 
         }
+*/
+        //final Point mouseP = mP;
 
-        final Point mouseP = mP;
-
-        int pos = this.getTextPositionForMousePosition (mP);
+        //int pos = this.getTextPositionForMousePosition (mP);
+        int pos = this.editor.getTextPositionForCurrentMousePosition ();
 
         // This is needed to move to the correct character, the call above seems to get the character
         // before what was clicked on.
@@ -1644,13 +2193,16 @@ TODO
                 })
                 .build ());
 
-            if ((this.editor.getCaret ().getDot () > 0)
+            if ((this.editor.getCaretPosition () > 0)
+            // TODO (this.editor.getCaret ().getDot () > 0)
                 ||
-                (this.editor.getSelectionStart () > 0)
+                (this.editor.getSelection ().getStart () > 0)
+                // TODO (this.editor.getSelectionStart () > 0)
                )
             {
 
-               if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
+                if (this.editor.getCaretPosition () < this.editor.getTextWithMarkup ().getText ().length ())
+               // TODO if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
                {
 
                    row1.add (QuollButton.builder ()
@@ -1819,13 +2371,16 @@ TODO
 
             Set<MenuItem> citems = new LinkedHashSet<> ();
 
-            if ((this.editor.getCaret ().getDot () > 0)
+            if ((this.editor.getCaretPosition () > 0)
+                // TODO (this.editor.getCaret ().getDot () > 0)
                 ||
-                (this.editor.getSelectionStart () > 0)
+                (this.editor.getSelection ().getStart () > 0)
+                // TODO (this.editor.getSelectionStart () > 0)
                )
             {
 
-               if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
+                if (this.editor.getCaretPosition () < this.editor.getTextWithMarkup ().getText ().length ())
+               // TODO if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
                {
 
                    citems.add (QuollMenuItem.builder ()
@@ -1965,9 +2520,8 @@ TODO?
                 .onAction (eev ->
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.newscene,
-                                            null,
-                                            this.object);
+                    this.viewer.createNewScene (this.object,
+                                                this.editor.getCaretPosition ());
 
                 })
                 .build ());
@@ -2138,7 +2692,8 @@ TODO?
 
             }
 
-            if (this.editor.getUndoManager ().canUndo ())
+            if (this.editor.getUndoManager ().isUndoAvailable ())
+            // TODO if (this.editor.getUndoManager ().canUndo ())
             {
 
                 eitems.add (QuollMenuItem.builder ()
@@ -2155,7 +2710,8 @@ TODO?
 
             }
 
-            if (this.editor.getUndoManager ().canRedo ())
+            if (this.editor.getUndoManager ().isRedoAvailable ())
+            // TODO if (this.editor.getUndoManager ().canRedo ())
             {
 
                 eitems.add (QuollMenuItem.builder ()
@@ -2186,17 +2742,266 @@ TODO?
 
     }
 
-    public void showItem (ChapterItem item)
+    public Set<ChapterItem> getStructureItemsForPosition (int p)
     {
 
-        // TODO this.panel.showItem (item);
+        Bounds cb = this.editor.getBoundsForPosition (p);
+
+        if (cb == null)
+        {
+
+            return new HashSet<> ();
+
+        }
+
+        int paraNo = this.editor.getParagraphForOffset (p);
+
+        double y = cb.getMinY ();
+
+        Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
+
+        this.object.getScenes ().stream ()
+            .forEach (s ->
+            {
+
+                items.add (s);
+                items.addAll (s.getOutlineItems ());
+
+            });
+
+        items.addAll (this.object.getOutlineItems ());
+
+        return items.stream ()
+            // Only interested in those that have the same y value.  i.e. on the same line.
+            .filter (i ->
+            {
+
+                // See if we are in the same paragraph.
+                if (this.editor.getParagraphForOffset (i.getPosition ()) != paraNo)
+                {
+
+                    return false;
+
+                }
+
+                Bounds b = this.editor.getBoundsForPosition (i.getPosition ());
+
+                return (b != null) && b.getMinY () == y;
+
+            })
+            .collect (Collectors.toSet ());
+
+    }
+
+    private boolean checkForDistractionFreeMode ()
+    {
+
+        if (this.viewer.isDistractionFreeModeEnabled ())
+        {
+
+            List<String> prefix = Arrays.asList (iconcolumn,viewitem,distractionfreemode,popup);
+
+            this.viewer.showNotificationPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
+                                                //"Function unavailable",
+                                               getUILanguageStringProperty (Utils.newList (prefix,text)),
+                                                //"Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
+                                               10);
+
+            return true;
+
+        }
+
+        return false;
 
     }
 
     public void editItem (ChapterItem item)
     {
 
-        // TODO
+        if (this.checkForDistractionFreeMode ())
+        {
+
+            return;
+
+        }
+
+        if ((item instanceof com.quollwriter.data.Scene)
+            ||
+            (item instanceof OutlineItem)
+           )
+        {
+
+            QuollPopup qp = this.viewer.getPopupById (AddEditStructureItemPopup.getPopupIdForChapterItem (item));
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            qp = new AddEditStructureItemPopup (this.viewer,
+                                                item,
+                                                this.object).getPopup ();
+
+            this.showPopupForItem (item,
+                                   qp);
+
+        }
+
+    }
+
+    private void showPopupForItem (ChapterItem item,
+                                   QuollPopup  popup)
+    {
+
+        Bounds b = this.editor.getBoundsForPosition (item.getPosition ());
+
+        // Scroll to the location first.
+        if (b == null)
+        {
+
+            int paraNo = this.editor.getParagraphForOffset (item.getPosition ());
+            IndexRange po = this.editor.getParagraphTextRange (paraNo);
+
+            if (paraNo == -1)
+            {
+
+                throw new IllegalArgumentException ("Unable to find paragraph for item: " +
+                                                    item);
+
+            }
+
+            this.editor.showParagraphAtTop (paraNo);
+            Bounds pb = this.editor.getParagraphBoundsOnScreen (paraNo).orElse (null);
+            b = this.editor.getBoundsForPosition (item.getPosition ());
+            this.editor.scrollYBy (b.getMinY () - pb.getMinY ());
+
+        }
+
+        this.hidePopups ();
+
+        this.viewer.showPopup (popup,
+                               this.itemNodes.get (item),
+                               Side.BOTTOM);
+
+        this.popupsToCloseOnClick.add (popup);
+
+    }
+
+    public void showAddNewScene (int pos)
+    {
+
+        com.quollwriter.data.Scene s = new com.quollwriter.data.Scene ();
+        s.setPosition (pos);
+
+        this.showAddNewStructureItem (s);
+
+    }
+
+    private void updateMargins ()
+    {
+
+        this.margins.keySet ().stream ()
+            .forEach (m -> m.requestLayout ());
+
+    }
+
+    private void showAddNewStructureItem (ChapterItem item)
+    {
+
+        // Here we generate a bogus negative key so that the hashCode/equals still works.
+        item.setKey (-1 * System.currentTimeMillis ());
+
+        this.newItems.add (item);
+
+        AddEditStructureItemPopup p = new AddEditStructureItemPopup (this.viewer,
+                                                                     item,
+                                                                     this.object);
+        p.setOnCancel (ev ->
+        {
+
+            this.newItems.remove (item);
+
+        });
+
+        QuollPopup qp = p.getPopup ();
+
+        this.showPopupForItem (item,
+                               qp);
+
+    }
+
+    public void showAddNewOutlineItem (int pos)
+    {
+
+        OutlineItem o = new OutlineItem ();
+        o.setPosition (pos);
+
+        this.showAddNewStructureItem (o);
+
+    }
+
+    public void showItem (ChapterItem item,
+                          boolean     showAllForLine)
+    {
+
+        if (this.checkForDistractionFreeMode ())
+        {
+
+            return;
+
+        }
+
+
+        if ((item instanceof com.quollwriter.data.Scene)
+            ||
+            (item instanceof OutlineItem)
+           )
+        {
+
+            ChapterItem top = item;
+            Set<ChapterItem> items = null;
+
+            if (showAllForLine)
+            {
+
+                items = this.getStructureItemsForPosition (item.getPosition ());
+
+                if (items.size () == 0)
+                {
+
+                    return;
+
+                }
+
+                top = items.iterator ().next ();
+
+            } else {
+
+                items = new LinkedHashSet<> ();
+                items.add (item);
+
+            }
+
+            QuollPopup qp = this.viewer.getPopupById (ViewChapterItemPopup.getPopupIdForChapterItem (top));
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            qp = new ViewChapterItemPopup (this.viewer,
+                                           items).getPopup ();
+
+            this.showPopupForItem (top,
+                                   qp);
+
+        }
 
     }
 
@@ -2259,7 +3064,24 @@ TODO?
 
     public void insertSectionBreak ()
     {
+/*
+TODO
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
 
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.insertSectionBreak ();
+
+            });
+
+            return;
+
+        }
+*/
+/*
+TODO
         final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
 
         final int offset = this.editor.getCaret ().getDot ();
@@ -2289,9 +3111,10 @@ TODO?
         {
 
         }
-
+*/
     }
-
+/*
+TODO
     public void updateViewportPositionForTypewriterScrolling ()
     {
 
@@ -2302,92 +3125,126 @@ TODO?
 
         }
 
-        final ProjectChapterEditorPanelContent _this = this;
-
-        SwingUIUtils.doLater (() ->
+        if (!SwingUtilities.isEventDispatchThread ())
         {
 
-            int dot = _this.editor.getCaret ().getDot ();
-
-            Rectangle r = null;
-
-            try
+            SwingUIUtils.doLater (() ->
             {
 
-                r = SwingUIUtils.getRectForOffset (_this.editor,
-                                                   dot);
+                this.updateViewportPositionForTypewriterScrolling ();
 
-            } catch (Exception e) {
+            });
 
-                // Ignore.
-                return;
+        }
 
-            }
+        final ProjectChapterEditorPanelContent _this = this;
 
-            if (r == null)
+        int dot = _this.editor.getCaret ().getDot ();
+
+        Rectangle r = null;
+
+        try
+        {
+
+            r = SwingUIUtils.getRectForOffset (_this.editor,
+                                               dot);
+
+        } catch (Exception e) {
+
+            // Ignore.
+            return;
+
+        }
+
+        if (r == null)
+        {
+
+            return;
+
+        }
+
+        Insets i = _this.editor.getMargin ();
+        int hh = _this.scrollPane.getSize ().height / 2;
+        int y = r.y;
+
+        if (i != null)
+        {
+
+            y -= i.top;
+
+        }
+
+        if ((y - hh) < 0)
+        {
+
+            _this.editor.setMargin (new Insets (-1 * (y - hh),
+                                                      _this.origEditorMargin.left,
+                                                      _this.origEditorMargin.bottom,
+                                                      _this.origEditorMargin.right));
+
+            _this.scrollPane.getViewport ().setViewPosition (new Point (0, 0));
+
+        } else {
+
+            if (y > (_this.editor.getSize ().height - hh - i.bottom - (r.height / 2)))
             {
 
-                return;
-
-            }
-
-            Insets i = _this.editor.getMargin ();
-            int hh = _this.scrollPane.getSize ().height / 2;
-            int y = r.y;
-
-            if (i != null)
-            {
-
-                y -= i.top;
-
-            }
-
-            if ((y - hh) < 0)
-            {
-
-                _this.editor.setMargin (new Insets (-1 * (y - hh),
-                                                          _this.origEditorMargin.left,
-                                                          _this.origEditorMargin.bottom,
-                                                          _this.origEditorMargin.right));
-
-                _this.scrollPane.getViewport ().setViewPosition (new Point (0, 0));
+                _this.editor.setMargin (new Insets (_this.origEditorMargin.top,
+                                                    _this.origEditorMargin.left,
+                                                    //hh - (_this.editor.getSize ().height - y - i.bottom - (r.height / 2)),
+                                                    hh - (_this.editor.getSize ().height - y - i.bottom - Math.round ((float) r.height / 2f)),
+                                                    _this.origEditorMargin.right));
 
             } else {
 
-                if (y > (_this.editor.getSize ().height - hh - i.bottom - (r.height / 2)))
-                {
-
-                    _this.editor.setMargin (new Insets (_this.origEditorMargin.top,
-                                                        _this.origEditorMargin.left,
-                                                        //hh - (_this.editor.getSize ().height - y - i.bottom - (r.height / 2)),
-                                                        hh - (_this.editor.getSize ().height - y - i.bottom - Math.round ((float) r.height / 2f)),
-                                                        _this.origEditorMargin.right));
-
-                } else {
-
-                    _this.editor.setMargin (new Insets (_this.origEditorMargin.top,
-                                                        _this.origEditorMargin.left,
-                                                        _this.origEditorMargin.bottom,
-                                                        _this.origEditorMargin.right));
-
-                }
-
-                Point p = new Point (0, y - hh + (r.height /2));
-
-                _this.scrollPane.getViewport ().setViewPosition (p);
+                _this.editor.setMargin (new Insets (_this.origEditorMargin.top,
+                                                    _this.origEditorMargin.left,
+                                                    _this.origEditorMargin.bottom,
+                                                    _this.origEditorMargin.right));
 
             }
 
-            _this.scrollPane.validate ();
-            _this.scrollPane.repaint ();
+            Point p = new Point (0, y - hh + (r.height /2));
 
-        });
+            _this.scrollPane.getViewport ().setViewPosition (p);
+
+        }
+
+        _this.scrollPane.validate ();
+        _this.scrollPane.repaint ();
 
     }
-
+*/
+/*
+TODO
     public void scrollToPosition (final int p)
                            throws GeneralException
     {
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                try
+                {
+
+                    this.scrollToPosition (p);
+
+                } catch (Exception e) {
+
+                    throw new RuntimeException ("Unable to scroll to position: " +
+                                                p);
+
+                }
+
+            });
+
+            return;
+
+        }
+
 
         if (this.viewer.typeWriterScrollingEnabledProperty ().getValue ())
         {
@@ -2402,22 +3259,17 @@ TODO?
 
             final ProjectChapterEditorPanelContent _this = this;
 
-            SwingUIUtils.doLater (() ->
+            try
             {
 
-                try
-                {
+                _this.scrollToPosition (p);
 
-                    _this.scrollToPosition (p);
+            } catch (Exception e) {
 
-                } catch (Exception e) {
+                Environment.logError ("Unable to scroll to: " + p,
+                                      e);
 
-                    Environment.logError ("Unable to scroll to: " + p,
-                                          e);
-
-                }
-
-            });
+            }
 
             return;
 
@@ -2474,7 +3326,9 @@ TODO?
         }
 
     }
-
+*/
+/*
+TODO
     public int getTextPositionForMousePosition (Point p)
     {
 
@@ -2491,7 +3345,7 @@ TODO?
        return this.editor.viewToModel2D (pp);
 
     }
-
+*/
     private void hideAllContextMenus ()
     {
 
@@ -2564,7 +3418,8 @@ TODO?
 
         }
 
-        if (this.editor.getUndoManager ().canUndo ())
+        if (this.editor.getUndoManager ().isUndoAvailable ())
+        //if (this.editor.getUndoManager ().canUndo ())
         {
 
             // Only add if there is an undo available.
@@ -2581,7 +3436,8 @@ TODO?
 
         }
 
-        if (this.editor.getUndoManager ().canRedo ())
+        if (this.editor.getUndoManager ().isRedoAvailable ())
+        // TODO if (this.editor.getUndoManager ().canRedo ())
         {
 
             buts.add (QuollButton.builder ()
@@ -2607,6 +3463,14 @@ TODO?
         }
 
         return null;
+
+    }
+
+    public void hidePopups ()
+    {
+
+        this.popupsToCloseOnClick.stream ()
+           .forEach (p -> p.close ());
 
     }
 
@@ -2681,9 +3545,8 @@ TODO?
             .onAction (ev ->
             {
 
-                this.viewer.runCommand (ProjectViewer.CommandId.newscene,
-                                        this.object,
-                                        pos);
+                this.viewer.createNewScene (this.object,
+                                            pos);
 
             })
             .build ());

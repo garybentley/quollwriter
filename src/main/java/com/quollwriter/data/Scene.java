@@ -4,6 +4,11 @@ import java.text.*;
 
 import java.util.*;
 
+import javafx.collections.*;
+import javafx.beans.property.*;
+
+import org.reactfx.*;
+
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.*;
@@ -14,12 +19,16 @@ public class Scene extends ChapterItem
 
     public static final String OBJECT_TYPE = "scene";
 
-    private Set<OutlineItem> outlineItems = new HashSet (); 
+    private ObservableSet<OutlineItem> outlineItems = FXCollections.observableSet (new TreeSet<> (new ChapterItemSorter ()));
+    private EventSource<CollectionEvent<OutlineItem>> outlineItemsEventSource = new EventSource<> ();
+    private EventSource<ChapterItem.ChapterItemEvent> outlineItemsPositionEventSource = new EventSource<> ();
 
     public Scene()
     {
 
         super (Scene.OBJECT_TYPE);
+
+        this._init ();
 
     }
 
@@ -31,6 +40,68 @@ public class Scene extends ChapterItem
                at,
                c);
 
+        this._init ();
+
+    }
+
+    private void _init ()
+    {
+
+        this.outlineItems.addListener ((SetChangeListener<OutlineItem>) ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                OutlineItem it = ev.getElementAdded ();
+
+                this.outlineItemsEventSource.push (new CollectionEvent<OutlineItem> (this.outlineItems,
+                                                                                      it,
+                                                                                      CollectionEvent.Type.add));
+
+                it.addChangeListener (it.positionProperty (),
+                                      (pr, oldv, newv) ->
+                {
+
+                    this.outlineItemsPositionEventSource.push (new ChapterItem.ChapterItemEvent (it,
+                                                                                    ChapterItem.ChapterItemEvent.Type.positionchange,
+                                                                                    pr,
+                                                                                    oldv.intValue (),
+                                                                                    newv.intValue ()));
+
+                });
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                OutlineItem it = ev.getElementRemoved ();
+
+                it.dispose ();
+
+                this.outlineItemsEventSource.push (new CollectionEvent<OutlineItem> (this.outlineItems,
+                                                                                     it,
+                                                                                     CollectionEvent.Type.remove));
+
+            }
+
+        });
+
+    }
+
+    public EventStream<ChapterItem.ChapterItemEvent> outlineItemsPositionEvents ()
+    {
+
+        return this.outlineItemsPositionEventSource;
+
+    }
+
+    public EventStream<CollectionEvent<OutlineItem>> outlineItemsEvents ()
+    {
+
+        return this.outlineItemsEventSource;
+
     }
 
     @Override
@@ -38,17 +109,17 @@ public class Scene extends ChapterItem
     {
 
         super.fillToStringProperties (props);
-        
+
         this.addToStringProperties (props,
                                     "outlineItems",
                                     this.outlineItems.size ());
-                        
-    }    
-        
+
+    }
+
     public Set<ChapterItem> getChapterItemsWithPositionGreaterThan (int pos)
     {
-        
-        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+
+        Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
 
         for (OutlineItem it : this.outlineItems)
         {
@@ -63,9 +134,9 @@ public class Scene extends ChapterItem
         }
 
         return items;
-        
+
     }
-    
+
     public void getChanges (NamedObject      old,
                             org.jdom.Element root)
     {
@@ -75,7 +146,7 @@ public class Scene extends ChapterItem
     public List<OutlineItem> getOutlineItemsAt (int pos)
     {
 
-        List<OutlineItem> its = new ArrayList ();
+        List<OutlineItem> its = new ArrayList<> ();
 
         for (OutlineItem it : this.getOutlineItems ())
         {
@@ -142,15 +213,17 @@ public class Scene extends ChapterItem
 
     }
 
-    public Set<OutlineItem> getOutlineItems ()
+    public ObservableSet<OutlineItem> getOutlineItems ()
     {
 
+        return this.outlineItems;
+/*
         TreeSet t = new TreeSet (new ChapterItemSorter ());
-        
-        t.addAll (this.outlineItems);
-        
-        return t;
 
+        t.addAll (this.outlineItems);
+
+        return t;
+*/
         //return new TreeSet (this.outlineItems);
 
     }
@@ -161,34 +234,36 @@ public class Scene extends ChapterItem
         // Handle our outline items first.
         for (OutlineItem it : this.outlineItems)
         {
-            
+
             it.setChapter (c);
-            
+
         }
-    
+
         super.setChapter (c);
-        
+
         this.setParent (c);
-        
-    }    
-    
+
+    }
+
     public void removeOutlineItem (OutlineItem i)
     {
 
         this.outlineItems.remove (i);
 
+        i.dispose ();
+
     }
 
     public void addOutlineItem (OutlineItem i)
     {
-    
+
         if (this.outlineItems.contains (i))
         {
-          
+
             return;
-            
+
         }
-    
+
         Scene s = i.getScene ();
 
         if (s != null)
@@ -233,11 +308,11 @@ public class Scene extends ChapterItem
         {
 
             String t = d.getText ();
-        
+
             // Take the first sentence and use that as the "name".
             Paragraph p = new Paragraph (t,
                                          0);
-        
+
             if (p.getSentenceCount () > 0)
             {
 
@@ -278,6 +353,17 @@ public class Scene extends ChapterItem
         }
 
         return -1;
+
+    }
+
+    @Override
+    public void dispose ()
+    {
+
+        this.outlineItems.stream ()
+            .forEach (o -> o.dispose ());
+
+        super.dispose ();
 
     }
 

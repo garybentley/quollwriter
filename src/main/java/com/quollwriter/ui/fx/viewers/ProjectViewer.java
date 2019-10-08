@@ -29,21 +29,18 @@ public class ProjectViewer extends AbstractProjectViewer
     public static final String VIEWER_STATE_ID = "project.state";
 
     private ProjectSideBar sidebar = null;
+    private SetChangeListener<Tag> tagsListener = null;
 
     public interface CommandId extends AbstractProjectViewer.CommandId
     {
 
-        String newscene = "newscene";
         String editscene = "editscene";
-        String viewscene = "viewscene";
         String deletescene = "deletescene";
         String newoutlineitem = "newoutlineitem";
         String editoutlineitem = "editoutlineitem";
-        String viewoutlineitem = "viewoutlineitem";
         String deleteoutlineitem = "deleteoutlineitem";
         String newasset = "newasset";
         String editasset = "editasset";
-        String viewasset = "viewasset";
         String deleteasset = "deleteasset";
         String ideaboard = "ideaboard";
         String togglespellchecking = "togglespellchecking";
@@ -57,7 +54,6 @@ public class ProjectViewer extends AbstractProjectViewer
         String exportproject = "exportproject";
         String deleteproject = "deleteproject";
         String renameproject = "renameproject";
-        String viewobject = "viewchapter";
 
     }
 
@@ -65,20 +61,6 @@ public class ProjectViewer extends AbstractProjectViewer
     {
 
         this.sidebar = new ProjectSideBar (this);
-
-        Environment.tagsProperty ().addListener ((SetChangeListener<Tag>) ev ->
-        {
-
-            Tag t = ev.getElementRemoved ();
-
-            if (t != null)
-            {
-
-                this.removeTag (t);
-
-            }
-
-        });
 
         this.initActionMappings ();
 
@@ -399,12 +381,48 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 */
+
+    public void createNewScene (Chapter c,
+                                int     pos)
+    {
+
+        ProjectChapterEditorPanelContent editor = (ProjectChapterEditorPanelContent) this.getEditorForChapter (c);
+
+        editor.showAddNewScene (pos);
+
+    }
+
+    public void createNewOutlineItem (Chapter c,
+                                      int     pos)
+    {
+
+        ProjectChapterEditorPanelContent editor = (ProjectChapterEditorPanelContent) this.getEditorForChapter (c);
+
+        editor.showAddNewOutlineItem (pos);
+
+    }
+
     @Override
     public void init (State s)
                throws GeneralException
     {
 
         this.setMainSideBar (this.sidebar);
+
+        this.addSetChangeListener (Environment.getAllTags (),
+                                   ev ->
+        {
+
+            Tag t = ev.getElementRemoved ();
+
+            if (t != null)
+            {
+
+                this.removeTag (t);
+
+            }
+
+        });
 
         // We do this last because the sidebars will be restored by the super.
         super.init (s);
@@ -810,7 +828,8 @@ public class ProjectViewer extends AbstractProjectViewer
             final ChapterItem ci = (ChapterItem) d;
 
             this.viewObject (ci.getChapter (),
-                             () -> _this.getEditorForChapter (ci.getChapter ()).showItem (ci));
+                             () -> _this.getEditorForChapter (ci.getChapter ()).showItem (ci,
+                                                                                          false));
 
             return;
 
@@ -996,7 +1015,9 @@ public class ProjectViewer extends AbstractProjectViewer
             if (doAfterView != null)
             {
 
-                avp.readyForUseProperty ().addListener ((pv, oldv, newv) -> UIUtils.runLater (doAfterView));
+                // We add the listener to the panel itself so its deregistered when the panel is removed.
+                avp.getBinder ().addChangeListener (avp.readyForUseProperty (),
+                                                    (pv, oldv, newv) -> UIUtils.runLater (doAfterView));
 
             }
 
@@ -1613,6 +1634,8 @@ TODO
 
                     // See if we are on the last line (it may be that the user is in the icon
                     // column).
+                    /*
+                    TODO
                     Rectangle2D pp = p.getEditor ().modelToView2D (_textPos);
 
                     if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
@@ -1628,7 +1651,7 @@ TODO
                         }
 
                     }
-
+*/
                 } else {
 
                     String t = (chapter.getText () != null ? chapter.getText ().getText () : "");

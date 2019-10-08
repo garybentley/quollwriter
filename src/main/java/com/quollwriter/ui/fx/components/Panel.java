@@ -11,6 +11,7 @@ import com.quollwriter.ui.fx.panels.*;
 
 import javafx.event.*;
 import javafx.beans.property.*;
+import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -20,7 +21,7 @@ import javafx.scene.input.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class Panel extends VBox implements Stateful
+public class Panel extends BaseVBox implements Stateful
 {
 
     private PanelContent content = null;
@@ -50,7 +51,7 @@ public class Panel extends VBox implements Stateful
     public State getState ()
     {
 
-        return new State ();
+        return this.content.getState ();
 
     }
 
@@ -157,6 +158,14 @@ public class Panel extends VBox implements Stateful
                 _this.contextMenu = cm;
 
             }
+
+        });
+
+        this.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
+                              ev ->
+        {
+
+            this.dispose ();
 
         });
 

@@ -49,17 +49,11 @@ public class Startup_fx extends Application
             //DoubleProperty progress = ss.progressProperty ();
 
             ss.updateProgress (0.5f);
-/*
-            ss = new SplashScreen (Environment.getLogo ().getImage (),
-                                   "Starting...",
-                                   com.quollwriter.ui.UIUtils.getColor ("#f9f9f9"));
-*/
-            //ss.setProgress (5);
 
             Environment.init ();
 
             Environment.showAllProjectsViewer ();
-System.out.println ("HEREX1");
+
             ss.updateProgress (0.6f);
 
             /*
@@ -85,7 +79,7 @@ System.out.println ("HEREX1");
 
             boolean showError = false;
 
-            if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
+            if (!UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
             {
 
                 Environment.showAllProjectsViewer ();
@@ -131,6 +125,7 @@ System.out.println ("HEREX1");
             if (eee instanceof OverlappingFileLockException)
             {
 
+                // We need to show english here since we don't have the ui strings set up yet.
                 ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,alreadyrunningerror));
 
             } else {

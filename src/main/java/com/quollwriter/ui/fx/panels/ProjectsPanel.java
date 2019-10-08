@@ -80,7 +80,8 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
         this.fillProjects ();
 
-        UserProperties.getMappedStringProperty (Constants.SORT_PROJECTS_BY_PROPERTY_NAME).addListener ((p, oldv, newv) ->
+        this.addChangeListener (UserProperties.getMappedStringProperty (Constants.SORT_PROJECTS_BY_PROPERTY_NAME),
+                                (p, oldv, newv) ->
         {
 
             _this.fillProjects ();
@@ -452,38 +453,41 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
         final ProjectsPanel _this = this;
 
-        ComponentUtils.createQuestionPopup (getUILanguageStringProperty (Utils.newList (prefix,popup,title)),
-                                            StyleClassNames.WARNING,
-                                            getUILanguageStringProperty (Utils.newList (prefix,popup,text),
-                                                                         p.getName (),
-                                                                         Environment.canOpenProject (p)),
-                                            getUILanguageStringProperty (Utils.newList (prefix,popup,buttons,confirm)),
-                                            getUILanguageStringProperty (Utils.newList (prefix,popup,buttons,cancel)),
-                                            ev ->
-                                            {
+        QuollPopup.questionBuilder ()
+            .title (prefix,popup,title)
+            .styleClassName (StyleClassNames.WARNING)
+            .message (getUILanguageStringProperty (Utils.newList (prefix,popup,text),
+                                                   p.getName (),
+                                                   Environment.canOpenProject (p)))
+            .confirmButtonLabel (prefix,popup,buttons,confirm)
+            .cancelButtonLabel (prefix,popup,buttons,cancel)
+            .withViewer (this.getViewer ())
+            .withHandler (this.getViewer ())
+            .onConfirm (ev ->
+            {
 
-                                                try
-                                                {
+                try
+                {
 
-                        							Environment.deleteProject (p);
+                    Environment.deleteProject (p);
 
-                                                } catch (Exception e) {
+                } catch (Exception e) {
 
-                                                    Environment.logError ("Unable to remove project: " +
-                                                                          p.getName (),
-                                                                          e);
+                    Environment.logError ("Unable to remove project: " +
+                                          p.getName (),
+                                          e);
 
-                                                    ComponentUtils.showErrorMessage (_this.getViewer (),
-                                                                                     getUILanguageStringProperty (prefix,actionerror));
-                                                                              //"Unable to remove project, please contact Quoll Writer support for assistance.");
+                    ComponentUtils.showErrorMessage (_this.getViewer (),
+                                                     getUILanguageStringProperty (prefix,actionerror));
+                                              //"Unable to remove project, please contact Quoll Writer support for assistance.");
 
-                                                    return;
+                    return;
 
-                                                }
+                }
 
 
-                                            },
-                                            _this.getViewer ());
+            })
+            .build ();
 
     }
 
@@ -845,7 +849,7 @@ TODO Remove
             this.info = BasicHtmlTextFlow.builder ()
                 .text (this.infoProp)
                 .styleClassName (StyleClassNames.INFO)
-                .withViewer (this.parent.getViewer ())
+                .withHandler (this.parent.getViewer ())
                 .build ();
 
             this.getChildren ().addAll (this.name, this.info);
@@ -1604,6 +1608,65 @@ TODO
 
           final ProjectBox _this = this;
 
+          QuollPopup.textEntryBuilder ()
+            .withViewer (this.parent.getViewer ())
+            .withHandler (this.parent.getViewer ())
+            .title (prefix,popup,title)
+            .description (prefix,popup,text)
+            .confirmButtonLabel (prefix,popup,buttons,save)
+            .cancelButtonLabel (prefix,popup,buttons,cancel)
+            .styleClassName (StyleClassNames.ADD)
+            .validator (v ->
+            {
+
+                if ((v == null)
+                    ||
+                    (v.trim ().length () == 0)
+                   )
+                {
+
+                    return getUILanguageStringProperty (Utils.newList (prefix,popup,errors,novalue));
+                    //"Please enter the new status.";
+
+                }
+
+                v = v.trim ();
+
+                for (StringProperty pp : UserProperties.getProjectStatuses ())
+                {
+
+                    if (pp.getValue ().equalsIgnoreCase (v))
+                    {
+
+                        return getUILanguageStringProperty (Utils.newList (prefix,popup,errors,valueexists));
+
+                    }
+
+                }
+
+                return null;
+
+            })
+            .onConfirm (ev ->
+            {
+
+                javafx.scene.Node n = ev.getForm ().lookup ("#text");
+
+                if (n != null)
+                {
+
+                    TextField tf = (TextField) n;
+
+                    StringProperty pr = UserProperties.addProjectStatus (tf.getText ());
+
+                    _this.project.setStatus (pr.getValue ());
+
+                }
+
+            })
+            .build ();
+            /*
+            TODO Remove
           ComponentUtils.createTextEntryPopup (getUILanguageStringProperty (Utils.newList (prefix,popup,title)),
                                           //"Add a new {Project} Status",
                                         StyleClassNames.ADD,
@@ -1665,7 +1728,7 @@ TODO
                                         null,
                                         null,
                                         _this.parent.getViewer ());
-
+*/
       }
 
       private void showDirectory ()

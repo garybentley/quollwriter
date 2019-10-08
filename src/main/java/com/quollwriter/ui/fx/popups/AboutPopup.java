@@ -78,7 +78,7 @@ public class AboutPopup extends PopupContent
             .item (QuollHyperlink.createLink (viewer,
                                               getUILanguageStringProperty (Utils.newList (prefix,makeadonation)),
                                               UserProperties.get (Constants.GOFUNDME_WEBSITE_PROPERTY_NAME)))
-            .withViewer (this.viewer)
+            .withHandler (this.viewer)
             .build ();
 
         f.setOnConfirm (ev ->

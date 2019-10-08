@@ -55,7 +55,7 @@ public class ContactSupportPopup extends PopupContent
                    this.desc)
             .item (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,LanguageStrings.email,text)),
                    this.email)
-            .withViewer (this.viewer)
+            .withHandler (this.viewer)
             .build ();
 
         f.setOnCancel (ev -> _this.getPopup ().close ());
@@ -104,11 +104,11 @@ public class ContactSupportPopup extends PopupContent
 
                     desc.setText ("");
 
-                    ComponentUtils.showMessage (_this.getViewer (),
-                                                getUILanguageStringProperty (Utils.newList (prefix,confirmpopup, LanguageStrings.title)),
-                                         //"Message sent",
-                                                getUILanguageStringProperty (Utils.newList (prefix,confirmpopup,text)));
-                                         //"Your request has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+                    QuollPopup.messageBuilder ()
+                        .withViewer (_this.getViewer ())
+                        .title (prefix,confirmpopup,title)
+                        .message (prefix,confirmpopup,text)
+                        .build ();
 
                     _this.getViewer ().fireProjectEvent (ProjectEvent.Type.contact,
                                                          ProjectEvent.Action.submit);

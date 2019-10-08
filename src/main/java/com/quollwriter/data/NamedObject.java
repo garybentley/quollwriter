@@ -49,6 +49,20 @@ public abstract class NamedObject extends DataObject
 
         }
 
+        this.notes.addListener ((SetChangeListener<Note>) ev ->
+        {
+
+            if (ev.wasRemoved ())
+            {
+
+                Note n = ev.getElementRemoved ();
+
+                n.dispose ();
+
+            }
+
+        });
+
     }
 
     public NamedObject (String objType)

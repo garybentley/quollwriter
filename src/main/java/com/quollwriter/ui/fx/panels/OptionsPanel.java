@@ -20,6 +20,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 {
 
     public static final String PANEL_ID = "options";
+    private Options options = null;
 
     public OptionsPanel (AbstractViewer        viewer,
                          Set<Node>             headerControls,
@@ -29,7 +30,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
         super (viewer);
 
         Header h = Header.builder ()
-            .title (getUILanguageStringProperty (options,title))
+            .title (getUILanguageStringProperty (LanguageStrings.options,title))
             .controls (headerControls)
             .build ();
 
@@ -40,8 +41,12 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
         bb.getStyleClass ().add (StyleClassNames.SECTIONS);
         VBox.setVgrow (bb,
                        Priority.ALWAYS);
-        bb.getChildren ().add (new Options (viewer,
-                                            sects));
+
+        this.options = new Options (viewer,
+                                    this.getBinder (),
+                                    sects);
+
+        bb.getChildren ().add (this.options);
 
         ScrollPane sp = new ScrollPane (bb);
         sp.vvalueProperty ().addListener ((pr, oldv, newv) ->
@@ -76,7 +81,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
     {
 
         Panel panel = Panel.builder ()
-            .title (getUILanguageStringProperty (options,title))
+            .title (getUILanguageStringProperty (LanguageStrings.options,title))
             .content (this)
             .styleClassName (StyleClassNames.OPTIONS)
             .panelId (PANEL_ID)
@@ -88,6 +93,14 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 
             })
             .build ();
+
+        panel.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
+                              ev ->
+        {
+
+            this.options.dispose ();
+
+        });
 
         return panel;
 

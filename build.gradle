@@ -112,7 +112,17 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java7:4.3.3'
 
     // RichtextFX
-    implementation 'org.fxmisc.richtext:richtextfx:0.9.3'
+    implementation 'org.fxmisc.richtext:richtextfx:0.10.2'
+
+    // This is temporary for testing changes to a local version of richtextfx.  Ignore.
+    // TEMP ADD RICHTEXTFX JARS AND DEPS
+    // implementation fileTree('d:/reference/java/richtextfx/RichTextFX/richtextfx/build/libs/') {
+    //    include 'richtextfx-1.0.0-SNAPSHOT.jar'
+    //    include 'flowless-0.6.jar'
+    //    include 'reactfx-2.0-M5.jar'
+    //    include 'undofx-2.1.0.jar'
+    //    include 'wellbehavedfx-0.3.3.jar'
+    //}
 
     // Flying Saucer (can be removed when no longer using Swing)
     implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
@@ -140,7 +150,7 @@ compileJava {
         '--module-path',
         'D:/reference/java/javafx/javafx-sdk-12/lib',
         '-Xmaxerrs',
-        '10000'
+        '100'
     ]
 }
 
@@ -165,6 +175,20 @@ application {
         'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
         '--add-exports',
         'javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED',
+        '--add-opens',
+        'javafx.graphics/javafx.scene.text=ALL-UNNAMED',
+        '--add-opens',
+        'javafx.graphics/com.sun.javafx.text=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED',
         '--module-path',
         'D:/reference/java/javafx/javafx-sdk-12/lib'
     ]

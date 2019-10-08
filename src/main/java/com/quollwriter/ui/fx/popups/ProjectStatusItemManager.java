@@ -47,14 +47,15 @@ public class ProjectStatusItemManager extends PopupContent
             .items (types)
             .build ();
 
-        UserProperties.projectStatusesProperty ().addListener ((SetChangeListener) (c ->
+        this.addSetChangeListener (UserProperties.projectStatusesProperty (),
+                                   c ->
         {
 
             man.setItems (FXCollections.observableArrayList (UserProperties.getProjectStatuses ().stream ()
                                                                 .map (p -> p.get ())
                                                                 .collect (Collectors.toList ())));
 
-        }));
+        });
 
         b.getChildren ().add (man);
 

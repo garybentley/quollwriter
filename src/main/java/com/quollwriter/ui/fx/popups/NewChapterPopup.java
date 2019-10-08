@@ -39,6 +39,7 @@ public class NewChapterPopup extends PopupContent<ProjectViewer>
             .item (Arrays.asList (project,actions,newchapter,labels,name),
                    nameField)
             .showLinkedTo (true)
+            .withBinder (this.getBinder ())
             .withViewer (viewer)
             .onCancel (ev -> this.close ())
             .onConfirm ((ev, links) ->

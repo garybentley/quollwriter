@@ -1,5 +1,6 @@
 .root
 {
+
     -qw-bg-color: #fdfdfd;
 
     /*
@@ -61,6 +62,14 @@
 
     -qw-popup-header-font-size: 2em;
     -qw-window-header-font-size: 2.5em;
+}
+
+/*
+ These elements are used in a TextFlow.
+ */
+Text
+{
+    -fx-fill: -fx-text-base-color;
 }
 
 .text
@@ -778,13 +787,15 @@
      -fx-graphic: url(/imgs/chapter16.png);
 }
 .menu-item.scene .image-view,
-.button.scene
+.button.scene,
+.texteditor .margin .scene .image-view
 {
     -fx-image: url(/imgs/scene16.png);
     -fx-graphic: url(/imgs/scene16.png);
 }
 .menu-item.outlineitem .image-view,
-.button.outlineitem
+.button.outlineitem,
+.texteditor .margin .outlineitem .image-view
 {
     -fx-image: url(/imgs/outlineitem16.png);
     -fx-graphic: url(/imgs/outlineitem16.png);
@@ -826,14 +837,23 @@
 .menu-item.changedisplay .image-view,
 .menu-item.managebackups .image-view,
 .menu-item.editneeded .image-view,
-.button.editneeded
+.button.editneeded,
+.button.edit
 {
     -fx-image: url(/imgs/edit16.png);
     -fx-graphic: url(/imgs/edit16.png);
 }
-.menu-item.delete .image-view
+.menu-item.delete .image-view,
+.button.delete
 {
     -fx-image: url(/imgs/delete16.png);
+    -fx-graphic: url(/imgs/delete16.png);
+}
+.menu-item.link .image-view,
+.button.link
+{
+    -fx-image: url(/imgs/link16.png);
+    -fx-graphic: url(/imgs/link16.png);
 }
 .menu-item.import .image-view  { -fx-image: url(/imgs/project-import16.png); }
 .menu-item.export .image-view  { -fx-image: url(/imgs/project-export16.png); }
@@ -1073,7 +1093,8 @@
 .toolbar .button,
 .toolbar .menu-button,
 .controls .menu-button,
-.chapterinfo .buttons .button
+.chapterinfo .buttons .button,
+.qpopup.chapteritem.view .buttons .button
  {
      -fx-border-color: transparent;
      -fx-border-width: 1px;
@@ -1094,7 +1115,9 @@
 .toolbar .menu-button:hover,
 .toolbar .menu-button:focused,
 .chapterinfo .buttons .button:hover,
-.chapterinfo .buttons .button:focused
+.chapterinfo .buttons .button:focused,
+.qpopup.chapteritem.view .buttons .button:hover,
+.qpopup.chapteritem.view .buttons .button:focused
  {
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
@@ -1104,7 +1127,8 @@
 .controls .menu-button:armed,
 .toolbar .button:armed,
 .toolbar .menu-button:armed,
-.chapterinfo .buttons .button:armed
+.chapterinfo .buttons .button:armed,
+.qpopup.chapteritem.view .buttons .button:armed
  {
      -fx-background-color: -qw-armed-bg;
  }
@@ -1155,12 +1179,19 @@
  * Header button images
  */
 .viewer .header .controls .viewermenu { -fx-graphic: url(/imgs/options24.png); }
-.viewer .header .controls .fullscreen { -fx-graphic: url(/imgs/fullscreen24.png); }
-.viewer .header .controls .find { -fx-graphic: url(/imgs/find24.png); }
+.viewer .header .controls .fullscreenenter { -fx-graphic: url(/imgs/fullscreen24.png); }
+.viewer .header .controls .fullscreenexit,
+.fullscreen .header .fullscreenexit { -fx-graphic: url(/imgs/fullscreen-exit24.png); }
+.viewer .header .controls .find,
+.fullscreen .header .find { -fx-graphic: url(/imgs/find24.png); }
 .viewer .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
 .viewer .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
 .viewer .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
-.viewer .header .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
+.viewer .header .controls .contacts,
+.fullscreen .header .contacts { -fx-graphic: url(/imgs/editors24.png); }
+.fullscreen .header .distractionfreeenter { -fx-graphic: url(/imgs/distraction-free24.png); }
+.fullscreen .header .distractionfreeexit { -fx-graphic: url(/imgs/distraction-free-exit24.png); }
+.fullscreen .header .editproperties { -fx-graphic: url(/imgs/options24.png); }
 
 /*
  Viewer
@@ -2175,8 +2206,8 @@
 
 .qpopup.selectbg .scroll-pane
 {
-    -fx-pref-height: 25em;
-    -fx-min-height: 25em;
+    -fx-pref-height: 31em;
+    -fx-min-height: 31em;
     -fx-border-width: 0;
     -fx-hbar-policy: never;
     -fx-vbar-policy: as-needed;
@@ -2249,6 +2280,60 @@
 .qpopup.selectbg .accordion.colors .header .icon
 {
     -fx-image: url(/imgs/transparency16.png);
+}
+
+/*
+ * View scene popup (ViewChapterItemPopup)
+ */
+ .qpopup.chapteritem.view .buttons
+ {
+     -fx-alignment: center-left;
+     -fx-padding: 0 0 0.5em 0;
+ }
+
+.qpopup.chapteritem.view .subtitle
+{
+    -fx-font-style: italic;
+}
+
+.qpopup.chapteritem.view .linkedto .scroll-pane
+{
+    -fx-padding: 0;
+}
+
+.qpopup.chapteritem .linkedto .tree
+{
+    -fx-cell-indent: 0.75em;
+}
+
+.qpopup.chapteritem .linkedto .tree .cell
+{
+    -fx-padding: 0 0 0 0.4em;
+}
+
+.qpopup.scene .header .icon
+{
+    -fx-image: url(/imgs/scene16.png);
+}
+
+.qpopup.outlineitem .header .icon
+{
+    -fx-image: url(/imgs/outlineitem16.png);
+}
+
+.qpopup.note .header .icon
+{
+    -fx-image: url(/imgs/note16.png);
+}
+
+.qpopup.editneedednote .header .icon
+{
+    -fx-image: url(/imgs/edit-needed-note16.png);
+}
+
+.qpopup.outlineitem .scene.hyperlink
+{
+    -fx-graphic: url(/imgs/scene16.png);
 }
 
 /*
@@ -2997,6 +3082,55 @@
     -fx-padding: 0 0 0 0.5em;
 }
 
+/*
+ * Text Properties sidebar (TextPropertiesSideBar)
+ */
+.sidebar.editproperties
+{
+    -fx-pref-width: 20em;
+    -fx-min-width: 20em;
+}
+
+.sidebar.editproperties > .header .icon
+{
+    -fx-image: url(/imgs/edit-properties16.png);
+}
+
+.sidebar.editproperties .content
+{
+    -fx-padding: 0 0.5em 1em 1em;
+}
+
+.sidebar.editproperties .form .control
+{
+    -fx-padding: 0 0 1.5em 1em;
+    -fx-alignment: center-left;
+}
+/*
+.sidebar.editproperties .fontfamily .text
+{
+    -fx-font-size: 1em;
+}
+*/
+.sidebar.editproperties .fontsize, .sidebar.editproperties .linespacing, .sidebar.editproperties .textborder
+{
+    -fx-alignment: center-left;
+    -fx-spacing: 0.5em;
+}
+
+.sidebar.editproperties .control .spinner
+{
+    -fx-pref-width: 5em;
+}
+
+.sidebar.editproperties .control .slider
+{
+    -fx-pref-width: 15em;
+}
+
+/*
+ * Contacts sidebar (EditorsSideBar)
+ */
 .sidebar.contacts
 {
     -fx-pref-width: 20em;
@@ -3674,4 +3808,199 @@
 .compressedmenu:focused, .compressedmenu:active, .compressedmenu:pressed
 {
     -fx-background-color: transparent;
+}
+
+/*
+ Full screen styles (FullScreenView)
+ */
+.fullscreen > .header
+{
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-padding: 0 0 0 0.5em;
+    -fx-background-color: -qw-bg-color;
+}
+
+.fullscreen > .header .title
+{
+    -fx-font-size: 2.5em;
+    -fx-padding: 0 0.5em 0 0.5em;
+    /*-fx-max-width: Infinity;*/
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.fullscreen > .header .clock
+{
+    -fx-font-size: 2em;
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.fullscreen > .header.chapter .icon
+{
+    -fx-image: url(/imgs/chapter24.png);
+}
+
+.fullscreen > .header.options .icon
+{
+    -fx-image: url(/imgs/options24.png);
+}
+
+.fullscreen > .header.achievements .icon
+{
+    -fx-image: url(/imgs/achievement24.png);
+}
+
+.fullscreen > .header.statistics .icon
+{
+    -fx-image: url(/imgs/chart24.png);
+}
+
+.fullscreen > .header.ideaboard .icon
+{
+    -fx-image: url(/imgs/idea24.png);
+}
+
+.fullscreen .information
+{
+    -fx-padding: 0.5em 0 0.5em 1em;
+    -fx-border-width: 1px 1px 0 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: -qw-bg-color;
+}
+
+.fullscreen .information .label
+{
+    -fx-font-size: 1.5em;
+    -fx-padding: 0 1em 0 0;
+}
+
+.fullscreen .information .label.session
+{
+    -fx-graphic: url(/imgs/clock16.png);
+}
+
+.fullscreen .information .label.chapter
+{
+    -fx-graphic: url(/imgs/chapter16.png);
+}
+
+.fullscreen .sidebars
+{
+    -fx-background-color: -qw-bg-color;
+    -fx-border-color: -qw-border-color;
+    -fx-pref-width: 30em;
+}
+
+.fullscreen .sidebars .scroll-pane
+{
+    -fx-fit-to-width: false;
+    -fx-fit-to-height: false;
+    -fx-pref-width: 30em;
+}
+
+.fullscreen .sidebars:left
+{
+    -fx-border-width: 1px 1px 1px 0;
+}
+
+.panel.showinginfullscreen
+{
+    -fx-cursor: hand;
+}
+
+.panel.showinginfullscreen > * > *
+{
+    -fx-alignment: center;
+}
+
+.panel.showinginfullscreen .title
+{
+    -fx-padding: 1em;
+}
+
+.panel.showinginfullscreen .title > *
+{
+    -fx-padding: 0.75em 0 0 0;
+    -fx-alignment: top-left;
+}
+
+.panel.showinginfullscreen .title .icon
+{
+    -fx-image: url(/imgs/fullscreen24.png);
+}
+
+.panel.showinginfullscreen .title .text
+{
+    -fx-font-size: 2.5em;
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.texteditor
+{
+    -fx-max-height: Infinity;
+    -fx-background-color: transparent;
+}
+
+.texteditor .text
+{
+    -fx-fill: black;
+    -fx-font-size: 1em;
+}
+
+.texteditor .selection
+{
+    -fx-fill: -qw-component-border-color;
+    /*-fx-fill: white;*/
+
+}
+
+.texteditor .margin, .margin-bg
+{
+    -fx-pref-width: 4.5em;
+    -fx-max-width: 4.5em;
+    -fx-min-width: 4.5em;
+    -fx-max-height: Infinity;
+    -fx-background-color: #dfdfdf;
+    /*
+     * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
+     * for the note ident.  So you can have a margin that is too small to display the item.
+     */
+    -qw-note-item-indent: 0.5em;
+    /*
+     * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
+     * for the note ident.  So you can have a margin that is too small to display the item.
+     */
+    -qw-structure-item-indent: 2.7em;
+}
+
+.texteditor .margin .outlineitem, .texteditor .margin .scene
+{
+    -fx-cursor: hand;
+}
+
+.texteditor .margin .new.scene
+{
+    -fx-background-color: green;
+}
+
+.paragraph-box
+{
+    -fx-padding: 0 0 0em 0;
+    -rtfx-first-line-indent: 0;
+}
+
+.paragraph-box .first-line-indent
+{
+    -fx-pref-height: 3em;
+    -fx-min-height: 3em;
+    -fx-pref-width: 3em;
+    -fx-min-width: 3em;
+    -fx-max-width: 3em;
+    -fx-background-color: blue;
+}
+.paragraph-text
+{
+    -fx-line-spacing: 0em;
+    -fx-text-alignment: left;
+
 }

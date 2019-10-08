@@ -28,18 +28,29 @@ public class TextProperties implements TextStylable
     private int textBorder = 0;
     private IntegerProperty textBorderProp = null;
 
-    protected TextProperties ()
+    public TextProperties ()
     {
 
-    }
+        this.fontFamilyProp = new SimpleStringProperty ();
+        this.fontSizeProp = new SimpleIntegerProperty ();
+        this.alignmentProp = new SimpleStringProperty ();
+        this.firstLineIndentProp = new SimpleBooleanProperty ();
+        this.lineSpacingProp = new SimpleFloatProperty ();
+        this.textColorProp = new SimpleObjectProperty<> ();
+        this.bgColorProp = new SimpleObjectProperty<> ();
+        this.writingLineColorProp = new SimpleObjectProperty<> ();
+        this.highlightWritingLineProp = new SimpleBooleanProperty ();
+        this.textBorderProp = new SimpleIntegerProperty ();
 
+    }
+/*
     public TextProperties (TextStylable setOn)
     {
 
         this.setOn = setOn;
 
     }
-
+*/
     public TextProperties (TextProperties props)
     {
 
@@ -95,7 +106,9 @@ public class TextProperties implements TextStylable
                            int          textBorder)
     {
 
-        this (setOn);
+        //this (setOn);
+
+        this ();
 
         this.initInternal (fontFamily,
                            fontSize,
@@ -113,7 +126,7 @@ public class TextProperties implements TextStylable
     protected void initInternal (TextProperties props)
     {
 
-        this.setOn = props.setOn;
+        //this.setOn = props.setOn;
 
         this.initInternal (props.fontFamily,
                            props.fontSize,
@@ -139,17 +152,6 @@ public class TextProperties implements TextStylable
                                   boolean      highlightWritingLine,
                                   int          textBorder)
     {
-
-        this.fontFamilyProp = new SimpleStringProperty ();
-        this.fontSizeProp = new SimpleIntegerProperty ();
-        this.alignmentProp = new SimpleStringProperty ();
-        this.firstLineIndentProp = new SimpleBooleanProperty ();
-        this.lineSpacingProp = new SimpleFloatProperty ();
-        this.textColorProp = new SimpleObjectProperty<> ();
-        this.bgColorProp = new SimpleObjectProperty<> ();
-        this.writingLineColorProp = new SimpleObjectProperty<> ();
-        this.highlightWritingLineProp = new SimpleBooleanProperty ();
-        this.textBorderProp = new SimpleIntegerProperty ();
 
         this.setFontFamily (fontFamily);
         //this.fontFamily = fontFamily;
@@ -525,6 +527,136 @@ TODO Remove
             //this.setOn.resetToDefaults ();
 
         }
+
+    }
+
+    public void unbindAll ()
+    {
+
+        this.fontFamilyProp.unbind ();
+        this.fontSizeProp.unbind ();
+        this.alignmentProp.unbind ();
+        this.firstLineIndentProp.unbind ();
+        this.lineSpacingProp.unbind ();
+        this.textColorProp.unbind ();
+        this.bgColorProp.unbind ();
+        this.writingLineColorProp.unbind ();
+        this.highlightWritingLineProp.unbind ();
+        this.textBorderProp.unbind ();
+
+    }
+
+    /**
+     * Binds the properties in these properties to the properties in the passed in value.  The bind is one way, "this" properties do not
+     * update the the passed in properties.
+     *
+     * So: this.lineSpacing gets its value from props.lineSpacing.
+     */
+    public void bindTo (TextProperties props)
+    {
+
+        this.unbindAll ();
+        this.fontFamilyProp.bind (props.fontFamilyProperty ());
+
+        this.fontFamilyProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.fontFamily = newv;
+
+        });
+
+        this.fontFamily = props.getFontFamily ();
+
+        this.fontSizeProp.bind (props.fontSizeProperty ());
+
+        this.fontSizeProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.fontSize = newv.intValue ();
+
+        });
+
+        this.fontSize = props.getFontSize ();
+
+        this.alignmentProp.bind (props.alignmentProperty ());
+
+        this.alignmentProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.alignment = newv;
+
+        });
+        this.alignment = props.getAlignment ();
+
+        this.firstLineIndentProp.bind (props.firstLineIndentProperty ());
+
+        this.firstLineIndentProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.firstLineIndent = newv;
+
+        });
+        this.firstLineIndent = props.getFirstLineIndent ();
+
+        this.lineSpacingProp.bind (props.lineSpacingProperty ());
+
+        this.lineSpacingProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.lineSpacing = newv.floatValue ();
+
+        });
+        this.lineSpacing = props.getLineSpacing ();
+
+        this.textColorProp.bind (props.textColorProperty ());
+
+        this.textColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.textColor = newv;
+
+        });
+        this.textColor = props.getTextColor ();
+
+        this.bgColorProp.bind (props.backgroundColorProperty ());
+
+        this.bgColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.bgColor = newv;
+
+        });
+        this.bgColor = props.getBackgroundColor ();
+
+        this.writingLineColorProp.bind (props.writingLineColorProperty ());
+
+        this.writingLineColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.writingLineColor = newv;
+
+        });
+        this.writingLineColor = props.getWritingLineColor ();
+
+        this.highlightWritingLineProp.bind (props.highlightWritingLineProperty ());
+
+        this.highlightWritingLineProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.highlightWritingLine = newv;
+
+        });
+        this.highlightWritingLine = props.isHighlightWritingLine ();
+
+        this.textBorderProp.bind (props.textBorderProperty ());
+
+        this.textBorderProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.textBorder = newv.intValue ();
+
+        });
+        this.textBorder = props.getTextBorder ();
 
     }
 

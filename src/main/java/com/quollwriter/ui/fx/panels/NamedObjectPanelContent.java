@@ -50,10 +50,10 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
 
     }
 
-    public ReadOnlyBooleanProperty unsavedChangesProperty ()
+    public BooleanProperty unsavedChangesProperty ()
     {
 
-        return this.unsavedChangesProp.readOnlyBooleanProperty (this.unsavedChangesProp);
+        return this.unsavedChangesProp;//.readOnlyBooleanProperty (this.unsavedChangesProp);
 
     }
 

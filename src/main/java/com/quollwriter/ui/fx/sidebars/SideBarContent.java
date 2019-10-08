@@ -1,15 +1,18 @@
 package com.quollwriter.ui.fx.sidebars;
 
 import javafx.scene.layout.*;
+import javafx.beans.value.*;
+import javafx.collections.*;
 
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.data.IPropertyBinder;
 
 /**
  * A base class for content that is suitable for display within a sidebar.
  */
-public abstract class SideBarContent<E extends AbstractViewer> extends ViewerContent<E> implements Stateful, SideBarCreator
+public abstract class SideBarContent<E extends AbstractViewer> extends ViewerContent<E> implements Stateful, SideBarCreator, IPropertyBinder
 {
 
     protected SideBar sidebar = null;
@@ -33,6 +36,14 @@ public abstract class SideBarContent<E extends AbstractViewer> extends ViewerCon
         }
 
         return new State ();
+
+    }
+
+    @Override
+    public IPropertyBinder getBinder ()
+    {
+
+        return this.getSideBar ().getBinder ();
 
     }
 

@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 import javafx.collections.*;
 import javafx.beans.property.*;
 
+import org.reactfx.*;
+
 import com.quollwriter.data.Scene;
 import com.quollwriter.data.OutlineItem;
 import com.quollwriter.data.Project;
@@ -16,6 +18,8 @@ import com.quollwriter.data.Chapter;
 import com.quollwriter.data.NamedObject;
 import com.quollwriter.data.Note;
 import com.quollwriter.data.ChapterItem;
+import com.quollwriter.data.CollectionEvent;
+import com.quollwriter.data.IPropertyBinder;
 import com.quollwriter.data.comparators.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -31,19 +35,24 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
     private QuollTreeView<NamedObject> tree = null;
     private IntegerProperty countProp = null;
+    private Map<Chapter, List<Subscription>> eventSourceSubscriptions = new HashMap<> ();
 
-    public ChaptersSidebarItem (ProjectViewer pv)
+    public ChaptersSidebarItem (ProjectViewer   pv,
+                                IPropertyBinder binder)
     {
 
-        super (pv);
+        super (pv,
+               binder);
 
-        pv.getProject ().getBooks ().get (0).getChapters ().addListener ((ListChangeListener<Chapter>) ev ->
+        pv.getProject ().getBooks ().get (0).getChapters ().stream ()
+            .forEach (c -> this.addListenersForChapter (c));
+
+        this.addListChangeListener (pv.getProject ().getBooks ().get (0).getChapters (),
+                                    ev ->
         {
 
             while (ev.next ())
             {
-
-                // TODO Listen for changes on each chapters chapter items (notes/outline items/scenes)
 
                 if (ev.wasAdded ())
                 {
@@ -53,28 +62,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         {
 
                             // TODO
-                            c.getNotes ().addListener ((SetChangeListener<Note>) eev ->
-                            {
-
-                                // Add/remove the notes if necessary.
-
-                            });
-
-                            c.getScenes ().addListener ((SetChangeListener<Scene>) eev ->
-                            {
-
-                                // Add/remove if necessary.
-                                // Check for permutation.
-
-                            });
-
-                            c.getOutlineItems ().addListener ((SetChangeListener<OutlineItem>) eev ->
-                            {
-
-                                // Add/remove if necessary.
-                                // Check for permutation.
-
-                            });
+                            this.addListenersForChapter (c);
 
                         });
 
@@ -87,6 +75,14 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                 if (ev.wasRemoved ())
                 {
+
+                    ev.getRemoved ().stream ()
+                        .forEach (c ->
+                        {
+
+                            this.removeListenersForChapter (c);
+
+                        });
 
                     this.tree.getRoot ().getChildren ().removeAll (this.tree.getRoot ().getChildren ().subList (ev.getFrom (),
                                                                                                                 ev.getTo () + 1));
@@ -101,7 +97,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
         this.countProp = new SimpleIntegerProperty (0);
 
-        this.viewer.currentPanelProperty ().addListener ((pr, oldv, newv) ->
+        this.addChangeListener (this.viewer.currentPanelProperty (),
+                                (pr, oldv, newv) ->
         {
 
             if (newv != null)
@@ -172,7 +169,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                 l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, (!c.isEditComplete () && c.getEditPosition () > 0));
                 l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, c.isEditComplete ());
 
-                UserProperties.showEditPositionIconInChapterListProperty ().addListener ((pr, oldv, newv) ->
+                this.addChangeListener (UserProperties.showEditPositionIconInChapterListProperty (),
+                                        (pr, oldv, newv) ->
                 {
 
                     l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
@@ -189,7 +187,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                 });
 
-                c.editPositionProperty ().addListener ((pr, oldv, newv) ->
+                this.addChangeListener (c.editPositionProperty (),
+                                        (pr, oldv, newv) ->
                 {
 
                     if (UserProperties.getAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME))
@@ -210,7 +209,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                 });
 
-                UserProperties.showEditCompleteIconInChapterListProperty ().addListener ((pr, oldv, newv) ->
+                this.addChangeListener (UserProperties.showEditCompleteIconInChapterListProperty (),
+                                        (pr, oldv, newv) ->
                 {
 
                     l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, false);
@@ -227,7 +227,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                 });
 
-                c.editCompleteProperty ().addListener ((pr, oldv, newv) ->
+                this.addChangeListener (c.editCompleteProperty (),
+                                        (pr, oldv, newv) ->
                 {
 
                     if (UserProperties.getAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME))
@@ -461,7 +462,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .onAction (ev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.viewoutlineitem,
+                            this.viewer.runCommand (ProjectViewer.CommandId.viewobject,
                                                     oi);
 
                         })
@@ -516,7 +517,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .onAction (ev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.viewscene,
+                            this.viewer.runCommand (ProjectViewer.CommandId.viewobject,
                                                     s);
 
                         })
@@ -528,7 +529,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .onAction (ev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.editscene,
+                            this.viewer.runCommand (ProjectViewer.CommandId.editobject,
                                                     s);
 
                         })
@@ -577,6 +578,51 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
         });
 
+    }
+
+    private void removeListenersForChapter (Chapter c)
+    {
+
+        this.eventSourceSubscriptions.get (c).stream ()
+            .forEach (s -> s.unsubscribe ());
+
+        this.eventSourceSubscriptions.remove (c);
+
+    }
+
+    private void addListenersForChapter (Chapter c)
+    {
+
+        List<Subscription> subs = new ArrayList<> ();
+
+        subs.add (c.chapterItemsEvents ().subscribe (ev ->
+        {
+
+            if (ev.getType () == CollectionEvent.Type.remove)
+            {
+
+                // Remove the item.
+
+            }
+
+            if (ev.getType () == CollectionEvent.Type.add)
+            {
+
+                // Add the item.
+
+            }
+
+        }));
+
+       subs.add (c.chapterItemsPositionEvents ().subscribe (ev ->
+       {
+
+           // TODO Check for position change.
+
+       }));
+
+       this.eventSourceSubscriptions.put (c,
+                                          subs);
     }
 
     private void selectChapter (Chapter c)

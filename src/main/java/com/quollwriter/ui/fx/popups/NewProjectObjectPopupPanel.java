@@ -46,7 +46,15 @@ public class NewProjectObjectPopupPanel<E extends AbstractProjectViewer> extends
         if (b.showLinkedTo)
         {
 
+            if (b.binder == null)
+            {
+
+                throw new IllegalStateException ("If showLinkedTo is true then the property binder must be provided.");
+
+            }
+
             HyperlinkLinkedToPanel lp = new HyperlinkLinkedToPanel (b.viewer.getProject (),
+                                                                    b.binder,
                                                                     b.viewer);
 
             this.linkedToPanel = lp.getLinkedToPanel ();
@@ -104,6 +112,7 @@ public class NewProjectObjectPopupPanel<E extends AbstractProjectViewer> extends
         private boolean showLinkedTo = true;
         private E viewer = null;
         private Map<StringProperty, Node> controls = new LinkedHashMap<> ();
+        private IPropertyBinder binder = null;
 
         private Builder ()
         {
@@ -114,6 +123,14 @@ public class NewProjectObjectPopupPanel<E extends AbstractProjectViewer> extends
         {
 
             this.viewer = viewer;
+            return this;
+
+        }
+
+        public Builder<E> withBinder (IPropertyBinder b)
+        {
+
+            this.binder = b;
             return this;
 
         }

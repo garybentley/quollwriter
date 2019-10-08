@@ -78,7 +78,8 @@ public class WordCountsSideBar extends SideBarContent<AbstractProjectViewer>
 
         }
 
-        viewer.chapterCurrentlyEditedProperty ().addListener ((pr, oldv, newv) ->
+        this.addChangeListener (viewer.chapterCurrentlyEditedProperty (),
+                                (pr, oldv, newv) ->
         {
 
             if (newv != null)
@@ -129,6 +130,7 @@ TODO
             {
 
                 UIUtils.openURL (this.viewer,
+                                 this.viewer,
                                  "help://chapters/readability");
 
             })
@@ -625,7 +627,8 @@ TODO
 
         setbindings.run ();
 
-        viewer.chapterCurrentlyEditedProperty ().addListener ((pr, oldv, newv) ->
+        this.addChangeListener (viewer.chapterCurrentlyEditedProperty (),
+                                (pr, oldv, newv) ->
         {
 
             setbindings.run ();
@@ -643,7 +646,8 @@ TODO
 
         HBox r = new HBox ();
 
-        this.viewer.selectedTextProperty ().addListener ((pr, oldv, newv) ->
+        this.addChangeListener (this.viewer.selectedTextProperty (),
+                                (pr, oldv, newv) ->
         {
 
             this.updateSelectedTextValues ();

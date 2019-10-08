@@ -395,7 +395,9 @@ public class SwingUIUtils
                 if (gotoURLOnClick != null)
                 {
 
+                    // TODO Remove...
                     com.quollwriter.ui.fx.UIUtils.openURL (null,
+                    null,
                                      gotoURLOnClick);
 
                 }
@@ -1055,6 +1057,7 @@ TODO Remove
             {
 
                 com.quollwriter.ui.fx.UIUtils.openURL (viewer,
+                                                       viewer,
                                  "help://" + helpPage);
 
             }
@@ -1605,9 +1608,11 @@ TODO
                     try
                     {
 
+                        // TODO Remove enclosing method.
+                        /*
                         com.quollwriter.ui.fx.UIUtils.openURL (pv,
                                          url);
-
+*/
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to show url: " +

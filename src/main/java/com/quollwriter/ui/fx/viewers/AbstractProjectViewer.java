@@ -74,6 +74,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private Map<String, Panel> panels = new HashMap<> ();
     private ObjectProperty<Panel> currentPanelProp = null;
     private VBox toolbarWrapper = null;
+    private FullScreenView fsf = null;
+    private ShowingInFullScreenPanel fsfplaceholder = null;
 
     private ScheduledFuture autoSaveTask = null;
     private ScheduledFuture chapterCountsUpdater = null;
@@ -165,6 +167,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.tabs.setTabClosingPolicy (TabPane.TabClosingPolicy.ALL_TABS);
         this.tabs.setSide (UserProperties.tabsLocationProperty ().getValue ().equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
         this.tabs.setTabDragPolicy (TabPane.TabDragPolicy.REORDER);
+
         this.tabs.getTabs ().addListener ((ListChangeListener<Tab>) ev ->
         {
 
@@ -230,14 +233,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                  });
 
         this.toolbarWrapper = new VBox ();
-
-        UserProperties.tabsLocationProperty ().addListener ((p, oldv, newv) ->
-        {
-
-            // TODO Update the tabs location.
-            this.tabs.setSide (newv.equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
-
-        });
 
         this.chaptersOverWordCountTargetProp = new SimpleSetProperty<> (this.chaptersOverWordCountTarget);
         this.chaptersOverReadabilityTargetProp = new SimpleSetProperty<> (this.chaptersOverReadabilityTarget);
@@ -507,34 +502,40 @@ TODO
 
 		}
 
-        b.getChapters ().addListener ((ListChangeListener<Chapter>) ev ->
+        this.addListChangeListener (b.getChapters (),
+                                   ev ->
         {
 
-            if (ev.wasAdded ())
+            while (ev.next ())
             {
 
-                for (Chapter c : ev.getAddedSubList ())
+                if (ev.wasAdded ())
                 {
 
-                    this.initChapterCounts (c);
+                    for (Chapter c : ev.getAddedSubList ())
+                    {
+
+                        this.initChapterCounts (c);
+
+                    }
+
+                    return;
 
                 }
 
-                return;
-
-            }
-
-            if (ev.wasRemoved ())
-            {
-
-                for (Chapter c : ev.getRemoved ())
+                if (ev.wasRemoved ())
                 {
 
-                    this.chapterCounts.remove (c);
+                    for (Chapter c : ev.getRemoved ())
+                    {
+
+                        this.chapterCounts.remove (c);
+
+                    }
+
+                    return;
 
                 }
-
-                return;
 
             }
 
@@ -576,6 +577,22 @@ TODO
     {
 
         final AbstractProjectViewer _this = this;
+
+        this.addActionMapping (() ->
+        {
+
+            this.showTextProperties ();
+
+        },
+        CommandId.textproperties);
+
+        this.addActionMapping (() ->
+        {
+
+            this.enterFullScreen ();
+
+        },
+        CommandId.fullscreen);
 
         this.addActionMapping (() ->
         {
@@ -863,9 +880,13 @@ TODO
             if (!ft.getFamily ().equalsIgnoreCase (f))
             {
 
-                ComponentUtils.showMessage (this,
-                                            getUILanguageStringProperty (Arrays.asList (fontunavailable,text),
-                                                                         f));
+                QuollPopup.messageBuilder ()
+                    .message (getUILanguageStringProperty (Arrays.asList (fontunavailable,text),
+                                                           f))
+                    .withViewer (this)
+                    .withHandler (this)
+                    .build ();
+
                 //"The font <b>" + f + "</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a chapter tab then <a href='action:textproperties'>click here to change the text properties</a>.");
 
             }
@@ -1143,12 +1164,15 @@ TODO
                                 .label (LanguageStrings.buttons,showdetail)
                                 .buttonType (ButtonBar.ButtonData.OK_DONE)
                                 .build ();
+                            buttons.add (showDetail);
 
-                            QuollPopup qp = ComponentUtils.showMessage (_this,
-                                                                        StyleClassNames.WORDCOUNTS,
-                                                                        getUILanguageStringProperty (LanguageStrings.targets, LanguageStrings.popup,title),
-                                                                        t,
-                                                                        buttons);
+                            QuollPopup qp = QuollPopup.messageBuilder ()
+                                .withViewer (_this)
+                                .styleClassName (StyleClassNames.WORDCOUNTS)
+                                .title (LanguageStrings.targets,popup,title)
+                                .message (t)
+                                .buttons (buttons)
+                                .build ();
 
                             showDetail.setOnAction (ev ->
                             {
@@ -1569,7 +1593,9 @@ TODO
         qp.getPanel ().titleProperty (),
         qp.unsavedChangesProperty ()));
 
-        qp.unsavedChangesProperty ().addListener ((val, oldv, newv) ->
+        // We use the panel itself to listen so when it is closed the listener
+        // is removed.
+        javafx.beans.value.ChangeListener<Boolean> l = (val, oldv, newv) ->
         {
 
             if (newv)
@@ -1583,7 +1609,10 @@ TODO
 
             }
 
-        });
+        };
+
+        qp.addChangeListener (qp.unsavedChangesProperty (),
+                              l);
 
         qp.addEventHandler (Panel.PanelEvent.SAVED_EVENT,
                             ev ->
@@ -1704,11 +1733,9 @@ TODO
         if (p.unsavedChangesProperty ().getValue ())
         {
 
-            /*
-            TODO
             if ((_this.fsf != null)
                 &&
-                (p == _this.fsf.getPanel ().getChild ())
+                (p == _this.fsf.getPanel ())
                )
             {
 
@@ -1716,11 +1743,84 @@ TODO
                 _this.restoreFromFullScreen (_this.fsf.getPanel ());
 
                 // Add a blank instead.
-                _this.fsf.showBlankPanel ();
+                // TODO? _this.fsf.showBlankPanel ();
 
             }
-            */
 
+            String popupId = "close-" + p.getPanelId ();
+
+            QuollPopup qp = this.getPopupById (popupId);
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            qp = QuollPopup.questionBuilder ()
+                .popupId (popupId)
+                .styleClassName (StyleClassNames.SAVE)
+                .title (closepanel,confirmpopup,title)
+                .message (getUILanguageStringProperty (Arrays.asList (closepanel,confirmpopup,text),
+                                                       p.getPanel ().titleProperty ()))
+                .withViewer (this)
+                .withHandler (this)
+                .confirmButtonLabel (closepanel,confirmpopup,buttons,save)
+                .cancelButtonLabel (closepanel,confirmpopup,buttons,discard)
+                .onCancel (fev ->
+                {
+
+                    _this.closePanel (p.getPanel (),
+                                      onClose);
+
+                })
+                .onConfirm (fev ->
+                {
+
+                    try
+                    {
+
+                        p.saveObject ();
+
+                    } catch (Exception e)
+                    {
+
+                        // What the hell to do here???
+                        Environment.logError ("Unable to save: " +
+                                              p.getObject (),
+                                              e);
+
+                        ComponentUtils.showErrorMessage (_this,
+                                                         getUILanguageStringProperty (closepanel,actionerror));
+                                                  //"Unable to save " +
+                                                  //Environment.getObjectTypeName (p.getForObject ()));
+
+                        return;
+
+                    }
+
+                    this.getPopupById (popupId).close ();
+
+                    if (p.unsavedChangesProperty ().getValue ())
+                    {
+
+                        ComponentUtils.showErrorMessage (_this,
+                                                         getUILanguageStringProperty (closepanel,actionerror));
+                                                  //"Unable to save " +
+                                                  //Environment.getObjectTypeName (p.getForObject ()));
+
+                        return;
+
+                    }
+
+                    _this.closePanel (p.getPanel (),
+                                      onClose);
+
+                })
+                .build ();
+/*
             ComponentUtils.createQuestionPopup (getUILanguageStringProperty (closepanel,confirmpopup,title),
                                                 //"Save before closing?",
                                                 StyleClassNames.SAVE,
@@ -1774,7 +1874,7 @@ TODO
 
                                                 },
                                                 _this);
-
+*/
             return;
 
         }
@@ -1942,7 +2042,7 @@ TODO
             try
             {
 
-                // TODO this.showInFullScreen (qp);
+                this.showInFullScreen (qp.getContent ());
 
             } catch (Exception e) {
 
@@ -2374,17 +2474,31 @@ TODO
     public boolean isDistractionFreeModeEnabled ()
     {
 
-        /*
-        TODO
-        if (this.fsf != null)
-        {
+        return this.distractionFreeModeProp.getValue ();
 
-            return this.fsf.isDistractionFreeModeEnabled ();
+    }
 
-        }
-        */
+    public void setDistractionFreeModeEnabled (boolean v)
+    {
 
-        return false;
+        this.distractionFreeModeProp.setValue (v);
+
+        UserProperties.set (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
+                            v);
+
+    }
+
+    public void setUseTypewriterScrolling (boolean v)
+    {
+
+        this.typeWriterScrollingEnabledProp.setValue (v);
+
+    }
+
+    public boolean isUseTypeWriterScrolling ()
+    {
+
+        return this.typeWriterScrollingEnabledProp.getValue ();
 
     }
 
@@ -3059,7 +3173,7 @@ TODO REmove
 
             c.getChildren ().add (BasicHtmlTextFlow.builder ()
                 .text (getUILanguageStringProperty (closeproject,confirmpopup,prefix))
-                .withViewer (this)
+                .withHandler (this)
                 .build ());
 
             c.getChildren ().addAll (this.panels.values ().stream ()
@@ -3101,7 +3215,7 @@ TODO REmove
 
             c.getChildren ().add (BasicHtmlTextFlow.builder ()
                 .text (getUILanguageStringProperty (closeproject,confirmpopup,suffix))
-                .withViewer (this)
+                .withHandler (this)
                 .build ());
 
     /*
@@ -3134,40 +3248,42 @@ TODO REmove
             if (hasChanges.get ())
             {
 
-                final AbstractProjectViewer _this = this;
+                String popupId = "close-window";
 
-                Set<Button> buttons = new LinkedHashSet<> ();
+                QuollPopup qp = this.getPopupById (popupId);
 
-                buttons.add (QuollButton.builder ()
-                    .label (getUILanguageStringProperty (LanguageStrings.buttons,savechanges))
-                    .onAction (ev ->
-                    {
+                if (qp != null)
+                {
 
-                        this.closeInternal (true,
-                                            afterClose);
+                    qp.toFront ();
+                    return;
 
-                    })
-                    .build ());
+                }
 
-                buttons.add (QuollButton.builder ()
-                    .label (getUILanguageStringProperty (LanguageStrings.buttons,discardchanges))
-                    .onAction (ev ->
+                QuollPopup.questionBuilder ()
+                    .popupId (popupId)
+                    .styleClassName (StyleClassNames.PROJECT)
+                    .title (closeproject,confirmpopup,title)
+                    .message (c)
+                    .withViewer (this)
+                    .withHandler (this)
+                    .confirmButtonLabel (buttons,savechanges)
+                    .cancelButtonLabel (buttons,discardchanges)
+                    .onCancel (fev ->
                     {
 
                         this.closeInternal (false,
                                             afterClose);
 
                     })
-                    .build ());
+                    .onConfirm (fev ->
+                    {
 
-                ComponentUtils.createQuestionPopup (getUILanguageStringProperty (closeproject,confirmpopup,title),
-                                                    StyleClassNames.PROJECT,
-                                                    c,
-                                                    buttons,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    this);
+                        this.closeInternal (true,
+                                            afterClose);
+
+                    })
+                    .build ();
 
                 return;
 
@@ -3710,7 +3826,22 @@ TODO REmove
 
         this.restoreSideBars ();
         this.restoreTabs ();
-
+/*
+this.schedule (() ->
+{
+UIUtils.runLater (() ->
+{
+    try
+    {
+        this.restoreTabs ();
+    } catch (Exception e) {
+        e.printStackTrace ();
+    }
+});
+},
+2000,
+ -1);
+*/
         this.scheduleA4PageCountUpdate ();
 
         // This is done here because the achievements manager needs the project.
@@ -3725,6 +3856,16 @@ TODO REmove
                                         e);
 
         }
+
+        // This needs to go here since the call is made to the underlying viewer.
+        this.addChangeListener (UserProperties.tabsLocationProperty (),
+                                (p, oldv, newv) ->
+        {
+
+            // TODO Update the tabs location.
+            this.tabs.setSide (newv.equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
+
+        });
 
         super.init (s);
 
@@ -3804,33 +3945,10 @@ TODO REmove
     public void exitFullScreen ()
     {
 
-        try
+        if (this.fsf != null)
         {
-/*
-            if (this.fsf != null)
-            {
 
-                this.fsf.close ();
-
-                this.tabs.setVisible (true);
-
-                this.fullScreenOverlay.setVisible (false);
-
-            }
-
-            this.setUILayout (this.layout);
-*/
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to exit full screen",
-                                  e);
-
-            ComponentUtils.showErrorMessage (this,
-                                             getUILanguageStringProperty (fullscreen,actions,exit,actionerror));
-
-        } finally {
-
-            this.setVisible (true);
+            this.fsf.close ();
 
         }
 
@@ -3913,6 +4031,32 @@ TODO REmove
         }
 
         this.showSideBar (TargetsSideBar.SIDEBAR_ID);
+
+    }
+
+    public void showTextProperties ()
+    {
+
+        SideBar sb = this.getSideBarById (TextPropertiesSideBar.SIDEBAR_ID);
+
+        if (sb == null)
+        {
+
+            TextProperties props = this.getTextProperties ();
+
+            if (this.fsf != null)
+            {
+
+                props = Environment.getFullScreenTextProperties ();
+
+            }
+
+            this.addSideBar (new TextPropertiesSideBar (this,
+                                                        props));
+
+        }
+
+        this.showSideBar (TextPropertiesSideBar.SIDEBAR_ID);
 
     }
 
@@ -4070,6 +4214,334 @@ TODO REmove
 
         // TODO Do this properly...
         return this.chapterCurrentlyEditedProp.getValue ();
+
+    }
+
+    public void enterFullScreen ()
+    {
+
+        try
+        {
+
+            this.showInFullScreen (this.getCurrentlyVisibleTab ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to show in full screen",
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (fullscreen,actionerror));
+                                      //"Unable to enter full screen mode");
+
+        }
+
+    }
+
+    public void showInFullScreen (Panel panel)
+                           throws GeneralException
+    {
+
+        if (panel == null)
+        {
+
+            throw new NullPointerException ("Panel must be provided.");
+
+        }
+
+        this.showInFullScreen (panel.getContent ());
+
+    }
+
+    public void showInFullScreen (PanelContent qep)
+                           throws GeneralException
+    {
+
+        if (qep == null)
+        {
+
+            throw new NullPointerException ("Panel must be provided.");
+
+        }
+
+/*
+TODO Needed?
+        if (this.fsf == null)
+        {
+
+            // Need to get the divider location.
+            this.lastDividerLocation = this.splitPane.getDividerLocation ();
+
+        }
+
+        if (this.fullScreenOverlay == null)
+        {
+
+            this.fullScreenOverlay = new FullScreenOverlay (this);
+
+            this.setGlassPane (this.fullScreenOverlay);
+
+        }
+
+        this.fullScreenOverlay.setVisible (true);
+
+        if (this.fsf != null)
+        {
+
+            if (this.fsf.getPanel () == qep)
+            {
+
+                // Nothing to do, it's already showing, maybe bring to front.
+                this.fsf.toFront ();
+
+                return;
+
+            }
+
+        }
+
+        if (qep == null)
+        {
+
+            qep = new BlankQuollPanel (this,
+									   "fullscreen-blank");
+
+            qep.init ();
+
+        }
+        */
+/*
+TODO Remove?
+        if (this.currentOtherSideBar != null)
+        {
+
+            this.savedOtherSideBarWidth = this.currentOtherSideBar.getSize ().width;
+
+        }
+
+        if (this.mainSideBar != null)
+        {
+
+            this.savedSideBarWidth = this.mainSideBar.getSize ().width;
+
+        }
+*/
+
+        int tabInd = this.getTabIndexForPanelId (qep.getPanelId ());
+
+        if (tabInd > -1)
+        {
+
+            // TODO Make better?
+            this.fsfplaceholder = new ShowingInFullScreenPanel (this,
+                                                                qep);
+
+            // Need to set the component, otherwise it will be removed.
+            this.tabs.getTabs ().get (tabInd).setContent (this.fsfplaceholder.getPanel ());
+
+        }
+
+        if (this.fsf != null)
+        {
+
+            this.fsf.setIconified (false);
+            this.fsf.switchTo (qep);
+
+        } else
+        {
+
+            Set<Node> items = new LinkedHashSet<> ();
+
+            this.fsf = new FullScreenView (this,
+                                           items,
+                                           qep);
+
+            this.fsf.init ();
+
+            // Need to set the tabs hidden otherwise the parent qw window will flash in front
+            // or show up in front of the fsf.
+            // TODO? this.tabs.setVisible (false);
+
+            this.fireProjectEvent (new ProjectEvent (this.project,
+                                                     ProjectEvent.Type.fullscreen,
+                                                     ProjectEvent.Action.enter));
+
+        }
+
+        this.getViewer ().hide ();
+        //this.setIconified (true);
+
+		final AbstractProjectViewer _this = this;
+
+		UIUtils.runLater (() ->
+        {
+
+			if (_this.fsf != null)
+			{
+
+				_this.fsf.toFront ();
+
+			}
+
+		});
+
+    }
+
+    public void fullScreenClosed ()
+    {
+
+        this.getViewer ().show ();
+        this.toFront ();
+        this.setIconified (false);
+
+        String sid = this.fsf.getCurrentSideBar ().getSideBarId ();
+
+        this.fsf = null;
+
+        // TODO?
+        this.showSideBar (sid,
+                          null);
+
+    }
+
+    public void restoreFromFullScreen (PanelContent qp)
+    {
+
+        if (qp == null)
+        {
+
+            throw new NullPointerException ("Panel must be provided.");
+
+        }
+
+        if (qp instanceof ProjectChapterEditorPanelContent)
+        {
+
+            ProjectChapterEditorPanelContent edPanel = (ProjectChapterEditorPanelContent) qp;
+
+            edPanel.bindTextPropertiesTo (this.getTextProperties ());
+
+            this.setUseTypewriterScrolling (false);
+
+        }
+
+        for (Tab t : this.tabs.getTabs ())
+        {
+
+            Node n = t.getContent ();
+
+            if (n == this.fsfplaceholder.getPanel ())
+            {
+
+                t.setContent (qp.getPanel ());
+
+                return;
+
+            }
+
+        }
+
+    }
+
+/*
+TODO Needed?
+    public void showInFullScreen (DataObject n)
+                           throws GeneralException
+    {
+
+        // Are we already in fs mode?
+        if (this.fsf != null)
+        {
+
+            if (this.fsf.getCurrentForObject () == n)
+            {
+
+                // Nothing to do, it's already showing, maybe bring to front.
+                this.fsf.toFront ();
+
+                return;
+
+            } else
+            {
+
+                this.viewObject (n);
+
+            }
+
+        }
+
+        if (this.fullScreenOverlay == null)
+        {
+
+            this.fullScreenOverlay = new FullScreenOverlay (this);
+
+            this.setGlassPane (this.fullScreenOverlay);
+
+        }
+
+        this.fullScreenOverlay.setVisible (true);
+
+        this.lastDividerLocation = this.splitPane.getDividerLocation ();
+
+        AbstractEditorPanel qep = this.getEditorForChapter ((Chapter) n);
+
+        if (qep != null)
+        {
+
+            FullScreenQuollPanel fs = new FullScreenQuollPanel (qep);
+
+            // Need to set the component, otherwise it will be removed.
+            this.tabs.setComponentAt (this.getTabIndexForPanelId (qep.getPanelId ()),
+                                      fs);
+
+            if (this.fsf != null)
+            {
+
+                this.fsf.switchTo (fs);
+
+            } else
+            {
+
+                this.fsf = new FullScreenFrame (fs,
+												this);
+
+                this.fsf.init ();
+
+            }
+
+            //this.fsf.toFront ();
+
+            this.tabs.revalidate ();
+            this.tabs.repaint ();
+            this.validate ();
+            this.repaint ();
+
+        }
+
+        this.setVisible (false);
+
+        this.fireFullScreenEnteredEvent ();
+
+    }
+*/
+
+    @Override
+    public void showSideBar (String   id,
+                             Runnable doAfterView)
+    {
+
+        if (this.fsf != null)
+        {
+
+            this.fsf.showSideBar (id,
+                                  doAfterView);
+
+            return;
+
+        }
+
+        super.showSideBar (id,
+                           doAfterView);
 
     }
 

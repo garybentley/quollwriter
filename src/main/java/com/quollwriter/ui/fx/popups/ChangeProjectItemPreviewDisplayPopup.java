@@ -98,7 +98,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
 
         BasicHtmlTextFlow info = BasicHtmlTextFlow.builder ()
             .styleClassName (StyleClassNames.INFO)
-            .withViewer (this.viewer)
+            .withHandler (this.viewer)
             .build ();
 
         format.textProperty ().addListener ((pr, oldv, newv) ->

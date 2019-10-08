@@ -77,6 +77,9 @@ public class UserProperties
     // Just used in the map above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
 
+    private static SetChangeListener projectStatusesListener = null;
+    private static ListChangeListener<Color> userColorsListener = null;
+
     static
     {
 
@@ -495,13 +498,15 @@ public class UserProperties
 
         UserProperties.projectStatusesProp = new SimpleSetProperty<> (UserProperties.projectStatuses);
 
-        // Have to cast here to help out the compiler.
-        UserProperties.projectStatusesProp.addListener ((SetChangeListener) (ev ->
+        UserProperties.projectStatusesListener = ev ->
         {
 
             UserProperties.saveProjectStatuses ();
 
-        }));
+        };
+
+        // Have to cast here to help out the compiler.
+        UserProperties.projectStatusesProp.addListener (UserProperties.projectStatusesListener);
 
     }
 
@@ -559,8 +564,7 @@ public class UserProperties
 
         UserProperties.userColorsProp = new SimpleListProperty<> (UserProperties.userColors);
 
-        // Casting to help out the compiler.
-        UserProperties.userColorsProp.addListener ((ListChangeListener) (ev ->
+        UserProperties.userColorsListener = ev ->
         {
 
             UserProperties.set (Constants.COLOR_SWATCHES_PROPERTY_NAME,
@@ -568,7 +572,10 @@ public class UserProperties
                                     .map (c -> UIUtils.colorToHex (c))
                                     .collect (Collectors.joining (";")));
 
-        }));
+        };
+
+        // Casting to help out the compiler.
+        UserProperties.userColorsProp.addListener (new WeakListChangeListener (UserProperties.userColorsListener));
 
     }
 

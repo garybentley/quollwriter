@@ -8,11 +8,12 @@ import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.data.IPropertyBinder;
 
 /**
  * A base class for content that is suitable for display within a sidebar.
  */
-public abstract class PopupContent<E extends AbstractViewer> extends ViewerContent<E> implements PopupCreator
+public abstract class PopupContent<E extends AbstractViewer> extends ViewerContent<E> implements PopupCreator, IPropertyBinder
 {
 
     protected QuollPopup popup = null;
@@ -21,6 +22,14 @@ public abstract class PopupContent<E extends AbstractViewer> extends ViewerConte
     {
 
         super (viewer);
+
+    }
+
+    @Override
+    public IPropertyBinder getBinder ()
+    {
+
+        return this.getPopup ().getBinder ();
 
     }
 

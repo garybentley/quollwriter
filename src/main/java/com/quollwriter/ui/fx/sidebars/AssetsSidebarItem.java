@@ -31,15 +31,20 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
     private IntegerProperty countProp = null;
 
     public AssetsSidebarItem (UserConfigurableObjectType objType,
+                              IPropertyBinder            binder,
                               ProjectViewer              pv)
     {
 
-        super (pv);
+        super (pv,
+               binder);
 
         this.objType = objType;
 
         // TODO Have better handling of the changes.
-        pv.getProject ().getAssets (objType).addListener ((SetChangeListener<Asset>) ev -> this.reloadTree ());
+        ObservableSet<Asset> assts = pv.getProject ().getAssets (objType);
+
+        this.addSetChangeListener (assts,
+                                   ev -> this.reloadTree ());
 
         this.countProp = new SimpleIntegerProperty (0);
 
@@ -78,7 +83,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                 .onAction (ev ->
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.viewasset,
+                    this.viewer.runCommand (ProjectViewer.CommandId.viewobject,
                                             n);
 
                 })
@@ -662,12 +667,21 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
     private TreeItem<NamedObject> createTree ()
     {
 
-        List<Asset> objs = new ArrayList<> (this.viewer.getProject ().getAssets (this.objType));
+        TreeItem<NamedObject> root = new TreeItem<> (this.viewer.getProject ());
+
+        Set<Asset> assts = this.viewer.getProject ().getAssets (this.objType);
+
+        if (assts == null)
+        {
+
+            return root;
+
+        }
+
+        List<Asset> objs = new ArrayList<> (assts);
 
         Collections.sort (objs,
                           this.sorter);
-
-        TreeItem<NamedObject> root = new TreeItem<> (this.viewer.getProject ());
 
         for (Asset item : objs)
         {
