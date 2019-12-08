@@ -7,7 +7,9 @@ import java.util.function.*;
 import java.nio.file.*;
 import java.nio.charset.*;
 import java.util.stream.*;
+import java.util.concurrent.*;
 
+import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 
@@ -987,6 +989,32 @@ TODO
 
     }
 */
+
+    public static StringBinding createStringBinding (Callable<String> func,
+                                                     Observable...    deps)
+    {
+
+        Set<Observable> _deps = new LinkedHashSet<> ();
+        _deps.add ((javafx.beans.Observable) UILanguageStringsManager.uilangProp);
+        _deps.add (Environment.objectTypeNameChangedProperty ());
+        _deps.addAll (Arrays.asList (deps));
+
+        return Bindings.createStringBinding (func,
+                                             _deps.toArray (new Observable[0]));
+
+    }
+
+    public static StringProperty createStringPropertyWithBinding (Callable<String> func,
+                                                                  Observable...    deps)
+    {
+
+        StringProperty p = new SimpleStringProperty ();
+        p.bind (UILanguageStringsManager.createStringBinding (func,
+                                                              deps));
+        return p;
+
+    }
+
     /**
      * Creates a string property that is bound to the uilang property.  A binding function is created that uses the <b>ids</b> parm to get
      * a ui language string, the <b>reps</b> parm are then used as replacement values in a call to String.format
@@ -1005,7 +1033,7 @@ TODO
                                                               Object...    reps)
     {
 
-        List<Property> listen = new ArrayList<> ();
+        List<Observable> listen = new ArrayList<> ();
         listen.add (UILanguageStringsManager.uilangProp);
         listen.add (Environment.objectTypeNameChangedProperty ());
 
@@ -1018,6 +1046,14 @@ TODO
                 if (o == null)
                 {
 
+                    continue;
+
+                }
+
+                if (o instanceof Observable)
+                {
+
+                    listen.add ((Observable) o);
                     continue;
 
                 }
@@ -1107,6 +1143,7 @@ TODO
                     {
 
                         _reps.add (Environment.formatNumber ((Integer) o));
+                        continue;
 
                     }
 
@@ -1114,6 +1151,7 @@ TODO
                     {
 
                         _reps.add (Environment.formatNumber ((Double) o));
+                        continue;
 
                     }
 
@@ -1121,6 +1159,7 @@ TODO
                     {
 
                         _reps.add (Environment.formatNumber ((Float) o));
+                        continue;
 
                     }
 

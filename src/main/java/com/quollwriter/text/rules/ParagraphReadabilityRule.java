@@ -6,6 +6,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import javafx.scene.control.*;
+import javafx.scene.control.SpinnerValueFactory.*;
+
 import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
@@ -15,9 +18,14 @@ import com.quollwriter.data.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.forms.*;
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.*;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class ParagraphReadabilityRule extends AbstractParagraphRule
 {
@@ -37,6 +45,10 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     private JSpinner gfF = null;
     private JSpinner fkF = null;
     private JSpinner frF = null;
+
+    private Spinner<Integer> gfF2 = null;
+    private Spinner<Integer> fkF2 = null;
+    private Spinner<Integer> frF2 = null;
 
     public ParagraphReadabilityRule ()
     {
@@ -222,6 +234,36 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     }
 
     @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        List<String> pref = Arrays.asList (problemfinder,config,rules,paragraphreadability,labels);
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        this.fkF2 = new Spinner<> (new IntegerSpinnerValueFactory (0, 30, this.fleschKincaid, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,fk)),
+                                    //"Flesch Kincaid Grade level",
+                                  this.fkF2));
+
+        this.frF2 = new Spinner<> (new IntegerSpinnerValueFactory (0, 30, this.fleschReading, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,fr)),
+                                    //"Flesch Reading ease level",
+                                  this.frF2));
+
+        this.gfF2 = new Spinner<> (new IntegerSpinnerValueFactory (0, 30, this.gunningFog, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,gf)),
+                                    //"Gunning Fog index",
+                                  this.gfF2));
+
+        return items;
+
+    }
+
+    @Override
     public Set<FormItem> getFormItems ()
     {
 
@@ -303,6 +345,16 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         this.fleschKincaid = ((SpinnerNumberModel) this.fkF.getModel ()).getNumber ().intValue ();
         this.fleschReading = ((SpinnerNumberModel) this.frF.getModel ()).getNumber ().intValue ();
         this.gunningFog = ((SpinnerNumberModel) this.gfF.getModel ()).getNumber ().intValue ();
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
+    {
+
+        this.fleschKincaid = this.fkF2.getValue ();
+        this.fleschReading = this.frF2.getValue ();
+        this.gunningFog = this.gfF2.getValue ();
 
     }
 

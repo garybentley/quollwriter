@@ -36,6 +36,7 @@ public class ContactSupportPopup extends PopupContent
         this.desc = QuollTextArea.builder ()
             .placeholder (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,message,tooltip)))
             .maxChars (10000)
+            .withViewer (viewer)
             //.autoGrabFocus (true)
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();

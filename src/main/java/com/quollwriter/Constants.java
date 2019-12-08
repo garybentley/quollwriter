@@ -136,6 +136,8 @@ public class Constants
 
     public static final String UI_BASE_FONT_SIZE_PROPERTY_NAME = "uiBaseFontSize";
 
+    public static final String UI_BASE_FONT_PROPERTY_NAME = "uiBaseFont";
+
     public static final String COPYRIGHT_PROPERTY_NAME = "copyright";
 
     public static final String SOURCE_CODE_WEBSITE_PROPERTY_NAME = "sourceCodeWebsite";
@@ -192,6 +194,16 @@ public class Constants
 
     public static final String DELETE_WEBSITE_LANGUAGE_STRINGS_URL_PROPERTY_NAME = "quollWriterDeleteWebsiteLanguageStringsURL";
 
+    public static final String FIND_HIGHLIGHT_COLOR_PROPERTY_NAME = "findHighlightColor";
+
+    public static final String SYNONYM_HIGHLIGHT_COLOR_PROPERTY_NAME = "synonymHighlightColor";
+
+    public static final String PROBLEM_FINDER_BLOCK_HIGHLIGHT_COLOR_PROPERTY_NAME = "problemFinderBlockHighlightColor";
+
+    public static final String PROBLEM_FINDER_ISSUE_HIGHLIGHT_COLOR_PROPERTY_NAME = "problemFinderIssueHighlightColor";
+
+    public static final String EDIT_NEEDED_NOTE_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME = "editNeededNoteChapterHighlightColor";
+
     public static final String EDIT_MARKER_COLOR_PROPERTY_NAME = "editMarkerColor";
 
     public static final String COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME = "compressChapterContextMenu";
@@ -237,6 +249,10 @@ public class Constants
     public static final String WINDOW_TOP_LOCATION_PROPERTY_NAME = "windowTopLocation";
 
     public static final String WINDOW_LEFT_LOCATION_PROPERTY_NAME = "windowLeftLocation";
+
+    public static final String PROJECT_STATE_PROPERTY_NAME = "projectState";
+
+    public static final String WINDOW_MAXIMIZED_PROPERTY_NAME = "windowMaximized";
 
     public static final String SPELL_CHECKING_ENABLED_PROPERTY_NAME = "spellCheckingEnabled";
 

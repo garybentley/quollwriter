@@ -68,7 +68,7 @@ public class Project extends NamedObject
     private List<QObject>      objects = new ArrayList ();
     private List<ResearchItem> researchItems = new ArrayList ();
     */
-    private List<IdeaType>     ideaTypes = new ArrayList<> ();
+    private ObservableSet<IdeaType>     ideaTypes = FXCollections.observableSet (new LinkedHashSet<> ());
     private Map<UserConfigurableObjectType, ObservableSet<Asset>> assets = new HashMap<> ();
     private String             filePassword = null;
     private boolean            noCredentials = false;
@@ -1563,7 +1563,7 @@ public class Project extends NamedObject
 
     }
 */
-    public List<IdeaType> getIdeaTypes ()
+    public ObservableSet<IdeaType> getIdeaTypes ()
     {
 
         return this.ideaTypes;
@@ -1583,6 +1583,14 @@ public class Project extends NamedObject
         this.ideaTypes.add (it);
 
         it.setProject (this);
+
+    }
+
+    public void removeIdeaType (IdeaType it)
+    {
+
+        this.ideaTypes.remove (it);
+        it.setProject (null);
 
     }
 

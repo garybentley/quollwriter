@@ -3,6 +3,7 @@ package com.quollwriter.data;
 import java.text.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 import javafx.collections.*;
 import javafx.beans.property.*;
@@ -257,6 +258,13 @@ public class Scene extends ChapterItem
     public void addOutlineItem (OutlineItem i)
     {
 
+        if (!i.getChapter ().equals (this.getChapter ()))
+        {
+
+            throw new IllegalStateException ("Chapters differ.");
+
+        }
+
         if (this.outlineItems.contains (i))
         {
 
@@ -269,7 +277,7 @@ public class Scene extends ChapterItem
         if (s != null)
         {
 
-            if (s != this)
+            if (!s.equals (this))
             {
 
                 s.removeOutlineItem (i);
@@ -284,8 +292,6 @@ public class Scene extends ChapterItem
         }
 
         i.setScene (this);
-
-        i.setChapter (this.getChapter ());
 
         this.outlineItems.add (i);
 

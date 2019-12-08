@@ -116,6 +116,28 @@ public class Header extends HBox
             this.toolbar = new ToolBar ();
             this.toolbar.managedProperty ().bind (this.toolbar.visibleProperty ());
 
+            if (b.onlyShowToolbarOnMouseOver)
+            {
+
+                this.toolbar.setVisible (false);
+                this.addEventHandler (MouseEvent.MOUSE_ENTERED,
+                                      ev ->
+                {
+
+                    this.toolbar.setVisible (true);
+
+                });
+
+                this.addEventHandler (MouseEvent.MOUSE_EXITED,
+                                      ev ->
+                {
+
+                    this.toolbar.setVisible (false);
+
+                });
+
+            }
+
             if (b.controls != null)
             {
 
@@ -241,6 +263,13 @@ public class Header extends HBox
 
     }
 
+    public Label getTitle ()
+    {
+
+        return this.title;
+
+    }
+
     public ImageView getIcon ()
     {
 
@@ -294,6 +323,7 @@ public class Header extends HBox
         private Set<Node> controls = null;
         private ToolBar toolbar = null;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
+        private boolean onlyShowToolbarOnMouseOver = false;
 
         private Builder ()
         {
@@ -415,6 +445,14 @@ TODO Remove
         {
 
             this.tooltip = prop;
+            return this;
+
+        }
+
+        public Builder onlyShowToolbarOnMouseOver (boolean v)
+        {
+
+            this.onlyShowToolbarOnMouseOver = v;
             return this;
 
         }

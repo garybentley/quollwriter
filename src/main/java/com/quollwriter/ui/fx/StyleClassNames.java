@@ -7,6 +7,7 @@ public final class StyleClassNames
 
     public static final PseudoClass ERROR_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.ERROR);
     public static final PseudoClass SELECTED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.SELECTED);
+    public static final PseudoClass TEMP_SELECTED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.TEMPSELECTED);
     public static final PseudoClass BGIMAGE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.BGIMAGE);
     public static final PseudoClass BGCOLOR_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.BGCOLOR);
     public static final PseudoClass NIGHT_MODE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NIGHT);
@@ -30,6 +31,39 @@ public final class StyleClassNames
     public static final PseudoClass EDITED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.EDITED);
     public static final PseudoClass HASCHANGES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASCHANGES);
 
+    public static final String NEWIDEA = "newidea";
+    public static final String IDEAS = "ideas";
+    public static final String STARBAR = "starbar";
+    public static final String SHORTTEXT = "shorttext";
+    public static final String FULLTEXT = "fulltext";
+    public static final String UP = "up";
+    public static final String CONVERT = "convert";
+    public static final String IDEA = "idea";
+    public static final String IDEATYPE = "ideatype";
+    public static final String DATE = "date";
+    public static final String STAR = "star";
+    public static final String ALPHA = "alpha";
+    public static final String CATEGORIES = "categories";
+    public static final String FINDBOX = "findbox";
+    public static final String SNIPPET = "snippet";
+    public static final String RESULTS = "results";
+    public static final String ISSUES = "issues";
+    public static final String ISSUE = "issue";
+    public static final String RULE = "rule";
+    public static final String DETAILS = "details";
+    public static final String SEARCHING = "searching";
+    public static final String IGNORED = "ignored";
+    public static final String NOMATCHES = "nomatches";
+    public static final String REFRESH = "refresh";
+    public static final String NOPROBLEMS = "noproblems";
+    public static final String FINISH = "finish";
+    public static final String IGNORE = "ignore";
+    public static final String EDITMARKER = "editmarker";
+    public static final String WORDS = "words";
+    public static final String PARAGRAPHS = "paragraphs";
+    public static final String SENTENCES = "sentences";
+    public static final String SYNONYMS = "synonyms";
+    public static final String SEPARATOR = "separator";
     public static final String EDITED = "edited";
     public static final String CHAPTERITEM = "chapteritem";
     public static final String LINK = "link";
@@ -76,6 +110,8 @@ public final class StyleClassNames
     public static final String OVER = "over";
     public static final String EXPORT = "export";
     public static final String PROBLEMFINDER = "problemfinder";
+    public static final String PROBLEMFINDERCONFIG = "problemfinderconfig";
+    public static final String RULES = "rules";
     public static final String PRINT = "print";
     public static final String EDITPROPERTIES = "editproperties";
     public static final String EDITNEEDEDNOTE = "editneedednote";
@@ -87,8 +123,10 @@ public final class StyleClassNames
     public static final String EDITPOSITION = "editposition";
     public static final String RENAME = "rename";
     public static final String EDITNEEDED = "editneeded";
+    public static final String GOTOEDITPOSITION = "gotoeditposition";
     public static final String REMOVEEDITPOSITION = "removeeditposition";
     public static final String EDITCOMPLETE = "editcomplete";
+    public static final String NOTES = "notes";
     public static final String NOTE = "note";
     public static final String SORT = "sort";
     public static final String TAG = "tag";
@@ -135,6 +173,7 @@ public final class StyleClassNames
     public static final String BGIMAGE = "bgimage";
     public static final String BGCOLOR = "bgcolor";
     public static final String SELECTED = "selected";
+    public static final String TEMPSELECTED = "tempselected";
     public static final String CONTENT = "content";
     public static final String CLOSE = "close";
     public static final String DEBUG = "debug";
@@ -172,6 +211,7 @@ public final class StyleClassNames
     public static final String TOOLBAR = "toolbar";
     public static final String NOPROJECTS = "noprojects";
     public static final String FORM = "form";
+    public static final String SUMMARY = "summary";
     public static final String DESCRIPTION = "description";
     public static final String BUTTONS = "buttons";
     public static final String CONTROL = "control";
@@ -231,6 +271,7 @@ public final class StyleClassNames
     public static final String QPOPUP = "qpopup";
     public static final String INFO = "info";
     public static final String MAX = "max";
+    public static final String QTEXTVIEW = "qtextview";
     public static final String QTEXTAREA = "qtextarea";
     public static final String EMAIL = "email";
     public static final String CREATEPROJECT = "createproject";
@@ -275,6 +316,7 @@ public final class StyleClassNames
     public static final String ACHIEVED = "achieved";
     public static final String ACHIEVEMENT = "achievement";
     public static final String HIDE = "hide";
+    public static final String SHOW = "show";
     public static final String POPUPPANE = "popuppane";
     public static final String RADIOBUTTONS = "radiobuttons";
     public static final String PROJECTS = "projects";

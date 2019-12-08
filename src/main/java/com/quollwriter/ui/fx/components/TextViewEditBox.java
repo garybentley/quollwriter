@@ -15,6 +15,7 @@ import javafx.scene.text.*;
 import com.quollwriter.data.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -24,13 +25,14 @@ public class TextViewEditBox extends StackPane
 
     private VBox view = null;
     private VBox edit = null;
-    private TextArea editText = null;
+    private QuollTextArea editText = null;
     private StringWithMarkup text = null;
     private boolean typed = false;
     private Function<StringWithMarkup, Boolean> onSave = null;
     private EventHandler<ActionEvent> onView = null;
     private EventHandler<ActionEvent> onEdit = null;
     private StringProperty viewPlaceHolder = null;
+    private boolean editOnly = false;
 
     private TextViewEditBox (Builder b)
     {
@@ -49,29 +51,28 @@ public class TextViewEditBox extends StackPane
         this.onView = b.onView;
         this.onEdit = b.onEdit;
 
+        this.editOnly = b.editOnly;
+
         StackPane sp = new StackPane ();
 
         this.view = new VBox ();
         this.view.getStyleClass ().add (StyleClassNames.VIEW);
         this.view.managedProperty ().bind (this.view.visibleProperty ());
+        this.view.setVisible (!this.editOnly);
 
         this.edit = new VBox ();
         this.edit.getStyleClass ().add (StyleClassNames.EDIT);
         this.edit.managedProperty ().bind (this.edit.visibleProperty ());
-        this.edit.setVisible (false);
+        this.edit.setVisible (this.editOnly);
 
         this.viewPlaceHolder = b.viewPlaceHolder;
 
-        this.editText = new TextArea ();
-        this.editText.promptTextProperty ().bind (b.editPlaceHolder);
+        this.editText = QuollTextArea.builder ()
+            .formattingEnabled (b.formattingEnabled)
+            .placeholder (b.editPlaceHolder)
+            .withViewer (b.viewer)
+            .build ();
         this.edit.getChildren ().add (this.editText);
-
-        if (b.editPlaceHolder != null)
-        {
-
-            this.editText.promptTextProperty ().bind (b.editPlaceHolder);
-
-        }
 
         this.onSave = b.onSave;
 
@@ -132,7 +133,7 @@ public class TextViewEditBox extends StackPane
     private void doSave ()
     {
 
-        StringWithMarkup ntext = new StringWithMarkup (this.editText.getText ());
+        StringWithMarkup ntext = this.editText.getTextWithMarkup ();
 
         if (this.onSave != null)
         {
@@ -209,7 +210,7 @@ public class TextViewEditBox extends StackPane
         if (this.text != null)
         {
 
-            this.editText.setText (this.text.getText ());
+            this.editText.setText (this.text);
 
         }
 
@@ -224,6 +225,13 @@ public class TextViewEditBox extends StackPane
 
     public void showView ()
     {
+
+        if (this.editOnly)
+        {
+
+            return;
+
+        }
 
         this.view.setVisible (true);
         this.edit.setVisible (false);
@@ -267,6 +275,9 @@ public class TextViewEditBox extends StackPane
         private StringWithMarkup text = null;
         private StringProperty saveButtonTooltip = null;
         private StringProperty cancelButtonTooltip = null;
+        private boolean formattingEnabled = false;
+        private AbstractViewer viewer = null;
+        private boolean editOnly = false;
 
         private Builder ()
         {
@@ -285,6 +296,14 @@ public class TextViewEditBox extends StackPane
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder editOnly (boolean v)
+        {
+
+            this.editOnly = v;
             return this;
 
         }
@@ -317,6 +336,14 @@ public class TextViewEditBox extends StackPane
         {
 
             this.onCancel = ev;
+            return this;
+
+        }
+
+        public Builder withViewer (AbstractViewer viewer)
+        {
+
+            this.viewer = viewer;
             return this;
 
         }
@@ -357,6 +384,14 @@ public class TextViewEditBox extends StackPane
         {
 
             this.text = t;
+            return this;
+
+        }
+
+        public Builder formattingEnabled (boolean v)
+        {
+
+            this.formattingEnabled = v;
             return this;
 
         }

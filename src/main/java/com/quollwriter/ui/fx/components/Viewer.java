@@ -13,6 +13,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.beans.value.*;
+import javafx.scene.text.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -23,7 +24,7 @@ import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class Viewer extends Stage implements Stateful, IPropertyBinder
+public class Viewer extends Stage implements Stateful
 {
 
     public static final int DEFAULT_WINDOW_WIDTH = 800;
@@ -34,15 +35,13 @@ public class Viewer extends Stage implements Stateful, IPropertyBinder
     private String styleName = null;
     private StringProperty titleProp = null;
     private Supplier<Set<Node>> headerControlsSupplier = null;
-    private IPropertyBinder binder = null;
+    private IPropertyBinder binder = new PropertyBinder ();
 
     private Viewer (Builder b)
     {
 
-        this.binder = new PropertyBinder ();
-
-        this.addSetChangeListener (Environment.getStyleSheets (),
-                                   ev ->
+        this.binder.addSetChangeListener (Environment.getStyleSheets (),
+                                          ev ->
         {
 
             if (ev.wasAdded ())
@@ -70,14 +69,6 @@ public class Viewer extends Stage implements Stateful, IPropertyBinder
         });
 
         this._init (b);
-
-    }
-
-    @Override
-    public IPropertyBinder getBinder ()
-    {
-
-        return this.binder;
 
     }
 
@@ -134,15 +125,27 @@ public class Viewer extends Stage implements Stateful, IPropertyBinder
 
             }
 
+            this.setMaximized (s.getAsBoolean (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME));
+
         }
 
     }
 
-    private void updateUIBaseFontSize ()
+    private void updateUIBaseFontAndSize ()
     {
 
-        this.getScene ().getRoot ().setStyle (String.format ("-fx-font-size: %1$spt;",
-                                                             UserProperties.getUIBaseFontSize ()));
+        Font f = UserProperties.getUIBaseFont ();
+
+        if (f == null)
+        {
+
+            f = Font.getDefault ();
+
+        }
+
+        this.getScene ().getRoot ().setStyle (String.format ("-fx-font-size: %1$spt; -fx-font-family: \"%2$s\"",
+                                                             UserProperties.getUIBaseFontSize (),
+                                                             f.getName ()));
 
     }
 
@@ -152,13 +155,15 @@ public class Viewer extends Stage implements Stateful, IPropertyBinder
 
         State s = new State ();
         s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
-               this.getScene ().getHeight ());
+               this.getHeight ());
         s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
-               this.getScene ().getWidth ());
+               this.getWidth ());
         s.set (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
                this.getY ());
         s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
                this.getX ());
+        s.set (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME,
+               this.isMaximized ());
 
         return s;
 
@@ -228,19 +233,27 @@ public class Viewer extends Stage implements Stateful, IPropertyBinder
 
             });
 
-        this.addChangeListener (UserProperties.uiBaseFontSizeProperty (),
-                                (pr, oldv, newv) ->
+        this.binder.addChangeListener (UserProperties.uiBaseFontSizeProperty (),
+                                       (pr, oldv, newv) ->
         {
 
-            this.updateUIBaseFontSize ();
+            this.updateUIBaseFontAndSize ();
 
         });
 
-        this.updateUIBaseFontSize ();
+        this.binder.addChangeListener (UserProperties.uiBaseFontProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.updateUIBaseFontAndSize ();
+
+        });
+
+        this.updateUIBaseFontAndSize ();
 
         // Listen to the night mode property, add a psuedo class when it is enabled.
-        this.addChangeListener (Environment.nightModeProperty (),
-                                (val, oldv, newv) ->
+        this.binder.addChangeListener (Environment.nightModeProperty (),
+                                       (val, oldv, newv) ->
         {
 
             box.pseudoClassStateChanged (StyleClassNames.NIGHT_MODE_PSEUDO_CLASS, newv);

@@ -12,6 +12,8 @@ public class Issue
     private String   desc = null;
     private Position startPos = null;
     private Position endPos = null;
+    private com.quollwriter.ui.fx.components.TextEditor.Position startPos2 = null;
+    private com.quollwriter.ui.fx.components.TextEditor.Position endPos2 = null;
     private int      startIssuePosition = -1;
     private int      length = -1;
     private String   ruleId = null;
@@ -246,6 +248,36 @@ public class Issue
     {
 
         this.endPos = p;
+
+    }
+
+
+
+    public com.quollwriter.ui.fx.components.TextEditor.Position getStartPosition2 ()
+    {
+
+        return this.startPos2;
+
+    }
+
+    public com.quollwriter.ui.fx.components.TextEditor.Position getEndPosition2 ()
+    {
+
+        return this.endPos2;
+
+    }
+
+    public void setStartPosition2 (com.quollwriter.ui.fx.components.TextEditor.Position p)
+    {
+
+        this.startPos2 = p;
+
+    }
+
+    public void setEndPosition2 (com.quollwriter.ui.fx.components.TextEditor.Position p)
+    {
+
+        this.endPos2 = p;
 
     }
 

@@ -200,6 +200,7 @@ public class DoWarmupExercisePopup extends PopupContent
         this.ownprompt = QuollTextArea.builder ()
             .placeholder (getUILanguageStringProperty (dowarmup,LanguageStrings.ownprompt,tooltip))
             .styleClassName (StyleClassNames.TEXT)
+            .withViewer (viewer)
             .build ();
 
         ob.getChildren ().add (ownprompt);

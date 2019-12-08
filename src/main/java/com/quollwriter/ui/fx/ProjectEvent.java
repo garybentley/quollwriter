@@ -35,6 +35,8 @@ public class ProjectEvent extends EventObject
         itemtypes ("itemtypes"),
         notetypes ("notetypes"),
         ideaboard ("ideaboard"),
+        idea ("idea"),
+        ideatype ("ideatype"),
         achievements ("achievements"),
         tips ("tips"),
         tabs ("tabs"),

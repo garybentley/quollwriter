@@ -2,6 +2,8 @@ package com.quollwriter.data;
 
 import java.util.*;
 
+import javafx.collections.*;
+
 import com.quollwriter.*;
 
 import org.jdom.*;
@@ -21,7 +23,7 @@ public class IdeaType extends NamedObject
 
     private String     sortBy = null;
     private String     iconType = null;
-    private List<Idea> ideas = new ArrayList ();
+    private ObservableSet<Idea> ideas = FXCollections.observableSet (new LinkedHashSet<> ());
     private Project    proj = null;
 
     public IdeaType()
@@ -82,7 +84,7 @@ public class IdeaType extends NamedObject
         {
 
             return;
-            
+
         }
 
         i.setType (this);
@@ -105,18 +107,8 @@ public class IdeaType extends NamedObject
 
     }
 
-    public List<Idea> getIdeas ()
+    public ObservableSet<Idea> getIdeas ()
     {
-
-        if (this.sortBy == null)
-        {
-
-            this.sortBy = IdeaType.SORT_BY_RATING;
-
-        }
-
-        Collections.sort (this.ideas,
-                          new IdeaTypeComparator (this.sortBy));
 
         return this.ideas;
 

@@ -8,6 +8,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.collections.*;
 import javafx.beans.property.*;
+import javafx.beans.binding.*;
 
 import org.reactfx.*;
 
@@ -16,6 +17,7 @@ import com.quollwriter.data.OutlineItem;
 import com.quollwriter.data.Project;
 import com.quollwriter.data.Chapter;
 import com.quollwriter.data.NamedObject;
+import com.quollwriter.data.BlankNamedObject;
 import com.quollwriter.data.Note;
 import com.quollwriter.data.ChapterItem;
 import com.quollwriter.data.CollectionEvent;
@@ -28,6 +30,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.panels.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 import static com.quollwriter.LanguageStrings.*;
 
 public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
@@ -36,6 +39,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
     private QuollTreeView<NamedObject> tree = null;
     private IntegerProperty countProp = null;
     private Map<Chapter, List<Subscription>> eventSourceSubscriptions = new HashMap<> ();
+    private Map<Chapter, NoteTreeLabel> noteTreeLabels = new HashMap<> ();
 
     public ChaptersSidebarItem (ProjectViewer   pv,
                                 IPropertyBinder binder)
@@ -61,7 +65,6 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .forEach (c ->
                         {
 
-                            // TODO
                             this.addListenersForChapter (c);
 
                         });
@@ -81,6 +84,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         {
 
                             this.removeListenersForChapter (c);
+                            this.noteTreeLabels.remove (c).listenerHandle.dispose ();
 
                         });
 
@@ -126,6 +130,64 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
         });
 
+        this.addChangeListener (UserProperties.showNotesInChapterListProperty (),
+                                (pr, oldv, newv) ->
+        {
+
+            if (newv)
+            {
+
+                // Add a notes branch.
+                this.viewer.getProject ().getBooks ().get (0).getChapters ().stream ()
+                    .forEach (c ->
+                    {
+
+                        if ((c.getNotes ().size () > 0)
+                            &&
+                            (this.noteTreeLabels.get (c) == null)
+                           )
+                        {
+
+                            TreeItem<NamedObject> noteLabel = this.createNotesItem (c);
+
+                            // Notes always go at the bottom.
+                            this.tree.getTreeItemForObject (c).getChildren ().add (noteLabel);
+
+                        }
+
+                    });
+
+            } else {
+
+                // Remove the notes branch.
+                this.viewer.getProject ().getBooks ().get (0).getChapters ().stream ()
+                    .forEach (c ->
+                    {
+
+                        NoteTreeLabel l = this.noteTreeLabels.get (c);
+
+                        if (l != null)
+                        {
+
+                            this.tree.removeObject (l);
+
+                            if (l.listenerHandle != null)
+                            {
+
+                                l.listenerHandle.dispose ();
+
+                            }
+
+                            this.noteTreeLabels.remove (c);
+
+                        }
+
+                    });
+
+            }
+
+        });
+
         this.tree = new QuollTreeView<> ();
         this.tree.setShowRoot (false);
         this.tree.setCellProvider (treeItem ->
@@ -140,10 +202,69 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
             }
 
+            if (n instanceof NoteTreeLabel)
+            {
+
+                NoteTreeLabel nl = (NoteTreeLabel) n;
+
+                QuollLabel l = QuollLabel.builder ()
+                    .styleClassName (StyleClassNames.NOTES)
+                    .build ();
+
+                StringBinding b = Bindings.createStringBinding (() ->
+                {
+
+                    String v = "%1$s (%2$s)";
+
+                    return String.format (v,
+                                          getUILanguageStringProperty (objectnames,plural, Note.OBJECT_TYPE).getValue (),
+                                          Environment.formatNumber (nl.chapter.getNotes ().size ()));
+
+                },
+                UILanguageStringsManager.uilangProperty (),
+                Environment.objectTypeNameChangedProperty ());
+
+                l.textProperty ().bind (b);
+
+                nl.listenerHandle = this.addSetChangeListener (nl.chapter.getNotes (),
+                                                               ev ->
+                {
+
+                    b.invalidate ();
+
+                });
+
+                l.setOnMouseClicked (ev ->
+                {
+
+                    TreeItem<NamedObject> ti = this.tree.getTreeItemForObject (n);
+
+                    ti.setExpanded (!ti.isExpanded ());
+
+                });
+
+                return l;
+
+            }
+
             QuollLabel l = QuollLabel.builder ()
                 .label (n.nameProperty ())
                 .styleClassName (n.getObjectType ())
                 .build ();
+
+            if (n instanceof Note)
+            {
+
+                Note _n = (Note) n;
+
+                if (_n.isEditNeeded ())
+                {
+
+                    l.getStyleClass ().add (StyleClassNames.EDITNEEDEDNOTE);
+
+                }
+
+            }
 
             l.setOnMouseClicked (ev ->
             {
@@ -254,12 +375,12 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                 if (n instanceof Note)
                 {
 
-                    java.util.List<String> nprefix = Arrays.asList (project,sidebar,chapters,treepopupmenu,notes,items);
+                    List<String> nprefix = Arrays.asList (project,sidebar,chapters,treepopupmenu,notes,items);
 
                     final Note note = (Note) n;
 
                     m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
+                        .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
                         .styleClassName (StyleClassNames.VIEW)
                         .onAction (ev ->
                         {
@@ -270,7 +391,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .build ());
 
                     m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
+                        .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
                         .styleClassName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
@@ -291,12 +412,13 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                     }
 
                     m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
+                        .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
                         .styleClassName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
-                            this.viewer.editObject (n);
+                            this.viewer.showDeleteChapterItemPopup (note,
+                                                                    this.tree.getCellForObject (note));
 
                         })
                         .build ());
@@ -370,6 +492,26 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         (!c.isEditComplete ())
                        )
                     {
+
+                        m.getItems ().add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,gotoeditposition)))
+                            .styleClassName (StyleClassNames.GOTOEDITPOSITION)
+                            .onAction (ev ->
+                            {
+
+                                this.viewer.editChapter (c,
+                                                         () ->
+                                                         {
+
+                                                            ProjectChapterEditorPanelContent p = this.viewer.getEditorForChapter (c);
+
+                                                            p.getEditor ().moveTo (c.getEditPosition ());
+                                                            p.getEditor ().requestFollowCaret ();
+
+                                                         });
+
+                            })
+                            .build ());
 
                         m.getItems ().add (QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,removeeditposition)))
@@ -496,8 +638,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .onAction (ev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.deleteoutlineitem,
-                                                    oi);
+                            this.viewer.showDeleteChapterItemPopup (oi,
+                                                                    this.tree.getCellForObject (oi));
 
                         })
                         .build ());
@@ -551,8 +693,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .onAction (ev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.deletescene,
-                                                    s);
+                            this.viewer.showDeleteChapterItemPopup (s,
+                                                                    this.tree.getCellForObject (s));
 
                         })
                         .build ());
@@ -602,13 +744,86 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
             {
 
                 // Remove the item.
+                this.tree.removeObject (ev.getSource ());
 
             }
 
             if (ev.getType () == CollectionEvent.Type.add)
             {
 
-                // Add the item.
+                TreeItem<NamedObject> pti = null;
+
+                ChapterItem ci = ev.getSource ();
+
+                int ind = 0;
+
+                if (ci instanceof OutlineItem)
+                {
+
+                    OutlineItem oi = (OutlineItem) ci;
+
+                    if (oi.getScene () != null)
+                    {
+
+                        pti = this.tree.getTreeItemForObject (oi.getScene ());
+                        ind = new ArrayList (oi.getScene ().getOutlineItems ()).indexOf (oi);
+
+                    } else {
+
+                        ind = new ArrayList (c.getOutlineItems ()).indexOf (oi);
+
+                    }
+
+                }
+
+                if (ci instanceof Scene)
+                {
+
+                    ind = new ArrayList (ci.getChapter ().getScenes ()).indexOf (ci);
+
+                }
+
+                if (ci instanceof Note)
+                {
+
+                    if (!UserProperties.isShowNotesInChapterList ())
+                    {
+
+                        // Don't do anything.
+                        return;
+
+                    }
+
+                    // TODO Add in positioning.
+                    pti = this.tree.getTreeItemForObject (this.noteTreeLabels.get (c));
+                    ind = new ArrayList (c.getNotes ()).indexOf (ci);
+
+                }
+
+                if (pti == null)
+                {
+
+                    pti = this.tree.getTreeItemForObject (ci.getChapter ());
+
+                }
+
+                TreeItem<NamedObject> ti = this.createTreeItem (ci);
+
+                //int ind = pti.getChildren ().indexOf (this.tree.getTreeItemForObject (this.getChapterItemBefore (ci)));
+
+                if (ind < 0)
+                {
+
+                    ind = 0;
+
+                } else {
+
+                    //ind++;
+
+                }
+
+                pti.getChildren ().add (ind,
+                                        ti);
 
             }
 
@@ -623,6 +838,84 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
        this.eventSourceSubscriptions.put (c,
                                           subs);
+    }
+
+    private ChapterItem getChapterItemBefore (ChapterItem ci)
+    {
+
+        Set<ChapterItem> items = new TreeSet (Collections.reverseOrder (new ChapterItemSorter ()));
+
+        int start = 0;
+        int end = ci.getEndPosition ();
+        Chapter ch = ci.getChapter ();
+
+        if ((ci instanceof Scene)
+            ||
+            (ci instanceof OutlineItem)
+           )
+        {
+
+            for (OutlineItem it : ch.getOutlineItems ())
+            {
+
+                if ((it.getPosition () >= start)
+                    &&
+                    (it.getPosition () <= end)
+                   )
+                {
+
+                    items.add (it);
+
+                }
+
+            }
+
+            for (Scene s : ch.getScenes ())
+            {
+
+                if ((s.getPosition () >= start)
+                    &&
+                    (s.getPosition () <= end)
+                   )
+                {
+
+                    items.add (s);
+
+                }
+
+            }
+
+        }
+
+        if (ci instanceof Note)
+        {
+
+            for (Note n : ch.getNotes ())
+            {
+
+                if ((n.getPosition () >= start)
+                    &&
+                    (n.getPosition () <= end)
+                   )
+                {
+
+                    items.add (n);
+
+                }
+
+            }
+
+        }
+
+        if (items.size () > 0)
+        {
+
+            return items.iterator ().next ();
+
+        }
+
+        return null;
+
     }
 
     private void selectChapter (Chapter c)
@@ -697,6 +990,11 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
         }
 
+        ss.set ("expanded",
+                this.tree.getExpandedTreeItems ().stream ()
+                    .map (ti -> ti.getValue ().getObjectReference ().asString ())
+                    .collect (Collectors.joining (",")));
+
         return ss;
 
     }
@@ -738,6 +1036,31 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
     }
 
+    private TreeItem<NamedObject> createTreeItem (ChapterItem citem)
+    {
+
+        TreeItem<NamedObject> cii = new TreeItem<> (citem);
+
+        if (citem instanceof Scene)
+        {
+
+            Scene s = (Scene) citem;
+
+            for (OutlineItem oitem : s.getOutlineItems ())
+            {
+
+                TreeItem<NamedObject> oii = new TreeItem<> (oitem);
+
+                cii.getChildren ().add (oii);
+
+            }
+
+        }
+
+        return cii;
+
+    }
+
     private TreeItem<NamedObject> createTreeItem (Chapter c)
     {
 
@@ -753,29 +1076,36 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
         for (ChapterItem citem : items)
         {
 
-            TreeItem<NamedObject> cii = new TreeItem<> (citem);
+            ci.getChildren ().add (this.createTreeItem (citem));
 
-            ci.getChildren ().add (cii);
+        }
 
-            if (citem instanceof Scene)
-            {
+        if ((UserProperties.isShowNotesInChapterList ())
+            &&
+            ((c.getNotes ().size () > 0))
+           )
+        {
 
-                Scene s = (Scene) citem;
-
-                for (OutlineItem oitem : s.getOutlineItems ())
-                {
-
-                    TreeItem<NamedObject> oii = new TreeItem<> (oitem);
-
-                    cii.getChildren ().add (oii);
-
-                }
-
-            }
+            ci.getChildren ().add (this.createNotesItem (c));
 
         }
 
         return ci;
+
+    }
+
+    private TreeItem<NamedObject> createNotesItem (Chapter c)
+    {
+
+        NoteTreeLabel l = new NoteTreeLabel (c);
+        TreeItem<NamedObject> noteLabel = new TreeItem<> (l);
+        this.noteTreeLabels.put (c, l);
+        System.out.println ("H: " + l.hashCode ());
+        // Add the current notes.
+        c.getNotes ().stream ()
+            .forEach (n -> noteLabel.getChildren ().add (new TreeItem<> (n)));
+
+        return noteLabel;
 
     }
 
@@ -812,6 +1142,24 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
     {
 
         return true;
+
+    }
+
+    private static class NoteTreeLabel extends BlankNamedObject
+    {
+
+        public Chapter chapter = null;
+        public IPropertyBinder.ListenerHandle listenerHandle = null;
+
+        public NoteTreeLabel (Chapter c)
+        {
+
+            super ("notetreelabel",
+                   "note-tree-label");
+
+            this.chapter = c;
+
+        }
 
     }
 

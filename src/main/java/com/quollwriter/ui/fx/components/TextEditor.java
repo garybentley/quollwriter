@@ -6,6 +6,7 @@ import org.fxmisc.richtext.model.*;
 import org.reactfx.*;
 import org.reactfx.util.*;
 import org.fxmisc.undo.*;
+import org.fxmisc.wellbehaved.event.*;
 import org.fxmisc.richtext.Selection.Direction;
 
 import java.text.*;
@@ -26,6 +27,12 @@ import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.text.Word;
+import com.quollwriter.text.TextIterator;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.popups.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEditor.AbstractSegment, TextEditor.TextStyle>
 {
@@ -34,65 +41,19 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     public static final String ALIGN_RIGHT = "Right";
     public static final String ALIGN_JUSTIFIED = "Justified";
 
-    private static TextStyle SPELLING_ERROR_STYLE = new TextStyle ();
-    private static TextStyle NORMAL_STYLE = new TextStyle ();
-
-    static
-    {
-        SPELLING_ERROR_STYLE.setSpellingError (true);
-    }
-
     private Point2D mousePos = null;
     private TextProperties props = null;
     public QSpellChecker          spellChecker = null;
     private SuspendableYes suspendUndos = null;
     private boolean ignoreDocumentChange = false;
     private BooleanProperty readyForUseProp = new SimpleBooleanProperty (false);
-/*
-    private TextEditor (StringWithMarkup    text,
-                        TextProperties      props,
-                        DictionaryProvider2 prov)
-    {
-
-        super ();
-
-        this.spellChecker = new QSpellChecker (this,
-                                               prov);
-        this.props = new TextProperties ();
-        this.bindTo (props);
-
-        this.setAutoScrollOnDragDesired (true);
-        this.setWrapText (true);
-
-        // Build a custom undo manager that is suspendable, see: https://github.com/FXMisc/RichTextFX/issues/735
-        this.suspendUndos = new SuspendableYes ();
-        this.setUndoManager (UndoManagerFactory.unlimitedHistoryFactory ().createMultiChangeUM(this.multiRichChanges ().conditionOn (this.suspendUndos),
-                                                                            TextChange::invert,
-                                                                            UndoUtils.applyMultiRichTextChange(this),
-                                                                            TextChange::mergeWith,
-                                                                            TextChange::isIdentity));
-
-        // TODO Markup.
-        this.setText (text);
-        this.setEditable (false);
-
-        this.addEventHandler (MouseEvent.MOUSE_MOVED,
-                              ev ->
-        {
-
-            this.mousePos = new Point2D (ev.getX (),
-                                         ev.getY ());
-
-        });
-
-    }
-*/
+    private Map<Object, Paint> highlights = new HashMap<> ();
 
     private static TextOps<String, TextStyle> styledTextOps = SegmentOps.styledTextOps ();
     private static MySegmentOps indentOps = new MySegmentOps ();
+    private boolean formattingEnabled = false;
+    private StringProperty placeholder = null;
 
-    private static final StyledDocument INDENT_DOC = ReadOnlyStyledDocument.fromSegment( new IndentSegment( "\t" ), ParaStyle.EMPTY, TextStyle.EMPTY, indentOps );
-        private static final StyledSegment INDENT_SEG = (StyledSegment) INDENT_DOC.getParagraph(0).getStyledSegments().get(0);
         private boolean indent = true;
 
         public static abstract class AbstractSegment
@@ -292,7 +253,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
                        DictionaryProvider2 prov)
     {
 
-        super (ParaStyle.EMPTY,
+        super (new ParaStyle (),
                // para -> TextFlow
                // style -> ParaStyle
                (para, style) ->
@@ -301,7 +262,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
                    para.setStyle (style.toCss ());
 
                },
-               TextStyle.EMPTY,
+               new TextStyle (),
                indentOps,
                // Node factory function, converts a StyledSegment<String, TextStyle> into a Node.
                (seg ->
@@ -309,17 +270,9 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
 
                    return seg.getSegment ().createNode (seg.getStyle ());
 
-/*
-                       TextExt te = new TextExt (txt);
-                       te.setTextOrigin (VPos.TOP);
-                       te.getStyleClass ().add (StyleClassNames.TEXT);
-                       te.setStyle (seg.getStyle ().toCss ());
-
-                       return te;
-*/
-
                }));
 
+        this.setUseInitialStyleForInsertion (true);
         this.props = new TextProperties ();
         this.bindTo (props);
 
@@ -333,12 +286,6 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
 
         this.setAutoScrollOnDragDesired (true);
         this.setWrapText (true);
-
-        Runnable r = () ->
-        {
-
-
-        };
 
         this.sceneProperty ().addListener ((pr, oldv, newv) ->
         {
@@ -373,56 +320,24 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
 
         }
 
+        this.readyForUseProp.addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv)
+            {
+
+                this.requestLayout ();
+
+            }
+
+        });
+
         this.spellChecker = new QSpellChecker (this,
                                                prov);
 
         // TODO Markup.
         this.setText (text);
         this.setEditable (false);
-
-        this.caretPositionProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-System.out.println ("HERE: " + newv);
-
-        });
-
-        // Hijack Ctrl+Left (incl Shift) to navigate around an indent.
-        addEventFilter( KeyEvent.KEY_PRESSED, KE ->
-        {
-            if ( KE.isShortcutDown() ) switch ( KE.getCode() )
-            {
-                case LEFT : case KP_LEFT : {
-                    this.skipToPrevWord( KE.isShiftDown() );
-                    KE.consume();
-                    break;
-                }
-            }
-        });
-
-        // Prevent the caret from appearing on the left hand side of an indent.
-        caretPositionProperty().addListener( (ob,oldPos,newPos) ->
-        {
-            if ( indent && getCaretColumn() == 0 ) {
-                AbstractSegment seg = getParagraph( getCurrentParagraph() ).getSegments().get(0);
-                if ( seg instanceof IndentSegment ) {
-                    displaceCaret( newPos + 1 );
-                }
-            }
-        });
-
-        addEventHandler( KeyEvent.KEY_PRESSED, KE ->
-                {
-                    if ( indent && KE.getCode() == KeyCode.ENTER ) {
-                        int caretPosition = getCaretPosition();
-                        //UIUtils.runLater ( () -> replace( caretPosition, caretPosition, INDENT_DOC ) );
-
-                        if ( getParagraph( getCurrentParagraph() ).length() == 0 ) {
-                            UIUtils.runLater ( () -> replace( caretPosition, caretPosition, INDENT_DOC ) );
-                        }
-
-                    }
-                });
 
         this.addEventHandler (MouseEvent.MOUSE_MOVED,
                               ev ->
@@ -433,168 +348,493 @@ System.out.println ("HERE: " + newv);
 
         });
 
+        this.caretPositionProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setUseInitialStyleForInsertion (false);
+            this.setTextInsertionStyle (null);
+
+        });
+
+        Nodes.addInputMap (this,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.B, KeyCombination.SHORTCUT_DOWN),
+                                          ev ->
+                                          {
+
+                                              this.toggleBold ();
+
+                                          }));
+
+        Nodes.addInputMap (this,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.I, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                 this.toggleItalic ();
+
+                                             }));
+
+         Nodes.addInputMap (this,
+                            InputMap.consume (EventPattern.keyPressed (KeyCode.U, KeyCombination.SHORTCUT_DOWN),
+                                              ev ->
+                                              {
+
+                                                  this.toggleUnderline ();
+
+                                              }));
+
     }
 
-    @Override // Navigating around/over indents
-        public void nextChar( SelectionPolicy policy )
-        {
-            if ( getCaretPosition() < getLength() ) {
-                // offsetByCodePoints throws an IndexOutOfBoundsException unless colPos is adjusted to accommodate any indents, see this.moveTo
-                moveTo( Direction.RIGHT, policy, (paragraphText,colPos) -> Character.offsetByCodePoints( paragraphText, colPos, +1 ) );
-            }
-        }
-
-        @Override // Navigating around/over indents
-        public void previousChar( SelectionPolicy policy )
-        {
-            if ( getCaretPosition() > 0 ) {
-                // offsetByCodePoints throws an IndexOutOfBoundsException unless colPos is adjusted to accommodate any indents, see this.moveTo
-                moveTo( Direction.LEFT, policy, (paragraphText,colPos) -> Character.offsetByCodePoints( paragraphText, colPos, -1 ) );
-            }
-        }
-
-        // Handles Ctrl+Left and Ctrl+Shift+Left
-        private void skipToPrevWord( boolean isShiftDown )
-        {
-            int caretPos = getCaretPosition();
-            if ( caretPos >= 1 )
-            {
-                boolean prevCharIsWhiteSpace = false;
-                if ( indent && getCaretColumn() == 1 ) {
-                    // Check for indent as charAt(0) throws an IndexOutOfBoundsException because Indents aren't represented by a character
-                    AbstractSegment seg = getParagraph( getCurrentParagraph() ).getSegments().get(0);
-                    prevCharIsWhiteSpace = seg instanceof IndentSegment;
-                }
-                if ( ! prevCharIsWhiteSpace ) prevCharIsWhiteSpace = Character.isWhitespace( getText( caretPos-1, caretPos ).charAt(0) );
-                wordBreaksBackwards( prevCharIsWhiteSpace ? 2 : 1, isShiftDown ? SelectionPolicy.ADJUST : SelectionPolicy.CLEAR );
-            }
-        }
-
-        /**
-         * Skips n number of word boundaries backwards.
-         */
-        @Override // Accommodating Indent
-        public void wordBreaksBackwards( int n, SelectionPolicy selection )
-        {
-            if( getLength() == 0 ) return;
-
-            moveTo( Direction.LEFT, selection, (paragraphText,colPos) ->
-            {
-                BreakIterator wordIterator = BreakIterator.getWordInstance();
-                wordIterator.setText( paragraphText );
-                wordIterator.preceding( colPos );
-                for ( int i = 1; i < n; i++ ) {
-                    wordIterator.previous();
-                }
-                return wordIterator.current();
-            });
-        }
-
-        /**
-         * Skips n number of word boundaries forward.
-         */
-        @Override // Accommodating Indent
-        public void wordBreaksForwards( int n, SelectionPolicy selection )
-        {
-            if( getLength() == 0 ) return;
-
-            moveTo( Direction.RIGHT, selection, (paragraphText,colPos) ->
-            {
-                BreakIterator wordIterator = BreakIterator.getWordInstance();
-                wordIterator.setText( paragraphText );
-                wordIterator.following( colPos );
-                for ( int i = 1; i < n; i++ ) {
-                    wordIterator.next();
-                }
-                return wordIterator.current();
-            });
-        }
-
-        /**
-         * Because Indents are not represented in the text by a character there is a discrepancy
-         * between the caret position and the text position which has to be taken into account.
-         * So this method ADJUSTS the caret position before invoking the supplied function.
-         *
-         * @param dir LEFT for backwards, and RIGHT for forwards
-         * @param selection CLEAR or ADJUST
-         * @param colPosCalculator a function that receives PARAGRAPH text and an ADJUSTED
-         * starting column position as parameters and returns an end column position.
-         */
-        private void moveTo( Direction dir, SelectionPolicy selection, BiFunction<String,Integer,Integer> colPosCalculator )
-        {
-            int colPos = getCaretColumn();
-            int pNdx = getCurrentParagraph();
-            Paragraph p = getParagraph( pNdx );
-            int pLen = p.length();
-
-            boolean adjustCol = indent && p.getSegments().get(0) instanceof IndentSegment;
-            if ( adjustCol ) colPos--;
-
-            if ( dir == Direction.LEFT && colPos == 0 ) {
-                p = getParagraph( --pNdx );
-                adjustCol = indent && p.getSegments().get(0) instanceof IndentSegment;
-                colPos = p.getText().length(); // don't simplify !
-            }
-            else if ( dir == Direction.RIGHT && (pLen == 0 || colPos >= pLen-1) )
-            {
-                p = getParagraph( ++pNdx );
-                adjustCol = indent && p.getSegments().get(0) instanceof IndentSegment;
-                colPos = 0;
-            }
-            else colPos = colPosCalculator.apply( p.getText(), colPos );
-
-            if ( adjustCol ) colPos++;
-
-            moveTo( pNdx, colPos, selection );
-        }
-
-    public void setIndentOn( boolean indent ) {
-        this.indent = indent;
-    }
-
-    public boolean isIndentOn() {
-        return indent;
-    }
-
-    public void append( AbstractSegment customSegment )
+    public void setPlaceholder (StringProperty p)
     {
-        insert( getLength(), customSegment );
-    }
 
-    public void insert( int pos, AbstractSegment customSegment )
-    {
-        insert( pos, ReadOnlyStyledDocument.fromSegment( customSegment, ParaStyle.EMPTY, TextStyle.EMPTY, indentOps ) );
-    }
+        this.placeholder = p;
 
-    @Override
-    public void replace( int start, int end, StyledDocument replacement )
-    {
-        if ( ! indent ) super.replace( start, end, replacement );
-        else
+
+
+        this.plainTextChanges ().subscribe (ev ->
         {
-            List<Paragraph> pl = replacement.getParagraphs();
-            ReadOnlyStyledDocumentBuilder db = new ReadOnlyStyledDocumentBuilder( indentOps, ParaStyle.EMPTY );
 
-            for ( int p = 0; p < pl.size(); p++ )
+            if (this.getStyleClass ().contains ("placeholder"))
             {
-                List segments = pl.get(p).getStyledSegments();
 
-                if ( p > 1 && pl.get( p-1 ).length() == 0 )
+                this.ignoreDocumentChange = true;
+
+                this.getStyleClass ().remove ("placeholder");
+
+                this.ignoreDocumentChange = false;
+
+            } else {
+
+                if (this.getText ().length () == 0)
                 {
-                    if ( ! (pl.get( p ).getSegments().get(0) instanceof IndentSegment) )
-                    {
-                        if ( segments instanceof AbstractList ) {
-                            segments = new ArrayList<>( segments );
-                        }
-                        segments.add( 0, INDENT_SEG );
-                    }
+
+                    this.ignoreDocumentChange = true;
+
+                    this.getStyleClass ().add ("placeholder");
+
+                    this.ignoreDocumentChange = false;
+
                 }
 
-                db.addParagraph( segments );
             }
 
-            super.replace( start, end, db.build() );
+        });
+
+        if (this.getText ().length () == 0)
+        {
+
+            this.ignoreDocumentChange = true;
+
+            this.getStyleClass ().add ("placeholder");
+            this.ignoreDocumentChange = false;
+
         }
+
+    }
+
+    public Set<MenuItem> getSpellingSynonymItemsForContextMenu (AbstractViewer viewer)
+    {
+
+        Set<MenuItem> items = new LinkedHashSet<> ();
+
+        Point2D p = this.getMousePosition ();
+
+        if (p != null)
+        {
+
+            TextIterator iter = new TextIterator (this.getText ());
+
+            final Word w = iter.getWordAt (this.getTextPositionForMousePosition (p.getX (),
+                                                                                 p.getY ()));
+
+            if (w != null)
+            {
+
+                final String word = w.getText ();
+
+                final int loc = w.getAllTextStartOffset ();
+
+                List<String> l = this.getSpellCheckSuggestions (w);
+
+                if (l != null)
+                {
+
+                    List<String> prefix = Arrays.asList (dictionary,spellcheck,popupmenu,LanguageStrings.items);
+
+                    if (l.size () == 0)
+                    {
+
+                        MenuItem mi = QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,nosuggestions)))
+                            .styleClassName (StyleClassNames.NOSUGGESTIONS)
+                            .onAction (ev ->
+                            {
+
+                                this.addWordToDictionary (word);
+
+                                viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                         ProjectEvent.Action.addword,
+                                                         word);
+
+                            })
+                            .build ();
+                        mi.setDisable (true);
+                        items.add (mi);
+
+                    } else
+                    {
+
+                        if (l.size () > 15)
+                        {
+
+                            l = l.subList (0, 15);
+
+                        }
+
+                        Consumer<String> replace = (repWord ->
+                        {
+
+                            int cp = this.getCaretPosition ();
+
+                            this.replaceText (loc,
+                                              loc + word.length (),
+                                              repWord);
+
+                            this.moveTo (cp - 1);
+
+                            viewer.fireProjectEvent (ProjectEvent.Type.spellcheck,
+                                                     ProjectEvent.Action.replace,
+                                                     repWord);
+
+                        });
+
+                        List<String> more = null;
+
+                        if (l.size () > 5)
+                        {
+
+                            more = l.subList (5, l.size ());
+                            l = l.subList (0, 5);
+
+                        }
+
+                        items.addAll (l.stream ()
+                            .map (repWord ->
+                            {
+
+                                return QuollMenuItem.builder ()
+                                    .label (new SimpleStringProperty (repWord))
+                                    .onAction (ev -> replace.accept (repWord))
+                                    .build ();
+
+                            })
+                            .collect (Collectors.toList ()));
+
+                        if (more != null)
+                        {
+
+                            items.add (QuollMenu.builder ()
+                                .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.more)))
+                                .styleClassName (StyleClassNames.MORE)
+                                .items (new LinkedHashSet<> (more.stream ()
+                                    .map (repWord ->
+                                    {
+
+                                        return QuollMenuItem.builder ()
+                                            .label (new SimpleStringProperty (repWord))
+                                            .onAction (ev -> replace.accept (repWord))
+                                            .build ();
+
+                                    })
+                                    .collect (Collectors.toList ())))
+                                .build ());
+
+                        }
+
+                    }
+
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,add)))
+                        .styleClassName (StyleClassNames.ADDWORD)
+                        .onAction (ev ->
+                        {
+
+                            this.addWordToDictionary (word);
+
+                            viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                     ProjectEvent.Action.addword,
+                                                     word);
+
+                        })
+                        .build ());
+
+                    items.add (new SeparatorMenuItem ());
+
+                } else
+                {
+
+                    // TODO Make nicer...
+                    if (viewer instanceof AbstractProjectViewer)
+                    {
+
+                        AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+
+                        if (pv.synonymLookupsSupported ())
+                        {
+
+                            // TODO Check this...
+                            if (pv.isLanguageFunctionAvailable ())
+                            {
+
+                                if ((word != null) &&
+                                    (word.length () > 0))
+                                {
+
+                                    //String mt = "No synonyms found for: " + word;
+
+                                    try
+                                    {
+
+                                        // See if there are any synonyms.
+                                        if (this.getSynonymProvider ().hasSynonym (word))
+                                        {
+
+                                            items.add (QuollMenuItem.builder ()
+                                                .styleClassName (StyleClassNames.FIND)
+                                                .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,find),
+                                                                                     word))
+                                                .onAction (ev ->
+                                                {
+
+                                                    String pid = "synonym" + word + this.hashCode ();
+
+                                                    QuollPopup qp = viewer.getPopupById (pid);
+
+                                                    if (qp != null)
+                                                    {
+
+                                                        qp.toFront ();
+                                                        return;
+
+                                                    }
+
+                                                    qp = new ShowSynonymsPopup (viewer,
+                                                                                w,
+                                                                                this).getPopup ();
+                                                    qp.setPopupId (pid);
+
+                                                    Bounds b = viewer.screenToLocal (this.getBoundsForPosition (loc));
+
+                                                    viewer.showPopup (qp,
+                                                                      b,
+                                                                      Side.TOP);
+
+                                                })
+                                                .build ());
+
+                                        } else {
+
+                                            MenuItem mi = QuollMenuItem.builder ()
+                                                .styleClassName (StyleClassNames.NOSYNONYMS)
+                                                .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,nosynonyms),
+                                                                                     word))
+                                                .build ();
+                                            mi.setDisable (true);
+                                            items.add (mi);
+
+                                        }
+
+                                    } catch (Exception e) {
+
+                                        Environment.logError ("Unable to determine whether word: " +
+                                                              word +
+                                                              " has synonyms.",
+                                                              e);
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return items;
+
+    }
+
+    public MenuItem getCompressedEditItemsForContextMenu ()
+    {
+
+        List<String> prefix = Arrays.asList (formatting,edit,popupmenu,items);
+
+        String sel = this.getSelectedText ();
+
+        List<Node> buts = new ArrayList<> ();
+
+        // Only add if there is something to cut.
+        if (!sel.equals (""))
+        {
+
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.CUT)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,cut,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.cut ();
+
+                })
+                .build ());
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.COPY)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,copy,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.copy ();
+
+                })
+                .build ());
+
+        }
+
+        if (UIUtils.clipboardHasContent ())
+        {
+
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.PASTE)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,paste,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.paste ();
+
+                })
+                .build ());
+
+        }
+
+        if (this.getUndoManager ().isUndoAvailable ())
+        //if (this.editor.getUndoManager ().canUndo ())
+        {
+
+            // Only add if there is an undo available.
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.UNDO)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,undo,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.getUndoManager ().undo ();
+
+                })
+                .build ());
+
+        }
+
+        if (this.getUndoManager ().isRedoAvailable ())
+        {
+
+            buts.add (QuollButton.builder ()
+                .styleClassName (StyleClassNames.REDO)
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,redo,tooltip)))
+                .onAction (ev ->
+                {
+
+                    this.getUndoManager ().redo ();
+
+                })
+                .build ());
+
+        }
+
+        if (buts.size () > 0)
+        {
+
+            return UIUtils.createCompressedMenuItem (getUILanguageStringProperty (formatting,edit,popupmenu,title),
+                                                     buts);
+
+
+        }
+
+        return null;
+
+    }
+
+    public void setFormattingEnabled (boolean v)
+    {
+
+        this.formattingEnabled = v;
+
+    }
+
+    public MenuItem getCompressedFormatItemsForContextMenu ()
+    {
+
+        String sel = this.getSelectedText ();
+
+        if ((!sel.equals (""))
+            &&
+            (this.formattingEnabled)
+           )
+        {
+
+            List<String> prefix = Arrays.asList (formatting,format,popupmenu,items);
+
+            List<Node> buts = new ArrayList<> ();
+
+            buts.add (QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,bold,tooltip)))
+                .styleClassName (StyleClassNames.BOLD)
+                .onAction (ev ->
+                {
+
+                    this.toggleBold ();
+
+                })
+                .build ());
+
+            buts.add (QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,italic,tooltip)))
+                .styleClassName (StyleClassNames.ITALIC)
+                .onAction (ev ->
+                {
+
+                    this.toggleItalic ();
+
+                })
+                .build ());
+
+            buts.add (QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,underline,tooltip)))
+                .styleClassName (StyleClassNames.UNDERLINE)
+                .onAction (ev ->
+                {
+
+                    this.toggleUnderline ();
+
+                })
+                .build ());
+
+            return UIUtils.createCompressedMenuItem (getUILanguageStringProperty (formatting,format,popupmenu,title),
+                                                     buts);
+
+        } else {
+
+            return null;
+
+        }
+
     }
 
     public BooleanProperty readyForUseProperty ()
@@ -621,17 +861,45 @@ System.out.println ("HERE: " + newv);
     public void setText (StringWithMarkup text)
     {
 
+        if ((text != null)
+            &&
+            (text.getText () == null)
+           )
+        {
+
+            return;
+
+        }
+
         this.ignoreDocumentChange = true;
 
         this.suspendUndos.suspendWhile (() ->
         {
 
+            this.clear ();
+
+            this.setUseInitialStyleForInsertion (true);
+
             this.insertText (0,
                              text != null ? text.getText () : "");
+
+            this.applyMarkup (text != null ? text.getMarkup () : null);
 
             this.ignoreDocumentChange = false;
 
         });
+
+    }
+
+    private void applyMarkup (Markup markup)
+    {
+
+        if (markup != null)
+        {
+
+            markup.apply (this);
+
+        }
 
     }
 
@@ -662,29 +930,201 @@ System.out.println ("HERE: " + newv);
     public StringWithMarkup getTextWithMarkup ()
     {
 
-        // TODO Get markup.
-        return new StringWithMarkup (this.getText ());
+        return new StringWithMarkup (this.getText (),
+                                     this.getMarkup ());
+
+    }
+
+    private Markup getMarkup ()
+    {
+
+        return new Markup (this);
+
+    }
+
+    private void toggle (Consumer<TextStyle> mixin)
+    {
+
+        IndexRange r = this.getSelection ();
+
+        if (r.getStart () == r.getEnd ())
+        {
+
+            //mixin.accept (this.getInitialTextStyle ());
+/*
+            TextStyle _s = new TextStyle (this.getStyleAtPosition (r.getStart ()));
+            mixin.accept (_s);
+            this.setInitialTextStyle (_s);
+            this.setUseInitialStyleForInsertion (true);
+*/
+            return;
+
+        }
+
+        this.setStyleSpans (r.getStart (),
+                                          this.getStyleSpans (r).mapStyles (ss ->
+        {
+
+            TextStyle _s = new TextStyle (ss);
+            mixin.accept (_s);
+
+            return _s;
+
+        }));
 
     }
 
     public void toggleBold ()
     {
 
-        // TODO
+        if (!this.formattingEnabled)
+        {
+
+            return;
+
+        }
+
+        IndexRange r = this.getSelection ();
+
+        if (r.getStart () != r.getEnd ())
+        {
+
+            TextStyle s = this.getStyleAtPosition (r.getStart () + 1);
+
+            boolean t = !s.isBold ();
+
+            this.toggle (_s -> _s.setBold (t));
+
+        } else {
+
+            TextStyle s = this.getStyleAtPosition (r.getStart ());
+
+            boolean t = !s.isBold ();
+            TextStyle _s = new TextStyle (s);
+            _s.setBold (t);
+
+            this.setUseInitialStyleForInsertion (false);
+            this.setTextInsertionStyle (_s);
+
+        }
+
+    }
+
+    public void setItalic (IndexRange r)
+    {
+
+        if (!this.formattingEnabled)
+        {
+
+            return;
+
+        }
+
+        this.getContent ().setStyleSpans (r.getStart (),
+                                          this.getContent ().getStyleSpans (r.getStart (),
+                                                                            r.getEnd ()).mapStyles (ss ->
+        {
+
+            TextStyle _s = new TextStyle (ss);
+            _s.setItalic (true);
+            return _s;
+
+        }));
+
+    }
+
+    public void setUnderline (IndexRange r)
+    {
+
+        if (!this.formattingEnabled)
+        {
+
+            return;
+
+        }
+
+        this.getContent ().setStyleSpans (r.getStart (),
+                                          this.getContent ().getStyleSpans (r.getStart (),
+                                                                            r.getEnd ()).mapStyles (ss ->
+        {
+
+            TextStyle _s = new TextStyle (ss);
+            _s.setUnderline (true);
+            return _s;
+
+        }));
 
     }
 
     public void toggleItalic ()
     {
 
-        // TODO
+        if (!this.formattingEnabled)
+        {
+
+            return;
+
+        }
+
+        IndexRange r = this.getSelection ();
+
+        if (r.getStart () != r.getEnd ())
+        {
+
+            TextStyle s = this.getStyleAtPosition (r.getStart () + 1);
+
+            boolean t = !s.isItalic ();
+
+            this.toggle (_s -> _s.setItalic (t));
+
+        } else {
+
+            TextStyle s = this.getStyleAtPosition (r.getStart ());
+
+            boolean t = !s.isItalic ();
+            TextStyle _s = new TextStyle (s);
+            _s.setItalic (t);
+
+            this.setUseInitialStyleForInsertion (false);
+            this.setTextInsertionStyle (_s);
+
+        }
 
     }
 
     public void toggleUnderline ()
     {
 
-        // TODO
+        if (!this.formattingEnabled)
+        {
+
+            return;
+
+        }
+
+        IndexRange r = this.getSelection ();
+
+        if (r.getStart () != r.getEnd ())
+        {
+
+            TextStyle s = this.getStyleAtPosition (r.getStart () + 1);
+
+            boolean t = !s.isUnderline ();
+
+            this.toggle (_s -> _s.setUnderline (t));
+
+        } else {
+
+            TextStyle s = this.getStyleAtPosition (r.getStart ());
+
+            boolean t = !s.isUnderline ();
+            TextStyle _s = new TextStyle (s);
+            _s.setUnderline (t);
+
+            this.setUseInitialStyleForInsertion (false);
+            this.setTextInsertionStyle (_s);
+
+        }
 
     }
 
@@ -778,6 +1218,16 @@ System.out.println ("HERE: " + newv);
 
     }
 
+    /**
+     * Switch on/off the writing line highlight, this doesn't affect the user property.
+     */
+    public void setHighlightWritingLine (boolean v)
+    {
+
+        this.setLineHighlighterOn (v);
+
+    }
+
     public List getSpellCheckSuggestions (Word word)
     {
 
@@ -814,7 +1264,7 @@ System.out.println ("HERE: " + newv);
 
             if ((offset >= c)
                 &&
-                (offset < c + pl)
+                (offset < (c + pl))
                )
             {
 
@@ -1001,6 +1451,22 @@ System.out.println ("HERE: " + newv);
 
     }
 
+    public void setBold (IndexRange r)
+    {
+
+        this.getContent ().setStyleSpans (r.getStart (),
+                                          this.getContent ().getStyleSpans (r.getStart (),
+                                                                            r.getEnd ()).mapStyles (ss ->
+        {
+
+            TextStyle _s = new TextStyle (ss);
+            _s.setBold (true);
+            return _s;
+
+        }));
+
+    }
+
     public void addSpellingError (IndexRange r)
     {
 
@@ -1037,6 +1503,89 @@ System.out.println ("HERE: " + newv);
         });
         this.clearStyle (0, this.getText ().length ());
         this.setStyleSpans (0, newStyles);
+
+    }
+
+    private void updateTextStyle (int startOffset,
+                                  int endOffset,
+                                  Function<TextStyle, TextStyle> updater)
+    {
+
+        int diff = endOffset - startOffset;
+
+        StyleSpans<TextStyle> styles = this.getStyleSpans (startOffset, endOffset);
+        StyleSpans<TextStyle> newStyles = styles.mapStyles (style ->
+        {
+            style = updater.apply (style);
+            return style;
+        });
+        this.clearStyle (startOffset, endOffset);
+        this.setStyleSpans (startOffset, newStyles);
+
+    }
+
+    public Highlight addHighlight (IndexRange r,
+                                   Color      background)
+    {
+
+        Highlight obj = new Highlight (r.getStart (),
+                                       r.getEnd ());
+
+        this.ignoreDocumentChange = true;
+
+        this.suspendUndos.suspendWhile (() ->
+        {
+
+            this.setStyleSpans (r.getStart (),
+                                              this.getStyleSpans (r).mapStyles (ss ->
+            {
+
+                TextStyle _s = new TextStyle (ss);
+                _s.addBackgroundColor (obj,
+                                       background);
+                return _s;
+
+            }));
+
+            this.ignoreDocumentChange = false;
+
+        });
+
+        return obj;
+
+    }
+
+    public void removeHighlight (Highlight h)
+    {
+
+        if (h == null)
+        {
+
+            return;
+
+        }
+
+        this.ignoreDocumentChange = true;
+
+        this.suspendUndos.suspendWhile (() ->
+        {
+
+            this.getContent ().setStyleSpans (h.start,
+                                              this.getContent ().getStyleSpans (h.start,
+                                                                                h.end).mapStyles (ss ->
+            {
+
+                TextStyle _s = new TextStyle (ss);
+                _s.removeBackgroundColor (h);
+                return _s;
+
+            }));
+
+            this.requestLayout ();
+
+            this.ignoreDocumentChange = false;
+
+        });
 
     }
 
@@ -1128,8 +1677,6 @@ System.out.println ("HERE: " + newv);
             this.suspendUndos.suspendWhile (() ->
             {
 
-                NORMAL_STYLE.updateFontSize (props.getFontSize ());
-                SPELLING_ERROR_STYLE.updateFontSize (props.getFontSize ());
                 this.updateTextStyle (style -> style.updateFontSize (props.getFontSize ()));
                 this.updateParagraphStyle (style -> style.updateFontSize (props.getFontSize ()));
 
@@ -1147,8 +1694,6 @@ System.out.println ("HERE: " + newv);
             this.suspendUndos.suspendWhile (() ->
             {
 
-                NORMAL_STYLE.updateFontFamily (props.getFontFamily ());
-                SPELLING_ERROR_STYLE.updateFontFamily (props.getFontFamily ());
                 this.updateTextStyle (style -> style.updateFontFamily (props.getFontFamily ()));
 
                 this.ignoreDocumentChange = false;
@@ -1182,8 +1727,6 @@ System.out.println ("HERE: " + newv);
             this.suspendUndos.suspendWhile (() ->
             {
 
-                NORMAL_STYLE.updateTextColor (props.getTextColor ());
-                SPELLING_ERROR_STYLE.updateTextColor (props.getTextColor ());
                 this.updateTextStyle (style -> style.updateTextColor (props.getTextColor ()));
                 this.ignoreDocumentChange = false;
 
@@ -1220,13 +1763,6 @@ System.out.println ("HERE: " + newv);
             });
 
         });
-
-        NORMAL_STYLE.setFontSize (props.getFontSize ());
-        SPELLING_ERROR_STYLE.setFontSize (props.getFontSize ());
-        NORMAL_STYLE.setFontFamily (props.getFontFamily ());
-        SPELLING_ERROR_STYLE.setFontFamily (props.getFontFamily ());
-        NORMAL_STYLE.updateTextColor (props.getTextColor ());
-        SPELLING_ERROR_STYLE.updateTextColor (props.getTextColor ());
 
         this.updateTextStyle (style ->
         {
@@ -1267,17 +1803,6 @@ System.out.println ("HERE: " + newv);
     public static class TextStyle extends Styleable
     {
 
-        public static final TextStyle EMPTY = new TextStyle();
-/*
-        public static TextStyle bold(boolean bold) { return EMPTY.updateBold(bold); }
-        public static TextStyle italic(boolean italic) { return EMPTY.updateItalic(italic); }
-        public static TextStyle underline(boolean underline) { return EMPTY.updateUnderline(underline); }
-        public static TextStyle strikethrough(boolean strikethrough) { return EMPTY.updateStrikethrough(strikethrough); }
-        public static TextStyle fontSize(int fontSize) { return EMPTY.updateFontSize(fontSize); }
-        public static TextStyle fontFamily(String family) { return EMPTY.updateFontFamily(family); }
-        public static TextStyle textColor(Color color) { return EMPTY.updateTextColor(color); }
-        public static TextStyle backgroundColor(Color color) { return EMPTY.updateBackgroundColor(color); }
-*/
         Optional<Boolean> bold = null;
         Optional<Boolean> italic;
         Optional<Boolean> underline;
@@ -1285,8 +1810,10 @@ System.out.println ("HERE: " + newv);
         Optional<Integer> fontSize;
         Optional<String> fontFamily;
         Optional<Color> textColor;
-        Optional<Color> backgroundColor;
+        //Optional<Paint> backgroundColor;
         Optional<Boolean> spellingError = null;
+        Map<Object, Color> backgroundColors = new LinkedHashMap<> ();
+
 
         static String cssColor(Color color) {
             int red = (int) (color.getRed() * 255);
@@ -1306,7 +1833,7 @@ System.out.println ("HERE: " + newv);
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty(),
+                null,
                 Optional.empty()
             );
         }
@@ -1321,7 +1848,7 @@ System.out.println ("HERE: " + newv);
                   from.fontSize,
                   from.fontFamily,
                   from.textColor,
-                  from.backgroundColor,
+                  from.backgroundColors,
                   from.spellingError);
 
         }
@@ -1334,7 +1861,7 @@ System.out.println ("HERE: " + newv);
                 Optional<Integer> fontSize,
                 Optional<String> fontFamily,
                 Optional<Color> textColor,
-                Optional<Color> backgroundColor,
+                Map<Object, Color> backgroundColors,
                 Optional<Boolean> spellingError) {
 
             this.bold = bold;
@@ -1344,8 +1871,41 @@ System.out.println ("HERE: " + newv);
             this.fontSize = fontSize;
             this.fontFamily = fontFamily;
             this.textColor = textColor;
-            this.backgroundColor = backgroundColor;
+            this.backgroundColors = backgroundColors != null ? new LinkedHashMap<> (backgroundColors) : null;
             this.spellingError = spellingError;
+        }
+
+        public TextStyle addBackgroundColor (Object obj,
+                                             Color  p)
+        {
+
+            if (this.backgroundColors == null)
+            {
+
+                this.backgroundColors = new LinkedHashMap<> ();
+
+            }
+
+            this.backgroundColors.put (obj,
+                                       p);
+            return this;
+
+        }
+
+        public TextStyle removeBackgroundColor (Object obj)
+        {
+
+            if (this.backgroundColors == null)
+            {
+
+                return this;
+
+            }
+
+            this.backgroundColors.remove (obj);
+
+            return this;
+
         }
 
         public TextStyle updateSpellingError (boolean v)
@@ -1360,7 +1920,6 @@ System.out.println ("HERE: " + newv);
         {
 
             this.spellingError = Optional.of (v);
-            //SPELLING_ERROR_STYLE.spellingError = Optional.of (v);
 
         }
 
@@ -1409,6 +1968,13 @@ System.out.println ("HERE: " + newv);
 
         }
 
+        public boolean isBold ()
+        {
+
+            return this.bold.orElse (false);
+
+        }
+
         public TextStyle updateBold (boolean bold)
         {
 
@@ -1424,6 +1990,13 @@ System.out.println ("HERE: " + newv);
 
         }
 
+        public boolean isItalic ()
+        {
+
+            return this.italic.orElse (false);
+
+        }
+
         public void setItalic (boolean italic)
         {
 
@@ -1436,6 +2009,13 @@ System.out.println ("HERE: " + newv);
 
             this.setItalic (italic);
             return this;
+
+        }
+
+        public boolean isUnderline ()
+        {
+
+            return this.underline.orElse (false);
 
         }
 
@@ -1471,9 +2051,9 @@ System.out.println ("HERE: " + newv);
 
         @Override
         public int hashCode() {
-            return Objects.hash(
+            return Objects.hash (
                     bold, italic, underline, strikethrough,
-                    fontSize, fontFamily, textColor, backgroundColor);
+                    fontSize, fontFamily, textColor, backgroundColors);
         }
 
         @Override
@@ -1487,11 +2067,11 @@ System.out.println ("HERE: " + newv);
                        Objects.equals(this.fontSize,        that.fontSize) &&
                        Objects.equals(this.fontFamily,      that.fontFamily) &&
                        Objects.equals(this.textColor,       that.textColor) &&
-                       Objects.equals(this.backgroundColor, that.backgroundColor) &&
-                       Objects.equals(this.spellingError, that.spellingError);
-            } else {
-                return false;
+                       Objects.equals(this.spellingError, that.spellingError) &&
+                       Objects.equals (this.backgroundColors, that.backgroundColors);
             }
+
+            return false;
         }
 
         @Override
@@ -1505,7 +2085,13 @@ System.out.println ("HERE: " + newv);
             fontSize       .ifPresent(s -> styles.add(s.toString()));
             fontFamily     .ifPresent(f -> styles.add(f.toString()));
             textColor      .ifPresent(c -> styles.add(c.toString()));
-            backgroundColor.ifPresent(b -> styles.add(b.toString()));
+
+            if (this.backgroundColors != null)
+            {
+
+                styles.add (this.backgroundColors.toString ());
+
+            }
 
             return String.join(",", styles);
         }
@@ -1558,9 +2144,23 @@ System.out.println ("HERE: " + newv);
                 sb.append("-fx-fill: " + cssColor(color) + ";");
             }
 
-            if(backgroundColor.isPresent()) {
-                Color color = backgroundColor.get();
-                sb.append("-rtfx-background-color: " + cssColor(color) + ";");
+            if (this.backgroundColors != null)
+            {
+
+                Set<Object> keys = this.backgroundColors.keySet ();
+
+                Color bgc = this.backgroundColors.get (keys.stream ()
+                    .skip ((keys.size () > 0 ? keys.size () - 1 : 0))
+                    .findFirst ()
+                    .orElse (null));
+
+                if (bgc != null)
+                {
+
+                    sb.append("-rtfx-background-color: " + cssColor(bgc) + ";");
+
+                }
+
             }
 
             if ((this.spellingError.isPresent ())
@@ -1614,8 +2214,6 @@ System.out.println ("HERE: " + newv);
 
     public static class ParaStyle extends Styleable
     {
-
-        public static final ParaStyle EMPTY = new ParaStyle();
 
         private Optional<Float> lineSpacing = Optional.empty ();
         private Optional<String> alignment = Optional.empty ();
@@ -1743,6 +2341,16 @@ System.out.println ("HERE: " + newv);
     public Position createTextPosition (int pos)
     {
 
+        if ((pos < 0)
+            ||
+            (pos > this.getText ().length () - 1)
+           )
+        {
+
+            throw new IllegalArgumentException ("Position: " + pos + ", is not valid.");
+
+        }
+
         return new Position (pos,
                              this);
 
@@ -1766,16 +2374,25 @@ System.out.println ("HERE: " + newv);
         private StringWithMarkup text = null;
         private DictionaryProvider2 dictProv = null;
         private SynonymProvider synProv = null;
+        private boolean formattingEnabled = false;
 
         private Builder ()
         {
 
         }
 
+        public Builder formattingEnabled (boolean v)
+        {
+
+            this.formattingEnabled = v;
+            return _this ();
+
+        }
+
         public Builder synonymProvider (SynonymProvider prov)
         {
 
-            this.synProv = null;
+            this.synProv = prov;
             return _this ();
 
         }
@@ -1829,6 +2446,8 @@ System.out.println ("HERE: " + newv);
                 ed.getStyleClass ().add (this.styleName);
 
             }
+
+            ed.setFormattingEnabled (this.formattingEnabled);
 
             return ed;
 
@@ -1898,6 +2517,23 @@ System.out.println ("HERE: " + newv);
         {
 
             this.sub.unsubscribe ();
+
+        }
+
+    }
+
+    public class Highlight
+    {
+
+        public int start = -1;
+        public int end = -1;
+
+        public Highlight (int start,
+                          int end)
+        {
+
+            this.start = start;
+            this.end = end;
 
         }
 

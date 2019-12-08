@@ -194,7 +194,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
     {
 
         // Remove all the ideas.
-        List<Idea> ideas = it.getIdeas ();
+        Set<Idea> ideas = it.getIdeas ();
 
         for (Idea i : ideas)
         {

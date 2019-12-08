@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.*;
 import java.util.function.*;
 import java.nio.file.*;
+import java.text.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
@@ -97,6 +98,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private StringProperty selectedTextProp = null;
     private int sessionWordCount = 0;
     private IntegerProperty sessionWordCountProp = null;
+
+    private FindSideBar findSideBar = null;
 
     public AbstractProjectViewer ()
     {
@@ -577,6 +580,14 @@ TODO
     {
 
         final AbstractProjectViewer _this = this;
+
+        this.addActionMapping (() ->
+        {
+
+            this.showFind ();
+
+        },
+        CommandId.find);
 
         this.addActionMapping (() ->
         {
@@ -3355,6 +3366,20 @@ TODO REmove
 
         }
 
+        // Get the state and save it.
+        try
+        {
+
+            this.project.setProperty (Constants.PROJECT_STATE_PROPERTY_NAME,
+                                      this.getState ().asString ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save project state.",
+                                  e);
+
+        }
+
         // Need to manually remove from the achievements managers since it updates the achievements property.
         try
         {
@@ -3500,8 +3525,23 @@ TODO REmove
             try
             {
 
+                State ss = null;
+
+                if (sb.getContent () instanceof SideBarContent)
+                {
+
+                    SideBarContent sbc = (SideBarContent) sb.getContent ();
+
+                    ss = sbc.getState ();
+
+                } else {
+
+                    ss = sb.getState ();
+
+                }
+
                 this.project.setProperty ("sidebarState-" + sb.getSideBarId (),
-                                          sb.getState ().asString ());
+                                          ss.asString ());
 
             } catch (Exception e) {
 
@@ -3817,6 +3857,39 @@ TODO REmove
 
         }
 
+        // We ignore the state and use the state inside the project instead.
+
+        // Handle the legacy properties.
+        if (this.project.getProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME) != null)
+        {
+
+            s = new State ();
+
+            int wHeight = this.project.getPropertyAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
+            int wWidth = this.project.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
+            int wTop = this.project.getPropertyAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+            int wLeft = this.project.getPropertyAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+            s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
+                   wHeight);
+            s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
+                   wWidth);
+            s.set (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
+                   wTop);
+            s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
+                   wLeft);
+
+            this.project.removeProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
+            this.project.removeProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME);
+            this.project.removeProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+            this.project.removeProperty (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+        } else {
+
+            s = new State (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME));
+
+        }
+
         this.initChapterCounts ();
         this.initDictionaryProvider ();
         this.targets = new TargetsData (this.project.getProperties ());
@@ -3866,6 +3939,11 @@ UIUtils.runLater (() ->
             this.tabs.setSide (newv.equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
 
         });
+
+        this.addKeyMapping (CommandId.find,
+                            KeyCode.F1);
+        this.addKeyMapping (CommandId.find,
+                            KeyCode.F, KeyCombination.SHORTCUT_DOWN);
 
         super.init (s);
 
@@ -4545,6 +4623,94 @@ TODO Needed?
 
     }
 
+    public DataHandler getDataHandler (Class clazz)
+                                throws GeneralException
+    {
+
+        if (this.dBMan == null)
+        {
+
+            return null;
+
+        }
+
+        return this.dBMan.getHandler (clazz);
+
+    }
+
+    public FindSideBar getFindSideBar ()
+    {
+
+        return this.findSideBar;
+
+    }
+
+    public void showFind ()
+    {
+
+        if (this.findSideBar == null)
+        {
+
+            this.findSideBar = new FindSideBar (this);
+
+            this.addSideBar (this.findSideBar);
+
+        }
+
+        this.showSideBar (this.findSideBar.getSideBar ().getSideBarId ());
+
+    }
+
+    public Map<Chapter, List<SentenceMatches>> getSentenceMatches (String  s)
+    {
+
+        Map<Chapter, List<SentenceMatches>> data = new LinkedHashMap<> ();
+
+        List<String> names = new ArrayList<> ();
+        names.add (s);
+
+        // Get all the books and chapters.
+        List<Book> books = this.getProject ().getBooks ();
+
+        for (int i = 0; i < books.size (); i++)
+        {
+
+            Book b = books.get (i);
+
+            List<Chapter> chapters = b.getChapters ();
+
+            for (Chapter c : chapters)
+            {
+
+                String t = this.getCurrentChapterText (c);
+
+                if (t == null)
+                {
+
+                    continue;
+
+                }
+
+                List<SentenceMatches> snippets = TextUtilities.getSentenceMatches (names,
+                                                                                   t);
+
+                if ((snippets != null) &&
+                    (snippets.size () > 0))
+                {
+
+                    data.put (c,
+                              snippets);
+
+                }
+
+            }
+
+        }
+
+        return data;
+
+    }
+
     public abstract void viewObject (DataObject d,
                                      Runnable   doAfterView);
 
@@ -4553,5 +4719,7 @@ TODO Needed?
 
     public abstract void handleNewProject ()
                                     throws Exception;
+
+    public abstract Set<FindResultsBox> findText (String t);
 
 }

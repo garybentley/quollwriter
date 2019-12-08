@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.swing.*;
@@ -1119,12 +1120,10 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 
             }
 
-            List<Idea> ideas = this.ideaType.getIdeas ();
+            Set<Idea> ideas = this.ideaType.getIdeas ();
 
-            for (int i = ideas.size () - 1; i > -1; i--)
+            for (Idea idea : ideas)
             {
-
-                Idea idea = ideas.get (i);
 
                 this.addIdea (idea,
                               false);
@@ -1474,7 +1473,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         this.add (this.header);
 
         // Get all the current idea types.
-        List<IdeaType> its = this.projectViewer.getProject ().getIdeaTypes ();
+        List<IdeaType> its = null; // TODO this.projectViewer.getProject ().getIdeaTypes ();
 
         if (its.size () == 0)
         {

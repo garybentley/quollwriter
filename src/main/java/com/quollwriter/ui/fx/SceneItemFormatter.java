@@ -15,12 +15,14 @@ public class SceneItemFormatter extends AbstractChapterItemFormatter<com.quollwr
 
     public SceneItemFormatter (ProjectViewer              viewer,
                                IPropertyBinder            binder,
-                               com.quollwriter.data.Scene scene)
+                               com.quollwriter.data.Scene scene,
+                               Runnable                   onNewPopupShown)
     {
 
         super (viewer,
                binder,
-               scene);
+               scene,
+               onNewPopupShown);
 
     }
 

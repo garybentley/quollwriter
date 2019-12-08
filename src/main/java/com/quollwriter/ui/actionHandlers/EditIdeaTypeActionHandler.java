@@ -98,7 +98,7 @@ public class EditIdeaTypeActionHandler extends TextInputActionHandler<AbstractPr
 
         }
 
-        List<IdeaType> its = this.viewer.getProject ().getIdeaTypes ();
+        List<IdeaType> its = null;// TODO this.viewer.getProject ().getIdeaTypes ();
 
         for (IdeaType it : its)
         {

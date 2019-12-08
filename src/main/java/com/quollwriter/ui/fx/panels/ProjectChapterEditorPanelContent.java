@@ -1,27 +1,5 @@
 package com.quollwriter.ui.fx.panels;
 
-/*
-import javax.swing.*;
-*/
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.Insets;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.MouseWheelEvent;
-//import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.KeyAdapter;
-import java.awt.Rectangle;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-//import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.SwingUtilities;
-
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
@@ -41,6 +19,7 @@ import java.util.stream.*;
 import java.util.concurrent.*;
 
 import org.reactfx.*;
+import org.fxmisc.flowless.*;
 import org.fxmisc.wellbehaved.event.*;
 
 import com.quollwriter.StringWithMarkup;
@@ -54,12 +33,13 @@ import com.quollwriter.Environment;
 import com.quollwriter.GeneralException;
 import com.quollwriter.DictionaryProvider2;
 import com.quollwriter.Utils;
-import com.quollwriter.text.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.swing.*;
 import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.text.TextIterator;
+import com.quollwriter.text.Word;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -73,18 +53,16 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     private ScheduledFuture a4PageCountUpdater = null;
     private ToolBar toolbar = null;
 
-    private IconColumn iconColumn = null;
+    //private IconColumn iconColumn = null;
     //private QTextEditor editor = null;
-    private JScrollPane scrollPane = null;
     private boolean isScrolling = false;
-    private Insets origEditorMargin = null;
+    //private Insets origEditorMargin = null;
     private Map<String, ContextMenu> contextMenus = new HashMap<> ();
     private List<QuollPopup> popupsToCloseOnClick = new ArrayList<> ();
-    private Map<ChapterItem, Node> itemNodes = new HashMap<> ();
-    private Map<ParagraphIconMargin, Integer> margins = new WeakHashMap<> ();
     private Subscription itemsSubscription = null;
     private Subscription itemsPositionSubscription = null;
     private ObservableList<ChapterItem> newItems = FXCollections.observableList (new ArrayList<> ());
+    private ProblemFinder problemFinder = null;
 
     public ProjectChapterEditorPanelContent (ProjectViewer viewer,
                                              Chapter       chapter)
@@ -98,13 +76,6 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
         this.editor.setEditable (true);
 
         final ProjectChapterEditorPanelContent _this = this;
-
-        this.newItems.addListener ((ListChangeListener<ChapterItem>) ev ->
-        {
-
-            this.updateMargins ();
-
-        });
 
         this.addChangeListener (UserProperties.chapterAutoSaveEnabledProperty (),
                                 (v, oldv, newv) ->
@@ -121,7 +92,24 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
            this.tryScheduleAutoSave ();
 
         });
+/*
+TODO
+        this.addChangeListener (chapter.editPositionProperty (),
+                                (pr, oldv, newv) ->
+        {
 
+            this.recreateVisibleParagraphs ();
+
+        });
+
+        this.addChangeListener (chapter.editCompleteProperty (),
+                                               (pr, oldv, newv) ->
+        {
+
+            this.recreateVisibleParagraphs ();
+
+        });
+*/
         this.viewer.addKeyMapping (ProjectViewer.CommandId.showwordcounts,
                                    KeyCode.W,
                                    KeyCombination.SHORTCUT_DOWN);
@@ -138,29 +126,6 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
         },
         KeyCode.ENTER,
         KeyCombination.SHORTCUT_DOWN);
-
-        Nodes.addInputMap (this.editor,
-                           InputMap.consume (EventPattern.keyPressed (KeyCode.S, KeyCombination.SHORTCUT_DOWN),
-                                             ev ->
-                                             {
-
-                                                 try
-                                                 {
-
-                                                     this.saveObject ();
-
-                                                 } catch (Exception e)
-                                                 {
-
-                                                     Environment.logError ("Unable to save chapter: " + this.object,
-                                                                           e);
-
-                                                     ComponentUtils.showErrorMessage (this.viewer,
-                                                                                      getUILanguageStringProperty (editorpanel,actions,save,actionerror));
-
-                                                 }
-
-                                             }));
 
 /*
 TODO
@@ -192,6 +157,37 @@ TODO
         this.object.getNotes ().stream ()
             .forEach (n -> n.setTextPosition2 (this.editor.createTextPosition (n.getPosition ())));
 
+        this.addChangeListener (UserProperties.showEditMarkerInChapterProperty (),
+                                (pr, oldv, newv) ->
+        {
+
+            this.recreateVisibleParagraphs ();
+
+        });
+
+        this.editor.readyForUseProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UIUtils.runLater (() ->
+            {
+
+                this.recreateVisibleParagraphs ();
+/*
+                IntStream.range (0,
+                                 this.editor.getVisibleParagraphs ().size ())
+                    .forEach (i ->
+                    {
+
+                        this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+
+                    });
+*/
+                //this.recreateVisibleParagraphs ();
+
+            });
+
+        });
+
         this.itemsSubscription = this.object.chapterItemsEvents ().subscribe (ev ->
         {
 
@@ -212,17 +208,20 @@ TODO
             int oldParaNo = this.editor.getParagraphForOffset (ev.getOld ().intValue ());
             int newParaNo = this.editor.getParagraphForOffset (ev.getNew ().intValue ());
 
-            // Inform the margins.
-            for (ParagraphIconMargin m : this.margins.keySet ())
+            if (oldParaNo != newParaNo)
             {
 
-                if ((m.getParagraph () == oldParaNo)
-                    ||
-                    (m.getParagraph () == newParaNo)
-                   )
+                if (oldParaNo > -1)
                 {
 
-                    m.requestLayout ();
+                    this.editor.recreateParagraphGraphic (oldParaNo);
+
+                }
+
+                if (newParaNo > -1)
+                {
+
+                    this.editor.recreateParagraphGraphic (newParaNo);
 
                 }
 
@@ -236,27 +235,18 @@ TODO
             this.editor.setParagraphGraphicFactory (paraNo ->
             {
 
-                BorderPane bp = new BorderPane ();
-
                 if (paraNo == -1)
                 {
 
-                    return bp;
+                    return new Pane ();
 
                 }
 
                 ParagraphIconMargin margin = new ParagraphIconMargin (this.viewer,
-                                                       this.editor,
+                                                       this,
                                                        paraNo,
                                                        this.object,
                                                        (item, node) ->
-                                                       {
-
-                                                           this.itemNodes.put (item,
-                                                                               node);
-
-                                                       },
-                                                       item ->
                                                        {
 
                                                            this.showItem (item,
@@ -268,29 +258,10 @@ TODO
 
                                                            return this.getNewItemsForRange (range);
 
-                                                       },
-                                                       item ->
-                                                       {
-
-                                                           if (item instanceof ChapterItem)
-                                                           {
-
-                                                               return 0d;
-
-                                                           } else {
-
-                                                               return 0d;
-
-                                                           }
-
                                                        });
                 margin.getStyleClass ().add (StyleClassNames.MARGIN);
-                bp.setCenter (margin);
 
-                this.margins.put (margin,
-                                  paraNo);
-
-                return bp;
+                return margin;
 
             });
 
@@ -329,8 +300,7 @@ TODO
                                              ev ->
                                              {
 
-                                                  this.popupsToCloseOnClick.stream ()
-                                                     .forEach (p -> p.close ());
+                                                 this.hidePopups ();
 
                                                   return InputHandler.Result.PROCEED;
 
@@ -341,11 +311,26 @@ TODO
                                               ev ->
                                               {
 
-                                                  this.setContextMenu ();
+                                                  // TODO Handle right click on chapter items in margin.
+                                                  if (ev.isPopupTrigger ())
+                                                  {
+
+                                                      this.setContextMenu ();
+
+                                                  }
 
                                                   return InputHandler.Result.PROCEED;
 
                                               }));
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.P, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                 this.showProblemFinder ();
+
+                                             }));
 
         this.addChangeListener (this.viewer.projectSpellCheckLanguageProperty (),
                                 (v, oldv, newv) ->
@@ -369,12 +354,21 @@ TODO
 
         });
 
-        UIUtils.runLater (() ->
-        {
+    }
 
-            this.updateMargins ();
+    @Override
+    public Node getEditorWrapper (VirtualizedScrollPane<TextEditor> scrollPane)
+    {
 
-        });
+        this.problemFinder = new ProblemFinder (this);
+        this.problemFinder.setVisible (false);
+        VBox b = new VBox ();
+        b.getChildren ().add (scrollPane);
+        VBox.setVgrow (scrollPane,
+                       Priority.ALWAYS);
+        b.getChildren ().add (this.problemFinder);
+
+        return b;
 
     }
 
@@ -405,8 +399,8 @@ TODO
     private void setContextMenu ()
     {
 
-        Set<MenuItem> items = new LinkedHashSet<> ();
-
+        Set<MenuItem> items = this.editor.getSpellingSynonymItemsForContextMenu (this.viewer);//new LinkedHashSet<> ();
+/*
         Point2D p = this.editor.getMousePosition ();
 
         // TODO? this.lastMousePosition = p;
@@ -572,7 +566,27 @@ TODO
                                             .onAction (ev ->
                                             {
 
-                                                // TODO Show synonyms...
+                                                QuollPopup qp = this.viewer.getPopupById (ShowSynonymsPopup.getPopupIdForChapter (this.object));
+
+                                                if (qp != null)
+                                                {
+
+                                                    qp.toFront ();
+                                                    return;
+
+                                                }
+
+                                                qp = new ShowSynonymsPopup (this.viewer,
+                                                                            w,
+                                                                            this.object).getPopup ();
+
+                                                Bounds b = this.viewer.screenToLocal (this.editor.getBoundsForPosition (loc));
+
+                                                this.viewer.showPopup (qp,
+                                                                       b,
+                                                                       Side.TOP);
+                                                                       //b.getMinX (),
+                                                                       //b.getMinY () - b.getHeight ());
 
                                             })
                                             .build ());
@@ -611,7 +625,7 @@ TODO
             }
 
         }
-
+*/
         ContextMenu cm = new ContextMenu ();
         cm.getItems ().addAll (items);
 
@@ -623,14 +637,45 @@ TODO
 
     }
 
+    public void recreateVisibleParagraphs ()
+    {
+
+        IntStream.range (0,
+                         this.editor.getVisibleParagraphs ().size ())
+            .forEach (i ->
+            {
+
+                this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+
+            });
+
+    }
+
+    private void updateParagraphForPosition (int pos)
+    {
+
+        if (pos < 0)
+        {
+
+            return;
+
+        }
+
+        int paraNo = this.editor.getParagraphForOffset (pos);
+
+        this.editor.recreateParagraphGraphic (paraNo);
+
+    }
+
     private void updateParagraphForItem (ChapterItem i)
     {
 
         if (i != null)
         {
 
-            int paraNo = this.editor.getParagraphForOffset (i.getPosition ());
+            this.updateParagraphForPosition (i.getPosition ());
 
+/*
             // Inform the margins.
             for (ParagraphIconMargin m : this.margins.keySet ())
             {
@@ -643,14 +688,15 @@ TODO
                 }
 
             }
-
+*/
         }
 
     }
 
     public void showIconColumn (boolean v)
     {
-
+/*
+TODO REmove
         if (!SwingUtilities.isEventDispatchThread ())
         {
 
@@ -669,7 +715,7 @@ TODO
 
          this.scrollPane.validate ();
          this.scrollPane.repaint ();
-
+*/
     }
 
     public void bindTextPropertiesTo (TextProperties p)
@@ -723,7 +769,8 @@ TODO
 
     public void scrollCaretIntoView (final Runnable runAfterScroll)
     {
-
+/*
+TODO Remove
         if (!SwingUtilities.isEventDispatchThread ())
         {
 
@@ -739,7 +786,7 @@ TODO
         }
 
         final ProjectChapterEditorPanelContent _this = this;
-
+*/
 /*
 TODO
         try
@@ -832,9 +879,8 @@ TODO
                         .onAction (eev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.newoutlineitem,
-                                                    null,
-                                                    this.object);
+                            this.viewer.createNewOutlineItem (this.object,
+                                                              this.editor.getCaretPosition ());
 
                         })
                         .build ());
@@ -846,9 +892,8 @@ TODO
                         .onAction (eev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.newnote,
-                                                    null,
-                                                    this.object);
+                            this.viewer.createNewNote (this.object,
+                                                       this.editor.getCaretPosition ());
 
                         })
                         .build ());
@@ -860,9 +905,8 @@ TODO
                         .onAction (eev ->
                         {
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
-                                                    null,
-                                                    this.object);
+                            this.viewer.createNewEditNeededNote (this.object,
+                                                                 this.editor.getCaretPosition ());
 
                         })
                         .build ());
@@ -1032,13 +1076,6 @@ TODO
         }
 
         return this.toolbar;
-
-    }
-
-    private void showProblemFinder ()
-    {
-
-        // TODO this.panel.showProblemFinder ();
 
     }
 
@@ -2141,13 +2178,6 @@ TODO
 
     }
 */
-    public TextEditor getEditor ()
-    // TODO public QTextEditor getEditor ()
-    {
-
-        return this.editor;
-
-    }
 
     public Set<MenuItem> getContextMenuItems (boolean    compress)
     {
@@ -2264,11 +2294,25 @@ TODO
                     this.viewer.setChapterEditPosition (this.object,
                                                         pos);
 
+                    this.recreateVisibleParagraphs ();
+
                 })
                 .build ());
 
             if (this.object.getEditPosition () > 0)
             {
+
+                row2.add (QuollButton.builder ()
+                    .styleClassName (StyleClassNames.GOTOEDITPOSITION)
+                    .tooltip (getUILanguageStringProperty (Utils.newList (prefix,gotoeditposition,tooltip)))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.moveTo (this.object.getEditPosition ());
+                        this.editor.requestFollowCaret ();
+
+                    })
+                    .build ());
 
                 row2.add (QuollButton.builder ()
                     .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
@@ -2277,6 +2321,8 @@ TODO
                     {
 
                         this.viewer.removeChapterEditPosition (this.object);
+
+                        this.recreateVisibleParagraphs ();
 
                     })
                     .build ());
@@ -2294,6 +2340,15 @@ TODO
 
                         this.viewer.setChapterEditComplete (this.object,
                                                             true);
+
+                        IntStream.range (0,
+                                         this.editor.getVisibleParagraphs ().size ())
+                            .forEach (i ->
+                            {
+
+                                this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+
+                            });
 
                     })
                     .build ());
@@ -2326,8 +2381,8 @@ TODO
                                                                null,
                                                                null));
 
-            MenuItem fmi = this.getCompressedFormatItemsForContextMenu ();
-            MenuItem emi = this.getCompressedEditItemsForContextMenu ();
+            MenuItem fmi = this.editor.getCompressedFormatItemsForContextMenu ();
+            MenuItem emi = this.editor.getCompressedEditItemsForContextMenu ();
 
             if ((fmi != null)
                 ||
@@ -2407,11 +2462,32 @@ TODO
                     this.viewer.setChapterEditPosition (this.object,
                                                         pos);
 
+                    IntStream.range (0,
+                                     this.editor.getVisibleParagraphs ().size ())
+                        .forEach (i ->
+                        {
+
+                            this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+
+                        });
+
                 })
                 .build ());
 
             if (this.object.getEditPosition () > 0)
             {
+
+                citems.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.GOTOEDITPOSITION)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,gotoeditposition,text)))
+                    .onAction (ev ->
+                    {
+
+                        this.editor.moveTo (this.object.getEditPosition ());
+                        this.editor.requestFollowCaret ();
+
+                    })
+                    .build ());
 
                 citems.add (QuollMenuItem.builder ()
                     .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
@@ -2420,6 +2496,15 @@ TODO
                     {
 
                         this.viewer.removeChapterEditPosition (this.object);
+
+                        IntStream.range (0,
+                                         this.editor.getVisibleParagraphs ().size ())
+                            .forEach (i ->
+                            {
+
+                                this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+
+                            });
 
                     })
                     .build ());
@@ -2534,9 +2619,8 @@ TODO?
                 .onAction (eev ->
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.newoutlineitem,
-                                            null,
-                                            this.object);
+                    this.viewer.createNewOutlineItem (this.object,
+                                                      this.editor.getCaretPosition ());
 
                 })
                 .build ());
@@ -2548,9 +2632,8 @@ TODO?
                 .onAction (eev ->
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.newnote,
-                                            null,
-                                            this.object);
+                    this.viewer.createNewNote (this.object,
+                                               this.editor.getCaretPosition ());
 
                 })
                 .build ());
@@ -2562,9 +2645,8 @@ TODO?
                 .onAction (eev ->
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
-                                            null,
-                                            this.object);
+                    this.viewer.createNewEditNeededNote (this.object,
+                                                         this.editor.getCaretPosition ());
 
                 })
                 .build ());
@@ -2758,20 +2840,22 @@ TODO?
 
         double y = cb.getMinY ();
 
-        Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
+        List<ChapterItem> sitems = new ArrayList<> ();
 
         this.object.getScenes ().stream ()
             .forEach (s ->
             {
 
-                items.add (s);
-                items.addAll (s.getOutlineItems ());
+                sitems.add (s);
+                sitems.addAll (s.getOutlineItems ());
 
             });
 
-        items.addAll (this.object.getOutlineItems ());
+        sitems.addAll (this.object.getOutlineItems ());
 
-        return items.stream ()
+        Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
+
+        items.addAll (sitems.stream ()
             // Only interested in those that have the same y value.  i.e. on the same line.
             .filter (i ->
             {
@@ -2789,7 +2873,51 @@ TODO?
                 return (b != null) && b.getMinY () == y;
 
             })
-            .collect (Collectors.toSet ());
+            .collect (Collectors.toList ()));
+
+        return items;
+
+    }
+
+    public Set<ChapterItem> getNotesForPosition (int p)
+    {
+
+        Bounds cb = this.editor.getBoundsForPosition (p);
+
+        if (cb == null)
+        {
+
+            return new HashSet<> ();
+
+        }
+
+        int paraNo = this.editor.getParagraphForOffset (p);
+
+        double y = cb.getMinY ();
+
+        Set<ChapterItem> ret = new TreeSet<> (new ChapterItemSorter ());
+
+        ret.addAll (this.object.getNotes ().stream ()
+            // Only interested in those that have the same y value.  i.e. on the same line.
+            .filter (i ->
+            {
+
+                // See if we are in the same paragraph.
+                if (this.editor.getParagraphForOffset (i.getPosition ()) != paraNo)
+                {
+
+                    return false;
+
+                }
+
+                Bounds b = this.editor.getBoundsForPosition (i.getPosition ());
+
+                return (b != null) && b.getMinY () == y;
+
+            })
+            .collect (Collectors.toSet ()));
+
+        return ret;
 
     }
 
@@ -2816,6 +2944,15 @@ TODO?
     }
 
     public void editItem (ChapterItem item)
+    {
+
+        this.editItem (item,
+                       null);
+
+    }
+
+    public void editItem (ChapterItem item,
+                          Node        showAt)
     {
 
         if (this.checkForDistractionFreeMode ())
@@ -2848,6 +2985,32 @@ TODO?
             this.showPopupForItem (item,
                                    qp);
 
+            return;
+
+        }
+
+        if (item instanceof Note)
+        {
+
+            Note n = (Note) item;
+
+            QuollPopup qp = this.viewer.getPopupById (AddEditNotePopup.getPopupIdForNote (n));
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            qp = new AddEditNotePopup (this.viewer,
+                                       n,
+                                       this.object).getPopup ();
+
+            this.showPopupForItem (n,
+                                   qp);
+
         }
 
     }
@@ -2858,35 +3021,51 @@ TODO?
 
         Bounds b = this.editor.getBoundsForPosition (item.getPosition ());
 
-        // Scroll to the location first.
         if (b == null)
         {
 
             int paraNo = this.editor.getParagraphForOffset (item.getPosition ());
-            IndexRange po = this.editor.getParagraphTextRange (paraNo);
+            this.editor.showParagraphAtTop (paraNo);
 
-            if (paraNo == -1)
+            b = this.editor.getBoundsForPosition (item.getPosition ());
+            Bounds eb = this.editor.localToScreen (this.editor.getBoundsInLocal ());
+
+            if (!eb.contains (b))
             {
 
-                throw new IllegalArgumentException ("Unable to find paragraph for item: " +
-                                                    item);
+                double diff = b.getMinY () - eb.getMinY () - (eb.getHeight () / 2);
+
+                this.editor.scrollYBy (diff);
 
             }
 
-            this.editor.showParagraphAtTop (paraNo);
-            Bounds pb = this.editor.getParagraphBoundsOnScreen (paraNo).orElse (null);
-            b = this.editor.getBoundsForPosition (item.getPosition ());
-            this.editor.scrollYBy (b.getMinY () - pb.getMinY ());
+            UIUtils.runLater (() ->
+            {
+
+                this.showPopupForItem (item,
+                                       popup);
+
+            });
+
+            return;
 
         }
 
         this.hidePopups ();
 
         this.viewer.showPopup (popup,
-                               this.itemNodes.get (item),
+                               this.getNodeForChapterItem (item),
                                Side.BOTTOM);
 
         this.popupsToCloseOnClick.add (popup);
+
+        popup.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
+                               ev ->
+        {
+
+            this.popupsToCloseOnClick.remove (popup);
+
+        });
 
     }
 
@@ -2900,11 +3079,71 @@ TODO?
 
     }
 
-    private void updateMargins ()
+    public void showAddNewNote (int pos,
+                                boolean editNeeded)
     {
 
-        this.margins.keySet ().stream ()
-            .forEach (m -> m.requestLayout ());
+        com.quollwriter.data.Note item = new com.quollwriter.data.Note ();
+        item.setPosition (pos);
+
+        if (editNeeded)
+        {
+
+            item.setType (Note.EDIT_NEEDED_NOTE_TYPE);
+
+        }
+
+        // Here we generate a bogus negative key so that the hashCode/equals still works.
+        item.setKey (-1 * System.currentTimeMillis ());
+
+        this.newItems.add (item);
+
+        AddEditNotePopup p = new AddEditNotePopup (this.viewer,
+                                                   item,
+                                                   this.object);
+        p.setOnCancel (ev ->
+        {
+
+            this.newItems.remove (item);
+
+            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+
+        });
+
+        p.setOnClose (() ->
+        {
+
+            this.newItems.remove (item);
+
+            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+
+        });
+
+        this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+
+        QuollPopup qp = p.getPopup ();
+
+        UIUtils.runLater (() ->
+        {
+
+            this.showPopupForItem (item,
+                                   qp);
+
+        });
+
+    }
+
+    private ParagraphIconMargin getParagraphIconMargin (int pos)
+    {
+
+        return (ParagraphIconMargin) this.editor.getParagraphGraphic (this.editor.getParagraphForOffset (pos));
+
+    }
+
+    private ParagraphIconMargin getParagraphIconMargin (ChapterItem item)
+    {
+
+        return this.getParagraphIconMargin (item.getPosition ());
 
     }
 
@@ -2922,14 +3161,34 @@ TODO?
         p.setOnCancel (ev ->
         {
 
+            //this.getParagraphIconMargin (item).removeItem (item);
             this.newItems.remove (item);
+
+            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
 
         });
 
+        p.setOnClose (() ->
+        {
+
+            //this.getParagraphIconMargin (item).removeItem (item);
+            this.newItems.remove (item);
+
+            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+
+        });
+
+        this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+
         QuollPopup qp = p.getPopup ();
 
-        this.showPopupForItem (item,
-                               qp);
+        UIUtils.runLater (() ->
+        {
+
+            this.showPopupForItem (item,
+                                   qp);
+
+        });
 
     }
 
@@ -2954,6 +3213,50 @@ TODO?
 
         }
 
+        if (item instanceof Note)
+        {
+
+            ChapterItem top = item;
+            Set<ChapterItem> items = null;
+
+            if (showAllForLine)
+            {
+
+                items = this.getNotesForPosition (item.getPosition ());
+
+                if (items.size () == 0)
+                {
+
+                    return;
+
+                }
+
+                top = items.iterator ().next ();
+
+            } else {
+
+                items = new LinkedHashSet<> ();
+                items.add (item);
+
+            }
+
+            QuollPopup qp = this.viewer.getPopupById (ViewChapterItemPopup.getPopupIdForChapterItem (top));
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            qp = new ViewChapterItemPopup (this.viewer,
+                                           items).getPopup ();
+
+            this.showPopupForItem (top,
+                                   qp);
+
+        }
 
         if ((item instanceof com.quollwriter.data.Scene)
             ||
@@ -3004,6 +3307,59 @@ TODO?
         }
 
     }
+
+    public void showProblemFinderRuleConfig ()
+    {
+
+         this.viewer.showProblemFinderRuleConfig ();
+
+    }
+
+    public void closeProblemFinder ()
+    {
+
+        this.problemFinder.close ();
+
+    }
+
+    public void showProblemFinder ()
+    {
+
+       if (!this.viewer.isLanguageFunctionAvailable ())
+       {
+
+          return;
+
+       }
+
+       // Disable typewriter scrolling when the problem finder is active.
+       this.setUseTypewriterScrolling (false);
+       this.editor.setHighlightWritingLine (false);
+
+       this.problemFinder.setVisible (true);
+
+       this.viewer.fireProjectEvent (ProjectEvent.Type.problemfinder,
+                                     ProjectEvent.Action.show);
+
+       try
+       {
+
+           this.problemFinder.start ();
+
+       } catch (Exception e)
+       {
+
+          Environment.logError ("Unable to start problem finding",
+                                e);
+
+          ComponentUtils.showErrorMessage (this.viewer,
+                                           getUILanguageStringProperty (project,editorpanel,actions,problemfinder,actionerror));
+
+          return;
+
+       }
+
+     }
 
     private void tryScheduleAutoSave ()
     {
@@ -3366,167 +3722,24 @@ TODO
 
     }
 
-    private MenuItem getCompressedEditItemsForContextMenu ()
+    public Node getNodeForChapterItem (ChapterItem ci)
     {
 
-        List<String> prefix = Arrays.asList (formatting,edit,popupmenu,items);
+        ParagraphIconMargin m = (ParagraphIconMargin) this.editor.getParagraphGraphic (this.editor.getParagraphForOffset (ci.getPosition ()));
 
-        String sel = this.editor.getSelectedText ();
-
-        List<Node> buts = new ArrayList<> ();
-
-        // Only add if there is something to cut.
-        if (!sel.equals (""))
-        {
-
-            buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.CUT)
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,cut,tooltip)))
-                .onAction (ev ->
-                {
-
-                    this.editor.cut ();
-
-                })
-                .build ());
-            buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.COPY)
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,copy,tooltip)))
-                .onAction (ev ->
-                {
-
-                    this.editor.copy ();
-
-                })
-                .build ());
-
-        }
-
-        if (UIUtils.clipboardHasContent ())
-        {
-
-            buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.PASTE)
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,paste,tooltip)))
-                .onAction (ev ->
-                {
-
-                    this.editor.paste ();
-
-                })
-                .build ());
-
-        }
-
-        if (this.editor.getUndoManager ().isUndoAvailable ())
-        //if (this.editor.getUndoManager ().canUndo ())
-        {
-
-            // Only add if there is an undo available.
-            buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.UNDO)
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,undo,tooltip)))
-                .onAction (ev ->
-                {
-
-                    this.editor.getUndoManager ().undo ();
-
-                })
-                .build ());
-
-        }
-
-        if (this.editor.getUndoManager ().isRedoAvailable ())
-        // TODO if (this.editor.getUndoManager ().canRedo ())
-        {
-
-            buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.REDO)
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,redo,tooltip)))
-                .onAction (ev ->
-                {
-
-                    this.editor.getUndoManager ().redo ();
-
-                })
-                .build ());
-
-        }
-
-        if (buts.size () > 0)
-        {
-
-            return UIUtils.createCompressedMenuItem (getUILanguageStringProperty (formatting,edit,popupmenu,title),
-                                                     buts);
-
-
-        }
-
-        return null;
+        return m.getNodeForChapterItem (ci);
 
     }
 
     public void hidePopups ()
     {
 
-        this.popupsToCloseOnClick.stream ()
+        Set<QuollPopup> popups = new HashSet<> (this.popupsToCloseOnClick);
+
+        popups.stream ()
            .forEach (p -> p.close ());
 
-    }
-
-    private MenuItem getCompressedFormatItemsForContextMenu ()
-    {
-
-        String sel = this.editor.getSelectedText ();
-
-        if (!sel.equals (""))
-        {
-
-            List<String> prefix = Arrays.asList (formatting,format,popupmenu,items);
-
-            List<Node> buts = new ArrayList<> ();
-
-            buts.add (QuollButton.builder ()
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,bold,tooltip)))
-                .styleClassName (StyleClassNames.BOLD)
-                .onAction (ev ->
-                {
-
-                    this.editor.toggleBold ();
-
-                })
-                .build ());
-
-            buts.add (QuollButton.builder ()
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,italic,tooltip)))
-                .styleClassName (StyleClassNames.ITALIC)
-                .onAction (ev ->
-                {
-
-                    this.editor.toggleItalic ();
-
-                })
-                .build ());
-
-            buts.add (QuollButton.builder ()
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,underline,tooltip)))
-                .styleClassName (StyleClassNames.UNDERLINE)
-                .onAction (ev ->
-                {
-
-                    this.editor.toggleUnderline ();
-
-                })
-                .build ());
-
-            return UIUtils.createCompressedMenuItem (getUILanguageStringProperty (formatting,format,popupmenu,title),
-                                                     buts);
-
-        } else {
-
-            return null;
-
-        }
+        this.popupsToCloseOnClick.clear ();
 
     }
 
@@ -3557,9 +3770,8 @@ TODO
             .onAction (ev ->
             {
 
-                this.viewer.runCommand (ProjectViewer.CommandId.newoutlineitem,
-                                        this.object,
-                                        pos);
+                this.viewer.createNewOutlineItem (this.object,
+                                                  pos);
 
             })
             .build ());
@@ -3570,9 +3782,8 @@ TODO
             .onAction (ev ->
             {
 
-                this.viewer.runCommand (ProjectViewer.CommandId.newnote,
-                                        this.object,
-                                        pos);
+                this.viewer.createNewNote (this.object,
+                                           pos);
 
             })
             .build ());
@@ -3583,9 +3794,8 @@ TODO
             .onAction (ev ->
             {
 
-                this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
-                                        this.object,
-                                        pos);
+                this.viewer.createNewEditNeededNote (this.object,
+                                                     pos);
 
             })
             .build ());
@@ -3793,4 +4003,5 @@ TODO
 
     }
 */
+
 }

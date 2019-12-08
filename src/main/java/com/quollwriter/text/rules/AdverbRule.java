@@ -8,6 +8,12 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import javafx.collections.*;
+import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.*;
+import javafx.util.converter.*;
+
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
@@ -18,8 +24,14 @@ import com.quollwriter.text.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.*;
+
 import org.jdom.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class AdverbRule extends AbstractSentenceRule
 {
@@ -34,6 +46,9 @@ public class AdverbRule extends AbstractSentenceRule
     private Set<String> speechVerbs = new HashSet<> ();
     private JTextField          newVerbs = null;
     private DefaultListModel    listModel = null;
+
+    private TextField newVerbs2 = null;
+    private ListView<String> verbs2 = null;
 
     public AdverbRule ()
     {
@@ -211,6 +226,139 @@ public class AdverbRule extends AbstractSentenceRule
     }
 
     @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        final AdverbRule _this = this;
+
+        List<String> pref = Arrays.asList (problemfinder,config,rules,adverb,labels);
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        VBox b = new VBox ();
+
+        this.newVerbs2 = QuollTextField.builder ()
+            .build ();
+
+        b.getChildren ().add (this.newVerbs2);
+
+        QuollLabel l = QuollLabel.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (pref,separate)))
+            .styleClassName (StyleClassNames.INFORMATION)
+            .build ();
+
+        b.getChildren ().add (l);
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,newspeechverbs)),
+                                  b));
+
+        Vector v = new Vector<> (this.speechVerbs);
+
+        Collections.sort (v);
+
+        List<String> _vitems = new ArrayList<> (v);
+
+        ObservableList<String> vitems = FXCollections.observableList (_vitems);
+
+        this.verbs2 = new ListView<> (vitems);
+        this.verbs2.getStyleClass ().add (StyleClassNames.ITEMS);
+        this.verbs2.getSelectionModel ().setSelectionMode (SelectionMode.MULTIPLE);
+        this.verbs2.setEditable (true);
+        this.verbs2.setCellFactory (view ->
+        {
+
+            TextFieldListCell<String> c = new TextFieldListCell<> ()
+            {
+
+                @Override
+                public void cancelEdit ()
+                {
+
+                    this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
+                    super.cancelEdit ();
+
+                }
+
+                @Override
+                public void commitEdit (String newVal)
+                {
+
+                    this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
+
+                    int ind = -1;
+
+                    newVal = newVal.trim ();
+
+                    for (int i = 0; i < vitems.size (); i++)
+                    {
+
+                        if (newVal.equalsIgnoreCase (vitems.get (i)))
+                        {
+
+                            ind = i;
+                            break;
+
+                        }
+
+                    }
+
+                    if ((ind > -1)
+                        &&
+                        (ind != this.getIndex ())
+                       )
+                    {
+
+                        this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, true);
+                        com.quollwriter.ui.fx.UIUtils.setTooltip (this,
+                                            getUILanguageStringProperty (manageitems,table,edit,errors,valueexists));
+
+                        return;
+
+                    }
+
+                    String oldVal = this.getItem ();
+
+                    // TODO Check value here and either allow or prevent.
+                    super.commitEdit (newVal);
+
+                    vitems.set (this.getIndex (),
+                                newVal);
+
+                    _this.speechVerbs = new LinkedHashSet<> (vitems);
+
+                }
+
+            };
+
+            c.setConverter (new DefaultStringConverter ());
+
+            return c;
+
+        });
+
+        HBox bb = new HBox ();
+        bb.getChildren ().add (this.verbs2);
+
+        bb.getChildren ().add (QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (problemfinder,config,rules,adverb,buttons,removespeechverbs,tooltip))
+            .styleClassName (StyleClassNames.DELETE)
+            .onAction (ev ->
+            {
+
+                vitems.removeAll (verbs2.getSelectionModel ().getSelectedItems ());
+
+            })
+            .build ());
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,speechverbs)),
+                                    //"Speech Verbs",
+                                  bb));
+
+        return items;
+
+    }
+
+    @Override
     public Set<FormItem> getFormItems ()
     {
 
@@ -234,7 +382,7 @@ public class AdverbRule extends AbstractSentenceRule
         JLabel label = new JLabel (Environment.getUIString (pref,
                                                                 LanguageStrings.separate));
                                    //"(separate with , or ;)");
-        label.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+        label.setBorder (com.quollwriter.ui.UIUtils.createPadding (0, 5, 0, 0));
 
         b.add (label);
 
@@ -271,7 +419,7 @@ public class AdverbRule extends AbstractSentenceRule
 
         List<JComponent> buts = new ArrayList<> ();
 
-        buts.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
+        buts.add (com.quollwriter.ui.UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                         Constants.ICON_MENU,
                                         Environment.getUIString (LanguageStrings.problemfinder,
                                                                  LanguageStrings.config,
@@ -343,7 +491,7 @@ public class AdverbRule extends AbstractSentenceRule
 
             });
 */
-        bb.add (UIUtils.createButtonBar (buts));
+        bb.add (com.quollwriter.ui.UIUtils.createButtonBar (buts));
         bb.add (Box.createVerticalGlue ());
 
         b.add (bb);
@@ -363,6 +511,35 @@ public class AdverbRule extends AbstractSentenceRule
     {
 
         return null;
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
+    {
+
+        Set<String> verbs = new HashSet<> ();
+
+        String n = this.newVerbs2.getText ();
+
+        if (n != null)
+        {
+
+            StringTokenizer t = new StringTokenizer (n,
+                                                     ";,");
+
+            while (t.hasMoreTokens ())
+            {
+
+                verbs.add (t.nextToken ().trim ().toLowerCase ());
+
+            }
+
+        }
+
+        verbs.addAll (this.verbs2.getItems ());
+
+        this.speechVerbs = verbs;
 
     }
 

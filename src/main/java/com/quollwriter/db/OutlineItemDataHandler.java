@@ -310,7 +310,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
         }
 
         params.add (sk);
-
+System.out.println ("PARAMS: " + params);
         this.objectManager.executeStatement ("INSERT INTO outlineitem (dbkey, position, chapterdbkey, scenedbkey) VALUES (?, ?, ?, ?)",
                                              params,
                                              conn);

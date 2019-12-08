@@ -23,15 +23,18 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
     protected E item = null;
     private IPropertyBinder binder = null;
     private LinkedToPanel linkedToPanel = null;
+    private Runnable popupShown = null;
 
     public AbstractChapterItemFormatter (ProjectViewer   viewer,
                                          IPropertyBinder binder,
-                                         E               item)
+                                         E               item,
+                                         Runnable        onNewPopupShown)
     {
 
         this.viewer = viewer;
         this.item = item;
         this.binder = binder;
+        this.popupShown = onNewPopupShown;
 
     }
 
@@ -79,6 +82,8 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
                 this.viewer.runCommand (ProjectViewer.CommandId.editobject,
                                         this.item);
 
+                UIUtils.runLater (this.popupShown);
+
             })
             .build ());
 
@@ -114,8 +119,10 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
             .onAction (ev ->
             {
 
-                this.viewer.runCommand (ProjectViewer.CommandId.deleteobject,
-                                        this.item);
+                this.viewer.showDeleteChapterItemPopup (this.item,
+                                                        this.viewer.getEditorForChapter (this.item.getChapter ()).getNodeForChapterItem (this.item));
+
+                UIUtils.runLater (this.popupShown);
 
             })
             .build ());

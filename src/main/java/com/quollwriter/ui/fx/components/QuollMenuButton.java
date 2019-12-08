@@ -58,12 +58,19 @@ public class QuollMenuButton extends MenuButton
 
         }
 
-        if (b.itemSupplier != null)
+        this.setOnShowing (ev ->
         {
 
-            this.getItems ().addAll (b.itemSupplier.get ());
+            this.getItems ().clear ();
 
-        }
+            if (b.itemSupplier != null)
+            {
+
+                this.getItems ().addAll (b.itemSupplier.get ());
+
+            }
+            
+        });
 
     }
 

@@ -3,17 +3,22 @@ package com.quollwriter.ui.fx.components;
 import java.util.*;
 
 import javafx.event.*;
+import javafx.beans.value.*;
 import javafx.beans.binding.*;
 import javafx.scene.input.*;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
-
 import javafx.scene.web.*;
+
+import org.fxmisc.flowless.*;
+import org.fxmisc.wellbehaved.event.*;
+
 import org.w3c.dom.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -23,8 +28,10 @@ public class QuollTextArea extends VBox
 {
 
     private Label maxlabel = null;
-    private TextArea text = null;
+    //private TextArea text = null;
+    private TextEditor text = null;
     private Boolean autoGrabFocus = false;
+    private boolean formattingEnabled = false;
 
     private QuollTextArea (Builder b)
     {
@@ -40,17 +47,80 @@ public class QuollTextArea extends VBox
 
         }
 
-        this.text = new TextArea ();
-        this.text.setWrapText (true);
-        VBox.setVgrow (this.text,
-                       Priority.ALWAYS);
-
-        if (b.placeHolder != null)
+        if (b.viewer == null)
         {
 
-            this.text.promptTextProperty ().bind (b.placeHolder);
+            throw new IllegalArgumentException ("Viewer must be provided.");
 
         }
+
+        this.text = new TextEditor (null,
+                                    null,
+                                    b.dictProv);
+        this.text.setFormattingEnabled (b.formattingEnabled);
+        this.text.setPlaceholder (b.placeHolder);
+
+        Nodes.addInputMap (this.text,
+                           InputMap.process (EventPattern.mouseReleased (),
+                                              ev ->
+                                              {
+
+                                                  if (ev.isPopupTrigger ())
+                                                  {
+
+                                                      ContextMenu cm = new ContextMenu ();
+                                                      Set<MenuItem> its = this.text.getSpellingSynonymItemsForContextMenu (b.viewer);
+
+                                                      cm.getItems ().addAll (its);
+
+                                                      MenuItem eit = this.text.getCompressedEditItemsForContextMenu ();
+                                                      MenuItem fit = this.text.getCompressedFormatItemsForContextMenu ();
+
+                                                      if ((eit != null)
+                                                          ||
+                                                          (fit != null)
+                                                         )
+                                                      {
+
+                                                          if (its.size () > 0)
+                                                          {
+
+                                                              cm.getItems ().add (new SeparatorMenuItem ());
+
+                                                          }
+
+                                                      }
+
+                                                      if (eit != null)
+                                                      {
+
+                                                          cm.getItems ().add (eit);
+
+                                                      }
+
+                                                      if (fit != null)
+                                                      {
+
+                                                          cm.getItems ().add (fit);
+
+                                                      }
+                                              /*
+                                                      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+
+                                                      cm.getItems ().addAll (this.getContextMenuItems (compress));
+                                              */
+                                                      this.text.setContextMenu (cm);
+
+                                                  }
+
+                                                  return InputHandler.Result.PROCEED;
+
+                                              }));
+
+        //this.text = new TextArea ();
+        //this.text.setWrapText (true);
+        VBox.setVgrow (this.text,
+                       Priority.ALWAYS);
 
         this.text.setEditable (true);
 
@@ -58,6 +128,7 @@ public class QuollTextArea extends VBox
         {
 
             this.text.setText (b.text);
+
 
         }
 
@@ -116,45 +187,31 @@ public class QuollTextArea extends VBox
         Environment.uilangProperty (),
         this.text.textProperty ()));
 
-        // TODO Add spell checker/synonym support.
-
-        // TODO Add menu, copy/paste etc.
-
-        // TODO Use RichTextFX
-/*
-        WebView wv = new WebView ();
-        wv.getEngine ().loadContent ("<html><body></body></html>");
-
-        wv.getEngine ().getLoadWorker ().stateProperty ().addListener ((p, old, newv) ->
-        {
-
-            if (newv == javafx.concurrent.Worker.State.SUCCEEDED)
-            {
-
-                Document doc = wv.getEngine ().getDocument ();
-                Element docEl = doc.getDocumentElement ();
-                ((Element) doc.getElementsByTagName ("body").item (0)).setAttribute ("contenteditable", Boolean.TRUE.toString ());
-
-            }
-
-        });
-
-        wv.setPrefHeight (200);
-        wv.setPrefWidth (400);
-        wv.setMinHeight (200);
-        wv.setMinWidth (400);
-*/
-        this.getChildren ().addAll (this.text, this.maxlabel);
+        this.getChildren ().addAll (new VirtualizedScrollPane<> (this.text), this.maxlabel);
 
     }
 
-    public StringProperty textProperty ()
+    public void setFormattingEnabled (boolean v)
+    {
+
+        this.text.setFormattingEnabled (v);
+
+    }
+
+    public TextEditor getTextEditor ()
+    {
+
+        return this.text;
+
+    }
+/*
+    public ObservableValue<StringWithMarkup> textProperty ()
     {
 
         return this.text.textProperty ();
 
     }
-
+*/
     public void setOnTextKeyReleased (EventHandler<KeyEvent> h)
     {
 
@@ -162,7 +219,6 @@ public class QuollTextArea extends VBox
 
     }
 
-    // TODO Support markup.
     public void setText (StringWithMarkup text)
     {
 
@@ -173,7 +229,7 @@ public class QuollTextArea extends VBox
 
         } else {
 
-            this.setText (text.getText ());
+            this.text.setText (text);
 
         }
 
@@ -182,7 +238,7 @@ public class QuollTextArea extends VBox
     public void setText (String text)
     {
 
-        this.text.setText (text);
+        this.text.setText (new StringWithMarkup (text));
 
     }
 
@@ -190,6 +246,13 @@ public class QuollTextArea extends VBox
     {
 
         return this.text.getText ();
+
+    }
+
+    public StringWithMarkup getTextWithMarkup ()
+    {
+
+        return this.text.getTextWithMarkup ();
 
     }
 
@@ -210,13 +273,40 @@ public class QuollTextArea extends VBox
     {
 
         private StringProperty placeHolder = null;
-        private String text = null;
+        private StringWithMarkup text = null;
         private int maxChars = -1;
         private String styleName = null;
         private Boolean autoGrabFocus = false;
+        private AbstractViewer viewer = null;
+        private DictionaryProvider2 dictProv = null;
+        private boolean formattingEnabled = false;
 
         private Builder ()
         {
+
+        }
+
+        public Builder formattingEnabled (boolean v)
+        {
+
+            this.formattingEnabled = v;
+            return this;
+
+        }
+
+        public Builder dictionaryProvider (DictionaryProvider2 prov)
+        {
+
+            this.dictProv = prov;
+            return this;
+
+        }
+
+        public Builder withViewer (AbstractViewer viewer)
+        {
+
+            this.viewer = viewer;
+            return this;
 
         }
 
@@ -228,10 +318,18 @@ public class QuollTextArea extends VBox
 
         }
 
-        public Builder text (String text)
+        public Builder text (StringWithMarkup text)
         {
 
             this.text = text;
+            return this;
+
+        }
+
+        public Builder text (String text)
+        {
+
+            this.text = new StringWithMarkup (text);
             return this;
 
         }

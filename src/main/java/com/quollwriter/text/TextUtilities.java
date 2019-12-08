@@ -904,4 +904,71 @@ public class TextUtilities
 
     }
 
+    public static List<SentenceMatches> getSentenceMatches (Collection<String> names,
+                                                            String             text)
+    {
+
+        List<SentenceMatches> snippets = new ArrayList<> ();
+
+        if (text != null)
+        {
+
+            text = StringUtils.replaceString (text,
+                                              String.valueOf ('\r'),
+                                              "");
+
+        }
+
+        TextIterator ti = new TextIterator (text);
+
+        for (String n : names)
+        {
+
+            Map<Sentence, NavigableSet<Integer>> matches = ti.findInSentences (n,
+                                                                               null);
+
+            if (matches != null)
+            {
+
+                Iterator<Sentence> iter = matches.keySet ().iterator ();
+
+                while (iter.hasNext ())
+                {
+
+                    Sentence sen = iter.next ();
+
+                    Set<Integer> inds = matches.get (sen);
+
+                    if ((inds != null)
+                        &&
+                        (inds.size () > 0)
+                       )
+                    {
+
+                        SentenceMatches s = new SentenceMatches (n,
+                                                                 sen,
+                                                                 inds);
+
+                        snippets.add (s);
+
+                    }
+
+                }
+
+            }
+
+        }
+/*
+        Collections.sort (snippets,
+                          (o1, o2) ->
+        {
+
+            return Integer.valueOf (o1.getAllTextStartOffset ()).compareTo (o2.getAllTextStartOffset ());
+
+        });
+*/
+        return snippets;
+
+    }
+
 }

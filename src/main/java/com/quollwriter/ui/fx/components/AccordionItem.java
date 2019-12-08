@@ -212,14 +212,15 @@ public class AccordionItem extends VBox implements Stateful
      * Usage: AccordionItem.builder ().styleName ("hello").build ();
      * @returns A new builder.
      */
-    public static AccordionItem.Builder builder ()
+    public static Builder builder ()
     {
 
         return new Builder ();
 
     }
 
-    public static class Builder implements IBuilder<Builder, AccordionItem>
+    public static class Builder<X extends Builder<X>> implements IBuilder<X, AccordionItem>
+     //implements IBuilder<Builder, AccordionItem>
     {
 
         private StringProperty title = null;
@@ -231,7 +232,7 @@ public class AccordionItem extends VBox implements Stateful
         private boolean open = true;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
 
-        private Builder ()
+        protected Builder ()
         {
 
         }
@@ -245,85 +246,85 @@ public class AccordionItem extends VBox implements Stateful
         }
 
         @Override
-        public Builder _this ()
+        public X _this ()
         {
 
-            return this;
+            return (X) this;
 
         }
 
-        public Builder styleClassName (String name)
+        public X styleClassName (String name)
         {
 
             this.styleName = name;
-            return this;
+            return _this ();
 
         }
 
-        public Builder openContent (Node n)
+        public X openContent (Node n)
         {
 
             this.openContent = n;
-            return this;
+            return _this ();
 
         }
 
-        public Builder closedContent (Node n)
+        public X closedContent (Node n)
         {
 
             this.closedContent = n;
-            return this;
+            return _this ();
 
         }
 
-        public Builder title (String... ids)
+        public X title (String... ids)
         {
 
             return this.title (getUILanguageStringProperty (ids));
 
         }
 
-        public Builder title (List<String> prefix,
-                              String... ids)
+        public X title (List<String> prefix,
+                        String... ids)
         {
 
             return this.title (getUILanguageStringProperty (Utils.newList (prefix,ids)));
 
         }
 
-        public Builder accordionId (String id)
+        public X accordionId (String id)
         {
 
             this.accId = id;
-            return this;
+            return _this ();
 
         }
 
-        public Builder title (StringProperty prop)
+        public X title (StringProperty prop)
         {
 
             this.title = prop;
-            return this;
+            return _this ();
 
         }
 
-        public Builder headerControls (Set<Node> cons)
+        public X headerControls (Set<Node> cons)
         {
 
             this.headerCons = cons;
-            return this;
+            return _this ();
 
         }
 
-        public Builder open (boolean v)
+        public X open (boolean v)
         {
 
             this.open = v;
-            return this;
+            return _this ();
 
         }
 
-        public Builder contextMenu (final Set<MenuItem> items)
+        public X contextMenu (final Set<MenuItem> items)
         {
 
             this.contextMenuItemSupplier = new Supplier<Set<MenuItem>> ()
@@ -339,15 +340,15 @@ public class AccordionItem extends VBox implements Stateful
 
             };
 
-            return this;
+            return _this ();
 
         }
 
-        public Builder contextMenu (Supplier<Set<MenuItem>> items)
+        public X contextMenu (Supplier<Set<MenuItem>> items)
         {
 
             this.contextMenuItemSupplier = items;
-            return this;
+            return _this ();
 
         }
 

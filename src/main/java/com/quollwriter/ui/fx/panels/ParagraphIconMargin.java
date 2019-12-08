@@ -13,6 +13,7 @@ import javafx.scene.input.*;
 import javafx.css.*;
 import javafx.scene.Node;
 import javafx.css.converter.*;
+import javafx.beans.value.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -110,35 +111,76 @@ public class ParagraphIconMargin extends Pane
     private Chapter chapter = null;
     private int paraNo = -1;
     private ProjectViewer viewer = null;
-    private Map<ChapterItem, Node> structureNodeMap = null;
-    private Map<Double, Node> noteNodePosMap = null;
-    private BiConsumer<ChapterItem, Node> itemNodeRegister = null;
-    private Consumer<ChapterItem> showItem = null;
+    private Set<Node> strucNodes = null;
+    private Set<Node> noteNodes = null;
+    private BiConsumer<ChapterItem, Node> showItem = null;
     private Function<IndexRange, List<ChapterItem>> getNewItems = null;
-    //private SetChangeListener<ChapterItem> itemListener = null;
-    private Number structureIndent = null;
-    private Function<ChapterItem, Double> getItemIndent = null;
+    private Pane editMarker = null;
+    private ChapterItemSorter sorter = new ChapterItemSorter ();
+
+    private ChangeListener<javafx.scene.Scene> sceneList = null;
 
     public ParagraphIconMargin (ProjectViewer                           viewer,
-                                TextEditor                              editor,
+                                ProjectChapterEditorPanelContent        editor,
                                 int                                     paraNo,
                                 Chapter                                 chapter,
-                                BiConsumer<ChapterItem, Node>           itemNodeRegister,
-                                Consumer<ChapterItem>                   showItem,
-                                Function<IndexRange, List<ChapterItem>> getNewItems,
-                                Function<ChapterItem, Double>           getItemIndent)
+                                BiConsumer<ChapterItem, Node>           showItem,
+                                Function<IndexRange, List<ChapterItem>> getNewItems)
     {
 
+        this.strucNodes = new TreeSet<> ((o1, o2) ->
+        {
+
+            if ((o1 == null)
+                ||
+                (o2 == null)
+               )
+            {
+
+                return -1;
+
+            }
+
+            return this.sorter.compare ((ChapterItem) o1.getUserData (),
+                                        (ChapterItem) o2.getUserData ());
+
+        });
+
+        this.noteNodes = new TreeSet<> ((o1, o2) ->
+        {
+
+            if ((o1 == null)
+                ||
+                (o2 == null)
+               )
+            {
+
+                return -1;
+
+            }
+
+            return this.sorter.compare ((ChapterItem) o1.getUserData (),
+                                        (ChapterItem) o2.getUserData ());
+
+        });
+
         this.paraNo = paraNo;
-        this.editor = editor;
+        this.editor = editor.getEditor ();
         this.chapter = chapter;
         this.viewer = viewer;
         this.noteIndent = new SimpleStyleableDoubleProperty (NOTE_INDENT, 0d);
-        this.structureItemIndent = new SimpleStyleableDoubleProperty (STRUCTUREITEM_INDENT, 0d);
-        this.itemNodeRegister = itemNodeRegister;
+        this.structureItemIndent = new SimpleStyleableDoubleProperty (STRUCTUREITEM_INDENT, 10d);
         this.showItem = showItem;
         this.getNewItems = getNewItems;
-        this.getItemIndent = getItemIndent;
+
+        this.editMarker = new Pane ();
+        this.editMarker.getStyleClass ().add (StyleClassNames.EDITMARKER);
+        this.editMarker.setVisible (false);
+        this.getChildren ().add (this.editMarker);
+
+        this.addStructureItems ();
+
+        this.addNoteItems ();
 
         final ParagraphIconMargin _this = this;
 
@@ -201,10 +243,9 @@ public class ParagraphIconMargin extends Pane
                     .onAction (eev ->
                     {
 
-                        this.viewer.runCommand (ProjectViewer.CommandId.newnote,
-                                                this.chapter,
-                                                this.editor.getTextPositionForMousePosition (0,
-                                                                                             ev.getY ()));
+                        this.viewer.createNewNote (this.chapter,
+                                                   this.editor.getTextPositionForMousePosition (0,
+                                                                                                ev.getY ()));
 
                     })
                     .build ());
@@ -218,10 +259,9 @@ public class ParagraphIconMargin extends Pane
                     .onAction (eev ->
                     {
 
-                        this.viewer.runCommand (ProjectViewer.CommandId.neweditneedednote,
-                                                this.chapter,
-                                                this.editor.getTextPositionForMousePosition (0,
-                                                                                             ev.getY ()));
+                        this.viewer.createNewEditNeededNote (this.chapter,
+                                                             this.editor.getTextPositionForMousePosition (0,
+                                                                                                          ev.getY ()));
 
                     })
                     .build ());
@@ -251,6 +291,105 @@ public class ParagraphIconMargin extends Pane
 
     }
 
+    public void removeItem (ChapterItem it)
+    {
+
+        Set<Node> nodes = null;
+
+        if (it instanceof Note)
+        {
+
+            nodes = this.noteNodes;
+
+        } else {
+
+            nodes = this.strucNodes;
+
+        }
+
+        Node n = nodes.stream ()
+            .filter (i -> ((ChapterItem) i.getUserData ()).equals (it))
+            .findFirst ()
+            .orElse (null);
+
+        nodes.remove (n);
+
+        this.getChildren ().remove (n);
+        return;
+
+    }
+
+    private void addNoteItems ()
+    {
+
+        IndexRange po = this.editor.getParagraphTextRange (this.paraNo);
+
+        Set<Note> its = this.getNotesForTextRange (po);
+
+        for (Note n : its)
+        {
+
+            ImageView iv = new ImageView ();
+            Pane riv = new Pane ();
+            riv.getChildren ().add (iv);
+            riv.getStyleClass ().add (n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE);
+            this.getChildren ().add (riv);
+
+            riv.setOnMouseClicked (ev ->
+            {
+
+                if (!ev.isPopupTrigger ())
+                {
+
+                    this.showItem.accept (n,
+                                          riv);
+
+                }
+
+                ev.consume ();
+
+            });
+
+            riv.setUserData (n);
+
+            this.noteNodes.add (riv);
+
+        }
+
+    }
+
+    private void addStructureItems ()
+    {
+
+        IndexRange po = this.editor.getParagraphTextRange (this.paraNo);
+
+        Set<ChapterItem> its = this.getStructureItemsForTextRange (po);
+
+        for (ChapterItem ci : its)
+        {
+
+            ImageView iv = new ImageView ();
+            Pane riv = new Pane ();
+            riv.getChildren ().add (iv);
+            riv.getStyleClass ().add ((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
+            this.getChildren ().add (riv);
+
+            riv.setOnMouseClicked (ev ->
+            {
+
+                this.showItem.accept (ci,
+                                      riv);
+
+            });
+
+            riv.setUserData (ci);
+
+            this.strucNodes.add (riv);
+
+        }
+
+    }
+
     public int getParagraph ()
     {
 
@@ -258,10 +397,52 @@ public class ParagraphIconMargin extends Pane
 
     }
 
-    public Node getStructureNodeForItem (ChapterItem i)
+    public Node getNodeForChapterItem (ChapterItem ci)
     {
 
-        return this.structureNodeMap.get (i);
+        Set<Node> nodes = null;
+
+        if (ci instanceof Note)
+        {
+
+            nodes = this.noteNodes;
+
+        } else {
+
+            nodes = this.strucNodes;
+
+        }
+
+        return nodes.stream ()
+            .filter (n -> ((ChapterItem) n.getUserData ()).equals (ci))
+            .findFirst ()
+            .orElse (null);
+
+    }
+
+    private Set<Note> getNotesForTextRange (IndexRange ir)
+    {
+
+        Set<Note> items = new TreeSet<> (new ChapterItemSorter ());
+
+        for (ChapterItem ci : this.getNewItems.apply (ir))
+        {
+
+            if (!(ci instanceof Note))
+            {
+
+                continue;
+
+            }
+
+            items.add ((Note) ci);
+
+        }
+
+        items.addAll (this.<Note>getItemsForTextRange (ir,
+                                                 this.chapter.getNotes ()));
+
+        return items;
 
     }
 
@@ -269,6 +450,20 @@ public class ParagraphIconMargin extends Pane
     {
 
         Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
+
+        for (ChapterItem ci : this.getNewItems.apply (ir))
+        {
+
+            if (ci instanceof Note)
+            {
+
+                continue;
+
+            }
+
+            items.add (ci);
+
+        }
 
         items.addAll (this.getItemsForTextRange (ir,
                                                  this.chapter.getScenes ()));
@@ -316,7 +511,7 @@ public class ParagraphIconMargin extends Pane
             .filter (i ->
             {
 
-                Bounds b = this.editor.getBoundsForPosition (i.getPosition () + 5);
+                Bounds b = this.editor.getBoundsForPosition (i.getPosition ());
 
                 return (b != null) && b.getMinY () == y;
 
@@ -324,6 +519,55 @@ public class ParagraphIconMargin extends Pane
             .collect (Collectors.toSet ());
 
     }
+
+    private Map<Double, Set<Node>> mapNodesToPosition (Set<Node> its)
+    {
+
+        Map<Double, Set<Node>> ret = new HashMap<> ();
+
+        for (Node t : its)
+        {
+
+            ChapterItem ci = (ChapterItem) t.getUserData ();
+
+            if (ci.getKey () < 0)
+            {
+
+                continue;
+
+            }
+
+            int p = ci.getPosition ();
+
+            Bounds cb = this.editor.getBoundsForPosition (p);
+
+            if (cb == null)
+            {
+
+                continue;
+
+            }
+
+            double y = cb.getMinY ();
+
+            Set<Node> items = ret.get (y);
+
+            if (items == null)
+            {
+
+                items = new LinkedHashSet<> ();
+                ret.put (y, items);
+
+            }
+
+            items.add (t);
+
+        }
+
+        return ret;
+
+    }
+
 
     private <T extends ChapterItem> Map<Double, Set<T>> mapItemsToPosition (Set<T> its)
     {
@@ -336,6 +580,13 @@ public class ParagraphIconMargin extends Pane
             int p = t.getPosition ();
 
             Bounds cb = this.editor.getBoundsForPosition (p);
+
+            if (cb == null)
+            {
+
+                continue;
+
+            }
 
             double y = cb.getMinY ();
 
@@ -382,47 +633,64 @@ public class ParagraphIconMargin extends Pane
 
     }
 
-    private void layoutNewItems (IndexRange po)
+    private double layoutNodeForItem (ChapterItem ci,
+                                      Node        n,
+                                      Bounds      thisb,
+                                      double      indent)
     {
 
-        Bounds thisb = this.localToScreen (this.getBoundsInLocal ());
+        int p = ci.getPosition ();
 
-        List<ChapterItem> newItems = this.getNewItems.apply (po);
+        Bounds cb = this.editor.getBoundsForPosition (p);
 
-        for (ChapterItem ci : newItems)
+        if (cb == null)
         {
 
-            int pos = ci.getPosition ();
-            Bounds cb = this.editor.getBoundsForPosition (pos);
+            //return 0;
 
-            if (cb == null)
-            {
+        }
 
-                continue;
+        double y = cb.getMinY ();
+        double h = n.prefHeight (-1);
+        double ny = y - thisb.getMinY () + (cb.getHeight () / 2) - (h / 2);
+        n.relocate (indent,
+                    ny);
 
-            }
+        return 0;
 
-            ImageView iv = new ImageView ();
-            Pane riv = new Pane ();
-            riv.getChildren ().add (iv);
+    }
 
-            riv.getStyleClass ().add (StyleClassNames.NEW);
-            riv.getStyleClass ().add ((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
+    private void layoutStructureItems (IndexRange paraRange,
+                                       Bounds     thisb)
+    {
 
-            this.getChildren ().add (riv);
-            riv.applyCss ();
-            riv.requestLayout ();
+        List<ChapterItem> newis = this.getNewItems.apply (paraRange);
+        ChapterItem newi = null;
 
-            this.itemNodeRegister.accept (ci,
-                                          riv);
+        if (newis.size () > 0)
+        {
 
-            double indent = 0;
+            newi = newis.get (0);
+
+        }
+
+        double newy = -1;
+        double indent = 0;
+
+        if ((newi != null)
+            &&
+            (!(newi instanceof Note))
+           )
+        {
+
+            Node n = this.getNodeForChapterItem (newi);
+            n.setVisible (true);
 
             if (this.structureItemIndent == null)
             {
 
                 // A default indent.
-                indent = this.getLayoutBounds ().getWidth () - riv.prefWidth (-1) - 4;
+                indent = this.getLayoutBounds ().getWidth () - n.prefWidth (-1) - 4;
 
             } else {
 
@@ -430,251 +698,203 @@ public class ParagraphIconMargin extends Pane
 
             }
 
-            riv.relocate (indent,
-                          cb.getMinY () - thisb.getMinY () + (cb.getHeight () / 2) - (riv.prefHeight (-1) / 2));
+            newy = this.layoutNodeForItem (newi,
+                                           n,
+                                           thisb,
+                                           indent);
+
+        }
+
+        double defIndent = this.structureItemIndent.getValue ();
+        double thisw = this.getLayoutBounds ().getWidth ();
+
+        Map<Double, Set<Node>> mapped = this.mapNodesToPosition (this.strucNodes);
+
+        for (Double y : mapped.keySet ())
+        {
+
+            Set<Node> nodes = mapped.get (y);
+
+            if (newy == y)
+            {
+
+                double _indent = indent;
+
+                nodes.stream ()
+                    .forEach (n ->
+                    {
+
+                        n.setVisible (false);
+                        this.layoutNodeForItem ((ChapterItem) n.getUserData (),
+                                                n,
+                                                thisb,
+                                                _indent);
+
+                    });
+
+                continue;
+
+            }
+
+            Node nfirst = null;
+            Bounds cb = null;
+            double h = -1;
+            double ny = newy;
+            //double indent = 0;
+
+            for (Node n : nodes)
+            {
+
+                n.setVisible (false);
+
+                if (nfirst == null)
+                {
+
+                    nfirst = n;
+                    nfirst.setVisible (true);
+
+                    if (this.structureItemIndent == null)
+                    {
+
+                        // A default indent.
+                        indent = thisw - nfirst.prefWidth (-1) - 4;
+
+                    } else {
+
+                        indent = defIndent;
+
+                    }
+
+                }
+
+                ny = this.layoutNodeForItem ((ChapterItem) n.getUserData (),
+                                             n,
+                                             thisb,
+                                             indent);
+
+/*
+                    ChapterItem ci = (ChapterItem) n.getUserData ();
+
+                    cb = this.editor.getBoundsForPosition (ci.getPosition ());
+                    h = nfirst.prefHeight (-1);
+                    ny = cb.getMinY () - thisb.getMinY () + (cb.getHeight () / 2) - (h / 2);
+
+                    if (this.structureItemIndent == null)
+                    {
+
+                        // A default indent.
+                        indent = this.getLayoutBounds ().getWidth () - nfirst.prefWidth (-1) - 4;
+
+                    } else {
+
+                        indent = this.structureItemIndent.getValue ();
+
+                    }
+*/
+                //}
+/*
+                n.relocate (indent,
+                            ny);
+*/
+            }
 
         }
 
     }
 
-    private void layoutStructureItems (IndexRange po)
+    private void layoutNotes (IndexRange paraRange,
+                              Bounds     thisb)
     {
 
-        this.structureNodeMap = new HashMap<> ();
+        double indent = 4;
 
-        Bounds thisb = this.localToScreen (this.getBoundsInLocal ());
-
-        Set<ChapterItem> its = this.getStructureItemsForTextRange (po);
-
-        Map<Double, Set<ChapterItem>> mitems = this.mapItemsToPosition (its);
-
-        for (Double y : mitems.keySet ())
+        if (this.noteIndent != null)
         {
 
-            Set<ChapterItem> items = mitems.get (y);
+            indent = this.noteIndent.getValue ();
 
-            ImageView iv = new ImageView ();
-            //Label iv = new Label ("POS: " + y);
-            Pane riv = new Pane ();
-            riv.getChildren ().add (iv);
+        }
 
-            ChapterItem first = items.iterator ().next ();
+        List<ChapterItem> newis = this.getNewItems.apply (paraRange);
+        ChapterItem newi = null;
 
-            if (items.size () == 1)
+        if (newis.size () > 0)
+        {
+
+            newi = newis.get (0);
+
+        }
+
+        double newy = -1;
+
+        if ((newi != null)
+            &&
+            (newi instanceof Note)
+           )
+        {
+
+            Node n = this.getNodeForChapterItem (newi);
+            n.setVisible (true);
+
+            newy = this.layoutNodeForItem (newi,
+                                           n,
+                                           thisb,
+                                           indent);
+
+        }
+
+        Map<Double, Set<Node>> mapped = this.mapNodesToPosition (this.noteNodes);
+
+        for (Double y : mapped.keySet ())
+        {
+
+            Set<Node> nodes = mapped.get (y);
+
+            if (newy == y)
             {
 
-                riv.getStyleClass ().add ((first instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
+                double _indent = indent;
 
-            } else {
+                nodes.stream ()
+                    .forEach (n ->
+                    {
 
-                riv.getStyleClass ().add (items.stream ().anyMatch (i -> i instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
+                        n.setVisible (false);
+                        this.layoutNodeForItem ((ChapterItem) n.getUserData (),
+                                                n,
+                                                thisb,
+                                                _indent);
+
+                    });
+
+                continue;
 
             }
 
-            this.getChildren ().add (riv);
+            Node nfirst = null;
+            Bounds cb = null;
+            double h = -1;
+            double ny = -1;
 
-            riv.applyCss ();
-            //riv.requestLayout ();
-
-            riv.setOnMouseClicked (ev ->
+            for (Node n : nodes)
             {
 
-                this.showItem.accept (first);
+                n.setVisible (false);
 
-            });
-
-            items.stream ()
-                .forEach (i ->
+                if (nfirst == null)
                 {
 
-                    this.itemNodeRegister.accept (i,
-                                                  riv);
+                    nfirst = n;
+                    n.setVisible (true);
 
-                    this.structureNodeMap.put (i,
-                                               riv);
+                }
 
-                });
-
-            double indent = 0;
-
-            if (this.structureItemIndent == null)
-            {
-
-                // A default indent.
-                indent = this.getLayoutBounds ().getWidth () - riv.prefWidth (-1) - 4;
-
-            } else {
-
-                //indent = this.structureIndent.doubleValue ();
-                indent = this.structureItemIndent.getValue ();
-                //indent = 20;
+                ny = this.layoutNodeForItem ((ChapterItem) n.getUserData (),
+                                             n,
+                                             thisb,
+                                             indent);
 
             }
-
-            Bounds cb = this.editor.getBoundsForPosition (first.getPosition ());
-
-            iv.relocate (indent,
-                         cb.getMinY () - thisb.getMinY () + (cb.getHeight () / 2) - (riv.prefHeight (-1) / 2));
-
-        }
-
-        if (true)
-        {
-            return;
-        }
-
-        for (ChapterItem ci : its)
-        {
-
-            Set<ChapterItem> items = this.getItemsForPosition (its,
-                                                               ci.getPosition ());
-
-            if (items.size () == 0)
-            {
-
-                continue;
-
-            }
-
-            ChapterItem _ci = items.iterator ().next ();
-            int pos = _ci.getPosition ();
-            Bounds cb = this.editor.getBoundsForPosition (pos);
-
-            if (cb == null)
-            {
-
-                continue;
-
-            }
-
-            //ImageView iv = new ImageView ();
-            Label iv = new Label ("POS: " + pos);
-            Pane riv = new Pane ();
-            riv.getChildren ().add (iv);
-
-            if (items.size () == 1)
-            {
-
-                riv.getStyleClass ().add ((_ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
-
-            } else {
-
-                riv.getStyleClass ().add (items.stream ().anyMatch (i -> i instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
-
-            }
-
-            this.getChildren ().add (riv);
-
-            //riv.applyCss ();
-            //riv.requestLayout ();
-
-            riv.setOnMouseClicked (ev ->
-            {
-
-                this.showItem.accept (_ci);
-
-            });
-
-            items.stream ()
-                .forEach (i ->
-                {
-
-                    this.itemNodeRegister.accept (i,
-                                                  riv);
-
-                    this.structureNodeMap.put (i,
-                                               riv);
-
-                });
-
-            double indent = 0;
-
-            if (this.structureItemIndent == null)
-            {
-
-                // A default indent.
-                indent = this.getLayoutBounds ().getWidth () - riv.prefWidth (-1) - 4;
-
-            } else {
-
-                //indent = this.structureIndent.doubleValue ();
-                indent = this.structureItemIndent.getValue ();
-                //indent = 20;
-
-            }
-
-            iv.relocate (indent,
-                         cb.getMinY () - thisb.getMinY () + (cb.getHeight () / 2) - (riv.prefHeight (-1) / 2));
-
-        }
-
-        super.layoutChildren ();
-
-    }
-
-    private void layoutNotes (IndexRange po)
-    {
-
-        this.noteNodePosMap = new HashMap<> ();
-
-        Bounds thisb = this.localToScreen (this.getBoundsInLocal ());
-
-        Set<Note> its = this.<Note>getItemsForTextRange (po,
-                                                         this.chapter.getNotes ());
-
-        for (Note n : its)
-        {
-
-            Set<Note> items = this.<Note>getItemsForPosition (its,
-                                                              n.getPosition ());
-
-            if (items.size () == 0)
-            {
-
-                continue;
-                //throw new IllegalStateException ("No structure items for position: " + ci.getPosition ());
-
-            }
-
-            Note _n = items.iterator ().next ();
-
-            Bounds cb = this.editor.getBoundsForPosition (_n.getPosition ());
-
-            if (cb == null)
-            {
-
-                continue;
-
-            }
-
-            ImageView iv = new ImageView ();
-            Pane riv = new Pane ();
-            riv.getChildren ().add (iv);
-
-            riv.getStyleClass ().add (_n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE);
-            this.getChildren ().add (riv);
-            riv.applyCss ();
-            riv.requestLayout ();
-
-            this.noteNodePosMap.put (cb.getMinY (),
-                                     riv);
-
-            double indent = 0;
-
-            if (this.noteIndent == null)
-            {
-
-                // A default indent.
-                indent = 4;
-
-            } else {
-
-                indent = this.noteIndent.getValue ();
-
-            }
-
-            riv.relocate (indent,
-                          cb.getMinY () - thisb.getMinY () + (cb.getHeight () / 2) - (riv.prefHeight (-1) / 2));
 
         }
 
@@ -684,21 +904,81 @@ public class ParagraphIconMargin extends Pane
     protected void layoutChildren ()
     {
 
-        this.getChildren ().clear ();
+        super.layoutChildren ();
+
+        if (!this.editor.isReadyForUse ())
+        {
+
+            return;
+
+        }
+
+        this.applyCss ();
 
         IndexRange po = this.editor.getParagraphTextRange (this.paraNo);
+        Bounds thisb = this.localToScreen (this.getBoundsInLocal ());
 
-        this.layoutStructureItems (po);
+        this.layoutStructureItems (po,
+                                   thisb);
 
-        //this.layoutNotes (po);
+        this.layoutNotes (po,
+                          thisb);
+                          if (true)
+                          {
+                              //return;
+                          }
+        this.editMarker.setVisible (false);
 
-        //this.layoutNewItems (po);
-
-        // TODO Draw a node to the right of the margin for the distance that has been edited.
         boolean edited = (this.chapter.isEditComplete ()
                           ||
                           (this.editor.getParagraphForOffset (this.chapter.getEditPosition ()) == this.paraNo)
                          );
+
+        if (UserProperties.isShowEditMarkerInChapter ()
+            &&
+            ((edited)
+             ||
+             (this.chapter.getEditPosition () >= po.getEnd ())
+            )
+           )
+        {
+
+            Bounds b = this.getLayoutBounds ();
+            this.editMarker.setVisible (true);
+            Bounds pb = null;
+
+            if (this.chapter.getEditPosition () > -1)
+            {
+
+                pb = this.editor.getBoundsForPosition (this.chapter.getEditPosition ());
+
+            }
+
+            double h = b.getHeight ();
+
+            if (pb != null)
+            {
+
+                pb = this.screenToLocal (pb);
+
+                if (pb == null)
+                {
+
+                    return;
+
+                }
+
+                h = pb.getMaxY ();
+
+            }
+
+            double w = this.editMarker.prefWidth (-1);
+            this.editMarker.setPrefHeight (h);
+            this.editMarker.autosize ();
+            this.editMarker.relocate (b.getMaxX () - w,
+                                      0);
+
+        }
 
         this.pseudoClassStateChanged (StyleClassNames.EDITED_PSEUDO_CLASS, edited);
 

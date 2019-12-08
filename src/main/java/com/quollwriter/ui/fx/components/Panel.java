@@ -161,14 +161,6 @@ public class Panel extends BaseVBox implements Stateful
 
         });
 
-        this.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
-                              ev ->
-        {
-
-            this.dispose ();
-
-        });
-
     }
 
     public static class Builder implements IBuilder<Builder, Panel>

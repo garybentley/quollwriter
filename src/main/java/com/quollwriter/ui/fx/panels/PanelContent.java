@@ -14,6 +14,8 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.data.IPropertyBinder;
+import com.quollwriter.data.PropertyBinder;
+
 
 /**
  * A base class for content that is suitable for display within a panel.
@@ -34,6 +36,7 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
     private BooleanProperty readyForUseProp = null;
     private Map<String, Command> actionMap = new HashMap<> ();
     private BackgroundPane background = null;
+    private PropertyBinder binder = new PropertyBinder ();
 
     //private BackgroundObject backgroundObject = null;
 
@@ -165,7 +168,14 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
     public IPropertyBinder getBinder ()
     {
 
-        return this.getPanel ().getBinder ();
+        return this.binder;
+
+    }
+
+    public void dispose ()
+    {
+
+        this.binder.dispose ();
 
     }
 
@@ -250,6 +260,14 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
         {
 
             this.panel = this.createPanel ();
+
+            this.panel.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
+                                        ev ->
+            {
+
+                this.dispose ();
+
+            });
 
         }
 

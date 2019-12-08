@@ -5,6 +5,12 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import javafx.scene.control.IndexRange;
+
+import org.fxmisc.richtext.model.*;
+
+import com.quollwriter.ui.fx.components.TextEditor;
+
 import com.gentlyweb.utils.*;
 
 public class Markup
@@ -228,7 +234,12 @@ public class Markup
 
     }
 
-    public List<MarkupItem> items = new ArrayList ();
+    public List<MarkupItem> items = new ArrayList<> ();
+
+    public Markup ()
+    {
+
+    }
 
     public Markup (Markup fromMarkup,
                    int    from,
@@ -319,6 +330,55 @@ public class Markup
             this.traverseElement (roots[i]);
 
         }
+
+    }
+
+    public Markup (TextEditor ed)
+    {
+
+        StyleSpans<TextEditor.TextStyle> ss = ed.getStyleSpans (0, ed.getText ().length ());
+
+        int from = 0;
+
+        for (StyleSpan<TextEditor.TextStyle> s : ss)
+        {
+
+            TextEditor.TextStyle t = s.getStyle ();
+
+            if ((t.isBold ())
+                ||
+                (t.isUnderline ())
+                ||
+                (t.isItalic ())
+               )
+            {
+
+                this.items.add (new MarkupItem (from,
+                                                from + s.getLength (),
+                                                t.isBold (),
+                                                t.isItalic (),
+                                                t.isUnderline ()));
+
+            }
+
+            from += s.getLength ();
+
+        }
+
+    }
+
+    public void addItem (int start,
+                         int end,
+                         boolean isBold,
+                         boolean isItalic,
+                         boolean isUnderline)
+    {
+
+        this.items.add (new MarkupItem (start,
+                                        end,
+                                        isBold,
+                                        isItalic,
+                                        isUnderline));
 
     }
 
@@ -450,6 +510,41 @@ public class Markup
                                     end - start,
                                     attrs,
                                     false);
+
+    }
+
+    public void apply (TextEditor ed)
+    {
+
+        for (MarkupItem i : this.items)
+        {
+
+            // TODO Put all 3 calls together?
+            if (i.bold)
+            {
+
+                ed.setBold (new IndexRange (i.start,
+                                            i.end));
+
+            }
+
+            if (i.italic)
+            {
+
+                ed.setItalic (new IndexRange (i.start,
+                                              i.end));
+
+            }
+
+            if (i.underline)
+            {
+
+                ed.setUnderline (new IndexRange (i.start,
+                                                 i.end));
+
+            }
+
+        }
 
     }
 

@@ -18,6 +18,11 @@ import com.quollwriter.ui.forms.*;
 
 import org.jdom.*;
 
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.QuollCheckBox;
+
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
 
 public class PassiveSentenceRule extends AbstractSentenceRule
 {
@@ -36,6 +41,8 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     private boolean ignoreInDialogue = false;
 
     private CheckboxFormItem ignoreDialogueF = null;
+
+    private QuollCheckBox ignoreDialogueF2 = null;
 
     public PassiveSentenceRule ()
     {
@@ -387,10 +394,37 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     }
 
     @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        List<String> pref = Arrays.asList (LanguageStrings.problemfinder,LanguageStrings.config,LanguageStrings.rules,LanguageStrings.passivesentence,LanguageStrings.labels);
+
+        this.ignoreDialogueF2 = QuollCheckBox.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (pref,ignoreindialogue)))
+            .selected (this.ignoreInDialogue)
+            .build ();
+
+        items.add (new Form.Item (this.ignoreDialogueF2));
+
+        return items;
+
+    }
+
+    @Override
     public String getFormError ()
     {
 
         return null;
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
+    {
+
+        this.ignoreInDialogue = this.ignoreDialogueF2.isSelected ();
 
     }
 

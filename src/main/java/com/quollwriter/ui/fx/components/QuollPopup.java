@@ -240,6 +240,16 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         if (b.show)
         {
 
+            if (b.showAt != null)
+            {
+
+                this.show (b.showAt,
+                           b.showWhere != null ? b.showWhere : Side.BOTTOM);
+
+                return;
+
+            }
+
             this.show ();
 
         }
@@ -410,6 +420,26 @@ _this.moving = false;
 
         this.fireEvent (new PopupEvent (this,
                                         PopupEvent.CLOSED_EVENT));
+
+    }
+
+    public void setOnClose (Runnable r)
+    {
+
+        this.onClose = r;
+
+    }
+
+    public void show (Node showAt,
+                      Side showWhere)
+    {
+
+        this.viewer.showPopup (this,
+                               showAt,
+                               showWhere);
+
+       this.fireEvent (new PopupEvent (this,
+                                       PopupEvent.SHOWN_EVENT));
 
     }
 
@@ -638,6 +668,13 @@ _this.moving = false;
 
             }
 
+            if (this.validator == null)
+            {
+
+                throw new IllegalStateException ("A validator for the text entry must be provided.");
+
+            }
+
             Form f = Form.builder ()
                 .styleClassName (StyleClassNames.TEXTENTRY)
                 .description (this.description)
@@ -667,8 +704,17 @@ _this.moving = false;
 
                 }
 
-                this.onConfirm.handle (new Form.FormEvent (f,
-                                                           Form.FormEvent.CONFIRM_EVENT));
+                Form.FormEvent ev = new Form.FormEvent (f,
+                                                        Form.FormEvent.CONFIRM_EVENT);
+
+                this.onConfirm.handle (ev);
+
+                if (ev.isConsumed ())
+                {
+
+                    return;
+
+                }
 
                 qp.close ();
 
@@ -816,8 +862,46 @@ _this.moving = false;
 
         }
 
+        public X button (Button bs)
+        {
+
+            if (this.buttons == null)
+            {
+
+                this.buttons = new LinkedHashSet<> ();
+
+            }
+
+            this.buttons.add (bs);
+            return _this ();
+
+        }
+
+        public X buttons (Button... bs)
+        {
+
+            if (this.buttons != null)
+            {
+
+                throw new IllegalStateException ("Buttons is already defined.");
+
+            }
+
+            this.buttons = new LinkedHashSet<> ();
+            this.buttons.addAll (Arrays.asList (bs));
+            return _this ();
+
+        }
+
         public X buttons (Set<Button> bs)
         {
+
+            if (this.buttons != null)
+            {
+
+                throw new IllegalStateException ("Buttons is already defined.");
+
+            }
 
             this.buttons = bs;
             return _this ();
@@ -1124,6 +1208,8 @@ _this.moving = false;
         private PopupsViewer viewer = null;
         private boolean show = false;
         private boolean removeOnClose = false;
+        private Node showAt = null;
+        private Side showWhere = null;
 
         protected Builder ()
         {
@@ -1143,6 +1229,16 @@ _this.moving = false;
         {
 
             return (X) this;
+
+        }
+
+        public X showAt (Node n,
+                         Side where)
+        {
+
+            this.showAt = n;
+            this.showWhere = where;
+            return _this ();
 
         }
 

@@ -4,6 +4,7 @@ import java.util.*;
 
 import javafx.scene.Node;
 import javafx.scene.layout.*;
+import javafx.scene.control.IndexRange;
 
 import javafx.beans.property.*;
 
@@ -15,6 +16,7 @@ import com.quollwriter.editors.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.panels.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -25,6 +27,7 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
     private static final String POPUP_ID = "viewchapteritem";
     private Set<ChapterItem> items = null;
     private PropertyBinder binder = new PropertyBinder ();
+    private TextEditor.Highlight highlight = null;
 
     public ViewChapterItemPopup (ProjectViewer    viewer,
                                  Set<ChapterItem> items)
@@ -72,6 +75,35 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
 
         }
 
+
+        if (items.size () == 1)
+        {
+
+            ChapterItem ci = items.iterator ().next ();
+
+            if (ci instanceof Note)
+            {
+
+                Note n = (Note) ci;
+
+                if (n.isEditNeeded ())
+                {
+
+                    if (n.getEndPosition () > n.getStartPosition ())
+                    {
+
+                        this.highlight = this.viewer.getEditorForChapter (n.getChapter ()).getEditor ().addHighlight (new IndexRange (n.getStartPosition (),
+                                                                                                                                      n.getEndPosition ()),
+                                                                                                                      UserProperties.getEditNeededNoteChapterHighlightColor ());
+
+                    }
+
+                }
+
+            }
+
+        }
+
         last.pseudoClassStateChanged (StyleClassNames.LAST_PSEUDO_CLASS, true);
 
         this.getChildren ().add (b);
@@ -108,6 +140,17 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
 
             this.binder.dispose ();
 
+            ChapterItem ci = this.items.iterator ().next ();
+
+            ProjectChapterEditorPanelContent ed = this.viewer.getEditorForChapter (ci.getChapter ());
+
+            if (ed != null)
+            {
+
+                ed.getEditor ().removeHighlight (this.highlight);
+
+            }
+
         });
 
         return p;
@@ -124,13 +167,21 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
     public ChapterItemFormatter getChapterItemFormatter (ChapterItem     ci)
     {
 
+        Runnable r = () ->
+        {
+
+            this.close ();
+
+        };
+
         // TODO Make nicer.
         if (ci instanceof com.quollwriter.data.Scene)
         {
 
             return new SceneItemFormatter (this.viewer,
                                            this.binder,
-                                           (com.quollwriter.data.Scene) ci);
+                                           (com.quollwriter.data.Scene) ci,
+                                           r);
 
         }
 
@@ -139,7 +190,8 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
 
             return new OutlineItemFormatter (this.viewer,
                                              this.binder,
-                                             (com.quollwriter.data.OutlineItem) ci);
+                                             (com.quollwriter.data.OutlineItem) ci,
+                                             r);
 
         }
 
@@ -148,7 +200,8 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
 
             return new NoteItemFormatter (this.viewer,
                                           this.binder,
-                                          (com.quollwriter.data.Note) ci);
+                                          (com.quollwriter.data.Note) ci,
+                                          r);
 
         }
 

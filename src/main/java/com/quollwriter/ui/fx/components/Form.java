@@ -19,8 +19,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class Form extends VBox
 {
 
-    private BasicHtmlTextFlow error = null;
     private HBox errorBox = null;
+    private URLActionHandler errorHandler = null;
     private QuollButtonBar buttonBar = null;
 
     public enum LayoutType
@@ -64,13 +64,16 @@ public class Form extends VBox
         this.errorBox = new HBox ();
         this.errorBox.getStyleClass ().add (StyleClassNames.ERROR);
         ImageView img = new ImageView ();
+        /*
         this.error = BasicHtmlTextFlow.builder ()
             .styleClassName (StyleClassNames.MESSAGE)
             .withHandler (b.handler)
             .build ();
         HBox.setHgrow (this.error,
                        Priority.ALWAYS);
-        this.errorBox.getChildren ().addAll (img, this.error);
+                       */
+        //this.errorBox.getChildren ().addAll (img, this.error);
+        this.errorHandler = b.handler;
         this.errorBox.managedProperty ().bind (this.errorBox.visibleProperty ());
         this.errorBox.setVisible (false);
         this.getChildren ().add (this.errorBox);
@@ -168,6 +171,22 @@ public class Form extends VBox
 
                 }
 
+                if (c instanceof QuollTextArea)
+                {
+
+                    QuollTextArea tf = (QuollTextArea) c;
+
+                    UIUtils.addDoOnReturnPressed (tf,
+                                                  () ->
+                    {
+
+                        this.fireEvent (new FormEvent (this,
+                                                       FormEvent.CONFIRM_EVENT));
+
+                    });
+
+                }
+
                 VBox cb = new VBox ();
                 cb.getChildren ().add (c);
                 cb.setFillWidth (true);
@@ -247,12 +266,42 @@ public class Form extends VBox
 
     }
 
+    public void showErrors (Set<StringProperty> errs)
+    {
+
+        this.showErrors (errs.toArray (new StringProperty[0]));
+
+    }
+
+    public void showErrors (StringProperty... errs)
+    {
+
+        this.errorBox.getChildren ().clear ();
+
+        for (StringProperty s : errs)
+        {
+
+            Node n = BasicHtmlTextFlow.builder ()
+                .styleClassName (StyleClassNames.MESSAGE)
+                .withHandler (this.errorHandler)
+                .text (s)
+                .build ();
+
+            this.errorBox.getChildren ().add (n);
+            HBox.setHgrow (n,
+                           Priority.ALWAYS);
+
+        }
+
+        this.errorBox.setVisible (errs.length > 0);
+
+    }
+
     // TODO Add support for multiple errors.
     public void showError (StringProperty err)
     {
 
-        this.error.textProperty ().bind (err);
-        this.errorBox.setVisible (true);
+        this.showErrors (err);
 
     }
 
@@ -572,11 +621,30 @@ public class Form extends VBox
 
     }
 
-    private static class Item
+    public static class Item
     {
 
         public Label label = null;
         public Node control = null;
+
+        public Item (Node c)
+        {
+
+            this.control = c;
+
+        }
+
+        public Item (StringProperty l,
+                     Node           c)
+        {
+
+            this.label = QuollLabel.builder ()
+                .label (l)
+                .build ();
+
+            this.control = c;
+
+        }
 
         public Item (Label l,
                      Node  c)

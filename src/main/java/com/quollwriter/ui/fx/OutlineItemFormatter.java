@@ -15,12 +15,14 @@ public class OutlineItemFormatter extends AbstractChapterItemFormatter<OutlineIt
 
     public OutlineItemFormatter (ProjectViewer   viewer,
                                  IPropertyBinder binder,
-                                 OutlineItem     item)
+                                 OutlineItem     item,
+                                 Runnable        onNewPopupShown)
     {
 
         super (viewer,
                binder,
-               item);
+               item,
+               onNewPopupShown);
 
     }
 
@@ -32,6 +34,7 @@ public class OutlineItemFormatter extends AbstractChapterItemFormatter<OutlineIt
 
         String desc = this.item.getDescription ().getMarkedUpText ();
 
+        // TODO Change to use a QuollTextView.
         BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
             .text (desc)
             .styleClassName (StyleClassNames.DESCRIPTION)

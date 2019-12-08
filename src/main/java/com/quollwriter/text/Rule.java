@@ -5,10 +5,14 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import javafx.beans.property.*;
+
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.forms.*;
+//import com.quollwriter.ui.forms.*;
+
+import com.quollwriter.ui.fx.components.Form;
 
 import org.jdom.*;
 
@@ -53,11 +57,15 @@ public interface Rule<E extends TextBlock>
 
     public String getEditFormTitle (boolean add);
 
-    public Form getEditForm (ActionListener        onSaveComplete,
+    public com.quollwriter.ui.forms.Form getEditForm (ActionListener        onSaveComplete,
                              ActionListener        onCancel,
                              AbstractProjectViewer viewer,
                              boolean               add);
 
     public void updateFromForm ();
+    public void updateFromForm2 ();
+
+    public Set<Form.Item> getFormItems2 ();
+    public StringProperty getFormError2 ();
 
 }

@@ -32,6 +32,8 @@ public class BasicHtmlTextFlow extends TextFlow
 
         this.textProp = new SimpleStringProperty ();
         this.urlActionHandler = b.urlActionHandler;
+        this.managedProperty ().bind (this.visibleProperty ());
+        this.maxHeightProperty ().bind (this.prefHeightProperty ());
 
         if (b.styleName != null)
         {
@@ -83,6 +85,48 @@ public class BasicHtmlTextFlow extends TextFlow
 
     }
 
+    public StringWithMarkup getText ()
+    {
+
+        Markup m = new Markup ();
+        StringBuilder b = new StringBuilder ();
+
+        int pos = 0;
+
+        for (Node i : this.getChildren ())
+        {
+
+            if (i instanceof Text)
+            {
+
+                Text it = (Text) i;
+
+                b.append (it.getText ());
+
+                if (it.getStyleClass ().size () > 0)
+                {
+
+                    String s = it.getStyleClass ().get (0);
+
+                    m.addItem (pos,
+                               pos + it.getText ().length (),
+                               s.equals ("b"),
+                               s.equals ("i"),
+                               s.equals ("u"));
+
+                }
+
+                pos += it.getText ().length ();
+
+            }
+
+        }
+
+        return new StringWithMarkup (b.toString (),
+                                     m);
+
+    }
+
     private void update ()
     {
 
@@ -103,6 +147,10 @@ public class BasicHtmlTextFlow extends TextFlow
             return;
 
         }
+
+        text = StringUtils.replaceString (text,
+                                          "\n",
+                                          "<br />");
 
         org.jsoup.nodes.Document doc = Jsoup.parse (text);
 
@@ -134,6 +182,29 @@ public class BasicHtmlTextFlow extends TextFlow
 
                     Text _t = new Text ("\n");
                     children.add (_t);
+                    continue;
+
+                }
+
+                if (el.tagName ().equalsIgnoreCase ("span"))
+                {
+
+                    Text _t = new Text (el.ownText ());
+                    children.add (_t);
+
+                    String cl = el.attr ("class");
+
+                    if (cl != null)
+                    {
+
+                        for (int i = 0; i < cl.length (); i++)
+                        {
+
+                            _t.getStyleClass ().add (cl.charAt (i) + "");
+
+                        }
+
+                    }
                     continue;
 
                 }

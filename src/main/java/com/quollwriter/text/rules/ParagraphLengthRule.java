@@ -6,6 +6,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import javafx.scene.control.*;
+import javafx.scene.control.SpinnerValueFactory.*;
+
 import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
@@ -14,9 +17,14 @@ import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.forms.*;
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.*;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class ParagraphLengthRule extends AbstractParagraphRule
 {
@@ -33,6 +41,9 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     private int wordCount = 0;
     private JSpinner sentCountF = null;
     private JSpinner wordCountF = null;
+
+    private Spinner<Integer> sentCountF2 = null;
+    private Spinner<Integer> wordCountF2 = null;
 
     public ParagraphLengthRule ()
     {
@@ -261,6 +272,37 @@ public class ParagraphLengthRule extends AbstractParagraphRule
                                     b));
 
         return items;
+
+    }
+
+    @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        List<String> pref = Arrays.asList (problemfinder,config,rules,paragraphlength,labels);
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        this.wordCountF2 = new Spinner<> (new IntegerSpinnerValueFactory (1, 500, this.wordCount, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,words)),
+                                  this.wordCountF2));
+
+        this.sentCountF2 = new Spinner<> (new IntegerSpinnerValueFactory (1, 500, this.sentenceCount, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,sentences)),
+                                  this.sentCountF2));
+
+        return items;
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
+    {
+
+        this.sentenceCount = this.sentCountF2.getValue ();
+        this.wordCount = this.wordCountF2.getValue ();
 
     }
 

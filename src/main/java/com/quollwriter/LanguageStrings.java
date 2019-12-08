@@ -7,10 +7,12 @@ public class LanguageStrings
     public static final String settingsmenu = "settingsmenu";
     public static final String items = "items";
 
+    public static final String wordseparator = "wordseparator";
     public static final String current = "current";
     public static final String basefontsize = "basefontsize";
     public static final String basefontsizeless = "basefontsizeless";
     public static final String basefontsizemore = "basefontsizemore";
+    public static final String basefont = "basefont";
     public static final String languagenames = "languagenames";
     public static final String createdbyyou = "createdbyyou";
     public static final String renameproject = "renameproject";
@@ -469,6 +471,7 @@ public class LanguageStrings
     public static final String print = "print";
     public static final String convert = "convert";
     public static final String notetypes = "notetypes";
+    public static final String gotoeditposition = "gotoeditposition";
     public static final String removeeditposition = "removeeditposition";
     public static final String seteditcomplete = "seteditcomplete";
     public static final String showchapterinfo = "showchapterinfo";

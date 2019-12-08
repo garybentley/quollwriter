@@ -39,7 +39,7 @@
     /*
      * The standard drop shadow.
      */
-    -qw-drop-shadow: dropshadow(gaussian, -qw-border-color, 30, 0.5, 0, 0);
+    -qw-drop-shadow: dropshadow(gaussian, -qw-component-border-color, 1.5em, 0.3, 0, 0);
 
     /*
      * The popup width.
@@ -77,13 +77,30 @@ Text
     -fx-font-smoothing-type: gray;
 }
 
-.header .title
+.header .title,
+.label,
+.check-box,
+.radio-button,
+.list-cell
 {
     -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-fill: -fx-text-base-color;
 }
 
 .check-box
 {
+    -fx-cursor: hand;
+}
+
+.qcheckbox
+{
+    -fx-alignment: center-left;
+}
+
+.qcheckbox .text
+{
+    -fx-padding: 0 0.25em 0 0.25em;
     -fx-cursor: hand;
 }
 
@@ -115,7 +132,7 @@ Text
 
 .hyperlink
 {
-    -fx-text-fill: blue;
+    -fx-text-fill: -qw-hyperlink-color;
     -fx-graphic-text-gap: 0.25em;
     -fx-padding: 0;
     -fx-underline: false;
@@ -196,14 +213,19 @@ Text
     -fx-padding: 0px;
 }
 
-.list-view
-{
-    -fx-min-height: 20em;
-}
-
 .combo-box .list-view
 {
     -fx-min-height: 0px;
+}
+
+.list-view *:even, .list-view *:odd
+{
+    /*-fx-background-color: transparent;*/
+}
+
+.list-view *:selected
+{
+    -fx-background-color: -qw-component-border-color;
 }
 
 /*
@@ -780,6 +802,35 @@ Text
  Icons for menu items.
  The > * > for menu-items is deliberate and used to prevent cascade issues for submenus.
  */
+.menu-item.add .image-view,
+.button.add
+{
+    -fx-image: url(/imgs/add16.png);
+    -fx-graphic: url(/imgs/add16.png);
+}
+
+.menu-item.convert .image-view,
+.menu-button.convert,
+.button.convert
+{
+    -fx-image: url(/imgs/convert16.png);
+    -fx-graphic: url(/imgs/convert16.png);
+}
+
+.menu-item.star .image-view,
+.button.star
+{
+    -fx-image: url(/imgs/star16.png);
+    -fx-graphic: url(/imgs/star16.png);
+}
+
+.menu-item.up .image-view,
+.button.up
+{
+    -fx-image: url(/imgs/up16.png);
+    -fx-graphic: url(/imgs/up16.png);
+}
+
 .menu-item.chapter .image-view,
 .button.chapter
 {
@@ -801,7 +852,8 @@ Text
     -fx-graphic: url(/imgs/outlineitem16.png);
 }
 .menu-item.editneedednote .image-view,
-.button.editneedednote
+.button.editneedednote,
+.texteditor .margin .editneedednote .image-view
 {
     -fx-image: url(/imgs/edit-needed-note16.png);
     -fx-graphic: url(/imgs/edit-needed-note16.png);
@@ -809,7 +861,9 @@ Text
 
 .menu-item.note .image-view,
 .menu-item.note .image-view.note,
-.button.note
+.button.note,
+.texteditor .margin .note .image-view
+
 {
     -fx-image: url(/imgs/note16.png);
     -fx-graphic: url(/imgs/note16.png);
@@ -821,13 +875,22 @@ Text
 {
     -fx-image: url(/imgs/add16.png);
 }
+
+.button.cancel,
 .menu-item.cancel .image-view,
 .menu-item.novalue .image-view,
 .menu-item.removeeditposition .image-view,
+.menu-item.ignore .image-view,
 .button.removeeditposition
 {
     -fx-graphic: url(/imgs/cancel16.png);
     -fx-image: url(/imgs/cancel16.png);
+}
+.menu-item.gotoeditposition .image-view,
+.button.gotoeditposition
+{
+    -fx-graphic: url(/imgs/down-arrow16.png);
+    -fx-image: url(/imgs/down-arrow16.png);
 }
 .menu-item.noimage > .image-view
 {
@@ -842,6 +905,18 @@ Text
 {
     -fx-image: url(/imgs/edit16.png);
     -fx-graphic: url(/imgs/edit16.png);
+}
+.menu-item.refresh .image-view,
+.button.refresh
+{
+    -fx-image: url(/imgs/restore16.png);
+    -fx-graphic: url(/imgs/restore16.png);
+}
+.menu-item.config .image-view,
+.button.config
+{
+    -fx-image: url(/imgs/config16.png);
+    -fx-graphic: url(/imgs/config16.png);
 }
 .menu-item.delete .image-view,
 .button.delete
@@ -877,7 +952,12 @@ Text
     -fx-image: url(/imgs/star16.png);
 }
 .menu-item.wordcount .image-view  { -fx-image: url(/imgs/wordcount16.png); }
-.menu-item.selectbg .image-view { -fx-image: url(/imgs/bg-select16.png); }
+.menu-item.selectbg .image-view,
+.button.selectbg
+{
+    -fx-image: url(/imgs/bg-select16.png);
+    -fx-graphic: url(/imgs/bg-select16.png);
+}
 .menu-item.open .image-view { -fx-image: url(/imgs/open-project16.png); }
 .menu-item.remove .image-view { -fx-image: url(/imgs/warning16.png); }
 .menu-item.edit > * > .image-view
@@ -976,6 +1056,13 @@ Text
 {
     -fx-graphic: url(/imgs/edit-in-progress16.png);
     -fx-image: url(/imgs/edit-in-progress16.png);
+}
+
+.menu-item.information .image-view,
+.button.information
+{
+    -fx-image: url(/imgs/information16.png);
+    -fx-graphic: url(/imgs/information16.png);
 }
 
 .menu-item.addword .image-view,
@@ -1091,10 +1178,16 @@ Text
 
 .controls .button,
 .toolbar .button,
+.tool-bar .button,
 .toolbar .menu-button,
+.tool-bar .menu-button,
 .controls .menu-button,
 .chapterinfo .buttons .button,
-.qpopup.chapteritem.view .buttons .button
+.qpopup.chapteritem.view .buttons .button,
+.qpopup.problemfinderconfig .rule .buttons .button,
+.qpopup.problemfinderconfig .button.add,
+.qpopup.problemfinderconfig .menu-button.add,
+.qpopup.problemfinderconfig .button.delete
  {
      -fx-border-color: transparent;
      -fx-border-width: 1px;
@@ -1110,6 +1203,10 @@ Text
 .controls .menu-button:focused,
 .toolbar .button:hover,
 .toolbar .button:focused,
+.tool-bar .button:hover,
+.tool-bar .button:focused,
+.tool-bar .menu-button:hover,
+.tool-bar .menu-button:focused,
 .toolbar .menu-button:hover,
 .toolbar .menu-button:focused,
 .toolbar .menu-button:hover,
@@ -1117,7 +1214,15 @@ Text
 .chapterinfo .buttons .button:hover,
 .chapterinfo .buttons .button:focused,
 .qpopup.chapteritem.view .buttons .button:hover,
-.qpopup.chapteritem.view .buttons .button:focused
+.qpopup.chapteritem.view .buttons .button:focused,
+.qpopup.problemfinderconfig .rule .buttons .button:hover,
+.qpopup.problemfinderconfig .rule .buttons .button:focused,
+.qpopup.problemfinderconfig .button.add:hover,
+.qpopup.problemfinderconfig .button.add:focused,
+.qpopup.problemfinderconfig .menu-button.add:hover,
+.qpopup.problemfinderconfig .menu-button.add:focused,
+.qpopup.problemfinderconfig .button.delete:hover,
+.qpopup.problemfinderconfig .button.delete:focused
  {
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
@@ -1127,8 +1232,15 @@ Text
 .controls .menu-button:armed,
 .toolbar .button:armed,
 .toolbar .menu-button:armed,
+.tool-bar .button:armed,
+.tool-bar .menu-button:armed,
 .chapterinfo .buttons .button:armed,
-.qpopup.chapteritem.view .buttons .button:armed
+.qpopup.chapteritem.view .buttons .button:armed,
+.qpopup.problemfinderconfig .rule .buttons .button:armed,
+.qpopup.problemfinderconfig .button.add:armed,
+.qpopup.problemfinderconfig .menu-button.add:armed,
+.qpopup.problemfinderconfig .button.delete:armed,
+.qpopup.problemfinderconfig .menu-button.delete:armed
  {
      -fx-background-color: -qw-armed-bg;
  }
@@ -1187,6 +1299,7 @@ Text
 .viewer .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
 .viewer .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
 .viewer .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
+.viewer .header .controls .help { -fx-graphic: url(/imgs/help24.png); }
 .viewer .header .controls .contacts,
 .fullscreen .header .contacts { -fx-graphic: url(/imgs/editors24.png); }
 .fullscreen .header .distractionfreeenter { -fx-graphic: url(/imgs/distraction-free24.png); }
@@ -1209,7 +1322,7 @@ Text
     -fx-border-width: 1px;
 }
 
-.menu-item:hover, .menu-item:focused
+.menu-item:hover, .menu-item:focused, .context-menu .menu-item:hover
 {
     -fx-background-color: -qw-focus-color;
 }
@@ -1277,7 +1390,7 @@ Text
 
 .panel
 {
-    -fx-background-color: #ffffff;
+    -fx-background-color: -qw-bg-color;
 }
 
 .panel .header
@@ -1305,7 +1418,7 @@ Text
 
 .panel.allprojects .projectslist .project .header .controls
 {
-    visibility: hidden;
+    visibility: false;
 }
 
 .panel.allprojects .projectslist .project .header .title, .changeprojectdisplay .example.project .header .title
@@ -1348,8 +1461,10 @@ Text
 {
     -fx-hbar-policy: as-needed;
     -fx-vbar-policy: as-needed;
+    /*
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
+    */
     -fx-pannable: true;
     -fx-background-insets: 0;
 }
@@ -1360,6 +1475,14 @@ Text
     -fx-unit-increment: 100;
 }
 
+.panel.allprojects .scroll-pane
+{
+    -fx-vbar-policy: as-needed;
+    -fx-hbar-policy: as-needed;
+    -fx-fit-to-height: false;
+    -fx-fit-to-width: true;
+}
+
 .panel.allprojects .projectslist
 {
     -fx-hgap: 0.75em;
@@ -1368,6 +1491,8 @@ Text
     -fx-row-valignment: top;
     -fx-alignment: top-center;
     -fx-orientation: horizontal;
+    /* All items in the projects list have the same width (column width), the rule below defines that width */
+    -qw-item-width: 25em;
 }
 
 /*
@@ -1729,7 +1854,7 @@ Text
 {
     -fx-alignment: center;
     -fx-max-height: 6em;
-    -fx-background-color: white;
+    -fx-background-color: -qw-bg-color;
 }
 
 .layout .tabs .text
@@ -1818,6 +1943,46 @@ Text
     -fx-text-fill: -fx-text-base-color;
 }
 
+.root:night .choice-box,
+.root:night .combo-box
+{
+    -fx-background-color: -qw-bg-color;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.combo-box .combo-box-popup
+{
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+}
+
+.context-menu,
+.choice-box
+{
+    -fx-background-color: -qw-bg-color;
+}
+
+.root:night .combo-box .combo-box-popup .list-view, .root:night .combo-box .combo-box-popup .list-cell
+{
+-fx-background-color: -qw-bg-color;
+}
+
+.root.popup
+{
+    -fx-background-color: blue;
+}
+
+.root:night .menu-item .label
+{
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.root:night .button,
+.root:night .list-cell
+{
+    -fx-text-fill: -fx-text-base-color;
+}
+
 .button:hover{
     -fx-background-color:
         rgb(60,127,177),
@@ -1893,6 +2058,10 @@ Text
 
     -fx-text-base-color: #ffffff;
 
+    -qw-hyperlink-color: lightblue;
+
+    -qw-component-border-color: #ffffff;
+
 }
 
 .viewer.allprojects .projectslist .project:hover .title, .viewer.allprojects .projectslist .project:hover .info
@@ -1925,25 +2094,17 @@ Text
     -fx-background-insets: 0;
 }
 
-.text-area
+.qtextara
 {
-    -fx-pref-row-count: 10;
-    -fx-wrap-text: true;
+    -fx-pref-height: 10em;
+}
+
+.qtextarea, .form .control .qtextarea.description
+{
     -fx-border-style: solid;
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
     -fx-padding: 0.2em;
-    -fx-pref-column-count: 60;
-    -fx-background-insets: 0;
-    -fx-background-color: transparent;
-    -fx-min-height: 200px;
-}
-
-.text-area .scroll-pane .content, .text-area .scroll-pane
-{
-    -fx-padding: 0;
-    -fx-background-insets: 0;
-    -fx-background-color: transparent;
 }
 
 .qtextarea .max
@@ -1984,11 +2145,13 @@ Text
      -fx-padding: 0.5em 0.75em 0.5em 0.75em;
      -fx-pref-width: -qw-popup-width;
      -fx-min-width: -qw-popup-width;
+     -fx-background-color: -qw-bg-color;
 }
 
  .qpopup .header
  {
      -fx-padding: 0 0 0 0.5em;
+     -fx-background-color: -qw-bg-color;
  }
 
  .qpopup .header .title
@@ -2017,16 +2180,27 @@ Text
      -fx-padding: 1em 0.5em 0.5em 0.5em;
  }
 
+.qpopup .buttons .button
+{
+    -fx-content-display: text-only;
+}
+
  .qpopup .form .buttons
  {
      -fx-alignment: center-left;
      -fx-padding: 0.5em 0.5em 0.5em 1em;
  }
 
-.qpopup.delete .buttons, .qpopup .form.textentry .buttons
+.qpopup .form.textentry .buttons
 {
     -fx-alignment: center-left;
     -fx-padding: 0.5em 0.5em 0.5em 0em;
+}
+
+.qpopup.delete .buttons
+{
+    -fx-aligment: center;
+    -fx-padding: 1em 0.5em 0.5em 0;
 }
 
 .qpopup.add .header .icon { -fx-image: url(/imgs/add16.png); }
@@ -2085,6 +2259,14 @@ Text
 }
 
 /*
+ * New chapter popup (NewChapterPopup)
+ */
+.qpopup.createchapter .header .icon
+{
+    -fx-image: url(/imgs/add16.png);
+}
+
+/*
  * About QW popup (AboutPopup)
  */
 .qpopup.about .content .form, .qpopup.about .content .form .items
@@ -2115,7 +2297,7 @@ Text
 
 .qpopup.dowarmup .content .header .icon
 {
-    visibility: hidden;
+    visibility: false;
 }
 
 .qpopup.dowarmup .chooseprompt .header, .qpopup.dowarmup .chooseprompt .header .title,
@@ -3083,6 +3265,95 @@ Text
 }
 
 /*
+ * Find sidebar (FindSideBar)
+ */
+.sidebar.find
+{
+    -fx-pref-width: 20em;
+    -fx-min-width: 20em;
+}
+
+.sidebar.find > .header .icon
+{
+    -fx-image: url(/imgs/find16.png);
+}
+
+.sidebar.find .findbox
+{
+    -fx-padding: 0 0.5em 1em 0.5em;
+}
+
+.sidebar.find .content .results
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.sidebar.find .results .header
+{
+    -fx-padding: 0;
+}
+
+.sidebar.find .results .accordion
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.sidebar.find .results .accordion.chapter .header .icon
+{
+    -fx-image: url(/imgs/chapter16.png);
+}
+
+.sidebar.find .results .accordion.scene .header .icon
+{
+    -fx-image: url(/imgs/scene16.png);
+}
+
+.sidebar.find .results .accordion.outlineitem .header .icon
+{
+    -fx-image: url(/imgs/outlineitem16.png);
+}
+
+.sidebar.find .results .accordion.note .header .icon
+{
+    -fx-image: url(/imgs/note16.png);
+}
+
+.sidebar.find .results .accordion .tree .cell
+{
+    -fx-cursor: hand;
+    -fx-padding: 0 0 0 0em;
+}
+
+.sidebar.find .results .snippet
+{
+    -fx-graphic: url(/imgs/bullet16.png);
+}
+
+.sidebar.find .results .note .tree .cell .label
+{
+    -fx-graphic: url(/imgs/bullet16.png);
+    -fx-padding: 0 0 0 -2em;
+}
+
+.sidebar.find VBox
+{
+    -fx-fill-width: true;
+}
+
+.sidebar.find .tree
+{
+    -fx-cell-indent: -0.4em;
+}
+
+.sidebar.find .results .asset .tree .cell,
+.sidebar.find .results .scene .tree .cell,
+.sidebar.find .results .outlineitem .tree .cell,
+.sidebar.find .results .note .tree .cell
+{
+    -fx-padding: 0 0 0.25em 0.4em;
+}
+
+/*
  * Text Properties sidebar (TextPropertiesSideBar)
  */
 .sidebar.editproperties
@@ -3320,6 +3591,21 @@ Text
     -fx-graphic: url(/imgs/scene16.png);
 }
 
+.sidebar.project .accordion.chapter .label.notes
+{
+    -fx-graphic: url(/imgs/note16.png);
+}
+
+.sidebar.project .accordion.chapter .label.note
+{
+    -fx-graphic: url(/imgs/bullet16.png);
+}
+
+.sidebar.project .accordion.chapter .label.editneedednote
+{
+    -fx-graphic: url(/imgs/edit16.png);
+}
+
 .viewer.project .sidebar.project .items
 {
     -fx-padding: 0 0.5em 0 0;
@@ -3360,62 +3646,79 @@ Text
 
 .viewer.project .sidebar .toolbar .save { -fx-graphic: url(/imgs/save20.png); }
 .viewer.project .sidebar .toolbar .new { -fx-graphic: url(/imgs/add20.png); }
+.viewer.project .sidebar .toolbar .help { -fx-graphic: url(/imgs/help20.png); }
 .viewer.project .sidebar .toolbar .info { -fx-graphic: url(/imgs/information20.png); }
 .viewer.project .sidebar .toolbar .wordcount { -fx-graphic: url(/imgs/wordcount20.png); }
 .viewer.project .sidebar .toolbar .spellcheck:enabled { -fx-graphic: url(/imgs/spellchecker-turn-off20.png); }
 .viewer.project .sidebar .toolbar .spellcheck:disabled { -fx-graphic: url(/imgs/spellchecker-turn-on20.png); -fx-opacity: 1; }
 .viewer.project .sidebar .toolbar .delete { -fx-graphic: url(/imgs/delete20.png); }
 .viewer.project .sidebar .toolbar .tools { -fx-graphic: url(/imgs/tools20.png); }
+.viewer.project .sidebar .toolbar .selectbg { -fx-graphic: url(/imgs/selectbg20.png); }
+.viewer.project .sidebar .toolbar .add { -fx-graphic: url(/imgs/add20.png); }
 
 .viewer.project .sidebar .toolbar .button
 {
     -fx-content-display: graphic-only;
 }
+
+.tab-pane:top .tab-content-area
+{
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.tab-pane:top *.tab-header-area {
+    -fx-padding: 0.5em 0 0 0.25em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-insets: 0;
+}
+
+.tab-pane:bottom *.tab-header-area {
+    -fx-padding: 0em 0.25em 0.77em 0.25em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
 /*
-.tab-header-background
+ * The border here needs to be for the bottom of node to show up at the top
+ * even though the tab is at the bottom.
+ */
+.tab-pane:bottom .tab
 {
-    -fx-background-color: transparent;
-
+    -fx-border-width: 0px 0px 0px 0px;
+    -fx-background-radius: 0;
+    -fx-border-color: -qw-component-border-color;
 }
 
-.tab-content-area
+.tab-pane:top .tab
 {
-}
-
-.tab-header-area
-{
-    -fx-border-width: 0 0 1 0;
+    -fx-border-width: 0px 0px 0px 0px;
+    -fx-background-radius: 0;
     -fx-border-color: -qw-component-border-color;
 
+    -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 1 2;
+       -fx-padding: 0.083333em 0.5em 0.0769em 0.5em; /* 1 6 0.99 6 */
 }
-*/
 
-.tab-header-area
+.tab-pane:top > .tab-header-area > .tab-header-background {
+    -fx-background-insets: 0, 0 0 1 0, 1;
+}
+
+.tab-pane:top .tab:selected
 {
-    -fx-padding: 0 0 0.5em 0.1em;
+    -fx-background-color: -fx-outer-border, -fx-inner-border, transparent;
+    -fx-background-insets: 0 1 1 0, 1 2 0 1, 2 3 0 2;
 }
 
 .tab-header-background
 {
     -fx-background-color: transparent;
-}
-
-.tab-header-area .tab
-{
-    -fx-background-radius: 0;
-    -fx-background-insets: 1 1 1 0;
-}
-
-.tab-header-area .tab:selected
-{
-    -fx-background-radius: 0;
-    -fx-background-insets: 1 1 1 0;
-    -fx-background-color: white;
 }
 
 .tab-header-area .headers-region
 {
-    -fx-background-color: -qw-component-border-color;
+    -fx-background-color: transparent;
 }
 
 .tab.chapter .tab-label
@@ -3444,17 +3747,6 @@ Text
 .tab.statistics .tab-label
 {
     -fx-graphic: url(/imgs/chart16.png);
-}
-
-.tab-pane .control-buttons-tab
-{
-    -fx-padding: 0.25em;
-}
-
-.tab-pane .tab-down-button .arrow
-{
-    -fx-border-radius: 0;
-    -fx-border-width: 0;
 }
 
 .menu-button .label
@@ -3973,14 +4265,15 @@ Text
     -qw-structure-item-indent: 2.7em;
 }
 
-.texteditor .margin .outlineitem, .texteditor .margin .scene
+.texteditor .margin .outlineitem, .texteditor .margin .scene, .texteditor .margin .note, .texteditor .margin .editneedednote
 {
     -fx-cursor: hand;
 }
 
-.texteditor .margin .new.scene
+.texteditor .margin .editmarker
 {
     -fx-background-color: green;
+    -fx-pref-width: 2px;
 }
 
 .paragraph-box
@@ -4003,4 +4296,448 @@ Text
     -fx-line-spacing: 0em;
     -fx-text-alignment: left;
 
+}
+
+.qpopup.synonyms .header .icon
+{
+    -fx-image: url(/imgs/find16.png);
+}
+
+.qpopup.synonyms .scroll-pane
+{
+    -fx-pref-height: 5em;
+    /*-fx-pref-height: 5em;*/
+}
+
+.qpopup.synonyms .content .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em 0 0 0;
+}
+
+.qpopup.synonyms .content
+{
+    -fx-padding: 0 0.25em 0.5em 0.5em;
+}
+
+.qpopup.synonyms .content .header .title
+{
+    -fx-padding: 0;
+    -fx-font-size: 1.1em;
+    -fx-font-style: italic;
+}
+
+.qpopup.synonyms .content .words
+{
+    -fx-padding: 0.25em 0 0.5em 0.25em;
+}
+
+.qpopup.synonyms .content .header .icon
+{
+    visibility: false;
+}
+
+.qpopup.synonyms .link
+{
+    -fx-cursor: hand;
+}
+
+.qpopup.synonyms .link:hover
+{
+    -fx-underline: true;
+}
+
+.viewer.project .tab-pane:top .tab-content-area
+{
+    -fx-border-width: 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+/*
+ * com.quollwriter.ui.fx.ProblemFinder
+ */
+ /* TODO Fix this, causes issue with chapter right click menu */
+.panel.chapter .problemfinder
+{
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0em 0.25em 1em 0.5em;
+    -fx-background-color: -qw-bg-color;
+}
+
+.panel.chapter .problemfinder .header
+{
+    -fx-padding: 0;
+}
+
+.panel.chapter .problemfinder .header .icon
+{
+    -fx-image: url(/imgs/eye16.png);
+}
+
+.panel.chapter .problemfinder .check-box
+{
+    -fx-padding: 0 0 0.5em 0.25em;
+}
+
+.panel.chapter .problemfinder .buttons
+{
+    -fx-padding: 0 0 0 0.25em;
+}
+
+.panel.chapter .problemfinder .header .controls .config { -fx-graphic: url(/imgs/config16.png); }
+.panel.chapter .problemfinder .header .controls .finish { -fx-graphic: url(/imgs/close16.png); }
+.panel.chapter .problemfinder .header .controls .help { -fx-graphic: url(/imgs/help16.png); }
+
+.panel.chapter .problemfinder .buttons .next
+{
+    -fx-graphic: url(/imgs/next16.png);
+    -fx-content-display: right;
+}
+
+.panel.chapter .problemfinder .buttons .previous
+{
+    -fx-graphic: url(/imgs/previous16.png);
+    -fx-content-display: right;
+}
+
+.panel.chapter .problemfinder .warning
+{
+    -fx-cursor: hand;
+    -fx-graphic: url(/imgs/warning16.png);
+    -fx-padding: 0 0.25em 0.5em 0.25em;
+    -fx-graphic-text-gap: 0;
+}
+
+.panel.chapter .problemfinder .noproblems
+{
+    -fx-graphic: url(/imgs/information16.png);
+    -fx-padding: 0 0 0.5em 0.5em;
+}
+
+.panel.chapter .problemfinder .issues
+{
+    -fx-fill-width: false;
+}
+
+.sidebar.problemfinder > .header .icon,
+.qpopup.problemfinder .header .icon
+{
+    -fx-image: url(/imgs/eye16.png);
+}
+
+.sidebar.problemfinder .rule
+{
+    -fx-padding: 0 1em 0.5em 0.5em;
+    -fx-font-style: italic;
+}
+
+.sidebar.problemfinder .issue
+{
+    -fx-graphic: url(/imgs/bullet16.png);
+}
+
+.sidebar.problemfinder .chapter
+{
+    -fx-graphic: url(/imgs/chapter16.png);
+}
+
+.sidebar.problemfinder .nomatches, .sidebar.problemfinder .ignored
+{
+    -fx-padding: 0 1em 0.5em 0.5em;
+}
+
+.sidebar.problemfinder .nomatches .image-view, .sidebar.problemfinder .ignored .image-view
+{
+    -fx-image: url(/imgs/warning16.png);
+}
+
+.sidebar.problemfinder .searching
+{
+    -fx-padding: 0 1em 0.5em 0.5em;
+    -fx-font-style: italic;
+}
+
+.sidebar.problemfinder .searching .image-view
+{
+    -fx-image: url(/imgs/loading24.gif);
+}
+
+.sidebar.problemfinder .searching .text
+{
+    -fx-padding: 0 0 0 0.25em;
+}
+
+.sidebar.problemfinder .ignored
+{
+    -fx-cursor: hand;
+}
+
+.sidebar.problemfinder .tree
+{
+    -fx-cell-indent: 0em;
+}
+
+.sidebar.problemfinder .tree .cell
+{
+    -fx-cursor: hand;
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.qpopup.problemfinderconfig .header .icon
+{
+    -fx-image: url(/imgs/eye16.png);
+}
+
+.qpopup.problemfinderconfig .scroll-pane
+{
+    -fx-pref-height: 35em;
+}
+
+.qpopup.problemfinderconfig .rule
+{
+    -fx-padding: 0.25em;
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.qpopup.problemfinderconfig .rule .details
+{
+    -fx-alignment: top-left;
+}
+
+.qpopup.problemfinderconfig .tab-pane .tool-bar.buttons
+{
+    -fx-padding: 0.25em;
+}
+
+.qpopup.problemfinderconfig .rule .summary
+{
+    -fx-max-width: 23em;
+    -fx-padding: 0.25em 0 0.25em 0;
+}
+
+.qpopup.problemfinderconfig .rule .description
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.qpopup.problemfinderconfig .tab-pane .buttons
+{
+    -fx-padding: 0 0 0.5em 0;
+    -fx-alignment: center-left;
+}
+
+.qpopup.problemfinderconfig .edit
+{
+    -fx-background: -qw-bg-color;
+    -fx-padding: 0.5em;
+}
+
+.qpopup.problemfinderconfig .edit .header, .qpopup.problemfinderconfig .edit .header .label
+{
+    -fx-padding: 0;
+}
+
+.qpopup.problemfinderconfig .edit .header .icon
+{
+    visibility: false;
+}
+
+.qpopup.problemfinderconfig .edit .buttons
+{
+    -fx-padding: 0.5em 0.5em 0.5em 1em;
+}
+
+.qpopup.problemfinderconfig .menu-button.add
+{
+    -fx-graphic: url(/imgs/add16.png);
+}
+
+.qpopup.problemfinderconfig .tab-pane:top .tab-content-area
+{
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.qpopup.problemfinderconfig .list-view
+{
+    -fx-max-height: 8em;
+    -fx-pref-height: 8em;
+}
+
+.qpopup.problemfinderconfig .information
+{
+    -fx-font-style: italic;
+}
+
+.qpopup.problemfinderconfig HBox
+{
+    -fx-spacing: 0.5em;
+}
+
+/*
+ * IdeaBoard (IdeaBoard)
+ */
+.panel.ideaboard .header
+{
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em;
+}
+
+.panel.ideaboard .header .controls
+{
+    -fx-padding: 0;
+}
+
+.panel.ideaboard .header.ideaboard .icon
+{
+    -fx-image: url(/imgs/idea24.png);
+}
+
+.panel.ideaboard .categories
+{
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+    -fx-padding: 1em;
+    -fx-alignment: top-center;
+    -qw-item-width: 25em;
+}
+
+.panel.ideaboard .categories .ideatype
+{
+    -fx-min-width: 30em;
+    -fx-max-width: 30em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-effect: -qw-drop-shadow;
+}
+
+.panel.ideaboard .categories .ideatype .header
+{
+    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.panel.ideaboard .categories .ideatype .header .title
+{
+    -fx-font-size: 1.5em;
+}
+
+.panel.ideaboard .categories .ideatype .header .controls .add
+{
+    -fx-image: url(/imgs/add16.png);
+    -fx-graphic: url(/imgs/add16.png);
+}
+
+.panel.ideaboard .categories .ideatype
+{
+    -fx-background-color: -qw-bg-color;
+}
+
+.panel.ideaboard .categories .ideatype .help
+{
+    -fx-padding: 0.5em;
+    -fx-font-style: italic;
+}
+
+.panel.ideaboard .categories .ideatype .scene.header .icon
+{
+    -fx-image: url(/imgs/scene16.png);
+}
+
+.panel.ideaboard .categories .ideatype .chapter.header .icon
+{
+    -fx-image: url(/imgs/chapter16.png);
+}
+
+.panel.ideaboard .categories .ideatype .location.header .icon
+{
+    -fx-image: url(/imgs/location16.png);
+}
+
+.panel.ideaboard .categories .ideatype .character.header .icon
+{
+    -fx-image: url(/imgs/character16.png);
+}
+
+.panel.ideaboard .categories .ideatype .object.header .icon
+{
+    -fx-image: url(/imgs/object16.png);
+}
+
+.panel.ideaboard .idea
+{
+    /*-fx-padding: 0.25em 0.5em 0.5em 0.5em;*/
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.ideaboard .idea > .edit, .panel.ideaboard .ideatype .newidea
+{
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.panel.ideaboard .idea .edit .qtextarea, .panel.ideaboard .ideatype .newidea .qtextarea
+{
+    -fx-border-width: 0;
+    -fx-padding: 0.25em;
+}
+
+.panel.ideaboard .idea .edit .buttons, .panel.ideaboard .ideatype .newidea .buttons
+{
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.25em;
+    -fx-alignment: center-right;
+}
+
+.panel.ideaboard .idea:last
+{
+    -fx-border-width: 0;
+}
+
+.panel.ideaboard .idea .view
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+}
+
+.panel.ideaboard .idea .shorttext
+{
+    -fx-cursor: hand;
+}
+
+.panel.ideaboard .idea .tool-bar
+{
+    -fx-padding: 0;
+    -fx-alignment: center-left ;
+    -fx-fill-height: true;
+}
+
+.starbar
+{
+    -fx-fill-height: false;
+    -fx-alignment: center-left;
+}
+
+.starbar .star
+{
+    -fx-padding: 0.25em;
+    -fx-cursor: hand;
+}
+
+.starbar .star .image-view
+{
+    -fx-image: url(/imgs/star-disabled16.png);
+}
+
+.starbar .star:tempselected .image-view,
+.starbar .star:selected .image-view
+{
+    -fx-image: url(/imgs/star16.png);
 }

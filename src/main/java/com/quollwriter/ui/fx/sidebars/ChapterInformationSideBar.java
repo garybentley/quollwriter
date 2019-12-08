@@ -183,7 +183,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
     public State getState ()
     {
 
-        State s = this.getState ();
+        State s = super.getState ();
 
         List<String> its = new ArrayList<> ();
 

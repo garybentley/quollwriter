@@ -6,6 +6,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import javafx.scene.control.*;
+import javafx.scene.control.SpinnerValueFactory.*;
+
 import java.text.*;
 
 import com.gentlyweb.utils.*;
@@ -20,6 +23,12 @@ import com.quollwriter.ui.forms.*;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import com.quollwriter.ui.forms.*;
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class SentenceComplexityRule extends AbstractSentenceRule
 {
@@ -36,6 +45,9 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     private int wordCount = 0;
     private JSpinner ratioF = null;
     private JSpinner wordCountF = null;
+
+    private Spinner<Double> ratioF2 = null;
+    private Spinner<Integer> wordCountF2 = null;
 
     public SentenceComplexityRule ()
     {
@@ -220,6 +232,29 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
+    @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        List<String> pref = Arrays.asList (problemfinder,config,rules,sentencecomplexity,labels);
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        this.ratioF2 = new Spinner<> (new DoubleSpinnerValueFactory (0.1d, 3.0d, this.ratio, 0.1d));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,LanguageStrings.ratio)),
+                                  this.ratioF2));
+
+        this.wordCountF2 = new Spinner<> (new IntegerSpinnerValueFactory (1, 500, this.wordCount, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,sentencelength)),
+                                    //"Sentence length (words)",
+                                  this.wordCountF2));
+
+        return items;
+
+    }
+
     public String getFormError ()
     {
 
@@ -232,6 +267,15 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         this.ratio = ((SpinnerNumberModel) this.ratioF.getModel ()).getNumber ().floatValue ();
         this.wordCount = ((SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
+    {
+
+        this.ratio = this.ratioF2.getValue ().floatValue ();
+        this.wordCount = this.wordCountF2.getValue ();
 
     }
 

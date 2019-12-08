@@ -5,6 +5,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import javafx.scene.control.*;
+import javafx.scene.control.SpinnerValueFactory.*;
+
 import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
@@ -15,6 +18,13 @@ import com.quollwriter.text.*;
 import com.quollwriter.ui.forms.*;
 
 import org.jdom.*;
+
+import com.quollwriter.ui.forms.*;
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.*;
+
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
 
 public class TooManyClausesRule extends AbstractSentenceRule
 {
@@ -29,6 +39,8 @@ public class TooManyClausesRule extends AbstractSentenceRule
     private int                 clauseCount = 0;
     private JSpinner            count = null;
     private Map<String, String> separators = new HashMap ();
+
+    private Spinner<Integer> count2 = null;
 
     public TooManyClausesRule ()
     {
@@ -182,6 +194,24 @@ public class TooManyClausesRule extends AbstractSentenceRule
     }
 
     @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        List<String> pref = Arrays.asList (problemfinder,config,rules,toomanyclauses,labels);
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        this.count2 = new Spinner<> (new IntegerSpinnerValueFactory (1, 200, this.clauseCount, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,clauses)),
+                                  //"No of Clauses",
+                                  this.count2));
+
+        return items;
+
+    }
+
+    @Override
     public String getFormError ()
     {
 
@@ -201,6 +231,14 @@ public class TooManyClausesRule extends AbstractSentenceRule
     {
 
         return Rule.SENTENCE_CATEGORY;
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
+    {
+
+        this.clauseCount = this.count2.getValue ();
 
     }
 

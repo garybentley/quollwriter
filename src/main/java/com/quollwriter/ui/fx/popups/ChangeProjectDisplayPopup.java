@@ -49,16 +49,13 @@ public class ChangeProjectDisplayPopup extends PopupContent
             .text (getUILanguageStringProperty (Utils.newList (prefix,text)))
             .build ());
 
-        SimpleStringProperty formatProp = new SimpleStringProperty ();
-        formatProp.setValue (UserProperties.getProjectInfoFormat ());
-
-        // TODO Add controls for bold/italic?  Add menu?  Add tag menu?
         QuollTextArea format = QuollTextArea.builder ()
             .styleClassName (StyleClassNames.FORMAT)
             .text (UserProperties.getProjectInfoFormat ())
+            .withViewer (viewer)
+            .formattingEnabled (false)
             .build ();
         b.getChildren ().add (format);
-        formatProp.bind (format.textProperty ());
 
         b.getChildren ().add (Header.builder ()
             .styleClassName (StyleClassNames.EXAMPLE)
@@ -101,21 +98,29 @@ public class ChangeProjectDisplayPopup extends PopupContent
             .build ();
 
         SimpleStringProperty infoProp = new SimpleStringProperty ();
-        infoProp.bind (Bindings.createStringBinding (() ->
+        infoProp.bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
             return UIUtils.getFormattedProjectInfo (exp,
-                                                    formatProp.getValue ());
+                                                    format.getText ());
+                                                    //UserProperties.getProjectInfoFormat ());
 
-        },
-        UILanguageStringsManager.uilangProperty (),
-        formatProp));
+        }));
+        //UserProperties.projectInfoFormatProperty ()));
 
         BasicHtmlTextFlow info = BasicHtmlTextFlow.builder ()
             .text (infoProp)
             .styleClassName (StyleClassNames.INFO)
             .withHandler (this.getViewer ())
             .build ();
+
+        format.getTextEditor ().multiRichChanges ().subscribe (ch ->
+        {
+
+            info.setText (UIUtils.getFormattedProjectInfo (exp,
+                                                           format.getText ()));
+
+        });
 
         exb.getChildren ().addAll (name, info);
 

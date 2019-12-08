@@ -5,12 +5,18 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import javafx.beans.property.*;
+
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.text.*;
+
+import com.quollwriter.ui.fx.components.Form;
+
+// TODO import com.quollwriter.ui.fx.components.Form;
 
 import org.jdom.*;
 
@@ -44,6 +50,20 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
     public abstract String getEditFormTitle (boolean add);
 
     public abstract Set<FormItem> getFormItems ();
+
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        return null;
+
+    }
+
+    public StringProperty getFormError2 ()
+    {
+
+        return null;
+
+    }
 
     public abstract String getFormError ();
 
@@ -184,7 +204,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
-    public Form getEditForm (final ActionListener        onSaveComplete,
+    public com.quollwriter.ui.forms.Form getEditForm (final ActionListener        onSaveComplete,
                              final ActionListener        onCancel,
                              final AbstractProjectViewer viewer,
                              final boolean               add)
@@ -215,9 +235,9 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
         items.add (desc);
 
-        Map<Form.Button, ActionListener> buttons = new LinkedHashMap<> ();
+        Map<com.quollwriter.ui.forms.Form.Button, ActionListener> buttons = new LinkedHashMap<> ();
 
-        buttons.put (Form.Button.save,
+        buttons.put (com.quollwriter.ui.forms.Form.Button.save,
                      new ActionListener ()
                      {
 
@@ -225,7 +245,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                         public void actionPerformed (ActionEvent ev)
                         {
 
-                            Form f = (Form) ev.getSource ();
+                            com.quollwriter.ui.forms.Form f = (com.quollwriter.ui.forms.Form) ev.getSource ();
 
                             String error = _this.getFormError ();
 
@@ -291,7 +311,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
                      });
 
-        buttons.put (Form.Button.cancel,
+        buttons.put (com.quollwriter.ui.forms.Form.Button.cancel,
                      new ActionListener ()
                      {
 
@@ -312,7 +332,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
                      });
 
-        Form f = new Form (Form.Layout.stacked,
+        com.quollwriter.ui.forms.Form f = new com.quollwriter.ui.forms.Form (com.quollwriter.ui.forms.Form.Layout.stacked,
                            items,
                            buttons);
 

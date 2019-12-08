@@ -4,6 +4,7 @@ import java.util.*;
 
 import javafx.geometry.*;
 import javafx.stage.*;
+import javafx.scene.*;
 import javafx.scene.input.*;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
@@ -20,6 +21,9 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.swing.*;
+
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
 
 /**
  * A base class for content that is suitable for display within a panel for a specific named object.
@@ -69,6 +73,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                 .textProperties (props)
                 .dictionaryProvider (viewer.getDictionaryProvider ())
                 .synonymProvider (viewer.getSynonymProvider ())
+                .formattingEnabled (true)
                 .build ();
 
         } catch (Exception e) {
@@ -108,6 +113,29 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         });
 
         Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.S, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                 try
+                                                 {
+
+                                                     this.saveObject ();
+
+                                                 } catch (Exception e)
+                                                 {
+
+                                                     Environment.logError ("Unable to save chapter: " + this.object,
+                                                                           e);
+
+                                                     ComponentUtils.showErrorMessage (this.viewer,
+                                                                                      getUILanguageStringProperty (editorpanel,actions,LanguageStrings.save,actionerror));
+
+                                                 }
+
+                                             }));
+
+        Nodes.addInputMap (this.editor,
                            InputMap.process (EventPattern.mouseEntered (),
                                              ev ->
                                              {
@@ -125,6 +153,8 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
     public void setText (StringWithMarkup t)
     {
 
+        this.editor.setText (t);
+/*
         if (this.viewer.getViewer ().isShowing ())
         {
 
@@ -141,6 +171,43 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
             });
 
         }
+*/
+    }
+
+    public void scrollToTextPosition (int      pos,
+                                      Runnable afterScroll)
+    {
+
+        Bounds b = this.editor.getBoundsForPosition (pos);
+
+        if (b == null)
+        {
+
+            int p = this.editor.getParagraphForOffset (pos);
+
+            this.editor.showParagraphInViewport (p);
+
+            UIUtils.runLater (() ->
+            {
+
+                this.scrollToTextPosition (pos,
+                                           afterScroll);
+
+            });
+
+            return;
+
+            //throw new IllegalArgumentException ("Position: " + pos + ", is not valid.");
+
+        }
+
+        Bounds eb = this.editor.localToScreen (this.editor.getBoundsInLocal ());
+
+        double diff = b.getMinY () - eb.getMinY () - (eb.getHeight () / 2);
+
+        this.editor.scrollYBy (diff);
+
+        UIUtils.runLater (afterScroll);
 
     }
 
@@ -201,15 +268,21 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         Runnable r = () ->
         {
 
-            Float f = s.getAsFloat (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME,
-                                    0f);
+            if (s != null)
+            {
 
-            //this.scrollPane.scrollYBy (f);
+                Float f = s.getAsFloat (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME,
+                                        0f);
 
-            Integer i = s.getAsInt (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
-                                    0);
+                this.scrollPane.scrollYBy (f);
 
-            this.editor.getCaretSelectionBind ().moveTo (i);
+                Integer i = s.getAsInt (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
+                                        0);
+
+                this.editor.getCaretSelectionBind ().moveTo (i);
+
+            }
+            
             this.editor.requestFollowCaret ();
 
             this.editor.setSpellCheckEnabled (this.viewer.isSpellCheckingEnabled ());
@@ -275,6 +348,13 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
     }
 
+    public Node getEditorWrapper (VirtualizedScrollPane<TextEditor> scrollPane)
+    {
+
+        return scrollPane;
+
+    }
+
     @Override
     public Panel createPanel ()
     {
@@ -282,7 +362,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         this.scrollPane = new VirtualizedScrollPane<> (this.editor);
         VBox.setVgrow (this.scrollPane, Priority.ALWAYS);
 
-        this.getChildren ().add (this.scrollPane);
+        this.getChildren ().add (this.getEditorWrapper (this.scrollPane));
 
         Panel panel = Panel.builder ()
             // TODO .title (this.object.nameProperty ())
@@ -383,8 +463,7 @@ TODO ? Remove?
     public StringWithMarkup getText ()
     {
 
-        return null;
-        // TODO return this.chapterPanel.getEditor ().getTextWithMarkup ();
+        return this.editor.getTextWithMarkup ();
 
     }
 

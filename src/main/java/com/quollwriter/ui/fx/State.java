@@ -13,6 +13,7 @@ public class State
     {
 
         scrollpanev,
+        content,
         open;
 
     }
@@ -263,6 +264,14 @@ public class State
 
         return this.getAs (name,
                            String.class);
+
+    }
+
+    public State getAsState (Key name)
+    {
+
+        return this.getAs (name,
+                           State.class);
 
     }
 

@@ -55,6 +55,8 @@ public class QuollLabel extends Label
 
         });
 
+        this.managedProperty ().bind (this.visibleProperty ());
+
     }
 
     /**

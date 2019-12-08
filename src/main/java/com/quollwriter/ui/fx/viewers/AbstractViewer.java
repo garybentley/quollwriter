@@ -27,6 +27,7 @@ import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.achievements.rules.*;
 import com.quollwriter.data.IPropertyBinder;
+import com.quollwriter.data.PropertyBinder;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -91,6 +92,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         String viewobject = "viewobject";
         String editobject = "editobject";
         String deleteobject = "deleteobject";
+        String nightmode = "nightmode";
 
     }
 
@@ -123,6 +125,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     private boolean ignoreProjectEvents = false;
 
     private Pane popupPane = null;
+
+    private PropertyBinder binder = new PropertyBinder ();
 
     public AbstractViewer ()
     {
@@ -229,7 +233,14 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     public IPropertyBinder getBinder ()
     {
 
-        return this.getViewer ().getBinder ();
+        return this.binder;
+
+    }
+
+    public void dispose ()
+    {
+
+        this.binder.dispose ();
 
     }
 
@@ -241,6 +252,70 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
             .filter (p -> p.getPopupId () != null && p.getPopupId ().equals (id))
             .findFirst ()
             .orElse (null);
+
+    }
+
+    /**
+     * This expects the Bounds to be in local Viewer coords.
+     */
+    public void showPopup (QuollPopup p,
+                           Bounds     b,
+                           Side       s)
+    {
+
+        p.setVisible (false);
+        this.addPopup (p);
+
+        p.applyCss ();
+        p.requestLayout ();
+
+        UIUtils.runLater (() ->
+        {
+
+            double _x = b.getMinX ();
+            double _y = b.getMinY ();
+
+            Bounds nb = p.getLayoutBounds ();
+
+            //Bounds b = this.getLayoutBounds ();
+
+            if (s == Side.TOP)
+            {
+
+                _x = b.getMinX ();
+                _y = b.getMinY () - nb.getHeight ();
+
+            }
+
+            if (s == Side.BOTTOM)
+            {
+
+                _x = b.getMinX ();
+                _y = b.getMaxY ();
+
+            }
+
+            if (s == Side.LEFT)
+            {
+
+                _x = b.getMinX () - nb.getWidth ();
+                _y = b.getMinY ();
+
+            }
+
+            if (s == Side.RIGHT)
+            {
+
+                _x = b.getMaxX ();
+                _y = b.getMinY ();
+
+            }
+
+            this.showPopup (p,
+                            _x,
+                            _y);
+
+        });
 
     }
 
@@ -258,6 +333,33 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         this.showPopup (p,
                         b.getMinX (),
                         b.getMaxY ());
+
+    }
+
+    /**
+     * Shows a popup in the middle of the parent window.
+     */
+    public void showPopup (QuollPopup p)
+    {
+
+        p.setVisible (false);
+        this.addPopup (p);
+        p.applyCss ();
+
+        p.requestLayout ();
+
+        UIUtils.runLater (() ->
+        {
+
+            Bounds nb = p.getLayoutBounds ();
+
+            Bounds b = this.getLayoutBounds ();
+
+            this.showPopup (p,
+                            ((b.getWidth () - nb.getWidth ()) / 2),
+                            ((b.getHeight () - nb.getHeight ()) / 2));
+
+        });
 
     }
 
@@ -328,6 +430,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
             p.relocate ((int) _x,
                         (int) _y);
             p.setVisible (true);
+
+            p.fireEvent (new QuollPopup.PopupEvent (p,
+                                                    QuollPopup.PopupEvent.SHOWN_EVENT));
 
         });
 
@@ -507,6 +612,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                             KeyCode.F4);
         this.addKeyMapping (CommandId.fullscreen,
                             KeyCode.F5);
+        this.addKeyMapping (CommandId.nightmode,
+                            KeyCode.F8);
         this.addKeyMapping (CommandId.resetfontsize,
                             KeyCode.DIGIT0, KeyCombination.CONTROL_DOWN);
         this.addKeyMapping (CommandId.incrementfontsize,
@@ -528,6 +635,14 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
         },
         CommandId.resetfontsize);
+
+        this.addActionMapping (() ->
+        {
+
+            Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
+
+        },
+        CommandId.nightmode);
 
         this.addActionMapping (() ->
         {
@@ -830,6 +945,8 @@ TODO
 
         this.generalTimer.shutdown ();
 
+        this.dispose ();
+
         this.getViewer ().close ();
 
         // Fire an event.
@@ -1057,6 +1174,13 @@ TODO
             }
 
         }
+
+        UIUtils.runLater (() ->
+        {
+
+            this.requestLayout ();
+
+        });
 
     }
 

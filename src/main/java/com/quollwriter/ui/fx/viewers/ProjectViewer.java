@@ -1,7 +1,5 @@
 package com.quollwriter.ui.fx.viewers;
 
-import java.awt.geom.Rectangle2D;
-
 import java.util.*;
 import java.util.function.*;
 
@@ -9,10 +7,20 @@ import javafx.beans.property.*;
 import javafx.collections.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.geometry.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.*;
+import com.quollwriter.db.*;
+import com.quollwriter.text.Rule;
+import com.quollwriter.text.Issue;
+import com.quollwriter.text.Sentence;
+import com.quollwriter.text.Paragraph;
+import com.quollwriter.text.TextBlockIterator;
+import com.quollwriter.text.TextBlock;
+import com.quollwriter.text.SentenceMatches;
+import com.quollwriter.text.rules.RuleFactory;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
@@ -30,13 +38,13 @@ public class ProjectViewer extends AbstractProjectViewer
 
     private ProjectSideBar sidebar = null;
     private SetChangeListener<Tag> tagsListener = null;
+    private ProblemFinderRuleConfigPopup problemFinderRuleConfigPopup = null;
 
     public interface CommandId extends AbstractProjectViewer.CommandId
     {
 
         String editscene = "editscene";
         String deletescene = "deletescene";
-        String newoutlineitem = "newoutlineitem";
         String editoutlineitem = "editoutlineitem";
         String deleteoutlineitem = "deleteoutlineitem";
         String newasset = "newasset";
@@ -48,8 +56,6 @@ public class ProjectViewer extends AbstractProjectViewer
         String deletechapter = "deletechapter";
         String renamechapter = "renamechapter";
         String showchapterinfo = "showchapterinfo";
-        String newnote = "newnote";
-        String neweditneedednote = "neweditneedednote";
         String createbackup = "createbackup";
         String exportproject = "exportproject";
         String deleteproject = "deleteproject";
@@ -148,6 +154,77 @@ public class ProjectViewer extends AbstractProjectViewer
         },
         CommandId.viewobject));
 
+        this.addActionMapping (new CommandWithArgs<DataObject> (objs ->
+        {
+
+            DataObject o = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                o = objs[0];
+
+            }
+
+            if (o == null)
+            {
+
+                throw new IllegalArgumentException ("No object provided.");
+
+            }
+
+            this.editObject (o);
+
+        },
+        CommandId.editobject));
+
+        this.addActionMapping (new CommandWithArgs<DataObject> (objs ->
+        {
+
+            DataObject o = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                o = objs[0];
+
+            }
+
+            if (o == null)
+            {
+
+                throw new IllegalArgumentException ("No object provided.");
+
+            }
+
+            if (!(o instanceof NamedObject))
+            {
+
+                throw new IllegalArgumentException ("A named object must be provided.");
+
+            }
+
+            try
+            {
+
+                this.deleteObject ((NamedObject) o);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to delete object: " + o,
+                                      e);
+
+            }
+
+        },
+        CommandId.deleteobject));
+
         this.addActionMapping (new CommandWithArgs (objs ->
         {
 
@@ -163,7 +240,8 @@ public class ProjectViewer extends AbstractProjectViewer
 
             }
 
-            this.showAddNewChapter (addBelow);
+            this.showAddNewChapter (null,
+                                    addBelow);
 
         },
         CommandId.newchapter));
@@ -386,7 +464,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                 int     pos)
     {
 
-        ProjectChapterEditorPanelContent editor = (ProjectChapterEditorPanelContent) this.getEditorForChapter (c);
+        ProjectChapterEditorPanelContent editor = this.getEditorForChapter (c);
 
         editor.showAddNewScene (pos);
 
@@ -396,9 +474,31 @@ public class ProjectViewer extends AbstractProjectViewer
                                       int     pos)
     {
 
-        ProjectChapterEditorPanelContent editor = (ProjectChapterEditorPanelContent) this.getEditorForChapter (c);
+        ProjectChapterEditorPanelContent editor = this.getEditorForChapter (c);
 
         editor.showAddNewOutlineItem (pos);
+
+    }
+
+    public void createNewNote (Chapter c,
+                               int     pos)
+    {
+
+        ProjectChapterEditorPanelContent editor = this.getEditorForChapter (c);
+
+        editor.showAddNewNote (pos,
+                               false);
+
+    }
+
+    public void createNewEditNeededNote (Chapter c,
+                                         int     pos)
+    {
+
+        ProjectChapterEditorPanelContent editor = this.getEditorForChapter (c);
+
+        editor.showAddNewNote (pos,
+                               true);
 
     }
 
@@ -771,6 +871,29 @@ public class ProjectViewer extends AbstractProjectViewer
     {
 
         // TODO
+        if (d instanceof Chapter)
+        {
+
+            this.editChapter ((Chapter) d);
+            return;
+
+        }
+
+        if (d instanceof ChapterItem)
+        {
+
+            ChapterItem ci = (ChapterItem) d;
+
+            this.editChapter (ci.getChapter (),
+                              () ->
+            {
+
+                ProjectChapterEditorPanelContent editor = this.getEditorForChapter (ci.getChapter ());
+                editor.editItem (ci);
+
+            });
+
+        }
 
     }
 
@@ -1262,6 +1385,146 @@ TODO
 
     }
 
+    public void showDeleteChapterItemPopup (ChapterItem item,
+                                            Node        showAt)
+    {
+
+        String pid = "delete" + item.getObjectReference ().asString ();
+
+        QuollPopup qp = this.getPopupById (pid);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        qp = QuollPopup.questionBuilder ()
+            .popupId (pid)
+            .title (getUILanguageStringProperty (Arrays.asList (chapteritems,delete,title),
+                                                 Environment.getObjectTypeName (item)))
+            .message (getUILanguageStringProperty (Arrays.asList (chapteritems,delete,text),
+                                                   Environment.getObjectTypeName (item),
+                                                   item.getSummary ()))
+            .confirmButtonLabel (chapteritems,delete,buttons,confirm)
+            .cancelButtonLabel (chapteritems,delete,buttons,cancel)
+            .onConfirm (ev ->
+            {
+
+                // If the item is a scene AND has outline items ask if they want to keep them.
+                if (item instanceof Scene)
+                {
+
+                    Scene s = (Scene) item;
+
+                    if (s.getOutlineItems ().size () > 0)
+                    {
+
+                        String pid2 = "deleteoutlineitems" + item.getObjectReference ().asString ();
+
+                        QuollPopup qp2 = QuollPopup.questionBuilder ()
+                            .popupId (pid2)
+                            .title (getUILanguageStringProperty (Arrays.asList (chapteritems,deletesceneoutlineitems,title),
+                                                                 Environment.formatNumber (s.getOutlineItems ().size ())))
+                            .message (getUILanguageStringProperty (Arrays.asList (chapteritems,deletesceneoutlineitems,text),
+                                                                   Environment.formatNumber (s.getOutlineItems ().size ())))
+                            .confirmButtonLabel (chapteritems,deletesceneoutlineitems,buttons,confirm)
+                            .cancelButtonLabel (chapteritems,deletesceneoutlineitems,buttons,cancel)
+                            .onConfirm (ev2 ->
+                            {
+
+                                try
+                                {
+
+                                    this.deleteChapterItem (item,
+                                                            true,
+                                                            true);
+
+                                } catch (Exception e) {
+
+                                    ComponentUtils.showErrorMessage (this,
+                                                                     getUILanguageStringProperty (chapteritems,deletesceneoutlineitems,actionerror));
+
+                                    Environment.logError ("Unable to delete: " + item,
+                                                          e);
+
+                                }
+
+                                this.getPopupById (pid2).close ();
+
+                            })
+                            .onCancel (ev2 ->
+                            {
+
+                                try
+                                {
+
+                                    this.deleteChapterItem (item,
+                                                            false,
+                                                            true);
+
+                                } catch (Exception e) {
+
+                                    ComponentUtils.showErrorMessage (this,
+                                                                     getUILanguageStringProperty (chapteritems,deletesceneoutlineitems,actionerror));
+
+                                    Environment.logError ("Unable to delete: " + item,
+                                                          e);
+
+                                }
+
+                                this.getPopupById (pid2).close ();
+
+                            })
+                            .withHandler (this)
+                            .withViewer (this)
+                            .styleClassName (StyleClassNames.DELETE)
+                            .build ();
+
+                        this.showPopup (qp2,
+                                        showAt,
+                                        Side.BOTTOM);
+
+                        return;
+
+                    }
+
+                }
+
+                try
+                {
+
+                    this.deleteChapterItem (item,
+                                            false,
+                                            true);
+
+                } catch (Exception e) {
+
+                    ComponentUtils.showErrorMessage (this,
+                                                     getUILanguageStringProperty (chapteritems,delete,actionerror));
+
+                    Environment.logError ("Unable to delete: " + item,
+                                          e);
+
+                }
+
+                this.getPopupById (pid).close ();
+
+            })
+            .onCancel (ev -> {})
+            .withHandler (this)
+            .withViewer (this)
+            .styleClassName (StyleClassNames.DELETE)
+            .build ();
+
+        this.showPopup (qp,
+                        showAt,
+                        Side.BOTTOM);
+
+    }
+
     public void deleteChapterItem (ChapterItem ci,
                                    boolean     deleteChildObjects,
                                    boolean     doInTransaction)
@@ -1573,20 +1836,25 @@ TODO
 
             chapter.setEditComplete (editComplete);
 
-            ProjectChapterEditorPanelContent p = (ProjectChapterEditorPanelContent) this.getEditorForChapter (chapter);
+            ProjectChapterEditorPanelContent p = this.getEditorForChapter (chapter);
 
-            int pos = 0;
+            int pos = -1;
 
-            if (p != null)
+            if (editComplete)
             {
 
-                pos = Utils.stripEnd (p.getEditor ().getText ()).length ();
+                if (p != null)
+                {
 
-            } else {
+                    pos = Utils.stripEnd (p.getEditor ().getText ()).length ();
 
-                String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
+                } else {
 
-                pos = Utils.stripEnd (t).length ();
+                    String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
+
+                    pos = Utils.stripEnd (t).length ();
+
+                }
 
             }
 
@@ -1594,6 +1862,8 @@ TODO
 
             this.saveObject (chapter,
                              false);
+
+            p.recreateVisibleParagraphs ();
 
         } catch (Exception e) {
 
@@ -1614,7 +1884,7 @@ TODO
 
         final ProjectViewer _this = this;
 
-        ProjectChapterEditorPanelContent p = (ProjectChapterEditorPanelContent) this.getEditorForChapter (chapter);
+        ProjectChapterEditorPanelContent p = this.getEditorForChapter (chapter);
 
         SwingUIUtils.doLater (() ->
         {
@@ -1708,13 +1978,22 @@ TODO
 
     }
 
-    public void showAddNewChapter (Chapter addBelow)
+    public void showAddNewChapter (Chapter newChapter,
+                                   Chapter addBelow)
     {
 
-        new NewChapterPopup (null,
+        new NewChapterPopup (newChapter,
                              this,
                              addBelow,
                              null).show ();
+
+    }
+
+    public void showAddNewChapterBelow (Chapter addBelow)
+    {
+
+        this.showAddNewChapter (null,
+                                addBelow);
 
     }
 
@@ -1730,6 +2009,454 @@ TODO
     {
 
         // TODOwwa dw
+
+    }
+
+    public ProblemFinderRuleConfigPopup getProblemFinderRuleConfig ()
+    {
+
+        if (this.problemFinderRuleConfigPopup == null)
+        {
+
+            this.problemFinderRuleConfigPopup = new ProblemFinderRuleConfigPopup (this);
+
+        }
+
+        return this.problemFinderRuleConfigPopup;
+
+    }
+
+    public void showProblemFinderRuleConfig ()
+    {
+
+        this.showProblemFinderRuleConfig (null);
+
+    }
+
+    public void showProblemFinderRuleConfig (Consumer<ProblemFinderRuleConfigPopup> onShow)
+    {
+
+        this.showPopup (this.getProblemFinderRuleConfig ().getPopup ());
+
+        if (onShow != null)
+        {
+
+            UIUtils.runLater (() ->
+            {
+
+                onShow.accept (this.getProblemFinderRuleConfig ());
+
+            });
+
+        }
+
+        this.fireProjectEvent (ProjectEvent.Type.problemfinderruleconfig,
+                               ProjectEvent.Action.show);
+
+    }
+
+    public void showProblemFinderRuleSideBar (Rule    r)
+    {
+
+        // Switch off the problem finder for all chapters.
+        this.getPanels ().values ().stream ()
+            .forEach (p ->
+            {
+
+                if (p.getContent () instanceof ProjectChapterEditorPanelContent)
+                {
+
+                    ProjectChapterEditorPanelContent pp = (ProjectChapterEditorPanelContent) p.getContent ();
+
+                    pp.closeProblemFinder ();
+
+                }
+
+            });
+
+        String id = ProblemFinderSideBar.getSideBarId (r);
+
+        SideBar sb = this.getSideBarById (id);
+
+        if (sb == null)
+        {
+
+            ProblemFinderSideBar psb = new ProblemFinderSideBar (this,
+                                                                 r);
+            this.addSideBar (psb);
+
+            sb = psb.getSideBar ();
+
+        }
+
+        this.showSideBar (sb);
+
+    }
+
+    public void saveProblemFinderIgnores (Chapter    c)
+                                   throws GeneralException
+    {
+
+        ChapterDataHandler dh = (ChapterDataHandler) this.getDataHandler (Chapter.class);
+
+        dh.saveProblemFinderIgnores (c,
+                                     null);
+
+    }
+
+    public Set<Issue> getProblemFinderIgnores (Rule r)
+                                        throws GeneralException
+    {
+
+        Set<Issue> ignores = new HashSet ();
+
+        for (Chapter c : this.getProject ().getBook (0).getChapters ())
+        {
+
+            Set<Issue> ignored = c.getProblemFinderIgnores ();
+
+            for (Issue i : ignored)
+            {
+
+                if (i.getRuleId ().equals (r.getId ()))
+                {
+
+                    ignores.add (i);
+
+                }
+
+            }
+
+        }
+
+        return ignores;
+
+    }
+
+    public Map<Chapter, Set<Issue>> getProblemsForAllChapters ()
+    {
+
+        return this.getProblemsForAllChapters (null);
+
+    }
+
+    public Map<Chapter, Set<Issue>> getProblemsForAllChapters (Rule limitToRule)
+    {
+
+        Map<Chapter, Set<Issue>> probs = new LinkedHashMap ();
+
+        if (this.getProject () == null)
+        {
+
+            // Closing down.
+            return probs;
+
+        }
+
+        for (Book book : this.getProject ().getBooks ())
+        {
+
+            for (Chapter c : book.getChapters ())
+            {
+
+                Set<Issue> issues = null;
+
+                if (limitToRule != null)
+                {
+
+                    issues = this.getProblems (c,
+                                               limitToRule);
+
+                } else {
+
+                    issues = this.getProblems (c);
+
+                }
+
+                if (issues.size () > 0)
+                {
+
+                    probs.put (c, issues);
+
+                }
+
+            }
+
+        }
+
+        return probs;
+
+    }
+
+    public Set<Issue> getProblems (Chapter c,
+                                   Rule    r)
+    {
+
+        Set<Issue> ret = new LinkedHashSet<> ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            TextBlockIterator ti = new TextBlockIterator (ct);
+
+            TextBlock b = null;
+
+            while ((b = ti.next ()) != null)
+            {
+
+                List<Issue> issues = RuleFactory.getIssues (b,
+                                                            r,
+                                                            this.project.getProperties ());
+
+                for (Issue i : issues)
+                {
+
+                    ret.add (i);
+
+                    i.setChapter (c);
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Issue> getProblems (Chapter c)
+    {
+
+        Set<Issue> ret = new LinkedHashSet ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            TextBlockIterator ti = new TextBlockIterator (ct);
+
+            TextBlock b = null;
+
+            while ((b = ti.next ()) != null)
+            {
+
+                if (b instanceof Paragraph)
+                {
+
+                    ret.addAll (RuleFactory.getParagraphIssues ((Paragraph) b,
+                                                                this.project.getProperties ()));
+
+                }
+
+                if (b instanceof Sentence)
+                {
+
+                    ret.addAll (RuleFactory.getSentenceIssues ((Sentence) b,
+                                                                this.project.getProperties ()));
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    @Override
+    public Set<FindResultsBox> findText (String t)
+    {
+
+        Set<FindResultsBox> res = new LinkedHashSet ();
+
+        // Get the snippets.
+        Map<Chapter, List<SentenceMatches>> snippets = this.getSentenceMatches (t);
+
+        if (snippets.size () > 0)
+        {
+
+            res.add (new ChapterFindResultsBox (snippets,
+                                                this));
+
+        }
+
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+
+        for (UserConfigurableObjectType type : types)
+        {
+
+            Set<Asset> objs = this.project.getAssetsContaining (t,
+                                                                type);
+
+            if (objs.size () > 0)
+            {
+
+                res.add (new AssetFindResultsBox (type,
+                                                  this,
+                                                  objs));
+
+            }
+
+        }
+
+        Set<Note> notes = this.project.getNotesContaining (t);
+
+        if (notes.size () > 0)
+        {
+
+            res.add (new NamedObjectFindResultsBox (Note.OBJECT_TYPE,
+                                                    this,
+                                                    notes));
+
+        }
+
+        Set<Scene> scenes = this.project.getScenesContaining (t);
+
+        if (scenes.size () > 0)
+        {
+
+            res.add (new NamedObjectFindResultsBox (Scene.OBJECT_TYPE,
+                                                    this,
+                                                    scenes));
+
+        }
+
+        Set<OutlineItem> oitems = this.project.getOutlineItemsContaining (t);
+
+        if (oitems.size () > 0)
+        {
+
+            res.add (new NamedObjectFindResultsBox (OutlineItem.OBJECT_TYPE,
+                                                    this,
+                                                    oitems));
+
+        }
+
+        return res;
+
+    }
+
+    public void addNewIdeaType (IdeaType it)
+                         throws GeneralException
+    {
+
+        this.dBMan.saveObject (it,
+                               null);
+
+        this.project.addIdeaType (it);
+
+        this.fireProjectEvent (ProjectEvent.Type.ideatype,
+                               ProjectEvent.Action._new,
+                               it);
+
+    }
+
+    public void addNewIdea (Idea i)
+                     throws GeneralException
+    {
+
+        this.dBMan.saveObject (i,
+                               null);
+
+        i.getType ().addIdea (i);
+
+        this.fireProjectEvent (ProjectEvent.Type.idea,
+                               ProjectEvent.Action._new,
+                               i);
+
+    }
+
+    public void updateIdeaType (IdeaType it)
+                         throws GeneralException
+    {
+
+        this.dBMan.saveObject (it,
+                               null);
+
+        this.fireProjectEvent (ProjectEvent.Type.ideatype,
+                               ProjectEvent.Action.edit,
+                               it);
+
+    }
+
+    public void deleteIdeaType (IdeaType it)
+                    throws GeneralException
+    {
+
+        try
+        {
+
+            this.dBMan.deleteObject (it,
+                                     false,
+                                     null);
+
+            this.project.removeIdeaType (it);
+
+            this.fireProjectEvent (ProjectEvent.Type.ideatype,
+                                   ProjectEvent.Action.delete,
+                                   it);
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to delete idea type: " + it,
+                                        e);
+
+        }
+
+    }
+
+    public void updateIdea (Idea i)
+                     throws GeneralException
+    {
+
+        try
+        {
+
+            this.dBMan.saveObject (i);
+
+            this.fireProjectEvent (ProjectEvent.Type.idea,
+                                   ProjectEvent.Action.changed,
+                                   i);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to update idea: " + i,
+                                        e);
+
+        }
+
+    }
+
+    public void deleteIdea (Idea i)
+                     throws GeneralException
+    {
+
+        try
+        {
+
+            this.dBMan.deleteObject (i,
+                                     false,
+                                     null);
+
+            i.getType ().removeIdea (i);
+
+            this.fireProjectEvent (ProjectEvent.Type.idea,
+                                   ProjectEvent.Action.delete,
+                                   i);
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to delete idea: " + i,
+                                        e);
+
+        }
 
     }
 

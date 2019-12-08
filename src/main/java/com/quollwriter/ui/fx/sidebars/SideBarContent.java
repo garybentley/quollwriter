@@ -8,6 +8,7 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.data.IPropertyBinder;
+import com.quollwriter.data.PropertyBinder;
 
 /**
  * A base class for content that is suitable for display within a sidebar.
@@ -16,6 +17,7 @@ public abstract class SideBarContent<E extends AbstractViewer> extends ViewerCon
 {
 
     protected SideBar sidebar = null;
+    private PropertyBinder binder = new PropertyBinder ();
 
     public SideBarContent (E viewer)
     {
@@ -28,13 +30,6 @@ public abstract class SideBarContent<E extends AbstractViewer> extends ViewerCon
     public State getState ()
     {
 
-        if (this.sidebar != null)
-        {
-
-            return this.sidebar.getState ();
-
-        }
-
         return new State ();
 
     }
@@ -43,7 +38,14 @@ public abstract class SideBarContent<E extends AbstractViewer> extends ViewerCon
     public IPropertyBinder getBinder ()
     {
 
-        return this.getSideBar ().getBinder ();
+        return this.binder;
+
+    }
+
+    public void dispose ()
+    {
+
+        this.binder.dispose ();
 
     }
 
@@ -55,6 +57,14 @@ public abstract class SideBarContent<E extends AbstractViewer> extends ViewerCon
         {
 
             this.sidebar.init (s);
+
+            this.sidebar.addEventHandler (SideBar.SideBarEvent.CLOSE_EVENT,
+                                          ev ->
+            {
+
+                this.dispose ();
+
+            });
 
         }
 

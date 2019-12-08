@@ -5,6 +5,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import javafx.scene.control.*;
+import javafx.beans.property.*;
+
 import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
@@ -13,7 +16,15 @@ import com.quollwriter.*;
 import com.quollwriter.text.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.uistrings.*;
+
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.QuollTextField;
+import com.quollwriter.ui.fx.components.QuollCheckBox;
+
 import org.jdom.*;
+
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
 
 public class WordFinder extends AbstractDialogueRule
 {
@@ -26,6 +37,11 @@ public class WordFinder extends AbstractDialogueRule
     }
 
     private String word = null;
+
+    private TextField words2 = null;
+    private CheckBox ignoreInDialogueCB2 = null;
+    private CheckBox onlyInDialogueCB2 = null;
+    private ChoiceBox<String> where2 = null;
 
     private TextFormItem words = null;
     private List<Word> tWords = null;
@@ -289,6 +305,39 @@ public class WordFinder extends AbstractDialogueRule
 
     }
 
+    public void updateFromForm2 ()
+    {
+
+        this.setOnlyInDialogue (this.onlyInDialogueCB2.isSelected ());
+        this.setIgnoreInDialogue (this.ignoreInDialogueCB2.isSelected ());
+
+        int ws = this.where2.getSelectionModel ().getSelectedIndex ();
+
+        if (ws == 0)
+        {
+
+            this.setWhere (DialogueConstraints.ANYWHERE);
+
+        }
+
+        if (ws == 1)
+        {
+
+            this.setWhere (DialogueConstraints.START);
+
+        }
+
+        if (ws == 2)
+        {
+
+            this.setWhere (DialogueConstraints.END);
+
+        }
+
+        this.setWord (this.words2.getText ().trim ());
+
+    }
+
     public void updateFromForm ()
     {
 
@@ -342,10 +391,101 @@ public class WordFinder extends AbstractDialogueRule
     }
 
     @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        List<String> pref = Arrays.asList (problemfinder,config,rules,wordfinder,labels);
+
+        this.words2 = QuollTextField.builder ()
+            .text (this.word)
+            .build ();
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref, wordphrase)),
+                                  this.words2));
+
+        this.where2 = new ChoiceBox<> ();
+
+        this.where2.getItems ().addAll (getUILanguageStringProperty (Utils.newList (pref, anywhere)).getValue (),
+                                       getUILanguageStringProperty (Utils.newList (pref, startofsentence)).getValue (),
+                                       getUILanguageStringProperty (Utils.newList (pref, endofsentence)).getValue ());
+
+        int sel = 0;
+
+        String loc = this.getWhere ();
+
+        if (loc.equals (DialogueConstraints.START))
+        {
+
+            sel = 1;
+
+        }
+
+        if (loc.equals (DialogueConstraints.END))
+        {
+
+            sel = 2;
+
+        }
+
+        this.where2.getSelectionModel ().select (sel);
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref, where)),
+                                  this.where2));
+
+        this.ignoreInDialogueCB2 = QuollCheckBox.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (pref, ignoreindialogue)))
+            .build ();
+
+        items.add (new Form.Item (this.ignoreInDialogueCB2));
+
+        this.onlyInDialogueCB2 = QuollCheckBox.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (pref, onlyindialogue)))
+            .build ();
+
+        items.add (new Form.Item (this.onlyInDialogueCB2));
+
+        this.ignoreInDialogueCB2.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv)
+            {
+
+                this.onlyInDialogueCB2.setSelected (false);
+
+            }
+
+        });
+
+        this.onlyInDialogueCB2.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv)
+            {
+
+                this.ignoreInDialogueCB2.setSelected (false);
+
+            }
+
+        });
+
+        this.ignoreInDialogueCB2.setSelected (this.isIgnoreInDialogue ());
+        this.onlyInDialogueCB2.setSelected (this.isOnlyInDialogue ());
+
+        items.add (new Form.Item (this.ignoreInDialogueCB2));
+
+        items.add (new Form.Item (this.onlyInDialogueCB2));
+
+        return items;
+
+    }
+
+    @Override
     public Set<FormItem> getFormItems ()
     {
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<FormItem> items = new LinkedHashSet<> ();
 
         List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
@@ -454,6 +594,25 @@ public class WordFinder extends AbstractDialogueRule
         items.add (this.onlyInDialogueCB);
 
         return items;
+
+    }
+
+    public StringProperty getFormError2 ()
+    {
+
+        String newWords = this.words2.getText ();
+
+        if ((newWords == null)
+            ||
+            (newWords.trim ().length () == 0)
+           )
+        {
+
+            return getUILanguageStringProperty (problemfinder,config,rules,wordfinder,nowordserror);
+
+        }
+
+        return null;
 
     }
 

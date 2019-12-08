@@ -55,7 +55,8 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
     private SimpleStringProperty titleProp = null;
 
-    private FlowPane tiles = null;
+    //private FlowPane tiles = null;
+    private VerticalLayout tiles = null;
 
     public ProjectsPanel (E viewer)
     {
@@ -75,7 +76,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
         Environment.uilangProperty (),
         Environment.allProjectsProperty ()));
 
-        this.tiles = new FlowPane ();
+        this.tiles = new VerticalLayout (); //new FlowPane ();
         this.tiles.getStyleClass ().add (StyleClassNames.PROJECTSLIST);
 
         this.fillProjects ();

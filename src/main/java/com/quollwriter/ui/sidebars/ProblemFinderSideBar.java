@@ -295,7 +295,6 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
                 prefix.add (LanguageStrings.unignore);
 
                 int s = _this.ignored.size ();
-                String pl = (s > 1 ? "s" : "");
 
                 UIUtils.createQuestionPopup (_this.viewer,
                                              Environment.getUIString (prefix,

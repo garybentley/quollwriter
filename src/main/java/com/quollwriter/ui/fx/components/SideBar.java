@@ -16,7 +16,6 @@ import javafx.collections.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
-import com.quollwriter.data.IPropertyBinder;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -148,14 +147,6 @@ public class SideBar extends BaseVBox implements Stateful
 
         });
 
-        this.addEventHandler (SideBarEvent.CLOSE_EVENT,
-                              ev ->
-        {
-
-            this.dispose ();
-
-        });
-
         if (b.content != null)
         {
 
@@ -198,6 +189,13 @@ public class SideBar extends BaseVBox implements Stateful
 
     }
 
+    public ScrollPane getScrollPane ()
+    {
+
+        return this.scrollPane;
+
+    }
+
     @Override
     public void init (State state)
     {
@@ -206,6 +204,26 @@ public class SideBar extends BaseVBox implements Stateful
         {
 
             this.scrollPane.setVvalue (state.getAsInt (State.Key.scrollpanev));
+
+        }
+
+        if ((this.content != null)
+            &&
+            (this.content instanceof Stateful)
+           )
+        {
+
+            try
+            {
+
+                ((Stateful) this.content).init (state.getAsState (State.Key.content));
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to init content with state: " + state,
+                                      e);
+
+            }
 
         }
 
@@ -222,6 +240,17 @@ public class SideBar extends BaseVBox implements Stateful
 
             s.set (State.Key.scrollpanev,
                    this.scrollPane.getVvalue ());
+
+        }
+
+        if ((this.content != null)
+            &&
+            (this.content instanceof Stateful)
+           )
+        {
+
+            s.set (State.Key.content,
+                   ((Stateful) this.content).getState ());
 
         }
 

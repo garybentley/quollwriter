@@ -6,6 +6,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import javafx.scene.control.*;
+import javafx.scene.control.SpinnerValueFactory.*;
+
 import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
@@ -18,6 +21,12 @@ import com.quollwriter.ui.forms.*;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import com.quollwriter.ui.forms.*;
+import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.ui.fx.components.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class SentenceLengthRule extends AbstractSentenceRule
 {
@@ -31,6 +40,8 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
     private int      wordCount = 0;
     private JSpinner count = null;
+
+    private Spinner<Integer> count2 = null;
 
     public SentenceLengthRule ()
     {
@@ -144,7 +155,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
         pref.add (LanguageStrings.rules);
         pref.add (LanguageStrings.sentencelength);
         pref.add (LanguageStrings.labels);
-    
+
         Set<FormItem> items = new LinkedHashSet ();
 
         this.count = new JSpinner (new SpinnerNumberModel (this.wordCount,
@@ -168,6 +179,24 @@ public class SentenceLengthRule extends AbstractSentenceRule
     }
 
     @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        List<String> pref = Arrays.asList (problemfinder,config,rules,sentencelength,labels);
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
+        this.count2 = new Spinner (new IntegerSpinnerValueFactory (1, 200, this.wordCount, 1));
+
+        items.add (new Form.Item (getUILanguageStringProperty (Utils.newList (pref,words)),
+                                    //"No of Words",
+                                  this.count2));
+
+        return items;
+
+    }
+
+    @Override
     public String getFormError ()
     {
 
@@ -179,6 +208,14 @@ public class SentenceLengthRule extends AbstractSentenceRule
     {
 
         this.wordCount = ((SpinnerNumberModel) this.count.getModel ()).getNumber ().intValue ();
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
+    {
+
+        this.wordCount = this.count2.getValue ();
 
     }
 

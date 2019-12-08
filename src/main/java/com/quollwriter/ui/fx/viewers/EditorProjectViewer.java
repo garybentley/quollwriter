@@ -94,4 +94,13 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
     }
 
+    @Override
+    public Set<FindResultsBox> findText (String t)
+    {
+
+        // TODO
+        return null;
+
+    }
+
 }

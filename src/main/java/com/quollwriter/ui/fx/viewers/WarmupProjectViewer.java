@@ -66,7 +66,7 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
     @Override
     public void openPanelForId (String id)
-                         throws GeneralException    
+                         throws GeneralException
     {
 
         super.openPanelForId (id);
@@ -99,6 +99,15 @@ public class WarmupProjectViewer extends AbstractProjectViewer
     public void showOptions (String sect)
                       throws GeneralException
     {
+
+    }
+
+    @Override
+    public Set<FindResultsBox> findText (String t)
+    {
+
+        // TODO
+        return null;
 
     }
 

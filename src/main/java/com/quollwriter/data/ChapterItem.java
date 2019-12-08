@@ -17,9 +17,10 @@ public abstract class ChapterItem extends NamedObject
     private Position  textPos = null;
     private Position  endTextPos = null;
     private com.quollwriter.ui.fx.components.TextEditor.Position textPos2 = null;
+    private com.quollwriter.ui.fx.components.TextEditor.Position endTextPos2 = null;
     protected Chapter chapter = null;
-    protected Scene   scene = null;
     private SimpleIntegerProperty positionProp = new SimpleIntegerProperty ();
+    private SimpleIntegerProperty endPositionProp = new SimpleIntegerProperty ();
 
     public static Set<? extends ChapterItem> getEmptyChapterItemSet ()
     {
@@ -71,12 +72,26 @@ public abstract class ChapterItem extends NamedObject
 
         }
 
+        if (this.endTextPos2 != null)
+        {
+
+            this.endTextPos2.dispose ();
+
+        }
+
     }
 
     public SimpleIntegerProperty positionProperty ()
     {
 
         return this.positionProp;
+
+    }
+
+    public SimpleIntegerProperty endPositionProperty ()
+    {
+
+        return this.endPositionProp;
 
     }
 
@@ -98,9 +113,6 @@ public abstract class ChapterItem extends NamedObject
         this.addToStringProperties (props,
                                     "endTextPosition",
                                     (this.endTextPos != null ? this.endTextPos.getOffset () : null));
-        this.addToStringProperties (props,
-                                    "scene",
-                                    this.scene);
         this.addToStringProperties (props,
                                     "chapter",
                                     this.chapter);
@@ -126,7 +138,7 @@ public abstract class ChapterItem extends NamedObject
 
         if ((this.chapter != null)
             &&
-            (this.chapter == c)
+            (this.chapter.equals (c))
            )
         {
 
@@ -137,37 +149,26 @@ public abstract class ChapterItem extends NamedObject
 
         if ((this.chapter != null)
             &&
-            (this.chapter != c)
+            (!this.chapter.equals (c))
            )
         {
 
             // Remove this item from the existing chapter.
-            this.chapter.removeChapterItem (this);
+            // TODO ? this.chapter.removeChapterItem (this);
 
         }
 
         this.chapter = c;
 
-        if (this.scene == null)
+        if (this.getKey () == null)
         {
 
-            this.chapter.addChapterItem (this);
+            // Don't try and add the item if there is no key.
+            return;
 
         }
 
-    }
-
-    public Scene getScene ()
-    {
-
-        return this.scene;
-
-    }
-
-    public void setScene (Scene s)
-    {
-
-        this.scene = s;
+        // this.chapter.addChapterItem (this);
 
     }
 
@@ -198,6 +199,22 @@ public abstract class ChapterItem extends NamedObject
     {
 
         this.endTextPos = t;
+
+    }
+
+    public void setEndTextPosition2 (com.quollwriter.ui.fx.components.TextEditor.Position t)
+    {
+
+        if (this.endTextPos2 != null)
+        {
+
+            this.endTextPos2.dispose ();
+
+        }
+
+        this.endTextPos2 = t;
+        this.endPositionProp.unbind ();
+        this.endPositionProp.bind (t.positionProperty ());
 
     }
 

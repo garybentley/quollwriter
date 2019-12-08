@@ -679,7 +679,7 @@ TODO Remove?
                 this.checkParagraph (i);
 
             }
-            
+
         } else {
 
             IndexRange or = this.text.getParagraphTextRange (op);
@@ -820,7 +820,7 @@ System.out.println ("OW: " + ow + ", " + nw);
 
             this.text.caretPositionProperty ().addListener ((pr, oldv, newv) ->
             {
-System.out.println ("CARET: " + oldv + ", " + newv);
+
                 this.rangesToCheck.add (new Range (oldv, newv));
 /*
                 int oldp = this.text.getParagraphForOffset (oldv);

@@ -8,11 +8,11 @@ import com.quollwriter.ui.components.*;
 
 public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 {
-    
+
     private Paragraph parent = null;
     private int start = 0;
     private String sentence = null;
-    private List<Word> words = new ArrayList ();
+    private List<Word> words = new ArrayList<> ();
     private Sentence next = null;
     private Sentence previous = null;
     private int syllableCount = -1;
@@ -21,23 +21,23 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     public Sentence (String      sentence,
                      DialogueInd inDialogue)
     {
-    
+
         if (sentence == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         Word last = null;
-                
+
         BreakIterator iter = BreakIterator.getWordInstance ();
         iter.setText (sentence);
-                
+
         int sl = sentence.length ();
-        
+
         int st = iter.first ();
-        
+
         for (int end = iter.next (); end != BreakIterator.DONE; st = end, end = iter.next ())
         {
 
@@ -50,137 +50,137 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 continue;
 
             }
-                        
+
             char c = ' ';
 
             if (word.length () == 1)
             {
-                
+
                 // Should an opening quote at the start of a sentence always mean
-                // that the sentence is in dialogue?  
-                
+                // that the sentence is in dialogue?
+
                 c = word.charAt (0);
-                
+
             }
-            
+
             Word w = new Word (this,
                                word,
                                st,
                                inDialogue.update (c));
-            
+
             this.words.add (w);
 
             if (last != null)
             {
-                
+
                 w.setPrevious (last);
                 last.setNext (w);
-                
+
             }
-                               
+
             last = w;
-            
-        }        
-    
-        this.sentence = sentence;//.trim ();    
-    
+
+        }
+
+        this.sentence = sentence;//.trim ();
+
     }
-    
+
     public Sentence (Paragraph   parent,
                      String      sentence,
                      int         start,
                      DialogueInd inDialogue)
     {
-        
+
         this (sentence,
               inDialogue);
-        
+
         this.parent = parent;
         this.start = start;
-        
+
     }
-    
+
     public int getThreeSyllableWordCount ()
     {
-        
+
         int c = 0;
-        
+
         for (Word w : this.words)
         {
-            
+
             if (w.getSyllableCount () > 2)
             {
-                
+
                 c++;
-                
+
             }
-                        
+
         }
-            
+
         return c;
-        
+
     }
-    
+
     public int getSyllableCount ()
     {
-        
+
         if (this.syllableCount == -1)
         {
-                    
+
             int c = 0;
-            
+
             for (Word w : this.words)
             {
-                
+
                 c += w.getSyllableCount ();
-                
+
             }
-        
+
             this.syllableCount = c;
-        
+
         }
 
         return this.syllableCount;
-        
+
     }
-        
+
     public Word getLastWord ()
     {
-        
-        return this.words.get (this.words.size () - 1);        
-        
+
+        return this.words.get (this.words.size () - 1);
+
     }
-    
+
     public int getWordCount ()
     {
-        
+
         int c = 0;
-        
+
         if (this.wordCount == -1)
         {
-        
+
             for (Word w : this.words)
             {
-                
+
                 if (w.isPunctuation ())
                 {
-                    
+
                     continue;
-                    
+
                 }
-                
+
                 c++;
-                
+
             }
-            
+
             this.wordCount = c;
-        
+
         }
-        
+
         return this.wordCount;
-                
+
     }
-    
+
     /**
      * Get the nth word in the list of words this sentence models, words are indexed from 0.
      *
@@ -189,18 +189,18 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
      */
     public Word getWord (int i)
     {
-        
+
         if (i < 0 || i > this.words.size () - 1)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return this.words.get (i);
-        
+
     }
-    
+
     /**
      * Get the word at the specifed offset into the sentence text.  This is the word at the nth character in the sentence,
      * characters start at 0.
@@ -210,7 +210,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
      */
     public Word getWordAt (int offset)
     {
-        
+
         for (Word w : this.words)
         {
 
@@ -219,74 +219,74 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 (w.getStart () <= offset)
                )
             {
-                            
+
                 return w;
-                
+
             }
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public List<Word> getChildren ()
     {
-        
+
         return this.words;
-        
+
     }
-    
+
     public List<Word> getWords ()
     {
-        
+
         return this.getChildren ();
-        
+
     }
-    
+
     public String getText ()
     {
-                
+
         return this.sentence;
-        
+
     }
-    
+
     public int getIndexOfFirstTextWord ()
     {
-        
+
         for (int i = 0; i < this.words.size (); i++)
         {
-            
+
             if (!this.words.get (i).isPunctuation ())
             {
-                
+
                 return i;
-                
+
             }
-            
+
         }
-        
+
         return -1;
-        
+
     }
 
     public int getIndexOfLastTextWord ()
     {
-        
+
         for (int i = this.words.size () - 1; i > -1; i--)
         {
-            
+
             if (!this.words.get (i).isPunctuation ())
             {
-                
+
                 return i;
-                
+
             }
-            
+
         }
-        
+
         return -1;
-        
+
     }
 
     /**
@@ -303,20 +303,20 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 
         if (constraints == null)
         {
-            
+
             constraints = new DialogueConstraints (false,
                                                    false,
                                                    DialogueConstraints.ANYWHERE);
-            
+
         }
-                
+
         NavigableSet<Integer> ret = new TreeSet ();
 
         for (Integer ind : TextUtilities.find (this.words,
                                                findWords,
                                                true))
         {
-        
+
             Word fw = this.words.get (ind);
 
             if ((constraints.ignoreInDialogue)
@@ -324,29 +324,29 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 (fw.isInDialogue ())
                )
             {
-                
+
                 continue;
-                
+
             }
-            
+
             if ((constraints.onlyInDialogue)
                 &&
                 (!fw.isInDialogue ())
                )
             {
-                
+
                 continue;
 
             }
-            
+
             if ((constraints.where.equals (DialogueConstraints.START))
                 &&
                 (ind != this.getIndexOfFirstTextWord ())
                )
             {
-                
+
                 continue;
-                
+
             }
 
             if ((constraints.where.equals (DialogueConstraints.END))
@@ -354,30 +354,30 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 ((findWords.size () + ind - 1) != this.getIndexOfLastTextWord ())
                )
             {
-                
+
                 continue;
-                
+
             }
-            
+
             ret.add (ind);
-        
+
         }
 
         return ret;
         /*
         if (true)
         {
-            
+
             return ret;
-            
+
         }
-        
+
         int fc = findWords.size ();
 
         int wc = this.words.size ();
 
         int firstWord = -1;
-                
+
         for (int i = 0; i < wc; i++)
         {
 
@@ -394,7 +394,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
             if ((constraints.onlyInDialogue) &&
                 (!w.isInDialogue ()))
             {
-                
+
                 continue;
 
             }
@@ -425,27 +425,27 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 
                         } else
                         {
-                            
+
                             if ((constraints.ignoreInDialogue) &&
                                 (w2.isInDialogue ()))
                             {
-    
+
                                 wfc++;
-    
+
                                 continue;
-    
+
                             }
-    
+
                             if ((constraints.onlyInDialogue) &&
                                 (!w2.isInDialogue ()))
                             {
-    
+
                                 wfc++;
-                                
+
                                 continue;
-    
-                            }                            
-                            
+
+                            }
+
                             match = true;
 
                         }
@@ -528,7 +528,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         return ret;
 */
     }
-    
+
     /**
      * Look for the text in the sentence.
      *
@@ -539,15 +539,15 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     public NavigableSet<Integer> find (String              find,
                                        DialogueConstraints constraints)
     {
-                
+
         List<Word> findWords = new Sentence (find,
                                              new DialogueInd ()).getWords ();
 
         return this.find (findWords,
                           constraints);
-        
-    }    
-    
+
+    }
+
     /**
      * Return where the sentence is within the overall block of text, this is the
      * this.getParent ().getTextStartOffset () + this.getStart ()
@@ -556,39 +556,39 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
      */
     public int getAllTextStartOffset ()
     {
-        
+
         if (this.parent == null)
         {
-            
+
             return this.start;
-            
+
         }
-        
+
         return this.parent.getAllTextStartOffset () + this.start;
-        
+
     }
-    
+
     public int getAllTextEndOffset ()
     {
-        
+
         if (this.parent == null)
         {
-            
+
             return this.getEnd ();
-            
+
         }
-        
+
         return this.parent.getAllTextStartOffset () + this.getEnd ();
-        
+
     }
 
     public int getEnd ()
     {
-        
+
         return this.start + this.sentence.length () - 1;
-        
+
     }
-    
+
     /**
      * Return where the sentence is within the parent paragraph.
      *
@@ -596,59 +596,59 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
      */
     public int getStart ()
     {
-        
+
         return this.start;
-        
+
     }
-    
+
     public Paragraph getParent ()
     {
-        
+
         return this.parent;
-        
+
     }
-    
+
     public Paragraph getParagraph ()
     {
-        
+
         return this.parent;
-        
+
     }
-    
+
     public Sentence getPrevious ()
     {
-        
+
         return this.previous;
-        
+
     }
-    
+
     public void setPrevious (Sentence s)
     {
-        
+
         this.previous = s;
-        
+
     }
-    
+
     public Sentence getNext ()
     {
-        
+
         return this.next;
-        
+
     }
-    
+
     public void setNext (Sentence s)
     {
-        
+
         this.next = s;
-        
+
     }
-    
+
     @Override
     public String toString ()
     {
-                
+
         Map<String, Object> data = new LinkedHashMap ();
-        
+
         data.put ("type",
                   "sentence");
         data.put ("wordCount",
@@ -665,11 +665,11 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                   this.getSyllableCount ());
         data.put ("threeSyllableWordCount",
                   this.getThreeSyllableWordCount ());
-                
-        return Environment.formatObjectToStringProperties (data);        
-        
-    }    
- 
+
+        return Environment.formatObjectToStringProperties (data);
+
+    }
+
     /**
      * Get the text in this paragraph, marked up as html with the markup passed in.
      * It assumes that the markup is relative to the getAllTextStartOffset.
@@ -679,22 +679,22 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
      */
     public String markupAsHTML (Markup m)
     {
-        
+
         if (m == null)
         {
-            
+
             return this.sentence;
-            
+
         }
-        
+
         Markup pm = new Markup (m,
                                 this.getAllTextStartOffset (),
                                 this.getAllTextEndOffset ());
-                    
+
         pm.shiftBy (-1 * this.getAllTextStartOffset ());
- 
+
         return pm.markupAsHTML (this.sentence);
- 
+
     }
-    
+
 }

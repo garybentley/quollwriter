@@ -33,6 +33,7 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
     private QuollTextArea desc = null;
     private CheckBox addToChapter = null;
     private boolean addMode = false;
+    private HyperlinkLinkedToPanel linkedToPanel = null;
 
     public AddEditStructureItemPopup (ProjectViewer viewer,
                                       ChapterItem   item,
@@ -57,44 +58,51 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
 
         this.form = this.addItems (Form.builder (),
                                    editor.getSelectedText ())
-            .button (getUILanguageStringProperty (buttons,save),
-                     StyleClassNames.SAVE,
-                     ButtonBar.ButtonData.APPLY,
-                     ev ->
-                     {
-
-                         this.form.hideError ();
-
-                         StringProperty err = this.getFormError ();
-
-                         if (err != null)
-                         {
-
-                             this.form.showError (err);
-                             return;
-
-                         }
-
-                         if (this.handleSave ())
-                         {
-
-                             this.close ();
-
-                         }
-
-                     })
-            .button (getUILanguageStringProperty (buttons,cancel),
-                     StyleClassNames.CANCEL,
-                     ButtonBar.ButtonData.CANCEL_CLOSE,
-                     ev ->
-                     {
-
-                         this.close ();
-
-                     })
+            .confirmButton (getUILanguageStringProperty (buttons,save))
+            .cancelButton (getUILanguageStringProperty (buttons,cancel))
             .build ();
 
+        this.form.addEventHandler (Form.FormEvent.CANCEL_EVENT,
+                                   ev ->
+        {
+
+            this.close ();
+
+        });
+
+        this.form.addEventHandler (Form.FormEvent.CONFIRM_EVENT,
+                                   ev ->
+        {
+
+            this.form.hideError ();
+
+            StringProperty err = this.getFormError ();
+
+            if (err != null)
+            {
+
+                this.form.showError (err);
+                return;
+
+            }
+
+            if (this.handleSave ())
+            {
+
+                this.close ();
+
+            }
+
+        });
+
         this.getChildren ().add (this.form);
+
+    }
+
+    public void setOnClose (Runnable r)
+    {
+
+        this.getPopup ().setOnClose (r);
 
     }
 
@@ -108,7 +116,10 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
     private StringProperty getFormError ()
     {
 
-        if (this.desc.getText () == null)
+        if ((this.desc.getText () == null)
+            ||
+            (this.desc.getText ().trim ().length () == 0)
+           )
         {
 
             return getUILanguageStringProperty (chapteritems,errors,nodescription);
@@ -127,7 +138,9 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
         this.desc = QuollTextArea.builder ()
             .placeholder (getUILanguageStringProperty (chapteritems,labels,description,tooltip))
             .styleClassName (StyleClassNames.DESCRIPTION)
+            .withViewer (this.viewer)
             .autoGrabFocus (true)
+            .formattingEnabled (true)
             .build ();
 
         builder.item (getUILanguageStringProperty (chapteritems,labels,description,text),
@@ -161,6 +174,12 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
 
         }
 
+        this.linkedToPanel = new HyperlinkLinkedToPanel (this.item,
+                                                         this.getBinder (),
+                                                         this.viewer);
+
+        builder.item (this.linkedToPanel);
+
         return builder;
 
     }
@@ -168,7 +187,7 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
     private boolean handleSave ()
     {
 
-        this.item.setDescription (new StringWithMarkup (this.desc.getText ()));
+        this.item.setDescription (this.desc.getTextWithMarkup ());
 
         this.viewer.setTempOption ("addToChapter",
                                    this.addToChapter.isSelected ());
@@ -276,10 +295,14 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
 
                 }
 
-                // Force a save of the chapter.
                 this.viewer.saveObject (this.item,
                                         true);
 
+                // Force a save of the chapter.
+                /*
+                this.viewer.saveObject (this.chapter,
+                                        true);
+*/
                 this.viewer.fireProjectEvent (this.item instanceof OutlineItem ? ProjectEvent.Type.outlineitem : ProjectEvent.Type.scene,
                                               ProjectEvent.Action._new,
                                               this.item);
@@ -333,9 +356,6 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
 
         }
 
-        // Reload the entire tree.
-        // TODO REmove this.viewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
-
         editor.requestFocus ();
 
         return true;
@@ -377,6 +397,14 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
         p.getStyleClass ().add (this.item instanceof OutlineItem ? StyleClassNames.OUTLINEITEM : StyleClassNames.SCENE);
 
         p.toFront ();
+
+        p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                           ev ->
+        {
+
+            this.desc.requestFocus ();
+
+        });
 
         return p;
 

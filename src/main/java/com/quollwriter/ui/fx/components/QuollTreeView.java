@@ -96,6 +96,114 @@ public class QuollTreeView<T> extends Pane
 
     }
 
+    public void toggleOpen (TreeItem<T> item)
+    {
+
+        item.setExpanded (!item.isExpanded ());
+
+    }
+
+    public void insertAfter (TreeItem<T> newItem,
+                             TreeItem<T> insertAfter)
+    {
+
+        if (this.root == insertAfter)
+        {
+
+            this.root.getChildren ().add (newItem);
+            return;
+
+        }
+
+        TreeItem<T> parent = this.root;
+        int ind = 0;
+
+        if (insertAfter != null)
+        {
+
+            parent = insertAfter.getParent ();
+
+            ind = parent.getChildren ().indexOf (insertAfter);
+
+        }
+
+        if (ind < 0)
+        {
+
+            // Add at the bottom.
+            ind = parent.getChildren ().size ();
+
+        }
+
+        parent.getChildren ().add (ind,
+                                   newItem);
+
+    }
+
+    public TreeItem<T> getTreeItemForObject (T o)
+    {
+
+        return this.getTreeItemForObject (o,
+                                          null);
+
+    }
+
+    public TreeItem<T> getTreeItemForObject (T           o,
+                                             TreeItem<T> child)
+    {
+
+        if (child == null)
+        {
+
+            child = this.root;
+
+        }
+
+        if (child.getValue ().equals (o))
+        {
+
+            return child;
+
+        }
+
+        for (TreeItem<T> item : child.getChildren ())
+        {
+
+            TreeItem<T> tti = this.getTreeItemForObject (o,
+                                                         item);
+
+            if (tti != null)
+            {
+
+                return tti;
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    public QuollTreeCell getCellForObject (T o)
+    {
+
+        for (TreeItem<T> item : this.cells.keySet ())
+        {
+
+            if (item.getValue ().equals (o))
+            {
+
+                return this.cells.get (item);
+
+            }
+
+        }
+
+        return null;
+
+    }
+
     public void select (Object o)
     {
 
@@ -126,6 +234,45 @@ public class QuollTreeView<T> extends Pane
 
     }
 
+    public void expandAll ()
+    {
+
+        this.walkTree (item ->
+        {
+
+            item.setExpanded (true);
+
+        });
+
+    }
+
+    public void expand (Set<T> objs)
+    {
+
+        if (objs == null)
+        {
+
+            return;
+
+        }
+
+        objs.stream ()
+            .forEach (o ->
+            {
+
+                TreeItem<T> ti = this.getTreeItemForObject (o);
+
+                if (ti != null)
+                {
+
+                    this.expandPathToRoot (ti);
+
+                }
+
+            });
+
+    }
+
     public void expandPathToRoot (TreeItem<T> item)
     {
 
@@ -141,6 +288,27 @@ public class QuollTreeView<T> extends Pane
         p.setExpanded (true);
 
         this.expandPathToRoot (p);
+
+    }
+
+    public Set<TreeItem<T>> getExpandedTreeItems ()
+    {
+
+        Set<TreeItem<T>> expanded = new HashSet<> ();
+
+        this.walkTree (item ->
+        {
+
+            if (item.isExpanded ())
+            {
+
+                expanded.add (item);
+
+            }
+
+        });
+
+        return expanded;
 
     }
 
@@ -242,6 +410,8 @@ public class QuollTreeView<T> extends Pane
 
                 }
 
+                this.requestLayout ();
+
                 return;
 
             }
@@ -252,28 +422,12 @@ public class QuollTreeView<T> extends Pane
                 for (TreeItem<T> ti : ev.getAddedChildren ())
                 {
 
-                    QuollTreeCell c = new QuollTreeCell (ti,
-                                           this.cellProvider.apply (ti));
-
-                    this.cells.put (ti,
-                                    c);
-
-                    this.getChildren ().add (c);
+                    this.createExpandedCells (ti);
 
                 }
 
+                this.requestLayout ();
                 return;
-
-            }
-
-            // Added cells are handled by the layout.
-            QuollTreeCell cell = this.cells.get (ev.getTreeItem ());
-
-            if (cell != null)
-            {
-
-                // Let the cell react.
-                cell.handleModificationEvent (ev);
 
             }
 
@@ -295,7 +449,18 @@ public class QuollTreeView<T> extends Pane
 
     }
 
-    private void removeBranch (TreeItem<T> ti)
+    public void removeObject (T t)
+    {
+
+        TreeItem<T> ti = this.getTreeItemForObject (t);
+
+        TreeItem<T> parent = ti.getParent ();
+        parent.getChildren ().remove (ti);
+        this.requestLayout ();
+
+    }
+
+    public void removeBranch (TreeItem<T> ti)
     {
 
         this.getChildren ().remove (this.cells.remove (ti));
@@ -370,6 +535,12 @@ public class QuollTreeView<T> extends Pane
 
     private void createExpandedCells (TreeItem<T> ti)
     {
+
+/* EXP */
+        if (true)
+        {
+            return;
+        }
 
         QuollTreeCell c = this.cells.get (ti);
 
@@ -451,7 +622,12 @@ public class QuollTreeView<T> extends Pane
 
         QuollTreeCell rc = this.cells.get (this.root);
 
-        rc.setVisible (false);
+        if (rc != null)
+        {
+
+            rc.setVisible (false);
+
+        }
 
         if (this.root.isExpanded ())
         {
@@ -486,6 +662,22 @@ public class QuollTreeView<T> extends Pane
 
     }
 
+    private QuollTreeCell createCell (TreeItem<T> ti)
+    {
+
+        QuollTreeCell cell = new QuollTreeCell (ti,
+                                                this.cellProvider.apply (ti));
+        //c.setVisible (this.isPathToParentExpanded (ti.getParent ()));
+
+        this.cells.put (ti,
+                        cell);
+
+        this.getChildren ().add (cell);
+
+        return cell;
+
+    }
+
     private double calcPrefHeight (TreeItem<T> ti,
                                    double      width,
                                    double      total)
@@ -501,6 +693,13 @@ public class QuollTreeView<T> extends Pane
             )
            )
         {
+
+            if (rc == null)
+            {
+
+                rc = this.createCell (ti);
+
+            }
 
             total += rc.prefHeight (width);
 
@@ -534,7 +733,17 @@ public class QuollTreeView<T> extends Pane
         if (cell == null)
         {
 
-            return yoffset;
+            /* EXP */
+            cell = new QuollTreeCell (ti,
+                                   this.cellProvider.apply (ti));
+            //c.setVisible (this.isPathToParentExpanded (ti.getParent ()));
+
+            this.cells.put (ti,
+                            cell);
+
+            this.getChildren ().add (cell);
+
+            //return yoffset;
 
         }
 
@@ -554,7 +763,7 @@ public class QuollTreeView<T> extends Pane
         // Is this true?
         boolean fillWidth = true;
 
-        //cell.setVisible (true);
+        cell.setVisible (true);
         //cell.autosize ();
         double ch = cell.prefHeight (width);
         double cw = cell.prefWidth (ch);
@@ -573,6 +782,8 @@ public class QuollTreeView<T> extends Pane
                            VPos.TOP,
                            true);
 
+        // Have to reqeust a layout or the cell won't be redrawn.
+        cell.requestLayout ();
         y += ch;
 
         if (ti.isExpanded ())
@@ -613,33 +824,9 @@ public class QuollTreeView<T> extends Pane
             this.disclosureNodeWrapper = new StackPane ();
             this.disclosureNodeWrapper.getChildren ().add (this.disclosureNode);
             this.disclosureNode.getStyleClass ().add ("disclosure");
-            //this.disclosureNodeWrapper.managedProperty ().bind (this.disclosureNodeWrapper.visibleProperty ());
             this.getStyleClass ().add (StyleClassNames.CELL);
             this.getChildren ().add (this.disclosureNodeWrapper);
-/*
-            if (ti.isLeaf ())
-            {
 
-                if (ti.getParent () != null)
-                {
-
-                    for (TreeItem ci : ti.getParent ().getChildren ())
-                    {
-
-                        if (!ci.isLeaf ())
-                        {
-
-                            // Add an indent.
-
-
-                        }
-
-                    }
-
-                }
-
-            }
-*/
             if (ti instanceof CheckBoxTreeItem)
             {
 

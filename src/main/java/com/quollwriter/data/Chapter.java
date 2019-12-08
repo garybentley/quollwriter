@@ -46,7 +46,7 @@ public class Chapter extends LegacyUserConfigurableObject
     private Position textEditPos = null;
     private boolean editComplete = false;
     private BooleanProperty editCompleteProp = new SimpleBooleanProperty (false);
-    private Set<Issue> problemFinderIgnores = new HashSet<> ();
+    private ObservableSet<Issue> problemFinderIgnores = FXCollections.observableSet (new HashSet<> ());
 
     private ProjectVersion projVersion = null;
 
@@ -282,7 +282,7 @@ public class Chapter extends LegacyUserConfigurableObject
     public Set<Issue> getProblemFinderIgnores (Rule forRule)
     {
 
-        Set<Issue> ignores = new LinkedHashSet ();
+        Set<Issue> ignores = new LinkedHashSet<> ();
 
         for (Issue i : this.problemFinderIgnores)
         {
@@ -300,7 +300,7 @@ public class Chapter extends LegacyUserConfigurableObject
 
     }
 
-    public Set<Issue> getProblemFinderIgnores ()
+    public ObservableSet<Issue> getProblemFinderIgnores ()
     {
 
         return this.problemFinderIgnores;
@@ -310,7 +310,9 @@ public class Chapter extends LegacyUserConfigurableObject
     public void setProblemFinderIgnores (Set<Issue> ignores)
     {
 
-        this.problemFinderIgnores = ignores;
+        this.problemFinderIgnores.clear ();
+
+        this.problemFinderIgnores.addAll (ignores);
 
     }
 
@@ -1018,7 +1020,7 @@ public class Chapter extends LegacyUserConfigurableObject
 
         if ((s.getChapter () != null)
             &&
-            (s.getChapter () != this)
+            (!s.getChapter ().equals (this))
            )
         {
 

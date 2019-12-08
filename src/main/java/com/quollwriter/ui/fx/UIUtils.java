@@ -23,6 +23,7 @@ import javafx.stage.*;
 import javafx.geometry.*;
 import javafx.scene.paint.*;
 import javafx.embed.swing.*;
+import javafx.scene.text.*;
 import javafx.event.*;
 import javafx.util.*;
 import javafx.collections.*;
@@ -753,6 +754,28 @@ public class UIUtils
 
     }
 
+    public static void addDoOnReturnPressed (QuollTextArea f,
+                                             Runnable      r)
+    {
+
+        f.getTextEditor ().addEventHandler (KeyEvent.KEY_PRESSED,
+                                          ev ->
+        {
+
+            if ((ev.getCode () == KeyCode.ENTER)
+                &&
+                (ev.isShortcutDown ())
+               )
+            {
+
+                r.run ();
+
+            }
+
+        });
+
+    }
+
     public static void scrollIntoView (Node node,
                                        VPos pos)
     {
@@ -783,6 +806,35 @@ public class UIUtils
         UIUtils.scrollIntoView ((ScrollPane) p,
                                 node,
                                 pos);
+
+    }
+
+    public static Bounds getBoundsInParent (Node parent,
+                                            Node node,
+                                            Bounds b)
+    {
+
+        Node p = node.getParent ();
+
+        b = node.localToParent (b);
+
+        while (p != parent)
+        {
+
+            if (p == null)
+            {
+
+                return b;
+
+            }
+
+            b = p.localToParent (b);
+            System.out.println ("BBB: " + b);
+            p = p.getParent ();
+
+        }
+
+        return b;
 
     }
 
@@ -1152,6 +1204,8 @@ public class UIUtils
                                                   String      format)
     {
 
+        String text = (format != null ? format : UserProperties.getProjectInfoFormat ());
+
         List<String> prefix = Arrays.asList (allprojects,LanguageStrings.project,view,labels);
 
         String lastEd = "";
@@ -1170,8 +1224,6 @@ public class UIUtils
 
         }
 
-        String text = (format != null ? format : UserProperties.getProjectInfoFormat ());
-
         String nl = String.valueOf ('\n');
 
         while (text.endsWith (nl))
@@ -1183,14 +1235,14 @@ public class UIUtils
         }
 
         text = text.toLowerCase ();
-
+/*
         text = StringUtils.replaceString (text,
                                           " ",
                                           "&nbsp;");
         text = StringUtils.replaceString (text,
                                           nl,
                                           "<br />");
-
+*/
         text = StringUtils.replaceString (text,
                                           PROJECT_INFO_STATUS_TAG,
                                           (project.getStatus () != null ? project.getStatus () : getUIString (LanguageStrings.project,status,novalue)));
@@ -1223,7 +1275,7 @@ public class UIUtils
                                                          Environment.formatNumber (Math.round (project.getFleschKincaidGradeLevel ())),
                                                          Environment.formatNumber (Math.round (project.getFleschReadingEase ())),
                                                          Environment.formatNumber (Math.round (project.getGunningFogIndex ()))));
-
+System.out.println ("RET: " + text);
         return text;
 
     }
@@ -1310,7 +1362,8 @@ public class UIUtils
 
     }
 
-    public static void showDeleteObjectPopup (StringProperty               deleteType,
+    // TODO Move to QuollPopup as a builder.
+    public static QuollPopup showDeleteObjectPopup (StringProperty               deleteType,
                                               StringProperty               objName,
                                               String                       style,
                                               StringProperty               extraMessage,
@@ -1324,7 +1377,7 @@ public class UIUtils
                                                               objName,
                                                               extraMessage != null ? extraMessage : new SimpleStringProperty (""));
 
-        QuollPopup.yesConfirmTextEntryBuilder ()
+        return QuollPopup.yesConfirmTextEntryBuilder ()
             .title (getUILanguageStringProperty (Arrays.asList (deleteitem,title),
                                                  deleteType))
             .description (message)
@@ -1737,7 +1790,7 @@ public class UIUtils
     }
 
     public static String getChapterInfoPreview (Chapter               c,
-                                                String                format,
+                                                StringWithMarkup      format,
                                                 AbstractProjectViewer viewer)
     {
 
@@ -1768,7 +1821,8 @@ public class UIUtils
 
         }
 
-        String text = format;
+        // TODO
+        String text = format.getText ();
 
         if (text == null)
         {
@@ -2589,6 +2643,17 @@ TODO
     public static Set<MenuItem> getNewAssetMenuItems (final ProjectViewer viewer)
     {
 
+        return UIUtils.getNewAssetMenuItems (viewer,
+                                             null,
+                                             null);
+
+    }
+
+    public static Set<MenuItem> getNewAssetMenuItems (final ProjectViewer viewer,
+                                                      String              name,
+                                                      StringWithMarkup    description)
+    {
+
         String pref = getUIString (general,shortcut);
         //"Shortcut: ";
 
@@ -2604,8 +2669,38 @@ TODO
                 .onAction (ev ->
                 {
 
-                    viewer.runCommand (ProjectViewer.CommandId.newasset,
-                                       type);
+                    Asset asset = null;
+
+                    try
+                    {
+
+                        asset = Asset.createAsset (type);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to create new asset for object type: " +
+                                              type,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (viewer,
+                                                         getUILanguageStringProperty (Arrays.asList (assets,add,actionerror),
+                                                                                      type.getObjectTypeName ()));
+                                                  //"Unable to create new asset type.");
+
+                        return;
+
+                    }
+
+                    if (name != null)
+                    {
+
+                        asset.setName (name);
+
+                    }
+
+                    asset.setDescription (description);
+
+                    viewer.showAddNewAsset (asset);
 
                 })
                 .build ();
@@ -3124,6 +3219,95 @@ TODO
         });
 
         return swatch;
+
+    }
+
+    public static ComboBox<Font> getFontSelector (AbstractViewer viewer,
+                                                  Font           def)
+    {
+
+        ComboBox<Font> font = new ComboBox<> ();
+        font.getStyleClass ().add (StyleClassNames.FONTFAMILY);
+        font.setEditable (false);
+        Callback<ListView<Font>, ListCell<Font>> fact = lv ->
+        {
+
+            return new ListCell<Font> ()
+            {
+
+                @Override
+                protected void updateItem (Font f, boolean empty)
+                {
+
+                    super.updateItem (f, empty);
+
+                    if (f == null)
+                    {
+
+                        return;
+
+                    }
+
+                    this.setText (f.getName ());
+                    this.setFont (f);
+
+                }
+
+            };
+
+        };
+
+        viewer.schedule (() ->
+        {
+
+            ObservableList<Font> fs = FXCollections.observableList (Font.getFamilies ().stream ()
+                .map (n ->
+                {
+
+                    try
+                    {
+
+                        Font f = Font.font (n);
+
+                        if (f == null)
+                        {
+
+                            return null;
+
+                        }
+
+                        return f;
+
+                    } catch (Exception e) {
+
+                        return null;
+
+                    }
+
+                })
+                .filter (n -> n != null)
+                .collect (Collectors.toList ()));
+
+            UIUtils.runLater (() ->
+            {
+
+                fs.add (0,
+                        Font.getDefault ());
+
+                font.setItems (fs);
+
+                font.getSelectionModel ().select (def);
+
+            });
+
+        },
+        -1,
+        -1);
+
+        font.setButtonCell (fact.call (null));
+        font.setCellFactory (fact);
+
+        return font;
 
     }
 

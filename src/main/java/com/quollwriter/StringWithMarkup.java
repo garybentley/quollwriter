@@ -1,10 +1,14 @@
 package com.quollwriter;
 
+import javafx.beans.property.*;
+
 public class StringWithMarkup
 {
 
     private String text = null;
     private Markup markup = null;
+    private StringProperty textProp = new SimpleStringProperty ();
+    private ObjectProperty<Markup> markupProp = new SimpleObjectProperty<> ();
 
     public StringWithMarkup (String text,
                              Markup markup)
@@ -12,6 +16,9 @@ public class StringWithMarkup
 
         this.text = text;
         this.markup = markup;
+
+        this.markupProp.setValue (this.markup);
+        this.textProp.setValue (this.text);
 
     }
 
@@ -28,12 +35,31 @@ public class StringWithMarkup
 
         }
 
+        this.markupProp.setValue (this.markup);
+        this.textProp.setValue (this.text);
+
     }
 
     public StringWithMarkup (String text)
     {
 
         this.text = text;
+
+        this.textProp.setValue (this.text);
+
+    }
+
+    public StringProperty textProperty ()
+    {
+
+        return this.textProp;
+
+    }
+
+    public ObjectProperty<Markup> markupProperty ()
+    {
+
+        return this.markupProp;
 
     }
 
@@ -58,6 +84,7 @@ public class StringWithMarkup
         {
 
             this.text = new String (t.getText ());
+            this.textProp.setValue (this.text);
 
         }
 
@@ -65,6 +92,7 @@ public class StringWithMarkup
         {
 
             this.markup = new Markup (t.getMarkup ().toString ());
+            this.markupProp.setValue (this.markup);
 
         }
 
@@ -76,6 +104,8 @@ public class StringWithMarkup
 
         this.text = text;
         this.markup = markup;
+        this.textProp.setValue (text);
+        this.markupProp.setValue (markup);
 
     }
 

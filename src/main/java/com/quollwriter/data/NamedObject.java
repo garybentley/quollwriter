@@ -27,6 +27,7 @@ public abstract class NamedObject extends DataObject
     private String   name = null;
     private Date     lastModified = null;
     private StringWithMarkup   description = null;
+    private ObjectProperty<StringWithMarkup> descriptionProp = null;
     private ObservableSet<Link>  links = null;
     private ObservableSet<Note> notes = FXCollections.observableSet (new TreeSet<> (new ChapterItemSorter ()));
     private String     aliases = null;
@@ -40,6 +41,7 @@ public abstract class NamedObject extends DataObject
         super (objType);
 
         this.nameProp = new SimpleStringProperty ();
+        this.descriptionProp = new SimpleObjectProperty<> ();
         this.links = FXCollections.observableSet (new HashSet<> ());
 
         if (name != null)
@@ -586,12 +588,21 @@ public abstract class NamedObject extends DataObject
 
     }
 
+    public ObjectProperty<StringWithMarkup> descriptionProperty ()
+    {
+
+        return this.descriptionProp;
+
+    }
+
     public void setDescription (StringWithMarkup d)
     {
 
         StringWithMarkup oldDesc = this.description;
 
         this.description = d;
+
+        this.descriptionProp.setValue (d);
 
         this.setLastModified (new Date ());
 

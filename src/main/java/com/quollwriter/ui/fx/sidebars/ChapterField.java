@@ -54,6 +54,7 @@ public class ChapterField extends NamedObjectContent<ProjectViewer, Chapter>
             .saveButtonTooltip (getUILanguageStringProperty (project,sidebar,chapterinfo,edit,buttons,save,tooltip))
             .cancelButtonTooltip (getUILanguageStringProperty (project,sidebar,chapterinfo,edit,buttons,cancel,tooltip))
             .bulleted (b.bulleted)
+            .withViewer (b.viewer)
             .onSave (newText ->
             {
 

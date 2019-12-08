@@ -21,6 +21,7 @@ import java.awt.event.*;
 
 import javafx.collections.*;
 import javafx.scene.paint.*;
+import javafx.scene.text.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -71,14 +72,27 @@ public class UserProperties
     private static SimpleIntegerProperty chapterAutoSaveTimeProp = null;
     private static SimpleBooleanProperty chapterAutoSaveEnabledProp = null;
     private static SimpleFloatProperty uiBaseFontSizeProp = null;
+    private static SimpleObjectProperty<Font> uiBaseFontProp = null;
     private static SimpleBooleanProperty showEditPositionIconInChapterListProp = null;
     private static SimpleBooleanProperty showEditCompleteIconInChapterListProp = null;
+    private static SimpleBooleanProperty showEditMarkerInChapterProp = null;
+    private static SimpleBooleanProperty showNotesInChapterListProp = null;
 
     // Just used in the map above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
 
     private static SetChangeListener projectStatusesListener = null;
     private static ListChangeListener<Color> userColorsListener = null;
+
+    private static ObservableSet<javafx.beans.property.StringProperty> noteTypes = null;
+    private static SimpleSetProperty<javafx.beans.property.StringProperty> noteTypesProp = null;
+    private static SetChangeListener<javafx.beans.property.StringProperty> noteTypesListener = null;
+
+    private static SimpleObjectProperty<Color> editNeededNoteChapterHighlightColorProp = null;
+    private static SimpleObjectProperty<Color> problemFinderBlockHighlightColorProp = null;
+    private static SimpleObjectProperty<Color> problemFinderIssueHighlightColorProp = null;
+    private static SimpleObjectProperty<Color> synonymHighlightColorProp = null;
+    private static SimpleObjectProperty<Color> findHighlightColorProp = null;
 
     static
     {
@@ -107,11 +121,14 @@ public class UserProperties
 
         UserProperties.projectInfoFormatProp = UserProperties.createMappedProperty (Constants.PROJECT_INFO_FORMAT,
                                                                                     Constants.DEFAULT_PROJECT_INFO_FORMAT);
-
         UserProperties.tabsLocationProp = UserProperties.createMappedProperty (Constants.TABS_LOCATION_PROPERTY_NAME);
         UserProperties.toolbarLocationProp = UserProperties.createMappedProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME);
 
         UserProperties.editMarkerColorProp = new SimpleObjectProperty<> ();
+        UserProperties.problemFinderBlockHighlightColorProp = new SimpleObjectProperty<> ();
+        UserProperties.problemFinderIssueHighlightColorProp = new SimpleObjectProperty<> ();
+        UserProperties.synonymHighlightColorProp = new SimpleObjectProperty<> ();
+        UserProperties.findHighlightColorProp = new SimpleObjectProperty<> ();
 
         String col = UserProperties.get (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME);
 
@@ -125,11 +142,77 @@ public class UserProperties
 
         });
 
+        UserProperties.editNeededNoteChapterHighlightColorProp = new SimpleObjectProperty<> ();
+
+        col = UserProperties.get (Constants.EDIT_NEEDED_NOTE_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME);
+
+        UserProperties.editNeededNoteChapterHighlightColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.editNeededNoteChapterHighlightColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.EDIT_NEEDED_NOTE_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+        });
+
+        col = UserProperties.get (Constants.PROBLEM_FINDER_BLOCK_HIGHLIGHT_COLOR_PROPERTY_NAME);
+
+        UserProperties.problemFinderBlockHighlightColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.problemFinderBlockHighlightColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.PROBLEM_FINDER_BLOCK_HIGHLIGHT_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+        });
+
+        col = UserProperties.get (Constants.PROBLEM_FINDER_ISSUE_HIGHLIGHT_COLOR_PROPERTY_NAME);
+
+        UserProperties.problemFinderIssueHighlightColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.problemFinderIssueHighlightColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.PROBLEM_FINDER_ISSUE_HIGHLIGHT_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+        });
+
+        col = UserProperties.get (Constants.SYNONYM_HIGHLIGHT_COLOR_PROPERTY_NAME);
+
+        UserProperties.synonymHighlightColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.synonymHighlightColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.SYNONYM_HIGHLIGHT_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+        });
+
+        col = UserProperties.get (Constants.FIND_HIGHLIGHT_COLOR_PROPERTY_NAME);
+
+        UserProperties.findHighlightColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.findHighlightColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.FIND_HIGHLIGHT_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+        });
+
         UserProperties.uiLayoutProp = UserProperties.createMappedProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
 
         UserProperties.showEditPositionIconInChapterListProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
 
         UserProperties.showEditCompleteIconInChapterListProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
+
+        UserProperties.showEditMarkerInChapterProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME);
+
+        UserProperties.showNotesInChapterListProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME);
 
         UserProperties.userBGImagePaths = FXCollections.observableSet (new LinkedHashSet<> ());
 
@@ -193,6 +276,24 @@ public class UserProperties
 
         }
 
+        // Have to do this after startup since it may rely on the user ui language strings.
+        Environment.startupCompleteProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            try
+            {
+
+                UserProperties.initNoteTypes ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to init note types",
+                                      e);
+
+            }
+
+        });
+
         UserProperties.initProjectStatuses ();
 
         UserProperties.chapterAutoSaveTimeProp = new SimpleIntegerProperty ();
@@ -245,6 +346,36 @@ public class UserProperties
 
         });
 
+        UserProperties.uiBaseFontProp = new SimpleObjectProperty<> ();
+
+        String f = UserProperties.get (Constants.UI_BASE_FONT_PROPERTY_NAME);
+
+        Font font = Font.getDefault ();
+
+        if (f != null)
+        {
+
+            font = Font.font (f);
+
+        }
+
+        if (font == null)
+        {
+
+            font = Font.getDefault ();
+
+        }
+
+        UserProperties.uiBaseFontProp.setValue (font);
+
+        UserProperties.uiBaseFontProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.UI_BASE_FONT_PROPERTY_NAME,
+                                newv.getName ());
+
+        });
+
     }
 
     public static SimpleFloatProperty uiBaseFontSizeProperty ()
@@ -265,6 +396,27 @@ public class UserProperties
     {
 
         return UserProperties.uiBaseFontSizeProp.getValue ();
+
+    }
+
+    public static SimpleObjectProperty<Font> uiBaseFontProperty ()
+    {
+
+        return UserProperties.uiBaseFontProp;
+
+    }
+
+    public static void setUIBaseFont (Font f)
+    {
+
+        UserProperties.uiBaseFontProp.setValue (f);
+
+    }
+
+    public static Font getUIBaseFont ()
+    {
+
+        return UserProperties.uiBaseFontProp.getValue ();
 
     }
 
@@ -360,6 +512,20 @@ public class UserProperties
 
         }
 
+
+    }
+
+    public static void addNoteType (String t)
+    {
+
+        UserProperties.noteTypes.add (new SimpleStringProperty (t));
+
+    }
+
+    public static Set<javafx.beans.property.StringProperty> getNoteTypes ()
+    {
+
+        return new LinkedHashSet<> (UserProperties.noteTypes);
 
     }
 
@@ -579,6 +745,55 @@ public class UserProperties
 
     }
 
+    private static void initNoteTypes ()
+                                throws Exception
+    {
+
+        UserProperties.noteTypes = FXCollections.observableSet (new TreeSet<> ((o1, o2) ->
+        {
+
+            return o1.getValue ().compareTo (o2.getValue ());
+
+        }));
+
+        String types = UserProperties.get (Constants.NOTE_TYPES_PROPERTY_NAME);
+
+        if (types == null)
+        {
+
+            types = getUILanguageStringProperty (notetypes,defaulttypes).getValue ();
+
+        }
+
+        StringTokenizer t = new StringTokenizer (types,
+                                                 "|");
+
+        while (t.hasMoreTokens ())
+        {
+
+            String ty = t.nextToken ().trim ();
+
+            UserProperties.noteTypes.add (new SimpleStringProperty (ty));
+
+        }
+
+        UserProperties.noteTypesProp = new SimpleSetProperty<> (UserProperties.noteTypes);
+
+        UserProperties.noteTypesListener = ev ->
+        {
+
+            UserProperties.set (Constants.NOTE_TYPES_PROPERTY_NAME,
+                                UserProperties.noteTypes.stream ()
+                                    .map (v -> v.getValue ())
+                                    .collect (Collectors.joining ("|")));
+
+        };
+
+        // Casting to help out the compiler.
+        UserProperties.noteTypesProp.addListener (new WeakSetChangeListener (UserProperties.noteTypesListener));
+
+    }
+
     public static void removeUserBGImagePath (Path p)
     {
 
@@ -745,6 +960,41 @@ public class UserProperties
 
     }
 
+    public static Color getFindHighlightColor ()
+    {
+
+        return UserProperties.findHighlightColorProp.getValue ();
+
+    }
+
+    public static Color getSynonymHighlightColor ()
+    {
+
+        return UserProperties.synonymHighlightColorProp.getValue ();
+
+    }
+
+    public static Color getProblemFinderBlockHighlightColor ()
+    {
+
+        return UserProperties.problemFinderBlockHighlightColorProp.getValue ();
+
+    }
+
+    public static Color getProblemFinderIssueHighlightColor ()
+    {
+
+        return UserProperties.problemFinderIssueHighlightColorProp.getValue ();
+
+    }
+
+    public static Color getEditNeededNoteChapterHighlightColor ()
+    {
+
+        return UserProperties.editNeededNoteChapterHighlightColorProp.getValue ();
+
+    }
+
     public static Color getEditMarkerColor ()
     {
 
@@ -836,6 +1086,42 @@ public class UserProperties
     {
 
         return UserProperties.showEditPositionIconInChapterListProp;
+
+    }
+
+    public static boolean isShowNotesInChapterList ()
+    {
+
+        return UserProperties.showNotesInChapterListProp.getValue ();
+
+    }
+
+    public static SimpleBooleanProperty showNotesInChapterListProperty ()
+    {
+
+        return UserProperties.showNotesInChapterListProp;
+
+    }
+
+    public static SimpleBooleanProperty showEditMarkerInChapterProperty ()
+    {
+
+        return UserProperties.showEditMarkerInChapterProp;
+
+    }
+
+    public static boolean isShowEditMarkerInChapter ()
+    {
+
+        return UserProperties.showEditMarkerInChapterProp.getValue ();
+
+    }
+
+    public static void setShowEditMarkerInChapter (boolean v)
+    {
+
+        UserProperties.set (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME,
+                            v);
 
     }
 

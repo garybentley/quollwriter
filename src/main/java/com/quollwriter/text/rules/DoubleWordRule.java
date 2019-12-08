@@ -18,6 +18,7 @@ import com.quollwriter.ui.forms.*;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import com.quollwriter.ui.fx.components.Form;
 
 public class DoubleWordRule extends AbstractSentenceRule
 {
@@ -231,7 +232,17 @@ public class DoubleWordRule extends AbstractSentenceRule
     public Set<FormItem> getFormItems ()
     {
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<FormItem> items = new LinkedHashSet<> ();
+
+        return items;
+
+    }
+
+    @Override
+    public Set<Form.Item> getFormItems2 ()
+    {
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
 
         return items;
 
@@ -247,6 +258,12 @@ public class DoubleWordRule extends AbstractSentenceRule
 
     @Override
     public void updateFromForm ()
+    {
+
+    }
+
+    @Override
+    public void updateFromForm2 ()
     {
 
     }

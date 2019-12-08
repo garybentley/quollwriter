@@ -44,6 +44,31 @@
     <value>#84a328</value>
   </property>
 
+  <property id="findHighlightColor" type="string">
+    <description>The color of the highlight for the find.</description>
+    <value>#00ff00</value>
+  </property>
+
+  <property id="editNeededNoteChapterHighlightColor" type="string">
+    <description>The color of the highlight for edit needed note selected text.</description>
+    <value>#84a328</value>
+  </property>
+
+  <property id="problemFinderIssueHighlightColor" type="string">
+    <description>The color of the highlight for an issue found by the problem finder.</description>
+    <value>#ff0000</value>
+  </property>
+
+  <property id="problemFinderBlockHighlightColor" type="string">
+    <description>The color of the highlight for a block of text (a paragraph or sentence) found by the problem finder.</description>
+    <value>#0000ff</value>
+  </property>
+
+  <property id="synonymHighlightColor" type="string">
+    <description>The color of the highlight for a synonym.</description>
+    <value>#0000ff</value>
+  </property>
+
   <property id="showNotesInChapterList" type="boolean">
     <description>Show the notes in the chapter list.</description>
     <value>true</value>

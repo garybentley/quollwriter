@@ -40,6 +40,7 @@ public class ContactUILanguageStringsCreatorPopup extends PopupContent
             .placeholder (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,message,tooltip),
                                                        UILanguageStringsManager.getCurrentUILanguageStrings ().getNativeName ()))
             .maxChars (10000)
+            .withViewer (viewer)
             //.autoGrabFocus (true)
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();

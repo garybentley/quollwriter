@@ -1786,6 +1786,8 @@
             ":comment.title" : "%1$s is the word being searched for.",
             ":scount.title" : 1,
             "nosynonyms" : "No synonyms found.",
+            "wordseparator" : ", ",
+            ":comment.wordseparator" : "The separator between words.",
             "wordtypes" :
             {
                 "adjectives" : "Adjectives",
@@ -2828,7 +2830,7 @@
             "removerule" :
             {
                 "title" : "Confirm rule removal",
-                "text" : "Please confirm you wish to remove rule: <b>%1$s</b>",
+                "text" : "Please confirm you wish to remove rule:<br /><br />%1$s",
                 ":comment.text" : "The %1$s here is the name/summary of the rule so the user knows which one is being removed.",
                 ":scount.text" : 1,
                 "buttons" :
@@ -2974,6 +2976,7 @@
             {
                 "title" : "Add New ${objectnames.singular.ideatype}",
                 "text" : "Enter the new ${objectnames.singular.ideatype} below.",
+                "actionerror" : "Unable to add new ${objectnames.singular.ideatype}.",
                 "confirm" : "${actions.add}",
                 "errors" :
                 {
@@ -2998,7 +3001,7 @@
                 "actionerror" : "Unable to delete ${objectnames.singular.ideatype}.",
                 ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
                 "deletetype" : "${objectnames.singular.ideatype}",
-                "warning" : "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored."
+                "warning" : "<br /><br />Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored."
             }
         },
         "ideas" :
@@ -5431,11 +5434,12 @@
                         "tooltip" : "Click to select a layout"
                     }
                 },
-                "basefontsize" : "How big should the text be? (This setting will change the size of the interface in general)",
+                "basefontsize" : "How big should the text be?",
                 "basefontsizemore" : "T",
                 ":comment.basefontsizemore" : "This text is shown to the right of the font size setting, it is shown at a larger size than the current font size to indicate that the text will be made larger by moving the slider to that side.",
                 "basefontsizeless" : "T",
                 ":comment.basefontsizeless" : "This text is shown to the left of the font size setting, it is shown at a smaller size than the current font size to indicate that the text will be made smaller by moving the slider to that side.",
+                "basefont" : "What font should be used? (for non-${objectnames.singular.chapter} text)",
                 "showtoolbar" : "Show the toolbar",
                 "belowsidebar" : "Below the sidebar",
                 "abovesidebar" : "Above the sidebar",
@@ -7434,6 +7438,11 @@
                             "text" : "Remove Edit Point",
                             "tooltip" : "Remove Edit Point"
                         },
+                        "gotoeditposition" :
+                        {
+                            "text" : "Go to Edit Point",
+                            "tooltip" : "Go to Edit Point"
+                        },
                         "seteditcomplete" :
                         {
                             "text" : "Set as Edit Complete",
@@ -7606,7 +7615,7 @@
                     "ignored" :
                     {
                         "single" : "1 problem has been ignored in this ${objectnames.singular.chapter}, click to un-ignore it.",
-                        "plural" : "%1$s problems have been ignored ${objectnames.singular.chapter}, click to un-ignore them.",
+                        "plural" : "%1$s problems have been ignored in this ${objectnames.singular.chapter}, click to un-ignore them.",
                         ":comment.plural" : "%1$s is the number of problems (greater than 1) that have been ignored for the problem.",
                         ":scount.plural" : 1
                     },
@@ -7900,7 +7909,7 @@
                     {
                         ":comment" : "The items here assume the plural case for problems to un-ignore, this is to simplify things.",
                         "title" : "Un-ignore problems",
-                        "text" : "Please confirm you wish to un-ignore %1$s problems for rule<br /><br /><b>%2$s</b>",
+                        "text" : "Please confirm you wish to un-ignore <b>%1$s</b> problems for rule<br /><br /><b>%2$s</b>",
                         ":comment.text" : "%1$s here is the number of problems that will be un-ignored or be able to be found again.  %2$s is the description of the rule.",
                         ":scount.text" : 2,
                         "confirm" : "Yes, un-ignore them"
@@ -7940,23 +7949,13 @@
                         {
                             "tooltip" : "Click to find all problems for this rule"
                         },
-                        "options" :
+                        "edit" :
                         {
-                            "tooltip" : "Click to view the the options",
-                            "popupmenu" :
-                            {
-                                "items" :
-                                {
-                                    "edit" :
-                                    {
-                                        "tooltip" : "Edit this rule"
-                                    },
-                                    "view" :
-                                    {
-                                        "tooltip" : "Show the ${names.problemfinder} rules"
-                                    }
-                                }
-                            }
+                            "tooltip" : "Edit this rule"
+                        },
+                        "config" :
+                        {
+                            "tooltip" : "Show the ${names.problemfinder} rules"
                         }
                     }
                 }
@@ -8081,6 +8080,7 @@
                         "seteditcomplete" : "Set as Edit Complete",
                         "seteditneeded" : "Set as Edit Needed",
                         "removeeditposition" : "Remove Edit Point",
+                        "gotoeditposition" : "Go to Edit Point",
                         "newbelow" : "Add New ${objectnames.singular.chapter} Below",
                         "new" : "Add New ${objectnames.singular.chapter}",
                         "rename" : "Rename ${objectnames.singular.chapter}",

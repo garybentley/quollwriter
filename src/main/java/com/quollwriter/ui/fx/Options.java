@@ -15,6 +15,7 @@ import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -1374,6 +1375,16 @@ TODO Remove NO longer needed.
 
         });
 
+        ComboBox<Font> uiFont = UIUtils.getFontSelector (this.viewer,
+                                                         UserProperties.getUIBaseFont ());
+
+        uiFont.valueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.setUIBaseFont (uiFont.valueProperty ().getValue ());
+
+        });
+
         Section s = Section.builder ()
             .styleClassName (StyleClassNames.LOOKS)
             .title (options,lookandsound,title)
@@ -1394,6 +1405,8 @@ TODO Remove NO longer needed.
                 .label (options,lookandsound,labels,shownotes)
                 .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
                 .build ())
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefont),
+                       uiFont)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefontsize),
                        thb)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),

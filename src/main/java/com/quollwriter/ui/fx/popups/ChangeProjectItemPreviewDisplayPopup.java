@@ -45,6 +45,8 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
         // TODO Add controls for bold/italic?  Add menu?  Add tag menu?
         QuollTextArea format = QuollTextArea.builder ()
             .styleClassName (StyleClassNames.FORMAT)
+            .withViewer (viewer)
+            .formattingEnabled (true)
             .placeholder (project,sidebar,chapters,preview,edit,LanguageStrings.popup,tooltip)
             .build ();
         b.getChildren ().add (format);
@@ -101,11 +103,11 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
             .withHandler (this.viewer)
             .build ();
 
-        format.textProperty ().addListener ((pr, oldv, newv) ->
+        format.getTextEditor ().multiRichChanges ().subscribe (ch ->
         {
 
             info.setText (UIUtils.getChapterInfoPreview (_bogus,
-                                                         format.getText (),
+                                                         format.getTextWithMarkup (),
                                                          _bogusPV));
 
         });
@@ -127,7 +129,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
                         {
 
                             UserProperties.set (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
-                                                format.getText ());
+                                                format.getTextWithMarkup ().getText ());
 
                             this.close ();
 

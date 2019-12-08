@@ -15,12 +15,14 @@ public class NoteItemFormatter extends AbstractChapterItemFormatter<Note>
 
     public NoteItemFormatter (ProjectViewer   viewer,
                               IPropertyBinder binder,
-                              Note            item)
+                              Note            item,
+                              Runnable        onNewPopupShown)
     {
 
         super (viewer,
                binder,
-               item);
+               item,
+               onNewPopupShown);
 
     }
 
