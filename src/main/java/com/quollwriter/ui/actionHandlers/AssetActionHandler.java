@@ -107,7 +107,8 @@ public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
     {
 
         int c = 0;
-
+/*
+TODO
         for (UserConfigurableObjectFieldViewEditHandler h : this.object.getViewEditHandlers (this.viewer))
         {
 
@@ -134,7 +135,7 @@ public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
             c++;
 
         }
-
+*/
         Set<FormItem> items = new LinkedHashSet ();
 
         items.addAll (this.nameHandler.getInputFormItems (selectedText,

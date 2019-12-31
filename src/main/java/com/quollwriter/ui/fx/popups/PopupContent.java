@@ -3,6 +3,7 @@ package com.quollwriter.ui.fx.popups;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
+import javafx.scene.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -47,6 +48,15 @@ public abstract class PopupContent<E extends AbstractViewer> extends ViewerConte
 
     }
 
+    public void show (Node n,
+                      Side s)
+    {
+
+        this.getPopup ().show (n,
+                               s);
+
+    }
+
     public void show ()
     {
 
@@ -54,8 +64,8 @@ public abstract class PopupContent<E extends AbstractViewer> extends ViewerConte
 
     }
 
-    public void show (int x,
-                      int y)
+    public void show (double x,
+                      double y)
     {
 
         this.getPopup ().show (x,

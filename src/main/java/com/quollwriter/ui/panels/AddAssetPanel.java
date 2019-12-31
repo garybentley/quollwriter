@@ -107,7 +107,7 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
 
         };
 
-        this.addHandlers = this.obj.getViewEditHandlers (this.viewer);
+        // TODO this.addHandlers = this.obj.getViewEditHandlers (this.viewer);
 
         Set<FormItem> items = new LinkedHashSet ();
 

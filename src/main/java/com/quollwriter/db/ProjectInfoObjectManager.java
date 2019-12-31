@@ -520,6 +520,7 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         }
 
+        Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
 
         // Create the chapter type.
         UserConfigurableObjectType chapterType = new UserConfigurableObjectType ();
@@ -552,8 +553,6 @@ public class ProjectInfoObjectManager extends ObjectManager
                         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         descF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
-        chapterType.addConfigurableField (descF);
-
         // Plan
         MultiTextUserConfigurableObjectTypeField planF = new MultiTextUserConfigurableObjectTypeField ();
 
@@ -567,8 +566,6 @@ public class ProjectInfoObjectManager extends ObjectManager
                         //Chapter.PLAN_LEGACY_FIELD_FORM_NAME);
         planF.setLegacyFieldId (Chapter.PLAN_LEGACY_FIELD_ID);
 
-        chapterType.addConfigurableField (planF);
-
         MultiTextUserConfigurableObjectTypeField goalsF = new MultiTextUserConfigurableObjectTypeField ();
 
         goalsF.setSearchable (true);
@@ -581,7 +578,7 @@ public class ProjectInfoObjectManager extends ObjectManager
                             //Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
         goalsF.setLegacyFieldId (Chapter.GOALS_LEGACY_FIELD_ID);
 
-        chapterType.addConfigurableField (goalsF);
+        chapterType.addNewColumn (Arrays.asList (descF, planF, goalsF));
 
         Environment.addUserConfigurableObjectType (chapterType);
 
@@ -613,8 +610,6 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
 
-        characterType.addConfigurableField (nameF);
-
         // Aliases
         UserConfigurableObjectTypeField aliasesF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
 
@@ -628,8 +623,6 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
         aliasesF.setLegacyFieldId (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID);
 
-        characterType.addConfigurableField (aliasesF);
-
         // Description
         ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
@@ -642,7 +635,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         */
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
 
-        characterType.addConfigurableField (cdescF);
+        characterType.addNewColumn (Arrays.asList (nameF, aliasesF, cdescF));
 
         Environment.addUserConfigurableObjectType (characterType);
 
@@ -674,8 +667,6 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
 
-        locType.addConfigurableField (nameF);
-
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
@@ -688,7 +679,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
-        locType.addConfigurableField (cdescF);
+        locType.addNewColumn (Arrays.asList (nameF, cdescF));
 
         Environment.addUserConfigurableObjectType (locType);
 
@@ -719,8 +710,6 @@ public class ProjectInfoObjectManager extends ObjectManager
         */
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
-
-        qobjType.addConfigurableField (nameF);
 
         // Type
         SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
@@ -764,8 +753,6 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         typeF.setItems (ts);
 
-        qobjType.addConfigurableField (typeF);
-
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
@@ -778,7 +765,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
-        qobjType.addConfigurableField (cdescF);
+        qobjType.addNewColumn (Arrays.asList (nameF, typeF, cdescF));
 
         Environment.addUserConfigurableObjectType (qobjType);
 
@@ -810,8 +797,6 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
 
-        riType.addConfigurableField (nameF);
-
         // Web link
         WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
 
@@ -822,8 +807,6 @@ public class ProjectInfoObjectManager extends ObjectManager
                                                    LanguageStrings.webpage));
         */
                           //ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
-
-        riType.addConfigurableField (webF);
 
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
@@ -837,7 +820,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
-        riType.addConfigurableField (cdescF);
+        riType.addNewColumn (Arrays.asList (nameF, webF, cdescF));
 
         Environment.addUserConfigurableObjectType (riType);
 

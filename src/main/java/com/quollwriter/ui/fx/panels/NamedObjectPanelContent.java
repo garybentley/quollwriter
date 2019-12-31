@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.panels;
 
 import javafx.beans.property.*;
+import javafx.scene.image.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
@@ -25,6 +26,13 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
 
         this.object = object;
         this.unsavedChangesProp = new SimpleBooleanProperty (false);
+
+    }
+
+    public ObjectProperty<Image> iconProperty ()
+    {
+
+        return null;
 
     }
 

@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.components;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.beans.property.*;
 
@@ -15,6 +16,8 @@ import javafx.scene.layout.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.data.Asset;
+import com.quollwriter.data.NamedObject;
 import com.quollwriter.data.IPropertyBinder;
 import com.quollwriter.data.PropertyBinder;
 
@@ -380,6 +383,13 @@ _this.moving = false;
 
     }
 
+    public static <E extends ObjectSelectBuilder<E>> ObjectSelectBuilder<E> objectSelectBuilder ()
+    {
+
+        return new ObjectSelectBuilder<E> ();
+
+    }
+
     public static ErrorBuilder errorBuilder ()
     {
 
@@ -450,8 +460,8 @@ _this.moving = false;
 
     }
 
-    public void show (int x,
-                      int y)
+    public void show (double x,
+                      double y)
     {
 
         this.viewer.showPopup (this,
@@ -519,6 +529,15 @@ _this.moving = false;
         private StringProperty cancelButtonLabel = null;
         private StringProperty entryLabel = null;
         private URLActionHandler handler = null;
+        private String text = null;
+
+        public TextEntryBuilder text (String t)
+        {
+
+            this.text = t;
+            return _this ();
+
+        }
 
         public TextEntryBuilder withHandler (URLActionHandler h)
         {
@@ -657,9 +676,17 @@ _this.moving = false;
         {
 
             QuollTextField tf = QuollTextField.builder ()
+                .text (this.text)
                 .build ();
             // TODO Make a constant.
             tf.setId ("text");
+
+            if (this.text != null)
+            {
+
+                tf.selectAll ();
+
+            }
 
             if (this.styleName == null)
             {
@@ -801,6 +828,147 @@ _this.moving = false;
             }
 
             return qp;
+
+        }
+
+    }
+
+    public static class ObjectSelectBuilder<X extends ObjectSelectBuilder<X>> extends Builder<X>
+    {
+
+        private StringProperty message = null;
+        private Consumer<NamedObject> onClick = null;
+        private Set<? extends NamedObject> objs = null;
+        private boolean showFinishButton = false;
+
+        public X objects (Set<? extends NamedObject> objs)
+        {
+
+            this.objs = objs;
+            return _this ();
+
+        }
+
+        public X onClick (Consumer<NamedObject> onClick)
+        {
+
+            this.onClick = onClick;
+            return _this ();
+
+        }
+
+        public X message (StringProperty message)
+        {
+
+            this.message = message;
+            return _this ();
+
+        }
+
+        @Override
+        public QuollPopup build ()
+        {
+
+            this.withClose (true);
+            this.hideOnEscape (true);
+            this.removeOnClose (true);
+            this.show ();
+
+            VBox b = new VBox ();
+
+            if (this.message != null)
+            {
+
+                b.getChildren ().add (QuollTextView.builder ()
+                    // TODO .text (this.message)
+                    .styleClassName (StyleClassNames.MESSAGE)
+                    // TODO .withViewer (this.viewer)
+                    .build ());
+
+            }
+
+            if (this.title == null)
+            {
+
+                this.title (selectitem,popup,LanguageStrings.title);
+
+            }
+
+            if (this.styleName == null)
+            {
+
+                this.styleClassName (StyleClassNames.OBJECTSELECT);
+
+            }
+
+            this.content (b);
+
+            QuollPopup qp = new QuollPopup (this);
+
+            for (NamedObject n : this.objs)
+            {
+
+                // TODO Add the object image.
+
+                QuollLabel2 l = QuollLabel2.builder ()
+                    .build ();
+
+                l.setOnMouseClicked (ev ->
+                {
+
+                    this.onClick.accept (n);
+
+                });
+/*
+TODO
+                qp.getBinder ().addChangeListener (l.labelProperty (),
+                                                   (pr, oldv, newv) ->
+                {
+
+                    l.setLabel (newv);
+
+                });
+*/
+                if (n instanceof Asset)
+                {
+
+                    Asset a = (Asset) n;
+
+                    qp.getBinder ().addChangeListener (a.getUserConfigurableObjectType ().icon24x24Property (),
+                                                       (pr, oldv, newv) ->
+                    {
+
+                        // TODO l.getImage ().setImage (a.getUserConfigurableObjectType ().getIcon24x24 ());
+
+                    });
+
+                } else {
+
+                    l.getStyleClass ().add (n.getObjectType ());
+
+                }
+
+                b.getChildren ().add (l);
+
+            }
+
+            UIUtils.runLater (() ->
+            {
+
+                qp.toFront ();
+
+            });
+
+            return qp;
+
+        }
+
+        @Override
+        public X _this ()
+        {
+
+            // TODO Dodgy cast, fix?
+            return (X) this;
 
         }
 
@@ -1205,7 +1373,7 @@ _this.moving = false;
         private boolean hideOnEscape = false;
         private Runnable onClose = null;
         private String popupId = null;
-        private PopupsViewer viewer = null;
+        protected PopupsViewer viewer = null;
         private boolean show = false;
         private boolean removeOnClose = false;
         private Node showAt = null;

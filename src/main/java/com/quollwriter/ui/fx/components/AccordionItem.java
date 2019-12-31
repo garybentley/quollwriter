@@ -175,6 +175,7 @@ public class AccordionItem extends VBox implements Stateful
 
         this.open = this.openContent.isVisible ();
         this.contentVisibleProp.setValue (this.open);
+        this.requestLayout ();
 
     }
 

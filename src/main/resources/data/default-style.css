@@ -20,6 +20,9 @@
     -qw-hover-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
     -qw-armed-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
 
+    -qw-dragging-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 50%, #ffffff 100%);
+    -qw-dragover-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 50%, #ffffff 100%);
+
     /**
      * The color of borders around components.
      */
@@ -62,6 +65,9 @@
 
     -qw-popup-header-font-size: 2em;
     -qw-window-header-font-size: 2.5em;
+
+    -qw-component-error-border-color: red;
+
 }
 
 /*
@@ -132,6 +138,7 @@ Text
 
 .hyperlink
 {
+    -fx-fill: -qw-hyperlink-color;
     -fx-text-fill: -qw-hyperlink-color;
     -fx-graphic-text-gap: 0.25em;
     -fx-padding: 0;
@@ -238,8 +245,8 @@ Text
 /*
  The following .a styles are designed for use in basic HTML rendering.
  */
-.a { -fx-fill: -qw-hyperlink-color; }
-.a:hover { -fx-underline: true; -fx-cursor: hand; }
+.a, .a > * { -fx-fill: -qw-hyperlink-color; }
+.a:hover, .a:hover > * { -fx-underline: true; -fx-cursor: hand; }
 
 .page-corner
 {
@@ -1012,6 +1019,10 @@ Text
 {
     -fx-image: url(/imgs/close16.png);
 }
+.menu-item.show .image-view
+{
+    -fx-image: url(/imgs/eye16.png);
+}
 .menu-item.editcomplete .image-view,
 .button.editcomplete
 {
@@ -1152,7 +1163,7 @@ Text
     -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
 }
 
-.tree .cell:selected .label
+.tree .cell:selected > .label
 {
     -fx-background-color: -qw-component-border-color;
     -fx-text-fill: white;
@@ -1300,6 +1311,9 @@ Text
 .viewer .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
 .viewer .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
 .viewer .header .controls .help { -fx-graphic: url(/imgs/help24.png); }
+.viewer .header .controls .edit { -fx-graphic: url(/imgs/edit24.png); }
+.viewer .header .controls .save { -fx-graphic: url(/imgs/save24.png); }
+.viewer .header .controls .cancel { -fx-graphic: url(/imgs/close24.png); }
 .viewer .header .controls .contacts,
 .fullscreen .header .contacts { -fx-graphic: url(/imgs/editors24.png); }
 .fullscreen .header .distractionfreeenter { -fx-graphic: url(/imgs/distraction-free24.png); }
@@ -1776,6 +1790,11 @@ Text
     -fx-image: url(/imgs/settings16.png);
 }
 
+.panel.options .assets .header .icon
+{
+    -fx-image: url(/imgs/assets16.png);
+}
+
 .panel.options .editing .header .icon
 {
     -fx-image: url(/imgs/chapter16.png);
@@ -1942,14 +1961,21 @@ Text
     -fx-padding: 0.5em 1em 0.5em 1em;
     -fx-text-fill: -fx-text-base-color;
 }
-
+/*
+.qwebview
+{
+    -fx-background-color: -qw-bg-color;
+}
+*/
+/*
 .root:night .choice-box,
-.root:night .combo-box
+.root:night .combo-box,
+.root:night .qwebview
 {
     -fx-background-color: -qw-bg-color;
     -fx-border-color: -qw-component-border-color;
 }
-
+*/
 .combo-box .combo-box-popup
 {
     -fx-border-color: -qw-component-border-color;
@@ -1960,6 +1986,8 @@ Text
 .choice-box
 {
     -fx-background-color: -qw-bg-color;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
 }
 
 .root:night .combo-box .combo-box-popup .list-view, .root:night .combo-box .combo-box-popup .list-cell
@@ -2094,6 +2122,11 @@ Text
     -fx-background-insets: 0;
 }
 
+.control:error .text-field
+{
+    -fx-border-color: -qw-component-error-border-color;
+}
+
 .qtextara
 {
     -fx-pref-height: 10em;
@@ -2204,6 +2237,7 @@ Text
 }
 
 .qpopup.add .header .icon { -fx-image: url(/imgs/add16.png); }
+.qpopup.edit .header .icon { -fx-image: url(/imgs/edit16.png); }
 .qpopup.delete .header .icon { -fx-image: url(/imgs/delete16.png); }
 .qpopup.warning .header .icon { -fx-image: url(/imgs/warning16.png); }
 
@@ -3486,6 +3520,16 @@ Text
     -fx-cursor: closed-hand;
 }
 
+:dragging
+{
+    -fx-background-color: -qw-dragging-bg;
+}
+
+:dragover
+{
+    -fx-background-color: -qw-dragover-bg;
+}
+
 .controls .button:dragging, .controls .button:dragover
  {
      -fx-cursor: closed-hand;
@@ -3537,13 +3581,24 @@ Text
 .viewer.project .sidebar .scroll-pane
 {
     -fx-fit-to-width: false;
-    -fx-fit-to-height: false;
+    -fx-fit-to-height: true;
 }
 
 .sidebar.project
 {
     -fx-pref-width: 16em;
     -fx-min-width: 16em;
+}
+
+.sidebar.project .accordion:dragover
+{
+    -fx-background-color: -qw-dragover-bg;
+}
+
+.sidebar.project .accordion:dragging
+{
+    -fx-background-color: -qw-dragging-bg;
+    -fx-opacity: 0.3;
 }
 
 .sidebar.project .accordion .header
@@ -3566,9 +3621,15 @@ Text
     -fx-cursor: hand;
 }
 
-.sidebar.project .accordion.asset .tree .cell .image-view
+.sidebar.project .accordion .tree .cell .label:dragover
 {
-    visibility: hidden;
+    -fx-background-color: -qw-hover-bg;
+}
+
+.sidebar.project .accordion .tree .cell .label:dragging
+{
+    -fx-background-color: -qw-hover-bg;
+    -fx-opacity: 0.5;
 }
 
 .sidebar.project .accordion.chapter .tree .cell .chapter:editposition
@@ -3646,6 +3707,7 @@ Text
 
 .viewer.project .sidebar .toolbar .save { -fx-graphic: url(/imgs/save20.png); }
 .viewer.project .sidebar .toolbar .new { -fx-graphic: url(/imgs/add20.png); }
+.viewer.project .sidebar .toolbar .tag { -fx-graphic: url(/imgs/tag20.png); }
 .viewer.project .sidebar .toolbar .help { -fx-graphic: url(/imgs/help20.png); }
 .viewer.project .sidebar .toolbar .info { -fx-graphic: url(/imgs/information20.png); }
 .viewer.project .sidebar .toolbar .wordcount { -fx-graphic: url(/imgs/wordcount20.png); }
@@ -3655,6 +3717,9 @@ Text
 .viewer.project .sidebar .toolbar .tools { -fx-graphic: url(/imgs/tools20.png); }
 .viewer.project .sidebar .toolbar .selectbg { -fx-graphic: url(/imgs/selectbg20.png); }
 .viewer.project .sidebar .toolbar .add { -fx-graphic: url(/imgs/add20.png); }
+.viewer.project .sidebar .toolbar .config { -fx-graphic: url(/imgs/edit-properties20.png); }
+.viewer.project .sidebar .toolbar .edit { -fx-graphic: url(/imgs/edit20.png); }
+.viewer.project .sidebar .toolbar .appearsinchapters { -fx-graphic: url(/imgs/sendout20.png); }
 
 .viewer.project .sidebar .toolbar .button
 {
@@ -4598,6 +4663,11 @@ Text
     -fx-image: url(/imgs/idea24.png);
 }
 
+.panel.ideaboard .scroll-pane
+{
+    -fx-fit-to-height: true;
+}
+
 .panel.ideaboard .categories
 {
     -fx-hgap: 1em;
@@ -4740,4 +4810,268 @@ Text
 .starbar .star:selected .image-view
 {
     -fx-image: url(/imgs/star16.png);
+}
+
+.panel.asset .scroll-pane
+{
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+    -fx-pannable: true;
+}
+
+.panel.asset .split-pane-divider
+{
+    -fx-background-color: transparent;
+    -fx-pref-width: 1px;
+}
+
+.panel.asset .split-pane-divider:hover
+{
+    -fx-background-color: -qw-component-border-color;
+}
+
+.panel.asset .view,
+.panel.asset .edit .single,
+.panel.asset .edit .full
+{
+    -fx-padding: 0 0.5em 0.25em 0.5em;
+}
+
+.panel.asset .field .view > .label,
+.panel.asset .field .edit > .single .label,
+.panel.asset .field .edit > .full .label
+{
+    -fx-font-style: italic;
+}
+
+.panel.asset .column
+{
+    -fx-padding: 0.5em;
+}
+
+.panel.asset .field .view .control
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+}
+
+.panel.asset .edit .single .controls, .panel.asset .edit .full .controls
+{
+    -fx-padding: 0.25em 0 0.25em 0.5em;
+    -fx-spacing: 0;
+}
+
+.panel.asset .edit .single .buttons
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-border-width: 0px 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.asset .edit .single .control
+{
+    -fx-padding: 0em 0 0 0em;
+}
+
+.panel.asset .column
+{
+    -fx-min-width: 15em;
+    -fx-border-width: 1px 1px 0 1px;
+    -fx-border-color: transparent;
+}
+
+.panel.asset .column .fields
+{
+    -fx-padding: 0.5em 0 0 0;
+}
+
+.panel.asset .column .fields:hidelabels .field > .label
+{
+    visibility: false;
+}
+
+.panel.asset .column .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0;
+}
+
+.panel.asset .column .header .title
+{
+    -fx-font-size: 1.5em;
+}
+
+.panel.asset .column:dragover
+{
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-width: 1px 1px 0 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.asset .field
+{
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.panel.asset .field
+{
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.panel.asset .field:dragover
+{
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+    -fx-cursor: move;
+    -fx-background-color: -qw-hover-bg;
+}
+
+.panel.asset .field .control .image
+{
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+
+/*
+ * These styles hide the labels for the special fields (object name/object image/object description)
+ * when certain layouts are used.
+ */
+.panel.asset .objectdescription .edit .control
+{
+    -fx-min-height: 20em;
+}
+
+.panel.asset .fields .field .label
+{
+    -fx-border-width: 0;
+}
+
+.panel.asset .fields .field .label .title
+{
+    -fx-font-size: 1.1em;
+    -fx-font-style: italic;
+}
+
+.panel.asset .field .control
+{
+    -fx-snap-to-pixel: true;
+}
+
+.panel.asset .field .image:dragging
+{
+    -fx-opacity: 0.75;
+}
+
+.panel.asset .objectimage .edit .single .control .image
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.asset .edit .control .image:noimage .image-view
+{
+    -fx-image: url(/data/default-find-image.png);
+}
+
+.panel.asset .header:scrolling
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.asset .new.field
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em;
+}
+
+.panel.asset .new.field .header
+{
+    -fx-padding: 0;
+}
+.panel.asset .new.field .header .title
+{
+    -fx-font-size: 1.5em;
+}
+
+.panel.asset .new.field .header .icon
+{
+    -fx-image: url(/imgs/add16.png);
+}
+
+.panel.asset .new.field .buttons
+{
+    -fx-padding: 0.25em 0 0.25em 1em;
+}
+
+.panel.asset .new.field .form .buttons .button
+{
+    -fx-content-display: text-only;
+}
+
+body
+{
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+a
+{
+    font-size: 30pt;
+}
+
+.web-view Label
+{
+    -fx-background: transparent;
+}
+
+.overlay
+{
+    -fx-alignment: top-center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+    -fx-padding: 5em 0 0 0;
+}
+
+.overlay .label
+{
+    -fx-font-size: 1.5em;
+    -fx-text-alignment: center;
+    -fx-alignment: top-center;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: #ffffff;
+    -fx-opacity: 1;
+    -fx-padding: 1em;
+    -fx-graphic: url(/imgs/down24.png);
+    -fx-wrap-text: true;
+}
+
+.panel.asset.new .objectname
+{
+    -fx-padding: 0.5em;
+}
+
+.panel.asset.new .objectname .label
+{
+    -fx-font-size: 1.5em;
+}
+
+/*
+ This is to override the previous label definition, qtextview (WebViewFitContent) uses its
+ own label to track the size of the text it should use.
+ */
+.panel.asset.new .objectname .errors .qtextview .label
+{
+    -fx-font-size: 1em;
+}
+
+.panel.asset.new .objectname .control
+{
+    -fx-padding: 0.25em 0 0 0.5em;
+    -fx-max-width: 70em;
 }

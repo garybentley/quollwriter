@@ -25,6 +25,14 @@ public class QuollRadioButton extends RadioButton
 
         }
 
+        if (b.tooltip != null)
+        {
+
+            UIUtils.setTooltip (this,
+                                b.tooltip);
+
+        }
+
         if (b.userProp != null)
         {
 
@@ -73,6 +81,7 @@ public class QuollRadioButton extends RadioButton
 
         private String styleName = null;
         private StringProperty label = null;
+        private StringProperty tooltip = null;
         private boolean selected = false;
         private EventHandler<ActionEvent> onAction = null;
         private String userProp = null;
@@ -141,6 +150,29 @@ public class QuollRadioButton extends RadioButton
         {
 
             this.label = prop;
+            return this;
+
+        }
+
+        public Builder tooltip (List<String> prefix,
+                                String...    ids)
+        {
+
+            return this.tooltip (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public Builder tooltip (String... ids)
+        {
+
+            return this.tooltip (getUILanguageStringProperty (ids));
+
+        }
+
+        public Builder tooltip (StringProperty prop)
+        {
+
+            this.tooltip = prop;
             return this;
 
         }

@@ -10846,7 +10846,7 @@ TODO Moved to BackupsManager.
         nameF.setFormName (getUIString (userobjects,type,_new,defaults,fields,name));
         //"Name");
 
-        utype.addConfigurableField (nameF);
+        //TODO Remove utype.addConfigurableField (nameF);
 
         // Description
         ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
@@ -10855,7 +10855,7 @@ TODO Moved to BackupsManager.
         cdescF.setFormName (getUIString (userobjects,type,_new,defaults,fields,description));
         //"Description");
 
-        utype.addConfigurableField (cdescF);
+        // TODO Remove utype.addConfigurableField (cdescF);
 
         Wizard w = UserConfigurableObjectTypeEdit.getAsWizard (viewer,
                                                                utype);

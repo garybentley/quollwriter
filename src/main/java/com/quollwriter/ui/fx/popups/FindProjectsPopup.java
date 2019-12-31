@@ -37,7 +37,7 @@ public class FindProjectsPopup extends PopupContent
         List<String> prefix = Arrays.asList (allprojects,actions,findprojects,LanguageStrings.popup);
 
         QuollFileField find = QuollFileField.builder ()
-            .initialFile (Environment.getUserQuollWriterDirPath ().toFile ())
+            .initialFile (Environment.getUserQuollWriterDirPath ())
             .withViewer (viewer)
             .limitTo (QuollFileField.Type.directory)
             .findButtonTooltip (getUILanguageStringProperty (Utils.newList (prefix,finder,tooltip)))
@@ -106,7 +106,7 @@ public class FindProjectsPopup extends PopupContent
                 try
                 {
 
-                    Files.walk (find.getFile ().toPath ())
+                    Files.walk (find.getFile ())
                         .forEach (p ->
                         {
 

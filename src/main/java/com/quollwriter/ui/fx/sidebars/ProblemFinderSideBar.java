@@ -368,7 +368,7 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
         if (this.openPaths != null)
         {
 
-            this.results.getTree ().expand (this.openPaths.stream ()
+            this.results.getTree ().expandPathToRoot (this.openPaths.stream ()
                 .map (p -> p.getValue ())
                 .collect (Collectors.toSet ()));
 

@@ -48,7 +48,6 @@ public class ProjectViewer extends AbstractProjectViewer
         String editoutlineitem = "editoutlineitem";
         String deleteoutlineitem = "deleteoutlineitem";
         String newasset = "newasset";
-        String editasset = "editasset";
         String deleteasset = "deleteasset";
         String ideaboard = "ideaboard";
         String togglespellchecking = "togglespellchecking";
@@ -866,16 +865,30 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    // TODO
     public void editObject (DataObject d)
     {
 
-        // TODO
         if (d instanceof Chapter)
         {
 
             this.editChapter ((Chapter) d);
             return;
+
+        }
+
+        if (d instanceof Asset)
+        {
+
+            Asset a = (Asset) d;
+System.out.println ("VIEWING");
+            this.viewAsset (a,
+                            () ->
+            {
+System.out.println ("HEREXXXX");
+                AssetViewPanel avp = this.getAssetViewPanel (a);
+                avp.showEdit ();
+
+            });
 
         }
 
@@ -919,6 +932,22 @@ public class ProjectViewer extends AbstractProjectViewer
     {
 
         return this.getEditorForChapter (c) != null;
+
+    }
+
+    public AssetViewPanel getAssetViewPanel (Asset a)
+    {
+
+        NamedObjectPanelContent p = this.getPanelForObject (a);
+
+        if (p instanceof AssetViewPanel)
+        {
+
+            return (AssetViewPanel) p;
+
+        }
+
+        return null;
 
     }
 
@@ -1138,16 +1167,22 @@ public class ProjectViewer extends AbstractProjectViewer
             if (doAfterView != null)
             {
 
-                // We add the listener to the panel itself so its deregistered when the panel is removed.
-                avp.getBinder ().addChangeListener (avp.readyForUseProperty (),
-                                                    (pv, oldv, newv) -> UIUtils.runLater (doAfterView));
+                if (avp.isReadyForUse ())
+                {
+
+                    UIUtils.runLater (doAfterView);
+
+                } else {
+
+                    // We add the listener to the panel itself so its deregistered when the panel is removed.
+                    avp.getBinder ().addChangeListener (avp.readyForUseProperty (),
+                                                        (pv, oldv, newv) -> UIUtils.runLater (doAfterView));
+
+                }
 
             }
 
-            // TODO Add state handling...
-            avp.init (new State ());
-
-            this.addPanel (avp.getPanel ());
+            this.addPanel (avp);
 
         } catch (Exception e)
         {
@@ -1382,6 +1417,57 @@ TODO
                                     true);
 
         }
+
+    }
+
+    public void showDeleteAsset (Asset a)
+    {
+
+        this.showDeleteAsset (a,
+                              null);
+
+    }
+
+    public void showDeleteAsset (Asset a,
+                                 Node  showAt)
+    {
+
+        String pid = a.getObjectReference ().asString () + "deleteasset";
+
+        if (this.getPopupById (pid) != null)
+        {
+
+            return;
+
+        }
+
+        QuollPopup.questionBuilder ()
+            .withViewer (this)
+            .popupId (pid)
+            .styleClassName (StyleClassNames.DELETE)
+            .title (getUILanguageStringProperty (Arrays.asList (assets,delete,confirmpopup,title),
+                                                 a.getUserConfigurableObjectType ().nameProperty ()))
+            .message (getUILanguageStringProperty (Arrays.asList (assets,delete,confirmpopup,text),
+                                                       a.getUserConfigurableObjectType ().nameProperty (),
+                                                       a.nameProperty ()))
+            .confirmButtonLabel (assets,delete,confirmpopup,buttons,confirm)
+            .cancelButtonLabel (assets,delete,confirmpopup,buttons,cancel)
+            .onConfirm (ev ->
+            {
+
+                this.deleteAsset (a);
+                this.getPopupById (pid).close ();
+
+            })
+            .onCancel (ev ->
+            {
+
+                this.getPopupById (pid).close ();
+
+            })
+            .build ()
+            .show (showAt,
+                   Side.BOTTOM);
 
     }
 
@@ -2005,10 +2091,59 @@ TODO
 
     }
 
-    public void showAddNewAsset (Asset a)
+    public void showAddNewAsset (UserConfigurableObjectType forAssetType)
     {
 
-        // TODOwwa dw
+        Asset asset = new Asset (forAssetType);
+
+        this.showAddNewAsset (asset);
+
+    }
+
+    public void showAddNewAsset (Asset asset)
+    {
+
+        String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
+
+        if (((addAsset.equals (Constants.ADD_ASSETS_TRY_POPUP))
+             &&
+             (asset.getUserConfigurableObjectType ().getNonCoreFieldCount () == 0)
+            )
+            ||
+            (addAsset.equals (Constants.ADD_ASSETS_POPUP))
+           )
+        {
+
+            new NewAssetPopup (asset,
+                               this).show ();
+            return;
+
+        }
+
+        try
+        {
+
+            NewAssetPanel avp = new NewAssetPanel (this,
+                                                   asset);
+
+            this.addPanel (avp);
+
+            this.showPanel (avp.getPanelId ());
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to view asset: " +
+                                  asset,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (Arrays.asList (assets,add,actionerror),
+                                                                          asset.getObjectTypeName ()));
+
+            return;
+
+        }
 
     }
 
@@ -2457,6 +2592,13 @@ TODO
                                         e);
 
         }
+
+    }
+
+    public void showAppearsInChaptersSideBarForAsset (Asset asset)
+    {
+
+        // TODO
 
     }
 

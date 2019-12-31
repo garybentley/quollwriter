@@ -2,7 +2,8 @@ package com.quollwriter;
 
 import java.io.*;
 import java.awt.event.*;
-
+import java.time.*;
+import java.nio.file.*;
 import java.text.*;
 import java.net.*;
 import java.util.jar.*;
@@ -1328,6 +1329,38 @@ public class Utils
 
     }
 
+    public static String getFileType (Path f)
+    {
+
+        if (f == null)
+        {
+
+            return null;
+
+        }
+
+        if (Files.isDirectory (f))
+        {
+
+            return null;
+
+        }
+
+        String fn = f.getFileName ().toString ();
+
+        int ind = fn.lastIndexOf (".");
+
+        if (ind > -1)
+        {
+
+            return fn.substring (ind + 1);
+
+        }
+
+        return null;
+
+    }
+
     public static String getFileType (File f)
     {
 
@@ -2428,6 +2461,32 @@ public class Utils
         }
 
         return (int) ((t / b) * 100);
+
+    }
+
+    public static LocalDate dateToLocalDate (Date d)
+    {
+
+        LocalDate ld = null;
+
+        if (d != null)
+        {
+
+            Instant i = Instant.ofEpochMilli (d.getTime ());
+            ld = LocalDate.from (i);
+
+        }
+
+        return ld;
+
+    }
+
+    public static Date localDateToDate (LocalDate d)
+    {
+
+        Instant i = (Instant) d.adjustInto (Instant.ofEpochMilli (0));
+
+        return new Date (i.toEpochMilli ());
 
     }
 

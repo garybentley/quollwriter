@@ -27,6 +27,7 @@ import javafx.scene.text.*;
 import javafx.event.*;
 import javafx.util.*;
 import javafx.collections.*;
+import javafx.css.*;
 
 import javax.imageio.*;
 
@@ -51,6 +52,7 @@ import com.quollwriter.data.BlankNamedObject;
 import com.quollwriter.data.Book;
 import com.quollwriter.data.ChapterItem;
 import com.quollwriter.data.Asset;
+import com.quollwriter.data.NamedObjectNameWrapper;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
@@ -74,6 +76,12 @@ public class UIUtils
 	public static final String PROJECT_INFO_EDIT_COMPLETE_TAG = "{ec}";
 	public static final String PROJECT_INFO_READABILITY_TAG = "{r}";
 	public static final String PROJECT_INFO_EDITOR_TAG = "{ed}";
+
+    public static final FileChooser.ExtensionFilter imageFileFilter = new FileChooser.ExtensionFilter ("Image files: jpg, png, gif",
+                                                                                               "*.jpg",
+                                                                                               "*.jpeg",
+                                                                                               "*.gif",
+                                                                                               "*.png");
 
     public static Color hexToColor (String h)
     {
@@ -197,22 +205,26 @@ public class UIUtils
                                       StringProperty prop)
     {
 
+        if (prop == null)
+        {
+
+            Tooltip.uninstall (node,
+                               (Tooltip) node.getProperties ().get ("tooltip"));
+            return null;
+
+        }
+
         Tooltip t = new Tooltip ();
 
         t.setContentDisplay (ContentDisplay.GRAPHIC_ONLY);
-        TextFlow tf = UIUtils.createTextFlowForHtml (prop);
+        QuollTextView tf = QuollTextView.builder ()
+            .text (prop)
+            .build ();
         t.setGraphic (tf);
-
-        t.setPrefHeight (tf.prefHeight (10000));
-
-        // We set the height of the tooltip when the width changes and recalc the height of the text flow otherwise
-        // the tooltip height is too large.
-        t.widthProperty ().addListener ((v, oldv, newv) ->
-        {
-
-            t.setPrefHeight (tf.prefHeight (newv.doubleValue ()));
-
-        });
+        tf.setMinWidth (300);
+        tf.setMaxWidth (300);
+        node.getProperties ().put ("tooltip", t);
+        t.prefWidthProperty ().bind (tf.widthProperty ());
 
         Tooltip.install (node,
                          t);
@@ -270,9 +282,9 @@ public class UIUtils
 
     }
 
-    public static void openURL (AbstractProjectViewer viewer,
-                                String                url)
-                         throws GeneralException
+    public static void openURL (AbstractViewer viewer,
+                                String         url,
+                                MouseEvent     ev)
     {
 
         URL u = null;
@@ -283,7 +295,8 @@ public class UIUtils
             u = new URL (url);
 
             UIUtils.openURL (viewer,
-                             u);
+                             u,
+                             ev);
 
         } catch (Exception e)
         {
@@ -303,33 +316,104 @@ public class UIUtils
 
     }
 
-    public static void openURL (AbstractProjectViewer viewer,
-                                URL                   url)
+    public static void openURL (AbstractViewer viewer,
+                                URL            url,
+                                MouseEvent     ev)
                          throws Exception
     {
 
-        if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
+        if ((viewer != null)
+            &&
+            (viewer instanceof AbstractProjectViewer)
+           )
         {
 
-            if (viewer != null)
+            AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+
+            if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
             {
 
-                if (viewer instanceof AbstractProjectViewer)
+                String n = url.getHost ();
+
+                try
                 {
 
-                    AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+                    n = URLDecoder.decode (url.getHost (), "utf-8");
 
-                    pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
+                } catch (Exception e) {
+
+                    // Ignore.
+
+                }
+
+                Set<NamedObject> objs = pv.getProject ().getAllNamedObjectsByName (n);
+
+                if ((objs == null)
+                    ||
+                    (objs.size () == 0)
+                   )
+                {
 
                     return;
 
                 }
 
+                if (objs.size () == 1)
+                {
+
+                    pv.viewObject (objs.iterator ().next ());
+
+                    return;
+
+                } else {
+// TODO Check this.
+                     ShowObjectSelectPopup.<NamedObject>builder ()
+                         .withViewer (viewer)
+                         .title (getUILanguageStringProperty (selectitem,popup,title))
+                         .styleClassName (StyleClassNames.OBJECTSELECT)
+                         .popupId ("showobject")
+                         .objects (objs)
+                         .cellProvider ((obj, popupContent) ->
+                         {
+
+                            QuollLabel l = QuollLabel.builder ()
+                                 .label (obj.nameProperty ())
+                                 .build ();
+
+                             l.setOnMouseClicked (eev ->
+                             {
+
+                                 pv.viewObject (obj);
+
+                                 popupContent.close ();
+
+                             });
+
+                             return l;
+
+                         })
+                         .build ()
+                         .show (ev.getScreenX (),
+                                ev.getScreenY ());
+
+                }
+
+                return;
+
+            }
+
+            if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
+            {
+
+                pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
+
+                return;
+
             }
 
         }
 
-        UIUtils.openURL (viewer,
+        UIUtils.openURL ((URLActionHandler) viewer,
                          url);
 
     }
@@ -520,7 +604,8 @@ public class UIUtils
             if (handler != null)
             {
 
-                handler.handleURLAction (action);
+                handler.handleURLAction (action,
+                                         null);
 
                 return;
 
@@ -626,6 +711,21 @@ public class UIUtils
             return;
 
         }
+
+    }
+
+    public static Image getImage (Path p)
+                           throws IOException
+    {
+
+        if (p == null)
+        {
+
+            return null;
+
+        }
+
+        return new Image (Files.newInputStream (p));
 
     }
 
@@ -1275,7 +1375,7 @@ public class UIUtils
                                                          Environment.formatNumber (Math.round (project.getFleschKincaidGradeLevel ())),
                                                          Environment.formatNumber (Math.round (project.getFleschReadingEase ())),
                                                          Environment.formatNumber (Math.round (project.getGunningFogIndex ()))));
-System.out.println ("RET: " + text);
+
         return text;
 
     }
@@ -2455,105 +2555,125 @@ System.out.println ("RET: " + text);
 
     }
 
+    public static MenuButton createTagsMenuButton (NamedObject           obj,
+                                                   StringProperty        tooltip,
+                                                   AbstractProjectViewer viewer)
+    {
+
+        return QuollMenuButton.builder ()
+            .styleClassName (StyleClassNames.TAG)
+            .tooltip (tooltip)
+            .items (UIUtils.createTagsMenuItemsSupplier (obj,
+                                                         viewer))
+            .build ();
+
+    }
+
+    public static Supplier<Set<MenuItem>> createTagsMenuItemsSupplier (NamedObject           obj,
+                                                                       AbstractProjectViewer viewer)
+    {
+
+        return () ->
+        {
+
+            Set<Tag> allTags = null;
+
+            try
+            {
+
+                allTags = Environment.getAllTags ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get all tags",
+                                      e);
+
+                return null;
+
+            }
+
+            Set<MenuItem> items = new LinkedHashSet<> ();
+
+            for (Tag t : allTags)
+            {
+
+                CheckMenuItem cmi = new CheckMenuItem ();
+                cmi.setSelected (obj.hasTag (t));
+                cmi.textProperty ().bind (t.nameProperty ());
+                cmi.setOnAction (ev ->
+                {
+
+                    if (cmi.isSelected ())
+                    {
+
+                        obj.addTag (t);
+
+                    } else {
+
+                        obj.removeTag (t);
+
+                    }
+
+                    try
+                    {
+
+                        viewer.saveObject (obj,
+                                           false);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to update object: " +
+                                              obj,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (viewer,
+                                                         getUILanguageStringProperty (tags,actions,apply,actionerror));
+                                                  //"Unable to add/remove tag.");
+
+                        return;
+
+                    }
+
+                });
+
+                items.add (cmi);
+
+            }
+
+            if (allTags.size () > 0)
+            {
+
+                items.add (new SeparatorMenuItem ());
+
+            }
+
+            items.add (QuollMenuItem.builder ()
+                .styleClassName (StyleClassNames.ADD)
+                .label (getUILanguageStringProperty (tags,popupmenu,_new))
+                .onAction (ev ->
+                {
+
+                    viewer.showAddNewTagPopup (obj,
+                                               null);
+
+                })
+                .build ());
+
+            return items;
+
+        };
+
+    }
+
     public static Menu createTagsMenu (final NamedObject           obj,
-                                        final AbstractProjectViewer viewer)
+                                       final AbstractProjectViewer viewer)
     {
 
         Menu tagMenu = QuollMenu.builder ()
             .label (getUILanguageStringProperty (tags,popupmenu,title))
             .styleClassName (StyleClassNames.TAG)
-            .items (() ->
-            {
-
-                Set<Tag> allTags = null;
-
-                try
-                {
-
-                    allTags = Environment.getAllTags ();
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to get all tags",
-                                          e);
-
-                    return null;
-
-                }
-
-                Set<MenuItem> items = new LinkedHashSet<> ();
-
-                for (Tag t : allTags)
-                {
-
-                    CheckMenuItem cmi = new CheckMenuItem ();
-                    cmi.setSelected (obj.hasTag (t));
-                    cmi.textProperty ().bind (t.nameProperty ());
-                    cmi.setOnAction (ev ->
-                    {
-
-                        if (cmi.isSelected ())
-                        {
-
-                            obj.addTag (t);
-
-                        } else {
-
-                            obj.removeTag (t);
-
-                        }
-
-                        try
-                        {
-
-                            viewer.saveObject (obj,
-                                               false);
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to update object: " +
-                                                  obj,
-                                                  e);
-
-                            ComponentUtils.showErrorMessage (viewer,
-                                                             getUILanguageStringProperty (tags,actions,apply,actionerror));
-                                                      //"Unable to add/remove tag.");
-
-                            return;
-
-                        }
-
-                        // TODO viewer.reloadTreeForObjectType (TaggedObjectSidebarItem.ID_PREFIX + t.getKey ());
-
-                    });
-
-                    items.add (cmi);
-
-                }
-
-                if (allTags.size () > 0)
-                {
-
-                    items.add (new SeparatorMenuItem ());
-
-                }
-
-                items.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.ADD)
-                    .label (getUILanguageStringProperty (tags,popupmenu,_new))
-                    .onAction (ev ->
-                    {
-/*
-TODO
-                        new AddNewTagActionHandler (obj,
-                                                    viewer).actionPerformed (ev);
-*/
-                    })
-                    .build ());
-
-                return items;
-
-            })
+            .items (UIUtils.createTagsMenuItemsSupplier (obj,
+                                                         viewer))
             .build ();
         //"Tags");
 
@@ -3308,6 +3428,724 @@ TODO
         font.setCellFactory (fact);
 
         return font;
+
+    }
+
+    public static String markupText (StringWithMarkup      text,
+                                     AbstractProjectViewer viewer,
+                                     NamedObject           ignore)
+    {
+
+        String t = text.getMarkedUpText ();
+
+        t = UIUtils.markupLinks (t);
+
+        if (viewer != null)
+        {
+
+            t = UIUtils.formatObjectNamesAsLinks (viewer,
+                                                  ignore,
+                                                  t);
+
+        }
+
+        return t;
+
+    }
+
+    public static QuollTextView getAsBulletPoints (StringWithMarkup text)
+    {
+
+        return UIUtils.getAsBulletPoints (text,
+                                          null,
+                                          null);
+
+    }
+
+    public static QuollTextView getAsText (StringWithMarkup      text,
+                                           AbstractProjectViewer viewer,
+                                           NamedObject           ignore)
+    {
+
+        String t = UIUtils.markupText (text,
+                                       viewer,
+                                       ignore);
+
+        QuollTextView tv = QuollTextView.builder ()
+           .withViewer (viewer)
+           .text (t)
+           .build ();
+
+        return tv;
+
+    }
+
+    public static QuollTextView getAsBulletPoints (StringWithMarkup      text,
+                                                   AbstractProjectViewer viewer,
+                                                   NamedObject           ignore)
+    {
+
+        Markup m = text.getMarkup ();
+        TextIterator iter = new TextIterator (text.getText ());
+
+        QuollTextView tv = QuollTextView.builder ()
+            .withViewer (viewer)
+            .text (iter.getParagraphs ().stream ()
+                    .map (p ->
+                    {
+
+                        StringWithMarkup sm = new StringWithMarkup (p.getText (),
+                                                                    new Markup (m,
+                                                                                p.getAllTextStartOffset (),
+                                                                                p.getAllTextEndOffset ()));
+
+                        String t = UIUtils.markupText (sm,
+                                                       viewer,
+                                                       ignore);
+
+                        return String.format ("<li>%1$s</li>",
+                                              t);
+
+                    })
+                    .collect (Collectors.joining ("")))
+            .build ();
+
+        return tv;
+
+    }
+
+    // Replace [icon,|;action] with <img src="icon" /><a href="action:[action]"><img src="icon" /></a>
+    // TODO Is this used for the tips?
+    public static String markupHelpTextActions (String text)
+    {
+
+        int ind = text.indexOf ("[");
+
+        while (ind > -1)
+        {
+
+          int end = text.indexOf ("]",
+                                  ind + 1);
+
+          if (end < 0)
+          {
+
+              ind = text.indexOf ("[",
+                                  ind + 1);
+
+              continue;
+
+          }
+
+          if (end > ind + 1)
+          {
+
+              String v = text.substring (ind + 1,
+                                         end);
+
+              StringTokenizer st = new StringTokenizer (v,
+                                                        ",;");
+
+              String icon = st.nextToken ().trim ().toLowerCase ();
+              String action = null;
+
+              if (st.hasMoreTokens ())
+              {
+
+                  action = st.nextToken ().trim ().toLowerCase ();
+
+              }
+
+              v = "<img src=\"" + icon + "\" />";
+
+              if (action != null)
+              {
+
+                  v = "<a href=\"action:" + action + "\">" + v + "</a>";
+
+              }
+
+              // Split up the value.
+              text = text.substring (0,
+                                     ind) + v + text.substring (end + 1);
+
+              ind = text.indexOf ("[",
+                                  ind + v.length ());
+
+
+          }
+
+        }
+
+        return text;
+
+    }
+
+    public static String markupLinks (String s)
+    {
+
+        if (s == null)
+        {
+
+            return s;
+
+        }
+
+        //s = Environment.replaceObjectNames (s);
+
+        s = UIUtils.markupLinks ("http://",
+                                 s);
+
+        s = UIUtils.markupLinks ("https://",
+                                 s);
+
+        return s;
+
+    }
+
+    public static String markupLinks (String urlPrefix,
+                                      String s)
+    {
+
+        int ind = 0;
+
+        while (true)
+        {
+
+            ind = s.indexOf (urlPrefix,
+                             ind);
+
+            if (ind != -1)
+            {
+
+                // Now check the previous character to make sure it's not " or '.
+                if (ind > 0)
+                {
+
+                    char c = s.charAt (ind - 1);
+
+                    if ((c == '"') ||
+                        (c == '\''))
+                    {
+
+                        ind += 1;
+
+                        continue;
+
+                    }
+
+                }
+
+                // Find the first whitespace char after...
+                char[] chars = s.toCharArray ();
+
+                StringBuilder b = new StringBuilder ();
+
+                for (int i = ind + urlPrefix.length (); i < chars.length; i++)
+                {
+
+                    if ((!Character.isWhitespace (chars[i]))
+                        &&
+                        (chars[i] != '<')
+                       )
+                    {
+
+                        b.append (chars[i]);
+
+                    } else {
+
+                        break;
+
+                    }
+
+                }
+
+                // Now replace whatever we got...
+                String st = b.toString ().trim ();
+
+                if ((st.length () == 0)
+                    ||
+                    (st.equals (urlPrefix))
+                   )
+                {
+
+                    ind = ind + urlPrefix.length ();
+
+                    continue;
+
+                }
+
+                // Not sure about this but "may" be ok.
+                if ((st.endsWith (";")) ||
+                    (st.endsWith (",")) ||
+                    (st.endsWith (".")))
+                {
+
+                    st = st.substring (0,
+                                       st.length () - 1);
+
+                }
+
+                String w = null;
+
+                try
+                {
+
+                    w = "<a href='" + urlPrefix + st /*URLEncoder.encode (st, "utf-8")*/ + "'>" + urlPrefix + st + "</a>";
+
+                } catch (Exception e) {
+
+                    // Won't happen.
+
+                }
+
+                StringBuilder ss = new StringBuilder (s);
+
+                s = ss.replace (ind,
+                                ind + st.length () + urlPrefix.length (),
+                                w).toString ();
+
+                ind = ind + w.length ();
+
+            } else
+            {
+
+                // No more...
+                break;
+
+            }
+
+        }
+
+        return s;
+
+    }
+
+    public static String formatObjectNamesAsLinks (AbstractProjectViewer viewer,
+                                                   NamedObject           ignore,
+                                                   String                t)
+    {
+
+        if ((t == null)
+            ||
+            (t.trim ().equals (""))
+           )
+        {
+
+            return t;
+
+        }
+
+        Project p = viewer.getProject ();
+
+        Set<NamedObject> objs = p.getAllNamedChildObjects (Asset.class);
+
+        Set<NamedObject> chaps = p.getAllNamedChildObjects (Chapter.class);
+
+        if (chaps.size () > 0)
+        {
+
+            objs.addAll (chaps);
+
+        }
+
+        if (objs.size () == 0)
+        {
+
+            return t;
+
+        }
+
+        if (ignore != null)
+        {
+
+            objs.remove (ignore);
+
+        }
+
+        Map<String, List<NamedObjectNameWrapper>> items = new HashMap<> ();
+
+        for (NamedObject o : objs)
+        {
+
+            NamedObjectNameWrapper.addTo (o,
+                                          items);
+
+        }
+
+        NavigableMap<Integer, NamedObjectNameWrapper> reps = new TreeMap ();
+
+        TextIterator ti = new TextIterator (t);
+
+        for (NamedObject n : objs)
+        {
+
+            Set<Integer> matches = null;
+
+            for (String name : n.getAllNames ())
+            {
+
+                matches = ti.findAllTextIndexes (name,
+                                                 null);
+
+                // TODO: This needs to be on a language basis.
+                Set<Integer> matches2 = ti.findAllTextIndexes (name + "'s",
+                                                               null);
+
+                matches.addAll (matches2);
+
+                Iterator<Integer> iter = matches.iterator ();
+
+                while (iter.hasNext ())
+                {
+
+                    Integer ind = iter.next ();
+
+                    // Now search back through the string to make sure
+                    // we aren't actually part of a http or https string.
+                    int httpInd = t.lastIndexOf ("http://",
+                                                 ind);
+                    int httpsInd = t.lastIndexOf ("https://",
+                                                  ind);
+
+                    if ((httpInd > -1)
+                        ||
+                        (httpsInd > -1)
+                       )
+                    {
+
+                        // Check forward to ensure there is no white space.
+                        String ss = t.substring (Math.max (httpInd, httpsInd),
+                                                 ind);
+
+                        boolean hasWhitespace = false;
+
+                        char[] chars = ss.toCharArray ();
+
+                        for (int i = 0; i < chars.length; i++)
+                        {
+
+                            if (Character.isWhitespace (chars[i]))
+                            {
+
+                                hasWhitespace = true;
+
+                                break;
+
+                            }
+
+                        }
+
+                        if (!hasWhitespace)
+                        {
+
+                            // This name is part of a http/https link so ignore.
+                            continue;
+
+                        }
+
+                    }
+
+                    // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
+                    if (Character.isLowerCase (t.charAt (ind)))
+                    {
+
+                        reps.put (ind,
+                                  new NamedObjectNameWrapper (name.toLowerCase (),
+                                                              n));
+
+                    } else {
+
+                        // Uppercase each of the words in the name.
+                        reps.put (ind,
+                                  new NamedObjectNameWrapper (TextUtilities.capitalize (name),
+                                                              n));
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        NavigableMap<Integer, NamedObjectNameWrapper> nreps = new TreeMap ();
+
+        List<Integer> mis = new ArrayList (reps.keySet ());
+
+        // Sort by location.
+        Collections.sort (mis);
+
+        // Prune out the overlaps.
+        for (int i = 0; i < mis.size (); i++)
+        {
+
+            Integer curr = mis.get (i);
+
+            NamedObjectNameWrapper wrap = reps.get (curr);
+
+            nreps.put (curr,
+                       wrap);
+
+            int ni = i + 1;
+
+            if (ni < mis.size ())
+            {
+
+                Integer next = mis.get (ni);
+
+                // Does the next match start before the end of the current match?
+                if (next.intValue () <= curr.intValue () + wrap.name.length ())
+                {
+
+                    // Move to the next, when the loop goes to the next it will
+                    // increment again moving past it.
+                    i = ni;
+
+                }
+
+            }
+
+        }
+
+        reps = nreps;
+
+        StringBuilder b = new StringBuilder (t);
+
+        // We iterate backwards over the indexes so we don't have to choppy-choppy the string.
+        Iterator<Integer> iter = reps.descendingKeySet ().iterator ();
+
+        while (iter.hasNext ())
+        {
+
+            Integer ind = iter.next ();
+
+            NamedObjectNameWrapper obj = reps.get (ind);
+
+            String w = obj.name;
+
+            try
+            {
+
+                w = URLEncoder.encode (obj.name, "utf-8");
+
+            } catch (Exception e) {
+
+                // Ignore.
+
+            }
+
+            b = b.replace (ind,
+                           ind + obj.name.length (),
+                           String.format ("<a href='%s://%s'>%s</a>",
+                                          Constants.OBJECTNAME_PROTOCOL,
+                                          w,
+                                          obj.name));
+
+/*
+TODO
+            editor.setAsLink (ind,
+                              ind + obj.name.length (),
+                              text ->
+                              {
+
+                                  Set<Asset> _objs = viewer.getProject ().getAllAssetsByName (obj.name,
+                                                                                              null);
+
+                                  if ((_objs == null)
+                                      ||
+                                      (_objs.size () == 0)
+                                     )
+                                  {
+
+                                      return;
+
+                                  }
+
+                                  if (_objs.size () == 1)
+                                  {
+
+                                      viewer.viewObject (_objs.iterator ().next ());
+
+                                      return;
+
+                                  } else {
+
+                                      String popupId = obj.name + "object-select";
+
+                                      if (viewer.getPopupById (popupId) != null)
+                                      {
+
+                                          return;
+
+                                      }
+
+                                      QuollPopup.objectSelectBuilder ()
+                                        .onClick (vobj -> viewer.viewObject (vobj))
+                                        .popupId (popupId)
+                                        .objects (_objs)
+                                        .build ();// TODO .showAt (text,
+                                                          // Side.BOTTOM);
+
+                                  }
+
+                              });
+*/
+        }
+
+        return b.toString ();
+
+    }
+
+    public static boolean isImageFile (File f)
+    {
+
+        String fn = f.getName ().toLowerCase ();
+
+        String s = UIUtils.imageFileFilter.getExtensions ().stream ()
+            .filter (ext -> fn.endsWith (ext.toLowerCase ().substring (2)))
+            .findFirst ()
+            .orElse (null);
+
+        return s!= null;
+
+    }
+
+    public static void outputApplicableCSSRules (Styleable n)
+    {
+
+        System.out.println ("SEL: " + n.getTypeSelector ());
+
+        List<String> ss = n.getStyleableNode ().getScene ().getStylesheets ();
+
+        if (n instanceof Skinnable)
+        {
+
+            n = ((Skinnable) n.getStyleableNode ()).getSkin ().getNode ();
+
+        }
+
+        for (String s : ss)
+        {
+
+            CssParser ccsp = new CssParser ();
+            Stylesheet sheet = null;
+
+            try
+            {
+
+                sheet = ccsp.parse (new URL (s));
+
+            } catch (Exception e) {
+
+                new Exception ("Unable to convert to a stylesheet: " + s,
+                               e).printStackTrace ();
+
+                continue;
+
+            }
+
+            System.out.println ("STYLESHEET: " + s);
+
+            List<javafx.css.Rule> rules = sheet.getRules ();
+
+            for (javafx.css.Rule r : rules)
+            {
+
+                List<Selector> sels = r.getSelectors ();
+
+                for (Selector sel : sels)
+                {
+
+                    if (sel.applies (n))
+                    {
+
+                        System.out.println ("RULE: " + r);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    public static void showContextMenu (Node          n,
+                                        Set<MenuItem> items,
+                                        double        x,
+                                        double        y)
+    {
+
+        ContextMenu cm = new ContextMenu ();
+        cm.getItems ().addAll (items);
+        n.getProperties ().put ("context-menu",
+                                cm);
+        cm.setAutoFix (true);
+        cm.setAutoHide (true);
+        cm.setHideOnEscape (true);
+        cm.show (n,
+                 x,
+                 y);
+
+        n.addEventHandler (MouseEvent.MOUSE_PRESSED,
+                           eev ->
+        {
+
+            Object o = n.getProperties ().get ("context-menu");
+
+            if (o != null)
+            {
+
+                ContextMenu _cm = (ContextMenu) o;
+                _cm.hide ();
+
+            }
+
+        });
+
+    }
+
+    public static void makeDraggable (ScrollPane sp)
+    {
+
+        sp.setOnDragOver (ev ->
+        {
+
+            // TODO This needs more work.
+            double diffy = 1d - ((sp.getViewportBounds ().getHeight () - 10) / sp.getViewportBounds ().getHeight ());
+            double diffx = 1d - ((sp.getViewportBounds ().getWidth () - 10) / sp.getViewportBounds ().getWidth ());
+
+            if (ev.getY () <= 100)
+            {
+
+                sp.setVvalue (sp.getVvalue () - diffy);
+
+            }
+
+            if (ev.getY () >= sp.getViewportBounds ().getHeight () - 100)
+            {
+
+                sp.setVvalue (sp.getVvalue () + diffy);
+
+            }
+
+            if (ev.getX () <= 100)
+            {
+
+                sp.setHvalue (sp.getHvalue () - diffx);
+
+            }
+
+            if (ev.getX () >= sp.getViewportBounds ().getWidth () - 100)
+            {
+
+                sp.setHvalue (sp.getHvalue () + diffx);
+
+            }
+
+        });
 
     }
 

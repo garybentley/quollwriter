@@ -10,6 +10,7 @@ import javafx.embed.swing.*;
 import javafx.scene.image.*;
 import javafx.scene.control.*;
 import javafx.beans.property.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
@@ -24,6 +25,8 @@ import static com.quollwriter.LanguageStrings.*;
 
 public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 {
+
+    //public static final DataFormat PROJECT_OBJECT_DATA_FORMAT = new DataFormat ("project/object");
 
     public static final String ID_PREFIX = "tag:";
 
@@ -61,64 +64,77 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
         });
 
-        this.tree = new QuollTreeView<> ();
-        this.tree.setShowRoot (false);
-        this.tree.setCellProvider (treeItem ->
-        {
-
-            NamedObject n = treeItem.getValue ();
-
-            QuollLabel l = null;
-
-            if (n instanceof UserConfigurableObjectType)
+        this.tree = NamedObjectTree.builder ()
+            .onDragDropped (obj ->
             {
 
-                UserConfigurableObjectType uc = (UserConfigurableObjectType) n;
-
-                l = QuollLabel.builder ()
-                    .label (n.nameProperty ())
-                    .build ();
-
-                ImageView iv = new ImageView ();
-                iv.imageProperty ().bind (uc.icon16x16Property ());
-
-                l.setGraphic (iv);
-
-            } else {
-
-                l = QuollLabel.builder ()
-                .label (n.nameProperty ())
-                .styleClassName (n.getObjectType ())
-                .build ();
-
-            }
-
-            List<String> prefix = Arrays.asList (project,sidebar,tags,treepopupmenu,LanguageStrings.items);
-
-            ContextMenu m = new ContextMenu ();
-
-            m.getItems ().add (QuollMenuItem.builder ()
-                .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
-                .styleClassName (StyleClassNames.VIEW)
-                .onAction (ev ->
+                try
                 {
 
-                    this.viewer.viewObject (n);
+                    obj.addTag (this.tag);
 
-                })
-                .build ());
+                    this.viewer.saveObject (obj,
+                                            true);
 
-                Menu tm = UIUtils.createTagsMenu (n,
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to add tag: " +
+                                          this.tag,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (this.viewer,
+                                                     getUILanguageStringProperty (project,actions,addtag,actionerror));
+                                              //"Unable to remove tag.");
+
+                }
+
+            })
+            .project (this.viewer.getProject ())
+            .canImport (obj ->
+            {
+
+                // TODO
+                return true;
+
+            })
+            .canExport (obj ->
+            {
+
+                // TODO
+                return true;
+
+            })
+            .viewObjectOnClick (true)
+            .withViewer (this.viewer)
+            .contextMenuItemSupplier (obj ->
+            {
+
+                List<String> prefix = Arrays.asList (project,sidebar,tags,treepopupmenu,LanguageStrings.items);
+
+                Set<MenuItem> _its = new LinkedHashSet<> ();
+
+                _its.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
+                    .styleClassName (StyleClassNames.VIEW)
+                    .onAction (ev ->
+                    {
+
+                        this.viewer.viewObject (obj);
+
+                    })
+                    .build ());
+
+                Menu tm = UIUtils.createTagsMenu (obj,
                                                   this.viewer);
 
                 if (tm != null)
                 {
 
-                    m.getItems ().add (tm);
+                    _its.add (tm);
 
                 }
 
-                m.getItems ().add (QuollMenuItem.builder ()
+                _its.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,remove)))
                     .styleClassName (StyleClassNames.DELETE)
                     .onAction (ev ->
@@ -127,9 +143,9 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
                         try
                         {
 
-                            n.removeTag (_this.tag);
+                            obj.removeTag (_this.tag);
 
-                            _this.viewer.saveObject (n,
+                            _this.viewer.saveObject (obj,
                                                      true);
 
                             _this.reloadTree ();
@@ -149,11 +165,10 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
                     })
                     .build ());
 
-            l.setContextMenu (m);
+                return _its;
 
-            return l;
-
-        });
+            })
+            .build ();
 
     }
 
@@ -414,7 +429,6 @@ TODO
 
     }
 
-    @Override
     public void reloadTree ()
     {
 
@@ -452,129 +466,6 @@ TODO
     {
 
         return new SimpleBooleanProperty (true);
-
-    }
-/*
-    public int getItemCount ()
-    {
-
-        int c = this.viewer.getProject ().getAllObjectsWithTag (this.tag).size ();
-
-        return c;
-
-    }
-*/
-/*
-    @Override
-    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv)
-    {
-
-        final TaggedObjectAccordionItem _this = this;
-
-        return new DragActionHandler<NamedObject> ()
-        {
-
-            @Override
-            public boolean canImportForeignObject (NamedObject obj)
-            {
-
-                return !obj.hasTag (_this.tag);
-
-            }
-
-            @Override
-            public boolean importForeignObject (NamedObject obj,
-                                                int         insertRow)
-                                         throws GeneralException
-            {
-
-                int c = _this.getItemCount ();
-
-                obj.addTag (_this.tag);
-
-                _this.viewer.saveObject (obj,
-                                         true);
-
-                if (c == 0)
-                {
-
-                    _this.update ();
-
-                } else {
-
-                    // Add at the appropriate row.
-                    DefaultTreeModel model = ((DefaultTreeModel) _this.tree.getModel ());
-
-                    TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
-                                                                    obj);
-
-                    DefaultMutableTreeNode n = new DefaultMutableTreeNode (obj);
-
-                    model.insertNodeInto (n,
-                                          (DefaultMutableTreeNode) model.getRoot (),
-                                          insertRow);
-
-                    _this.tree.getSelectionModel ().clearSelection ();
-
-                    _this.updateItemCount (_this.getItemCount ());
-
-                }
-
-                _this.viewer.openObjectSection (TaggedObjectAccordionItem.ID_PREFIX + _this.tag);
-
-                return true;
-
-            }
-
-            @Override
-            public boolean handleMove (int         fromRow,
-                                       int         toRow,
-                                       NamedObject object)
-            {
-
-                return true;
-
-            }
-
-            @Override
-            public boolean performAction (int         removeRow,
-                                          NamedObject removeObject,
-                                          int         insertRow,
-                                          NamedObject insertObject)
-            {
-
-                return true;
-
-            }
-
-        };
-
-    }
-*/
-/*
-    @Override
-    public TreeCellEditor getTreeCellEditor (ProjectViewer pv)
-    {
-
-        return new ProjectTreeCellEditor (pv,
-                                          tree);
-
-    }
-*/
-/*
-    public int getViewObjectClickCount (Object d)
-    {
-
-        return 1;
-
-    }
-*/
-
-    @Override
-    public boolean isDragEnabled ()
-    {
-
-        return true;
 
     }
 

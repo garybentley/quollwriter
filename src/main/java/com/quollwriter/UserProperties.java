@@ -1371,10 +1371,19 @@ public class UserProperties
 
     }
 
-    public static File getAsFile (String name)
+    public static Path getAsFile (String name)
     {
 
-        return UserProperties.props.getPropertyAsFile (name);
+        File f = UserProperties.props.getPropertyAsFile (name);
+
+        if (f == null)
+        {
+
+            return null;
+
+        }
+
+        return f.toPath ();
 
     }
 

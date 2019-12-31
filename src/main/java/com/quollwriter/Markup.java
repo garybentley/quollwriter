@@ -16,7 +16,7 @@ import com.gentlyweb.utils.*;
 public class Markup
 {
 
-    public static String DEFAULT_SEPARATOR = "";
+    public static String DEFAULT_SEPARATOR = " ";
     public static final String B = "b";
     public static final String U = "u";
     public static final String I = "i";

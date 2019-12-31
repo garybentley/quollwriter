@@ -7,6 +7,7 @@ import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.text.*;
+import javafx.scene.image.*;
 
 import org.jsoup.*;
 
@@ -24,12 +25,16 @@ public class BasicHtmlTextFlow extends TextFlow
 
     private StringProperty textProp = null;
     private URLActionHandler urlActionHandler = null;
+    private boolean noMarkup = false;
+    private boolean markupLinks = false;
 
     private BasicHtmlTextFlow (Builder b)
     {
 
         final BasicHtmlTextFlow _this = this;
 
+        this.noMarkup = b.noMarkup;
+        this.markupLinks = b.markupLinks;
         this.textProp = new SimpleStringProperty ();
         this.urlActionHandler = b.urlActionHandler;
         this.managedProperty ().bind (this.visibleProperty ());
@@ -148,9 +153,29 @@ public class BasicHtmlTextFlow extends TextFlow
 
         }
 
+        if (this.noMarkup)
+        {
+
+            Text t = new Text (text);
+            children.add (t);
+            return;
+
+        }
+
         text = StringUtils.replaceString (text,
-                                          "\n",
+                                          "{QW}",
+                                          Constants.QUOLL_WRITER_NAME);
+
+        text = StringUtils.replaceString (text,
+                                          String.valueOf ('\n'),
                                           "<br />");
+
+        if (this.markupLinks)
+        {
+
+            text = UIUtils.markupLinks (text);
+
+        }
 
         org.jsoup.nodes.Document doc = Jsoup.parse (text);
 
@@ -186,10 +211,25 @@ public class BasicHtmlTextFlow extends TextFlow
 
                 }
 
+                if (el.tagName ().equalsIgnoreCase ("img"))
+                {
+
+                    ImageView iv = new ImageView ();
+                    iv.getStyleClass ().add (StyleClassNames.IMAGE);
+                    iv.getStyleClass ().add (el.attr ("class"));
+
+                    children.add (iv);
+                    continue;
+
+                }
+
                 if (el.tagName ().equalsIgnoreCase ("span"))
                 {
 
-                    Text _t = new Text (el.ownText ());
+                    BasicHtmlTextFlow _t = BasicHtmlTextFlow.builder ()
+                        .text (el.ownText ())
+                        .build ();
+
                     children.add (_t);
 
                     String cl = el.attr ("class");
@@ -200,6 +240,15 @@ public class BasicHtmlTextFlow extends TextFlow
                         for (int i = 0; i < cl.length (); i++)
                         {
 
+                            char c = cl.charAt (i);
+
+                            if (Character.isWhitespace (c))
+                            {
+
+                                continue;
+
+                            }
+
                             _t.getStyleClass ().add (cl.charAt (i) + "");
 
                         }
@@ -209,16 +258,25 @@ public class BasicHtmlTextFlow extends TextFlow
 
                 }
 
-                Text t = new Text (el.ownText ());
-                t.getStyleClass ().add (el.tagName ());
-                children.add (t);
-
                 if (el.tagName ().equalsIgnoreCase ("a"))
                 {
 
+                    BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
+                        .text (el.ownText ())
+                        .build ();
+
+                    children.add (t);
+
                     t.getStyleClass ().add (StyleClassNames.A);
 
-                    t.getStyleClass ().add (el.attributes ().get ("class"));
+                    String cl = el.attributes ().get ("class");
+
+                    if (cl != null)
+                    {
+
+                        t.getStyleClass ().add (cl);
+
+                    }
 
                     //Hyperlink _t = new Hyperlink (el.ownText ());
                     //_t.setWrapText (true);
@@ -251,7 +309,20 @@ public class BasicHtmlTextFlow extends TextFlow
 
                     });
 
+                    continue;
+
                 }
+
+                Text t = new Text (el.ownText ());
+
+                if (el.tagName () != null)
+                {
+
+                    t.getStyleClass ().add (el.tagName ());
+
+                }
+
+                children.add (t);
 
             }
 
@@ -278,6 +349,8 @@ public class BasicHtmlTextFlow extends TextFlow
         private StringProperty text = null;
         private URLActionHandler urlActionHandler = null;
         private String styleName = null;
+        private boolean noMarkup = false;
+        private boolean markupLinks = false;
 
         private Builder ()
         {
@@ -289,6 +362,22 @@ public class BasicHtmlTextFlow extends TextFlow
         {
 
             return new BasicHtmlTextFlow (this);
+
+        }
+
+        public Builder markupLinks (boolean v)
+        {
+
+            this.markupLinks = v;
+            return this;
+
+        }
+
+        public Builder noMarkup (boolean v)
+        {
+
+            this.noMarkup = v;
+            return this;
 
         }
 

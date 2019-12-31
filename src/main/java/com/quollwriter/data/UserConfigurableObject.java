@@ -8,8 +8,9 @@ import org.jdom.*;
 import org.josql.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.userobjects.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.userobjects.*;
 
 public class UserConfigurableObject extends NamedObject
 {
@@ -75,7 +76,8 @@ public class UserConfigurableObject extends NamedObject
     {
 
     }
-
+/*
+TODO Remove
     public ObjectNameUserConfigurableObjectFieldViewEditHandler getPrimaryNameViewEditHandler (com.quollwriter.ui.ProjectViewer viewer)
     {
 
@@ -84,7 +86,9 @@ public class UserConfigurableObject extends NamedObject
                                                                                                                           viewer);
 
     }
-
+*/
+/*
+TODO Remove
     public ObjectDescriptionUserConfigurableObjectFieldViewEditHandler getObjectDescriptionViewEditHandler (com.quollwriter.ui.ProjectViewer viewer)
     {
 
@@ -100,6 +104,7 @@ public class UserConfigurableObject extends NamedObject
                                                                                                                                        viewer);
 
     }
+*/
 
     public Object getValueForField (UserConfigurableObjectTypeField f)
     {
@@ -250,10 +255,10 @@ public class UserConfigurableObject extends NamedObject
 
     }
 
-    public Set<UserConfigurableObjectFieldViewEditHandler> getViewEditHandlers (com.quollwriter.ui.ProjectViewer viewer)
+    public Set<com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler> getViewEditHandlers (com.quollwriter.ui.ProjectViewer viewer)
     {
 
-        Map<UserConfigurableObjectTypeField, UserConfigurableObjectField> typeFieldMap = new HashMap ();
+        Map<UserConfigurableObjectTypeField, UserConfigurableObjectField> typeFieldMap = new HashMap<> ();
 
         for (UserConfigurableObjectField f : this.fields)
         {
@@ -263,14 +268,56 @@ public class UserConfigurableObject extends NamedObject
 
         }
 
-        Set<UserConfigurableObjectFieldViewEditHandler> handlers = new LinkedHashSet ();
+        Set<com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler> handlers = new LinkedHashSet<> ();
 
         for (UserConfigurableObjectTypeField tf : this.userConfigObjType.getConfigurableFields ())
         {
 
             UserConfigurableObjectField f = typeFieldMap.get (tf);
 
-            UserConfigurableObjectFieldViewEditHandler h = tf.getViewEditHandler (this,
+            com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler h = tf.getViewEditHandler (this,
+                                                                                  f,
+                                                                                  viewer);
+
+            handlers.add (h);
+
+        }
+
+        return handlers;
+
+    }
+
+    public UserConfigurableObjectField getField (UserConfigurableObjectTypeField t)
+    {
+
+        return this.fields.stream ()
+            .filter (f -> f.getUserConfigurableObjectTypeField ().equals (t))
+            .findFirst ()
+            .orElse (null);
+
+    }
+
+    public Set<UserConfigurableObjectFieldViewEditHandler> getViewEditHandlers2 (ProjectViewer viewer)
+    {
+
+        Map<UserConfigurableObjectTypeField, UserConfigurableObjectField> typeFieldMap = new HashMap<> ();
+
+        for (UserConfigurableObjectField f : this.fields)
+        {
+
+            typeFieldMap.put (f.getUserConfigurableObjectTypeField (),
+                              f);
+
+        }
+
+        Set<UserConfigurableObjectFieldViewEditHandler> handlers = new LinkedHashSet<> ();
+
+        for (UserConfigurableObjectTypeField tf : this.userConfigObjType.getConfigurableFields ())
+        {
+
+            UserConfigurableObjectField f = typeFieldMap.get (tf);
+
+            UserConfigurableObjectFieldViewEditHandler h = tf.getViewEditHandler2 (this,
                                                                                   f,
                                                                                   viewer);
 

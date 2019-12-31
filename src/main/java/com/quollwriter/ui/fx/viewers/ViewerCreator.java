@@ -6,7 +6,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 
 /**
- * A base class for content that is suitable for display within a panel.
+ * A base class for content that is suitable for display within a Viewer.
  */
 public interface ViewerCreator
 {

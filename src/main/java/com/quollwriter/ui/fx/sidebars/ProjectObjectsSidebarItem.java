@@ -7,6 +7,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.*;
@@ -102,6 +103,7 @@ public abstract class ProjectObjectsSidebarItem<E extends AbstractProjectViewer>
 
             this.item = AccordionItem.builder ()
                 .title (t)
+                .accordionId (this.getId ())
                 .openContent (this.getContent ())
                 .styleClassName (this.getStyleClassName ())
                 .contextMenu (this.getHeaderContextMenuItemSupplier ())
@@ -172,25 +174,6 @@ public abstract class ProjectObjectsSidebarItem<E extends AbstractProjectViewer>
     //public abstract int getViewObjectClickCount (Object d);
 
     //public abstract boolean isTreeEditable ();
-
-    public abstract boolean isDragEnabled ();
-
-    public abstract void reloadTree ();
-
-    //public abstract DragActionHandler getTreeDragActionHandler (E     pv);
-
-    /**
-     *  Allow anything to be moved, sub-classes can override to switch off as needed.
-     *
-     * @param o The object to check.
-     * @returns Always true.
-     */
-    public boolean canMoveObject (NamedObject o)
-    {
-
-        return true;
-
-    }
 
 /*
     private class PopupPreviewListener extends MouseEventHandler

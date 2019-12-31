@@ -1,7 +1,5 @@
 package com.quollwriter.data;
 
-import java.awt.Dimension;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
@@ -12,10 +10,9 @@ import java.util.Collection;
 
 import java.math.*;
 
-import javax.swing.*;
-
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.userobjects.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.userobjects.*;
 
 public class SelectUserConfigurableObjectTypeField extends UserConfigurableObjectTypeField
 {
@@ -39,7 +36,20 @@ public class SelectUserConfigurableObjectTypeField extends UserConfigurableObjec
     }
 
     @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
+    public com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
+                                                                          UserConfigurableObjectField field,
+                                                                          com.quollwriter.ui.AbstractProjectViewer       viewer)
+    {
+
+        return new com.quollwriter.ui.userobjects.SelectUserConfigurableObjectFieldViewEditHandler (this,
+                                                                     obj,
+                                                                     field,
+                                                                     viewer);
+
+    }
+
+    @Override
+    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           AbstractProjectViewer       viewer)
     {
@@ -52,7 +62,15 @@ public class SelectUserConfigurableObjectTypeField extends UserConfigurableObjec
     }
 
     @Override
-    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
+    public com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
+    {
+
+        return new com.quollwriter.ui.userobjects.SelectUserConfigurableObjectTypeFieldConfigHandler (this);
+
+    }
+
+    @Override
+    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ()
     {
 
         return new SelectUserConfigurableObjectTypeFieldConfigHandler (this);

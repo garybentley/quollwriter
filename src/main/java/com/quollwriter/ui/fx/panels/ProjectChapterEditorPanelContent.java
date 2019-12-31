@@ -51,7 +51,6 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     //private QuollEditorPanel panel = null;
     private Runnable wordCountUpdate = null;
     private ScheduledFuture a4PageCountUpdater = null;
-    private ToolBar toolbar = null;
 
     //private IconColumn iconColumn = null;
     //private QTextEditor editor = null;
@@ -110,22 +109,6 @@ TODO
 
         });
 */
-        this.viewer.addKeyMapping (ProjectViewer.CommandId.showwordcounts,
-                                   KeyCode.W,
-                                   KeyCombination.SHORTCUT_DOWN);
-
-        this.viewer.addKeyMapping (ProjectViewer.CommandId.togglespellchecking,
-                                   KeyCode.L,
-                                   KeyCombination.SHORTCUT_DOWN);
-
-        this.viewer.addKeyMapping (() ->
-        {
-
-            this.insertSectionBreak ();
-
-        },
-        KeyCode.ENTER,
-        KeyCombination.SHORTCUT_DOWN);
 
 /*
 TODO
@@ -140,23 +123,6 @@ TODO
 
         this.getBackgroundPane ().getChildren ().add (marginbg);
 
-        this.object.getScenes ().stream ()
-            .forEach (s ->
-            {
-
-                s.setTextPosition2 (this.editor.createTextPosition (s.getPosition ()));
-
-                s.getOutlineItems ().stream ()
-                    .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
-
-            });
-
-        this.object.getOutlineItems ().stream ()
-            .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
-
-        this.object.getNotes ().stream ()
-            .forEach (n -> n.setTextPosition2 (this.editor.createTextPosition (n.getPosition ())));
-
         this.addChangeListener (UserProperties.showEditMarkerInChapterProperty (),
                                 (pr, oldv, newv) ->
         {
@@ -170,6 +136,23 @@ TODO
 
             UIUtils.runLater (() ->
             {
+
+                this.object.getScenes ().stream ()
+                    .forEach (s ->
+                    {
+
+                        s.setTextPosition2 (this.editor.createTextPosition (s.getPosition ()));
+
+                        s.getOutlineItems ().stream ()
+                            .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
+
+                    });
+
+                this.object.getOutlineItems ().stream ()
+                    .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
+
+                this.object.getNotes ().stream ()
+                    .forEach (n -> n.setTextPosition2 (this.editor.createTextPosition (n.getPosition ())));
 
                 this.recreateVisibleParagraphs ();
 /*
@@ -353,6 +336,43 @@ TODO
            }
 
         });
+
+    }
+
+    @Override
+    public Map<KeyCombination, Runnable> getActionMappings ()
+    {
+
+        Map<KeyCombination, Runnable> ret = new HashMap<> ();
+
+        ret.put (new KeyCodeCombination (KeyCode.ENTER,
+                                         KeyCombination.SHORTCUT_DOWN),
+                 () ->
+                 {
+
+                     this.insertSectionBreak ();
+
+                 });
+
+        ret.put (new KeyCodeCombination (KeyCode.L,
+                                         KeyCombination.SHORTCUT_DOWN),
+                 () ->
+                 {
+
+                     this.runCommand (ProjectViewer.CommandId.togglespellchecking);
+
+                 });
+
+        ret.put (new KeyCodeCombination (KeyCode.W,
+                                         KeyCombination.SHORTCUT_DOWN),
+                 () ->
+                 {
+
+                     this.runCommand (ProjectViewer.CommandId.showwordcounts);
+
+                 });
+
+        return ret;
 
     }
 
@@ -820,262 +840,258 @@ TODO
     }
 
     @Override
-    public ToolBar getToolBar ()
+    public Set<Node> getToolBarItems ()
     {
 
-        if (this.toolbar == null)
-        {
+        List<String> prefix = Arrays.asList (project,editorpanel,LanguageStrings.toolbar);
 
-            List<String> prefix = Arrays.asList (project,editorpanel,LanguageStrings.toolbar);
+        Set<Node> its = new LinkedHashSet<> ();
 
-            ToolBar t = new ToolBar ();
-
-            t.getItems ().add (QuollButton.builder ()
-                .tooltip (Utils.newList (prefix,save,tooltip))
-                .styleClassName (StyleClassNames.SAVE)
-                .onAction (ev ->
-                {
-
-                    this.saveObject ();
-
-                })
-                .build ());
-
-            t.getItems ().add (QuollMenuButton.builder ()
-                .tooltip (Utils.newList (prefix,_new,tooltip))
-                .styleClassName (StyleClassNames.NEW)
-                .items (() ->
-                {
-
-                    List<String> mprefix = Arrays.asList (project,editorpanel,popupmenu,_new,items);
-
-                    Set<MenuItem> items = new LinkedHashSet<> ();
-
-                    /*
-                    mi.setMnemonic ('S');
-                    mi.setToolTipText (pref + "S");
-                    */
-                    String pref = getUILanguageStringProperty (general,shortcutprefix).getValue ();
-
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix, com.quollwriter.data.Scene.OBJECT_TYPE,text)))
-                        .styleClassName (com.quollwriter.data.Scene.OBJECT_TYPE)
-                        //.tooltip (new SimpleStringProperty (pref + "S"))
-                        .accelerator (Environment.getNewObjectTypeKeyCombination (com.quollwriter.data.Scene.OBJECT_TYPE))
-                        .onAction (eev ->
-                        {
-
-                            this.viewer.createNewScene (this.object,
-                                                        this.editor.getCaretPosition ());
-
-                        })
-                        .build ());
-
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix, OutlineItem.OBJECT_TYPE,text)))
-                        .styleClassName (OutlineItem.OBJECT_TYPE)
-                        //.tooltip (new SimpleStringProperty (pref + "O"))
-                        .accelerator (Environment.getNewObjectTypeKeyCombination (OutlineItem.OBJECT_TYPE))
-                        .onAction (eev ->
-                        {
-
-                            this.viewer.createNewOutlineItem (this.object,
-                                                              this.editor.getCaretPosition ());
-
-                        })
-                        .build ());
-
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.OBJECT_TYPE,text)))
-                        .styleClassName (Note.OBJECT_TYPE)
-                        .accelerator (Environment.getNewObjectTypeKeyCombination (Note.OBJECT_TYPE))
-                        .onAction (eev ->
-                        {
-
-                            this.viewer.createNewNote (this.object,
-                                                       this.editor.getCaretPosition ());
-
-                        })
-                        .build ());
-
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.EDIT_NEEDED_OBJECT_TYPE,text)))
-                        .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
-                        .accelerator (Environment.getNewObjectTypeKeyCombination (Note.EDIT_NEEDED_OBJECT_TYPE))
-                        .onAction (eev ->
-                        {
-
-                            this.viewer.createNewEditNeededNote (this.object,
-                                                                 this.editor.getCaretPosition ());
-
-                        })
-                        .build ());
-
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix, Chapter.OBJECT_TYPE,text)))
-                        .styleClassName (Chapter.OBJECT_TYPE)
-                        .accelerator (Environment.getNewObjectTypeKeyCombination (Chapter.OBJECT_TYPE))
-                        .onAction (eev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.newchapter,
-                                                    null,
-                                                    this.object);
-
-                        })
-                        .build ());
-
-                    items.addAll (UIUtils.getNewAssetMenuItems (this.viewer));
-
-                    return items;
-
-                })
-                .build ());
-
-            t.getItems ().add (QuollButton.builder ()
-                .tooltip (Utils.newList (prefix,showchapterinfo,tooltip))
-                .styleClassName (StyleClassNames.INFO)
-                .onAction (ev ->
-                {
-
-                    this.viewer.runCommand (ProjectViewer.CommandId.showchapterinfo,
-                                            null,
-                                            this.object);
-
-                })
-                .build ());
-
-            t.getItems ().add (QuollButton.builder ()
-                .tooltip (Utils.newList (prefix,wordcount,tooltip))
-                .styleClassName (StyleClassNames.WORDCOUNT)
-                .onAction (ev ->
-                {
-
-                    this.viewer.runCommand (AbstractProjectViewer.CommandId.showwordcounts);
-
-                })
-                .build ());
-
-            QuollButton sb = QuollButton.builder ()
-                .tooltip (Utils.newList (prefix,this.viewer.isSpellCheckingEnabled () ? spellcheckoff : spellcheckon,tooltip))
-                .styleClassName (StyleClassNames.SPELLCHECK)
-                .onAction (ev ->
-                {
-
-                    this.viewer.runCommand (ProjectViewer.CommandId.togglespellchecking);
-
-                })
-                .build ();
-
-            this.addChangeListener (this.viewer.spellCheckingEnabledProperty (),
-                                    (pr, oldv, newv) ->
+        its.add (QuollButton.builder ()
+            .tooltip (Utils.newList (prefix,save,tooltip))
+            .styleClassName (StyleClassNames.SAVE)
+            .onAction (ev ->
             {
 
-                sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
-                sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
+                this.saveObject ();
 
-                UIUtils.setTooltip (sb,
-                                    getUILanguageStringProperty (Utils.newList (prefix,this.viewer.isSpellCheckingEnabled () ? spellcheckoff : spellcheckon,tooltip)));
+            })
+            .build ());
 
-            });
+        its.add (QuollMenuButton.builder ()
+            .tooltip (Utils.newList (prefix,_new,tooltip))
+            .styleClassName (StyleClassNames.NEW)
+            .items (() ->
+            {
+
+                List<String> mprefix = Arrays.asList (project,editorpanel,popupmenu,_new,items);
+
+                Set<MenuItem> items = new LinkedHashSet<> ();
+
+                /*
+                mi.setMnemonic ('S');
+                mi.setToolTipText (pref + "S");
+                */
+                String pref = getUILanguageStringProperty (general,shortcutprefix).getValue ();
+
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix, com.quollwriter.data.Scene.OBJECT_TYPE,text)))
+                    .styleClassName (com.quollwriter.data.Scene.OBJECT_TYPE)
+                    //.tooltip (new SimpleStringProperty (pref + "S"))
+                    .accelerator (Environment.getNewObjectTypeKeyCombination (com.quollwriter.data.Scene.OBJECT_TYPE))
+                    .onAction (eev ->
+                    {
+
+                        this.viewer.createNewScene (this.object,
+                                                    this.editor.getCaretPosition ());
+
+                    })
+                    .build ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix, OutlineItem.OBJECT_TYPE,text)))
+                    .styleClassName (OutlineItem.OBJECT_TYPE)
+                    //.tooltip (new SimpleStringProperty (pref + "O"))
+                    .accelerator (Environment.getNewObjectTypeKeyCombination (OutlineItem.OBJECT_TYPE))
+                    .onAction (eev ->
+                    {
+
+                        this.viewer.createNewOutlineItem (this.object,
+                                                          this.editor.getCaretPosition ());
+
+                    })
+                    .build ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.OBJECT_TYPE,text)))
+                    .styleClassName (Note.OBJECT_TYPE)
+                    .accelerator (Environment.getNewObjectTypeKeyCombination (Note.OBJECT_TYPE))
+                    .onAction (eev ->
+                    {
+
+                        this.viewer.createNewNote (this.object,
+                                                   this.editor.getCaretPosition ());
+
+                    })
+                    .build ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.EDIT_NEEDED_OBJECT_TYPE,text)))
+                    .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+                    .accelerator (Environment.getNewObjectTypeKeyCombination (Note.EDIT_NEEDED_OBJECT_TYPE))
+                    .onAction (eev ->
+                    {
+
+                        this.viewer.createNewEditNeededNote (this.object,
+                                                             this.editor.getCaretPosition ());
+
+                    })
+                    .build ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix, Chapter.OBJECT_TYPE,text)))
+                    .styleClassName (Chapter.OBJECT_TYPE)
+                    .accelerator (Environment.getNewObjectTypeKeyCombination (Chapter.OBJECT_TYPE))
+                    .onAction (eev ->
+                    {
+
+                        this.viewer.runCommand (ProjectViewer.CommandId.newchapter,
+                                                null,
+                                                this.object);
+
+                    })
+                    .build ());
+
+                items.addAll (UIUtils.getNewAssetMenuItems (this.viewer));
+
+                return items;
+
+            })
+            .build ());
+
+        its.add (QuollButton.builder ()
+            .tooltip (Utils.newList (prefix,showchapterinfo,tooltip))
+            .styleClassName (StyleClassNames.INFO)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.showchapterinfo,
+                                        this.object);
+
+            })
+            .build ());
+
+        its.add (QuollButton.builder ()
+            .tooltip (Utils.newList (prefix,wordcount,tooltip))
+            .styleClassName (StyleClassNames.WORDCOUNT)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (AbstractProjectViewer.CommandId.showwordcounts);
+
+            })
+            .build ());
+
+        QuollButton sb = QuollButton.builder ()
+            .tooltip (Utils.newList (prefix,this.viewer.isSpellCheckingEnabled () ? spellcheckoff : spellcheckon,tooltip))
+            .styleClassName (StyleClassNames.SPELLCHECK)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.togglespellchecking);
+
+            })
+            .build ();
+
+        this.addChangeListener (this.viewer.spellCheckingEnabledProperty (),
+                                (pr, oldv, newv) ->
+        {
 
             sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
             sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
 
-            t.getItems ().add (sb);
+            UIUtils.setTooltip (sb,
+                                getUILanguageStringProperty (Utils.newList (prefix,this.viewer.isSpellCheckingEnabled () ? spellcheckoff : spellcheckon,tooltip)));
 
-            t.getItems ().add (QuollButton.builder ()
-                .tooltip (Utils.newList (prefix,delete,tooltip))
-                .styleClassName (StyleClassNames.DELETE)
-                .onAction (ev ->
+        });
+
+        sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
+        sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
+
+        its.add (sb);
+
+        its.add (UIUtils.createTagsMenuButton (this.object,
+                                               getUILanguageStringProperty (Utils.newList (prefix,tags,tooltip)),
+                                               this.viewer));
+
+        its.add (QuollButton.builder ()
+            .tooltip (Utils.newList (prefix,delete,tooltip))
+            .styleClassName (StyleClassNames.DELETE)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.deletechapter,
+                                        this.object);
+
+            })
+            .build ());
+
+        its.add (QuollMenuButton.builder ()
+            .tooltip (Utils.newList (prefix,tools,tooltip))
+            .styleClassName (StyleClassNames.TOOLS)
+            .items (() ->
+            {
+
+                Set<MenuItem> items = new LinkedHashSet<> ();
+
+                List<String> mprefix = Arrays.asList (project,editorpanel,tools);
+
+                if (this.viewer.isProjectLanguageEnglish ())
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.deletechapter,
-                                            this.object);
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Utils.newList (mprefix,problemfinder,text)))
+                        .styleClassName (StyleClassNames.PROBLEMFINDER)
+                        .accelerator (new KeyCharacterCombination ("P",
+                                                                   KeyCombination.SHORTCUT_DOWN,
+                                                                   KeyCombination.SHIFT_DOWN))
+                        .onAction (ev ->
+                        {
 
-                })
-                .build ());
+                            this.showProblemFinder ();
 
-            t.getItems ().add (QuollMenuButton.builder ()
-                .tooltip (Utils.newList (prefix,tools,tooltip))
-                .styleClassName (StyleClassNames.TOOLS)
-                .items (() ->
-                {
+                        })
+                        .build ());
 
-                    Set<MenuItem> items = new LinkedHashSet<> ();
+                }
 
-                    List<String> mprefix = Arrays.asList (project,editorpanel,tools);
-
-                    if (this.viewer.isProjectLanguageEnglish ())
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix,textproperties,text)))
+                    .styleClassName (StyleClassNames.EDITPROPERTIES)
+                    .accelerator (new KeyCharacterCombination ("E",
+                                                               KeyCombination.SHORTCUT_DOWN))
+                    .onAction (ev ->
                     {
 
-                        items.add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (mprefix,problemfinder,text)))
-                            .styleClassName (StyleClassNames.PROBLEMFINDER)
-                            .accelerator (new KeyCharacterCombination ("P",
-                                                                       KeyCombination.SHORTCUT_DOWN,
-                                                                       KeyCombination.SHIFT_DOWN))
-                            .onAction (ev ->
-                            {
+                        this.viewer.runCommand (ProjectViewer.CommandId.textproperties);
 
-                                this.showProblemFinder ();
+                    })
+                    .build ());
 
-                            })
-                            .build ());
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix,find,text)))
+                    .styleClassName (StyleClassNames.FIND)
+                    .accelerator (new KeyCharacterCombination ("F",
+                                                               KeyCombination.SHORTCUT_DOWN))
+                    .onAction (ev ->
+                    {
 
-                    }
+                        this.viewer.runCommand (ProjectViewer.CommandId.find);
 
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix,textproperties,text)))
-                        .styleClassName (StyleClassNames.EDITPROPERTIES)
-                        .accelerator (new KeyCharacterCombination ("E",
-                                                                   KeyCombination.SHORTCUT_DOWN))
-                        .onAction (ev ->
-                        {
+                    })
+                    .build ());
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.textproperties);
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (mprefix,print,text)))
+                    .styleClassName (StyleClassNames.PRINT)
+                    .accelerator (new KeyCharacterCombination ("P",
+                                                               KeyCombination.SHORTCUT_DOWN))
+                    .onAction (ev ->
+                    {
 
-                        })
-                        .build ());
+                        this.viewer.runCommand (ProjectViewer.CommandId.print,
+                                                null,
+                                                this.object);
 
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix,find,text)))
-                        .styleClassName (StyleClassNames.FIND)
-                        .accelerator (new KeyCharacterCombination ("F",
-                                                                   KeyCombination.SHORTCUT_DOWN))
-                        .onAction (ev ->
-                        {
+                    })
+                    .build ());
 
-                            this.viewer.runCommand (ProjectViewer.CommandId.find);
+                return items;
 
-                        })
-                        .build ());
+            })
+            .build ());
 
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (mprefix,print,text)))
-                        .styleClassName (StyleClassNames.PRINT)
-                        .accelerator (new KeyCharacterCombination ("P",
-                                                                   KeyCombination.SHORTCUT_DOWN))
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.print,
-                                                    null,
-                                                    this.object);
-
-                        })
-                        .build ());
-
-                    return items;
-
-                })
-                .build ());
-
-            this.toolbar = t;
-
-        }
-
-        return this.toolbar;
+        return its;
 
     }
 

@@ -1,32 +1,40 @@
 package com.quollwriter.ui.fx.panels;
 
 import java.util.*;
+import java.util.stream.*;
 
+import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.*;
+import javafx.scene.layout.*;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
+import javafx.scene.image.*;
 
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
-
-import com.quollwriter.ui.userobjects.*;
-
+import com.quollwriter.ui.fx.userobjects.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.ui.fx.components.*;
 
+import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
-import static com.quollwriter.Environment.getUIString;
 
-public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
+public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset> implements ToolBarSupported
 {
 
-    private SplitPane mainSplitPane = null;
-    private SplitPane leftSplitPane = null;
-    private SplitPane rightSplitPane = null;
+    private VBox content = null;
+    private SortableColumnsPanel layout = null;
+    private Button headerEditBut = null;
+    private Button headerSaveBut = null;
+    private Button headerCancelBut = null;
+    private VBox error = null;
+    private BooleanProperty layoutModeEnabled = null;
 
     public AssetViewPanel (ProjectViewer pv,
                            Asset         a)
@@ -36,27 +44,282 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         super (pv,
                a);
 
+        this.layoutModeEnabled = new SimpleBooleanProperty (false);
+
+        this.getStyleClass ().add (StyleClassNames.ASSET);
         this.getStyleClass ().add (a.getUserConfigurableObjectType ().getObjectReference ().asString ());
+
+        this.headerEditBut = QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Arrays.asList (assets,view,toolbar,edit,tooltip),
+                                                   this.object.getUserConfigurableObjectType ().nameProperty ()))
+            .styleClassName (StyleClassNames.EDIT)
+            .onAction (ev ->
+            {
+
+                this.showEdit ();
+
+            })
+            .build ();
+        this.headerEditBut.managedProperty ().bind (this.headerEditBut.visibleProperty ());
+
+        this.headerSaveBut = QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Arrays.asList (assets,view,toolbar,save,tooltip),
+                                                   this.object.getUserConfigurableObjectType ().nameProperty ()))
+            .styleClassName (StyleClassNames.SAVE)
+            .onAction (ev ->
+            {
+
+                if (this.layoutModeEnabled.getValue ())
+                {
+
+                    // We are in layout.
+                    this.layoutModeEnabled.setValue (false);
+                    this.getStyleClass ().remove (StyleClassNames.LAYOUT);
+                    this.headerSaveBut.setVisible (false);
+                    this.headerEditBut.setVisible (true);
+                    this.headerCancelBut.setVisible (false);
+
+                }
+
+                this.save ();
+
+            })
+            .build ();
+        this.headerSaveBut.managedProperty ().bind (this.headerSaveBut.visibleProperty ());
+        this.headerSaveBut.setVisible (false);
+
+        this.headerCancelBut = QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (assets,view,toolbar,cancel,tooltip))
+            .styleClassName (StyleClassNames.CANCEL)
+            .onAction (ev ->
+            {
+
+                this.cancelEdit ();
+
+            })
+            .build ();
+        this.headerCancelBut.managedProperty ().bind (this.headerCancelBut.visibleProperty ());
+        this.headerCancelBut.setVisible (false);
+
+        Set<Node> items = new LinkedHashSet<> ();
+        items.add (this.headerEditBut);
+        items.add (this.headerSaveBut);
+        items.add (this.headerCancelBut);
+
+        VBox view = new VBox ();
+        VBox.setVgrow (view,
+                       Priority.ALWAYS);
 
         Header header = Header.builder ()
             .title (a.nameProperty ())
-            .styleClassName (a.getUserConfigurableObjectType ().getObjectType ()) // TODO ?
+            .styleClassName (a.getUserConfigurableObjectType ().getObjectType ())
+            .controls (items)
             .build ();
 
-        this.mainSplitPane = new SplitPane ();
-        this.mainSplitPane.setOrientation (Orientation.HORIZONTAL);
-        this.leftSplitPane = new SplitPane ();
-        this.leftSplitPane.setOrientation (Orientation.VERTICAL);
-        this.rightSplitPane = new SplitPane ();
-        this.rightSplitPane.setOrientation (Orientation.VERTICAL);
+        header.setOnMouseClicked (ev ->
+        {
 
-        this.mainSplitPane.getItems ().addAll (this.leftSplitPane, this.rightSplitPane);
+            if (ev.getClickCount () == 2)
+            {
 
-        this.leftSplitPane.getItems ().addAll (new AssetDetailsPanel (this.object), new AppearsInChaptersPanel (this.object));
+                String pid = RenameAssetPopup.getPopupIdForAsset (this.object);
 
-        this.rightSplitPane.getItems ().addAll (new DocumentsPanel (this.object), new LinkedToPanel (this.object, this.getBinder (), pv));
+                if (this.viewer.getPopupById (pid) != null)
+                {
 
-        this.getChildren ().addAll (header, this.mainSplitPane);
+                    return;
+
+                }
+
+                QuollPopup qp = new RenameAssetPopup (this.viewer,
+                                                      this.object).getPopup ();
+
+                this.viewer.showPopup (qp,
+                                       header,
+                                       Side.BOTTOM);
+
+            }
+
+        });
+
+        header.getIcon ().imageProperty ().bind (a.getUserConfigurableObjectType ().icon24x24Property ());
+
+        this.error = new VBox ();
+        this.error.getStyleClass ().add (StyleClassNames.ERROR);
+        this.error.managedProperty ().bind (this.error.visibleProperty ());
+        this.error.setVisible (false);
+
+        this.layout = new SortableColumnsPanel (a,
+                                                this.getBinder (),
+                                                this.viewer);
+        VBox.setVgrow (this.layout,
+                       Priority.ALWAYS);
+
+        ScrollPane sp = new ScrollPane (this.layout);
+        sp.setPannable (true);
+        sp.setOnDragOver (ev ->
+        {
+
+            // TODO This needs more work.
+            double diffy = 1d - ((sp.getViewportBounds ().getHeight () - 10) / sp.getViewportBounds ().getHeight ());
+            double diffx = 1d - ((sp.getViewportBounds ().getWidth () - 10) / sp.getViewportBounds ().getWidth ());
+
+            if (ev.getY () <= 100)
+            {
+
+                sp.setVvalue (sp.getVvalue () - diffy);
+
+            }
+
+            if (ev.getY () >= sp.getViewportBounds ().getHeight () - 100)
+            {
+
+                sp.setVvalue (sp.getVvalue () + diffy);
+
+            }
+
+            if (ev.getX () <= 100)
+            {
+
+                sp.setHvalue (sp.getHvalue () - diffx);
+
+            }
+
+            if (ev.getX () >= sp.getViewportBounds ().getWidth () - 100)
+            {
+
+                sp.setHvalue (sp.getHvalue () + diffx);
+
+            }
+
+        });
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
+        sp.vvalueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+           header.pseudoClassStateChanged (StyleClassNames.SCROLLING_PSEUDO_CLASS, newv.doubleValue () > 0);
+
+        });
+
+        view.getChildren ().addAll (header, this.error, sp);
+
+        this.getChildren ().add (view);
+
+        this.addEventHandler (FieldBox.EDIT_EVENT,
+                              ev ->
+        {
+
+            this.setHasUnsavedChanges (true);
+
+        });
+
+        this.addEventHandler (LayoutColumn.EDIT_COLUMN_EVENT,
+                              ev ->
+        {
+
+            this.headerEditBut.setVisible (false);
+            this.headerSaveBut.setVisible (true);
+            this.headerCancelBut.setVisible (true);
+
+            this.setHasUnsavedChanges (true);
+
+        });
+
+        this.addEventHandler (FieldBox.SAVE_EVENT,
+                              ev ->
+        {
+
+            // See if any of the fields are current being edited.
+            this.setHasUnsavedChanges (this.layout.areFieldsBeingEdited ());
+
+            // Get all fields that are visible and save them.
+            this.save ();
+
+        });
+
+        this.addEventHandler (FieldBox.CANCEL_EVENT,
+                              ev ->
+        {
+
+            // See if any of the fields are current being edited.
+            this.setHasUnsavedChanges (this.layout.areFieldsBeingEdited ());
+
+        });
+
+        this.setReadyForUse ();
+
+    }
+
+    @Override
+    public ObjectProperty<Image> iconProperty ()
+    {
+
+        return this.object.getUserConfigurableObjectType ().icon16x16Property ();
+
+    }
+
+    @Override
+    public Set<Node> getToolBarItems ()
+    {
+
+        List<String> prefix = Arrays.asList (assets,view,toolbar);
+
+        Set<Node> items = new LinkedHashSet<> ();
+
+        items.add (QuollButton.builder ()
+            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,appearsinchapters,tooltip),
+                                                   this.object.getUserConfigurableObjectType ().nameProperty ()))
+            .styleClassName (StyleClassNames.APPEARSINCHAPTERS)
+            .onAction (ev ->
+            {
+
+                this.viewer.showAppearsInChaptersSideBarForAsset (this.object);
+
+            })
+            .build ());
+
+        items.add (QuollMenuButton.builder ()
+            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,_new,tooltip)))
+            .styleClassName (StyleClassNames.NEW)
+            .items (() ->
+            {
+
+                return UIUtils.getNewAssetMenuItems (this.viewer);
+
+            })
+            .build ());
+
+        items.add (UIUtils.createTagsMenuButton (this.object,
+                                                 getUILanguageStringProperty (Utils.newList (prefix,tags,tooltip),
+                                                                              Environment.getObjectTypeName (this.object)),
+                                                 this.viewer));
+
+        items.add (QuollButton.builder ()
+           .tooltip (getUILanguageStringProperty (Utils.newList (prefix,delete,tooltip),
+                                                                 Environment.getObjectTypeName (this.object)))
+           .styleClassName (StyleClassNames.DELETE)
+           .onAction (ev ->
+           {
+
+               this.viewer.showDeleteAsset (this.object);
+
+           })
+           .build ());
+
+       items.add (QuollButton.builder ()
+          .tooltip (getUILanguageStringProperty (Utils.newList (prefix,config,tooltip),
+                                                                Environment.getObjectTypeName (this.object)))
+          .styleClassName (StyleClassNames.CONFIG)
+          .onAction (ev ->
+          {
+
+              // TODO Add a layout options menu...
+
+          })
+          .build ());
+
+        return items;
 
     }
 
@@ -64,20 +327,54 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
     public Panel createPanel ()
     {
 
+        Map<KeyCombination, Runnable> am = new HashMap<> ();
+
+        am.put (new KeyCodeCombination (KeyCode.E,
+                                        KeyCombination.SHORTCUT_DOWN),
+                () ->
+                {
+
+                    // Do edit.
+                    this.showEdit ();
+
+                });
+
+          am.put (new KeyCodeCombination (KeyCode.S,
+                                          KeyCombination.SHORTCUT_DOWN),
+                  () ->
+                  {
+System.out.println ("HEREXXX");
+                      this.save ();
+
+                  });
+
+         am.put (new KeyCodeCombination (KeyCode.D,
+                                         KeyCombination.SHORTCUT_DOWN),
+                 () ->
+                 {
+
+                    // Edit documents.
+
+                 });
+
+         am.put (new KeyCodeCombination (KeyCode.L,
+                                        KeyCombination.SHORTCUT_DOWN),
+                  () ->
+                  {
+
+                     // Edit linked to.
+
+                  });
+
         Panel panel = Panel.builder ()
-            // TODO .title (this.object.nameProperty ())
-            .title (new javafx.beans.property.SimpleStringProperty (this.object.getName ()))
+            .title (this.object.nameProperty ())
             .content (this)
             .styleClassName (StyleClassNames.ASSET)
             .panelId (this.object.getObjectReference ().asString ())
-            // TODO .headerControls ()
-            .toolbar (() ->
-            {
-
-                return new LinkedHashSet<Node> ();
-
-            })
+            .actionMappings (am)
             .build ();
+
+        this.showView ();
 
         return panel;
 
@@ -87,63 +384,10 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
     public void init (State s)
     {
 
-        // TODO Change to convert the width px value to a relative % value.
-
-        try
+        if (s != null)
         {
 
-            int v = s.getAsInt (Constants.ASSET_MAIN_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                                -1);
-
-            if (v <= 0)
-            {
-
-                return;
-
-            }
-
-            this.mainSplitPane.setDividerPositions (v);
-
-        } catch (Exception e)
-        {
-
-            return;
-
-        }
-
-        try
-        {
-
-            int v = s.getAsInt (Constants.ASSET_LEFT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                                -1);
-
-            if (v > 0)
-            {
-
-                this.leftSplitPane.setDividerPositions (v);
-
-            }
-
-        } catch (Exception e)
-        {
-
-        }
-
-        try
-        {
-
-            int v = s.getAsInt (Constants.ASSET_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                                -1);
-
-            if (v > 0)
-            {
-
-                this.rightSplitPane.setDividerPositions (v);
-
-            }
-
-        } catch (Exception e)
-        {
+            this.layout.init (s.getAsState ("layout"));
 
         }
 
@@ -154,18 +398,172 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         State s = super.getState ();
 
-        // TODO Convert a width px value?
-        s.set (Constants.ASSET_MAIN_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-               this.mainSplitPane.getDividerPositions ()[0]);
-        s.set (Constants.ASSET_LEFT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-               this.leftSplitPane.getDividerPositions ()[0]);
-        s.set (Constants.ASSET_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-               this.rightSplitPane.getDividerPositions ()[0]);
+        s.set ("layout",
+               this.layout.getState ());
 
         return s;
 
     }
 
+    public void showView ()
+    {
+
+        this.headerEditBut.setVisible (true);
+        this.headerSaveBut.setVisible (false);
+        this.headerCancelBut.setVisible (false);
+
+        this.setHasUnsavedChanges (false);
+
+        this.layout.showView ();
+/*
+        Set<UserConfigurableObjectFieldViewEditHandler> handlers = this.object.getViewEditHandlers2 (this.viewer);
+
+        this.content.getChildren ().clear ();
+        Node n = this.layout.createView (handlers);
+        n.getStyleClass ().add (StyleClassNames.VIEW);
+
+        ScrollPane sp = new ScrollPane (n);
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
+
+        this.content.getChildren ().add (sp);
+*/
+    }
+
+    public void cancelEdit ()
+    {
+
+        // TODO?
+/*
+        List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.assets);
+        prefix.add (LanguageStrings.save);
+        prefix.add (LanguageStrings.cancel);
+        prefix.add (LanguageStrings.popup);
+
+        final AssetDetailsEditPanel _this = this;
+
+        boolean changed = false;
+
+        // Check for any field having changes.
+
+        if (!changed)
+        {
+
+            if ((changed)
+                &&
+                (!this.changeConfirm)
+               )
+            {
+
+                UIUtils.createQuestionPopup (this.viewer,
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.title),
+                                             //"Discard changes?",
+                                             Constants.HELP_ICON_NAME,
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.text),
+                                             //"You have made some changes, do you want to discard them?",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.confirm),
+                                             //"Yes, discard them",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.cancel),
+                                             //"No, keep them",
+                                             // On confirm
+                                             new ActionListener ()
+                                             {
+
+                                                 @Override
+                                                 public void actionPerformed (ActionEvent ev)
+                                                 {
+
+                                                     _this.changeConfirm = true;
+
+                                                     _this.doCancel ();
+
+                                                 }
+
+                                             },
+                                             // On cancel
+                                             null,
+                                             null,
+                                             null);
+
+                return false;
+
+            }
+
+        }
+
+        this.changeConfirm = false;
+*/
+        this.showView ();
+
+    }
+
+    public void showEdit ()
+    {
+
+        this.headerEditBut.setVisible (false);
+        this.headerSaveBut.setVisible (true);
+        this.headerCancelBut.setVisible (true);
+
+        this.setHasUnsavedChanges (true);
+
+        this.layout.showEdit ();
+
+    }
+
+    private void save ()
+    {
+
+        Set<String> oldNames = this.object.getAllNames ();
+
+        if (!this.layout.updateFields ())
+        {
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (assets,save,actionerror));
+                                      //"Unable to save.");
+
+            return;
+
+        }
+
+        try
+        {
+
+            this.viewer.saveObject (this.object,
+                                    true);
+
+            this.viewer.fireProjectEvent (ProjectEvent.Type.asset,
+                                          ProjectEvent.Action.edit,
+                                          this.object);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save: " +
+                                  this.object,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (assets,save,actionerror));
+                                      //"Unable to save.");
+
+            return;
+
+        }
+
+        this.viewer.updateProjectDictionaryForNames (oldNames,
+                                                     this.object);
+
+        this.showView ();
+
+    }
 
 /*
     @Override

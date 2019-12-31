@@ -3,10 +3,21 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String drop = "drop";
+    public static final String removecolumn = "removecolumn";
+    public static final String editcolumntitle = "editcolumntitle";
+    public static final String editall = "editall";
+    public static final String column = "column";
+    public static final String newfield = "newfield";
+    public static final String addcolumn = "addcolumn";
+    public static final String editfield = "editfield";
+    public static final String init = "init";
+    public static final String renameasset = "renameasset";
     public static final String project = "project";
     public static final String settingsmenu = "settingsmenu";
     public static final String items = "items";
-
+    public static final String _this = "this";
+    public static final String addfieldbelow = "addfieldbelow";
     public static final String wordseparator = "wordseparator";
     public static final String current = "current";
     public static final String basefontsize = "basefontsize";

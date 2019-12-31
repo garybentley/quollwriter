@@ -53,21 +53,6 @@ public abstract class SideBarContent<E extends AbstractViewer> extends ViewerCon
     public void init (State s)
     {
 
-        if (this.sidebar != null)
-        {
-
-            this.sidebar.init (s);
-
-            this.sidebar.addEventHandler (SideBar.SideBarEvent.CLOSE_EVENT,
-                                          ev ->
-            {
-
-                this.dispose ();
-
-            });
-
-        }
-
     }
 
     public SideBar getSideBar ()
@@ -77,6 +62,14 @@ public abstract class SideBarContent<E extends AbstractViewer> extends ViewerCon
         {
 
             this.sidebar = this.createSideBar ();
+
+            this.sidebar.addEventHandler (SideBar.SideBarEvent.CLOSE_EVENT,
+                                          ev ->
+            {
+
+                this.dispose ();
+
+            });
 
         }
 

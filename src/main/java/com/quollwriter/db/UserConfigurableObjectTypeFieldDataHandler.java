@@ -18,7 +18,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
      * we need a single object so that we have one object -> multiple uses.
      */
     private Map<Long, UserConfigurableObjectTypeField> cache = new HashMap ();
-    
+
     private ObjectManager objectManager = null;
 
     public UserConfigurableObjectTypeFieldDataHandler (ObjectManager om)
@@ -40,33 +40,33 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
             int ind = 1;
 
             long key = rs.getLong (ind++);
-            
+
             UserConfigurableObjectTypeField f = this.cache.get (key);
-            
+
             if (f != null)
             {
-                
+
                 return f;
-                
-            }                        
-            
+
+            }
+
             String t = rs.getString (ind++);
-            
+
             f = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.valueOf (t));
 
             if (f == null)
             {
-                
+
                 throw new GeneralException ("Type: " + t + " is not supported.");
-                
+
             }
-                                    
+
             f.setKey (key);
             f.setOrder (rs.getInt (ind++));
             f.setFormName (rs.getString (ind++));
-            
+
             String d = rs.getString (ind++);
-            
+
             f.setDefinition ((Map) JSONDecoder.decode (d));//rs.getString (ind++)));
             f.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
@@ -77,33 +77,35 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
             f.setVersion (rs.getString (ind++));
 
             long typekey = rs.getLong (ind++);
-            
+
             if (type == null)
             {
-                                
+
                 type = (UserConfigurableObjectType) this.objectManager.getObjectByKey (UserConfigurableObjectType.class,
                                                                                        typekey,
                                                                                        null,
                                                                                        rs.getStatement ().getConnection (),
                                                                                        true);
-                
+
                 if (type == null)
                 {
-                    
+
                     throw new GeneralException ("Unable to get config object type for: " +
                                                 typekey +
                                                 " and type field: " +
                                                 key);
-                    
-                }                
-                
+
+                }
+
             }
-            
-            type.addConfigurableField (f);
-            
+
+            f.setUserConfigurableObjectType (type);
+
+            //TODO Remove type.addConfigurableField (f);
+
             this.cache.put (key,
                             f);
-            
+
             return f;
 
         } catch (Exception e)
@@ -122,7 +124,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
                                                       throws GeneralException
     {
 
-        List<UserConfigurableObjectTypeField> ret = new ArrayList ();
+        List<UserConfigurableObjectTypeField> ret = new ArrayList<> ();
 
         try
         {
@@ -225,7 +227,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
         params.add (t.getOrder ());
         params.add (t.getUserConfigurableObjectType ().getKey ());
         params.add (t.getType ().getType ());
-        params.add (JSONEncoder.encode (t.getDefinition ()));        
+        params.add (JSONEncoder.encode (t.getDefinition ()));
 
         this.objectManager.executeStatement ("INSERT INTO userobjecttypefield (dbkey, orderby, userobjecttypedbkey, type, definition) VALUES (?, ?, ?, ?, ?)",
                                              params,
@@ -234,7 +236,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
     }
 
     public void deleteObject (UserConfigurableObjectTypeField t,
-                              boolean                         deleteChildObjects,                              
+                              boolean                         deleteChildObjects,
                               Connection                      conn)
                        throws GeneralException
     {
@@ -254,7 +256,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
     {
 
         List params = new ArrayList ();
-        
+
         params.add (t.getOrder ());
         params.add (JSONEncoder.encode (t.getDefinition ()));
         params.add (t.getKey ());

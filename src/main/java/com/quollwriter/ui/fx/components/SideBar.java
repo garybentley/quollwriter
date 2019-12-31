@@ -16,6 +16,7 @@ import javafx.collections.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.sidebars.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -26,7 +27,7 @@ public class SideBar extends BaseVBox implements Stateful
     private AbstractViewer viewer = null;
     private Button otherSideBarsShowButton = null;
     private Header header = null;
-    private Node content = null;
+    private SideBarContent content = null;
     private String sidebarId = null;
     private StringProperty titleProp = null;
     private StringProperty activeTitleProp = null;
@@ -182,7 +183,7 @@ public class SideBar extends BaseVBox implements Stateful
 
     }
 
-    public Node getContent ()
+    public SideBarContent getContent ()
     {
 
         return this.content;
@@ -209,7 +210,7 @@ public class SideBar extends BaseVBox implements Stateful
 
         if ((this.content != null)
             &&
-            (this.content instanceof Stateful)
+            (state != null)
            )
         {
 
@@ -243,14 +244,11 @@ public class SideBar extends BaseVBox implements Stateful
 
         }
 
-        if ((this.content != null)
-            &&
-            (this.content instanceof Stateful)
-           )
+        if (this.content != null)
         {
 
             s.set (State.Key.content,
-                   ((Stateful) this.content).getState ());
+                   this.content.getState ());
 
         }
 
@@ -278,7 +276,7 @@ public class SideBar extends BaseVBox implements Stateful
         private StringProperty title = null;
         private StringProperty activeTitle = null;
         private String styleName = null;
-        private Node content = null;
+        private SideBarContent content = null;
         private Set<Node> headerCons = null;
         private boolean canClose = false;
         private String sidebarId = null;
@@ -342,7 +340,7 @@ public class SideBar extends BaseVBox implements Stateful
 
         }
 
-        public Builder content (Node n)
+        public Builder content (SideBarContent n)
         {
 
             this.content = n;

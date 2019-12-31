@@ -77,10 +77,10 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
 
             Connection conn = rs.getStatement ().getConnection ();
 
-            this.objectManager.getObjects (UserConfigurableObjectTypeField.class,
-                                           t,
-                                           conn,
-                                           true);
+            t.setConfigurableFields ((List<UserConfigurableObjectTypeField>) this.objectManager.getObjects (UserConfigurableObjectTypeField.class,
+                                                                                                            t,
+                                                                                                            conn,
+                                                                                                            true));
 
             Environment.addUserConfigurableObjectType (t);
 
@@ -251,7 +251,8 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
                                         conn);
 
     }
-
+/*
+TODO Remove
     public void updateFieldOrdering (UserConfigurableObjectType t)
                               throws GeneralException
     {
@@ -293,5 +294,5 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
         }
 
     }
-
+*/
 }

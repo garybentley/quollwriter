@@ -795,7 +795,16 @@ TODO
         {
 
             // Legacy < v2
-            File f = UserProperties.getAsFile (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
+            java.nio.file.Path _f = UserProperties.getAsFile (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
+
+            File f = null;
+
+            if (_f != null)
+            {
+
+                f = _f.toFile ();
+
+            }
 
             if ((f != null)
                 &&

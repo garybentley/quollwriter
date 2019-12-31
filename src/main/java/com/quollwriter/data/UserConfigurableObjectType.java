@@ -1,15 +1,18 @@
 package com.quollwriter.data;
 
 import java.util.*;
+import java.util.stream.*;
 
 import javax.swing.*;
 
+import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.scene.image.*;
 
 import org.jdom.*;
 
 import com.quollwriter.*;
+import com.quollwriter.ui.fx.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
@@ -29,22 +32,155 @@ public class UserConfigurableObjectType extends NamedObject
     private Image icon16x16 = null;
     private ObjectProperty<Image> icon16x16Prop = null;
     private ObjectProperty<Image> icon24x24Prop = null;
-    private Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
     private String layout = null;
     private String userObjectType = null;
     private boolean isAsset = false;
     private KeyStroke createShortcutKeyStroke = null;
     private boolean pluralNameSet = false;
     private boolean singularNameSet = false;
+    private ObservableList<FieldsColumn> sortableFieldsColumns = null;
+    private ObjectNameUserConfigurableObjectTypeField primaryNameField = null;
+    private ListChangeListener<UserConfigurableObjectTypeField> fieldsListener = null;
+    private boolean ignoreFieldsStateChanges = false;
 
     public UserConfigurableObjectType ()
     {
 
         super (OBJECT_TYPE);
 
+        //this.fields = FXCollections.observableSet (new LinkedHashSet<> ());
         this.objectTypeNamePluralProp = new SimpleStringProperty ();
         this.icon16x16Prop = new SimpleObjectProperty<> ();
         this.icon24x24Prop = new SimpleObjectProperty<> ();
+        this.sortableFieldsColumns = FXCollections.observableList (new ArrayList<> ());
+
+        this.fieldsListener = ch ->
+        {
+
+            while (ch.next ())
+            {
+
+                this.updateSortableFieldsState ();
+
+            }
+
+        };
+
+        this.sortableFieldsColumns.addListener ((ListChangeListener<FieldsColumn>) ch ->
+        {
+
+            while (ch.next ())
+            {
+
+                if (ch.wasRemoved ())
+                {
+
+                    this.updateSortableFieldsState ();
+
+                    for (FieldsColumn rem : ch.getRemoved ())
+                    {
+
+                        rem.fields ().removeListener (this.fieldsListener);
+
+                    }
+
+                }
+
+                if (ch.wasAdded ())
+                {
+
+                    this.updateSortableFieldsState ();
+
+                    for (FieldsColumn add : ch.getAddedSubList ())
+                    {
+
+                        add.fields ().addListener (this.fieldsListener);
+                        add.showFieldLabelsProperty ().addListener ((pr, oldv, newv) ->
+                        {
+
+                            this.updateSortableFieldsState ();
+
+                        });
+
+                        add.titleProperty ().addListener ((pr, oldv, newv) ->
+                        {
+
+                            this.updateSortableFieldsState ();
+
+                        });
+
+                    }
+
+                }
+
+            }
+
+            // TODO
+            while (ch.next ())
+            {
+/*
+                if (ch.wasRemoved ())
+                {
+
+                    int newfc = 0;
+
+                    if (this.sortableFieldsColumns.size () == 0)
+                    {
+
+                        // Add a new column.
+                        this.sortableFieldsColumns.add (new FieldsColumn ());
+
+                    } else {
+
+                        if (ch.getFrom () < this.sortableFieldsColumns.size () - 1)
+                        {
+
+                            newfc = newfc + 1;
+
+                        }
+
+                    }
+
+                    for (FieldsColumn fc : ch.getRemoved ())
+                    {
+
+                        this.sortableFieldsColumns.get (newfc).fields ().addAll (fc.fields ());
+
+                    }
+
+                }
+*/
+            }
+
+        });
+
+    }
+
+    private void updateSortableFieldsState ()
+    {
+
+        if (this.ignoreFieldsStateChanges)
+        {
+
+            return;
+
+        }
+
+        try
+        {
+
+            this.setProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME,
+                              this.getSortableFieldsState ().asString ());
+
+            Environment.updateUserConfigurableObjectType (this);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set fields layout to: " +
+                                  this.getSortableFieldsState (),
+                                  e);
+
+        }
 
     }
 
@@ -74,7 +210,454 @@ public class UserConfigurableObjectType extends NamedObject
                                     this.createShortcutKeyStroke);
         this.addToStringProperties (props,
                                     "fields",
-                                    this.fields.size ());
+                                    this.getConfigurableFields ().size ());
+
+    }
+
+    public FieldsColumn addNewColumn (Collection<UserConfigurableObjectTypeField> fields)
+    {
+
+        FieldsColumn fc = new FieldsColumn (fields);
+
+        this.sortableFieldsColumns.add (fc);
+
+        return fc;
+
+    }
+
+    public State getSortableFieldsState ()
+    {
+
+        List<Map> cols = new ArrayList<> ();
+
+        for (FieldsColumn c : this.sortableFieldsColumns)
+        {
+
+            Map data = new HashMap ();
+            data.put ("title",
+                      c.titleProperty ().getValue ());
+            data.put ("showFieldLabels",
+                      c.showFieldLabelsProperty ().getValue ());
+
+            data.put ("fields",
+                      c.fields ().stream ()
+                        .map (f ->
+                        {
+
+                            Map idata = new HashMap ();
+                            idata.put ("id",
+                                       f.getObjectReference ().asString ());
+
+                            return idata;
+
+                        })
+                        .collect (Collectors.toList ()));
+
+            cols.add (data);
+
+        }
+
+        State state = new State ();
+
+        state.set ("columns",
+                   cols);
+
+        return state;
+
+    }
+
+    public void setConfigurableFields (List<UserConfigurableObjectTypeField> fields)
+    {
+
+        this.ignoreFieldsStateChanges = true;
+
+        this.sortableFieldsColumns.stream ()
+            .forEach (c -> c.fields ().clear ());
+
+        this.sortableFieldsColumns.clear ();
+
+        for (UserConfigurableObjectTypeField f : fields)
+        {
+
+            if (f.getType () == UserConfigurableObjectTypeField.Type.objectname)
+            {
+
+                this.primaryNameField = (ObjectNameUserConfigurableObjectTypeField) f;
+
+            }
+
+        }
+
+        // Set the layout, we store it in the properties since it is "state".
+        String lt = this.getProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME);
+
+        if (lt == null)
+        {
+
+            // Legacy... pre version 3.
+
+            UserConfigurableObjectTypeField name = null;
+            UserConfigurableObjectTypeField image = null;
+            UserConfigurableObjectTypeField desc = null;
+
+            for (UserConfigurableObjectTypeField f : fields)
+            {
+
+                if (f.getType () == UserConfigurableObjectTypeField.Type.objectname)
+                {
+
+                    name = f;
+                }
+
+                if (f.getType () == UserConfigurableObjectTypeField.Type.objectdesc)
+                {
+
+                    desc = f;
+
+                }
+
+                if (f.getType () == UserConfigurableObjectTypeField.Type.objectimage)
+                {
+
+                    image = f;
+
+                }
+
+            }
+
+            if (this.layout == null)
+            {
+
+                this.layout = Constants.ASSET_LAYOUT_0;
+
+            }
+
+            if (this.layout.equals (Constants.ASSET_LAYOUT_0))
+            {
+
+                // Create a single column.
+                FieldsColumn col = new FieldsColumn ();
+                fields.stream ()
+                    .forEach (f -> col.addField (f));
+                this.sortableFieldsColumns.add (col);
+
+            }
+
+            if ((this.layout.equals (Constants.ASSET_LAYOUT_1))
+                ||
+                (this.layout.equals (Constants.ASSET_LAYOUT_2))
+               )
+            {
+
+                FieldsColumn left = new FieldsColumn (Arrays.asList (image, desc));
+                left.setShowFieldLabels (false);
+                FieldsColumn right = new FieldsColumn ();
+
+                // Put everything else into a single column.
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if ((f != name)
+                        &&
+                        (f != image)
+                        &&
+                        (f != desc)
+                       )
+                    {
+
+                        right.addField (f);
+
+                    }
+
+                }
+
+                this.sortableFieldsColumns.add (left);
+                this.sortableFieldsColumns.add (right);
+
+            }
+
+            if (this.layout.equals (Constants.ASSET_LAYOUT_3))
+            {
+
+                // Create a two column layout.
+                FieldsColumn left = new FieldsColumn ();
+                FieldsColumn right = new FieldsColumn ();
+
+                int c = 1;
+
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if (c % 2 == 0)
+                    {
+
+                        right.addField (f);
+
+                    } else {
+
+                        left.addField (f);
+
+                    }
+
+                    c++;
+
+                }
+
+                this.sortableFieldsColumns.add (left);
+                this.sortableFieldsColumns.add (right);
+
+            }
+
+            if (this.layout.equals (Constants.ASSET_LAYOUT_4))
+            {
+
+                FieldsColumn left = new FieldsColumn ();
+                FieldsColumn right = new FieldsColumn (Arrays.asList (image, desc));
+                right.setShowFieldLabels (false);
+
+                // Put everything else into a single column.
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if ((f != name)
+                        &&
+                        (f != image)
+                        &&
+                        (f != desc)
+                       )
+                    {
+
+                        left.addField (f);
+
+                    }
+
+                }
+
+                this.sortableFieldsColumns.add (left);
+                this.sortableFieldsColumns.add (right);
+
+            }
+
+            if (this.layout.equals (Constants.ASSET_LAYOUT_5))
+            {
+
+                FieldsColumn left = new FieldsColumn ();
+                FieldsColumn right = new FieldsColumn (Arrays.asList (desc));
+                right.setShowFieldLabels (false);
+
+                // Put everything else into a single column.
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if ((f != name)
+                        &&
+                        (f != image)
+                        &&
+                        (f != desc)
+                       )
+                    {
+
+                        left.addField (f);
+
+                    }
+
+                }
+
+                this.sortableFieldsColumns.add (left);
+                this.sortableFieldsColumns.add (right);
+
+            }
+
+            if (this.layout.equals (Constants.ASSET_LAYOUT_6))
+            {
+
+                FieldsColumn left = new FieldsColumn (Arrays.asList (desc));
+                left.setShowFieldLabels (false);
+                FieldsColumn right = new FieldsColumn ();
+
+                // Put everything else into a single column.
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if ((f != name)
+                        &&
+                        (f != image)
+                        &&
+                        (f != desc)
+                       )
+                    {
+
+                        right.addField (f);
+
+                    }
+
+                }
+
+                this.sortableFieldsColumns.add (left);
+                this.sortableFieldsColumns.add (right);
+
+            }
+
+            if (this.layout.equals (Constants.ASSET_LAYOUT_7))
+            {
+
+                FieldsColumn left = new FieldsColumn (Arrays.asList (desc));
+                FieldsColumn right = new FieldsColumn ();
+                right.addField (image);
+
+                // Put everything else into a single column.
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if ((f != name)
+                        &&
+                        (f != image)
+                        &&
+                        (f != desc)
+                       )
+                    {
+
+                        right.addField (f);
+
+                    }
+
+                }
+
+                this.sortableFieldsColumns.add (left);
+                this.sortableFieldsColumns.add (right);
+
+            }
+
+            if (this.layout.equals (Constants.ASSET_LAYOUT_8))
+            {
+
+                FieldsColumn left = new FieldsColumn ();
+                FieldsColumn right = new FieldsColumn (Arrays.asList (desc));
+
+                right.setShowFieldLabels (false);
+                left.addField (image);
+
+                // Put everything else into a single column.
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if ((f != name)
+                        &&
+                        (f != image)
+                        &&
+                        (f != desc)
+                       )
+                    {
+
+                        left.addField (f);
+
+                    }
+
+                }
+
+                this.sortableFieldsColumns.add (left);
+                this.sortableFieldsColumns.add (right);
+
+            }
+
+        } else {
+
+            Map<String, UserConfigurableObjectTypeField> _fields = new HashMap<> ();
+
+            for (UserConfigurableObjectTypeField f : fields)
+            {
+
+                _fields.put (f.getObjectReference ().asString (),
+                            f);
+
+            }
+
+            State colState = new State (lt);
+
+            List<Map> _cols = colState.getAsList ("columns",
+                                                  Map.class);
+
+            for (Map d : _cols)
+            {
+
+                String title = (String) d.get ("title");
+
+                List fieldIds = (List) d.get ("fields");
+                FieldsColumn col = new FieldsColumn (title);
+                if (d.containsKey ("showFieldLabels"))
+                {
+
+                    col.setShowFieldLabels ((Boolean) d.get ("showFieldLabels"));
+
+                }
+
+                this.sortableFieldsColumns.add (col);
+
+                for (Object fid : fieldIds)
+                {
+
+                    if (fid == null)
+                    {
+
+                        continue;
+
+                    }
+
+                    String fieldId = null;
+
+                    if (fid instanceof String)
+                    {
+
+                        fieldId = fid.toString ();
+
+                    }
+
+                    if (fid instanceof Map)
+                    {
+
+                        Map fieldData = (Map) fid;
+
+                        fieldId = fieldData.get ("id").toString ();
+
+                    }
+
+                    UserConfigurableObjectTypeField f = _fields.get (fieldId);
+
+                    if (f == null)
+                    {
+
+                        continue;
+
+                    }
+
+                    col.addField (f);
+
+                }
+
+            }
+
+        }
+
+        this.ignoreFieldsStateChanges = false;
+
+    }
+
+    public Set<UserConfigurableObjectTypeField> getConfigurableFields ()
+    {
+
+        Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
+
+        this.sortableFieldsColumns.stream ()
+            .forEach (c -> fields.addAll (c.fields ()));
+
+        return fields;
+
+    }
+
+    public ObservableList<FieldsColumn> getSortableFieldsColumns ()
+    {
+
+        return this.sortableFieldsColumns;
 
     }
 
@@ -83,7 +666,8 @@ public class UserConfigurableObjectType extends NamedObject
 
         Set<UserConfigurableObjectTypeField> sfs = new LinkedHashSet ();
 
-        for (UserConfigurableObjectTypeField f : this.fields)
+        sfs.add (this.getPrimaryNameField ());
+        for (UserConfigurableObjectTypeField f : this.getConfigurableFields ())
         {
 
             if (f.isSortable ())
@@ -137,7 +721,7 @@ public class UserConfigurableObjectType extends NamedObject
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        return new LinkedHashSet (this.fields);
+        return new LinkedHashSet<> (this.getConfigurableFields ());
 
     }
 
@@ -161,42 +745,8 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
-    public Set<UserConfigurableObjectTypeField> getConfigurableFields ()
-    {
-
-        // Order the fields.
-        TreeMap<Integer, UserConfigurableObjectTypeField> s = new TreeMap ();
-
-        for (UserConfigurableObjectTypeField f : this.fields)
-        {
-
-            if (f.getOrder () == -1)
-            {
-
-                throw new IllegalStateException ("Field must have an order value: " +
-                                                 f);
-
-            }
-
-            if (s.containsKey (f.getOrder ()))
-            {
-
-                throw new IllegalStateException ("Already have a field with order: " +
-                                                 f.getOrder () +
-                                                 ", " +
-                                                 s.get (f.getOrder ()));
-
-            }
-
-            s.put (f.getOrder (),
-                   f);
-
-        }
-
-        return new LinkedHashSet (s.values ());
-
-    }
-
+/*
+TODO REmove
     public void addConfigurableField (UserConfigurableObjectTypeField f)
     {
 
@@ -212,7 +762,9 @@ public class UserConfigurableObjectType extends NamedObject
         }
 
     }
-
+*/
+/*
+TODO Remove
     public void removeConfigurableField (UserConfigurableObjectTypeField f)
     {
 
@@ -239,6 +791,7 @@ public class UserConfigurableObjectType extends NamedObject
         }
 
     }
+    */
 /*
     public void reorderFields ()
     {
@@ -268,13 +821,12 @@ public class UserConfigurableObjectType extends NamedObject
     public UserConfigurableObjectTypeField getLegacyField (String id)
     {
 
-        for (UserConfigurableObjectTypeField f : this.fields)
+        for (FieldsColumn fc : this.sortableFieldsColumns)
         {
 
-            if ((f.getLegacyFieldId () != null)
-                &&
-                (f.getLegacyFieldId ().equals (id))
-               )
+            UserConfigurableObjectTypeField f = fc.getLegacyField (id);
+
+            if (f != null)
             {
 
                 return f;
@@ -297,7 +849,7 @@ public class UserConfigurableObjectType extends NamedObject
 
         int c = 0;
 
-        for (UserConfigurableObjectTypeField f : this.fields)
+        for (UserConfigurableObjectTypeField f : this.getConfigurableFields ())
         {
 
             // TODO: Need a better way!
@@ -326,27 +878,14 @@ public class UserConfigurableObjectType extends NamedObject
     public ObjectNameUserConfigurableObjectTypeField getPrimaryNameField ()
     {
 
-        for (UserConfigurableObjectTypeField f : this.fields)
-        {
-
-            // TODO: Need a better way!
-            if (f instanceof ObjectNameUserConfigurableObjectTypeField)
-            {
-
-                return (ObjectNameUserConfigurableObjectTypeField) f;
-
-            }
-
-        }
-
-        return null;
+        return this.primaryNameField;
 
     }
 
     public ObjectDescriptionUserConfigurableObjectTypeField getObjectDescriptionField ()
     {
 
-        for (UserConfigurableObjectTypeField f : this.fields)
+        for (UserConfigurableObjectTypeField f : this.getConfigurableFields ())
         {
 
             // TODO: Need a better way!
@@ -366,7 +905,7 @@ public class UserConfigurableObjectType extends NamedObject
     public ObjectImageUserConfigurableObjectTypeField getObjectImageField ()
     {
 
-        for (UserConfigurableObjectTypeField f : this.fields)
+        for (UserConfigurableObjectTypeField f : this.getConfigurableFields ())
         {
 
             // TODO: Need a better way!
@@ -567,6 +1106,158 @@ public class UserConfigurableObjectType extends NamedObject
     {
 
         return this.isAsset;
+
+    }
+
+    public static class FieldsColumn
+    {
+
+        private StringProperty titleProp = null;
+        private BooleanProperty showFieldLabelsProp = null;
+        private ObservableList<UserConfigurableObjectTypeField> fields = null;
+
+        public FieldsColumn ()
+        {
+
+            this.titleProp = new SimpleStringProperty ();
+            this.showFieldLabelsProp = new SimpleBooleanProperty (true);
+            this.fields = FXCollections.observableList (new ArrayList<> ());
+
+        }
+
+        public FieldsColumn (String title)
+        {
+
+            this ();
+            this.titleProp.setValue (title);
+
+        }
+
+        public FieldsColumn (String                                      title,
+                             Collection<UserConfigurableObjectTypeField> fields)
+        {
+
+            this (title);
+
+            if (fields != null)
+            {
+
+                for (UserConfigurableObjectTypeField f : fields)
+                {
+
+                    if (f != null)
+                    {
+
+                        // Bit of a hack here but it saves a lot of pfaffing elsewhere.
+                        if (f.getType () == UserConfigurableObjectTypeField.Type.objectname)
+                        {
+
+                            continue;
+
+                        }
+
+                        this.fields.add (f);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        public FieldsColumn (Collection<UserConfigurableObjectTypeField> fields)
+        {
+
+            this (null,
+                  fields);
+
+        }
+
+        public UserConfigurableObjectTypeField getLegacyField (String id)
+        {
+
+            for (UserConfigurableObjectTypeField f : this.fields)
+            {
+
+                if ((f.getLegacyFieldId () != null)
+                    &&
+                    (f.getLegacyFieldId ().equals (id))
+                   )
+                {
+
+                    return f;
+
+                }
+
+            }
+
+            return null;
+
+        }
+
+        public boolean isShowFieldLabels ()
+        {
+
+            return this.showFieldLabelsProp.getValue ();
+
+        }
+
+        public void setShowFieldLabels (boolean v)
+        {
+
+            this.showFieldLabelsProp.setValue (v);
+
+        }
+
+        public BooleanProperty showFieldLabelsProperty ()
+        {
+
+            return this.showFieldLabelsProp;
+
+        }
+
+        public String getTitle ()
+        {
+
+            return this.titleProp.getValue ();
+
+        }
+
+        public void setTitle (String t)
+        {
+
+            this.titleProp.setValue (t);
+
+        }
+
+        public StringProperty titleProperty ()
+        {
+
+            return this.titleProp;
+
+        }
+
+        void addField (UserConfigurableObjectTypeField f)
+        {
+
+            if (f == null)
+            {
+
+                return;
+
+            }
+
+            this.fields.add (f);
+
+        }
+
+        public ObservableList<UserConfigurableObjectTypeField> fields ()
+        {
+
+            return this.fields;
+
+        }
 
     }
 

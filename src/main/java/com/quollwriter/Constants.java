@@ -266,6 +266,8 @@ public class Constants
 
     public static final String ASSET_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME = "assetRightSplitPaneDividerLocation";
 
+    public static final String USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME = "userConfigurableObjectTypeSortableFieldsLayout";
+
     public static final String COMPACT_MENUS_PROPERTY_NAME = "compactMenus";
 
     public static final String DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME = "defaultEditorWritingLineColor";

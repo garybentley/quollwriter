@@ -1,6 +1,8 @@
 package com.quollwriter.ui.fx.viewers;
 
 import java.net.*;
+import java.io.*;
+import java.nio.file.*;
 import java.text.*;
 import java.util.*;
 import java.util.function.*;
@@ -774,7 +776,15 @@ System.out.println ("HERE2");
         {
 
             // Legacy < v2
-            java.io.File f = UserProperties.getAsFile (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
+            Path _f = UserProperties.getAsFile (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
+            File f = null;
+
+            if (_f != null)
+            {
+
+                f = _f.toFile ();
+
+            }
 
             if ((f != null)
                 &&
@@ -1300,10 +1310,12 @@ TODO ? psuedo class
     }
 
     @Override
-    public void handleURLAction (String v)
+    public void handleURLAction (String     v,
+                                 MouseEvent ev)
     {
 
-        this.viewer.handleURLAction (v);
+        this.viewer.handleURLAction (v,
+                                     ev);
 
     }
 

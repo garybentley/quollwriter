@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
 
@@ -43,7 +44,7 @@ public class NewProjectPanel extends VBox
             .styleClassName (StyleClassNames.NAME)
             .build ();
 
-        File defDir = Environment.getDefaultSaveProjectDirPath ().toFile ();
+        Path defDir = Environment.getDefaultSaveProjectDirPath ();
 
         this.saveDir = QuollFileField.builder ()
             .styleClassName (StyleClassNames.SAVE)
@@ -158,6 +159,8 @@ public class NewProjectPanel extends VBox
 
             pj = AbstractProjectViewer.createProjectViewerForType (proj);
 
+            pj.createViewer ();
+
         } catch (Exception e)
         {
 
@@ -176,7 +179,7 @@ public class NewProjectPanel extends VBox
         try
         {
 
-            pj.newProject (this.getSaveDirectory ().toPath (),
+            pj.newProject (this.getSaveDirectory (),
                            proj,
                            this.getPassword ());
 
@@ -219,9 +222,9 @@ public class NewProjectPanel extends VBox
         }
 
         // See if the project already exists.
-        File pf = new File (saveDir.getFile (), Utils.sanitizeForFilename (n));
+        Path pf = saveDir.getFile ().resolve (Utils.sanitizeForFilename (n));
 
-        if (pf.exists ())
+        if (Files.exists (pf))
         {
 
             this.form.showError (getUILanguageStringProperty (Utils.newList (prefix,valueexists)));
@@ -270,7 +273,7 @@ public class NewProjectPanel extends VBox
 
     }
 
-    public File getSaveDirectory ()
+    public Path getSaveDirectory ()
     {
 
         return this.saveDir.getFile ();

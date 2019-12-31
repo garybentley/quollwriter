@@ -4374,6 +4374,12 @@ TODO Use property.
 
         }
 
+        //this.notifications.setVisible (false);
+
+        this.removeAllNotifications ();
+
+        this.closeAllTabs (true);
+
         // Close all sidebars.
         // TODO: Fix this up
         for (AbstractSideBar sb : new ArrayList<AbstractSideBar> (this.activeSideBars))
@@ -4382,12 +4388,6 @@ TODO Use property.
             this.removeSideBar (sb);
 
         }
-
-        //this.notifications.setVisible (false);
-
-        this.removeAllNotifications ();
-
-        this.closeAllTabs (true);
 
         this.proj.setLastEdited (new Date ());
 

@@ -74,6 +74,13 @@ public class Options extends VBox
                                    AbstractViewer viewer)
     {
 
+        if (Section.Id.assets == id)
+        {
+
+            return this.createAssetsSection (viewer);
+
+        }
+
         if (Section.Id.look == id)
         {
 
@@ -955,6 +962,229 @@ public class Options extends VBox
 
     }
 
+    private Section createAssetsSection (AbstractViewer viewer)
+    {
+
+        String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
+
+        if (addAsset == null)
+        {
+
+            addAsset = Constants.ADD_ASSETS_POPUP;
+
+        }
+
+        QuollRadioButtons rbuts = QuollRadioButtons.builder ()
+            .button (QuollRadioButton.builder ()
+                        .label (options,assets,labels,newasset,options,alwayspopup,text)
+                        .tooltip (options,assets,labels,newasset,options,alwayspopup,tooltip)
+                        .selected (addAsset.equals (Constants.ADD_ASSETS_POPUP))
+                        .onAction (ev ->
+                        {
+
+                            UserProperties.set (Constants.ADD_ASSETS_PROPERTY_NAME,
+                                                Constants.ADD_ASSETS_POPUP);
+
+                        })
+                        .build ())
+            .button (QuollRadioButton.builder ()
+                        .label (options,assets,labels,newasset,options,popupifpossible,text)
+                        .tooltip (options,assets,labels,newasset,options,popupifpossible,tooltip)
+                        .selected (addAsset.equals (Constants.ADD_ASSETS_TRY_POPUP))
+                        .onAction (ev ->
+                        {
+
+                            UserProperties.set (Constants.ADD_ASSETS_PROPERTY_NAME,
+                                                Constants.ADD_ASSETS_TRY_POPUP);
+
+                        })
+                        .build ())
+            .button (QuollRadioButton.builder ()
+                        .label (options,assets,labels,newasset,options,owntab,text)
+                        .tooltip (options,assets,labels,newasset,options,owntab,tooltip)
+                        .selected (addAsset.equals (Constants.ADD_ASSETS_TAB))
+                        .onAction (ev ->
+                        {
+
+                            UserProperties.set (Constants.ADD_ASSETS_PROPERTY_NAME,
+                                                Constants.ADD_ASSETS_TAB);
+
+                        })
+                        .build ())
+            .build ();
+
+            ObservableList<UserConfigurableObjectType> types = FXCollections.observableList (new ArrayList<> ());
+
+            for (UserConfigurableObjectType t : Environment.getAssetUserConfigurableObjectTypes (true))
+            {
+
+                types.add (t);
+
+            }
+
+            ComboBox<UserConfigurableObjectType> editTypes = new ComboBox<> (types);
+            editTypes.setEditable (false);
+
+            editTypes.setCellFactory (listView ->
+            {
+
+                return new ListCell<UserConfigurableObjectType> ()
+                {
+
+                    // This is dumb...just sayin...
+                    @Override
+                    protected void updateItem (UserConfigurableObjectType type,
+                                               boolean                    empty)
+                    {
+
+                        super.updateItem (type,
+                                          empty);
+
+                        if ((item != null)
+                            &&
+                            (!empty)
+                           )
+                        {
+
+                            ImageView iv = new ImageView ();
+                            iv.imageProperty ().bind (type.icon16x16Property ());
+
+                            this.textProperty ().bind (type.nameProperty ());
+                            this.setGraphic (iv);
+
+                        }
+
+                    }
+
+                };
+
+            });
+
+        QuollButton editType = QuollButton.builder ()
+            .label (buttons,edit)
+            .onAction (ev ->
+            {
+
+                // TODO
+
+            })
+            .build ();
+
+        HBox b = new HBox ();
+        b.getChildren ().addAll (editTypes, editType);
+
+        Section s = Section.builder ()
+            .styleClassName (StyleClassNames.ASSETS)
+            .title (options,assets,title)
+            .description (options,assets,text)
+            .mainItem (getUILanguageStringProperty (options,assets,labels,newasset,text),
+                       rbuts)
+            .mainItem (getUILanguageStringProperty (options,assets,labels,editassetconfig),
+                       b)
+            .mainItem (QuollButton.builder ()
+                .label (options,assets,labels,addtype)
+                .onAction (ev ->
+                {
+
+                    // TODO
+
+                })
+                .build ())
+/*
+            .mainItem (QuollCheckBox.builder ()
+                .label (options,lookandsound,labels,keepprojectswindowsopen)
+                .userProperty (Constants.KEEP_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME)
+                .build ())
+            .mainItem (QuollCheckBox.builder ()
+                .label (options,lookandsound,labels,showprojectswindownoopenproject)
+                .userProperty (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME)
+                .build ())
+            .mainItem (showPreviewCB)
+            .subItem (changeDisplayBut)
+            .mainItem (QuollCheckBox.builder ()
+                .label (options,lookandsound,labels,shownotes)
+                .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
+                .build ())
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefont),
+                       uiFont)
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefontsize),
+                       thb)
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
+                       this.createLayoutSelector ())
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
+                       QuollComboBox.builder ()
+                          .items (getUILanguageStringProperty (options,lookandsound,labels,abovesidebar),
+                                  getUILanguageStringProperty (options,lookandsound,labels,belowsidebar))
+                          .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TOOLBAR_LOCATION_PROPERTY_NAME)) ? 0 : 1)
+                          .onSelected (ev ->
+                          {
+
+                              ComboBox cb = (ComboBox) ev.getSource ();
+
+                              int ind = cb.getSelectionModel ().getSelectedIndex ();
+
+                              UserProperties.set (Constants.TOOLBAR_LOCATION_PROPERTY_NAME,
+                                                  ind == 0 ? Constants.TOP : Constants.BOTTOM);
+
+                          })
+                          .build ())
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtabs),
+                       QuollComboBox.builder ()
+                           .items (getUILanguageStringProperty (options,lookandsound,labels,showtabstop),
+                                   getUILanguageStringProperty (options,lookandsound,labels,showtabsbottom))
+                           .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TABS_LOCATION_PROPERTY_NAME)) ? 0 : 1)
+                           .onSelected (ev ->
+                           {
+
+                               ComboBox cb = (ComboBox) ev.getSource ();
+
+                               int ind = cb.getSelectionModel ().getSelectedIndex ();
+
+                               UserProperties.set (Constants.TABS_LOCATION_PROPERTY_NAME,
+                                                   ind == 0 ? Constants.TOP : Constants.BOTTOM);
+
+                           })
+                           .build ())
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,whenfind),
+                       QuollRadioButtons.builder ()
+                            .button (QuollRadioButton.builder ()
+                                        .label (options,lookandsound,labels,expandall)
+                                        .onAction (ev ->
+                                        {
+
+                                            UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
+                                                                true);
+
+                                        })
+                                        .selected (UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
+                                        .build ())
+                            .button (QuollRadioButton.builder ()
+                                        .label (options,lookandsound,labels,justchapter)
+                                        .onAction (ev ->
+                                        {
+
+                                            UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
+                                                                false);
+
+                                        })
+                                        .selected (UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
+                                        .build ())
+                            .build ())
+            .mainItem (playSoundCB)
+            .subItem (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,selectownwavfile),
+                      ownSoundF)
+            .subItem (playSoundB)
+            .mainItem (QuollCheckBox.builder ()
+                .label (options,lookandsound,labels,highlightdividers,text)
+                .userProperty (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME)
+                .build ())
+*/
+            .build ();
+
+        return s;
+
+    }
+
     private Section createLookSection (AbstractViewer viewer)
     {
 
@@ -1300,7 +1530,7 @@ TODO Remove NO longer needed.
         ownSoundF.fileProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            Environment.setKeyStrokeSoundFilePath ((newv != null ? newv.toPath () : null));
+            Environment.setKeyStrokeSoundFilePath (newv);
 
         });
 

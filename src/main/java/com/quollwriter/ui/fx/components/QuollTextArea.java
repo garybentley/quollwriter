@@ -50,7 +50,9 @@ public class QuollTextArea extends VBox
         if (b.viewer == null)
         {
 
-            throw new IllegalArgumentException ("Viewer must be provided.");
+            b.viewer = Environment.getFocusedViewer ();
+
+            //throw new IllegalArgumentException ("Viewer must be provided.");
 
         }
 
@@ -58,7 +60,10 @@ public class QuollTextArea extends VBox
                                     null,
                                     b.dictProv);
         this.text.setFormattingEnabled (b.formattingEnabled);
+        this.text.setSpellCheckEnabled (b.spellCheckEnabled);
         this.text.setPlaceholder (b.placeHolder);
+        VBox.setVgrow (this.text,
+                       Priority.ALWAYS);
 
         Nodes.addInputMap (this.text,
                            InputMap.process (EventPattern.mouseReleased (),
@@ -129,7 +134,6 @@ public class QuollTextArea extends VBox
 
             this.text.setText (b.text);
 
-
         }
 
         this.autoGrabFocus = b.autoGrabFocus;
@@ -187,7 +191,11 @@ public class QuollTextArea extends VBox
         Environment.uilangProperty (),
         this.text.textProperty ()));
 
-        this.getChildren ().addAll (new VirtualizedScrollPane<> (this.text), this.maxlabel);
+        VirtualizedScrollPane<?> n = new VirtualizedScrollPane<> (this.text);
+        VBox.setVgrow (n,
+                       Priority.ALWAYS);
+
+        this.getChildren ().addAll (n, this.maxlabel);
 
     }
 
@@ -195,6 +203,13 @@ public class QuollTextArea extends VBox
     {
 
         this.text.setFormattingEnabled (v);
+
+    }
+
+    public void setSpellCheckEnabled (boolean v)
+    {
+
+        this.text.setSpellCheckEnabled (v);
 
     }
 
@@ -222,16 +237,21 @@ public class QuollTextArea extends VBox
     public void setText (StringWithMarkup text)
     {
 
-        if (text == null)
+        this.text.readyForUseProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            this.setText ("");
+            if (text == null)
+            {
 
-        } else {
+                this.setText ("");
 
-            this.text.setText (text);
+            } else {
 
-        }
+                this.text.setText (text);
+
+            }
+
+        });
 
     }
 
@@ -280,9 +300,18 @@ public class QuollTextArea extends VBox
         private AbstractViewer viewer = null;
         private DictionaryProvider2 dictProv = null;
         private boolean formattingEnabled = false;
+        private boolean spellCheckEnabled = false;
 
         private Builder ()
         {
+
+        }
+
+        public Builder spellCheckEnabled (boolean v)
+        {
+
+            this.spellCheckEnabled = v;
+            return this;
 
         }
 

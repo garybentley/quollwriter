@@ -1,6 +1,7 @@
 package com.quollwriter.data;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
 import java.util.stream.*;
@@ -1139,7 +1140,7 @@ public class Project extends NamedObject
                                           UserConfigurableObjectType type)
     {
 
-        Set<Asset> assets = new LinkedHashSet ();
+        Set<Asset> assets = new LinkedHashSet<> ();
 
         if (type != null)
         {
@@ -1460,6 +1461,7 @@ public class Project extends NamedObject
 
     }
 
+    // TODO Remove
     public void saveToFilesDirectory (File   file,
                                       String fileName)
                                throws IOException
@@ -1488,6 +1490,37 @@ public class Project extends NamedObject
         IOUtils.copyFile (file,
                           f,
                           4096);
+
+    }
+
+    public void saveToFilesDirectory (Path   file,
+                                      String fileName)
+                               throws IOException
+    {
+
+        if ((file == null)
+            ||
+            (Files.notExists (file))
+            ||
+            (Files.isDirectory (file))
+           )
+        {
+
+            return;
+
+        }
+
+        Path dir = this.getFilesDirectory ().toPath ();
+
+        Files.createDirectories (dir);
+
+        Utils.createQuollWriterDirFile (dir);
+
+        Path f = dir.resolve (fileName);
+
+        Files.copy (file,
+                    f,
+                    StandardCopyOption.REPLACE_EXISTING);
 
     }
 

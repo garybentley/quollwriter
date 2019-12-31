@@ -283,6 +283,13 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
 
     }
 
+    public boolean isReadyForUse ()
+    {
+
+        return this.readyForUseProp.getValue ();
+
+    }
+
     protected void addActionMapping (Command command)
     {
 

@@ -4,12 +4,15 @@ import java.util.*;
 
 import org.jdom.*;
 
+import javafx.beans.property.*;
+
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.userobjects.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.userobjects.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public abstract class UserConfigurableObjectTypeField extends NamedObject
 {
@@ -27,7 +30,10 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         webpage ("webpage"),
         objectname ("objectname"),
         objectdesc ("objectdesc"),
-        objectimage ("objectimage");
+        objectimage ("objectimage"),
+        documents ("documents"),
+        linkedto ("linkedto"),
+        appearsinchapters ("appearsinchapters");
 
         private String type = null;
 
@@ -61,6 +67,9 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
                 case objectname : return new ObjectNameUserConfigurableObjectTypeField ();
                 case objectdesc : return new ObjectDescriptionUserConfigurableObjectTypeField ();
                 case objectimage : return new ObjectImageUserConfigurableObjectTypeField ();
+                case linkedto : return new LinkedToUserConfigurableObjectTypeField ();
+                case documents : return new DocumentsUserConfigurableObjectTypeField ();
+                case appearsinchapters : return new AppearsInChaptersUserConfigurableObjectTypeField ();
                 default : return null;
 
             }
@@ -130,9 +139,14 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
      */
     // TODO: Check to see if this needs to be generic.
     // TODO: Have this be configurable and use class loading...
-    public abstract UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
+    // TODO CLean up
+    public abstract com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                                    UserConfigurableObjectField field,
-                                                                                   AbstractProjectViewer       viewer);
+                                                                                   com.quollwriter.ui.AbstractProjectViewer       viewer);
+
+   public abstract UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+                                                                                  UserConfigurableObjectField field,
+                                                                                  AbstractProjectViewer       viewer);
 
     /**
      * The config handler is used for editing/configuration of this field.
@@ -141,7 +155,10 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
      *
      * @return The config handler for this field.
      */
-    public abstract UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ();
+     // TODO Clean up
+    public abstract com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ();
+
+    public abstract UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ();
 
     public boolean isSortable ()
     {
@@ -275,7 +292,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
 
     }
 
-    public String getLegacyFieldFormName ()
+    public StringProperty getLegacyFieldFormName ()
     {
 
         UserConfigurableObjectType ot = this.getUserConfigurableObjectType ();
@@ -290,21 +307,21 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
             if (id.equals (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID))
             {
 
-                return getUIString (chapters,fields,description);
+                return getUILanguageStringProperty (chapters,fields,description);
 
             }
 
             if (id.equals (Chapter.PLAN_LEGACY_FIELD_ID))
             {
 
-                return getUIString (chapters,fields,plan);
+                return getUILanguageStringProperty (chapters,fields,plan);
 
             }
 
             if (id.equals (Chapter.GOALS_LEGACY_FIELD_ID))
             {
 
-                return getUIString (chapters,fields,goals);
+                return getUILanguageStringProperty (chapters,fields,goals);
 
             }
 
@@ -313,35 +330,35 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         if (id.equals (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID))
         {
 
-            return getUIString (assets,legacyfields,name);
+            return getUILanguageStringProperty (assets,legacyfields,name);
 
         }
 
         if (id.equals (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID))
         {
 
-            return getUIString (assets,legacyfields,aliases);
+            return getUILanguageStringProperty (assets,legacyfields,aliases);
 
         }
 
         if (id.equals (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID))
         {
 
-            return getUIString (assets,legacyfields,description);
+            return getUILanguageStringProperty (assets,legacyfields,description);
 
         }
 
         if (id.equals (QObject.TYPE_LEGACY_FIELD_ID))
         {
 
-            return getUIString (assets,legacyfields,LanguageStrings.type);
+            return getUILanguageStringProperty (assets,legacyfields,LanguageStrings.type);
 
         }
 
         if (id.equals (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID))
         {
 
-            return getUIString (assets,legacyfields,webpage);
+            return getUILanguageStringProperty (assets,legacyfields,webpage);
 
         }
 
@@ -483,6 +500,20 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
 
     }
 
+    public StringProperty formNameProperty ()
+    {
+
+        if (this.getName () != null)
+        {
+
+            return this.nameProperty ();
+
+        }
+
+        return this.getLegacyFieldFormName ();
+
+    }
+
     public String getFormName ()
     {
 
@@ -495,7 +526,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
 
         }
 
-        return this.getLegacyFieldFormName ();
+        return this.getLegacyFieldFormName ().getValue ();
 
         //return this.getName ();
 

@@ -30,11 +30,26 @@ public class Panel extends BaseVBox implements Stateful
     private StringProperty titleProp = null;
     private Supplier<Set<Node>> toolbarItemSupplier = null;
     private ContextMenu contextMenu = null;
+    private Map<KeyCombination, Runnable> actionMappings = null;
 
     private Panel (Builder b)
     {
 
         this._init (b);
+
+    }
+
+    public Map<KeyCombination, Runnable> getActionMappings ()
+    {
+
+        if (this.actionMappings == null)
+        {
+
+            this.actionMappings = new HashMap<> ();
+
+        }
+
+        return this.actionMappings;
 
     }
 
@@ -94,6 +109,7 @@ public class Panel extends BaseVBox implements Stateful
 
         final Panel _this = this;
 
+        this.actionMappings = b.actionMappings;
         this.content = b.content;
         this.titleProp = b.title;
         this.panelId = b.panelId;
@@ -169,9 +185,18 @@ public class Panel extends BaseVBox implements Stateful
         private PanelContent content = null;
         private String styleName = null;
         private String panelId = null;
+        private Map<KeyCombination, Runnable> actionMappings = null;
         private StringProperty title = null;
         private Supplier<Set<Node>> toolbarItemSupplier = null;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
+
+        public Builder actionMappings (Map<KeyCombination, Runnable> am)
+        {
+
+            this.actionMappings = am;
+            return this;
+
+        }
 
         public Builder toolbar (final Set<Node> items)
         {
@@ -353,6 +378,13 @@ public class Panel extends BaseVBox implements Stateful
             super (type);
 
             this.panel = panel;
+
+        }
+
+        public Panel getPanel ()
+        {
+
+            return this.panel;
 
         }
 

@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx.viewers;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 import java.util.function.*;
@@ -17,6 +18,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.input.*;
 import javafx.geometry.*;
+import javafx.scene.image.*;
 
 import com.quollwriter.*;
 import com.quollwriter.db.*;
@@ -171,9 +173,21 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.tabs.setSide (UserProperties.tabsLocationProperty ().getValue ().equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
         this.tabs.setTabDragPolicy (TabPane.TabDragPolicy.REORDER);
 
-        this.tabs.getTabs ().addListener ((ListChangeListener<Tab>) ev ->
+        this.tabs.getTabs ().addListener ((ListChangeListener<Tab>) ch ->
         {
 
+            while (ch.next ())
+            {
+
+                if (ch.wasRemoved ())
+                {
+
+
+
+                }
+
+            }
+/*
             if (this.tabs.getSelectionModel ().getSelectedIndex () < 0)
             {
 
@@ -185,44 +199,65 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
             Panel qp = (Panel) t.getContent ();
 
+            // Add the action mappings.
+            this.getScene ().getAccelerators ().putAll (qp.getActionMappings ());
+
             this.currentPanelProp.setValue (qp);
-
-            PanelContent pc = qp.getContent ();
-
-            this.selectedTextProp.unbind ();
-
-            if (pc instanceof ChapterEditorPanelContent)
-            {
-
-                ChapterEditorPanelContent cec = (ChapterEditorPanelContent) pc;
-
-                this.selectedTextProp.bind (cec.selectedTextProperty ());
-
-            }
-
-            qp.fireEvent (new Panel.PanelEvent (qp,
-                                                Panel.PanelEvent.SHOW_EVENT));
-
+*/
         });
 
         this.tabs.selectionModelProperty ().getValue ().selectedIndexProperty ().addListener ((ind, oldi, newi) ->
         {
 
-            if (newi.intValue () < 0)
+            if ((oldi.intValue () > -1)
+                &&
+                (oldi.intValue () < this.tabs.getTabs ().size ())
+               )
             {
 
-                return;
+                Tab ot = this.tabs.getTabs ().get (oldi.intValue ());
+
+                if (ot != null)
+                {
+
+                    Panel p = (Panel) ot.getContent ();
+
+                    // Remove the action mappings.
+                    p.getActionMappings ().keySet ().stream ()
+                        .forEach (k -> this.getScene ().getAccelerators ().remove (k));
+
+                }
 
             }
 
-            Tab t = _this.tabs.getTabs ().get (_this.tabs.selectionModelProperty ().getValue ().getSelectedIndex ());
+            if (newi.intValue () > -1)
+            {
 
-            Panel qp = (Panel) t.getContent ();
+                Tab t = this.tabs.getTabs ().get (newi.intValue ());
+                Panel qp = (Panel) t.getContent ();
 
-            this.currentPanelProp.setValue (qp);
+                // Add the action mappings.
+                this.getScene ().getAccelerators ().putAll (qp.getActionMappings ());
 
-            qp.fireEvent (new Panel.PanelEvent (qp,
-                                                Panel.PanelEvent.SHOW_EVENT));
+                PanelContent pc = qp.getContent ();
+
+                this.selectedTextProp.unbind ();
+
+                if (pc instanceof ChapterEditorPanelContent)
+                {
+
+                    ChapterEditorPanelContent cec = (ChapterEditorPanelContent) pc;
+
+                    this.selectedTextProp.bind (cec.selectedTextProperty ());
+
+                }
+
+                this.currentPanelProp.setValue (qp);
+
+                qp.fireEvent (new Panel.PanelEvent (qp,
+                                                    Panel.PanelEvent.SHOW_EVENT));
+
+            }
 
         });
 
@@ -971,7 +1006,7 @@ TODO
 
                     }
 
-                    BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
+                    QuollTextView m = QuollTextView.builder ()
                         .text (getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets, chaptersoverwcmaximum,t),
                                                             wchaps.size (),
                                                             wc))
@@ -1393,6 +1428,14 @@ TODO
 
     }
 
+    public void updateChapterIndexes (Book b)
+                               throws GeneralException
+    {
+
+        this.dBMan.updateChapterIndexes (b);
+
+    }
+
     public void setLinks (NamedObject o)
     {
 
@@ -1584,8 +1627,6 @@ TODO
 
         Tab tab = this.addPanel (qp.getPanel ());
 
-        // TODO Remove
-
         tab.textProperty ().bind (Bindings.createStringBinding (() ->
         {
 
@@ -1603,6 +1644,16 @@ TODO
         },
         qp.getPanel ().titleProperty (),
         qp.unsavedChangesProperty ()));
+
+        if (qp.iconProperty () != null)
+        {
+
+            ImageView iv = new ImageView ();
+            iv.imageProperty ().bind (qp.iconProperty ());
+
+            tab.setGraphic (iv);
+
+        }
 
         // We use the panel itself to listen so when it is closed the listener
         // is removed.
@@ -1651,6 +1702,11 @@ TODO
 
         final AbstractProjectViewer _this = this;
 
+        Tab tab = new Tab ();
+        tab.textProperty ().bind (qp.titleProperty ());
+        tab.getStyleClass ().add (qp.getStyleClassName ());
+        tab.setContent (qp);
+
         final String panelId = qp.getPanelId ();
 
         final String s = this.project.getProperty (panelId + "-state");
@@ -1664,12 +1720,49 @@ TODO
 
         }
 
-        qp.getContent ().init (state);
+        if (this.getViewer ().isShowing ())
+        {
 
-        Tab tab = new Tab ();
-        tab.textProperty ().bind (qp.titleProperty ());
-        tab.getStyleClass ().add (qp.getStyleClassName ());
-        tab.setContent (qp);
+            qp.getContent ().init (state);
+
+        } else {
+
+            final State _state = state;
+
+            this.getViewer ().showingProperty ().addListener ((pr, oldv, newv) ->
+            {
+
+                if (newv)
+                {
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        try
+                        {
+
+                            qp.getContent ().init (_state);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to init panel: " +
+                                                  qp +
+                                                  " with state: " +
+                                                  _state,
+                                                  e);
+
+                        }
+
+                    });
+
+                }
+
+            });
+
+        }
+
+        this.tabs.getTabs ().add (0,
+                                  tab);
 
         this.panels.put (panelId,
                          qp);
@@ -1695,9 +1788,6 @@ TODO
                              null);
 
         });
-
-        this.tabs.getTabs ().add (0,
-                                  tab);
 
         return tab;
 
@@ -1922,8 +2012,12 @@ TODO
         this.removePanel (qp,
                           onClose);
 
-        qp.fireEvent (new Panel.PanelEvent (qp,
-                                            Panel.PanelEvent.CLOSE_EVENT));
+        Panel.PanelEvent pe = new Panel.PanelEvent (qp,
+                                                    Panel.PanelEvent.CLOSE_EVENT);
+
+        qp.fireEvent (pe);
+
+        this.fireEvent (pe);
 
     }
 
@@ -1976,6 +2070,10 @@ TODO
 			this.tabs.getTabs ().remove (tInd);
 
 		}
+
+        // Remove the action mappings.
+        p.getActionMappings ().keySet ().stream ()
+            .forEach (k -> this.getScene ().getAccelerators ().remove (k));
 
 		this.panels.remove (panelId);
 
@@ -3181,13 +3279,14 @@ TODO REmove
             VBox c = new VBox ();
 
             AtomicBoolean hasChanges = new AtomicBoolean (false);
-
+/*
             c.getChildren ().add (BasicHtmlTextFlow.builder ()
                 .text (getUILanguageStringProperty (closeproject,confirmpopup,prefix))
                 .withHandler (this)
                 .build ());
+*/
 
-            c.getChildren ().addAll (this.panels.values ().stream ()
+            String b = this.panels.values ().stream ()
                 // We are only interested in named object panels.
                 .filter (p ->
                 {
@@ -3211,51 +3310,20 @@ TODO REmove
 
                     hasChanges.set (true);
 
-                    return QuollHyperlink.builder ()
-                        .label (p.titleProperty ())
-                        .onAction (ev ->
-                        {
-
-                            this.viewObject (np.getObject ());
-
-                        })
-                        .build ();
+                    return String.format ("<li><a href='%1$s://%2$s'>%3$s</a></li>",
+                                          Constants.OBJECTREF_PROTOCOL,
+                                          np.getObject ().getObjectReference ().asString (),
+                                          np.getPanel ().titleProperty ().getValue ());
 
                 })
-                .collect (Collectors.toList ()));
+                .collect (Collectors.joining (""));
 
-            c.getChildren ().add (BasicHtmlTextFlow.builder ()
-                .text (getUILanguageStringProperty (closeproject,confirmpopup,suffix))
-                .withHandler (this)
+            c.getChildren ().add (QuollTextView.builder ()
+                .text (getUILanguageStringProperty (Arrays.asList (closeproject,confirmpopup,text),
+                                                    b))
+                .withViewer (this)
                 .build ());
 
-    /*
-            for (Panel p : this.panels.values ())
-            {
-
-    			if (p.getContent () instanceof NamedObjectPanelContent)
-    			{
-
-    				NamedObjectPanelContent pqp = (NamedObjectPanelContent) p;
-
-    				if (pqp.hasUnsavedChanges ())
-    				{
-
-    					hasChanges = true;
-
-    					if (pqp.getForObject () instanceof NamedObject)
-    					{
-
-    						b.append ("<li>" + pqp.getTitle () + "</li>");
-
-    					}
-
-    				}
-
-    			}
-
-            }
-    */
             if (hasChanges.get ())
             {
 
@@ -3525,20 +3593,7 @@ TODO REmove
             try
             {
 
-                State ss = null;
-
-                if (sb.getContent () instanceof SideBarContent)
-                {
-
-                    SideBarContent sbc = (SideBarContent) sb.getContent ();
-
-                    ss = sbc.getState ();
-
-                } else {
-
-                    ss = sb.getState ();
-
-                }
+                State ss = sb.getState ();
 
                 this.project.setProperty ("sidebarState-" + sb.getSideBarId (),
                                           ss.asString ());
@@ -3860,7 +3915,7 @@ TODO REmove
         // We ignore the state and use the state inside the project instead.
 
         // Handle the legacy properties.
-        if (this.project.getProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME) != null)
+        if (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME) == null)
         {
 
             s = new State ();
@@ -3878,7 +3933,10 @@ TODO REmove
                    wTop);
             s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
                    wLeft);
-
+                   /*
+            s.set (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
+                   this.project.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
+*/
             this.project.removeProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
             this.project.removeProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME);
             this.project.removeProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
@@ -3898,23 +3956,8 @@ TODO REmove
         this.titleProp.bind (this.project.nameProperty ());
 
         this.restoreSideBars ();
+
         this.restoreTabs ();
-/*
-this.schedule (() ->
-{
-UIUtils.runLater (() ->
-{
-    try
-    {
-        this.restoreTabs ();
-    } catch (Exception e) {
-        e.printStackTrace ();
-    }
-});
-},
-2000,
- -1);
-*/
         this.scheduleA4PageCountUpdate ();
 
         // This is done here because the achievements manager needs the project.
@@ -3967,26 +4010,7 @@ UIUtils.runLater (() ->
 
         }
 
-        State state = null;
-
-        String id = sb.getId ();
-
-        if (id != null)
-        {
-
-            state = new State (this.project.getProperty ("sidebarState-" + id));
-
-        }
-
-        sb.init (state);
-
-        // TODO Make this nicer.
-        if (sb.getContent () instanceof SideBarContent)
-        {
-
-            ((SideBarContent) sb.getContent ()).init (state);
-
-        }
+        this.initSideBar (sb);
 
         super.setMainSideBar (sb);
 
@@ -4003,18 +4027,7 @@ UIUtils.runLater (() ->
 
         }
 
-        State state = null;
-
-        String id = sb.getId ();
-
-        if (id != null)
-        {
-
-            state = new State (this.project.getProperty ("sidebarState-" + id));
-
-        }
-
-        sb.init (state);
+        this.initSideBar (sb.getSideBar ());
 
         super.addSideBar (sb);
 
@@ -4708,6 +4721,204 @@ TODO Needed?
         }
 
         return data;
+
+    }
+
+    public void showAddNewTagPopup (NamedObject addTo,
+                                    Node        showAt)
+    {
+
+        if (addTo == null)
+        {
+
+            throw new IllegalArgumentException ("Add to must be provided.");
+
+        }
+
+        Function<String, Set<String>> tags = v ->
+        {
+
+            Set<String> ret = new LinkedHashSet<> ();
+
+            StringTokenizer t = new StringTokenizer (v.trim (),
+                                                     ";,");
+
+            while (t.hasMoreTokens ())
+            {
+
+                ret.add (t.nextToken ().trim ());
+
+            }
+
+            return ret;
+
+        };
+
+        QuollPopup.textEntryBuilder ()
+            .withViewer (this)
+            .styleClassName (StyleClassNames.ADD)
+            .title (LanguageStrings.tags,actions,newtag,title)
+            .description (getUILanguageStringProperty (Arrays.asList (LanguageStrings.tags,actions,newtag,text),
+                                                       addTo.getName ()))
+            .confirmButtonLabel (LanguageStrings.tags,actions,newtag,confirm)
+            .validator (v ->
+            {
+
+                if ((v == null)
+                    ||
+                    (v.trim ().length () == 0)
+                   )
+                {
+
+                    return getUILanguageStringProperty (LanguageStrings.tags,actions,newtag,errors,novalue);
+                    //"Please enter a new tag.";
+
+                }
+
+                Set<String> ntags = tags.apply (v);
+
+                if (ntags.size () == 0)
+                {
+
+                    return getUILanguageStringProperty (LanguageStrings.tags,actions,newtag,errors,novalue);
+                    //"Please enter a new tag.";
+
+                }
+
+                return null;
+
+            })
+            .onConfirm (ev ->
+            {
+
+                TextField tf = (TextField) ev.getForm ().lookup ("#text");
+
+                Set<String> ntags = tags.apply (tf.getText ());
+
+                for (String s : ntags)
+                {
+
+                    Tag ot = null;
+
+                    try
+                    {
+
+                        ot = Environment.getTagByName (s);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to get tag for name: " +
+                                              s,
+                                              e);
+
+                        continue;
+
+                    }
+
+                    if (ot != null)
+                    {
+
+                        continue;
+
+                    }
+
+                    Tag tag = new Tag ();
+                    tag.setName (s);
+
+                    try
+                    {
+
+                        Environment.saveTag (tag);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to add tag: " +
+                                              tag,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (this,
+                                                         getUILanguageStringProperty (LanguageStrings.tags,actions,newtag,actionerror));
+                                                  //"Unable to add tag.");
+
+                        ev.consume ();
+                        return;
+
+                    }
+
+                    addTo.addTag (tag);
+
+                }
+
+                try
+                {
+
+                    this.saveObject (addTo,
+                                     false);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to update object: " +
+                                          addTo,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (this,
+                                                     getUILanguageStringProperty (LanguageStrings.tags,actions,newtag,actionerror));
+                                              //"Unable to add tags.");
+                    ev.consume ();
+                    return;
+
+                }
+
+            })
+            .showAt (showAt,
+                     Side.BOTTOM)
+            .build ();
+
+    }
+
+    public void deleteProjectFile (String fileName)
+    {
+
+        if (fileName == null)
+        {
+
+            return;
+
+        }
+
+        this.project.deleteFile (fileName);
+
+
+    }
+
+    public Path getProjectFile (String fileName)
+    {
+
+        if (fileName == null)
+        {
+
+            return null;
+
+        }
+
+        return this.project.getFile (fileName).toPath ();
+
+    }
+
+    public Path getProjectFilesDirectory ()
+    {
+
+        return this.project.getFilesDirectory ().toPath ();
+
+    }
+
+    public void saveToProjectFilesDirectory (Path   file,
+                                             String fileName)
+                                      throws IOException
+    {
+
+        this.project.saveToFilesDirectory (file,
+                                           fileName);
 
     }
 

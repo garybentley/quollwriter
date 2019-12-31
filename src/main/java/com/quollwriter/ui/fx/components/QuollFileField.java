@@ -3,6 +3,7 @@ package com.quollwriter.ui.fx.components;
 import java.util.*;
 import java.util.stream.*;
 import java.io.*;
+import java.nio.file.*;
 
 import javafx.stage.*;
 import javafx.beans.property.*;
@@ -26,7 +27,7 @@ public class QuollFileField extends HBox
     }
 
     private QuollTextField text = null;
-    private ObjectProperty<File> fileProp = null;
+    private ObjectProperty<Path> fileProp = null;
     private StringProperty chooserTitle = null;
     private AbstractViewer viewer = null;
     private Type limitTo = Type.file;
@@ -84,7 +85,7 @@ public class QuollFileField extends HBox
                 if (newv != null)
                 {
 
-                    _this.text.setText (newv.getPath ());
+                    _this.text.setText (newv.toString ());
 
                 }
 
@@ -169,7 +170,7 @@ public class QuollFileField extends HBox
             }
 
             File _f = f.showOpenDialog (this.viewer.getViewer ());
-            _this.fileProp.setValue (_f);
+            _this.fileProp.setValue (_f.toPath ());
 
             return;
 
@@ -180,30 +181,30 @@ public class QuollFileField extends HBox
 
             DirectoryChooser d = new DirectoryChooser ();
             d.titleProperty ().bind (this.chooserTitle);
-            d.setInitialDirectory (this.fileProp.getValue ());
+            d.setInitialDirectory (this.fileProp.getValue ().toFile ());
             File f = d.showDialog (this.viewer.getViewer ());
 
-            _this.fileProp.setValue (f);
+            _this.fileProp.setValue (f.toPath ());
 
         }
 
     }
 
-    public void setFile (File f)
+    public void setFile (Path f)
     {
 
         this.fileProp.setValue (f);
 
     }
 
-    public File getFile ()
+    public Path getFile ()
     {
 
         return this.fileProp.getValue ();
 
     }
 
-    public ObjectProperty<File> fileProperty ()
+    public ObjectProperty<Path> fileProperty ()
     {
 
         return this.fileProp;
@@ -224,7 +225,7 @@ public class QuollFileField extends HBox
         private StringProperty placeholder = null;
         private StringProperty findButtonTooltip = null;
         private StringProperty clearButtonTooltip = null;
-        private File initialFile = null;
+        private Path initialFile = null;
         private AbstractViewer viewer = null;
         private StringProperty chooserTitle = null;
         private Type limitTo = null;
@@ -260,7 +261,7 @@ public class QuollFileField extends HBox
 
         }
 
-        public Builder initialFile (File f)
+        public Builder initialFile (Path f)
         {
 
             this.initialFile = f;

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
+import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.collections.*;
@@ -15,6 +16,7 @@ import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.popups.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -40,7 +42,6 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         this.objType = objType;
 
-        // TODO Have better handling of the changes.
         ObservableSet<Asset> assts = pv.getProject ().getAssets (objType);
 
         this.addSetChangeListener (assts,
@@ -52,82 +53,120 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         this.sorter = this.getSorter (this.sortField);
 
-        this.tree = new QuollTreeView<> ();
-        this.tree.setShowRoot (false);
-        this.tree.setCellProvider (treeItem ->
-        {
-
-            if (treeItem.getValue () instanceof Project)
+        this.tree = NamedObjectTree.builder ()
+            .project (pv.getProject ())
+            .root (this.createTree ())
+            .withViewer (this.viewer)
+            .contextMenuItemSupplier (obj ->
             {
 
-                return new Label ();
+                Asset n = (Asset) obj;
 
-            }
+                List<String> prefix = Arrays.asList (assets,treepopupmenu,LanguageStrings.items);
 
-            Asset n = (Asset) treeItem.getValue ();
+                Set<MenuItem> its = new LinkedHashSet<> ();
 
-            QuollLabel l = QuollLabel.builder ()
-                .label (n.nameProperty ())
-                .styleClassName (n.getObjectType ())
-                .build ();
+                its.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
+                    .styleClassName (StyleClassNames.VIEW)
+                    .onAction (ev ->
+                    {
 
-            //l.getGraphic ().managedProperty ().bind (l.getGraphic ().visibleProperty ());
+                        this.viewer.viewObject (n);
 
-            List<String> prefix = Arrays.asList (assets,treepopupmenu,LanguageStrings.items);
+                    })
+                    .build ());
 
-            ContextMenu m = new ContextMenu ();
+                its.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
+                    .styleClassName (StyleClassNames.EDIT)
+                    .onAction (ev ->
+                    {
 
-            m.getItems ().add (QuollMenuItem.builder ()
-                .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
-                .styleClassName (StyleClassNames.VIEW)
-                .onAction (ev ->
-                {
+                        this.viewer.editObject (n);
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.viewobject,
-                                            n);
+                    })
+                    .build ());
 
-                })
-                .build ());
+                its.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,rename),
+                                                         n.getUserConfigurableObjectType ().nameProperty ()))
+                    .styleClassName (StyleClassNames.RENAME)
+                    .onAction (ev ->
+                    {
 
-            m.getItems ().add (QuollMenuItem.builder ()
-                .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
-                .styleClassName (StyleClassNames.EDIT)
-                .onAction (ev ->
-                {
+                        String pid = RenameAssetPopup.getPopupIdForAsset (n);
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.editasset,
-                                            n);
+                        if (this.viewer.getPopupById (pid) != null)
+                        {
 
-                })
-                .build ());
+                            return;
 
-             Menu tm = UIUtils.createTagsMenu (n,
-                                               this.viewer);
+                        }
 
-             if (tm != null)
-             {
+                        QuollPopup qp = new RenameAssetPopup (this.viewer,
+                                                              n).getPopup ();
 
-                 m.getItems ().add (tm);
+                        this.viewer.showPopup (qp,
+                                               this.tree.getCellForObject (n),
+                                               Side.BOTTOM);
 
-             }
+                    })
+                    .build ());
 
-             m.getItems ().add (QuollMenuItem.builder ()
-                 .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
-                 .styleClassName (StyleClassNames.EDIT)
-                 .onAction (ev ->
+                 Menu tm = UIUtils.createTagsMenu (n,
+                                                   this.viewer);
+
+                 if (tm != null)
                  {
 
-                     this.viewer.runCommand (ProjectViewer.CommandId.deleteasset,
-                                             n);
+                     its.add (tm);
 
-                 })
-                 .build ());
+                 }
 
-            l.setContextMenu (m);
+                 its.add (QuollMenuItem.builder ()
+                     .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
+                     .styleClassName (StyleClassNames.DELETE)
+                     .onAction (ev ->
+                     {
 
-            return l;
+                         this.viewer.showDeleteAsset (n);
 
-        });
+                     })
+                     .build ());
+
+                return its;
+
+            })
+            .onDragDropped (obj ->
+            {
+
+                // Update the save state?
+
+            })
+            .canImport (obj ->
+            {
+
+                if (obj instanceof UserConfigurableObject)
+                {
+
+                    UserConfigurableObject uobj = (UserConfigurableObject) obj;
+
+                    if (uobj.getUserConfigurableObjectType ().equals (objType))
+                    {
+
+                        return true;
+
+                    }
+
+                }
+
+                return false;
+
+            })
+            .canExport (obj -> true)
+            .viewObjectOnClick (true)
+            .build ();
 
     }
 
@@ -324,13 +363,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                 .onAction (ev ->
                 {
 
-                    /*
-                    AbstractAction addNewItem = UIUtils.createAddAssetActionListener (this.objType,
-                                                                                      this.viewer,
-                                                                                      null,
-                                                                                      null);
-*/
-
+                    this.viewer.showAddNewAsset (this.objType);
 
                 })
                 .build ());
@@ -597,8 +630,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
     }
 
-    @Override
-    public void reloadTree ()
+    private void reloadTree ()
     {
 
         if (this.sortField == null)
@@ -659,7 +691,6 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         }
 
-        // Set the root of the tree.
         this.tree.setRoot (this.createTree ());
 
     }
@@ -703,95 +734,5 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
         return this.countProp;
 
     }
-
-    @Override
-    public boolean isDragEnabled ()
-    {
-
-        return true;
-
-    }
-
-/*
-    @Override
-    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv)
-    {
-
-        final AssetAccordionItem _this = this;
-
-        return new DragActionHandler<Asset> ()
-        {
-
-            @Override
-            public boolean canImportForeignObject (NamedObject obj)
-            {
-
-                // Allow support of addition of same object type.
-                return false;
-
-            }
-
-            @Override
-            public boolean importForeignObject (NamedObject obj,
-                                                int         insertRow)
-            {
-
-                return false;
-
-            }
-
-            @Override
-            public boolean handleMove (int   fromRow,
-                                       int   toRow,
-                                       Asset object)
-                                throws GeneralException
-            {
-
-                _this.sortField = null;
-
-                QuollPanel p = _this.viewer.getCurrentlyVisibleTab ();
-
-                if (p != null)
-                {
-
-                    if (p instanceof ProjectObjectQuollPanel)
-                    {
-
-                        ProjectObjectQuollPanel pp = (ProjectObjectQuollPanel) p;
-
-                        if (pp.getForObject ().equals (object))
-                        {
-
-                            return true;
-
-                        }
-
-                    }
-
-                }
-
-                _this.getTree ().removeSelectionPath (UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) _this.getTree ().getModel ().getRoot (),
-                                                      object));
-
-                return true;
-
-            }
-
-            @Override
-            public boolean performAction (int         removeRow,
-                                          NamedObject removeObject,
-                                          int         insertRow,
-                                          NamedObject insertObject)
-                                   throws GeneralException
-            {
-
-                return true;
-
-            }
-
-        };
-
-    }
-*/
 
 }

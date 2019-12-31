@@ -360,7 +360,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         // Need to save first so the hashcode gets set correctly.
         this.saveField (field);
 
-        this.type.addConfigurableField (field);
+        // TODO Remove this.type.addConfigurableField (field);
 
         FieldViewBox it = new FieldViewBox (field,
                                             this);
@@ -408,7 +408,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         FieldViewBox it = this.viewItems.get (field);
 
-        this.type.removeConfigurableField (field);
+        // TODO Remove this.type.removeConfigurableField (field);
 
         try
         {
@@ -1524,7 +1524,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         {
 
             this.formNameLabel.setText (item.getFormName ());
-            this.formDescLabel.setText (item.getConfigHandler ().getConfigurationDescription ());
+            // TODO this.formDescLabel.setText (item.getConfigHandler ().getConfigurationDescription ());
 
         }
 

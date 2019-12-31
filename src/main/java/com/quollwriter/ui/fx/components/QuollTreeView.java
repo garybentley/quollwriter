@@ -246,7 +246,7 @@ public class QuollTreeView<T> extends Pane
 
     }
 
-    public void expand (Set<T> objs)
+    public void expandPathToRoot (Set<T> objs)
     {
 
         if (objs == null)
@@ -276,6 +276,13 @@ public class QuollTreeView<T> extends Pane
     public void expandPathToRoot (TreeItem<T> item)
     {
 
+        if (item != null)
+        {
+
+            item.setExpanded (true);
+
+        }
+
         TreeItem<T> p = item.getParent ();
 
         if (p == null)
@@ -284,8 +291,6 @@ public class QuollTreeView<T> extends Pane
             return;
 
         }
-
-        p.setExpanded (true);
 
         this.expandPathToRoot (p);
 
@@ -649,6 +654,14 @@ public class QuollTreeView<T> extends Pane
     {
 
         this.cellProvider = s;
+
+    }
+
+    @Override
+    public double computeMinHeight (double width)
+    {
+
+        return this.computePrefHeight (width);
 
     }
 

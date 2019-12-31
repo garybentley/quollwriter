@@ -1,10 +1,11 @@
 package com.quollwriter.ui.fx;
 
-import javafx.scene.control.*;
+import java.util.*;
+import javafx.scene.*;
 
 public interface ToolBarSupported
 {
 
-    ToolBar getToolBar ();
+    Set<Node> getToolBarItems ();
 
 }

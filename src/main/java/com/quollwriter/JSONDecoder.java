@@ -202,6 +202,12 @@ public class JSONDecoder
 
             break;
 
+        case 'N' :
+            next ();
+            next ();
+            token = Double.valueOf (Double.NaN);
+            break;
+
         case 't':
             next ();
             next ();

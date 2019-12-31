@@ -101,7 +101,7 @@ public class ExportProjectPopup extends PopupContent
         this.fileFind.fileProperty ().addListener ((p, oldv, newv) ->
         {
 
-            this.filePathToImport = (newv != null ? newv.toPath () : null);
+            this.filePathToImport = newv;
 
         });
 
@@ -687,7 +687,7 @@ public class ExportProjectPopup extends PopupContent
 
                 this.proj.setName (this.newProjectPanel.getName ());
 
-                pj.newProject (this.newProjectPanel.getSaveDirectory ().toPath (),
+                pj.newProject (this.newProjectPanel.getSaveDirectory (),
                                this.proj,
                                pwd);
 
@@ -761,7 +761,7 @@ public class ExportProjectPopup extends PopupContent
         if (this.fileFind != null)
         {
 
-            this.fileFind.setFile (p.toFile ());
+            this.fileFind.setFile (p);
 
         }
 
@@ -1082,12 +1082,12 @@ TODO Remove
 
         }
 
-        File f = null;
+        Path f = null;
 
         if (this.filePathToImport != null)
         {
 
-            f = this.filePathToImport.toFile ();
+            f = this.filePathToImport;
 
         }
 
@@ -1097,7 +1097,7 @@ TODO Remove
             if (def != null)
             {
 
-                f = new File (def);
+                f = Paths.get (def);
 
             }
         }
@@ -1105,7 +1105,7 @@ TODO Remove
         if (f == null)
         {
 
-            f = new File (System.getProperty ("user.home"));
+            f = Paths.get (System.getProperty ("user.home"));
             // TODO Remove? FileSystemView.getFileSystemView ().getDefaultDirectory ();
 
         }
@@ -1625,14 +1625,14 @@ TODO Add tool tip?
 
         this.selectFileForm.hideError ();
 
-        File f = this.fileFind.getFile ();
+        Path f = this.fileFind.getFile ();
 
         Path file = null;
 
         if (f != null)
         {
 
-            file = f.toPath ();
+            file = f;
 
         }
 

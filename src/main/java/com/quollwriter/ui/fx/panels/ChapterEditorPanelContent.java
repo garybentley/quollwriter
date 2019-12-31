@@ -150,6 +150,8 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
     }
 
+    public abstract Map<KeyCombination, Runnable> getActionMappings ();
+
     public void setText (StringWithMarkup t)
     {
 
@@ -282,7 +284,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                 this.editor.getCaretSelectionBind ().moveTo (i);
 
             }
-            
+
             this.editor.requestFollowCaret ();
 
             this.editor.setSpellCheckEnabled (this.viewer.isSpellCheckingEnabled ());
@@ -291,6 +293,8 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         };
 
+        this.editor.runOnReady (r);
+/*
         if (this.viewer.getViewer ().isShowing ())
         {
 
@@ -321,7 +325,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
             });
 
         }
-
+*/
         super.init (s);
 
     }
@@ -359,6 +363,8 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
     public Panel createPanel ()
     {
 
+
+
         this.scrollPane = new VirtualizedScrollPane<> (this.editor);
         VBox.setVgrow (this.scrollPane, Priority.ALWAYS);
 
@@ -370,7 +376,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
             .content (this)
             .styleClassName (StyleClassNames.CHAPTER)
             .panelId (getPanelIdForChapter (this.object))
-            // TODO .headerControls ()
+            .actionMappings (this.getActionMappings ())
             .build ();
 
         panel.addEventHandler (Panel.PanelEvent.SHOW_EVENT,

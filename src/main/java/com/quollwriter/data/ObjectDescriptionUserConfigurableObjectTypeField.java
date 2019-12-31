@@ -1,7 +1,8 @@
 package com.quollwriter.data;
 
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.userobjects.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.userobjects.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 /**
  * Models a text user configurable object field.
@@ -27,7 +28,15 @@ public class ObjectDescriptionUserConfigurableObjectTypeField extends MultiTextU
     }
 
     @Override
-    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
+    public com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
+    {
+
+        return new com.quollwriter.ui.userobjects.ObjectDescriptionUserConfigurableObjectTypeFieldConfigHandler (this);
+
+    }
+
+    @Override
+    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ()
     {
 
         return new ObjectDescriptionUserConfigurableObjectTypeFieldConfigHandler (this);
@@ -35,7 +44,20 @@ public class ObjectDescriptionUserConfigurableObjectTypeField extends MultiTextU
     }
 
     @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
+    public com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
+                                                                          UserConfigurableObjectField field,
+                                                                          com.quollwriter.ui.AbstractProjectViewer       viewer)
+    {
+
+        return new com.quollwriter.ui.userobjects.ObjectDescriptionUserConfigurableObjectFieldViewEditHandler (this,
+                                                                                obj,
+                                                                                field,
+                                                                                viewer);
+
+    }
+
+    @Override
+    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           AbstractProjectViewer       viewer)
     {

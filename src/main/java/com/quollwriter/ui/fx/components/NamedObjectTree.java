@@ -4,161 +4,319 @@ import javafx.util.*;
 import java.util.*;
 import java.util.function.*;
 
+import javafx.scene.*;
+import javafx.scene.input.*;
+import javafx.scene.image.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
 
-public class NamedObjectTree extends TreeView<NamedObject>
+public class NamedObjectTree extends QuollTreeView<NamedObject>
 {
+
+    public static final DataFormat PROJECT_OBJECT_DATA_FORMAT = new DataFormat ("project/object");
 
     private NamedObjectTree (Builder b)
     {
 
-        this.setCellFactory (b.cellFactory != null ? b.cellFactory : new ProjectTreeCellFactory ());
-
-        if (b.root != null)
+        if ((b.viewObjectOnClick)
+            &&
+            (b.viewer == null)
+           )
         {
 
-            this.setRoot (b.root);
+            throw new IllegalArgumentException ("Viewer must be provided when viewObjectOnClick is set to true.");
 
         }
 
-    }
+        if ((b.canImport != null)
+            &&
+            (b.project == null)
+           )
+        {
 
-/*
-    public static QuollTree createSelectableTree ()
-    {
+            throw new IllegalArgumentException ("Project must be provided when canImport is provided.");
 
-        NamedObjectTree t = NamedObjectTree.builder ();
-            .cellFactory (new ProjectTreeCellFactory ()
+        }
+
+        if (b.styleName != null)
+        {
+
+            this.getStyleClass ().add (b.styleName);
+
+        }
+
+        this.setShowRoot (false);
+        this.setRoot (b.root);
+        this.setCellProvider (b.cellProvider != null ? b.cellProvider : treeItem ->
+        {
+
+            NamedObject n = treeItem.getValue ();
+
+            Node l = null;
+
+            if (b.labelProvider != null)
             {
 
-                @Override
-                public TreeCell<NamedObject> createCell ()
+                l = b.labelProvider.apply (treeItem);
+
+            } else {
+
+                if (n instanceof UserConfigurableObjectType)
                 {
 
-                    return new CheckBoxTreeCell<> ()
-                    {
+                    UserConfigurableObjectType uc = (UserConfigurableObjectType) n;
 
-                        @Override
-                        protected void updateItem (NamedObject n,
-                                                   boolean     empty)
-                        {
+                    QuollLabel nl = QuollLabel.builder ()
+                        .label (n.nameProperty ())
+                        .build ();
 
-                            super.updateItem (n,
-                                              empty);
+                    ImageView iv = new ImageView ();
+                    iv.imageProperty ().bind (uc.icon16x16Property ());
 
-                            if ((empty)
-                                ||
-                                (n == null)
-                               )
-                            {
+                    nl.setGraphic (iv);
 
-                                // Remove styles?
-                                this.textProperty ().unbind ();
-                                //c.getStyleClass ().add (this.getStyle (value));
-                                return;
+                    l = nl;
 
-                            }
+                } else {
 
-                            this.textProperty ().bind (n.nameProperty ());
-                            this.getStyleClass ().add (this.getStyle (n));
-
-                        }
-
-                    };
+                    l = QuollLabel.builder ()
+                    .label (n.nameProperty ())
+                    .styleClassName (n.getObjectType ())
+                    .build ();
 
                 }
 
-            })
-            .build ();
+            }
 
-    }
-*/
+            Node _l = l;
 
-    public static TreeItem<NamedObject> createChapterTreeModel (Project                proj,
-                                                                Predicate<NamedObject> objectFilter)
-    {
-
-        TreeItem<NamedObject> root = new TreeItem<> (proj);
-
-        proj.getBooks ().get (0).getChapters ().stream ()
-            .forEach (c ->
+            l.setOnMouseClicked (ev ->
             {
 
-                if ((objectFilter != null)
-                    &&
-                    (!objectFilter.test (c))
-                   )
+                if (_l.getProperties ().get ("context-menu") != null)
+                {
+
+                    ((ContextMenu) _l.getProperties ().get ("context-menu")).hide ();
+
+                }
+
+                if (ev.isPopupTrigger ())
                 {
 
                     return;
 
                 }
 
-                TreeItem<NamedObject> ch = new TreeItem<> (c);
-                root.getChildren ().add (ch);
-
-                // Get the outline items and scenes.
-
-            });
-
-        return root;
-
-    }
-
-    public static NamedObjectTree createChapterTree (Project                              proj,
-                                                     Predicate<NamedObject>               objectFilter,
-                                                     Function<NamedObject, Set<MenuItem>> contextMenuItemSupplier)
-    {
-
-
-        NamedObjectTree t = NamedObjectTree.builder ()
-            .cellFactory (new ProjectTreeCellFactory ()
-            {
-
-                @Override
-                public void initCell (NamedObject           obj,
-                                      TreeCell<NamedObject> cell)
+                if (b.onClick != null)
                 {
 
-                    // Set up the context menu.
-                    if (contextMenuItemSupplier != null)
+                    b.onClick.accept (n,
+                                      ev);
+                    ev.consume ();
+
+                } else {
+
+                    if (b.viewObjectOnClick)
                     {
 
-                        cell.setOnContextMenuRequested (ev ->
-                        {
-
-                            Set<MenuItem> its = contextMenuItemSupplier.apply (obj);
-
-                            if ((its != null)
-                                &&
-                                (its.size () > 0)
-                               )
-                            {
-
-                                ContextMenu m = new ContextMenu ();
-                                m.getItems ().addAll (its);
-                                cell.setContextMenu (m);
-
-                            }
-
-                        });
+                        b.viewer.viewObject (n);
+                        ev.consume ();
 
                     }
 
                 }
 
-            })
-            .root (NamedObjectTree.createChapterTreeModel (proj,
-                                                           objectFilter))
-            .build ();
+            });
 
-        t.setShowRoot (false);
+            l.setOnContextMenuRequested (ev ->
+            {
 
-        return t;
+                if (ev.getSource () != _l)
+                {
+
+                    return;
+
+                }
+
+                ContextMenu cm = new ContextMenu ();
+
+                Set<MenuItem> its = new LinkedHashSet<> ();
+
+                if (b.contextMenuItemSupplier != null)
+                {
+
+                    its.addAll (b.contextMenuItemSupplier.apply (n));
+
+                } else {
+
+                    // TODO Add own items?
+
+                }
+
+                if (its.size () > 0)
+                {
+
+                    cm.getItems ().addAll (its);
+
+                    //_l.setContextMenu (cm);
+
+                }
+
+                _l.getProperties ().put ("context-menu", cm);
+                cm.setAutoFix (true);
+                cm.setAutoHide (true);
+                cm.setHideOnEscape (true);
+                cm.show (_l,
+                         ev.getScreenX (),
+                         ev.getScreenY ());
+                ev.consume ();
+
+            });
+
+            l.setOnDragDetected (ev ->
+            {
+
+                if (b.canExport != null)
+                {
+
+                    if (!b.canExport.apply (n))
+                    {
+
+                        return;
+
+                    }
+
+                } else {
+
+                    return;
+
+                }
+
+                Dragboard db = _l.startDragAndDrop (TransferMode.MOVE);
+
+                ClipboardContent c = new ClipboardContent ();
+                c.put (PROJECT_OBJECT_DATA_FORMAT,
+                       n.getObjectReference ().asString ());
+
+                db.setContent (c);
+                db.setDragView (UIUtils.getImageOfNode (_l));
+                _l.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
+                ev.consume ();
+
+            });
+
+            l.setOnDragExited (ev ->
+            {
+
+                _l.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            });
+
+            l.setOnDragDone (ev ->
+            {
+
+                _l.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+                _l.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+
+            });
+
+            l.setOnDragDropped (ev ->
+            {
+
+                _l.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+                Dragboard db = ev.getDragboard ();
+
+                Object o = db.getContent (PROJECT_OBJECT_DATA_FORMAT);
+
+                if (o != null)
+                {
+
+                    int ind = treeItem.getParent ().getChildren ().indexOf (treeItem);
+
+                    NamedObject on = (NamedObject) b.project.getObjectForReference (ObjectReference.parseObjectReference (o.toString ()));
+
+                    // See if we are importing from another place.
+                    TreeItem<NamedObject> oitem = this.getTreeItemForObject (on);
+
+                    if (oitem == null)
+                    {
+
+                        // We are adding to the tree.
+                        oitem = new TreeItem<> (on);
+
+                    } else {
+
+                        oitem.getParent ().getChildren ().remove (oitem);
+
+                    }
+
+                    treeItem.getParent ().getChildren ().add (ind,
+                                                              oitem);
+
+                    if (b.onDragDropped != null)
+                    {
+
+                        b.onDragDropped.accept (on);
+
+                    }
+
+                }
+
+            });
+
+            l.setOnDragOver (ev ->
+            {
+
+                _l.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+                Dragboard db = ev.getDragboard ();
+
+                Object o = db.getContent (PROJECT_OBJECT_DATA_FORMAT);
+
+                if (o != null)
+                {
+
+                    NamedObject on = (NamedObject) b.project.getObjectForReference (ObjectReference.parseObjectReference (o.toString ()));
+
+                    if (b.canImport != null)
+                    {
+
+                        if (!b.canImport.apply (on))
+                        {
+
+                            return;
+
+                        }
+
+                    } else {
+
+                        return;
+
+                    }
+
+                    if (!on.equals (n))
+                    {
+
+                        _l.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, true);
+
+                        ev.acceptTransferModes (TransferMode.MOVE, TransferMode.COPY);
+
+                        return;
+
+                    }
+
+                }
+
+            });
+
+            return l;
+
+        });
 
     }
 
@@ -174,17 +332,50 @@ public class NamedObjectTree extends TreeView<NamedObject>
 
         private String styleName = null;
         private TreeItem<NamedObject> root = null;
-        private Callback<TreeView<NamedObject>, TreeCell<NamedObject>> cellFactory = null;
+        private Function<TreeItem<NamedObject>, Node> cellProvider = null;
+        private Function<NamedObject, Boolean> canImport = null;
+        private Function<NamedObject, Boolean> canExport = null;
+        private Function<NamedObject, Set<MenuItem>> contextMenuItemSupplier = null;
+        private Project project = null;
+        private Consumer<NamedObject> onDragDropped = null;
+        private boolean viewObjectOnClick = false;
+        private BiConsumer<NamedObject, MouseEvent> onClick = null;
+        private AbstractProjectViewer viewer = null;
+        private Function<TreeItem<NamedObject>, Node> labelProvider = null;
 
         private Builder ()
         {
 
         }
 
-        public Builder cellFactory (Callback<TreeView<NamedObject>, TreeCell<NamedObject>> f)
+        public Builder labelProvider (Function<TreeItem<NamedObject>, Node> labelProvider)
         {
 
-            this.cellFactory = f;
+            this.labelProvider = labelProvider;
+            return this;
+
+        }
+
+        public Builder withViewer (AbstractProjectViewer viewer)
+        {
+
+            this.viewer = viewer;
+            return this;
+
+        }
+
+        public Builder onClick (BiConsumer<NamedObject, MouseEvent> on)
+        {
+
+            this.onClick = on;
+            return this;
+
+        }
+
+        public Builder viewObjectOnClick (boolean v)
+        {
+
+            this.viewObjectOnClick = v;
             return this;
 
         }
@@ -205,9 +396,50 @@ public class NamedObjectTree extends TreeView<NamedObject>
 
         }
 
-        public Builder draggable (boolean v)
+        public Builder canImport (Function<NamedObject, Boolean> im)
         {
 
+            this.canImport = im;
+            return this;
+
+        }
+
+        public Builder canExport (Function<NamedObject, Boolean> ex)
+        {
+
+            this.canExport = ex;
+            return this;
+
+        }
+
+        public Builder cellProvider (Function<TreeItem<NamedObject>, Node> prov)
+        {
+
+            this.cellProvider = prov;
+            return this;
+
+        }
+
+        public Builder contextMenuItemSupplier (Function<NamedObject, Set<MenuItem>> supp)
+        {
+
+            this.contextMenuItemSupplier = supp;
+            return this;
+
+        }
+
+        public Builder project (Project p)
+        {
+
+            this.project = p;
+            return this;
+
+        }
+
+        public Builder onDragDropped (Consumer<NamedObject> on)
+        {
+
+            this.onDragDropped = on;
             return this;
 
         }

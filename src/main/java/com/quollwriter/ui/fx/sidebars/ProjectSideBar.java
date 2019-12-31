@@ -13,6 +13,8 @@ import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
+import javafx.scene.input.*;
+import javafx.geometry.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -27,6 +29,8 @@ import static com.quollwriter.LanguageStrings.*;
 public class ProjectSideBar extends SideBarContent<ProjectViewer>
 {
 
+    public static final DataFormat PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT = new DataFormat ("projectsidebar/section");
+
     public static final String SIDEBAR_ID = "project";
 
     private Set<String> legacyAssetObjTypes = null;
@@ -35,6 +39,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
     private HBox toolbarBox = null;
     private Pane contentWrapper = null;
     private State state = new State ();
+    private Map<Panel, ToolBar> toolbars = null;
 
     public ProjectSideBar (ProjectViewer viewer)
     {
@@ -42,6 +47,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         super (viewer);
 
         this.items = new HashMap<> ();
+        this.toolbars = new HashMap<> ();
 
         Set<String> aObjTypes = new HashSet<> ();
 
@@ -57,10 +63,140 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         this.toolbarBox.managedProperty ().bind (this.toolbarBox.visibleProperty ());
 
         this.contentBox = new VBox ();
+        VBox.setVgrow (this.contentBox,
+                       Priority.ALWAYS);
         this.contentBox.getStyleClass ().add (StyleClassNames.ITEMS);
 
+        /*
+        This tooltip won't limit itself to the context box, it shows above other items as well... grrr...
+        UIUtils.setTooltip (this.contentBox,
+                            getUILanguageStringProperty (project,LanguageStrings.sidebar,tooltip));
+                            */
         this.contentWrapper = new VBox ();
         ScrollPane sp = new ScrollPane (this.contentBox);
+        UIUtils.makeDraggable (sp);
+        this.contentBox.prefHeightProperty ().bind (sp.prefViewportHeightProperty ());
+        this.contentBox.addEventHandler (MouseEvent.MOUSE_CLICKED,
+                                         ev ->
+        {
+
+            if (ev.getTarget () != this.contentBox)
+            {
+
+                return;
+
+            }
+
+            if (ev.isPopupTrigger ())
+            {
+
+                return;
+
+            }
+
+            if (ev.getSource () == this.contentBox)
+            {
+
+                if (ev.getClickCount () == 2)
+                {
+
+                    this.viewer.runCommand (AbstractViewer.CommandId.newuserobject);
+
+                }
+
+            }
+
+        });
+        this.contentBox.setOnContextMenuRequested (ev ->
+        {
+
+            if (ev.getSource () != this.contentBox)
+            {
+
+                return;
+
+            }
+
+            UIUtils.showContextMenu (this.contentBox,
+                                     this.getAddSectionMenu (null),
+                                     ev.getScreenX (),
+                                     ev.getScreenY ());
+            ev.consume ();
+
+        });
+
+        this.contentBox.setOnDragExited (ev ->
+        {
+
+            Dragboard db = ev.getDragboard ();
+
+            Object o = db.getContent (PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT);
+
+            if (o != null)
+            {
+
+                this.contentBox.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            }
+
+        });
+
+        this.contentBox.setOnDragDone (ev ->
+        {
+
+            this.contentBox.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+            this.contentBox.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+
+        });
+
+        this.contentBox.setOnDragDropped (ev ->
+        {
+
+            this.contentBox.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            Dragboard db = ev.getDragboard ();
+
+            Object o = db.getContent (PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT);
+
+            if (o != null)
+            {
+
+                String id = o.toString ();
+
+                AccordionItem other = this.items.get (id).getAccordionItem ();
+
+                this.contentBox.getChildren ().remove (other);
+
+                this.contentBox.getChildren ().add (other);
+
+            }
+
+        });
+
+        this.contentBox.setOnDragOver (ev ->
+        {
+
+            this.contentBox.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            Dragboard db = ev.getDragboard ();
+
+            Object o = db.getContent (PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT);
+
+            if (o != null)
+            {
+
+                String id = o.toString ();
+
+                //this.contentBox.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, true);
+
+                ev.acceptTransferModes (TransferMode.MOVE);
+
+                return;
+
+            }
+
+        });
+
         VBox.setVgrow (sp,
                        Priority.ALWAYS);
         this.contentWrapper.getChildren ().addAll (sp);
@@ -79,6 +215,14 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
                 this.removeTagSection (t);
 
             }
+
+        });
+
+        this.viewer.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
+                                     ev ->
+        {
+
+            this.toolbars.remove (ev.getPanel ());
 
         });
 
@@ -108,10 +252,26 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         if (p.getContent () instanceof ToolBarSupported)
         {
 
-            ToolBar tb = ((ToolBarSupported) p.getContent ()).getToolBar ();
+            ToolBar tb = this.toolbars.get (p);
 
-            HBox.setHgrow (tb,
-                           Priority.ALWAYS);
+            if (tb == null)
+            {
+
+                tb = new ToolBar ();
+                tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
+
+                ToolBarSupported tbs = (ToolBarSupported) p.getContent ();
+
+                tb.getItems ().addAll (tbs.getToolBarItems ());
+
+                HBox.setHgrow (tb,
+                               Priority.ALWAYS);
+
+                this.toolbars.put (p,
+                                   tb);
+
+            }
+
             this.toolbarBox.getChildren ().clear ();
             this.toolbarBox.getChildren ().add (tb);
 
@@ -148,6 +308,8 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         }
 
+        this.requestLayout ();
+
     }
 
     @Override
@@ -179,31 +341,34 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         Set<String> ids = null;
 
-        State aistate = null;
-
         if (s != null)
         {
 
-            ids = s.getAsSet ("ids",
-                              String.class);
+            String _ids = s.getAsString ("ids");
 
-            aistate = s.getAsState ("aistate");
+            if (_ids != null)
+            {
+
+                ids = this.getSections (_ids);
+
+            }
+
 
         }
 
-        if (aistate == null)
+        if (s == null)
         {
 
-            aistate = new State ();
+            s = new State ();
 
         }
-
-        this.state = aistate;
+System.out.println ("STATE: " + s);
+        this.state = s;
 
         if (ids == null)
         {
 
-            ids = this.getSections (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
+            ids = this.getSectionsFromProperty (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
 
         }
 
@@ -246,18 +411,23 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         List<String> ids = new ArrayList<> ();
 
-        this.items.values ().stream ()
-            .forEach (i ->
+        for (Node n : this.contentBox.getChildren ())
+        {
+
+            if (n instanceof AccordionItem)
             {
 
-                String id = i.getId ();
+                AccordionItem ai = (AccordionItem) n;
 
-                s.set (id,
-                       i.getState ());
+                String id = ai.getAccordionId ();
 
                 ids.add (id);
+                s.set (id,
+                       this.items.get (id).getState ());
 
-            });
+            }
+
+        }
 
         s.set ("ids",
                ids.stream ()
@@ -324,7 +494,7 @@ TODO Needed?
             .onAction (ev ->
             {
 
-                // TODO this.viewer.showEditTags ();
+                this.viewer.runCommand (AbstractViewer.CommandId.edittags);
 
             })
             .build ());
@@ -335,13 +505,13 @@ TODO Needed?
             .onAction (ev ->
             {
 
-                // TODO UIUtils.showAddNewObjectType (this.viewer);
+                this.viewer.runCommand (AbstractViewer.CommandId.newuserobject);
 
             })
             .build ());
 
         // Get all the sections currently not visible.
-        Set<String> defSections = this.getSections (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
+        Set<String> defSections = this.getSectionsFromProperty (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
 
         // Get all the user asset types.
         Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (false);
@@ -893,15 +1063,41 @@ TODO
     }
 
     // TODO Move to UserProperties?
-    private Set<String> getSections (String propName)
+    private Set<String> getSectionsFromProperty (String propName)
     {
 
-        Set<String> objTypes = new LinkedHashSet ();
+        Set<String> objTypes = new LinkedHashSet<> ();
 
         // Get the object types.
         String v = UserProperties.get (propName);
 
         StringTokenizer t = new StringTokenizer (v,
+                                                 "|");
+
+        while (t.hasMoreTokens ())
+        {
+
+            objTypes.add (t.nextToken ().trim ());
+
+        }
+
+        return objTypes;
+
+    }
+
+    private Set<String> getSections (String value)
+    {
+
+        Set<String> objTypes = new LinkedHashSet<> ();
+
+        if (value == null)
+        {
+
+            return objTypes;
+
+        }
+
+        StringTokenizer t = new StringTokenizer (value,
                                                  "|");
 
         while (t.hasMoreTokens ())
@@ -1277,6 +1473,108 @@ TODO
 
         this.items.put (item.getId (),
                         item);
+
+        Header h = ai.getHeader ();
+
+        h.setOnDragDetected (ev ->
+        {
+
+            Dragboard db = h.startDragAndDrop (TransferMode.MOVE);
+
+            ClipboardContent c = new ClipboardContent ();
+            c.put (PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT,
+                   item.getId ());
+
+            db.setContent (c);
+            db.setDragView (UIUtils.getImageOfNode (ai));
+            ai.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
+            ev.consume ();
+
+        });
+
+        ai.setOnDragExited (ev ->
+        {
+
+            Dragboard db = ev.getDragboard ();
+
+            Object o = db.getContent (PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT);
+
+            if (o != null)
+            {
+
+                ai.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            }
+
+        });
+
+        ai.setOnDragDone (ev ->
+        {
+
+            ai.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+            ai.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+
+        });
+
+        ai.setOnDragDropped (ev ->
+        {
+
+            ai.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            Dragboard db = ev.getDragboard ();
+
+            Object o = db.getContent (PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT);
+
+            if (o != null)
+            {
+
+                String id = o.toString ();
+
+                int _ind = this.contentBox.getChildren ().indexOf (ai);
+
+                AccordionItem other = this.items.get (id).getAccordionItem ();
+
+                this.contentBox.getChildren ().remove (other);
+
+                this.contentBox.getChildren ().add (_ind,
+                                                    other);
+                ev.consume ();
+
+            }
+
+        });
+
+        ai.setOnDragOver (ev ->
+        {
+
+            ai.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            Dragboard db = ev.getDragboard ();
+
+            Object o = db.getContent (PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT);
+
+            if (o != null)
+            {
+
+                String id = o.toString ();
+
+                if (!id.equals (item.getId ()))
+                {
+
+                    ai.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, true);
+
+                    ev.acceptTransferModes (TransferMode.MOVE);
+                    //ev.consume ();
+
+                    return;
+
+                }
+
+            }
+
+            ev.consume ();
+
+        });
 
     }
 

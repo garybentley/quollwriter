@@ -93,6 +93,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         String editobject = "editobject";
         String deleteobject = "deleteobject";
         String nightmode = "nightmode";
+        String newuserobject = "newuserobject";
 
     }
 
@@ -324,6 +325,14 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                            Node       n,
                            Side       s)
     {
+
+        if (n == null)
+        {
+
+            this.showPopup (p);
+            return;
+
+        }
 
         Bounds b = n.localToScreen (n.getBoundsInLocal ());
         b = this.popupPane.screenToLocal (b);
@@ -587,8 +596,18 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     {
 
         Scene s = this.getScene ();
-        s.getAccelerators ().put (new KeyCodeCombination (code,
-                                                          modifiers),
+
+        KeyCodeCombination cc = new KeyCodeCombination (code,
+                                                        modifiers);
+
+        if (s.getAccelerators ().containsKey (cc))
+        {
+
+            throw new IllegalArgumentException ("Already have an action mapped to: " + cc);
+
+        }
+
+        s.getAccelerators ().put (cc,
                                   action);
 
     }
@@ -615,11 +634,11 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         this.addKeyMapping (CommandId.nightmode,
                             KeyCode.F8);
         this.addKeyMapping (CommandId.resetfontsize,
-                            KeyCode.DIGIT0, KeyCombination.CONTROL_DOWN);
+                            KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN);
         this.addKeyMapping (CommandId.incrementfontsize,
-                            KeyCode.EQUALS, KeyCombination.CONTROL_DOWN);
+                            KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN);
         this.addKeyMapping (CommandId.decrementfontsize,
-                            KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
+                            KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN);
 
     }
 
@@ -665,6 +684,14 @@ TODO
 
         },
         CommandId.edittags);
+
+        this.addActionMapping (() ->
+        {
+
+            // TODO
+
+        },
+        CommandId.newuserobject);
 
         this.addActionMapping (() ->
         {
@@ -817,7 +844,8 @@ TODO
     }
 
     @Override
-    public void handleURLAction (String v)
+    public void handleURLAction (String     v,
+                                 MouseEvent ev)
     {
 
         StringTokenizer t = new StringTokenizer (v,
@@ -829,7 +857,8 @@ TODO
             while (t.hasMoreTokens ())
             {
 
-                this.handleURLAction (t.nextToken ().trim ());
+                this.handleURLAction (t.nextToken ().trim (),
+                                      ev);
 
             }
 
@@ -893,6 +922,19 @@ TODO
 
         }
 
+        double[] pos = this.parentPane.getDividerPositions ();
+
+        if ((pos != null)
+            &
+            (pos.length > 0)
+           )
+        {
+
+            s.set (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
+                   pos[0]);
+
+        }
+
         return s;
 
     }
@@ -933,6 +975,28 @@ TODO
 
             this.updateLayout ();
             this.show ();
+
+            Number sbw = s.getAsDouble (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
+                                        null);
+
+            if (sbw != null)
+            {
+
+                if (this.getViewer ().isShowing ())
+                {
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        this.parentPane.setDividerPosition (0,
+                                                            sbw.doubleValue ());
+
+                    });
+
+                }
+
+            }
+
 
         });
 

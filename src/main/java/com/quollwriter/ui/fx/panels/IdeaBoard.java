@@ -28,7 +28,6 @@ public class IdeaBoard extends PanelContent<ProjectViewer> implements ToolBarSup
 
     public static final String PANEL_ID = "ideaboard";
 
-    private ToolBar toolbar = null;
     private VerticalLayout categories = null;
     private Map<IdeaType, TypeBox> ideaTypeBoxes = new HashMap<> ();
 
@@ -89,9 +88,16 @@ System.out.println ("HERE");
         this.categories.setOnContextMenuRequested (ev ->
         {
 
-            ContextMenu m = new ContextMenu ();
+            if (ev.getTarget () != this.categories)
+            {
 
-            m.getItems ().add (QuollMenuItem.builder ()
+                return;
+
+            }
+
+            Set<MenuItem> its = new LinkedHashSet<> ();
+
+            its.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (ideaboard,popupmenu,items,_new))
                 .styleClassName (StyleClassNames.ADD)
                 .onAction (eev ->
@@ -102,7 +108,7 @@ System.out.println ("HERE");
                 })
                 .build ());
 
-            m.getItems ().add (QuollMenuItem.builder ()
+            its.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (ideaboard,popupmenu,items,selectbackground))
                 .styleClassName (StyleClassNames.SELECTBG)
                 .onAction (eev ->
@@ -113,9 +119,12 @@ System.out.println ("HERE");
                 })
                 .build ());
 
-            m.setAutoHide (true);
+            UIUtils.showContextMenu (this.categories,
+                                     its,
+                                     ev.getScreenX (),
+                                     ev.getScreenY ());
 
-            m.show (this.viewer.getViewer (), ev.getScreenX (), ev.getScreenY ());
+            ev.consume ();
 
         });
 
@@ -308,25 +317,21 @@ System.out.println ("HERE");
     }
 
     @Override
-    public ToolBar getToolBar ()
+    public Set<Node> getToolBarItems ()
     {
 
-        if (this.toolbar == null)
-        {
+        Set<Node> its = new LinkedHashSet<> ();
 
-            ToolBar t = new ToolBar ();
+        its.add (QuollButton.builder ()
+            .tooltip (ideaboard,LanguageStrings.toolbar,buttons,_new,tooltip)
+            .styleClassName (StyleClassNames.ADD)
+            .onAction (ev ->
+            {
 
-            t.getStyleClass ().add (StyleClassNames.TOOLBAR);
-            t.getItems ().add (QuollButton.builder ()
-                .tooltip (ideaboard,LanguageStrings.toolbar,buttons,_new,tooltip)
-                .styleClassName (StyleClassNames.ADD)
-                .onAction (ev ->
-                {
+                this.showAddNewIdeaType ();
 
-                    this.showAddNewIdeaType ();
-
-                })
-                .build ());
+            })
+            .build ());
 /*
             t.getItems ().add (QuollButton.builder ()
                 .tooltip (ideaboard,LanguageStrings.toolbar,buttons,selectbackground,tooltip)
@@ -339,15 +344,11 @@ System.out.println ("HERE");
                 })
                 .build ());
 */
-            t.getItems ().add (UIUtils.createHelpPageButton (this.viewer,
-                                                             "idea-board/overview",
-                                                             getUILanguageStringProperty (ideaboard,LanguageStrings.toolbar,buttons,selectbackground,tooltip)));
+        its.add (UIUtils.createHelpPageButton (this.viewer,
+                                               "idea-board/overview",
+                                               getUILanguageStringProperty (ideaboard,LanguageStrings.toolbar,buttons,selectbackground,tooltip)));
 
-            this.toolbar = t;
-
-        }
-
-        return this.toolbar;
+        return its;
 
     }
 
@@ -805,7 +806,7 @@ System.out.println ("HERE");
             if (type.getIconType () != null)
             {
 
-                h.getStyleClass ().add (type.getIconType ());
+                /*h.getStyleClass ().add (type.getIconType ());*/
 
                 // TODO: Not a good hack...
                 if (type.getIconType ().startsWith ("asset:"))
@@ -1045,6 +1046,7 @@ System.out.println ("HERE");
             this.view.managedProperty ().bind (this.view.visibleProperty ());
             this.getChildren ().add (this.view);
 
+            // TODO Use QuollTextView
             BasicHtmlTextFlow shortDesc = BasicHtmlTextFlow.builder ()
                 .styleClassName (StyleClassNames.SHORTTEXT)
                 .withHandler (viewer)
@@ -1054,6 +1056,7 @@ System.out.println ("HERE");
 
             this.view.getChildren ().add (shortDesc);
 
+            // TODO Use QuollTextView
             BasicHtmlTextFlow fullDesc = BasicHtmlTextFlow.builder ()
                 .styleClassName (StyleClassNames.FULLTEXT)
                 .withHandler (viewer)
@@ -1241,9 +1244,17 @@ System.out.println ("HERE");
                 })
                 .build ());
 
-            shortDesc.addEventHandler (MouseEvent.MOUSE_PRESSED,
+            shortDesc.addEventHandler (MouseEvent.MOUSE_CLICKED,
                                        ev ->
             {
+
+                if (ev.isPopupTrigger ())
+                {
+
+                    ev.consume ();
+                    return;
+
+                }
 
                 shortDesc.setVisible (false);
                 fullDesc.setVisible (true);

@@ -20,6 +20,7 @@ import javafx.scene.paint.*;
 import javafx.scene.input.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.*;
+import javafx.scene.image.*;
 import javafx.scene.Node;
 import javafx.geometry.*;
 
@@ -49,16 +50,16 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     private BooleanProperty readyForUseProp = new SimpleBooleanProperty (false);
     private Map<Object, Paint> highlights = new HashMap<> ();
 
-    private static TextOps<String, TextStyle> styledTextOps = SegmentOps.styledTextOps ();
     private static MySegmentOps indentOps = new MySegmentOps ();
     private boolean formattingEnabled = false;
     private StringProperty placeholder = null;
 
         private boolean indent = true;
 
-        public static abstract class AbstractSegment
+        public static abstract class AbstractSegment<E extends Node>
         {
         	protected final Object  data;
+            protected Collection<String> styleClassNames = null;
 
         	private AbstractSegment() { data = null; }
 
@@ -86,7 +87,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
         		return Optional.empty();
         	}
 
-        	public abstract Node createNode( TextStyle style );
+        	public abstract E createNode( TextStyle style );
 
         	/**
         	 * RichTextFX uses this for undo and redo.
@@ -102,33 +103,256 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
                 return false;
             }
 
+            public void setStyleClassNames (Collection<String> styleClassNames)
+            {
+
+                this.styleClassNames = styleClassNames;
+
+            }
+
         }
 
-    public static class IndentSegment extends AbstractSegment
+    public static abstract class SegmentedSegment<X extends Region> extends AbstractSegment<X>
     {
-        /**
-         * Displays a Label containing indentStr<br>
-         * @param indentStr is tabs or spaces depending on the desired indent width
-         */
-        public IndentSegment( Object indentStr )
+
+        protected List<AbstractSegment> segs = null;
+
+        public SegmentedSegment (List<AbstractSegment> segs)
         {
-            super( indentStr );
+
+            this.segs = segs;
+
         }
 
-
-        @Override
-        public Node createNode( TextStyle style )
-        {
-            Label  item = new Label( getData().toString() );
-            //if ( style != null && ! style.isEmpty() )  item.getStyleClass().add( style );
-            return item;
-        }
-
-        @Override
-        public String getText() { return ""; }
     }
 
-    public static class TextSegment extends AbstractSegment
+    public static class HRSegment extends AbstractSegment<Path>
+    {
+
+        public HRSegment ()
+        {
+
+            super ();
+
+        }
+
+        @Override
+        public Path createNode (TextStyle s)
+        {
+
+            HLineTo h = new HLineTo ();
+
+            // Return a path that is the width of the bounds.
+            Path p = new Path ();
+            p.getElements ().add (h);
+            // TODO h.xProperty ().bind (p.layoutBounds ().widthProperty ());
+            return p;
+
+        }
+
+    }
+
+    public static class ImageSegment extends AbstractSegment<ImageView>
+    {
+
+        public ImageSegment (String src)
+        {
+
+            // TODO
+
+        }
+
+        @Override
+        public ImageView createNode (TextStyle style)
+        {
+
+            ImageView iv = new ImageView ();
+
+            if (this.styleClassNames != null)
+            {
+
+                iv.getStyleClass ().addAll (this.styleClassNames);
+
+            }
+
+            return iv;
+
+        }
+
+    }
+
+    public static class InlineSegment extends SegmentedSegment<HBox>
+    {
+
+        protected InlineSegment ()
+        {
+
+            super (new ArrayList<> ());
+
+        }
+
+        public InlineSegment (List<AbstractSegment> segs)
+        {
+
+            super (segs);
+
+        }
+
+        @Override
+        public HBox createNode (TextStyle style)
+        {
+
+            HBox b = new HBox ();
+
+            if (this.styleClassNames != null)
+            {
+
+                b.getStyleClass ().addAll (this.styleClassNames);
+
+            }
+
+            b.getChildren ().addAll (this.segs.stream ()
+                .map (s -> s.createNode (style))
+                .collect (Collectors.toList ()));
+
+            return b;
+
+        }
+
+    }
+
+    public static class BlockSegment extends SegmentedSegment<VBox>
+    {
+
+        public BlockSegment (List<AbstractSegment> segs)
+        {
+
+            super (segs);
+
+        }
+
+        @Override
+        public VBox createNode (TextStyle style)
+        {
+
+            VBox b = new VBox ();
+
+            if (this.styleClassNames != null)
+            {
+
+                b.getStyleClass ().addAll (this.styleClassNames);
+
+            }
+
+            b.getChildren ().addAll (this.segs.stream ()
+                .map (s -> s.createNode (style))
+                .collect (Collectors.toList ()));
+
+            return b;
+
+        }
+
+    }
+
+    public static class LISegment extends InlineSegment
+    {
+
+        public LISegment (List<AbstractSegment> segs)
+        {
+
+            super (segs);
+
+        }
+
+        @Override
+        public HBox createNode (TextStyle s)
+        {
+
+            HBox b = super.createNode (s);
+
+            ImageView im = new ImageView ();
+            im.getStyleClass ().add (StyleClassNames.BULLET);
+
+            b.getChildren ().add (0,
+                                  im);
+
+            return b;
+
+        }
+
+    }
+
+    public void runOnReady (Runnable r)
+    {
+
+        if (this.readyForUseProp.getValue ())
+        {
+
+            UIUtils.runLater (r);
+
+        } else {
+
+            this.readyForUseProp.addListener ((pr, oldv, newv) ->
+            {
+
+                if (newv)
+                {
+
+                    UIUtils.runLater (r);
+
+                }
+
+            });
+
+        }
+
+    }
+
+    public static class HyperlinkSegment extends InlineSegment
+    {
+
+        private String display = null;
+        private Consumer<Node> onClick = null;
+
+        public HyperlinkSegment (List<AbstractSegment> segs,
+                                 Consumer<Node>        onClick)
+        {
+            super (segs);
+            this.onClick = onClick;
+
+        }
+
+        @Override
+        public HBox createNode( TextStyle style )
+        {
+
+            HBox te = super.createNode (style);
+
+            te.setOnMouseClicked (ev ->
+            {
+
+                try
+                {
+
+                    this.onClick.accept (te);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to run",
+                                          e);
+
+                    // TODO Show error to user.
+
+                }
+
+            });
+
+            return te;
+        }
+
+    }
+
+    public static class TextSegment extends AbstractSegment<TextExt>
     {
     	private final String text;
 
@@ -139,18 +363,19 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     	}
 
     	@Override
-    	public Node createNode( TextStyle style )
+    	public TextExt createNode( TextStyle style )
     	{
-    		Text  te = new TextExt( text );
+    		TextExt  te = new TextExt( text );
+            te.setTextOrigin (VPos.TOP);
+            te.getStyleClass ().add (StyleClassNames.TEXT);
+
             if (style != null)
             {
 
-                te.setTextOrigin (VPos.TOP);
-                te.getStyleClass ().add (StyleClassNames.TEXT);
                 te.setStyle (style.toCss ());
 
             }
-    		//if ( style != null && ! style.isEmpty() ) textNode.getStyleClass().add( style );
+
     		return te;
     	}
 
@@ -198,6 +423,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     	@Override
     	public AbstractSegment create( String text )
     	{
+
     		if ( text == null || text.isEmpty() )  return EMPTY;
     		return new TextSegment( text );
     	}
@@ -247,7 +473,23 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     	}
 
     }
+/*
+TODO
+    public void setAsLink (int               start,
+                           int               end,
+                           Consumer<Node> onClick)
+    {
 
+        this.replace (start,
+                      end,
+                      ReadOnlyStyledDocument.fromSegment (new HyperlinkSegment (this.getText (start, end),
+                                                                                onClick),
+                                                          null,
+                                                          this.getStyleAtPosition (start),
+                                                          indentOps));
+
+    }
+*/
     public TextEditor (StringWithMarkup text,
                        TextProperties   props,
                        DictionaryProvider2 prov)
@@ -259,7 +501,12 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
                (para, style) ->
                {
 
-                   para.setStyle (style.toCss ());
+                   if (style != null)
+                   {
+
+                       para.setStyle (style.toCss ());
+
+                   }
 
                },
                new TextStyle (),
@@ -326,6 +573,13 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
             if (newv)
             {
 
+                if (text != null)
+                {
+
+                    this.setText (text);
+
+                }
+
                 this.requestLayout ();
 
             }
@@ -335,8 +589,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
         this.spellChecker = new QSpellChecker (this,
                                                prov);
 
-        // TODO Markup.
-        this.setText (text);
+        //this.setText (text);
         this.setEditable (false);
 
         this.addEventHandler (MouseEvent.MOUSE_MOVED,
@@ -860,6 +1113,21 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
 
     public void setText (StringWithMarkup text)
     {
+
+        if (!this.readyForUseProp.getValue ())
+        {
+
+            // TODO Handle the case where the editor is removed from the scene.
+            UIUtils.runLater (() ->
+            {
+
+                this.setText (text);
+
+            });
+
+            return;
+
+        }
 
         if ((text != null)
             &&

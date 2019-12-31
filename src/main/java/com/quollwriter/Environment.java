@@ -1655,6 +1655,8 @@ xxx
 
                                         }
 
+                                        fpv.setVisible (false);
+
                                         Environment.unregisterViewer (fpv,
                                                                       null);
 
@@ -2581,6 +2583,7 @@ TODO Needed?
                 (ev ->
                 {
 
+                    Environment.allProjectsViewer.setVisible (false);
                     Environment.unregisterViewer (Environment.allProjectsViewer,
                                                   null);
 
@@ -4317,13 +4320,14 @@ TODO Remove
 
     }
 
+    // TODO Remove
     public static void updateUserConfigurableObjectTypeFieldOrdering (UserConfigurableObjectType type)
                                                                throws GeneralException
     {
 
         UserConfigurableObjectTypeDataHandler dh = (UserConfigurableObjectTypeDataHandler) Environment.projectInfoManager.getHandler (type.getClass ());
 
-        dh.updateFieldOrdering (type);
+        // TODO Remove dh.updateFieldOrdering (type);
 
         // Tell all projects about it.
         Environment.fireUserProjectEvent (type,

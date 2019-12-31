@@ -41,7 +41,7 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
 
         this.object = a;
         this.viewer = viewer;
-               
+
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_S,
@@ -65,84 +65,84 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
             }
 
         });
-               
+
     }
-    
+
     @Override
     public void refresh ()
     {
-        
+
         this.showViewPanel ();
-        
+
     }
-    
+
     @Override
     public void refreshViewPanel ()
     {
 
         this.refresh ();
-    
+
     }
-    
+
     @Override
     public boolean handleSave ()
     {
 
         Set<String> errors = new LinkedHashSet ();
-    
+
         // Do our error checks.
         for (UserConfigurableObjectFieldViewEditHandler h : this.editHandlers)
-        {            
-                
+        {
+
             Set<String> herrs = h.getInputFormItemErrors ();
-            
+
             if (herrs != null)
             {
-                
+
                 errors.addAll (herrs);
-                
+
             }
 
         }
-        
+
         if (errors.size () > 0)
         {
-            
+
             this.showEditError (errors);
-            
+
             return false;
-            
+
         }
-        
+
         Set<String> oldNames = this.object.getAllNames ();
-        
+
         // Now setup the values.
         for (UserConfigurableObjectFieldViewEditHandler h : this.editHandlers)
-        {            
-                        
+        {
+
             try
             {
-                
+
                 h.updateFieldFromInput ();
-                                
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to get input save value for: " +
                                       h.getTypeField (),
                                       e);
-                
+
                 UIUtils.showErrorMessage (this.viewer,
                                           Environment.getUIString (LanguageStrings.assets,
                                                                    LanguageStrings.save,
                                                                    LanguageStrings.actionerror));
                                           //"Unable to save.");
-                
+
                 return false;
-                
+
             }
-            
+
         }
-        
+
         try
         {
 
@@ -188,13 +188,13 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
         prefix.add (LanguageStrings.save);
         prefix.add (LanguageStrings.cancel);
         prefix.add (LanguageStrings.popup);
-    
+
         final AssetDetailsEditPanel _this = this;
 
         boolean changed = false;
 
         // Check for any field having changes.
-        
+
         if (!changed)
         {
 
@@ -223,29 +223,29 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
                                              // On confirm
                                              new ActionListener ()
                                              {
-    
+
                                                  @Override
                                                  public void actionPerformed (ActionEvent ev)
                                                  {
-    
+
                                                      _this.changeConfirm = true;
-    
+
                                                      _this.doCancel ();
-    
+
                                                  }
-    
+
                                              },
                                              // On cancel
                                              null,
                                              null,
                                              null);
-    
+
                 return false;
 
             }
 
         }
-            
+
         this.changeConfirm = false;
 
         return true;
@@ -298,9 +298,9 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
                                         LanguageStrings.edit,
                                         LanguageStrings.aboutpanel,
                                         LanguageStrings.title);
-        
+
     }
-    
+
     @Override
     public String getTitle ()
     {
@@ -312,15 +312,15 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
         //"About";
 
     }
-            
+
     @Override
     public JComponent getSaveButton ()
     {
-        
+
         final AssetDetailsEditPanel _this = this;
-        
+
         IconProvider ip = this.getIconProvider ();
-        
+
         JButton save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
                                                       Constants.ICON_PANEL_SECTION_ACTION),
                                              String.format (Environment.getUIString (LanguageStrings.assets,
@@ -333,29 +333,29 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
                                              //"Click to save the details",
                                              new ActionListener ()
                                              {
-                                            
+
                                               @Override
                                               public void actionPerformed (ActionEvent ev)
                                               {
-                                                
+
                                                   _this.doSave ();
-                                                
+
                                               }
-                                            
+
                                           });
 
         return save;
-            
+
     }
-    
+
     @Override
     public JComponent getCancelButton ()
     {
-        
+
         final AssetDetailsEditPanel _this = this;
-        
-        IconProvider ip = this.getIconProvider ();        
-        
+
+        IconProvider ip = this.getIconProvider ();
+
         JButton cancel = UIUtils.createButton (ip.getIcon (Constants.CANCEL_ICON_NAME,
                                                            Constants.ICON_PANEL_SECTION_ACTION),
                                                Environment.getUIString (LanguageStrings.assets,
@@ -363,33 +363,33 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
                                                                         LanguageStrings.aboutpanel,
                                                                         LanguageStrings.buttons,
                                                                         LanguageStrings.cancel,
-                                                                        LanguageStrings.tooltip),                                              
+                                                                        LanguageStrings.tooltip),
                                                //"Click to cancel the editing",
                                                new ActionListener ()
                                                {
-                                                
+
                                                   @Override
                                                   public void actionPerformed (ActionEvent ev)
                                                   {
-                                                    
+
                                                       _this.doCancel ();
-                                                    
+
                                                   }
-                                                
+
                                                });
 
         return cancel;
-            
+
     }
 
     @Override
     public JComponent getEditButton ()
     {
-        
+
         final AssetDetailsEditPanel _this = this;
-        
-        IconProvider ip = this.getIconProvider ();                            
-        
+
+        IconProvider ip = this.getIconProvider ();
+
         return UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
                                                  Constants.ICON_PANEL_SECTION_ACTION),
                                      String.format (Environment.getUIString (LanguageStrings.assets,
@@ -402,138 +402,140 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
                                      //"Click to edit this section",
                                      new ActionListener ()
                                      {
-                                      
+
                                         @Override
                                         public void actionPerformed (ActionEvent ev)
                                         {
-                                          
+
                                             _this.doEdit ();
-                                          
+
                                         }
-                                      
+
                                      });
-            
+
     }
-    
+
     public JComponent getAddPanel ()
     {
-        
+
         final AssetDetailsEditPanel _this = this;
-        
-        this.editHandlers = this.object.getViewEditHandlers (this.viewer);
-        
+
+        // TODO Remove this.editHandlers = this.object.getViewEditHandlers (this.viewer);
+
         // Build the edit panel.
         // Get the layout.
         AssetViewAddEditLayout l = this.getLayout (this.object);
-        
+
         return l.createEdit (this.editHandlers,
                             new ActionListener ()
                             {
-                                
+
                                 @Override
                                 public void actionPerformed (ActionEvent ev)
                                 {
-                                    
+
                                     _this.doSave ();
-                                    
+
                                 }
-                                
+
                             });
-            
+
     }
-    
+
     @Override
     public JComponent getEditPanel ()
     {
-        
+
         final AssetDetailsEditPanel _this = this;
-        
-        this.editHandlers = this.object.getViewEditHandlers (this.viewer);
-        
+
+        // TODO Remove this.editHandlers = this.object.getViewEditHandlers (this.viewer);
+
         // Build the edit panel.
         // Get the layout.
         AssetViewAddEditLayout l = this.getLayout (this.object);
-        
+
         return l.createEdit (this.editHandlers,
                              new ActionListener ()
                              {
-                                
+
                                 @Override
                                 public void actionPerformed (ActionEvent ev)
                                 {
-                                    
+
                                     _this.doSave ();
-                                    
+
                                 }
-                                
+
                              });
-        
+
     }
 
     @Override
     public JComponent getViewPanel ()
     {
-        
+
         // Build the view panel.
-        
+
         // Get the layout.
         AssetViewAddEditLayout l = this.getLayout (this.object);
-        
-        return l.createView (this.object.getViewEditHandlers (this.viewer));
-        
+
+        return null;
+
+        // TODO Remove? l.createView (this.object.getViewEditHandlers (this.viewer));
+
     }
-    
+
     @Override
     public Set<FormItem> getEditItems ()
     {
-        
+
         return null;
-        
+
     }
 
     @Override
     public Set<FormItem> getViewItems ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     @Override
     public void doEdit ()
     {
-        
+
         ActionListener a = AssetViewPanel.getEditAssetAction (this.viewer,
                                                               this.object);
-        
+
         if (a == null)
         {
-            
+
             Environment.logError ("Unable to get edit asset action for: " +
                                   this.object,
                                   null);
-            
+
             UIUtils.showErrorMessage (this.viewer,
                                       String.format (Environment.getUIString (LanguageStrings.assets,
                                                                               LanguageStrings.edit,
                                                                               LanguageStrings.actionerror),
                                                      //"Unable to edit the {%s}",
                                                      this.object.getObjectTypeName ()));
-            
+
             return;
-            
+
         }
 
-        UIUtils.doLater (a);        
-        
+        UIUtils.doLater (a);
+
     }
 
     public AssetViewAddEditLayout getLayout (UserConfigurableObject obj)
     {
-        
+
         return new AssetViewAddEditLayout (obj.getUserConfigurableObjectType ().getLayout (),
                                            this.viewer);
-        
+
     }
 
 }

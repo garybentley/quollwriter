@@ -950,7 +950,7 @@
             },
             "edit" :
             {
-                "title" : "Edit field",
+                "title" : "Configure field",
                 "labels" :
                 {
                     "name" : "Name",
@@ -1112,7 +1112,10 @@
             "image" : "Image",
             "objectname" : "Name",
             "objectdesc" : "Object Description",
-            "objectimage" : "Object Image"
+            "objectimage" : "Object Image",
+            "appearsinchapters" : "Appears in ${objectnames.plural.chapter}",
+            "linkedto" : "Linked to",
+            "documents" : "${objectnames.plural.document}"
         },
         "view" :
         {
@@ -1123,11 +1126,13 @@
                 {
                     "actionerror" : "Unable to show image.",
                     "novalue" : "${form.view.novalue}",
-                    "tooltip" : "Click to view the full image"
+                    "tooltip" : "Click to view the full image",
+                    "drop" : "Drop the file to set the image"
                 },
                 "webpage" :
                 {
-                    "novalue" : "${form.view.novalue}"
+                    "novalue" : "${form.view.novalue}",
+                    "actionerror" : "Unable to open url."
                 },
                 "select" :
                 {
@@ -1634,7 +1639,7 @@
         "text" : "To delete %1$s <b>%2$s</b> please enter the word <b>${deleteitem.confirmword}</b> into the box below.%3$s",
         ":comment.text" : "%1$s is the type of thing that is to be deleted.  %2$s is the name of the thing, such as chapter name.  %3$s is an optional warning that some delete functions display to warn the user.  The confirmword value is the one used for confirmation of the deletion.  It should be an affirmative value, such as 'Yes' or 'Ok', i.e. short and fast to enter but indicates that the user agrees with the action.  When checked the case of the value entered will be ignored, so YES, Yes, or yes would work.",
         ":scount.text" : 3,
-        "confirmword" : "Yes",
+        "confirmword" : "${form.affirmativevalue}",
         "errorlabel" : "Please enter the word ${deleteitem.confirmword} to confirm the deletion.",
         "confirm" : "Yes, delete it",
         "cancel" : "No, keep it",
@@ -3269,8 +3274,9 @@
         "confirmpopup" :
         {
             "title" : "Save changes before exiting?",
-            "prefix" : "The following items have unsaved changes (click on an item to go to the relevant tab):",
-            "suffix" : "Do you wish to save the changes before exiting?"
+            "text" : "The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%1$s</ul>Do you wish to save the changes before exiting?",
+            ":comment.text" : "The %1$s is a list of items that the user can click on to open up the tab with unsaved changes.  It is recommended you DO NOT change this.  Each item will be formatted within a li html tag.",
+            ":scount.text" : 1
         }
     },
     "closepanel" :
@@ -6106,9 +6112,23 @@
         ":title" : "Selecting an Image",
         ":section" : "General",
         "tooltip" : "Click to find an image file",
+        "noimage" : "Click to find an image file",
+        ":comment.noimage" : "This text is displayed when no image has been selected.",
         "view" :
         {
-            "actionerror" : "Unable to show file"
+            "actionerror" : "Unable to show file."
+        },
+        "init" :
+        {
+            "actionerror" : "Unable to init file."
+        },
+        "restore" :
+        {
+            "actionerror" : "Unable to restore file."
+        },
+        "update" :
+        {
+            "actionerror" : "Unable to update image file."
         },
         "popupmenu" :
         {
@@ -6849,6 +6869,41 @@
             "type" : "Type",
             "webpage" : "Web Page"
         },
+        "fields" :
+        {
+            "popupmenu" :
+            {
+                "items" :
+                {
+                    "edit" : "Edit this field",
+                    "config" : "Configure this field",
+                    "addfieldbelow" : "Add a new field below this one",
+                    "editall" : "Edit all fields in this column",
+                    "addcolumn" : "Add a new column",
+                    "editcolumntitle" : "Edit the column title",
+                    "delete" : "Remove this field",
+                    "removecolumn" : "Remove this column",
+                    "show" : "Show field labels",
+                    "hide" : "Hide field labels"
+                }
+            },
+            "delete" :
+            {
+                "popup" :
+                {
+                    "title" : "Remove this field?",
+                    "text" : "Do you wish to remove this field?<br /><br />Warning!  This will remove the field from <b>ALL</b> %1$s.",
+                    ":comment.text" : "%1$s is the name of the asset type plural, for example Characters.",
+                    ":scount.text" : 1,
+                    "buttons" :
+                    {
+                        "confirm" : "Remove from all %1$s",
+                        ":comment.confirm" : "%1$s is the name of asset type plural, for example Characters.",
+                        ":scount.confirm" : 1
+                    }
+                }
+            }
+        },
         "documents" :
         {
             "title" : "${objectnames.plural.document}",
@@ -6924,14 +6979,69 @@
                     "delete" : "${actions.delete}",
                     "editobjecttypeinfo" : "Edit the %1$s information/fields",
                     ":comment.editobjecttypeinfo" : "%1$s is the asset object type name.",
-                    ":scount.editobjecttypeinfo" : 1
+                    ":scount.editobjecttypeinfo" : 1,
+                    "editfield" : "${actions.edit} %1$s",
+                    ":comment.editfield" : "%1$s is the field name, such as Image, Description etc.",
+                    ":scount.editfield" : 1,
+                    "newfield" : "Add a new field",
+                    "addcolumn" : "Add a field in a new column"
+                }
+            },
+            "column" :
+            {
+                "delete" :
+                {
+                    "popup" :
+                    {
+                        "title" : "Unable to remove column",
+                        "text" : "Only columns with no fields can be removed.  Please move or remove all fields in this column before removing this column.",
+                        "buttons" :
+                        {
+                            "confirm" : "${buttons.confirm}"
+                        }
+                    }
+                },
+                "title" :
+                {
+                    "edit" :
+                    {
+                        "popup" :
+                        {
+                            "title" : "Set the column title",
+                            "text" : "Enter the name of the column below.  Leave blank if you don't want the column to have a title.",
+                            "buttons" :
+                            {
+                                "confirm" : "Set",
+                                "cancel" : "${buttons.cancel}"
+                            }
+                        }
+                    }
+                },
+                "popupmenu" :
+                {
+                    "items" :
+                    {
+                        "edit" : "Edit the column title",
+                        "delete" : "Remove this column",
+                        "editall" : "Edit all fields in this column",
+                        "newfield" : "Add a new field",
+                        "addcolumn" : "Add a new column",
+                        "show" : "Show field labels",
+                        "hide" : "Hide field labels"
+                    }
                 }
             },
             "toolbar" :
             {
+                "appearsinchapters" :
+                {
+                    "tooltip" : "Click to view where this %1$s appears in the ${objectnames.plural.chapter}",
+                    ":comment.tooltip" : "%1$s is the asset type name.",
+                    ":scount.tooltip" : 1
+                },
                 "new" :
                 {
-                    "tooltip" : "Click to add a new Asset"
+                    "tooltip" : "Click to add a new ${objectnames.singluar.asset}"
                 },
                 "tags" :
                 {
@@ -7071,7 +7181,7 @@
         {
             "actionerror" : "Unable to remove asset type.",
             ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
-            "text" : "To delete all <b>%1$s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%1$s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other ${objectnames.plural.project}.",
+            "text" : "To delete all <b>%1$s</b> please enter the word <b>${form.affirmativevalue}</b> into the box below.<br /><br />Warning!  All <b>%1$s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other ${objectnames.plural.project}.",
             ":comment.text" : "%1$s is the object type name plural for the asset type.",
             ":scount.text" : 1
         },
@@ -7113,7 +7223,10 @@
             {
                 "view" : "${actions.view}",
                 "edit" : "${actions.edit}",
-                "delete" : "${actions.delete}"
+                "delete" : "${actions.delete}",
+                "rename" : "${actions.rename} %1$s",
+                ":comment.rename" : "%1$s is the name of the object type, i.e. Character, Location etc.",
+                ":scount.rename" : 1
             }
         }
     },
@@ -7516,6 +7629,10 @@
                 "showchapterinfo" :
                 {
                     "tooltip" : "Click to view the ${objectnames.singular.chapter} information"
+                },
+                "tags" :
+                {
+                    "tooltip" : "Click to add/remove ${objectnames.plural.tag} for this ${objectnames.singular.chapter}"
                 }
             },
             "tools" :
@@ -8167,6 +8284,26 @@
         },
         "actions" :
         {
+            "renameasset" :
+            {
+                "actionerror" : "Unable to rename %1$s.",
+                ":comment.actionerror" : "%1$s is the asset type name.",
+                ":scount.actionerror" : 1,
+                "title" : "Rename %1$s",
+                ":comment.title" : "%1$s is the asset type name.",
+                ":scount.title" : 1,
+                "text" : "Enter the new %1$s name below.",
+                ":comment.text" : "%1$s is the asset type name.",
+                ":scount.text" : 1,
+                "confirm" : "${actions.rename}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a new name.",
+                    "valueexists" : "A $1%s with that name already exists.",
+                    ":comment.valueexists" : "%1$s is the asset type name.",
+                    ":scount.valueexists" : 1
+                }
+            },
             "changebackupdir" :
             {
                 "actionerror" : "Unable to change backup folder.",
