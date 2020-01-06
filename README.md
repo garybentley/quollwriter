@@ -148,3 +148,14 @@ I personally don't find it to be true but I try hard not to write slow software.
 7. Mac users expect their software to have a similar look to their other software.  Quoll Writer is very different to standard apps
 you see on a Mac and I won't be changing it to fit in with how Macs work.
 
+YourKit Java Profiler
+=====================
+
+I've been making use of the excellent YourKit Java profiler for development of version 3.  To be honest it's been a godsend and helped me identify and resolve some tricky performance and state problems.  I can't recommend it enough, link below.  Full disclosure, the folks at YourKit have given me a free license (as a developer of an Open Source project) in return for the link and endorsement.
+
+![Image of YourKit logo](https://www.yourkit.com/images/yklogo.png)
+
+YourKit supports open source projects with innovative and intelligent tools for monitoring and profiling Java and .NET applications.
+YourKit is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>, <a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>, and <a href="https://www.yourkit.com/youmonitor/">YourKit YouMonitor</a>.
+
+
