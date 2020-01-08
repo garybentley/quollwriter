@@ -70,7 +70,7 @@ public class WebsiteLanguageStringsManager
     public static WebsiteLanguageStringsEditor getWebsiteLanguageStringsEditor (WebsiteLanguageStrings ls)
     {
 
-        for (AbstractViewer v : Environment.openViewersProperty ())
+        for (AbstractViewer v : Environment.getOpenViewers ())
         {
             /*
             TODO
@@ -304,7 +304,7 @@ TODO Remove
 
         };
 
-        for (AbstractViewer v : Environment.openViewersProperty ())
+        for (AbstractViewer v : Environment.getOpenViewers ())
         {
 /*
 TODO

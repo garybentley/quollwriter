@@ -21,6 +21,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 
     public static final String PANEL_ID = "options";
     private Options options = null;
+    private ScrollPane scrollPane = null;
 
     public OptionsPanel (AbstractViewer        viewer,
                          Set<Node>             headerControls,
@@ -48,19 +49,85 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 
         bb.getChildren ().add (this.options);
 
-        ScrollPane sp = new ScrollPane (bb);
-        sp.vvalueProperty ().addListener ((pr, oldv, newv) ->
+        this.scrollPane = new ScrollPane (bb);
+        this.scrollPane.vvalueProperty ().addListener ((pr, oldv, newv) ->
         {
 
             h.pseudoClassStateChanged (StyleClassNames.SCROLLING_PSEUDO_CLASS, newv.doubleValue () > 0);
 
         });
-        VBox.setVgrow (sp,
+        VBox.setVgrow (this.scrollPane,
                        Priority.ALWAYS);
 
-        b.getChildren ().add (sp);
+        b.getChildren ().add (this.scrollPane);
 
         this.getChildren ().add (b);
+
+    }
+
+    @Override
+    public State getState ()
+    {
+
+        State s = super.getState ();
+
+        if (s == null)
+        {
+
+            s = new State ();
+
+        }
+
+        s.set (State.Key.scrollpanev,
+               this.scrollPane.getVvalue ());
+
+        s.set (State.Key.content,
+               this.options.getState ());
+
+        return s;
+
+    }
+
+    @Override
+    public void init (State state)
+               throws GeneralException
+    {
+
+        super.init (state);
+
+        if (state == null)
+        {
+
+            state = new State ();
+
+        }
+
+        try
+        {
+
+            this.options.init (state.getAsState (State.Key.content));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to init options with state: " + state,
+                                  e);
+
+        }
+
+        if (this.scrollPane != null)
+        {
+
+            double v = state.getAsFloat (State.Key.scrollpanev,
+                                         0f);
+
+            UIUtils.runLater (() ->
+            {
+
+                this.scrollPane.setVvalue (v);
+
+            });
+
+        }
 
     }
 

@@ -180,6 +180,8 @@ System.out.println ("HERE");
 
                 this.viewer.setIgnoreProjectEvents (false);
 
+                //its = this.viewer.getProject ().getIdeaTypes ();
+
             } catch (Exception e) {
 
                 Environment.logError ("Unable to add default idea types",
@@ -187,19 +189,12 @@ System.out.println ("HERE");
 
             }
 
-        } else
+        }
+
+        for (IdeaType it : its)
         {
 
-            //its = new ArrayList (its);
-
-            //Collections.reverse (its);
-
-            for (IdeaType it : its)
-            {
-
-                this.addType (it);
-
-            }
+            this.addType (it);
 
         }
 

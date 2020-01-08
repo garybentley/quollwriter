@@ -56,7 +56,7 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
 
             p.setKey (key);
             p.setName (rs.getString (ind++));
-            p.setProjectDirectory (new File (rs.getString (ind++)));
+            p.setProjectDirectory (Paths.get (rs.getString (ind++)));
             p.setBackupDirPath (Paths.get (rs.getString (ind++)));
             // TODO p.setBackupDirectory (new File (rs.getString (ind++)));
             p.setStatus (rs.getString (ind++));
@@ -260,7 +260,7 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
         params.add (p.getLastEdited ());
         params.add (p.isEncrypted ());
         params.add (p.isNoCredentials ());
-        params.add (p.getProjectDirectory ().getPath ());
+        params.add (p.getProjectDirectory ().toString ());
         params.add (p.getBackupDirPath ().toString ());
         //params.add (p.getBackupDirectory ().getPath ());
         params.add (p.getStatus ());
@@ -301,9 +301,8 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
 
         this.objectManager.executeStatement ("UPDATE projectinfo SET lastedited = ?, directory = ?, backupdirectory = ?, status = ?, statistics = ?, icon = ? WHERE dbkey = ?",
                                              Arrays.asList (p.getLastEdited (),
-                                                            p.getProjectDirectory ().getPath (),
+                                                            p.getProjectDirectory ().toString (),
                                                             p.getBackupDirPath ().toString (),
-                                                            // TODO p.getBackupDirectory ().getPath (),
                                                             p.getStatus (),
                                                             Utils.getStatisticsAsXML (p.getStatistics ()),
                                                             (p.getIcon () != null ? p.getIcon ().getPath () : null),

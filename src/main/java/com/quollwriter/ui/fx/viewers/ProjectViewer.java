@@ -271,7 +271,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
         this.addActionMapping (() ->
         {
-
+System.out.println ("HERE!");
             UIUtils.showDeleteProjectPopup (this.project,
                                             null,
                                             this);
@@ -980,8 +980,30 @@ System.out.println ("HEREXXXX");
             final ChapterItem ci = (ChapterItem) d;
 
             this.viewObject (ci.getChapter (),
-                             () -> _this.getEditorForChapter (ci.getChapter ()).showItem (ci,
-                                                                                          false));
+                             () ->
+                             {
+
+                                 ProjectChapterEditorPanelContent pc = _this.getEditorForChapter (ci.getChapter ());
+
+                                 if (pc.isReadyForUse ())
+                                 {
+
+                                     pc.showItem (ci,
+                                                  false);
+
+                                } else {
+
+                                    pc.readyForUseProperty ().addListener ((pr, oldv, nev) ->
+                                    {
+
+                                        pc.showItem (ci,
+                                                     false);
+
+                                    });
+
+                                }
+
+                            });
 
             return;
 
@@ -1564,7 +1586,6 @@ TODO
                                 this.getPopupById (pid2).close ();
 
                             })
-                            .withHandler (this)
                             .withViewer (this)
                             .styleClassName (StyleClassNames.DELETE)
                             .build ();
@@ -1600,7 +1621,6 @@ TODO
 
             })
             .onCancel (ev -> {})
-            .withHandler (this)
             .withViewer (this)
             .styleClassName (StyleClassNames.DELETE)
             .build ();
@@ -1654,7 +1674,7 @@ TODO
         NamedObject obj = n.getObject ();
 
         // Need to get the links, they may not be setup.
-        this.setLinks (n);
+        // TODO Remove this.setLinks (n);
 
         this.dBMan.deleteObject (n,
                                  false,
@@ -1782,6 +1802,37 @@ TODO
         }
 
         // TODO ? this.reloadChapterTree ();
+
+    }
+
+    @Override
+    public void deleteAllObjectsForType (UserConfigurableObjectType type)
+    {
+
+        this.deleteAllAssetsOfType (type);
+
+    }
+
+    public void deleteAllAssetsOfType (UserConfigurableObjectType type)
+    {
+
+        Set<Asset> assets = this.project.getAssets (type);
+
+        if (assets == null)
+        {
+
+            return;
+
+        }
+
+        Set<Asset> nassets = new LinkedHashSet<> (assets);
+
+        for (Asset a : nassets)
+        {
+
+            this.deleteAsset (a);
+
+        }
 
     }
 
@@ -2100,25 +2151,8 @@ TODO
 
     }
 
-    public void showAddNewAsset (Asset asset)
+    public void showAddNewAssetInTab (Asset asset)
     {
-
-        String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
-
-        if (((addAsset.equals (Constants.ADD_ASSETS_TRY_POPUP))
-             &&
-             (asset.getUserConfigurableObjectType ().getNonCoreFieldCount () == 0)
-            )
-            ||
-            (addAsset.equals (Constants.ADD_ASSETS_POPUP))
-           )
-        {
-
-            new NewAssetPopup (asset,
-                               this).show ();
-            return;
-
-        }
 
         try
         {
@@ -2144,6 +2178,30 @@ TODO
             return;
 
         }
+
+    }
+
+    public void showAddNewAsset (Asset asset)
+    {
+
+        String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
+
+        if (((addAsset.equals (Constants.ADD_ASSETS_TRY_POPUP))
+             &&
+             (asset.getUserConfigurableObjectType ().getNonCoreFieldCount () == 0)
+            )
+            ||
+            (addAsset.equals (Constants.ADD_ASSETS_POPUP))
+           )
+        {
+
+            new NewAssetPopup (asset,
+                               this).show ();
+            return;
+
+        }
+
+        this.showAddNewAssetInTab (asset);
 
     }
 

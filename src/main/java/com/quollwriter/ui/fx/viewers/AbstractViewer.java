@@ -1,5 +1,7 @@
 package com.quollwriter.ui.fx.viewers;
 
+import java.net.*;
+
 import java.util.*;
 import java.util.function.*;
 import java.util.concurrent.*;
@@ -16,7 +18,10 @@ import javafx.geometry.*;
 import javafx.beans.value.*;
 import javafx.collections.*;
 
+import com.gentlyweb.utils.*;
+
 import com.quollwriter.*;
+import com.quollwriter.data.UserConfigurableObjectType;
 import com.quollwriter.editors.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.ui.*;
@@ -94,6 +99,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         String deleteobject = "deleteobject";
         String nightmode = "nightmode";
         String newuserobject = "newuserobject";
+        String managenotetypes = "managenotetypes";
 
     }
 
@@ -114,7 +120,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     private StackPane sidebarsPane = null;
     private StackPane otherSidebarsPane = null;
-    private SplitPane parentPane = null;
+    //private SplitPane parentPane = null;
+    private ViewerSplitPane parentPane = null;
+    private StackPane parentWrapper = null;
     private Node content = null;
     private VBox notifications = null;
 
@@ -175,14 +183,29 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
         this.popupPane = new Pane ();
         this.popupPane.getStyleClass ().add (StyleClassNames.POPUPPANE);
-
+        VBox.setVgrow (this.popupPane,
+                       Priority.ALWAYS);
+/*
+        this.parentWrapper = new StackPane ();
+        this.parentWrapper.getStyleClass ().add (StyleClassNames.CONTENT);
+        this.parentWrapper.prefWidthProperty ().bind (this.popupPane.widthProperty ());
+        this.parentWrapper.prefHeightProperty ().bind (this.popupPane.heightProperty ());
+        this.popupPane.getChildren ().add (this.parentWrapper);
+*/
+/*
         this.parentPane = new SplitPane ();
         SplitPane.setResizableWithParent (this.parentPane, true);
         this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
         this.parentPane.prefWidthProperty ().bind (this.popupPane.widthProperty ());
         this.parentPane.prefHeightProperty ().bind (this.popupPane.heightProperty ());
-        VBox.setVgrow (this.popupPane,
-                       Priority.ALWAYS);
+        this.popupPane.getChildren ().add (this.parentPane);
+*/
+
+        this.parentPane = new ViewerSplitPane (UserProperties.uiLayoutProperty (),
+                                               this);
+        //this.parentPane.setMainSideBar (this.sidebarsPane);
+        //this.parentPane.setOtherSidebar (this.otherSidebarsPane);
+        this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
         this.popupPane.getChildren ().add (this.parentPane);
 
         this.getChildren ().add (this.popupPane);
@@ -242,6 +265,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     {
 
         this.binder.dispose ();
+        this.parentPane.dispose ();
 
     }
 
@@ -474,10 +498,12 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     }
 
-    public void setContent (Node n)
+    public void setContent (Region n)
     {
 
         this.content = n;
+
+        this.parentPane.setContent (n);
 
         this.updateLayout ();
 
@@ -833,6 +859,8 @@ TODO
 
         this.addActionMapping (() -> _this.showDictionaryManager (),
                                CommandId.dictionarymanager);
+        this.addActionMapping (() -> this.showManageNoteTypes (),
+                               CommandId.managenotetypes);
 
     }
 
@@ -922,18 +950,8 @@ TODO
 
         }
 
-        double[] pos = this.parentPane.getDividerPositions ();
-
-        if ((pos != null)
-            &
-            (pos.length > 0)
-           )
-        {
-
-            s.set (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                   pos[0]);
-
-        }
+        s.set ("splitpane",
+               this.parentPane.getState ());
 
         return s;
 
@@ -969,37 +987,17 @@ TODO
 
         // We show later to ensure that the init has worked.
         Environment.registerViewer (this);
+        this.updateLayout ();
 
+        this.parentPane.init (s.getAsState ("splitpane"));
         UIUtils.runLater (() ->
         {
 
-            this.updateLayout ();
-            this.show ();
-
-            Number sbw = s.getAsDouble (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                                        null);
-
-            if (sbw != null)
-            {
-
-                if (this.getViewer ().isShowing ())
-                {
-
-                    UIUtils.runLater (() ->
-                    {
-
-                        this.parentPane.setDividerPosition (0,
-                                                            sbw.doubleValue ());
-
-                    });
-
-                }
-
-            }
-
+            //this.show ();
 
         });
 
+        this.show ();
     }
 
     public void close (Runnable afterClose)
@@ -1013,9 +1011,7 @@ TODO
 
         this.getViewer ().close ();
 
-        // Fire an event.
-        this.fireEvent (new Viewer.ViewerEvent (this.getViewer (),
-                                                Viewer.ViewerEvent.CLOSE_EVENT));
+        UIUtils.runLater (afterClose);
 
     }
 
@@ -1087,31 +1083,99 @@ TODO
     public void updateLayout ()
     {
 
+        this.parentPane.requestLayout ();
+        if (true)
+        {
+            return;
+        }
+
+long s = System.currentTimeMillis ();
         String layout = UserProperties.uiLayoutProperty ().getValue ();
 
-        this.parentPane.getItems ().clear ();
+        //double w = this.parentPane.getWidth ();
 
+        //this.parentPane.getItems ().clear ();
+//layout = Constants.LAYOUT_PS_CH_OS;
+//layout = Constants.LAYOUT_PS_CH;
+/*
         if (layout.equals (Constants.LAYOUT_PS_CH_OS))
         {
 
-            // Add the main sidebar, the content and the other sidebar (if present).
+            double w = 0;
+
+            this.parentWrapper.getChildren ().clear ();
+
+            SplitPane sp = new SplitPane ();
+            this.parentPane = sp;
+            this.parentWrapper.getChildren ().add (sp);
+            //this.parentPane = new SplitPane ();
+            SplitPane.setResizableWithParent (sp, true);
+
             if (this.mainSideBar != null)
             {
 
-                this.parentPane.getItems ().add (this.sidebarsPane);
+                w = this.mainSideBar.getWidth ();
+
+                sp.getItems ().add (this.sidebarsPane);
 
             }
 
-            this.parentPane.getItems ().addAll (this.content);
+            sp.getItems ().add (this.content);
 
             if (this.currentOtherSideBar != null)
             {
 
-                this.parentPane.getItems ().add (this.otherSidebarsPane);
+                sp.getItems ().add (this.otherSidebarsPane);
 
             }
 
-            // Update the divider locations?
+            if (this.mainSideBar != null)
+            {
+
+                w = this.mainSideBar.getWidth ();
+
+                double _w = w;
+
+                double mw = _w;
+
+                if (mw < 1)
+                {
+
+                    mw = Math.min (this.mainSideBar.prefWidth (this.parentWrapper.getHeight ()), _w);
+
+                }
+
+                double pw = this.parentWrapper.getWidth ();
+
+                //this.parentPane.setDividerPositions (mw / pw);
+                sp.setDividerPosition (0,
+                                       mw / pw);
+
+            }
+
+            if (this.currentOtherSideBar != null)
+            {
+
+                w = this.currentOtherSideBar.getWidth ();
+
+                double _w = w;
+
+                double mw = _w;
+
+                if (mw < 1)
+                {
+
+                    mw = Math.min (this.currentOtherSideBar.prefWidth (this.parentWrapper.getHeight ()), _w);
+
+                }
+
+                double pw = this.parentWrapper.getWidth ();
+
+                //this.parentPane.setDividerPositions (mw / pw);
+                sp.setDividerPosition (1,
+                                       1 - (mw / pw));
+
+            }
 
         }
 
@@ -1185,7 +1249,18 @@ TODO
         if (layout.equals (Constants.LAYOUT_PS_CH))
         {
 
-            double w = 0;
+            double w = 0;//this.parentWrapper.getWidth ();
+
+            this.parentWrapper.getChildren ().clear ();
+
+            SplitPane sp = new SplitPane ();
+            this.parentPane = sp;
+            this.parentWrapper.getChildren ().add (sp);
+            //this.parentPane = new SplitPane ();
+            SplitPane.setResizableWithParent (sp, true);
+            //this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
+            //this.parentPane.prefWidthProperty ().bind (this.popupPane.widthProperty ());
+            //this.parentPane.prefHeightProperty ().bind (this.popupPane.heightProperty ());
 
             SideBar sb = (this.currentOtherSideBar != null ? this.currentOtherSideBar : this.mainSideBar);
 
@@ -1197,11 +1272,13 @@ TODO
                 this.sidebarsPane.getChildren ().clear ();
                 this.sidebarsPane.getChildren ().add (sb);
 
-                this.parentPane.getItems ().add (this.sidebarsPane);
+                //this.parentPane.getItems ().add (this.sidebarsPane);
+                sp.getItems ().add (this.sidebarsPane);
 
             }
 
-            this.parentPane.getItems ().add (this.content);
+            //this.parentPane.getItems ().add (this.content);
+            sp.getItems ().add (this.content);
 
             if (sb != null)
             {
@@ -1213,13 +1290,14 @@ TODO
                 if (mw < 1)
                 {
 
-                    mw = Math.min (sb.prefWidth (this.parentPane.getHeight ()), _w);
+                    mw = Math.min (sb.prefWidth (this.parentWrapper.getHeight ()), _w);
 
                 }
 
-                double pw = this.parentPane.getWidth ();
+                double pw = this.parentWrapper.getWidth ();
 
-                this.parentPane.setDividerPositions (mw / pw);
+                //this.parentPane.setDividerPositions (mw / pw);
+                sp.setDividerPositions (mw / pw);
 
             }
 
@@ -1238,14 +1316,14 @@ TODO
             }
 
         }
-
+System.out.println ("LAYOUT TIME: " + (System.currentTimeMillis () - s));
         UIUtils.runLater (() ->
         {
 
             this.requestLayout ();
 
         });
-
+*/
     }
 
     public Notification addNotification (Node    comp,
@@ -1311,7 +1389,7 @@ TODO
             {
 
                 this.notifications.setVisible (false);
-
+                this.requestLayout ();
             }
 
         });
@@ -1481,11 +1559,92 @@ TODO
             try
             {
 
-                String tipText = this.tips.getNextTip ();
+                //java.nio.file.Path imgDir = java.nio.file.Paths.get ("d:/development/github/quollwriterv3/src/main/resources/imgs/");
 
-                final Text text = new Text (tipText);
+                Function<String, String> formatter = text ->
+                {
 
-                ButtonBar bb = new ButtonBar ();
+                    int ind = text.indexOf ("[");
+
+                    while (ind > -1)
+                    {
+
+                        int end = text.indexOf ("]",
+                                                ind + 1);
+
+                        if (end < 0)
+                        {
+
+                            ind = text.indexOf ("[",
+                                                ind + 1);
+
+                            continue;
+
+                        }
+
+                        if (end > ind + 1)
+                        {
+
+                            String v = text.substring (ind + 1,
+                                                       end);
+
+                            StringTokenizer st = new StringTokenizer (v,
+                                                                      ",;");
+
+                            String icon = st.nextToken ().trim ().toLowerCase ();
+                            URL u = null;
+
+                            try
+                            {
+
+                                u = Utils.getResourceUrl (Constants.IMGS_DIR + icon + "16.png");
+
+                            } catch (Exception e) {
+
+                                Environment.logError ("Unable to get url for: " + icon,
+                                                      e);
+
+                            }
+
+                            if (u != null)
+                            {
+
+                                v = String.format ("<img class='icon' src='%1$s' />",
+                                                   u.toString (),
+                                                   icon);
+
+                                // Split up the value.
+                                text = text.substring (0,
+                                                       ind) + v + text.substring (end + 1);
+
+                                ind = text.indexOf ("[",
+                                                    ind + v.length ());
+
+                            }
+
+                        }
+
+                    }
+
+                    return text;
+/*
+                    t = StringUtils.replaceString (t,
+                                                   "[achievement]",
+                                                   "<img src='file:///d:/development/github/quollwriterv3/src/main/resources/imgs/achievement16.png' />");
+                                                   //"<span class='icon.achievement'></span>");
+*/
+                };
+
+                StringProperty tipText = this.tips.getNextTip ();
+
+                VBox textc = new VBox ();
+
+                QuollTextView text = QuollTextView.builder ()
+                    .text (tipText)
+                    .withViewer (this)
+                    .formatter (formatter)
+                    .build ();
+                textc.getChildren ().add (text);
 
                 QuollButton next = QuollButton.builder ()
                     .styleClassName (StyleClassNames.NEXT)
@@ -1499,34 +1658,37 @@ TODO
                     .buttonType (ButtonBar.ButtonData.FINISH)
                     .build ();
 
-                Set<Node> controls = new LinkedHashSet<> ();
-
-                bb.getButtons ().addAll (next, off);
-
-                controls.add (bb);
-
                 Notification n = Notification.builder ()
                     .styleName (StyleClassNames.TIPS)
-                    .content (text)
-                    .duration (90)
-                    .controls (controls)
+                    .content (textc)
+                    .duration (900000)
+                    .withControl (next)
+                    .withControl (off)
                     .inViewer (this)
                     .build ();
+
+                this.addNotification (n);
 
                 next.setOnAction (ev ->
                 {
 
-                    String t = _this.tips.getNextTip ();
+                    StringProperty t = this.tips.getNextTip ();
 
                     if (t != null)
                     {
 
-                        text.setText (t);
+                        textc.getChildren ().clear ();
+                        QuollTextView ntext = QuollTextView.builder ()
+                            .text (t)
+                            .withViewer (this)
+                            .formatter (formatter)
+                            .build ();
+                        textc.getChildren ().add (ntext);
 
                         n.restartTimer ();
 
-                        _this.fireProjectEvent (ProjectEvent.Type.tips,
-                                                ProjectEvent.Action.show);
+                        this.fireProjectEvent (ProjectEvent.Type.tips,
+                                               ProjectEvent.Action.show);
 
                     }
 
@@ -1535,26 +1697,35 @@ TODO
                 off.setOnAction (ev ->
                 {
 
-                    java.util.List<String> prefix = Arrays.asList (tipspanel,stop,popup);
+                    String pid = "tipsstop";
+
+                    if (this.getPopupById (pid) != null)
+                    {
+
+                        return;
+
+                    }
 
                     QuollPopup.questionBuilder ()
                         .styleClassName (StyleClassNames.STOP)
-                        .title (prefix, LanguageStrings.title)
-                        .confirmButtonLabel (getUILanguageStringProperty (prefix,buttons,confirm))
-                        .cancelButtonLabel (getUILanguageStringProperty (prefix,buttons,cancel))
-                        .message (getUILanguageStringProperty (prefix,LanguageStrings.text))
-                        .withHandler (this)
+                        .popupId (pid)
+                        .title (tipspanel,stop,popup, LanguageStrings.title)
+                        .confirmButtonLabel (getUILanguageStringProperty (tipspanel,stop,popup,buttons,confirm))
+                        .cancelButtonLabel (getUILanguageStringProperty (tipspanel,stop,popup,buttons,cancel))
+                        .message (getUILanguageStringProperty (tipspanel,stop,popup,LanguageStrings.text))
                         .withViewer (this)
                         .onConfirm (fev ->
                         {
 
-                              _this.fireProjectEvent (ProjectEvent.Type.tips,
-                                                      ProjectEvent.Action.off);
+                              this.fireProjectEvent (ProjectEvent.Type.tips,
+                                                     ProjectEvent.Action.off);
 
                               UserProperties.set (Constants.SHOW_TIPS_PROPERTY_NAME,
                                                   false);
 
-                              _this.removeNotification (n);
+                              this.removeNotification (n);
+
+                              this.getPopupById (pid).close ();
 
                          })
                         .build ();
@@ -1718,10 +1889,64 @@ TODO
 
     }
 
+    public void showManageNoteTypes ()
+    {
+
+        QuollPopup qp = this.getPopupById (NoteTypesManager.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        try
+        {
+
+            new NoteTypesManager (this).show ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to show note types manager",
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (notetypes,manage,actionerror));
+
+        }
+
+    }
+
     public void showDictionaryManager ()
     {
 
-        // TODO
+        QuollPopup qp = this.getPopupById (DictionaryManager.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        try
+        {
+
+            new DictionaryManager (this,
+                                   new UserDictionaryProvider ()).show ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to show dictionary manager",
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (dictionary,manage,actionerror));
+
+        }
 
     }
 
@@ -1942,6 +2167,9 @@ TODO
     public abstract void showOptions (String sect)
                                throws GeneralException;
 
+    public abstract void deleteAllObjectsForType (UserConfigurableObjectType t)
+                                           throws GeneralException;
+
     //public abstract Set<String> getTitleHeaderControlIds ();
 
     public boolean isSideBarVisible (String id)
@@ -1993,8 +2221,10 @@ TODO
 
         this.mainSideBar = sb;
         this.addSideBar (sb);
-        this.sidebarsPane.getChildren ().clear ();
-        this.sidebarsPane.getChildren ().add (sb);
+        //this.parentPane.showSideBar (sb);
+        this.parentPane.updateLayout ();
+        //this.sidebarsPane.getChildren ().clear ();
+        //this.sidebarsPane.getChildren ().add (sb);
         this.updateLayout ();
 
     }
@@ -2086,13 +2316,16 @@ TODO
 
             }
 
+            //this.parentPane.showSideBar (this.getMainSideBar ());
+
         } else {
 
             this.currentOtherSideBar = b;
             this.currentOtherSideBar.setVisible (true);
 
-            this.otherSidebarsPane.getChildren ().clear ();
-            this.otherSidebarsPane.getChildren ().add (this.currentOtherSideBar);
+            this.parentPane.updateLayout ();
+            //this.otherSidebarsPane.getChildren ().clear ();
+            //this.otherSidebarsPane.getChildren ().add (this.currentOtherSideBar);
 
             this.activeSideBars.remove (b);
 
@@ -2125,6 +2358,13 @@ TODO
             UIUtils.runLater (doAfterView);
 
         }
+
+    }
+
+    public SideBar getCurrentOtherSideBar ()
+    {
+
+        return this.currentOtherSideBar;
 
     }
 
@@ -2300,7 +2540,10 @@ TODO Clean up?
 
         this.currentOtherSideBar = null;
 
-        this.showMainSideBar ();
+        this.parentPane.updateLayout ();
+        this.updateLayout ();
+
+        //this.showMainSideBar ();
 
     }
 
@@ -2561,6 +2804,105 @@ TODO
 
     }
 
+    public void showDeleteUserConfigurableType (UserConfigurableObjectType type)
+    {
+
+        // TODO Fix to be more "generic", rather than asset focused.
+
+        String pid = "deleteall" + type.getObjectReference ().asString ();
+
+        QuollPopup.yesConfirmTextEntryBuilder ()
+            .withViewer (this)
+            .title (getUILanguageStringProperty (Arrays.asList (assets,deleteall,title),
+                                                 type.objectTypeNamePluralProperty ()))
+            .popupId (pid)
+            .styleClassName (StyleClassNames.DELETE)
+            .description (getUILanguageStringProperty (Arrays.asList (assets,deleteall,text),
+                                                       type.objectTypeNamePluralProperty ()))
+            .confirmButtonLabel (assets,deleteall,buttons,confirm)
+            .cancelButtonLabel (assets,deleteall,buttons,cancel)
+            .onConfirm (eev ->
+            {
+
+                try
+                {
+
+                    this.deleteAllObjectsForType (type);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to remove all: " +
+                                          type,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (this,
+                                                     getUILanguageStringProperty (assets,deleteall,actionerror));
+                                              //String.format ("Unable to remove all %1$s.",
+                                                //             type.getObjectTypeNamePlural ()));
+
+                    return;
+
+                }
+
+                try
+                {
+
+                    Environment.removeUserConfigurableObjectType (type);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to remove user object type: " +
+                                          type,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (this,
+                                                     getUILanguageStringProperty (assets,deleteall,actionerror));
+                                              //"Unable to remove object.");
+
+                    return;
+
+                }
+
+                this.getPopupById (pid).close ();
+
+            })
+            .build ();
+
+    }
+
+    public void showAddNewUserConfigurableType ()
+    {
+
+        String pid = AddEditUserConfigurableObjectType.POPUP_ID;
+
+        if (this.getPopupById (pid) != null)
+        {
+
+            return;
+
+        }
+
+        new AddEditUserConfigurableObjectType (this).show ();
+
+    }
+
+    public void showEditUserConfigurableType (UserConfigurableObjectType t)
+    {
+
+        String pid = AddEditUserConfigurableObjectType.getPopupIdForType (t);
+
+        if (this.getPopupById (pid) != null)
+        {
+
+            return;
+
+        }
+
+        new AddEditUserConfigurableObjectType (t,
+                                               this).show ();
+
+    }
+
     private String getUILayout ()
     {
 
@@ -2771,7 +3113,6 @@ TODO Not needed, is a function of the sidebar itself...
                     {
 
                         UIUtils.openURL (_this,
-                                         _this,
                                          "help:getting-started");
 
                     })
@@ -2785,7 +3126,6 @@ TODO Not needed, is a function of the sidebar itself...
                     {
 
                         UIUtils.openURL (_this,
-                                         _this,
                                          "help:keyboard-shortcuts");
 
                     })
@@ -2854,8 +3194,6 @@ TODO Not needed, is a function of the sidebar itself...
         v.setResizable (true);
 
         v.init (null);
-
-        Environment.registerViewer (this);
 
         this.viewer = v;
 

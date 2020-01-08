@@ -31,6 +31,13 @@ public class ErrorBox extends VBox
 
     }
 
+    public void setErrors (StringProperty... errs)
+    {
+
+        this.setErrors (new LinkedHashSet<> (Arrays.asList (errs)));
+
+    }
+
     public void setErrors (Set<StringProperty> errs)
     {
 

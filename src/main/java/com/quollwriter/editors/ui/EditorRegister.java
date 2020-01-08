@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.io.File;
+import java.nio.file.*;
 
 import java.net.*;
 
@@ -442,7 +443,7 @@ public class EditorRegister extends Wizard
 
             }
 
-            if (Utils.getQuollWriterDirFile (this.finder.getSelectedFile ()).exists ())
+            if (Files.exists (Utils.getQuollWriterDirFile (this.finder.getSelectedFile ().toPath ())))
             {
 
                 return false;
@@ -898,7 +899,7 @@ public class EditorRegister extends Wizard
 
                     // See if it's an existing editors db, if so ask.
 
-                    if (Utils.getQuollWriterDirFile (_this.finder.getSelectedFile ()).exists ())
+                    if (Files.exists (Utils.getQuollWriterDirFile (_this.finder.getSelectedFile ().toPath ())))
                     {
 
                         finderError.setVisible (true);

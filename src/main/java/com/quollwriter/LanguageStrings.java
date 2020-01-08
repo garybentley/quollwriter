@@ -3,6 +3,8 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String links = "links";
+    public static final String prunebackups = "prunebackups";
     public static final String drop = "drop";
     public static final String removecolumn = "removecolumn";
     public static final String editcolumntitle = "editcolumntitle";

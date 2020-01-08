@@ -28,7 +28,7 @@ public class Viewer extends Stage implements Stateful
 {
 
     public static final int DEFAULT_WINDOW_WIDTH = 800;
-	public static final int DEFAULT_WINDOW_HEIGHT = 500;
+	public static final int DEFAULT_WINDOW_HEIGHT = 800;
 
     private Node content = null;
     private Header header = null;
@@ -65,6 +65,15 @@ public class Viewer extends Stage implements Stateful
         {
 
             this.binder.dispose ();
+
+        });
+
+        this.addEventHandler (WindowEvent.WINDOW_HIDDEN,
+                              ev ->
+        {
+
+            this.fireEvent (new Viewer.ViewerEvent (this,
+                                                    Viewer.ViewerEvent.CLOSE_EVENT));
 
         });
 

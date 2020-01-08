@@ -146,7 +146,7 @@ TODO
         for (ChapterItem it : items)
         {
 
-            viewer.setLinks (it);
+            //viewer.setLinks (it);
 
             r = null;
 

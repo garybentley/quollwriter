@@ -314,7 +314,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
           .onAction (ev ->
           {
 
-              // TODO Add a layout options menu...
+              this.viewer.showEditUserConfigurableType (this.object.getUserConfigurableObjectType ());
 
           })
           .build ());

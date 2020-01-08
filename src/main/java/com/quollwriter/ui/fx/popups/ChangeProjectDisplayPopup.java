@@ -69,7 +69,7 @@ public class ChangeProjectDisplayPopup extends PopupContent
 
         ProjectInfo exp = new ProjectInfo ();
 
-        exp.setProjectDirectory (javax.swing.filechooser.FileSystemView.getFileSystemView ().getDefaultDirectory ());
+        exp.setProjectDirectory (javax.swing.filechooser.FileSystemView.getFileSystemView ().getDefaultDirectory ().toPath ());
         exp.setName (Environment.getUIString (prefix,
                                               LanguageStrings.example,
                                               LanguageStrings.name));

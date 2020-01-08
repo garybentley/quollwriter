@@ -130,7 +130,6 @@ TODO
             {
 
                 UIUtils.openURL (this.viewer,
-                                 this.viewer,
                                  "help://chapters/readability");
 
             })

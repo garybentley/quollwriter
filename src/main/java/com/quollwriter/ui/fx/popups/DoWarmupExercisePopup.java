@@ -83,7 +83,6 @@ public class DoWarmupExercisePopup extends PopupContent
                         {
 
                             UIUtils.openURL (this.viewer,
-                                             this.viewer,
                                              UserProperties.get (Constants.QUOLL_WRITER_WEBSITE_PROMPTS_LINK_PROPERTY_NAME));
 
                         })
@@ -120,7 +119,6 @@ public class DoWarmupExercisePopup extends PopupContent
                                 QuollPopup.messageBuilder ()
                                     .message (dowarmup,allpromptsexcluded)
                                     .withViewer (this.viewer)
-                                    .withHandler (this.viewer)
                                     .build ();
 
                             }
@@ -162,7 +160,6 @@ public class DoWarmupExercisePopup extends PopupContent
                                 QuollPopup.messageBuilder ()
                                     .message (dowarmup,allpromptsexcluded)
                                     .withViewer (this.viewer)
-                                    .withHandler (this.viewer)
                                     .build ();
 
                             }
@@ -214,89 +211,20 @@ public class DoWarmupExercisePopup extends PopupContent
 
         HBox hcb = new HBox ();
 
-        this.mins = UIUtils.getTimeOptions (() ->
-        {
+        this.mins = DoWarmupExercisePopup.createTimeOptions ();
 
-            String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+        this.words = DoWarmupExercisePopup.createWordsOptions ();
 
-            int minsC = Constants.DEFAULT_MINS;
-
-            if (minsDef != null)
-            {
-
-                minsC = Integer.parseInt (minsDef);
-
-            }
-
-            return minsC;
-
-        },
-        // Called when the value changes.
-        val ->
-        {
-
-            UserProperties.set (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME,
-                                String.valueOf (val));
-
-        });
-
-        this.words = UIUtils.getWordsOptions (() ->
-        {
-
-            String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
-
-            try
-            {
-
-                return Integer.parseInt (v);
-
-            } catch (Exception e)
-            {
-
-                try
-                {
-
-                    return Integer.parseInt (v.substring (0,
-                                                          v.indexOf (" ") - 1));
-
-                } catch (Exception ee)
-                {
-
-                    return Constants.DEFAULT_WORDS;
-
-                }
-
-            }
-
-        },
-        val ->
-        {
-
-            UserProperties.set (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME,
-                                String.valueOf (val));
-
-        });
-
-        hcb.getChildren ().addAll (this.mins,
+        hcb.getChildren ().addAll (this.words,
                                    QuollLabel.builder ()
                                         .label (dowarmup,andor)
                                         .build (),
-                                   this.words,
+                                   this.mins,
                                    QuollLabel.builder ()
                                         .label (dowarmup,whicheverfirst)
                                         .build ());
 
-        this.doOnStartup = QuollCheckBox.builder ()
-            .label (dowarmup,dowarmuponstart)
-            .selected (UserProperties.getAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME))
-            .onAction (ev ->
-            {
-
-                UserProperties.set (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME,
-                                    doOnStartup.isSelected ());
-
-            })
-            .build ();
+        this.doOnStartup = DoWarmupExercisePopup.createDoWarmupOnStartupCheckbox ();
 
         cb.getChildren ().addAll (hcb, this.doOnStartup);
 
@@ -566,6 +494,99 @@ public class DoWarmupExercisePopup extends PopupContent
         p.requestFocus ();
 
         return p;
+
+    }
+
+    public static ChoiceBox<StringProperty> createWordsOptions ()
+    {
+
+        return UIUtils.getWordsOptions (() ->
+        {
+
+            String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+
+            try
+            {
+
+                return Integer.parseInt (v);
+
+            } catch (Exception e)
+            {
+
+                try
+                {
+
+                    return Integer.parseInt (v.substring (0,
+                                                          v.indexOf (" ") - 1));
+
+                } catch (Exception ee)
+                {
+
+                    return Constants.DEFAULT_WORDS;
+
+                }
+
+            }
+
+        },
+        val ->
+        {
+
+            UserProperties.set (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME,
+                                String.valueOf (val));
+
+        });
+
+    }
+
+    public static ChoiceBox<StringProperty> createTimeOptions ()
+    {
+
+        return UIUtils.getTimeOptions (() ->
+        {
+
+            String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+
+            int minsC = Constants.DEFAULT_MINS;
+
+            if (minsDef != null)
+            {
+
+                minsC = Integer.parseInt (minsDef);
+
+            }
+
+            return minsC;
+
+        },
+        // Called when the value changes.
+        val ->
+        {
+
+            UserProperties.set (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME,
+                                String.valueOf (val));
+
+        });
+
+    }
+
+    public static QuollCheckBox createDoWarmupOnStartupCheckbox ()
+    {
+
+        QuollCheckBox b = QuollCheckBox.builder ()
+            .label (dowarmup,dowarmuponstart)
+            .userProperty (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME)
+            .build ();
+
+        b.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME,
+                                newv);
+
+        });
+
+        return b;
 
     }
 

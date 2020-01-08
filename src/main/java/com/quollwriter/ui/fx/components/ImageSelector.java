@@ -40,6 +40,16 @@ public class ImageSelector extends QuollImageView
 
         }
 
+        if ((b.image != null)
+            &&
+            (b.initFile != null)
+           )
+        {
+
+            throw new IllegalArgumentException ("Either the image or the init file should be specified.");
+
+        }
+
         final ImageSelector _this = this;
 
         this.viewer = b.viewer;
@@ -69,7 +79,21 @@ public class ImageSelector extends QuollImageView
                     .onAction (eev ->
                     {
 
-                        _this.fileProp.setValue (null);
+                        try
+                        {
+
+                            this.setImage ((Path) null);
+                            //_this.fileProp.setValue (null);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to remove file",
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (_this.viewer,
+                                                             getUILanguageStringProperty (imageselector,remove,actionerror));
+
+                        }
 
                     })
                     .build ());
@@ -144,8 +168,8 @@ public class ImageSelector extends QuollImageView
 
                             } catch (Exception e) {
 
-                                Environment.logError ("Unable to show file in folder: " +
-                                                      _this.fileProp.getValue (),
+                                Environment.logError ("Unable to restore file to: " +
+                                                      _this.origFile,
                                                       e);
 
                                 ComponentUtils.showErrorMessage (_this.viewer,
@@ -214,22 +238,37 @@ public class ImageSelector extends QuollImageView
 
         });
 
-
-        try
+        if (b.image != null)
         {
 
-            this.setImage (b.initFile);
+            this.setImage (b.image);
 
-        } catch (Exception e) {
+        } else {
 
-            Environment.logError ("Unable to init file: " +
-                                  b.initFile,
-                                  e);
+            try
+            {
 
-            ComponentUtils.showErrorMessage (_this.viewer,
-                                             getUILanguageStringProperty (imageselector,init,actionerror));
+                this.setImage (b.initFile);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to init file: " +
+                                      b.initFile,
+                                      e);
+
+                ComponentUtils.showErrorMessage (_this.viewer,
+                                                 getUILanguageStringProperty (imageselector,init,actionerror));
+
+            }
 
         }
+
+    }
+
+    public Image getImage ()
+    {
+
+        return this.imageProperty ().getValue ();
 
     }
 
@@ -248,6 +287,7 @@ public class ImageSelector extends QuollImageView
         private Path initFile = null;
         private String styleName = null;
         private AbstractViewer viewer = null;
+        private Image image = null;
 
         @Override
         public ImageSelector build ()
@@ -269,6 +309,14 @@ public class ImageSelector extends QuollImageView
         {
 
             this.viewer = viewer;
+            return this;
+
+        }
+
+        public Builder image (Image im)
+        {
+
+            this.image = im;
             return this;
 
         }

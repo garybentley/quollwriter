@@ -277,6 +277,27 @@ public abstract class NamedObject extends DataObject
 
     }
 
+    public Set<Note> getNotesForType (String t)
+    {
+
+        Set<Note> notes = new TreeSet (new ChapterItemSorter ());
+
+        for (Note n : this.notes)
+        {
+
+            if (n.getType ().equals (t))
+            {
+
+                notes.add (n);
+
+            }
+
+        }
+
+        return notes;
+
+    }
+
     public Set<Note> getNotesAt (int pos)
     {
 
@@ -437,6 +458,53 @@ public abstract class NamedObject extends DataObject
         this.firePropertyChangedEvent (NamedObject.ALIASES,
                                        oldAliases,
                                        this.aliases);
+
+    }
+
+    public void setLinks (Set<NamedObject> others)
+    {
+
+        this.removeAllLinks ();
+
+        for (NamedObject o : others)
+        {
+
+            if (o == null)
+            {
+
+                continue;
+
+            }
+
+            if (this.equals (o))
+            {
+
+                continue;
+
+            }
+
+            this.addLink (new Link (this, o));
+
+        }
+
+    }
+
+    public Link getLinkFor (NamedObject o)
+    {
+
+        for (Link l : this.links)
+        {
+
+            if (l.getOtherObject (this).equals (o))
+            {
+
+                return l;
+
+            }
+
+        }
+
+        return null;
 
     }
 
@@ -628,6 +696,13 @@ public abstract class NamedObject extends DataObject
         String oldName = this.name;
 
         this.name = n;
+
+        if (this.name == null)
+        {
+
+            this.name = "#ERROR:[NO NAME]";
+
+        }
 
         this.nameProp.setValue (this.name);
 

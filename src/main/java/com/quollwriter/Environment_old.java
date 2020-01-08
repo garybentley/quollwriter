@@ -1307,7 +1307,7 @@ public class Environment_old
 
         }
 
-        if (!Utils.getQuollWriterDirFile (p.getProjectDirectory ()).exists ())
+        if (Files.notExists (Utils.getQuollWriterDirFile (p.getProjectDirectory ().toPath ())))
         {
 
             return String.format (Environment.getUIString (prefix,

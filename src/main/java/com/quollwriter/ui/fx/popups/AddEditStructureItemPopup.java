@@ -295,6 +295,8 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
 
                 }
 
+                this.item.setLinks (this.linkedToPanel.getLinkedToPanel ().getSelected ());
+
                 this.viewer.saveObject (this.item,
                                         true);
 
@@ -330,6 +332,8 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
             // Update.
             try
             {
+
+                this.item.setLinks (this.linkedToPanel.getLinkedToPanel ().getSelected ());
 
                 this.viewer.saveObject (this.item,
                                         true);

@@ -410,15 +410,14 @@ TODO
                                     })
                                     .build ());
 
-                    ComponentUtils.createQuestionPopup (getUILanguageStringProperty (prefix2,title),
-                                                        StyleClassNames.DELETE,
-                                                        getUILanguageStringProperty (Utils.newList (prefix2,text),
-                                                                                     _this.tag.nameProperty ()),
-                                                        buttons,
-                                                        null,
-                                                        null,
-                                                        null,
-                                                        _this.viewer);
+                    QuollPopup.questionBuilder ()
+                        .withViewer (_this.viewer)
+                        .title (getUILanguageStringProperty (prefix2,title))
+                        .styleClassName (StyleClassNames.DELETE)
+                        .message (getUILanguageStringProperty (Utils.newList (prefix2,text),
+                                                               _this.tag.nameProperty ()))
+                        .buttons (buttons)
+                        .build ();
 
                 })
                 .build ());

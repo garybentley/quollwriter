@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx;
 
+import java.nio.file.*;
 import java.net.*;
 import java.util.*;
 import java.util.function.*;
@@ -17,19 +18,24 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
 
+import com.gentlyweb.utils.*;
+
 import com.quollwriter.*;
 import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
+import com.quollwriter.editors.*;
 import com.quollwriter.text.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.achievements.*;
 import com.quollwriter.uistrings.UILanguageStringsManager;
 import com.quollwriter.uistrings.UILanguageStrings;
 import com.quollwriter.uistrings.UILanguageStringsInfo;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class Options extends VBox
+public class Options extends VBox implements Stateful
 {
 
     private static final String PROJECTITEMPREVIEW_POPUP_ID = "projectitempreview";
@@ -41,7 +47,7 @@ public class Options extends VBox
     public void dispose ()
     {
 
-        //this.propertyBinder.dispose ();
+        this.propertyBinder.dispose ();
 
     }
 
@@ -63,6 +69,58 @@ public class Options extends VBox
             {
 
                 this.getChildren ().add (s);
+
+            }
+
+        }
+
+    }
+
+    @Override
+    public State getState ()
+    {
+
+        State s = new State ();
+
+        for (Node n : this.getChildren ())
+        {
+
+            if (n instanceof Section)
+            {
+
+                Section sect = (Section) n;
+
+                s.set (sect.getSectionId ().getType (),
+                          sect.getState ());
+
+            }
+
+        }
+
+        return s;
+
+    }
+
+    @Override
+    public void init (State s)
+    {
+
+        if (s == null)
+        {
+
+            return;
+
+        }
+
+        for (Node n : this.getChildren ())
+        {
+
+            if (n instanceof Section)
+            {
+
+                Section sect = (Section) n;
+
+                sect.init (s.getAsState (sect.getSectionId ().getType ()));
 
             }
 
@@ -102,6 +160,55 @@ public class Options extends VBox
 
         }
 
+        if (Section.Id.project == id)
+        {
+
+            return this.createProjectSection (viewer);
+
+        }
+
+        if (Section.Id.start == id)
+        {
+
+            return this.createStartSection (viewer);
+
+        }
+
+        if (Section.Id.warmups == id)
+        {
+
+            return this.createWarmupsSection (viewer);
+
+        }
+
+        if (Section.Id.editors == id)
+        {
+
+            return this.createEditorsSection (viewer);
+
+        }
+
+        if (Section.Id.itemsAndRules == id)
+        {
+
+            return this.createItemsAndRulesSection (viewer);
+
+        }
+
+        if (Section.Id.achievements == id)
+        {
+
+            return this.createAchievementsSection (viewer);
+
+        }
+
+        if (Section.Id.problems == id)
+        {
+
+            return this.createProblemsSection (viewer);
+
+        }
+
         return null;
 
     }
@@ -111,10 +218,8 @@ public class Options extends VBox
 
         final Options _this = this;
 
-        String currLayout = UserProperties.get (Constants.UI_LAYOUT_PROPERTY_NAME);
-
         Label l = new Label ();
-        l.setGraphic (this.getLayoutPanel (currLayout));
+        l.setGraphic (this.getLayoutPanel (UserProperties.uiLayoutProperty ().getValue ()));
 
         this.propertyBinder.addChangeListener (UserProperties.uiLayoutProperty (),
                                          (pr, oldv, newv) ->
@@ -169,15 +274,16 @@ public class Options extends VBox
                 hb.getStyleClass ().add (StyleClassNames.ITEM);
                 hb.getChildren ().add (this.getLayoutPanel (lt));
 
-                hb.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, currLayout.equals (lt));
+                hb.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, UserProperties.uiLayoutProperty ().getValue ().equals (lt));
 
                 UIUtils.setTooltip (hb,
                                     getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,popup,tooltip));
 
-                BasicHtmlTextFlow text = BasicHtmlTextFlow.builder ()
+                //BasicHtmlTextFlow text = BasicHtmlTextFlow.builder ()
+                QuollTextView text = QuollTextView.builder ()
                     .styleClassName (StyleClassNames.DESCRIPTION)
                     .text (getUILanguageStringProperty (options,lookandsound,interfacelayouts,lt))
-                    .withHandler (_this.viewer)
+                    .withViewer (_this.viewer)
                     .build ();
                 HBox.setHgrow (text,
                                Priority.ALWAYS);
@@ -291,6 +397,217 @@ public class Options extends VBox
         }
 
         return content;
+
+    }
+
+    private Section createWarmupsSection (AbstractViewer viewer)
+    {
+
+        HBox hcb = new HBox ();
+        hcb.getStyleClass ().add (StyleClassNames.ITEM);
+        hcb.getChildren ().addAll (DoWarmupExercisePopup.createWordsOptions (),
+                                   QuollLabel.builder ()
+                                        .label (options,warmups,labels,andor)
+                                        .build (),
+                                   DoWarmupExercisePopup.createTimeOptions (),
+                                   QuollLabel.builder ()
+                                        .label (options,warmups,labels,whicheverfirst)
+                                        .build ());
+
+        Section s = Section.builder ()
+            .styleClassName (Warmup.OBJECT_TYPE)
+            .title (options,warmups,title)
+            .sectionId (Section.Id.warmups)
+            .description (options,warmups,text)
+            .mainItem (DoWarmupExercisePopup.createDoWarmupOnStartupCheckbox ())
+            .subItem (getUILanguageStringProperty (dowarmup,dofor,title),
+                      hcb)
+            .build ();
+
+        return s;
+
+    }
+
+    private Section createWebsiteSection (AbstractViewer viewer)
+    {
+
+        HBox b = new HBox ();
+
+        b.getChildren ().add (QuollButton.builder ()
+            .label (options,website,labels,createtranslation)
+            .onAction (ev ->
+            {
+
+                UIUtils.showAddNewWebsiteLanguageStringsPopup (this.viewer);
+
+            })
+            .build ());
+
+        b.getChildren ().add (QuollButton.builder ()
+            .label (options,website,labels,edittranslation)
+            .onAction (ev ->
+            {
+
+                UIUtils.showEditWebsiteLanguageStringsSelectorPopup (this.viewer);
+
+            })
+            .build ());
+
+        Section s = Section.builder ()
+            .styleClassName (StyleClassNames.WEBSITE)
+            .title (options,website,title)
+            .description (options,website,text)
+            .sectionId (Section.Id.website)
+            .mainItem (b)
+            .build ();
+
+        return s;
+
+    }
+
+    private Section createStartSection (AbstractViewer viewer)
+    {
+
+        final Options _this = this;
+
+        QuollCheckBox showTips = QuollCheckBox.builder ()
+            .label (options,qwstart,labels,showtips)
+            .userProperty (Constants.SHOW_TIPS_PROPERTY_NAME)
+            .build ();
+        //("Show useful tips"));
+
+        QuollCheckBox lastCB = QuollCheckBox.builder ()
+            .label (options,qwstart,labels,showlastedited)
+            .userProperty (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME)
+            .build ();
+        // ("Open the last edited {project}"));
+
+        QuollCheckBox showCB = QuollCheckBox.builder ()
+            .label (options,qwstart,labels,showprojectswindow)
+            .userProperty (Constants.SHOW_LANDING_ON_START_PROPERY_NAME)
+            .build ();
+
+        lastCB.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (!newv)
+            {
+
+                showCB.setSelected (true);
+
+            }
+
+        });
+
+        showCB.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (!newv)
+            {
+
+                lastCB.setSelected (true);
+
+            }
+
+        });
+
+        // ("Show the {Projects} window"));
+/*
+        showTips.setSelected (UserProperties.getAsBoolean (Constants.SHOW_TIPS_PROPERTY_NAME));
+		lastCB.setSelected (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME));
+		showCB.setSelected (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME));
+
+        showTips.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                _this.updateUserProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
+                                          showTips.isSelected ());
+
+            }
+
+        });
+
+        JComponent c = this.createWrapper (showTips);
+        this.setAsMainItem (c);
+
+        box.add (c);
+
+        box.add (Box.createVerticalStrut (15));
+
+        lastCB.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+				if (!lastCB.isSelected ())
+				{
+
+					showCB.setSelected (true);
+
+                    UserProperties.set (Constants.SHOW_LANDING_ON_START_PROPERY_NAME,
+										showCB.isSelected ());
+
+				}
+
+				UserProperties.set (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME,
+									lastCB.isSelected ());
+
+            }
+
+        });
+
+        c = this.createWrapper (lastCB);
+
+        this.setAsMainItem (c);
+
+        box.add (c);
+
+        box.add (Box.createVerticalStrut (15));
+
+        showCB.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+				if (!showCB.isSelected ())
+				{
+
+					lastCB.setSelected (true);
+
+                    UserProperties.set (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME,
+                                        lastCB.isSelected ());
+
+				}
+
+                UserProperties.set (Constants.SHOW_LANDING_ON_START_PROPERY_NAME,
+                                    showCB.isSelected ());
+
+            }
+
+        });
+
+        c = this.createWrapper (showCB);
+
+        this.setAsMainItem (c);
+
+        box.add (c);
+*/
+        Section s = Section.builder ()
+            .sectionId (Section.Id.start)
+            .styleClassName (StyleClassNames.START)
+            .title (options,qwstart,title)
+            .description (options,qwstart,text)
+            .mainItem (showTips)
+            .mainItem (lastCB)
+            .mainItem (showCB)
+            .build ();
+
+        return s;
 
     }
 
@@ -529,7 +846,6 @@ public class Options extends VBox
                 QuollPopup.messageBuilder ()
                     .message (options,editingchapters,labels,nonenglishwarning)
                     .withViewer (this.viewer)
-                    .withHandler (this.viewer)
                     .build ();
 
             }
@@ -547,29 +863,27 @@ public class Options extends VBox
 
                     List<String> prefix = Arrays.asList (options,editingchapters,downloaddictionaryfiles,popup);
 
-                    ComponentUtils.createQuestionPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
-                                                        StyleClassNames.DOWNLOAD,
-                                                        //"Download dictionary files?",
-                                                        getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                                                     lang),
-                                                        getUILanguageStringProperty (Utils.newList (prefix,buttons,confirm)),
-                                                        getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)),
-                                                        // On confirm
-                                                        ev ->
-                                                        {
+                    QuollPopup.questionBuilder ()
+                        .withViewer (this.viewer)
+                        .styleClassName (StyleClassNames.DOWNLOAD)
+                        .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
+                        .message (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                               lang))
+                        .confirmButtonLabel (getUILanguageStringProperty (Utils.newList (prefix,buttons,confirm)))
+                        .cancelButtonLabel (getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)))
+                        .onConfirm (ev ->
+                        {
 
-                                                            downloadDictFiles.accept (lang);
+                            downloadDictFiles.accept (lang);
 
-                                                        },
-                                                        // On cancel
-                                                        ev ->
-                                                        {
+                        })
+                        .onCancel (ev ->
+                        {
 
-                                                            spellcheckLang.getSelectionModel ().select (currLang);
+                            spellcheckLang.getSelectionModel ().select (currLang);
 
-                                                        },
-                                                        null,
-                                                        this.viewer);
+                        })
+                        .build ();
 
                     return;
 
@@ -775,6 +1089,7 @@ public class Options extends VBox
 
         Section s = Section.builder ()
             .styleClassName (StyleClassNames.EDITING)
+            .sectionId (Section.Id.editing)
             .title (options,editingchapters,title)
             .description (options,editingchapters,text)
             .mainItem (enableAutosave)
@@ -811,7 +1126,6 @@ public class Options extends VBox
                                     .styleClassName (StyleClassNames.CHAPTERICONSEXAMPLE)
                                     .message (new ImageView ())
                                     .withViewer (this.viewer)
-                                    .withHandler (this.viewer)
                                     .popupId (pid)
                                     .build ();
 
@@ -845,7 +1159,6 @@ public class Options extends VBox
                                 .styleClassName (StyleClassNames.EDITPOSITIONEXAMPLE)
                                 .message (new ImageView ())
                                 .withViewer (this.viewer)
-                                .withHandler (this.viewer)
                                 .popupId (pid)
                                 .build ();
 
@@ -881,7 +1194,6 @@ public class Options extends VBox
                         .message (iv)
                         .title (names,example)
                         .withViewer (this.viewer)
-                        .withHandler (this.viewer)
                         .popupId (pid)
                         .build ();
 
@@ -896,31 +1208,7 @@ public class Options extends VBox
                 .onAction (ev ->
                 {
 
-                    QuollPopup qp = this.viewer.getPopupById (DictionaryManager.POPUP_ID);
-
-                    if (qp != null)
-                    {
-
-                        qp.toFront ();
-                        return;
-
-                    }
-
-                    try
-                    {
-
-                        new DictionaryManager (this.viewer,
-                                               new UserDictionaryProvider ()).show ();
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to show dictionary manager",
-                                              e);
-
-                        ComponentUtils.showErrorMessage (this.viewer,
-                                                         getUILanguageStringProperty (dictionary,manage,actionerror));
-
-                    }
+                    this.viewer.showDictionaryManager ();
 
                 })
                 .build ())
@@ -934,6 +1222,7 @@ public class Options extends VBox
     {
 
         Section s = Section.builder ()
+            .sectionId (Section.Id.naming)
             .styleClassName (StyleClassNames.NAMING)
             .title (options,naming,title)
             .description (options,naming,text)
@@ -956,6 +1245,453 @@ public class Options extends VBox
 
                         })
                         .build ())
+            .build ();
+
+        return s;
+
+    }
+
+    private Section createProjectSection (AbstractViewer viewer)
+    {
+
+        if (!(this.viewer instanceof AbstractProjectViewer))
+        {
+
+            return null;
+
+        }
+
+        AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+
+        final Options _this = this;
+
+        final Project proj = pv.getProject ();
+
+        VBox b = new VBox ();
+
+        ErrorBox projDirErr = ErrorBox.builder ()
+            .build ();
+
+        QuollFileField projDirF = QuollFileField.builder ()
+            .chooserTitle (getUILanguageStringProperty (options,projectandbackup,labels,selectprojectdir,finder,title))
+            .limitTo (QuollFileField.Type.directory)
+            .initialFile (proj.getProjectDirectory ().getParentFile ().toPath ())
+            .withViewer (viewer)
+            .build ();
+
+        b.getChildren ().addAll (projDirErr, projDirF);
+
+        QuollButton projDirChangeB = QuollButton.builder ()
+            .label (options,projectandbackup,labels,selectprojectdir,finder,label)
+            .onAction (ev ->
+            {
+
+                this.handleProjectDirChange (projDirF.getFile (),
+                                             pv,
+                                             err ->
+                {
+
+                    if (err != null)
+                    {
+
+                        projDirErr.setErrors (err);
+                        projDirErr.setVisible (true);
+
+                    }
+
+                    // Reset the project dir, something went wrong.
+                    projDirF.setFile (proj.getProjectDirectory ().getParentFile ().toPath ());
+
+                });
+
+            })
+            .build ();
+        projDirChangeB.setDisable (true);
+
+        projDirF.fileProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv == null)
+            {
+
+                return;
+
+            }
+
+            projDirChangeB.setDisable (newv.equals (proj.getProjectDirectory ().getParentFile ().toPath ()));
+
+        });
+
+        Set<StringProperty> backupsA = new LinkedHashSet<> ();
+        backupsA.add (getUILanguageStringProperty (times,hours12)); //Constants.HOURS_12);
+        backupsA.add (getUILanguageStringProperty (times,hours24)); //Constants.HOURS_24);
+        backupsA.add (getUILanguageStringProperty (times,days2)); //Constants.DAYS_2);
+        backupsA.add (getUILanguageStringProperty (times,days5)); //Constants.DAYS_5);
+        backupsA.add (getUILanguageStringProperty (times,week1)); //Constants.WEEK_1);
+
+        long backupsTime = proj.getAutoBackupsTime ();
+        //Utils.getTimeAsMillis (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
+
+        int btInd = 0; // 12 hours
+
+        if (backupsTime == (24 * Constants.HOUR_IN_MILLIS))
+        {
+
+            btInd = 1;
+
+        }
+
+        if (backupsTime == (2 * Constants.DAY_IN_MILLIS))
+        {
+
+            btInd = 2;
+
+        }
+
+        if (backupsTime == (5 * Constants.DAY_IN_MILLIS))
+        {
+
+            btInd = 3;
+
+        }
+
+        if (backupsTime == (7 * Constants.DAY_IN_MILLIS))
+        {
+
+            btInd = 4;
+
+        }
+
+        QuollChoiceBox backupTimeB = QuollChoiceBox.builder ()
+            .items (backupsA)
+            .onSelected (ev ->
+            {
+
+                QuollChoiceBox cb = (QuollChoiceBox) ev.getSource ();
+
+                int selInd = cb.getSelectionModel ().getSelectedIndex ();
+
+                long time = 0;
+
+                if (selInd == 0)
+                {
+
+                    time = 12 * Constants.HOUR_IN_MILLIS;
+
+                }
+
+                if (selInd == 1)
+                {
+
+                    time = 24 * Constants.HOUR_IN_MILLIS;
+
+                }
+
+                if (selInd == 2)
+                {
+
+                    time = 2 * Constants.DAY_IN_MILLIS;
+
+                }
+
+                if (selInd == 3)
+                {
+
+                    time = 5 * Constants.DAY_IN_MILLIS;
+
+                }
+
+                if (selInd == 4)
+                {
+
+                    time = 7 * Constants.DAY_IN_MILLIS;
+
+                }
+
+                proj.setAutoBackupsTime (time);
+                UserProperties.setAutoBackupsTime (time);
+
+            })
+            .selectedIndex (btInd)
+            .build ();
+
+        QuollCheckBox autoBackupEnb = QuollCheckBox.builder ()
+            .label (options,projectandbackup,labels,autobackup)
+            .selected (proj.isAutoBackupsEnabled ())
+            .build ();
+
+        autoBackupEnb.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            backupTimeB.setDisable (!newv);
+            proj.setAutoBackupsEnabled (newv);
+            UserProperties.setAutoBackupsEnabled (newv);
+
+        });
+
+        backupTimeB.setDisable (!autoBackupEnb.isSelected ());
+
+        Set<StringProperty> countA = new LinkedHashSet<> ();
+        countA.add (new SimpleStringProperty (Environment.formatNumber (10)));
+        countA.add (new SimpleStringProperty (Environment.formatNumber (20)));
+        countA.add (new SimpleStringProperty (Environment.formatNumber (50)));
+        countA.add (getUILanguageStringProperty (options,projectandbackup,labels,all));
+
+        int count = proj.getBackupsToKeepCount ();
+
+        int selInd = 3;
+
+        if (count == 10)
+        {
+
+            selInd = 0;
+
+        }
+
+        if (count == 20)
+        {
+
+            selInd = 1;
+
+        }
+
+        if (count == 50)
+        {
+
+            selInd = 2;
+
+        }
+
+        QuollChoiceBox backupsCountB = QuollChoiceBox.builder ()
+            .items (countA)
+            .selectedIndex (selInd)
+            .onSelected (ev ->
+            {
+
+                QuollChoiceBox cb = (QuollChoiceBox) ev.getSource ();
+
+                int cselInd = cb.getSelectionModel ().getSelectedIndex ();
+
+                int ccount = 10;
+
+                if (cselInd == 1)
+                {
+
+                    ccount = 20;
+
+                }
+
+                if (cselInd == 2)
+                {
+
+                    ccount = 50;
+
+                }
+
+                if (cselInd == 3)
+                {
+
+                    ccount = -1;
+
+                }
+
+                proj.setBackupsToKeepCount (ccount);
+                UserProperties.setBackupsToKeepCount (ccount);
+
+                if (ccount > -1)
+                {
+
+                    int _ccount = ccount;
+
+                    Runnable prune = () ->
+                    {
+
+                        try
+                        {
+
+                            pv.getObjectManager ().pruneBackups (pv.getProject (),
+                                                                 _ccount);
+
+                            QuollPopup.messageBuilder ()
+                                .title (options,projectandbackup,prunebackups,confirmpopup,title)
+                                .message (options,projectandbackup,prunebackups,confirmpopup,text)
+                                .closeButton ()
+                                .styleClassName (StyleClassNames.BACKUPS)
+                                .withViewer (viewer)
+                                .build ();
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to prune backups for project: " +
+                                                  proj,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (viewer,
+                                                             getUILanguageStringProperty (options,projectandbackup,prunebackups,actionerror));
+
+                        }
+
+                    };
+
+                    int pc = -1;
+
+                    try
+                    {
+
+                        pc = pv.getObjectManager ().getBackupFilesCount (pv.getProject ());
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to prune backups for project: " +
+                                              proj,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (viewer,
+                                                         getUILanguageStringProperty (options,projectandbackup,prunebackups,actionerror));
+                        return;
+
+                    }
+
+                    if (pc > ccount)
+                    {
+
+                        QuollPopup.yesConfirmTextEntryBuilder ()
+                            .withViewer (viewer)
+                            .styleClassName (StyleClassNames.BACKUPS)
+                            .title (options,projectandbackup,prunebackups,confirmpopup,title)
+                            .description (getUILanguageStringProperty (Arrays.asList (options,projectandbackup,prunebackups,popup,text),
+                                                                   Environment.formatNumber (pc - ccount)))
+                            .confirmButtonLabel (options,projectandbackup,prunebackups,popup,buttons,confirm)
+                            .cancelButtonLabel (options,projectandbackup,prunebackups,popup,buttons,cancel)
+                            .onConfirm (eev ->
+                            {
+
+                                prune.run ();
+
+                            })
+                            .build ();
+
+                    }
+
+                }
+
+            })
+            .build ();
+
+        VBox bb = new VBox ();
+
+        ErrorBox projBackupDirErr = ErrorBox.builder ()
+            .build ();
+
+        QuollFileField projBackupDirF = QuollFileField.builder ()
+            .chooserTitle (getUILanguageStringProperty (options,projectandbackup,labels,selectbackupdir,finder,title))
+            .limitTo (QuollFileField.Type.directory)
+            .initialFile (proj.getBackupDirectory ().toPath ())
+            .withViewer (viewer)
+            .build ();
+
+        bb.getChildren ().addAll (projBackupDirErr, projBackupDirF);
+
+        QuollButton projBackupDirChangeB = QuollButton.builder ()
+            .label (options,projectandbackup,labels,selectbackupdir,finder,label)
+            .onAction (ev ->
+            {
+
+                this.handleBackupsDirChange (projBackupDirF.getFile (),
+                                             pv,
+                                             err ->
+                {
+
+                    if (err != null)
+                    {
+
+                        projBackupDirErr.setErrors (err);
+                        projBackupDirErr.setVisible (true);
+
+                    }
+
+                    // Reset the project dir, something went wrong.
+                    //projBackupDirF.setFile (proj.getBackupDirectory ().toPath ());
+
+                });
+
+            })
+            .build ();
+        projBackupDirChangeB.setDisable (true);
+
+        projBackupDirF.fileProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv == null)
+            {
+
+                return;
+
+            }
+
+            projBackupDirChangeB.setDisable (newv.equals (proj.getBackupDirectory ().toPath ()));
+
+        });
+
+        this.propertyBinder.addChangeListener (proj.backupDirectoryProperty (),
+                                               (pr, oldv, newv) ->
+        {
+
+            if (newv == null)
+            {
+
+                return;
+
+            }
+
+            projBackupDirChangeB.setDisable (newv.toPath ().equals (projBackupDirF.fileProperty ().getValue ()));
+
+        });
+
+        QuollButton createBackupB = QuollButton.builder ()
+            .label (options,projectandbackup,labels,createbackup)
+            .onAction (ev ->
+            {
+
+                BackupsManager.showCreateBackup (proj,
+                                                 proj.getFilePassword (),
+                                                 this.viewer);
+
+            })
+            .build ();
+
+        QuollButton manageBackupsB = QuollButton.builder ()
+            .label (options,projectandbackup,labels,managebackups)
+            .onAction (ev ->
+            {
+
+                BackupsManager.showForProject (Environment.getProjectInfo (proj),
+                                               this.viewer);
+
+            })
+            .build ();
+
+        HBox buts = new HBox ();
+        buts.getStyleClass ().add (StyleClassNames.ITEM);
+        buts.getChildren ().addAll (createBackupB, manageBackupsB);
+
+        Section s = Section.builder ()
+            .sectionId (Section.Id.project)
+            .styleClassName (StyleClassNames.PROJECT)
+            .title (options,projectandbackup,title)
+            .description (options,projectandbackup,text)
+            .mainItem (getUILanguageStringProperty (options,projectandbackup,labels,selectprojectdir,text),
+                       b)
+            .subItem (projDirChangeB)
+            .mainItem (autoBackupEnb)
+            .subItem (getUILanguageStringProperty (options,projectandbackup,labels,createbackupafter),
+                      backupTimeB)
+            .mainItem (getUILanguageStringProperty (options,projectandbackup,labels,nobackupstokeep),
+                       backupsCountB)
+            .mainItem (getUILanguageStringProperty (options,projectandbackup,labels,selectbackupdir,text),
+                       bb)
+            .subItem (projBackupDirChangeB)
+            .mainItem (buts)
             .build ();
 
         return s;
@@ -1013,67 +1749,108 @@ public class Options extends VBox
                         .build ())
             .build ();
 
-            ObservableList<UserConfigurableObjectType> types = FXCollections.observableList (new ArrayList<> ());
+        ObservableList<UserConfigurableObjectType> types = FXCollections.observableList (new ArrayList<> ());
 
-            for (UserConfigurableObjectType t : Environment.getAssetUserConfigurableObjectTypes (true))
+        this.propertyBinder.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
+                                                  ch ->
+        {
+
+            if (ch.wasAdded ())
             {
 
-                types.add (t);
+                if (ch.getElementAdded ().isAssetObjectType ())
+                {
+
+                    types.add (ch.getElementAdded ());
+
+                }
 
             }
 
-            ComboBox<UserConfigurableObjectType> editTypes = new ComboBox<> (types);
-            editTypes.setEditable (false);
-
-            editTypes.setCellFactory (listView ->
+            if (ch.wasRemoved ())
             {
 
-                return new ListCell<UserConfigurableObjectType> ()
+                types.remove (ch.getElementRemoved ());
+
+            }
+
+        });
+
+        for (UserConfigurableObjectType t : Environment.getAssetUserConfigurableObjectTypes (true))
+        {
+
+            types.add (t);
+
+        }
+
+        ComboBox<UserConfigurableObjectType> editTypes = new ComboBox<> (types);
+
+        Callback<ListView<UserConfigurableObjectType>, ListCell<UserConfigurableObjectType>> cellFactory = listView ->
+        {
+
+            return new ListCell<UserConfigurableObjectType> ()
+            {
+
+                // This is dumb...just sayin...
+                @Override
+                protected void updateItem (UserConfigurableObjectType type,
+                                           boolean                    empty)
                 {
 
-                    // This is dumb...just sayin...
-                    @Override
-                    protected void updateItem (UserConfigurableObjectType type,
-                                               boolean                    empty)
+                    super.updateItem (type,
+                                      empty);
+
+                    if (empty || item == null)
                     {
 
-                        super.updateItem (type,
-                                          empty);
+                        this.textProperty ().unbind ();
+                        setText ("");
 
-                        if ((item != null)
-                            &&
-                            (!empty)
-                           )
-                        {
+                    } else {
 
-                            ImageView iv = new ImageView ();
-                            iv.imageProperty ().bind (type.icon16x16Property ());
+                        ImageView iv = new ImageView ();
+                        iv.imageProperty ().bind (type.icon16x16Property ());
 
-                            this.textProperty ().bind (type.nameProperty ());
-                            this.setGraphic (iv);
-
-                        }
+                        this.textProperty ().bind (type.nameProperty ());
+                        this.setGraphic (iv);
 
                     }
 
-                };
+                }
 
-            });
+            };
+
+        };
+        editTypes.setCellFactory (cellFactory);
+        editTypes.setButtonCell (cellFactory.call (null));
+        editTypes.getSelectionModel ().select (types.get (0));
 
         QuollButton editType = QuollButton.builder ()
             .label (buttons,edit)
             .onAction (ev ->
             {
 
-                // TODO
+                this.viewer.showEditUserConfigurableType (editTypes.getSelectionModel ().getSelectedItem ());
+
+            })
+            .build ();
+
+        QuollButton deleteType = QuollButton.builder ()
+            .label (buttons,delete)
+            .onAction (ev ->
+            {
+
+                this.viewer.showDeleteUserConfigurableType (editTypes.getSelectionModel ().getSelectedItem ());
 
             })
             .build ();
 
         HBox b = new HBox ();
-        b.getChildren ().addAll (editTypes, editType);
+        b.getChildren ().addAll (editTypes, editType, deleteType);
+        b.getStyleClass ().add (StyleClassNames.ITEM);
 
         Section s = Section.builder ()
+            .sectionId (Section.Id.assets)
             .styleClassName (StyleClassNames.ASSETS)
             .title (options,assets,title)
             .description (options,assets,text)
@@ -1087,98 +1864,10 @@ public class Options extends VBox
                 {
 
                     // TODO
+                    this.viewer.showAddNewUserConfigurableType ();
 
                 })
                 .build ())
-/*
-            .mainItem (QuollCheckBox.builder ()
-                .label (options,lookandsound,labels,keepprojectswindowsopen)
-                .userProperty (Constants.KEEP_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME)
-                .build ())
-            .mainItem (QuollCheckBox.builder ()
-                .label (options,lookandsound,labels,showprojectswindownoopenproject)
-                .userProperty (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME)
-                .build ())
-            .mainItem (showPreviewCB)
-            .subItem (changeDisplayBut)
-            .mainItem (QuollCheckBox.builder ()
-                .label (options,lookandsound,labels,shownotes)
-                .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
-                .build ())
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefont),
-                       uiFont)
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefontsize),
-                       thb)
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
-                       this.createLayoutSelector ())
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
-                       QuollComboBox.builder ()
-                          .items (getUILanguageStringProperty (options,lookandsound,labels,abovesidebar),
-                                  getUILanguageStringProperty (options,lookandsound,labels,belowsidebar))
-                          .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TOOLBAR_LOCATION_PROPERTY_NAME)) ? 0 : 1)
-                          .onSelected (ev ->
-                          {
-
-                              ComboBox cb = (ComboBox) ev.getSource ();
-
-                              int ind = cb.getSelectionModel ().getSelectedIndex ();
-
-                              UserProperties.set (Constants.TOOLBAR_LOCATION_PROPERTY_NAME,
-                                                  ind == 0 ? Constants.TOP : Constants.BOTTOM);
-
-                          })
-                          .build ())
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtabs),
-                       QuollComboBox.builder ()
-                           .items (getUILanguageStringProperty (options,lookandsound,labels,showtabstop),
-                                   getUILanguageStringProperty (options,lookandsound,labels,showtabsbottom))
-                           .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TABS_LOCATION_PROPERTY_NAME)) ? 0 : 1)
-                           .onSelected (ev ->
-                           {
-
-                               ComboBox cb = (ComboBox) ev.getSource ();
-
-                               int ind = cb.getSelectionModel ().getSelectedIndex ();
-
-                               UserProperties.set (Constants.TABS_LOCATION_PROPERTY_NAME,
-                                                   ind == 0 ? Constants.TOP : Constants.BOTTOM);
-
-                           })
-                           .build ())
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,whenfind),
-                       QuollRadioButtons.builder ()
-                            .button (QuollRadioButton.builder ()
-                                        .label (options,lookandsound,labels,expandall)
-                                        .onAction (ev ->
-                                        {
-
-                                            UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
-                                                                true);
-
-                                        })
-                                        .selected (UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
-                                        .build ())
-                            .button (QuollRadioButton.builder ()
-                                        .label (options,lookandsound,labels,justchapter)
-                                        .onAction (ev ->
-                                        {
-
-                                            UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
-                                                                false);
-
-                                        })
-                                        .selected (UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
-                                        .build ())
-                            .build ())
-            .mainItem (playSoundCB)
-            .subItem (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,selectownwavfile),
-                      ownSoundF)
-            .subItem (playSoundB)
-            .mainItem (QuollCheckBox.builder ()
-                .label (options,lookandsound,labels,highlightdividers,text)
-                .userProperty (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME)
-                .build ())
-*/
             .build ();
 
         return s;
@@ -1616,6 +2305,7 @@ TODO Remove NO longer needed.
         });
 
         Section s = Section.builder ()
+            .sectionId (Section.Id.look)
             .styleClassName (StyleClassNames.LOOKS)
             .title (options,lookandsound,title)
             .description (options,lookandsound,text)
@@ -1714,6 +2404,316 @@ TODO Remove NO longer needed.
 
     }
 
+    private Section createProblemsSection (AbstractViewer viewer)
+    {
+
+        QuollCheckBox sendErrorsToSupport = QuollCheckBox.builder ()
+            .label (options,errors,labels,send)
+            .userProperty (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME)
+            .build ();
+
+        Section s = Section.builder ()
+            .styleClassName (StyleClassNames.BUG)
+            .sectionId (Section.Id.problems)
+            .title (options,errors,title)
+            .description (options,errors,text)
+            .mainItem (sendErrorsToSupport)
+            .build ();
+
+        return s;
+
+    }
+
+    private Section createAchievementsSection (AbstractViewer viewer)
+    {
+
+        final AchievementsManager man = Environment.getAchievementsManager ();
+
+        QuollCheckBox achievementsOn = QuollCheckBox.builder ()
+            .label (options,achievements,labels,enable)
+            .build ();
+        achievementsOn.setSelected (man.isAchievementsEnabled ());
+
+        achievementsOn.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            man.setAchievementsEnabled (achievementsOn.isSelected ());
+
+        });
+
+        QuollCheckBox achievementSounds = QuollCheckBox.builder ()
+            .label (options,achievements,labels,playsound)
+            .build ();
+        achievementSounds.setSelected (man.isSoundEnabled ());
+
+        QuollCheckBox fullScreenSoundsOn = QuollCheckBox.builder ()
+            .label (options,achievements,labels,playsoundinfullscreen)
+            .build ();
+
+        fullScreenSoundsOn.setSelected (man.isSoundsInFullScreenEnabled ());
+
+        achievementSounds.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            man.setSoundEnabled (achievementSounds.isSelected ());
+
+            fullScreenSoundsOn.setDisable (!achievementSounds.isSelected ());
+
+        });
+
+        fullScreenSoundsOn.setSelected (man.isSoundsInFullScreenEnabled ());
+
+        fullScreenSoundsOn.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            man.setSoundsInFullScreenEnabled (fullScreenSoundsOn.isSelected ());
+
+        });
+
+        Section s = Section.builder ()
+            .sectionId (Section.Id.achievements)
+            .styleClassName (StyleClassNames.ACHIEVEMENTS)
+            .title (options,achievements,title)
+            .description (options,achievements,text)
+            .mainItem (achievementsOn)
+            .mainItem (achievementSounds)
+            .subItem (fullScreenSoundsOn)
+            .build ();
+
+        return s;
+
+    }
+
+    private Section createItemsAndRulesSection (AbstractViewer viewer)
+    {
+
+        // Gaaah....
+        boolean isAPV = (viewer instanceof ProjectViewer);
+
+        HBox b = new HBox ();
+        b.getStyleClass ().add (StyleClassNames.ITEM);
+        b.getChildren ().add (QuollButton.builder ()
+            .label (objectnames,plural, Note.NOTE_TYPE_OBJECT_TYPE)
+            .onAction (ev ->
+            {
+
+                viewer.showManageNoteTypes ();
+
+            })
+            .build ());
+
+        b.getChildren ().add (QuollButton.builder ()
+            .label (objectnames,plural, Tag.OBJECT_TYPE)
+            .onAction (ev ->
+            {
+
+                viewer.runCommand (AbstractViewer.CommandId.edittags);
+
+            })
+            .build ());
+
+        if (isAPV)
+        {
+
+            b.getChildren ().add (QuollButton.builder ()
+                .label (options,itemsandrules,labels,problemfinderrules)
+                .onAction (ev ->
+                {
+
+                    ((ProjectViewer) viewer).showProblemFinderRuleConfig ();
+
+                })
+                .build ());
+
+        }
+
+        Section s = Section.builder ()
+            .sectionId (Section.Id.itemsAndRules)
+            .styleClassName (StyleClassNames.EDIT)
+            .title (options,itemsandrules,title)
+            .description (options,itemsandrules,text)
+            .mainItem (b)
+            .build ();
+
+        return s;
+
+    }
+
+    private Section createEditorsSection (AbstractViewer viewer)
+    {
+
+        if (EditorsEnvironment.getUserAccount () == null)
+        {
+
+            return null;
+
+        }
+
+        QuollCheckBox autoLogin = QuollCheckBox.builder ()
+            .label (options,editors,labels,autologin)
+            .build ();
+        //"Automatically login/go online whenever Quoll Writer starts");
+
+        autoLogin.setSelected (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME));
+
+        autoLogin.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            try
+            {
+
+                EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME,
+                                                       autoLogin.isSelected ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set to login at start",
+                                      e);
+
+            }
+
+        });
+
+        List<EditorEditor.OnlineStatus> statuses = Arrays.asList (EditorEditor.OnlineStatus.online,
+            EditorEditor.OnlineStatus.busy,
+            EditorEditor.OnlineStatus.away,
+            EditorEditor.OnlineStatus.snooze);
+
+        final ComboBox<EditorEditor.OnlineStatus> defStatus = new ComboBox<> (FXCollections.observableList (statuses));
+
+        defStatus.valueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            EditorEditor.OnlineStatus selVal = defStatus.getSelectionModel ().getSelectedItem ();
+
+            try
+            {
+
+                EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_DEFAULT_ONLINE_STATUS_PROPERTY_NAME,
+                                                       selVal.getType ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set default online status",
+                                      e);
+
+            }
+
+        });
+
+        Callback<ListView<EditorEditor.OnlineStatus>, ListCell<EditorEditor.OnlineStatus>> cellFactory = (lv ->
+        {
+
+            return new ListCell<EditorEditor.OnlineStatus> ()
+            {
+
+                @Override
+                protected void updateItem (EditorEditor.OnlineStatus item,
+                                           boolean                   empty)
+                {
+
+                    super.updateItem (item,
+                                      empty);
+
+                    if (empty || item == null)
+                    {
+
+                        this.textProperty ().unbind ();
+                        setText ("");
+
+                    } else {
+
+                        String iconName = item.getType ();
+
+                        this.textProperty ().bind (getUILanguageStringProperty (editors,LanguageStrings.statuses,item.getType ()));
+                        this.getStyleClass ().add (Constants.ONLINE_STATUS_ICON_NAME_PREFIX + iconName);
+
+                    }
+
+                }
+
+            };
+
+        });
+
+        defStatus.setCellFactory (cellFactory);
+        defStatus.setButtonCell (cellFactory.call (null));
+
+        String defOnlineStatus = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_SERVICE_DEFAULT_ONLINE_STATUS_PROPERTY_NAME);
+
+        if (defOnlineStatus != null)
+        {
+
+            defStatus.getSelectionModel ().select (EditorEditor.OnlineStatus.valueOf (defOnlineStatus));
+
+        }
+
+        QuollCheckBox fullScreenBusy = QuollCheckBox.builder ()
+            .label (options,editors,labels,fullscreenbusystatus)
+            .build ();
+        //"Set my status to <b>Busy</b> when I enter full screen mode");
+
+        fullScreenBusy.setSelected (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_SET_BUSY_ON_FULL_SCREEN_ENTERED_PROPERTY_NAME));
+
+        fullScreenBusy.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            try
+            {
+
+                EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_SET_BUSY_ON_FULL_SCREEN_ENTERED_PROPERTY_NAME,
+                                                       fullScreenBusy.isSelected ());
+
+                if (fullScreenBusy.isSelected ())
+                {
+
+                    if (Environment.isInFullScreen ())
+                    {
+
+                        EditorsEnvironment.fullScreenEntered ();
+
+                    }
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set to busy on full screen entered",
+                                      e);
+
+            }
+
+        });
+
+        QuollCheckBox logMessages = QuollCheckBox.builder ()
+            .label (options,editors,labels,logmessages,text)
+            .build ();
+        //"Log messages I send/receive (debug only)");
+
+        logMessages.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            EditorsEnvironment.logEditorMessages (logMessages.isSelected ());
+
+        });
+
+        Section s = Section.builder ()
+            .sectionId (Section.Id.editors)
+            .styleClassName (StyleClassNames.CONTACTS)
+            .title (options,editors,title)
+            .description (options,editors,text)
+            .mainItem (autoLogin)
+            .mainItem (getUILanguageStringProperty (options,editors,labels,defaultstatus),
+                       defStatus)
+            .mainItem (fullScreenBusy)
+            .mainItem (logMessages)
+            .subItem (getUILanguageStringProperty (options,editors,labels,logmessages,help))
+            .build ();
+
+        return s;
+
+    }
+
     public static class Section extends VBox implements Stateful
     {
 
@@ -1730,7 +2730,6 @@ TODO Remove NO longer needed.
             problems ("problems"),
             betas ("betas"),
             start ("start"),
-            landing ("landing"),
             assets ("assets"),
             project ("project"),
             website ("website");
@@ -1754,9 +2753,17 @@ TODO Remove NO longer needed.
         }
 
         private AccordionItem acc = null;
+        private Section.Id id = null;
 
         private Section (Builder b)
         {
+
+            if (b.sectId == null)
+            {
+
+                throw new IllegalArgumentException ("Section id must be provided.");
+
+            }
 
             if (b.description == null)
             {
@@ -1778,6 +2785,8 @@ TODO Remove NO longer needed.
                 throw new IllegalArgumentException ("At least 1 item must be provided.");
 
             }
+
+            this.id = b.sectId;
 
             BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
                 .text (b.description)
@@ -1828,6 +2837,7 @@ TODO Remove NO longer needed.
             this.acc = AccordionItem.builder ()
                 .title (b.title)
                 .openContent (c)
+                .open (false)
                 .closedContent (desc)
                 .styleClassName (b.styleName)
                 .build ();
@@ -1849,6 +2859,13 @@ TODO Remove NO longer needed.
         {
 
             return this.acc.getState ();
+
+        }
+
+        public Section.Id getSectionId ()
+        {
+
+            return this.id;
 
         }
 
@@ -1909,6 +2926,7 @@ TODO Remove NO longer needed.
             private String styleName = null;
             private Set<Item> items = new LinkedHashSet<> ();
             private AbstractViewer viewer = null;
+            public Section.Id sectId = null;
 
             private Builder ()
             {
@@ -1927,6 +2945,14 @@ TODO Remove NO longer needed.
             public Builder _this ()
             {
 
+                return this;
+
+            }
+
+            public Builder sectionId (Section.Id id)
+            {
+
+                this.sectId = id;
                 return this;
 
             }
@@ -2112,6 +3138,248 @@ TODO Remove NO longer needed.
                 return this;
 
             }
+
+        }
+
+    }
+
+    private void handleBackupsDirChange (Path                     newDir,
+                                         AbstractProjectViewer    viewer,
+                                         Consumer<StringProperty> error)
+    {
+
+        Project proj = viewer.getProject ();
+
+        final Path oldDir = proj.getBackupDirectory ().toPath ();
+
+        // See if the project directory is changing.
+        if (!newDir.equals (oldDir))
+        {
+
+            if (!Utils.isDirectoryEmpty (newDir))
+            {
+
+                error.accept (getUILanguageStringProperty (project,actions,changebackupdir,errors,dirnotempty));
+                return;
+
+            }
+
+            // Just rename it.
+            try
+            {
+
+                Files.list (oldDir)
+                    .forEach (f ->
+                    {
+
+                        try
+                        {
+
+                            Files.move (f,
+                                        newDir.resolve (f.getFileName ()));
+
+                        } catch (Exception e) {
+
+                            throw new RuntimeException (String.format ("Unable to move file: %1$s to: %2$s",
+                                                                       f,
+                                                                       newDir.resolve (f.getFileName ())),
+                                                        e);
+
+                        }
+
+                    });
+
+                Files.delete (oldDir);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to move backup dir from: " +
+                                      oldDir +
+                                      "to: " +
+                                      newDir,
+                                      e);
+
+                ComponentUtils.showErrorMessage (viewer,
+                                                 getUILanguageStringProperty (project,actions,changebackupdir,actionerror));
+                                          //"Unable to change backup directory to: " +
+                                          //newDir);
+
+                return;
+
+            }
+
+            proj.setBackupDirectory (newDir.toFile ());
+
+            String pid = "backupdirchange";
+
+            QuollPopup.messageBuilder ()
+                .removeOnClose (true)
+                .popupId (pid)
+                .withViewer (viewer)
+                .title (project,actions,changebackupdir,confirmpopup,title)
+                .message (getUILanguageStringProperty (Arrays.asList (project,actions,changebackupdir,confirmpopup,text),
+                                                       newDir.toString ()))
+                .button (QuollButton.builder ()
+                    .label (buttons,confirm)
+                    .buttonType (ButtonBar.ButtonData.APPLY)
+                    .onAction (eev ->
+                    {
+
+                       this.viewer.getPopupById (pid).close ();
+
+                    })
+                    .build ())
+                .build ();
+
+        }
+
+    }
+
+    private void handleProjectDirChange (Path                     newParentDir,
+                                         AbstractProjectViewer    viewer,
+                                         Consumer<StringProperty> error)
+    {
+
+        Project proj = viewer.getProject ();
+
+        Path oldProjDir = proj.getProjectDirectory ().toPath ();
+
+        Path newProjDir = newParentDir.resolve (Utils.sanitizeForFilename (proj.getName ()));
+
+        boolean backupIsSubDir = false;
+
+        Path _newBackupDir = null;
+
+        if (Utils.isSubDir (proj.getProjectDirectory (),
+                            proj.getBackupDirectory ()))
+        {
+
+            backupIsSubDir = true;
+            _newBackupDir = newProjDir.resolve (proj.getBackupDirectory ().toPath ().getFileName ());
+
+            if (!Utils.isDirectoryEmpty (_newBackupDir))
+            {
+
+                error.accept (getUILanguageStringProperty (Arrays.asList (project,actions,changeprojectdir,errors,backupdirnotempty),
+                                                           _newBackupDir.toUri ().toString (),
+                                                           _newBackupDir.toString ()));
+
+                return;
+
+            }
+
+        }
+
+        Path newBackupDir = _newBackupDir;
+
+        // See if the project directory is changing.
+        if (!newProjDir.equals (oldProjDir))
+        {
+
+            if (!Utils.isDirectoryEmpty (newProjDir))
+            {
+
+                error.accept (getUILanguageStringProperty (project,actions,changeprojectdir,errors,dirnotempty));
+                return;
+
+            }
+
+            StringProperty extra = new SimpleStringProperty ("");
+
+            if (backupIsSubDir)
+            {
+
+                extra = getUILanguageStringProperty (project,actions,changeprojectdir,confirmpopup,backupdirchangewarning);
+                //"<span class='error'>Warning!  The backups directory for this {project} will also be changed.</span><br /><br />";
+
+            }
+
+            QuollPopup.questionBuilder ()
+                .withViewer (viewer)
+                .styleClassName (StyleClassNames.PROJECT)
+                .title (project,actions,changeprojectdir,confirmpopup,title)
+                .message (getUILanguageStringProperty (Arrays.asList (project,actions,changeprojectdir,confirmpopup,text),
+                                                       extra))
+                .confirmButtonLabel (project,actions,changeprojectdir,confirmpopup,buttons,confirm)
+                .cancelButtonLabel (project,actions,changeprojectdir,confirmpopup,buttons,cancel)
+                .onConfirm (ev ->
+                {
+
+                    if (newBackupDir != null)
+                    {
+
+                        // Need to change the backup dir first.
+                        proj.setBackupDirectory (newBackupDir.toFile ());
+
+                    }
+
+                    viewer.close (true,
+                                  () ->
+                    {
+
+                        try
+                        {
+
+                            Path _newProjDir = Files.move (proj.getProjectDirectory ().toPath (),
+                                                           newProjDir);
+
+                            proj.setProjectDirectory (_newProjDir.toFile ());
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to rename project directory: " +
+                                                  proj.getProjectDirectory () +
+                                                  " to: " +
+                                                  newProjDir,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (getUILanguageStringProperty (project,actions,changeprojectdir,actionerror));
+                                                      //"Unable to change project directory, please contact Quoll Writer support for assistance.");
+
+                        }
+
+                        // Open the project again.
+                        try
+                        {
+
+                            Environment.openProject (proj,
+                                                     () ->
+                                                     {
+
+                                                        Environment.getProjectViewer (proj).fireProjectEvent (ProjectEvent.Type.projectobject,
+                                                                                                              ProjectEvent.Action.changeddirectory,
+                                                                                                              proj.getObjectType ());
+
+                                                     });
+
+                        } catch (Exception e)
+                        {
+
+                            // Show the projects window.
+                            Environment.showAllProjectsViewer ();
+
+                            Environment.logError ("Unable to reopen project: " +
+                                                  proj,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (null,
+                                                             getUILanguageStringProperty (project,actions,changeprojectdir,errors,reopenproject));
+                                                      //"Unable to reopen project, please contact Quoll Writer support for assistance.");
+
+                            return;
+
+                        }
+
+                   });
+
+                })
+                .onCancel (ev ->
+                {
+
+                    error.accept (null);
+
+                })
+                .build ();
 
         }
 

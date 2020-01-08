@@ -237,7 +237,6 @@ public class ProblemFinder extends VBox
 
                QuollPopup qp = QuollPopup.questionBuilder ()
                     .withViewer (this.viewer)
-                    .withHandler (this.viewer)
                     .popupId (id)
                     .title (getUILanguageStringProperty (Utils.newList (prefix, unignore,confirmpopup,title)))
                     .styleClassName (StyleClassNames.PROBLEMFINDER)
@@ -864,7 +863,6 @@ public class ProblemFinder extends VBox
 
                 qp = QuollPopup.messageBuilder ()
                     .withViewer (this.viewer)
-                    .withHandler (this.viewer)
                     .popupId (id)
                     .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
                     .message (getUILanguageStringProperty (Utils.newList (prefix,text)))
@@ -889,7 +887,6 @@ public class ProblemFinder extends VBox
 
             qp = QuollPopup.messageBuilder ()
                 .withViewer (this.viewer)
-                .withHandler (this.viewer)
                 .popupId (id)
                 .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
                 .message (getUILanguageStringProperty (Utils.newList (prefix,text)))
@@ -957,7 +954,6 @@ public class ProblemFinder extends VBox
 
                 qp = QuollPopup.messageBuilder ()
                     .withViewer (this.panel.getViewer ())
-                    .withHandler (this.panel.getViewer ())
                     .popupId (id)
                     .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
                     .message (getUILanguageStringProperty (Utils.newList (prefix,text)))
@@ -995,7 +991,6 @@ public class ProblemFinder extends VBox
             qp = QuollPopup.questionBuilder ()
                 .styleClassName (StyleClassNames.PROBLEMFINDER)
                 .withViewer (this.panel.getViewer ())
-                .withHandler (this.panel.getViewer ())
                 .popupId (id)
                 .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
                 .message (getUILanguageStringProperty (Utils.newList (prefix,text)))

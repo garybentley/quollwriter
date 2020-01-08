@@ -686,10 +686,10 @@ public class ExportProjectPopup extends PopupContent
                 // Get the "old" files dir.
 
                 this.proj.setName (this.newProjectPanel.getName ());
+                this.proj.setFilePassword (pwd);
 
                 pj.newProject (this.newProjectPanel.getSaveDirectory (),
-                               this.proj,
-                               pwd);
+                               this.proj);
 
                 if (this.filesToCopy != null)
                 {

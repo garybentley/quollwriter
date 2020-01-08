@@ -118,6 +118,20 @@ public class QuollFileField extends HBox
             })
             .build ());
 
+        this.getChildren ().add (QuollButton.builder ()
+            .styleClassName (StyleClassNames.VIEW)
+            .tooltip (b.viewButtonTooltip)
+            .onAction (ev ->
+            {
+
+                ev.consume ();
+
+                UIUtils.showFile (this.viewer,
+                                  this.fileProp.getValue ());
+
+            })
+            .build ());
+
         if (b.showClear)
         {
 
@@ -181,10 +195,22 @@ public class QuollFileField extends HBox
 
             DirectoryChooser d = new DirectoryChooser ();
             d.titleProperty ().bind (this.chooserTitle);
-            d.setInitialDirectory (this.fileProp.getValue ().toFile ());
+
+            if (this.fileProp.getValue () != null)
+            {
+
+                if (Files.exists (this.fileProp.getValue ()))
+                {
+
+                    d.setInitialDirectory (this.fileProp.getValue ().toFile ());
+
+                }
+
+            }
+
             File f = d.showDialog (this.viewer.getViewer ());
 
-            _this.fileProp.setValue (f.toPath ());
+            _this.fileProp.setValue ((f != null ? f.toPath () : this.fileProp.getValue ()));
 
         }
 
@@ -225,6 +251,7 @@ public class QuollFileField extends HBox
         private StringProperty placeholder = null;
         private StringProperty findButtonTooltip = null;
         private StringProperty clearButtonTooltip = null;
+        private StringProperty viewButtonTooltip = null;
         private Path initialFile = null;
         private AbstractViewer viewer = null;
         private StringProperty chooserTitle = null;
@@ -311,6 +338,29 @@ public class QuollFileField extends HBox
         {
 
             this.chooserTitle = prop;
+            return this;
+
+        }
+
+        public Builder viewButtonTooltip (List<String> prefix,
+                                          String...    ids)
+        {
+
+            return this.viewButtonTooltip (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public Builder viewButtonTooltip (String... ids)
+        {
+
+            return this.viewButtonTooltip (getUILanguageStringProperty (ids));
+
+        }
+
+        public Builder viewButtonTooltip (StringProperty prop)
+        {
+
+            this.viewButtonTooltip = prop;
             return this;
 
         }

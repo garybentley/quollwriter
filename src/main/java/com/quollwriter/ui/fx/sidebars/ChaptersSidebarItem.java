@@ -42,7 +42,6 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
     private IntegerProperty countProp = null;
     private Map<Chapter, List<Subscription>> eventSourceSubscriptions = new HashMap<> ();
     private Map<Chapter, NoteTreeLabel> noteTreeLabels = new HashMap<> ();
-    private QuollTreeView<NamedObject> tree2 = null;
     private boolean ignoreChaptersEvents = false;
 
     public ChaptersSidebarItem (ProjectViewer   pv,
@@ -128,28 +127,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                 (pr, oldv, newv) ->
         {
 
-            if (newv != null)
-            {
-
-                if (newv.getContent () instanceof NamedObjectPanelContent)
-                {
-
-                    NamedObjectPanelContent nc = (NamedObjectPanelContent) newv.getContent ();
-
-                    if (nc.getObject () instanceof Chapter)
-                    {
-
-                        this.tree.select ((Chapter) nc.getObject ());
-
-                        return;
-
-                    }
-
-                }
-
-            }
-
-            this.tree.clearSelection ();
+            this.selectItem ();
 
         });
 
@@ -806,539 +784,48 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
             })
             .build ();
-/*
-        this.tree2 = new QuollTreeView<> ();
-        this.tree2.setShowRoot (false);
-        this.tree2.setCellProvider (treeItem ->
+
+        this.selectItem ();
+
+    }
+
+    private void selectItem ()
+    {
+
+        this.tree.select (null);
+        this.tree.requestLayout ();
+
+        Panel p = this.viewer.getCurrentPanel ();
+
+        if (p == null)
         {
 
-            NamedObject n = treeItem.getValue ();
+            return;
 
-            if (n instanceof Project)
+        }
+
+        if (p != null)
+        {
+
+            if (p.getContent () instanceof NamedObjectPanelContent)
             {
 
-                return new Label ();
+                NamedObjectPanelContent nc = (NamedObjectPanelContent) p.getContent ();
 
-            }
-
-            if (n instanceof NoteTreeLabel)
-            {
-
-                NoteTreeLabel nl = (NoteTreeLabel) n;
-
-                QuollLabel l = QuollLabel.builder ()
-                    .styleClassName (StyleClassNames.NOTES)
-                    .build ();
-
-                StringBinding b = Bindings.createStringBinding (() ->
+                if (nc.getObject () instanceof Chapter)
                 {
 
-                    String v = "%1$s (%2$s)";
-
-                    return String.format (v,
-                                          getUILanguageStringProperty (objectnames,plural, Note.OBJECT_TYPE).getValue (),
-                                          Environment.formatNumber (nl.chapter.getNotes ().size ()));
-
-                },
-                UILanguageStringsManager.uilangProperty (),
-                Environment.objectTypeNameChangedProperty ());
-
-                l.textProperty ().bind (b);
-
-                nl.listenerHandle = this.addSetChangeListener (nl.chapter.getNotes (),
-                                                               ev ->
-                {
-
-                    b.invalidate ();
-
-                });
-
-                l.setOnMouseClicked (ev ->
-                {
-
-                    TreeItem<NamedObject> ti = this.tree.getTreeItemForObject (n);
-
-                    ti.setExpanded (!ti.isExpanded ());
-
-                });
-
-                return l;
-
-            }
-
-            QuollLabel l = QuollLabel.builder ()
-                .label (n.nameProperty ())
-                .styleClassName (n.getObjectType ())
-                .build ();
-
-            if (n instanceof Note)
-            {
-
-                Note _n = (Note) n;
-
-                if (_n.isEditNeeded ())
-                {
-
-                    l.getStyleClass ().add (StyleClassNames.EDITNEEDEDNOTE);
-
-                }
-
-            }
-
-            l.setOnMouseClicked (ev ->
-            {
-
-                if (ev.isPopupTrigger ())
-                {
+                    this.tree.select ((Chapter) nc.getObject ());
+                    this.tree.requestLayout ();
 
                     return;
 
                 }
 
-                this.viewer.viewObject (n);
-
-            });
-
-            List<String> prefix = Arrays.asList (project,sidebar,chapters,treepopupmenu,items);
-
-            if (n instanceof Chapter)
-            {
-
-                Chapter c = (Chapter) n;
-
-                l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, (!c.isEditComplete () && c.getEditPosition () > 0));
-                l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, c.isEditComplete ());
-
-                this.addChangeListener (UserProperties.showEditPositionIconInChapterListProperty (),
-                                        (pr, oldv, newv) ->
-                {
-
-                    l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
-
-                    if ((newv)
-                        &&
-                        (c.getEditPosition () > -1)
-                       )
-                    {
-
-                        l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, true);
-
-                    }
-
-                });
-
-                this.addChangeListener (c.editPositionProperty (),
-                                        (pr, oldv, newv) ->
-                {
-
-                    if (UserProperties.getAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME))
-                    {
-
-                        if (!c.isEditComplete ())
-                        {
-
-                            l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, newv.intValue () > 0);
-
-                        }
-
-                    } else {
-
-                        l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
-
-                    }
-
-                });
-
-                this.addChangeListener (UserProperties.showEditCompleteIconInChapterListProperty (),
-                                        (pr, oldv, newv) ->
-                {
-
-                    l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, false);
-
-                    if ((newv)
-                        &&
-                        (c.isEditComplete ())
-                       )
-                    {
-
-                        l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, true);
-
-                    }
-
-                });
-
-                this.addChangeListener (c.editCompleteProperty (),
-                                        (pr, oldv, newv) ->
-                {
-
-                    if (UserProperties.getAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME))
-                    {
-
-                        l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, newv);
-
-                    } else {
-
-                        l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, false);
-
-                    }
-
-                });
-
             }
 
-            l.setOnContextMenuRequested (eev ->
-            {
+        }
 
-                ContextMenu m = new ContextMenu ();
-
-                if (n instanceof Note)
-                {
-
-                    List<String> nprefix = Arrays.asList (project,sidebar,chapters,treepopupmenu,notes,items);
-
-                    final Note note = (Note) n;
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
-                        .styleClassName (StyleClassNames.VIEW)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.viewObject (n);
-
-                        })
-                        .build ());
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.editObject (n);
-
-                        })
-                        .build ());
-
-                    Menu tm = UIUtils.createTagsMenu (n,
-                                                      this.viewer);
-
-                    if (tm != null)
-                    {
-
-                        m.getItems ().add (tm);
-
-                    }
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.showDeleteChapterItemPopup (note,
-                                                                    this.tree.getCellForObject (note));
-
-                        })
-                        .build ());
-
-                }
-
-                if (n instanceof Chapter)
-                {
-
-                    final Chapter c = (Chapter) n;
-
-                    final String chapterObjTypeName = Environment.getObjectTypeName (c).getValue ();
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.viewobject,
-                                                    c);
-
-                        })
-                        .build ());
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
-                        .styleClassName (StyleClassNames.INFO)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.showchapterinfo,
-                                                    c);
-
-                        })
-                        .build ());
-
-                    if (!c.isEditComplete ())
-                    {
-
-                        m.getItems ().add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete)))
-                            .styleClassName (StyleClassNames.EDITCOMPLETE)
-                            .onAction (ev ->
-                            {
-
-                                this.viewer.setChapterEditComplete (c,
-                                                                    true);
-
-                            })
-                            .build ());
-
-                    } else {
-
-                        m.getItems ().add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded)))
-                            .styleClassName (StyleClassNames.EDITNEEDED)
-                            .onAction (ev ->
-                            {
-
-                                this.viewer.setChapterEditComplete (c,
-                                                                    false);
-
-                            })
-                            .build ());
-
-                    }
-
-                    if ((c.getEditPosition () > 0)
-                        &&
-                        (!c.isEditComplete ())
-                       )
-                    {
-
-                        m.getItems ().add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,gotoeditposition)))
-                            .styleClassName (StyleClassNames.GOTOEDITPOSITION)
-                            .onAction (ev ->
-                            {
-
-                                this.viewer.editChapter (c,
-                                                         () ->
-                                                         {
-
-                                                            ProjectChapterEditorPanelContent p = this.viewer.getEditorForChapter (c);
-
-                                                            p.getEditor ().moveTo (c.getEditPosition ());
-                                                            p.getEditor ().requestFollowCaret ();
-
-                                                         });
-
-                            })
-                            .build ());
-
-                        m.getItems ().add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,removeeditposition)))
-                            .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
-                            .onAction (ev ->
-                            {
-
-                                this.viewer.removeChapterEditPosition (c);
-
-                            })
-                            .build ());
-
-                    }
-
-                    Menu tm = UIUtils.createTagsMenu (n,
-                                                      this.viewer);
-
-                    if (tm != null)
-                    {
-
-                        m.getItems ().add (tm);
-
-                    }
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,newbelow)))
-                        .styleClassName (StyleClassNames.ADD)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.newchapter,
-                                                    c);
-
-                        })
-                        .build ());
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,rename)))
-                        .styleClassName (StyleClassNames.RENAME)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.renamechapter,
-                                                    c);
-
-                        })
-                        .build ());
-
-                    if (this.viewer.isEditing (c))
-                    {
-
-                        m.getItems ().add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,close)))
-                            .styleClassName (StyleClassNames.CLOSE)
-                            .onAction (ev ->
-                            {
-
-                                this.viewer.runCommand (ProjectViewer.CommandId.closepanel,
-                                                        c);
-
-                            })
-                            .build ());
-
-                    }
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.deletechapter,
-                                                    c);
-
-                        })
-                        .build ());
-
-                }
-
-                if (n instanceof OutlineItem)
-                {
-
-                    List<String> nprefix = Arrays.asList (project,sidebar,chapters,treepopupmenu,outlineitems,items);
-
-                    final OutlineItem oi = (OutlineItem) n;
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
-                        .styleClassName (StyleClassNames.VIEW)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.viewobject,
-                                                    oi);
-
-                        })
-                        .build ());
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.editoutlineitem,
-                                                    oi);
-
-                        })
-                        .build ());
-
-                    Menu tm = UIUtils.createTagsMenu (n,
-                                                      this.viewer);
-
-                    if (tm != null)
-                    {
-
-                        m.getItems ().add (tm);
-
-                    }
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.showDeleteChapterItemPopup (oi,
-                                                                    this.tree.getCellForObject (oi));
-
-                        })
-                        .build ());
-
-                }
-
-                if (n instanceof Scene)
-                {
-
-                    List<String> nprefix = Arrays.asList (project,sidebar,chapters,treepopupmenu,scenes,items);
-
-                    final Scene s = (Scene) n;
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
-                        .styleClassName (StyleClassNames.VIEW)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.viewobject,
-                                                    s);
-
-                        })
-                        .build ());
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.runCommand (ProjectViewer.CommandId.editobject,
-                                                    s);
-
-                        })
-                        .build ());
-
-                    Menu tm = UIUtils.createTagsMenu (n,
-                                                      this.viewer);
-
-                    if (tm != null)
-                    {
-
-                        m.getItems ().add (tm);
-
-                    }
-
-                    m.getItems ().add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
-                        .onAction (ev ->
-                        {
-
-                            this.viewer.showDeleteChapterItemPopup (s,
-                                                                    this.tree.getCellForObject (s));
-
-                        })
-                        .build ());
-
-                }
-
-                m.setAutoHide (true);
-
-                if (l.getContextMenu () != null)
-                {
-
-                    l.getContextMenu ().hide ();
-
-                }
-
-                m.show (this.tree, eev.getScreenX (), eev.getScreenY ());
-
-                l.setContextMenu (m);
-
-            });
-
-            return l;
-
-        });
-*/
     }
 
     private void removeListenersForChapter (Chapter c)
@@ -1858,7 +1345,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
         public int hashCode ()
         {
 
-            return Objects.hash (this, this.chapter);
+            return Objects.hash (this.getName (), this.chapter);
 
         }
 

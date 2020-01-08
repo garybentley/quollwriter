@@ -17,6 +17,7 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.ui.fx.panels.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -167,6 +168,48 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
             .canExport (obj -> true)
             .viewObjectOnClick (true)
             .build ();
+
+        this.addChangeListener (this.viewer.currentPanelProperty (),
+                                (pr, oldv, newv) ->
+        {
+
+            this.selectItem ();
+
+        });
+
+        this.selectItem ();
+
+    }
+
+    private void selectItem ()
+    {
+
+        this.tree.select (null);
+        this.tree.requestLayout ();
+
+        Panel p = this.viewer.getCurrentPanel ();
+
+        if (p != null)
+        {
+
+            if (p.getContent () instanceof AssetViewPanel)
+            {
+
+                AssetViewPanel nc = (AssetViewPanel) p.getContent ();
+
+                if (nc.getObject () instanceof Asset)
+                {
+
+                    this.tree.select ((Asset) nc.getObject ());
+                    this.tree.requestLayout ();
+
+                    return;
+
+                }
+
+            }
+
+        }
 
     }
 
@@ -354,11 +397,11 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
         {
 
             Set<MenuItem> items = new LinkedHashSet<> ();
-
+System.out.println ("CALLED: " + this.objType.getObjectTypeName ());
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings._new),
                                                           //"Add a new %s",
-                                                     this.objType.getObjectTypeName ()))
+                                                     this.objType.objectTypeNameProperty ()))
                 .styleClassName (StyleClassNames.ADD)
                 .onAction (ev ->
                 {
@@ -370,13 +413,12 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,edit),
-                                                     this.objType.getObjectTypeName ()))
+                                                     this.objType.objectTypeNameProperty ()))
                 .styleClassName (StyleClassNames.EDIT)
                 .onAction (ev ->
                 {
 
-                    UIUtils.showObjectTypeEdit (this.objType,
-                                                this.viewer);
+                    this.viewer.showEditUserConfigurableType (this.objType);
 
                 })
                 .build ());
@@ -411,7 +453,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                 QuollMenu mi = QuollMenu.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,sort),
                                                         //"Sort the %s by",
-                                                         this.objType.getObjectTypeNamePlural ()))
+                                                         this.objType.objectTypeNamePluralProperty ()))
                     .styleClassName (StyleClassNames.SORT)
                     .items (its)
                     .build ();
@@ -538,6 +580,20 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                 if (f instanceof ObjectNameUserConfigurableObjectTypeField)
                 {
+
+                    if (o1.getName () == null)
+                    {
+
+                        return -1;
+
+                    }
+
+                    if (o2.getName () == null)
+                    {
+
+                        return 1;
+
+                    }
 
                     return o1.getName ().toLowerCase ().compareTo (o2.getName ().toLowerCase ());
 

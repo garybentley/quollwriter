@@ -1,12 +1,16 @@
 package com.quollwriter.db;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.sql.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 import javax.sql.*;
+
+import javafx.collections.*;
 
 import com.gentlyweb.xml.JDOMUtils;
 
@@ -577,14 +581,79 @@ OLD? DBCP1
 
     }
 
+    // Ugh a terrible hack...
+    // TODO Fix this horribleness...
+    public boolean supportsLinks ()
+    {
+
+        return true;
+
+    }
+
     public void updateLinks (NamedObject d,
-                             Set<Link>   newLinks,
                              Connection  c)
                       throws GeneralException
     {
 
+        // GAH... this is soooo bad...
+        if ((!this.supportsLinks ())
+            ||
+            (d instanceof Project)
+           )
+        {
+
+            return;
+
+        }
+
+        List<Link> currLinks = this.getLinks (d,
+                                              c);
+
+        Set<NamedObject> oldOtherObjects = new HashSet<> ();
+
+        for (Link l : currLinks)
+        {
+
+            oldOtherObjects.add (l.getOtherObject (d));
+
+        }
+
+        Set<NamedObject> newOtherObjects = d.getOtherObjectsInLinks ();
+
+        // Find out what has been added.
+        Set<NamedObject> added = new HashSet<> (newOtherObjects);
+        added.removeAll (oldOtherObjects);
+
+        // Find out what has been removed.
+        Set<NamedObject> removed = new HashSet<> (oldOtherObjects);
+        removed.removeAll (newOtherObjects);
+
         try
         {
+
+            this.deleteLinks (d,
+                              removed,
+                              c);
+
+            for (NamedObject n : added)
+            {
+
+                Link l = d.getLinkFor (n);
+
+                if (l.getKey () != null)
+                {
+
+                    // This shouldn't happen!
+                    continue;
+
+                }
+
+                this.saveObject (l,
+                                 c);
+
+            }
+/*
+TODO REmove
 
             this.deleteLinks (d,
                               c);
@@ -630,7 +699,7 @@ OLD? DBCP1
                 l.getObject2 ().addLink (l);
 
             }
-
+*/
         } catch (Exception e)
         {
 
@@ -643,29 +712,22 @@ OLD? DBCP1
 
     }
 
-    public void getLinks (NamedObject d,
-                          Connection  conn)
-                   throws GeneralException
+    public List<Link> getLinks (NamedObject d,
+                                Connection  conn)
+                         throws GeneralException
     {
 
         if (d == null)
         {
 
-            return;
+            return new ArrayList<> ();
 
         }
 
         if (d.getKey () == null)
         {
 
-            return;
-
-        }
-
-        if (d.getLinks ().size () > 0)
-        {
-
-            return;
+            return new ArrayList<> ();
 
         }
 
@@ -691,6 +753,37 @@ OLD? DBCP1
 
         }
 
+        try
+        {
+
+            return (List<Link>) this.getObjects (Link.class,
+                                                 d,
+                                                 conn,
+                                                 true);
+
+         } catch (Exception e)
+         {
+
+             this.throwException (conn,
+                                  "Unable to get links for: " +
+                                  d,
+                                  e);
+
+         } finally
+         {
+
+             if (closeConn)
+             {
+
+                 this.releaseConnection (conn);
+
+             }
+
+         }
+
+         return new ArrayList<> ();
+
+/*
 
         try
         {
@@ -781,7 +874,7 @@ OLD? DBCP1
             }
 
         }
-
+*/
     }
 
     public void getLinks (NamedObject d)
@@ -1272,10 +1365,114 @@ OLD? DBCP1
 
     }
 
-    public void deleteLinks (NamedObject n,
-                             Connection  conn)
+    public void deleteLinks (NamedObject      n,
+                             Set<NamedObject> remove,
+                             Connection       conn)
                       throws GeneralException
     {
+
+        boolean closeConn = false;
+
+        if (conn == null)
+        {
+
+            closeConn = true;
+
+            try
+            {
+
+                conn = this.getConnection ();
+
+            } catch (Exception e)
+            {
+
+                this.throwException (null,
+                                     "Unable to get connection",
+                                     e);
+
+            }
+
+        }
+
+        try
+        {
+
+            LinkDataHandler dh = (LinkDataHandler) this.getHandler (Link.class);
+
+            for (NamedObject o : remove)
+            {
+
+                dh.deleteLink (n,
+                               o,
+                               conn);
+
+            }
+
+/*
+            this.getLinks (n,
+                           conn);
+
+            Set<Link> links = n.getLinks ();
+
+            Iterator<Link> iter = links.iterator ();
+
+            while (iter.hasNext ())
+            {
+
+                Link l = iter.next ();
+
+                if (l.getKey () != null)
+                {
+
+                    this.deleteObject (l,
+                                       false,
+                                       conn);
+
+                }
+
+                iter.remove ();
+
+                // Get either side.
+                l.getObject1 ().removeLink (l);
+                l.getObject2 ().removeLink (l);
+
+            }
+*/
+        } catch (Exception e) {
+
+            this.throwException (conn,
+                                 "Unable to delete links for: " +
+                                 n,
+                                 e);
+
+        } finally {
+
+            if (closeConn)
+            {
+
+                this.releaseConnection (conn);
+
+            }
+
+        }
+
+    }
+
+    public void deleteAllLinks (NamedObject n,
+                                Connection  conn)
+                         throws GeneralException
+    {
+
+        // GAH... this is soooo bad...
+        if ((!this.supportsLinks ())
+            ||
+            (n instanceof Project)
+           )
+        {
+
+            return;
+
+        }
 
         boolean closeConn = false;
 
@@ -1504,8 +1701,12 @@ OLD? DBCP1
 
                 }
 
-                this.deleteLinks (n,
-                                  conn);
+                n.getNotes ().clear ();
+
+                this.deleteAllLinks (n,
+                                     conn);
+
+                n.getLinks ().clear ();
 
                 List params = new ArrayList ();
                 params.add (d.getKey ());
@@ -2079,8 +2280,6 @@ OLD? DBCP1
                             }
 
                             this.updateLinks (n,
-                                              // Create a new set so we don't lose these.
-                                              new HashSet<> (n.getLinks ()),
                                               conn);
 
                         }
@@ -2178,7 +2377,6 @@ OLD? DBCP1
                             }
 
                             this.updateLinks (n,
-                                              new HashSet<> (n.getLinks ()),
                                               conn);
 
                         }
@@ -2917,10 +3115,32 @@ OLD? DBCP1
 
     }
 
-    private List<File> getBackupFiles (Project project)
-                                throws Exception
+    public int getBackupFilesCount (Project project)
+                             throws Exception
     {
 
+        int c = 0;
+
+        Set<Path> bfiles = this.getBackupFiles (project);
+
+        if (bfiles != null)
+        {
+
+            c = bfiles.size ();
+
+        }
+
+        return c;
+
+    }
+    private ObservableSet<Path> getBackupFiles (Project project)
+                                         throws Exception
+    {
+
+        ProjectInfo inf = Environment.getProjectInfo (project);
+
+        return inf.getBackupPaths ();
+/*
         File dir = project.getBackupDirectory ();
 
         if (dir == null)
@@ -2963,14 +3183,14 @@ OLD? DBCP1
         ret = (List<File>) qr.getResults ();
 
         return ret;
-
+*/
     }
 
-    public File getLastBackupFile (Project project)
+    public Path getLastBackupFile (Project project)
                             throws Exception
     {
 
-        List<File> files = this.getBackupFiles (project);
+        Set<Path> files = this.getBackupFiles (project);
 
         if (files == null)
         {
@@ -2982,7 +3202,7 @@ OLD? DBCP1
         if (files.size () > 0)
         {
 
-            return files.get (0);
+            return files.iterator ().next ();
 
         }
 
@@ -3011,7 +3231,9 @@ OLD? DBCP1
 
         }
 
-        List<File> files = this.getBackupFiles (project);
+        ProjectInfo inf = Environment.getProjectInfo (project);
+
+        List<Path> files = new ArrayList<> (inf.getBackupPaths ());
 
         if (files == null)
         {
@@ -3027,18 +3249,22 @@ OLD? DBCP1
                                    files.size ());
 
             // Delete the files.
-            for (File f : files)
+            for (Path f : files)
             {
 
-                if (f.delete ())
+                inf.removeBackupPath (f);
+
+                if (Files.exists (f))
                 {
 
-                    this.createActionLogEntry (project,
-                                               "Pruned backup, file: " + f.getPath (),
-                                               null,
-                                               null);
+                    Files.delete (f);
 
                 }
+
+                this.createActionLogEntry (project,
+                                           "Pruned backup, file: " + f.toString (),
+                                           null,
+                                           null);
 
             }
 
@@ -3046,26 +3272,28 @@ OLD? DBCP1
 
     }
 
-    public File createBackup (Project project,
+    public Path createBackup (Project project,
                               int     keepCount)
                        throws Exception
     {
 
-        File dir = project.getBackupDirectory ();
+        File fdir = project.getBackupDirectory ();
 
-        if (dir == null)
+        if (fdir == null)
         {
 
             return null;
 
         }
 
-        dir.mkdirs ();
+        Path dir = fdir.toPath ();
+
+        Files.createDirectories (dir);
 
         // Indicate that this directory can be deleted.
         Utils.createQuollWriterDirFile (dir);
 
-        File last = this.getLastBackupFile (project);
+        Path last = this.getLastBackupFile (project);
 
         int ver = 0;
 
@@ -3073,8 +3301,10 @@ OLD? DBCP1
         {
 
             // Split the filename, get the version.
-            String n = last.getName ().substring (6,
-                                                  last.getName ().length () - 4);
+            String fn = last.getFileName ().toString ();
+
+            String n = fn.substring (Constants.BACKUP_FILE_NAME_PREFIX.length (),
+                                     fn.length () - Constants.BACKUP_FILE_NAME_SUFFIX.length ());
 
             try
             {
@@ -3097,7 +3327,7 @@ OLD? DBCP1
 
         ver++;
 
-        File f = new File (dir.getPath () + "/backup" + ver + ".zip");
+        Path f = dir.resolve (Constants.BACKUP_FILE_NAME_PREFIX + ver + Constants.BACKUP_FILE_NAME_SUFFIX);
 
         Connection conn = null;
 
@@ -3107,7 +3337,7 @@ OLD? DBCP1
             conn = this.getConnection ();
 
             List params = new ArrayList ();
-            params.add (f.getPath ());
+            params.add (f.toString ());
 
             this.executeStatement ("BACKUP TO ?",
                                    params,
@@ -3116,7 +3346,7 @@ OLD? DBCP1
             this.releaseConnection (conn);
 
             this.createActionLogEntry (project,
-                                       "Created backup, written to file: " + f.getPath (),
+                                       "Created backup, written to file: " + f.toString (),
                                        null,
                                        null);
 
@@ -3125,10 +3355,12 @@ OLD? DBCP1
             {
 
                 // Add the files dir to the backup.
-                Utils.addDirToZip (f,
+                Utils.addDirToZip (f.toFile (),
                                    project.getFilesDirectory ());
 
             }
+
+            Environment.getProjectInfo (project).addBackupPath (f);
 
             // Test the backup?
 

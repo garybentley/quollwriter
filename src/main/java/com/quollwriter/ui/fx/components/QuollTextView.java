@@ -63,6 +63,8 @@ public class QuollTextView extends VBox
 
         this.getChildren ().add (this.text);
 
+        this.text.setFormatter (b.formatter);
+
         if (b.text != null)
         {
 
@@ -96,9 +98,18 @@ public class QuollTextView extends VBox
         private StringProperty text = null;
         private String styleName = null;
         private AbstractViewer viewer = null;
+        private Function<String, String> formatter = null;
 
         private Builder ()
         {
+
+        }
+
+        public Builder formatter (Function<String, String> f)
+        {
+
+            this.formatter = f;
+            return this;
 
         }
 

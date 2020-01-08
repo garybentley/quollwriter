@@ -77,6 +77,9 @@ public class UserProperties
     private static SimpleBooleanProperty showEditCompleteIconInChapterListProp = null;
     private static SimpleBooleanProperty showEditMarkerInChapterProp = null;
     private static SimpleBooleanProperty showNotesInChapterListProp = null;
+    private static SimpleIntegerProperty autoBackupsTimeProp = null;
+    private static SimpleIntegerProperty backupsToKeepCountProp = null;
+    private static SimpleBooleanProperty autoBackupsEnabledProp = null;
 
     // Just used in the map above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
@@ -85,8 +88,6 @@ public class UserProperties
     private static ListChangeListener<Color> userColorsListener = null;
 
     private static ObservableSet<javafx.beans.property.StringProperty> noteTypes = null;
-    private static SimpleSetProperty<javafx.beans.property.StringProperty> noteTypesProp = null;
-    private static SetChangeListener<javafx.beans.property.StringProperty> noteTypesListener = null;
 
     private static SimpleObjectProperty<Color> editNeededNoteChapterHighlightColorProp = null;
     private static SimpleObjectProperty<Color> problemFinderBlockHighlightColorProp = null;
@@ -213,6 +214,8 @@ public class UserProperties
         UserProperties.showEditMarkerInChapterProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME);
 
         UserProperties.showNotesInChapterListProp = UserProperties.createMappedBooleanProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME);
+
+        UserProperties.autoBackupsEnabledProp = UserProperties.createMappedBooleanProperty (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
 
         UserProperties.userBGImagePaths = FXCollections.observableSet (new LinkedHashSet<> ());
 
@@ -376,6 +379,108 @@ public class UserProperties
 
         });
 
+        UserProperties.autoBackupsTimeProp = new SimpleIntegerProperty ();
+
+        Integer ival = UserProperties.getAsInt (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME);
+
+        if (ival != null)
+        {
+
+            UserProperties.autoBackupsTimeProp.setValue (ival);
+
+        } else {
+
+            UserProperties.autoBackupsTimeProp.setValue (Constants.DEFAULT_CHAPTER_AUTO_SAVE_TIME);
+
+        }
+
+        UserProperties.autoBackupsTimeProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME,
+                                newv.intValue ());
+
+        });
+
+        UserProperties.backupsToKeepCountProp = new SimpleIntegerProperty ();
+
+        ival = UserProperties.getAsInt (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME);
+
+        if (ival != null)
+        {
+
+            UserProperties.backupsToKeepCountProp.setValue (ival);
+
+        } else {
+
+            UserProperties.backupsToKeepCountProp.setValue (Constants.DEFAULT_BACKUPS_TO_KEEP);
+
+        }
+
+        UserProperties.backupsToKeepCountProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME,
+                                newv.intValue ());
+
+        });
+
+    }
+
+    public static boolean isAutoBackupsEnabled ()
+    {
+
+        return UserProperties.autoBackupsEnabledProp.getValue ();
+
+    }
+
+    public static void setAutoBackupsEnabled (boolean v)
+    {
+
+        UserProperties.autoBackupsEnabledProp.setValue (v);
+
+    }
+
+    public static int getAutoBackupsTime ()
+    {
+
+        return UserProperties.autoBackupsTimeProp.getValue ();
+
+    }
+
+    public static void setAutoBackupsTime (long c)
+    {
+
+        UserProperties.autoBackupsTimeProp.setValue ((int) c);
+
+    }
+
+    public static SimpleIntegerProperty autoBackupsTimeProperty ()
+    {
+
+        return UserProperties.autoBackupsTimeProp;
+
+    }
+
+    public static int getBackupsToKeepCount ()
+    {
+
+        return UserProperties.backupsToKeepCountProp.getValue ();
+
+    }
+
+    public static void setBackupsToKeepCount (int v)
+    {
+
+        UserProperties.backupsToKeepCountProp.setValue (v);
+
+    }
+
+    public static SimpleIntegerProperty backupsToKeepCountProperty ()
+    {
+
+        return UserProperties.backupsToKeepCountProp;
+
     }
 
     public static SimpleFloatProperty uiBaseFontSizeProperty ()
@@ -522,10 +627,51 @@ public class UserProperties
 
     }
 
-    public static Set<javafx.beans.property.StringProperty> getNoteTypes ()
+    public static void removeNoteType (String t)
     {
 
-        return new LinkedHashSet<> (UserProperties.noteTypes);
+        javafx.beans.property.StringProperty s = null;
+
+        for (javafx.beans.property.StringProperty p : UserProperties.noteTypes)
+        {
+
+            if (p.getValue ().equals (t))
+            {
+
+                s = p;
+                break;
+
+            }
+
+        }
+
+        UserProperties.noteTypes.remove (s);
+
+    }
+
+    public static javafx.beans.property.StringProperty getNoteTypeProperty (String v)
+    {
+
+        for (javafx.beans.property.StringProperty p : UserProperties.noteTypes)
+        {
+
+            if (p.getValue ().equals (v))
+            {
+
+                return p;
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    public static ObservableSet<javafx.beans.property.StringProperty> getNoteTypes ()
+    {
+
+        return UserProperties.noteTypes;
 
     }
 
@@ -777,9 +923,7 @@ public class UserProperties
 
         }
 
-        UserProperties.noteTypesProp = new SimpleSetProperty<> (UserProperties.noteTypes);
-
-        UserProperties.noteTypesListener = ev ->
+        UserProperties.noteTypes.addListener ((SetChangeListener<javafx.beans.property.StringProperty>) ev ->
         {
 
             UserProperties.set (Constants.NOTE_TYPES_PROPERTY_NAME,
@@ -787,10 +931,7 @@ public class UserProperties
                                     .map (v -> v.getValue ())
                                     .collect (Collectors.joining ("|")));
 
-        };
-
-        // Casting to help out the compiler.
-        UserProperties.noteTypesProp.addListener (new WeakSetChangeListener (UserProperties.noteTypesListener));
+        });
 
     }
 
@@ -942,6 +1083,14 @@ public class UserProperties
         SimpleStringProperty s = new SimpleStringProperty (v);
         UserProperties.mappedProperties.put (name,
                                              s);
+
+        s.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (name,
+                                newv);
+
+        });
 
         return s;
 

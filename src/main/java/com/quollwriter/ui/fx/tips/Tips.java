@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.jdom.*;
 
+import javafx.beans.property.*;
 import javafx.scene.*;
 
 import com.gentlyweb.xml.*;
@@ -14,6 +15,9 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.panels.*;
+
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class Tips
 {
@@ -59,7 +63,7 @@ public class Tips
 
     }
 
-    public String getNextTip ()
+    public StringProperty getNextTip ()
     {
 
         if (this.tips.size () == 0)
@@ -86,7 +90,7 @@ public class Tips
         Tip t = this.tips.remove (n);
 
         // See if there is a condition.
-        String text = t.getText (this.viewer);
+        StringProperty text = t.getText (this.viewer);
 
         if (text == null)
         {
@@ -135,7 +139,7 @@ public class Tips
 
         }
 
-        public String getText (AbstractViewer viewer)
+        public StringProperty getText (AbstractViewer viewer)
         {
 
             for (Item it : this.items)
@@ -166,7 +170,7 @@ public class Tips
             }
 
             private List<String> conds = new ArrayList ();
-            private String text = null;
+            private StringProperty text = null;
 
             public Item (String  tipId,
                          Element root)
@@ -205,8 +209,7 @@ public class Tips
 
                 }
 
-                this.text = Environment.getUIString (LanguageStrings.tips,
-                                                     id);
+                this.text = getUILanguageStringProperty (LanguageStrings.tips,id);
 
                 if (this.text == null)
                 {
@@ -219,7 +222,7 @@ public class Tips
 
             }
 
-            public String getText ()
+            public StringProperty getText ()
             {
 
                 return this.text;

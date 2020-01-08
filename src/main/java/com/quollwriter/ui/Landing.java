@@ -2,6 +2,7 @@ package com.quollwriter.ui;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.file.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.util.*;
@@ -580,7 +581,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			ProjectInfo _bogus = new ProjectInfo ();
 
-			_bogus.setProjectDirectory (FileSystemView.getFileSystemView ().getDefaultDirectory ());
+			_bogus.setProjectDirectory (FileSystemView.getFileSystemView ().getDefaultDirectory ().toPath ());
 			_bogus.setName (Environment.getUIString (prefix,
                                                      LanguageStrings.example,
                                                      LanguageStrings.name));
@@ -2275,7 +2276,7 @@ TODO
 																			{
 
 																				UIUtils.showFile (null,
-																								  _this.project.getProjectDirectory ());
+																								  _this.project.getProjectDirectory ().toFile ());
 
 																			}
 
@@ -2789,7 +2790,7 @@ TODO
 
 			String n = Project.OBJECT_TYPE;
 
-			if (!this.project.getProjectDirectory ().exists ())
+			if (Files.notExists (this.project.getProjectDirectory ()))
 			{
 
 				// Return a problem icon.
@@ -3745,7 +3746,7 @@ TODO
 				{
 
 					pi = new ProjectInfo ();
-					pi.setProjectDirectory (dir);
+					pi.setProjectDirectory (dir.toPath ());
 
 					om = Environment.getProjectObjectManager (pi,
 															  null);
@@ -3780,7 +3781,7 @@ TODO
 								// Get the file name.
 								pi.setEncrypted (true);
 								pi.setName (WordsCapitalizer.capitalizeEveryWord (dir.getName ()));
-								pi.setProjectDirectory (dir);
+								pi.setProjectDirectory (dir.toPath ());
 
 								Project p = new Project ();
 								p.setProjectDirectory (dir);

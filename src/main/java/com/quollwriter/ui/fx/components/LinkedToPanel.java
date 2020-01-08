@@ -36,8 +36,27 @@ public class LinkedToPanel extends StackPane
         binder.addSetChangeListener (obj.getLinks (),
                                      ev ->
         {
+/*
+TODO The add is really complex... need to find the parent and the right position to add...
+            if (ev.wasAdded ())
+            {
 
-            this.update ();
+                this.viewTree. (ev.getElementAdded ().getOtherObject (obj));
+                this.
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                this.viewTree.removeObject (ev.getElementRemoved ().getOtherObject (obj));
+                this.editTree.removeObject (ev.getElementRemoved ().getOtherObject (obj));
+
+            }
+*/
+
+            this.viewTree.setRoot (this.createViewTree ());
+            this.viewTree.requestLayout ();
 
         });
 
@@ -126,11 +145,6 @@ public class LinkedToPanel extends StackPane
 
     }
 
-    private void update ()
-    {
-
-    }
-
     private TreeItem<NamedObject> createEditTree ()
     {
 
@@ -139,7 +153,7 @@ public class LinkedToPanel extends StackPane
 
         // Painful but just about the only way.
         // TODO Needed?
-        viewer.setLinks (this.obj);
+        //viewer.setLinks (this.obj);
 
         Set<NamedObject> links = this.obj.getLinks ().stream ()
             .map (l -> l.getOtherObject (this.obj))
@@ -193,7 +207,7 @@ public class LinkedToPanel extends StackPane
 
         // Painful but just about the only way.
         // TODO Needed?
-        viewer.setLinks (this.obj);
+        //viewer.setLinks (this.obj);
 
         Set<NamedObject> links = this.obj.getLinks ().stream ()
             .map (l -> l.getOtherObject (this.obj))
@@ -314,6 +328,22 @@ public class LinkedToPanel extends StackPane
 
         });
         this.viewTree.setVisible (false);
+
+        Set<NamedObject> otherObjs = obj.getOtherObjectsInLinks ();
+
+        this.editTree.walkTree (ti ->
+        {
+
+            if (ti instanceof CheckBoxTreeItem)
+            {
+
+                CheckBoxTreeItem<NamedObject> cti = (CheckBoxTreeItem<NamedObject>) ti;
+
+                cti.setSelected (otherObjs.contains (cti.getValue ()));
+
+            }
+
+        });
         this.editTree.setVisible (true);
 
     }

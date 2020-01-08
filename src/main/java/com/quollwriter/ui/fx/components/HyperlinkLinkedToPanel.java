@@ -26,7 +26,7 @@ public class HyperlinkLinkedToPanel extends VBox
 
         this.getStyleClass ().add (StyleClassNames.LINKEDTO);
 
-        this.linkedToPanel = new LinkedToPanel (viewer.getProject (),
+        this.linkedToPanel = new LinkedToPanel (obj,
                                                 binder,
                                                 viewer);
         this.linkedToPanel.showEdit ();

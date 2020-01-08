@@ -74,22 +74,38 @@ public class NewChapterPopup extends PopupContent<ProjectViewer>
                     {
 
                         chapterToAdd.setName (n);
+                        chapterToAdd.setBook (book);
 
+                        newChapter = chapterToAdd;
+/*
                         newChapter = book.createChapterAfter (addAfter,
                                                               chapterToAdd);
-
+*/
                     } else {
 
-                        newChapter = book.createChapterAfter (addAfter,
-                                                              n);
+                        Chapter ch = new Chapter (book,
+                                                  n);
+
+                        ch.setBook (book);
+
+                        newChapter = ch;
 
                     }
 
-                    Chapter _newChapter = newChapter;
+                    final Chapter _newChapter = newChapter;
 
                     links.stream ()
                         .forEach (o -> _newChapter.addLinkTo (o));
 
+                    // Save to set up the key...
+                    viewer.saveObject (newChapter,
+                                       true);
+
+                    // Insert the chapter into the book.
+                    newChapter = book.createChapterAfter (addAfter,
+                                                          newChapter);
+
+                    // Save again to set up the index... grrr...
                     viewer.saveObject (newChapter,
                                        true);
 

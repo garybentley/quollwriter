@@ -519,11 +519,12 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                     try
                     {
 
+                        p.setFilePassword (pwd);
+
                         // We create the project but then close the connection pool since the user
                         // may not want to open the project yet.
                         Environment.createProject (saveField.getSelectedFile ().toPath (),
-                                                   p,
-                                                   pwd).closeConnectionPool ();
+                                                   p).closeConnectionPool ();
 
                     } catch (Exception e) {
 

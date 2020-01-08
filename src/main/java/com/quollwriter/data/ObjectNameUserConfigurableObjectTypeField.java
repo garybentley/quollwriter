@@ -41,7 +41,7 @@ public class ObjectNameUserConfigurableObjectTypeField extends UserConfigurableO
     }
 
     @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+    public ObjectNameUserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                            UserConfigurableObjectField field,
                                                                            AbstractProjectViewer       viewer)
     {

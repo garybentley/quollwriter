@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.panels;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.text.*;
 
@@ -70,22 +71,30 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
         this.titleProp.bind (Bindings.createStringBinding (() ->
         {
 
-            return String.format (getUIString (LanguageStrings.allprojects, LanguageStrings.title), Environment.formatNumber (Environment.allProjectsProperty ().size ()));
+            return String.format (getUIString (LanguageStrings.allprojects, LanguageStrings.title), Environment.formatNumber (Environment.getAllProjects ().size ()));
 
         },
         Environment.uilangProperty (),
-        Environment.allProjectsProperty ()));
+        Environment.getAllProjects ()));
 
         this.tiles = new VerticalLayout (); //new FlowPane ();
         this.tiles.getStyleClass ().add (StyleClassNames.PROJECTSLIST);
 
         this.fillProjects ();
 
+        this.addSetChangeListener (Environment.getAllProjects (),
+                                   ch ->
+        {
+
+            this.fillProjects ();
+
+        });
+
         this.addChangeListener (UserProperties.getMappedStringProperty (Constants.SORT_PROJECTS_BY_PROPERTY_NAME),
                                 (p, oldv, newv) ->
         {
 
-            _this.fillProjects ();
+            this.fillProjects ();
 
         });
 
@@ -127,11 +136,11 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
         t.bind (Bindings.createStringBinding (() ->
         {
 
-            return String.format (getUIString (allprojects,title), Environment.formatNumber (Environment.allProjectsProperty ().size ()));
+            return String.format (getUIString (allprojects,title), Environment.formatNumber (Environment.getAllProjects ().size ()));
 
         },
         UILanguageStringsManager.uilangProperty (),
-        Environment.allProjectsProperty ()));
+        Environment.getAllProjects ()));
 
         Panel panel = Panel.builder ()
             .title (t)
@@ -463,7 +472,6 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
             .confirmButtonLabel (prefix,popup,buttons,confirm)
             .cancelButtonLabel (prefix,popup,buttons,cancel)
             .withViewer (this.getViewer ())
-            .withHandler (this.getViewer ())
             .onConfirm (ev ->
             {
 
@@ -663,48 +671,48 @@ TODO Remove
 
 		// Get how we should sort.
 		String sortBy = UserProperties.get (Constants.SORT_PROJECTS_BY_PROPERTY_NAME);
-
+System.out.println ("SORT: " + sortBy);
 		if (sortBy == null)
 		{
 
-			sortBy = "ifThenElse (lastEdited = null, 0, lastEdited) DESC, name";
+			sortBy = "ifThenElse (lastEdited = null, 0, lastEdited) DESC, name.toLowerCase";
 
 		}
 
 		if (sortBy.equals ("lastEdited"))
 		{
 
-			sortBy = "ifThenElse (lastEdited = null, 0, lastEdited) DESC, name, status";
+			sortBy = "ifThenElse (lastEdited = null, 0, lastEdited) DESC, name.toLowerCase, status";
 
 		}
 
 		if (sortBy.equals ("status"))
 		{
 
-			sortBy = "status, ifThenElse (lastEdited = null, 0, lastEdited) DESC, name";
+			sortBy = "status, ifThenElse (lastEdited = null, 0, lastEdited) DESC, name.toLowerCase";
 
 		}
 
 		if (sortBy.equals ("name"))
 		{
 
-			sortBy = "name, ifThenElse (lastEdited = null, 0, lastEdited) DESC, status";
+			sortBy = "name.toLowerCase, ifThenElse (lastEdited = null, 0, lastEdited) DESC, status";
 
 		}
 
 		if (sortBy.equals ("wordCount"))
 		{
 
-			sortBy = "wordCount DESC, ifThenElse (lastEdited = null, 0, lastEdited) DESC, name, status";
+			sortBy = "wordCount DESC, ifThenElse (lastEdited = null, 0, lastEdited) DESC, name.toLowerCase, status";
 
 		}
 
-		java.util.List<ProjectInfo> infos = null;
+		List<ProjectInfo> infos = null;
 
 		try
 		{
 
-			infos = new ArrayList<> (Environment.allProjectsProperty ().getValue ());
+			infos = new ArrayList<> (Environment.getAllProjects ());
 
 		} catch (Exception e) {
 
@@ -845,7 +853,8 @@ TODO Remove
             UILanguageStringsManager.uilangProperty (),
             UserProperties.projectInfoFormatProperty (),
             this.project.statusProperty (),
-            this.project.lastEditedProperty ()));
+            this.project.lastEditedProperty (),
+            this.project.getStatistics ()));
 
             this.info = BasicHtmlTextFlow.builder ()
                 .text (this.infoProp)
@@ -1736,7 +1745,7 @@ TODO
       {
 
           UIUtils.showFile (this.parent.viewer,
-                            this.project.getProjectDirectory ().toPath ());
+                            this.project.getProjectDirectory ());
 
       }
 
@@ -1779,7 +1788,7 @@ TODO
           String n = StyleClassNames.NORMAL;
           //Project.OBJECT_TYPE;
 
-          if (!this.project.getProjectDirectory ().exists ())
+          if (Files.notExists (this.project.getProjectDirectory ()))
           {
 
               // Return a problem icon.

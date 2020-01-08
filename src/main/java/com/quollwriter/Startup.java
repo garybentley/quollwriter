@@ -63,7 +63,7 @@ public class Startup
 
             }
 
-            if (Environment.allProjectsProperty ().size () == 0)
+            if (Environment.getAllProjects ().size () == 0)
             {
 
                 ss.finish ();

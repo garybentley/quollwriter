@@ -24,7 +24,7 @@ public class BasicHtmlTextFlow extends TextFlow
 {
 
     private StringProperty textProp = null;
-    private URLActionHandler urlActionHandler = null;
+    private AbstractViewer urlActionHandler = null;
     private boolean noMarkup = false;
     private boolean markupLinks = false;
 
@@ -289,7 +289,6 @@ public class BasicHtmlTextFlow extends TextFlow
                         {
 
                             UIUtils.openURL (this.urlActionHandler,
-                                             null,
                                              url);
 
                         } catch (Exception e) {
@@ -347,7 +346,7 @@ public class BasicHtmlTextFlow extends TextFlow
     {
 
         private StringProperty text = null;
-        private URLActionHandler urlActionHandler = null;
+        private AbstractViewer urlActionHandler = null;
         private String styleName = null;
         private boolean noMarkup = false;
         private boolean markupLinks = false;
@@ -397,7 +396,7 @@ public class BasicHtmlTextFlow extends TextFlow
 
         }
 
-        public Builder withHandler (URLActionHandler v)
+        public Builder withHandler (AbstractViewer v)
         {
 
             this.urlActionHandler = v;

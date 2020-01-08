@@ -86,6 +86,13 @@ public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLangu
 
     }
 
+    public int getPercentComplete ()
+    {
+
+        return (this.getDerivedFrom () == null ? 100 : Utils.getPercent ((float) this.getAllTextValues ().size (), (float) this.getDerivedFrom ().getAllTextValues ().size ()));
+
+    }
+
     public int getBaseVersion ()
     {
 

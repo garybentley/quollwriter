@@ -4,8 +4,10 @@
  */
 package com.quollwriter.ui.fx.components;
 
+import java.net.*;
 import java.util.*;
 import java.util.function.*;
+import java.util.concurrent.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,25 +30,87 @@ import org.w3c.dom.events.EventTarget;
 
 import com.gentlyweb.utils.*;
 
+import com.quollwriter.*;
+import com.quollwriter.ui.fx.*;
+
 public class WebViewFitContent extends Region {
 
     final WebView webview = new WebView();
     final WebEngine webEngine = webview.getEngine();
-    private double currHeight = 100;
+    private double currHeight = 0;
     private Label label = new Label ();
     private String content = "";
-    private String htmlContent = null;
     private String divId = UUID.randomUUID ().toString ();
     private BiConsumer<String, MouseEvent> onLinkClicked = null;
+    private Function<String, String> formatter = null;
+
+    private static ConcurrentLinkedQueue<WebViewFitContent> heightUpdates = null;
+    private static ScheduledFuture adjust = null;
+
+    static
+    {
+
+        WebViewFitContent.heightUpdates = new ConcurrentLinkedQueue ();
+
+    }
 
     public WebViewFitContent (BiConsumer<String, MouseEvent> onLinkClicked)
     {
 
+        if (WebViewFitContent.adjust == null)
+        {
+
+            WebViewFitContent.adjust = Environment.schedule (() ->
+            {
+
+                if (WebViewFitContent.heightUpdates.size () == 0)
+                {
+
+                    return;
+
+                }
+
+                UIUtils.runLater (() ->
+                {
+
+                    synchronized (WebViewFitContent.heightUpdates)
+                    {
+
+                        WebViewFitContent r = null;
+
+                        while ((r = WebViewFitContent.heightUpdates.poll ()) != null)
+                        {
+
+                            try
+                            {
+                                r.doAdjustHeight ();
+                                //r.run ();
+
+                            } catch (Exception e) {
+
+                                Environment.logError ("Unable to update height",
+                                                      e);
+
+                            }
+
+                        }
+
+                    }
+
+                });
+
+            },
+            5,
+            50);
+
+        }
+
         this.onLinkClicked = onLinkClicked;
 
-        this.webview.setPrefHeight (1);
+        this.webview.setPrefHeight (0);
         this.managedProperty ().bind (this.visibleProperty ());
-        this.setVisible (false);
+        //this.setVisible (false);
+        this.webview.setVisible (false);
         this.webview.setContextMenuEnabled (false);
         this.getStyleClass ().add ("qwebview");
         this.label.setVisible (false);
@@ -94,17 +158,19 @@ public class WebViewFitContent extends Region {
             //this.adjustHeight ();
 
         });
-final WebViewFitContent _this = this;
+
+        final WebViewFitContent _this = this;
         this.sceneProperty ().addListener ((pr, oldv, newv) ->
         {
 
+            _this.setContent (_this.content);
+/*
             com.quollwriter.ui.fx.UIUtils.runLater (() ->
             {
 
-                _this.setContent (_this.content);
 
             });
-
+*/
         });
 
         //final WebViewFitContent _this = this;
@@ -200,7 +266,7 @@ final WebViewFitContent _this = this;
         this.getChildren ().add (this.label);
     }
 
-    public void setContent(String content)
+    public void setContent (String content)
     {
 
         if (content == null)
@@ -211,6 +277,7 @@ final WebViewFitContent _this = this;
         }
 
         this.content = content;
+
         StringBuilder b = new StringBuilder ();
         b.append ("<html><head>");
 
@@ -229,6 +296,7 @@ final WebViewFitContent _this = this;
         b.append ("a:hover{text-decoration:underline;}");
         b.append ("ul{margin: 0;padding: 0.5em; padding-left: 2em;}");
         b.append ("ul.errors{color:red;}");
+        b.append ("img.icon{display: inline-block; margin-right: 0.25em; vertical-align: middle}");
         b.append ("</style>");
 
         b.append ("<script>");
@@ -241,15 +309,29 @@ final WebViewFitContent _this = this;
                                               String.valueOf ('\n'),
                                               "<br />");
 
+        if (this.formatter != null)
+        {
+
+            c = this.formatter.apply (c);
+
+        }
+
         b.append (String.format ("<body><div id='%1$s'>",
                                  divId));
         b.append (c);
 
         b.append ("</div></body></html>");
 
-        this.htmlContent = b.toString ();
+        this.webview.setVisible (false);
 
         webEngine.loadContent (b.toString ());
+
+    }
+
+    public void setFormatter (Function<String, String> f)
+    {
+
+        this.formatter = f;
 
     }
 
@@ -277,8 +359,129 @@ final WebViewFitContent _this = this;
         this.layoutInArea (this.label, 0,0,0,0,0,HPos.CENTER,VPos.CENTER);
     }
 
+    private void doAdjustHeight ()
+    {
+
+        try
+        {
+
+            // The document can sometimes be null, usually when the change is the result of a parent width change.
+            if (this.webEngine.getDocument () == null)
+            {
+
+                return;
+
+            }
+
+            Object result = this.webEngine.executeScript (String.format ("document.getElementById('%1$s').scrollHeight",
+                                                                         divId));
+
+            if (result instanceof Integer)
+            {
+
+                Integer i = (Integer) result;
+                double height = i.doubleValue ();
+
+                // This check ensures that we don't get into a weird loop where the view is constantly resizing.
+                if (height != this.currHeight)
+                {
+
+                    this.currHeight = height;
+                    this.webview.setPrefHeight (height);
+                    this.webview.setVisible (true);
+                    this.webview.requestLayout ();
+
+                } else {
+
+                    this.webview.setVisible (true);
+                    this.webview.requestLayout ();
+
+                }
+
+            }
+
+        } catch (Exception e) {
+
+            // You should do something about this!
+            e.printStackTrace ();
+        }
+
+    }
+
     private void adjustHeight ()
     {
+/*
+        if (this.adjust != null)
+        {
+
+            this.adjust.cancel (true);
+
+        }
+*/
+
+        Runnable r = () ->
+        {
+
+            try
+            {
+
+                // The document can sometimes be null, usually when the change is the result of a parent width change.
+                if (this.webEngine.getDocument () == null)
+                {
+
+                    return;
+
+                }
+
+                Object result = this.webEngine.executeScript (String.format ("document.getElementById('%1$s').scrollHeight",
+                                                                             divId));
+
+                if (result instanceof Integer)
+                {
+
+                    Integer i = (Integer) result;
+                    double height = i.doubleValue ();
+
+                    // This check ensures that we don't get into a weird loop where the view is constantly resizing.
+                    if (height != this.currHeight)
+                    {
+
+                        this.currHeight = height;
+                        this.webview.setPrefHeight (height);
+                        this.webview.setVisible (true);
+                        this.webview.requestLayout ();
+
+                    } else {
+
+                        this.webview.setVisible (true);
+                        this.webview.requestLayout ();
+
+                    }
+
+                }
+
+            } catch (Exception e) {
+
+                // You should do something about this!
+                e.printStackTrace ();
+            }
+
+        };
+
+        if (!WebViewFitContent.heightUpdates.contains (this))
+        {
+
+            WebViewFitContent.heightUpdates.add (this);
+
+        }
+
+        if (true)
+        {
+            return;
+        }
+
+        this.adjust = com.quollwriter.Environment.schedule (() ->
+        {
 
         Platform.runLater (() ->
         {
@@ -308,11 +511,14 @@ final WebViewFitContent _this = this;
                     {
 
                         this.currHeight = height;
-                        this.setVisible (true);
                         this.webview.setPrefHeight (height);
+                        this.webview.setVisible (true);
                         this.webview.requestLayout ();
 
-                        //this.setContentHeight (height);
+                    } else {
+
+                        this.webview.setVisible (true);
+                        this.webview.requestLayout ();
 
                     }
 
@@ -325,6 +531,10 @@ final WebViewFitContent _this = this;
             }
 
         });
+
+        },
+        10,
+        -1);
 
     }
 

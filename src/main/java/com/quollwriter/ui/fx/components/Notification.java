@@ -162,7 +162,7 @@ public class Notification extends HBox
 
         private Node content = null;
         private String styleName = null;
-        private Set<Node> controls = new HashSet<> ();
+        private Set<Node> controls = new LinkedHashSet<> ();
         private AbstractViewer viewer = null;
         private int duration = 0;
         private Runnable onRemove = null;
@@ -197,10 +197,15 @@ public class Notification extends HBox
 
         }
 
-        public Builder controls (Set<Node> c)
+        public Builder controls (Set<? extends Node> c)
         {
 
-            this.controls = c;
+            if (c != null)
+            {
+
+                this.controls.addAll (c);
+
+            }
 
             return this;
 

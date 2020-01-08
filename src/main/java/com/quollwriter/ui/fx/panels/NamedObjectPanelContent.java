@@ -47,6 +47,7 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
     {
 
         this.unsavedChanges = v;
+
         this.unsavedChangesProp.setValue (v);
 
     }
@@ -66,7 +67,7 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
     }
 
     public void saveObject ()
-                     throws Exception
+                        throws Exception
     {
 
         this.viewer.saveObject (this.object,

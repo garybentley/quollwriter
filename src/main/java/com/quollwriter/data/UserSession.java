@@ -56,7 +56,7 @@ public class UserSession extends Session
         this.currentSessionWordCountProp = new SimpleIntegerProperty (0);
 
         // The UserSession object has the same life span as the Environment so this is ok.
-        Environment.openViewersProperty ().addListener ((SetChangeListener<AbstractViewer>) ev ->
+        Environment.getOpenViewers ().addListener ((SetChangeListener<AbstractViewer>) ev ->
         {
 
             if (ev.wasRemoved ())
@@ -79,7 +79,7 @@ public class UserSession extends Session
                                                                              (pr, oldv, newv) ->
                     {
 
-                        this.currentSessionWordCount = Environment.openViewersProperty ().getValue ().stream ()
+                        this.currentSessionWordCount = Environment.getOpenViewers ().stream ()
                             .filter (v -> v instanceof AbstractProjectViewer)
                             .map (v -> (AbstractProjectViewer) v)
                             .collect (Collectors.summingInt (v -> v.getSessionWordCount ()));

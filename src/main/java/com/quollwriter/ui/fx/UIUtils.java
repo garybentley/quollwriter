@@ -33,6 +33,8 @@ import javax.imageio.*;
 
 import com.gentlyweb.utils.*;
 
+import org.imgscalr.Scalr;
+
 import com.quollwriter.*;
 import com.quollwriter.db.*;
 import com.quollwriter.text.*;
@@ -61,6 +63,8 @@ import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.uistrings.UILanguageStrings;
 import com.quollwriter.uistrings.UILanguageStringsManager;
+import com.quollwriter.uistrings.WebsiteLanguageStrings;
+import com.quollwriter.uistrings.WebsiteLanguageStringsManager;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
@@ -248,9 +252,8 @@ public class UIUtils
 
     }
 
-    public static void openURL (URLActionHandler handler,
-                                PopupsViewer     viewer,
-                                String           url)
+    public static void openURL (AbstractViewer viewer,
+                                String         url)
     {
 
         URL u = null;
@@ -260,8 +263,9 @@ public class UIUtils
 
             u = new URL (url);
 
-            UIUtils.openURL (handler,
-                             u);
+            UIUtils.openURL (viewer,
+                             u,
+                             null);
 
         } catch (Exception e)
         {
@@ -270,8 +274,7 @@ public class UIUtils
                                   url,
                                   e);
 
-            ComponentUtils.showErrorMessage (handler,
-                                             viewer,
+            ComponentUtils.showErrorMessage (viewer,
                                              getUILanguageStringProperty (Arrays.asList (general,unabletoopenwebpage),
                                                                           url));
                                       //"Unable to open web page: " + url);
@@ -620,7 +623,25 @@ public class UIUtils
 
         }
 
-        Desktop.getDesktop ().browse (url.toURI ());
+        if (url.getProtocol ().equals ("file"))
+        {
+
+            Desktop.getDesktop ().browse (url.toURI ());
+
+            return;
+
+        }
+
+        try {
+          URI uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery(), url.getRef ());
+
+          Desktop.getDesktop ().browse (uri);
+
+        } catch (MalformedURLException e) {
+            // Handle?
+        } catch (URISyntaxException e) {
+            // Handle?
+        }
 
     }
 
@@ -657,7 +678,6 @@ public class UIUtils
             {
 
                 UIUtils.openURL (viewer,
-                                 viewer,
                                  "help://" + helpPage);
 
             })
@@ -798,6 +818,35 @@ public class UIUtils
                                         e);
 
         }
+
+    }
+
+    public static Image getScaledImage (Image img,
+                                        int   targetWidth)
+    {
+
+        if (img == null)
+        {
+
+            return null;
+
+        }
+
+        // TODO Redo to stop using BufferedImage.
+        BufferedImage bim = new BufferedImage ((int) img.getWidth (),
+                                               (int) img.getHeight (),
+                                               BufferedImage.TYPE_INT_ARGB_PRE);
+
+        BufferedImage bi = SwingFXUtils.fromFXImage (img,
+                                                     bim);
+
+        bi = Scalr.resize (bi,
+                           Scalr.Method.QUALITY,
+                           Scalr.Mode.FIT_TO_WIDTH,
+                           targetWidth,
+                           Scalr.OP_ANTIALIAS);
+
+        return SwingFXUtils.toFXImage (bi, null);
 
     }
 
@@ -1260,23 +1309,30 @@ public class UIUtils
 
             }
 
-            java.util.List<String> prefix = Arrays.asList (project,actions,openproject,enterpasswordpopup);
+            List<String> prefix = Arrays.asList (project,actions,openproject,enterpasswordpopup);
 
-            ComponentUtils.createPasswordEntryPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
-                                                     StyleClassNames.PROJECT,
-                                                     getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                                                  //"{Project} <b>%s</b> is encrypted, please enter the password to unlock it below.",
-                                                                                  proj.getName ()),
-                                                     null,
-                                                     validator,
-                                                     getUILanguageStringProperty (Utils.newList (prefix,buttons,open)),
-                                                     //"Open",
-                                                     getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)),
-                                                     //Constants.CANCEL_BUTTON_LABEL_ID,
-                                                     onProvided,
-                                                     onCancel,
-                                                     null,
-                                                     parentViewer);
+            QuollPopup.passwordEntryBuilder ()
+                .withViewer (parentViewer)
+                .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
+                .description (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                           proj.nameProperty ()))
+                .validator (validator)
+                .confirmButtonLabel (getUILanguageStringProperty (Utils.newList (prefix,buttons,open)))
+                .onConfirm (ev ->
+                {
+
+                    String pwd = ((PasswordField) ev.getForm ().lookup ("#password")).getText ();
+
+                    onProvided.accept (pwd);
+
+                })
+                .onCancel (ev ->
+                {
+
+                    onCancel.run ();
+
+                })
+                .build ();
 
         } else {
 
@@ -1437,7 +1493,6 @@ public class UIUtils
 
                                                            QuollPopup.messageBuilder ()
                                                             .withViewer (viewer)
-                                                            .withHandler (viewer)
                                                             .title (project,actions,deleteproject,editorproject,confirmpopup,title)
                                                             .message (getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,editorproject,confirmpopup,text),
                                                                                                    proj.getForEditor ().getShortName ()))
@@ -1673,8 +1728,8 @@ public class UIUtils
 
     }
 
-    public static ChoiceBox getWordsOptions (Supplier<Integer> defValue,
-                                             Consumer<Integer> onSelected)
+    public static ChoiceBox<StringProperty> getWordsOptions (Supplier<Integer> defValue,
+                                                             Consumer<Integer> onSelected)
     {
 
         Map<String, StringProperty> vals = new LinkedHashMap<> ();
@@ -2347,6 +2402,151 @@ public class UIUtils
 
     }
 
+    public static void showAddNewWebsiteLanguageStringsPopup (final AbstractViewer viewer)
+    {
+
+        java.util.List<String> prefix = Arrays.asList (websiteuilanguage,_new,popup);
+
+        QuollPopup.textEntryBuilder ()
+            .withViewer (viewer)
+            .withHandler (viewer)
+            .title (prefix,title)
+            .description (prefix,text)
+            .styleClassName (StyleClassNames.ADDNEWWEBSITELANGSTRINGS)
+            .confirmButtonLabel (prefix,buttons,create)
+            .cancelButtonLabel (prefix,buttons,cancel)
+            .onConfirm (ev ->
+            {
+
+                // TODO Improve this...
+                TextField tf = (TextField) ev.getForm ().lookup ("#text");
+
+                String v = tf.getText ().trim ();
+
+                try
+                {
+
+                    WebsiteLanguageStrings enStrs = WebsiteLanguageStringsManager.getWebsiteLanguageStringsFromServer ();
+
+                    WebsiteLanguageStringsManager.saveWebsiteLanguageStrings (enStrs);
+
+                    WebsiteLanguageStrings ls = new WebsiteLanguageStrings (enStrs);
+                    ls.setNativeName (v);
+                    ls.setUser (true);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to create website language strings editor",
+                                          e);
+
+                    ComponentUtils.showErrorMessage (viewer,
+                                                     "Unable to create website strings editor.");
+
+                }
+
+                // TODO new WebsiteLanguageStringsEditor (ls).init ();
+
+            })
+            .validator (v ->
+            {
+
+                if ((v == null)
+                    ||
+                    (v.trim ().length () == 0)
+                   )
+                {
+
+                    // This can be English because if the creator doesn't know English then they can't create a set of strings.
+                    return new SimpleStringProperty ("Please enter the language name");
+
+                }
+
+                return null;
+
+            })
+            .build ();
+
+    }
+
+    public static void showEditWebsiteLanguageStringsSelectorPopup (final AbstractViewer viewer)
+    {
+
+        String popupId = StyleClassNames.WEBSITELANGSTRINGSSELECT;
+
+        QuollPopup qp = viewer.getPopupById (popupId);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        Set<WebsiteLanguageStrings> objs = null;
+
+        try
+        {
+
+            objs = WebsiteLanguageStringsManager.getAllWebsiteLanguageStrings ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get all user website language strings.",
+                                  e);
+
+            ComponentUtils.showErrorMessage (viewer,
+                                             getUILanguageStringProperty (uilanguage,edit,actionerror));
+
+            return;
+
+        }
+
+        if (objs.size () == 0)
+        {
+
+            QuollPopup.messageBuilder ()
+                .title (uilanguage,edit,novalue,title)
+                .message (uilanguage,edit,novalue,text)
+                .withViewer (viewer)
+                .build ();
+
+            return;
+
+        }
+
+        ShowObjectSelectPopup.<WebsiteLanguageStrings>builder ()
+            .withViewer (viewer)
+            .title (getUILanguageStringProperty (uilanguage,edit,popup,title))
+            .styleClassName (StyleClassNames.WEBSITELANGSTRINGSSELECT)
+            .popupId (popupId)
+            .objects (objs)
+            .cellProvider ((obj, popupContent) ->
+            {
+
+               QuollLabel l = QuollLabel.builder ()
+                    .label (getUILanguageStringProperty (Arrays.asList (uilanguage,edit,popup,item),
+                                                         obj.getDisplayName (),
+                                                         Environment.formatNumber (obj.getPercentComplete ())))
+                    .build ();
+
+                l.setOnMouseClicked (ev ->
+                {
+
+                    WebsiteLanguageStringsManager.editWebsiteLanguageStrings (obj);
+
+                    popupContent.close ();
+
+                });
+
+                return l;
+
+            })
+            .build ()
+            .show ();
+
+    }
+
     public static void downloadDictionaryFiles (String         lang,
                                                 AbstractViewer viewer,
                                                 Runnable       onComplete)
@@ -2686,78 +2886,6 @@ public class UIUtils
 
         return new ImageView (SwingFXUtils.toFXImage (i, null));
 
-    }
-
-    public static void showObjectTypeEdit (UserConfigurableObjectType utype,
-                                           AbstractViewer             viewer)
-    {
-
-// TODO, Turn into own popup
-/*
-        final QPopup p = UIUtils.createClosablePopup (String.format (getUIString (userobjects,type,edit,popup,title),
-                                                                    //"Edit the %s information",
-                                                                     utype.getObjectTypeName ()),
-                                                      Environment.getIcon (Constants.EDIT_ICON_NAME,
-                                                                           Constants.ICON_POPUP),
-                                                      null);
-
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-        JTextPane m = UIUtils.createHelpTextPane (String.format (getUIString (userobjects,type,edit,popup,text),
-                                                                //"Use this popup to add or edit the fields, layout and information for your %s.",
-                                                                 utype.getObjectTypeNamePlural ()),
-                                                  viewer);
-
-        m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                  m.getPreferredSize ().height));
-        m.setBorder (null);
-
-        b.add (m);
-
-        b.add (Box.createVerticalStrut (5));
-
-        b.add (UserConfigurableObjectTypeEdit.getAsTabs (viewer,
-                                                         utype));
-
-        JButton finishb = new JButton (getUIString (userobjects,type,edit,popup,buttons,finish));
-        //"Finish");
-
-        finishb.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.closePopupParent (p);
-
-            }
-
-        });
-
-        JButton[] fbuts = new JButton[] { finishb };
-
-        JPanel bp = UIUtils.createButtonBar2 (fbuts,
-                                              Component.CENTER_ALIGNMENT);
-        bp.setOpaque (false);
-
-        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.add (Box.createVerticalStrut (10));
-
-        b.add (bp);
-
-        p.setContent (b);
-
-        b.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                           b.getPreferredSize ().height));
-
-        viewer.showPopupAt (p,
-                            UIUtils.getCenterShowPosition (viewer,
-                                                           p),
-                                 false);
-        p.setDraggable (viewer);
-*/
     }
 
     public static Set<MenuItem> getNewAssetMenuItems (final ProjectViewer viewer)

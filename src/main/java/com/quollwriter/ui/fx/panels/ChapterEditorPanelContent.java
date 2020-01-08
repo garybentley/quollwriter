@@ -67,7 +67,8 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         try
         {
-
+long ss = System.currentTimeMillis ();
+System.out.println ("TIME: " + System.currentTimeMillis ());
             this.editor = TextEditor.builder ()
                 //.text (chapter.getText ())
                 .textProperties (props)
@@ -75,7 +76,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                 .synonymProvider (viewer.getSynonymProvider ())
                 .formattingEnabled (true)
                 .build ();
-
+System.out.println ("ED: " + (System.currentTimeMillis () - ss));
         } catch (Exception e) {
 
             throw new GeneralException ("Unable to create editor panel for chapter: " +
@@ -83,6 +84,18 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                                         e);
 
         }
+
+        this.editor.readyForUseProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv)
+            {
+
+                this.setReadyForUse ();
+
+            }
+
+        });
 
         this.editor.getContent ().multiRichChanges ().subscribe (changes ->
         {
@@ -140,7 +153,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                                              ev ->
                                              {
 
-                                                  this.editor.requestFocus ();
+                                                  //this.editor.requestFocus ();
 
                                                   return InputHandler.Result.PROCEED;
 
@@ -226,7 +239,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
     public void requestFocus ()
     {
 
-        this.editor.requestFocus ();
+        //this.editor.requestFocus ();
 
     }
 
@@ -281,15 +294,15 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                 Integer i = s.getAsInt (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
                                         0);
 
-                this.editor.getCaretSelectionBind ().moveTo (i);
+                //this.editor.getCaretSelectionBind ().moveTo (i);
 
             }
 
-            this.editor.requestFollowCaret ();
+            //this.editor.requestFollowCaret ();
 
-            this.editor.setSpellCheckEnabled (this.viewer.isSpellCheckingEnabled ());
+            // this.editor.setSpellCheckEnabled (this.viewer.isSpellCheckingEnabled ());
 
-            this.editor.requestFocus ();
+            //this.editor.requestFocus ();
 
         };
 
@@ -383,7 +396,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                                ev ->
         {
 
-            this.editor.requestFocus ();
+            //this.editor.requestFocus ();
 
         });
 

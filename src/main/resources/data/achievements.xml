@@ -12,17 +12,17 @@
   </item>
 -->
 
-  <item id="swear50" englishOnly="true" category="project" hidden="true" type="word" chapter="true" allowRepeats="true" count="50" words="fuck,shit,twat,cunt,piss,wank,asswipe,asshole,bollocks,buttfucker,fucker,fuckwit,motherfucker">
+  <item id="swear50" englishOnly="true" category="project" hidden="true" icon="warning" type="word" chapter="true" allowRepeats="true" count="50" words="fuck,shit,twat,cunt,piss,wank,asswipe,asshole,bollocks,buttfucker,fucker,fuckwit,motherfucker">
     <name>Language Timothy!</name>
     <description>Use 50 swear words in a chapter.</description>
   </item>
 
-  <item id="exclamation5" englishOnly="true" category="project" hidden="true" type="word" chapter="true" allowRepeats="true" count="5" words="!">
+  <item id="exclamation5" englishOnly="true" category="project" icon="warning" hidden="true" type="word" chapter="true" allowRepeats="true" count="5" words="!">
     <name>I'm not crazy!</name>
     <description>Use ! 5 times or more in a chapter.</description>
   </item>
 
-  <item id="speechverbs10" englishOnly="true" category="project" type="word" chapter="true" allowRepeats="false" count="10" words="reported,questioned,read,added,said,asked,replied,shouted,suggested,commented,described,explained,mentioned,offered,warned,wondered,told,requested">
+  <item id="speechverbs10" englishOnly="true" category="project" icon="chapter" type="word" chapter="true" allowRepeats="false" count="10" words="reported,questioned,read,added,said,asked,replied,shouted,suggested,commented,described,explained,mentioned,offered,warned,wondered,told,requested">
     <name>Variation on a theme</name>
     <description>Use 10 different speech verbs in a chapter.</description>
   </item>
@@ -100,47 +100,47 @@
     <description>You've written 560,000 words.</description>
   </item>
 
-  <item id="hourwrite" category="project" type="session" mins="60" currentSession="true" event="chapter.edit">
+  <item id="hourwrite" category="project" type="session" icon="edit" mins="60" currentSession="true" event="chapter.edit">
     <name>My fingers ache</name>
     <description>Write for 60 minutes (with only 5 minute breaks).</description>
   </item>
 
-  <item id="sessionwords1000" category="project" type="session" wordCount="1000" currentSession="true">
+  <item id="sessionwords1000" category="project" icon="edit" type="session" wordCount="1000" currentSession="true">
     <name>On a roll</name>
     <description>Write 1,000 words or more in one session.</description>
   </item>
 
-  <item id="sessionwords2000" category="project" type="session" wordCount="2000" currentSession="true">
+  <item id="sessionwords2000" category="project" icon="edit" type="session" wordCount="2000" currentSession="true">
     <name>Tearing up the keys</name>
     <description>Write 2,000 words or more in one session.</description>
   </item>
 
-  <item id="sessionwords5000" category="project" type="session" wordCount="5000" currentSession="true">
+  <item id="sessionwords5000" category="project" icon="edit"  type="session" wordCount="5000" currentSession="true">
     <name>Pact with the devil</name>
     <description>Write 5,000 words or more in one session.</description>
   </item>
 
-  <item id="session5sessions500words" category="project" type="session" count="5" days="7" wordCount="500" event="project.open,close">
+  <item id="session5sessions500words" category="project" icon="edit" type="session" count="5" days="7" wordCount="500" event="project.open,close">
     <name>Steaming ahead</name>
     <description>Over the course of 7 days have 5 or more writing sessions where you write 500 words or more.</description>
   </item>
 
-  <item id="sessionEditChapters3" category="project" type="session" count="3" currentSession="true" event="chapter.edit">
+  <item id="sessionEditChapters3" category="project" icon="edit" type="session" count="3" currentSession="true" event="chapter.edit">
     <name>A little of this, a little of that</name>
     <description>Edit 3 chapters in one writing session.</description>
   </item>
 
-  <item id="noeditdays7" category="project" type="session" days="7" action="noedit" eventName="project.close">
+  <item id="noeditdays7" category="project" type="session" icon="edit" days="7" action="noedit" eventName="project.close">
     <name>Thinking time</name>
     <description>Don't edit your project for 7 days.</description>
   </item>
 
-  <item id="noeditdays14" category="project" type="session" days="14" action="noedit" eventName="project.close">
+  <item id="noeditdays14" category="project" type="session" icon="edit" days="14" action="noedit" eventName="project.close">
     <name>Have you forgotten about me?</name>
     <description>Don't edit your project for 14 days.</description>
   </item>
 
-  <item id="noeditdays28" category="project" type="session" days="28" action="noedit" eventName="project.close">
+  <item id="noeditdays28" category="project" type="session" icon="edit" days="28" action="noedit" eventName="project.close">
     <name>No one visits me anymore</name>
     <description>Don't edit your project for 28 days.</description>
   </item>

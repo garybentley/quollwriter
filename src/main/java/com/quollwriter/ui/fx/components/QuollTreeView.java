@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
+import javafx.beans.property.*;
 
 import com.quollwriter.ui.fx.*;
 
@@ -72,6 +73,7 @@ public class QuollTreeView<T> extends Pane
     private Map<TreeItem<T>, QuollTreeCell> cells = new HashMap<> ();
     private Function<TreeItem<T>, Node> cellProvider = null;
     private TreeItem<T> root = null;
+    private ObjectProperty<T> selectedObjectProp = null;
 
     // Make a property.
     private boolean showRoot = true;
@@ -81,6 +83,7 @@ public class QuollTreeView<T> extends Pane
 
         super ();
 
+        this.selectedObjectProp = new SimpleObjectProperty<> ();
         this.getStyleClass ().add (StyleClassNames.TREE);
         // Default the indent to 10.
         this.cellIndent = new SimpleStyleableDoubleProperty (CELL_INDENT, 10d);
@@ -204,9 +207,22 @@ public class QuollTreeView<T> extends Pane
 
     }
 
-    public void select (Object o)
+    public void select (T o)
     {
 
+        TreeItem<T> ti = this.getTreeItemForObject (o);
+
+        if (ti instanceof CheckBoxTreeItem)
+        {
+
+            ((CheckBoxTreeItem) ti).setSelected (true);
+            return;
+
+        }
+
+        this.selectedObjectProp.setValue (o);
+
+        /*
         this.clearSelection ();
 
         this.cells.keySet ().stream ()
@@ -215,12 +231,12 @@ public class QuollTreeView<T> extends Pane
 
                 if (ti.getValue ().equals (o))
                 {
-
+System.out.println ("GOT MATCH");
                     QuollTreeCell c = this.cells.get (ti);
-
+System.out.println ("CELL: " + c);
                     if (c != null)
                     {
-
+xxx
                         c.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, true);
 
                         UIUtils.scrollIntoView (c,
@@ -231,7 +247,7 @@ public class QuollTreeView<T> extends Pane
                 }
 
             });
-
+*/
     }
 
     public void expandAll ()
@@ -346,9 +362,11 @@ public class QuollTreeView<T> extends Pane
     public void clearSelection ()
     {
 
+        this.selectedObjectProp.setValue (null);
+        /*
         this.cells.values ().stream ()
             .forEach (c -> c.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, false));
-
+*/
     }
 
     public void setShowRoot (boolean v)
@@ -459,6 +477,13 @@ public class QuollTreeView<T> extends Pane
 
         TreeItem<T> ti = this.getTreeItemForObject (t);
 
+        if (ti == null)
+        {
+
+            return;
+
+        }
+
         TreeItem<T> parent = ti.getParent ();
         parent.getChildren ().remove (ti);
         this.requestLayout ();
@@ -468,7 +493,8 @@ public class QuollTreeView<T> extends Pane
     public void removeBranch (TreeItem<T> ti)
     {
 
-        this.getChildren ().remove (this.cells.remove (ti));
+        QuollTreeCell tc = this.cells.remove (ti);
+        this.getChildren ().remove (tc);
 
         for (TreeItem<T> ci : ti.getChildren ())
         {
@@ -780,6 +806,26 @@ public class QuollTreeView<T> extends Pane
         //cell.autosize ();
         double ch = cell.prefHeight (width);
         double cw = cell.prefWidth (ch);
+
+        T selObj = this.selectedObjectProp.getValue ();
+        cell.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, false);
+
+        if (selObj != null)
+        {
+
+            if (ti.getValue () != null)
+            {
+
+                if (ti.getValue ().equals (selObj))
+                {
+
+                    cell.pseudoClassStateChanged (StyleClassNames.SELECTED_PSEUDO_CLASS, true);
+
+                }
+
+            }
+
+        }
 
         this.layoutInArea (cell,
                            x,

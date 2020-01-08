@@ -1018,7 +1018,7 @@ System.out.println ("CARET: " + oldv + ", " + newv);
 
         } else
         {
-System.out.println ("HERE");
+
             if (this.subscription != null)
             {
 

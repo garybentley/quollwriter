@@ -156,19 +156,19 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
-    private void updateSortableFieldsState ()
+    public void updateSortableFieldsState ()
     {
 
         if (this.ignoreFieldsStateChanges)
         {
-
+System.out.println ("IGNORING");
             return;
 
         }
 
         try
         {
-
+System.out.println ("UPDATING TO: " + this.getSortableFieldsState ().asString ());
             this.setProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME,
                               this.getSortableFieldsState ().asString ());
 
@@ -267,6 +267,7 @@ public class UserConfigurableObjectType extends NamedObject
     }
 
     public void setConfigurableFields (List<UserConfigurableObjectTypeField> fields)
+                                throws Exception
     {
 
         this.ignoreFieldsStateChanges = true;
@@ -285,6 +286,8 @@ public class UserConfigurableObjectType extends NamedObject
                 this.primaryNameField = (ObjectNameUserConfigurableObjectTypeField) f;
 
             }
+
+            f.setUserConfigurableObjectType (this);
 
         }
 
@@ -338,7 +341,19 @@ public class UserConfigurableObjectType extends NamedObject
                 // Create a single column.
                 FieldsColumn col = new FieldsColumn ();
                 fields.stream ()
-                    .forEach (f -> col.addField (f));
+                    .forEach (f ->
+                    {
+
+                        if (f == this.primaryNameField)
+                        {
+
+                            return;
+
+                        }
+
+                        col.addField (f);
+
+                    });
                 this.sortableFieldsColumns.add (col);
 
             }
@@ -560,6 +575,9 @@ public class UserConfigurableObjectType extends NamedObject
 
             }
 
+            this.setProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME,
+                              this.getSortableFieldsState ().asString ());
+
         } else {
 
             Map<String, UserConfigurableObjectTypeField> _fields = new HashMap<> ();
@@ -647,9 +665,16 @@ public class UserConfigurableObjectType extends NamedObject
 
         Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
 
+        if (this.primaryNameField != null)
+        {
+
+            fields.add (this.primaryNameField);
+
+        }
+
         this.sortableFieldsColumns.stream ()
             .forEach (c -> fields.addAll (c.fields ()));
-
+System.out.println ("FIELDS: " + fields.size ());
         return fields;
 
     }

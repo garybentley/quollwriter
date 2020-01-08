@@ -179,9 +179,10 @@ public class NewProjectPanel extends VBox
         try
         {
 
+            proj.setFilePassword (this.getPassword ());
+
             pj.newProject (this.getSaveDirectory (),
-                           proj,
-                           this.getPassword ());
+                           proj);
 
         } catch (Exception e)
         {
@@ -189,6 +190,10 @@ public class NewProjectPanel extends VBox
             Environment.logError ("Unable to create new project: " +
                                   proj,
                                   e);
+
+            // Close the viewer, don't care about changes since there won't be any.
+            pj.close (false,
+                      null);
 
             ComponentUtils.showErrorMessage (this.viewer,
                                              getUILanguageStringProperty (newprojectpanel,actionerror));

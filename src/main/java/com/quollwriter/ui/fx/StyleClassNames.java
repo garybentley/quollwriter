@@ -33,6 +33,17 @@ public final class StyleClassNames
     public static final PseudoClass NOIMAGE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NOIMAGE);
     public static final PseudoClass HIDELABELS_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HIDELABELS);
 
+    public static final String VIEWERCONTENT = "viewercontent";
+    public static final String DIVIDER = "divider";
+    public static final String BIGICON = "bigicon";
+    public static final String SMALLICON = "smallicon";
+    public static final String WEBSITELANGSTRINGSSELECT = "websitelangstringsselect";
+    public static final String ADDNEWWEBSITELANGSTRINGS = "addnewwebsitelangstrings";
+    public static final String START = "start";
+    public static final String WEBSITE = "website";
+    public static final String POPUPVIEWER = "popupviewer";
+    public static final String PASSWORDENTRY = "passwordentry";
+    public static final String NOTETYPESMANAGER = "notetypesmanager";
     public static final String CREATEASSET = "createasset";
     public static final String ASSETS = "assets";
     public static final String FIELDS = "fields";

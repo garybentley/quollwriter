@@ -155,6 +155,11 @@ Text
     -fx-graphic: url(/imgs/link16.png);
 }
 
+.hyperlink.edit
+{
+    -fx-graphic: url(/imgs/edit16.png);
+}
+
 .hyperlink:hover
 {
     -fx-underline: true;
@@ -991,6 +996,7 @@ Text
 .menu-item.achievements .image-view { -fx-image: url(/imgs/achievement16.png); }
 .menu-item.whatsnew .image-view { -fx-image: url(/imgs/whats-new16.png); }
 .menu-item.view .image-view { -fx-image: url(/imgs/view16.png); }
+.menu-item.asset .image-view { -fx-image: url(/imgs/assets16.png); }
 .menu-item.tag .image-view
 {
     -fx-image: url(/imgs/tag16.png);
@@ -1198,7 +1204,8 @@ Text
 .qpopup.problemfinderconfig .rule .buttons .button,
 .qpopup.problemfinderconfig .button.add,
 .qpopup.problemfinderconfig .menu-button.add,
-.qpopup.problemfinderconfig .button.delete
+.qpopup.problemfinderconfig .button.delete,
+.toolbar.buttons .button
  {
      -fx-border-color: transparent;
      -fx-border-width: 1px;
@@ -1366,10 +1373,27 @@ Text
     -fx-background-color: -qw-focus-color;
 }
 
-.split-pane-divider
+.split-pane-divider, .viewer .divider
 {
     -fx-padding: 0 0 0 1px;
-    -fx-background-color: #aaaaaa;
+    -fx-background-color: -qw-component-border-color;
+    -fx-pref-width: 1px;
+}
+
+.viewer .divider:hover
+{
+    -fx-cursor: h-resize;
+}
+
+.viewer .tab-pane
+{
+    -fx-min-width: 300px;
+}
+
+.viewer .viewercontent:dragging
+{
+    -fx-cursor: h-resize;
+    -fx-background-color: transparent;
 }
 
 .split-pane
@@ -1560,9 +1584,25 @@ Text
 /*
  * Achievements panel (AchievementsPanel)
  */
+.panel.achievements .header
+{
+    -fx-padding: 0.3em;
+}
+
 .panel.achievements .header .icon
 {
     -fx-image: url(/imgs/achievement24.png);
+}
+
+.panel.achievements .scroll-pane
+{
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: transparent;
+}
+
+.panel.achievements .scroll-pane:scrolling
+{
+    -fx-border-color: -qw-component-border-color;
 }
 
 .panel.achievements .header .controls .close
@@ -1572,7 +1612,12 @@ Text
 
 .panel.achievements .description
 {
-    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+    -fx-padding: 0.5em 0.5em 0.5em 1em;
+}
+
+.panel.achievements .accordion
+{
+    -fx-padding: 0 0 1em 0;
 }
 
 .panel.achievements .accordion > .header
@@ -1580,15 +1625,14 @@ Text
     -fx-cursor: hand;
 }
 
-.panel.achievements .accordion > .header .icon
+.panel.achievements .accordion .content
 {
-    visibility: false;
+    -fx-padding: 0 1em 0 1em;
 }
 
-.panel.achievements .accordion > .header .title
+.panel.achievements .accordion .header
 {
-    -fx-padding: 0 0 0 0.5em;
-    -fx-font-size: 1.5em;
+    -fx-padding: 0 0 0.5em 1em;
 }
 
 .panel.achievements .achievement
@@ -1601,13 +1645,18 @@ Text
 .achievement .title
 {
     -fx-font-size: 1.3em;
-    -fx-padding: -0.3em 0 0 0.5em;
-    -fx-alignment: top-center;
+    -fx-padding: -0.3em 0 0 0.75em;
+    -fx-alignment: top-left;
+}
+
+.panel.achievements .accordion.project .header .icon
+{
+    -fx-image: url(/imgs/project24.png);
 }
 
 .panel.achievements .achievement .description
 {
-    -fx-padding: 0 0 0 0.5em;
+    -fx-padding: 0 0 0 1em;
 }
 
 .panel.achievements .hide
@@ -1635,6 +1684,19 @@ Text
 .achievement.save .icon { -fx-image: url(/imgs/save24.png); }
 .achievement.snapshot .icon { -fx-image: url(/imgs/snapshot24.png); }
 .achievement.comment .icon { -fx-image: url(/imgs/comment24.png); }
+.achievement.note .icon { -fx-image: url(/imgs/note24.png); }
+.achievement.chapter .icon { -fx-image: url(/imgs/chapter24.png); }
+.achievement.character .icon { -fx-image: url(/imgs/character24.png); }
+.achievement.object .icon { -fx-image: url(/imgs/object24.png); }
+.achievement.location .icon { -fx-image: url(/imgs/location24.png); }
+.achievement.project-import .icon { -fx-image: url(/imgs/project-import24.png); }
+.achievement.researchitem .icon { -fx-image: url(/imgs/researchitem24.png); }
+.achievement.outlineitem .icon { -fx-image: url(/imgs/outlineitem24.png); }
+.achievement.scene .icon { -fx-image: url(/imgs/scene24.png); }
+.achievement.statistics .icon,
+.achievement.wordcount .icon
+{ -fx-image: url(/imgs/wordcount24.png); }
+.achievement.warning .icon { -fx-image: url(/imgs/warning24.png); }
 
 .achievement:achieved .achieved
 {
@@ -1785,9 +1847,14 @@ Text
     -fx-image: url(/imgs/eye16.png);
 }
 
-.panel.options .naming .header .icon
+.panel.options .naming .header .icon, .panel.options .start .header .icon
 {
     -fx-image: url(/imgs/settings16.png);
+}
+
+.panel.options .project .header .icon
+{
+    -fx-image: url(/imgs/project16.png);
 }
 
 .panel.options .assets .header .icon
@@ -1798,6 +1865,31 @@ Text
 .panel.options .editing .header .icon
 {
     -fx-image: url(/imgs/chapter16.png);
+}
+
+.panel.options .contacts .header .icon
+{
+    -fx-image: url(/imgs/editors16.png);
+}
+
+.panel.options .edit .header .icon
+{
+    -fx-image: url(/imgs/edit16.png);
+}
+
+.panel.options .warmup .header .icon
+{
+    -fx-image: url(/imgs/warmups16.png);
+}
+
+.panel.options .achievements .header .icon
+{
+    -fx-image: url(/imgs/achievement16.png);
+}
+
+.panel.options .bug .header .icon
+{
+    -fx-image: url(/imgs/bug16.png);
 }
 
 .panel.options .editing .hyperlink
@@ -1822,7 +1914,7 @@ Text
     -fx-padding: 0 0 0.75em 1em;
 }
 
-.panel.options .sections .sub .item
+.panel.options .sections .sub .item, .panel.options .sections .main .item
 {
     -fx-padding: 0 0 0.5em 0;
     -fx-spacing: 0.5em;
@@ -1946,6 +2038,11 @@ Text
      -fx-fill: black;
  }
 
+ .qpopup.layoutselector .item:selected .description .label
+ {
+     -fx-text-fill: #ffffff;
+ }
+
 /**
  * COPIED FROM AeroFX
  */
@@ -1961,25 +2058,40 @@ Text
     -fx-padding: 0.5em 1em 0.5em 1em;
     -fx-text-fill: -fx-text-base-color;
 }
-/*
-.qwebview
+
+.button
 {
-    -fx-background-color: -qw-bg-color;
-}
-*/
-/*
-.root:night .choice-box,
-.root:night .combo-box,
-.root:night .qwebview
-{
-    -fx-background-color: -qw-bg-color;
+    -fx-alignment: center;
+    -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-background-radius: 0;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);
+    -fx-border-radius: 1px;
     -fx-border-color: -qw-component-border-color;
 }
-*/
-.combo-box .combo-box-popup
+
+.button:hover
 {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #cdcdcd 100%);
+    -fx-border-color: -qw-border-color;
+}
+
+.button:armed
+{
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #87cde5 100%);
+    -fx-border-color: -qw-border-color;
+}
+
+.combo-box
+{
+    -fx-border-radius: 0;
+    -fx-background-color: transparent;
     -fx-border-color: -qw-component-border-color;
     -fx-border-width: 1px;
+}
+
+.combo-box .list-view .list-cell
+{
+    -fx-padding: 0.5em;
 }
 
 .context-menu,
@@ -1995,11 +2107,6 @@ Text
 -fx-background-color: -qw-bg-color;
 }
 
-.root.popup
-{
-    -fx-background-color: blue;
-}
-
 .root:night .menu-item .label
 {
     -fx-text-fill: -fx-text-base-color;
@@ -2010,7 +2117,7 @@ Text
 {
     -fx-text-fill: -fx-text-base-color;
 }
-
+/*
 .button:hover{
     -fx-background-color:
         rgb(60,127,177),
@@ -2024,14 +2131,15 @@ Text
         linear-gradient(rgb(47,212,255), rgb(47,212,255)),
         linear-gradient(rgb(234,246,252) 0%, rgb(228,243,252) 49%, rgb(202,233,250) 50%, rgb(182,222,245) 100%);
 }
-
+*/
+/*
 .button:armed, .toggle-button:armed{
     -fx-background-color:
         rgb(44,98,139),
         linear-gradient(rgb(158,176,186), rgb(158,176,186)),
         linear-gradient(rgb(229,244,252) 0%, rgb(196,229,246) 49%, rgb(152,209,239) 50%, rgb(104,179,219) 100%);
 }
-
+*/
 .progress-bar .track
 {
     -fx-border-width: 0;
@@ -2216,6 +2324,11 @@ Text
 .qpopup .buttons .button
 {
     -fx-content-display: text-only;
+}
+
+.qpopup .toolbar.buttons .button
+{
+    -fx-content-display: graphic-only;
 }
 
  .qpopup .form .buttons
@@ -2517,6 +2630,11 @@ Text
     -fx-padding: 0;
 }
 
+.qpopup.chapteritem.edit .linkedto .scroll-pane, .qpopup.chapteritem.add .linkedto .scroll-pane
+{
+    -fx-max-height: 15em;
+}
+
 .qpopup.chapteritem .linkedto .tree
 {
     -fx-cell-indent: 0.75em;
@@ -2651,6 +2769,11 @@ Text
     -fx-graphic: url(/imgs/stop16.png);
 }
 
+.notification .controls .next
+{
+    -fx-graphic: url(/imgs/next16.png);
+}
+
 .notification .progress-bar
 {
     -fx-padding: 0.5em 0 0.5em 0.5em;
@@ -2659,6 +2782,11 @@ Text
     -fx-min-height: 2.5em;
     -fx-max-height: 2.5em;
     -fx-pref-height: 2.5em;
+}
+
+.notification.tips .icon
+{
+    -fx-image: url(/imgs/help24.png);
 }
 
 .notification.information .icon
@@ -2700,6 +2828,7 @@ Text
 .filefind
 {
     -fx-spacing: 0.2em;
+    -fx-max-width: 50em;
 }
 
 .filefind .button
@@ -2711,6 +2840,11 @@ Text
 .filefind .button.find
 {
     -fx-graphic: url(/imgs/find16.png);
+}
+
+.filefind .button.view
+{
+    -fx-graphic: url(/imgs/eye16.png);
 }
 
 .filefind .button.clear
@@ -2859,7 +2993,7 @@ Text
 .qpopup.createbackup .header .icon,
 .qpopup.backupcreated .header .icon
 {
-    -fx-image: url(/imgs/snapshot24.png);
+    -fx-image: url(/imgs/snapshot16.png);
 }
 
 .qpopup .hyperlink.view
@@ -2923,6 +3057,11 @@ Text
     -fx-padding: 0.5em;
     -fx-text-alignment: center;
     -fx-graphic: url(/imgs/warning20.png);
+}
+
+.qpopup.restore .header .icon
+{
+    -fx-image: url(/imgs/restore16.png);
 }
 
 .qpopup .itemmanager .buttons, .qpopup .backups .buttons
@@ -3588,6 +3727,7 @@ Text
 {
     -fx-pref-width: 16em;
     -fx-min-width: 16em;
+    -fx-pref-width: 50em;
 }
 
 .sidebar.project .accordion:dragover
@@ -3604,6 +3744,22 @@ Text
 .sidebar.project .accordion .header
 {
     -fx-padding: 0 0 0.2em 0.5em;
+}
+
+.sidebar.project .accordion.notes .header .icon
+{
+    -fx-image: url(/imgs/note16.png);
+}
+
+.sidebar.project .accordion.notes .tree .cell .label.note,
+.sidebar.project .accordion.notes .tree .cell .label.editneedednote
+{
+    -fx-graphic: url(/imgs/bullet16.png);
+}
+
+.sidebar.project .accordion.notes .tree .cell .label.chapter
+{
+    -fx-graphic: url(/imgs/chapter16.png);
 }
 
 .sidebar.project .accordion.chapter .header .icon
@@ -3887,7 +4043,7 @@ Text
 
 .linkedto .scroll-pane
 {
-    -fx-pref-height: 15em;
+    /*-fx-pref-height: 15em;*/
     -fx-fit-to-width: false;
     -fx-padding: 0.5em 0 0 0.5em;
 }
@@ -5074,4 +5230,102 @@ a
 {
     -fx-padding: 0.25em 0 0 0.5em;
     -fx-max-width: 70em;
+}
+
+/**
+ * DictionaryManager
+ */
+.qpopup.dictionarymanager .header .icon
+{
+    -fx-image: url(/imgs/dictionary16.png);
+}
+
+.qpopup.dictionarymanager .content .header .icon
+{
+    visibility: hidden;
+}
+
+/**
+ * NoteTypesManager
+ */
+.qpopup.notetypesmanager .header .icon
+{
+    -fx-image: url(/imgs/note16.png);
+}
+
+.qpopup.notetypesmanager .content .header .icon
+{
+    visibility: hidden;
+}
+
+.root.popupviewer .qpopup.question
+{
+    /*-fx-padding: 0.5em 0.75em 0.5em 0.75em;*/
+    -fx-pref-width: -qw-popup-width;
+    -fx-min-width: -qw-popup-width;
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0;
+    -fx-effect: none;
+}
+
+.root.popupviewer .qpopup .header .controls
+{
+    visibility: hidden;
+}
+
+.status-busy
+{
+    -fx-graphic: url(/imgs/status-busy16.png);
+    -fx-image: url(/imgs/status-busy16.png);
+}
+
+.status-online
+{
+    -fx-graphic: url(/imgs/status-online16.png);
+    -fx-image: url(/imgs/status-online16.png);
+}
+
+.status-away
+{
+    -fx-graphic: url(/imgs/status-away16.png);
+    -fx-image: url(/imgs/status-away16.png);
+}
+
+.status-snooze
+{
+    -fx-graphic: url(/imgs/status-snooze16.png);
+    -fx-image: url(/imgs/status-snooze16.png);
+}
+
+.qpopup.stop .header .icon
+{
+    -fx-image: url(/imgs/stop16.png);
+}
+
+.smallicon
+{
+    -fx-max-width: 16px;
+    -fx-max-height: 16px;
+    -fx-pref-height: 16px;
+    -fx-pref-width: 16px;
+    -fx-cursor: hand;
+}
+
+.bigicon
+{
+    -fx-max-width: 24px;
+    -fx-max-height: 24px;
+    -fx-pref-width: 24px;
+    -fx-pref-height: 24px;
+    -fx-cursor: hand;
+}
+
+.bigicon:noimage .image-view
+{
+    -fx-image: url(/imgs/find24.png);
+}
+
+.smallicon:noimage .image-view
+{
+    -fx-image: url(/imgs/find16.png);
 }

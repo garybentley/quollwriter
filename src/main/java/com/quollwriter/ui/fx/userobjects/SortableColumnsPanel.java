@@ -411,7 +411,7 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
         lc.getTitle ().setOnDragDetected (ev ->
         {
-
+/*
             if (this.areFieldsBeingEdited ())
             {
 
@@ -419,7 +419,7 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
                 return;
 
             }
-
+*/
             this.dragColumn = lc;
 
             Dragboard db = lc.startDragAndDrop (TransferMode.MOVE);

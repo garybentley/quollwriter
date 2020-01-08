@@ -136,6 +136,15 @@ public class State
 
     }
 
+    public Float getAsFloat (Key   name,
+                             Float def)
+    {
+
+        return this.getAsFloat (name.name (),
+                                def);
+
+    }
+
     public Float getAsFloat (String  name,
                              Float   def)
     {

@@ -5,6 +5,7 @@ import java.awt.dnd.*;
 import java.awt.event.*;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.net.*;
 
@@ -2904,13 +2905,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         }
 
         this.setIgnoreProjectEvents (true);
+        this.proj.setFilePassword (filePassword);
 
         this.dBMan = Environment.createProject (saveDir.toPath (),
-                                                p,
-                                                filePassword);
+                                                p);
 
         this.proj = this.dBMan.getProject ();
-		this.proj.setFilePassword (filePassword);
 
         if ((this.proj.getBooks () == null) ||
             (this.proj.getBooks ().size () == 0) ||
@@ -3091,7 +3091,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         this.dBMan = new ObjectManager ();
 
-        this.dBMan.init (new File (p.getProjectDirectory ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
+        this.dBMan.init (new File (p.getProjectDirectory ().toFile ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
                          username,
                          password,
                          filePassword,
@@ -3119,7 +3119,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         Environment.incrStartupProgress ();
 
 		this.proj.setFilePassword (filePassword);
-        this.proj.setProjectDirectory (p.getProjectDirectory ());
+        this.proj.setProjectDirectory (p.getProjectDirectory ().toFile ());
 		this.proj.setBackupDirectory (p.getBackupDirPath ().toFile ());
         // TODO getBackupDirectory ());
         //this.proj.setFilePassword (filePassword);
@@ -3646,9 +3646,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 					{
 
 						// Get the last backup.
-						File last = dBMan.getLastBackupFile (proj);
+						Path last = dBMan.getLastBackupFile (proj);
 
-						long lastDate = (last != null ? last.lastModified () : proj.getDateCreated ().getTime ());
+						long lastDate = (last != null ? last.toFile ().lastModified () : proj.getDateCreated ().getTime ());
 
 						if ((System.currentTimeMillis () - lastDate) > Utils.getTimeAsMillis (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME)))
 						{
@@ -5984,10 +5984,10 @@ TODO
     {
 
         java.util.Set<NamedObject> otherObjects = o.getOtherObjectsInLinks ();
-
+/*
         this.dBMan.deleteLinks (o,
                                 null);
-
+*/
         this.refreshObjectPanels (otherObjects);
 
     }

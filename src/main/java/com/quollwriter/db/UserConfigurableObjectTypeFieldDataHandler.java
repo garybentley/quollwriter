@@ -243,7 +243,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
 
         List params = new ArrayList ();
         params.add (t.getKey ());
-
+System.out.println ("DELETE FIELD: " + t.getKey ());
         this.objectManager.executeStatement ("DELETE FROM userobjecttypefield WHERE dbkey = ?",
                                              params,
                                              conn);

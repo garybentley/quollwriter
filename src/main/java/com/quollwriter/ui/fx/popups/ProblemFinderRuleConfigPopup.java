@@ -788,8 +788,12 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
     private static class RuleViewBox extends VBox
     {
 
-        private BasicHtmlTextFlow info = null;
-        private BasicHtmlTextFlow desc = null;
+//        private BasicHtmlTextFlow info = null;
+//        private BasicHtmlTextFlow desc = null;
+        private QuollTextView info = null;
+        private QuollTextView desc = null;
+        private SimpleStringProperty infoText = null;
+        private SimpleStringProperty descText = null;
         private Rule rule = null;
 
         public RuleViewBox (Rule                         r,
@@ -801,17 +805,24 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             this.setUserData (r);
             this.getStyleClass ().add (StyleClassNames.RULE);
 
-            this.info = BasicHtmlTextFlow.builder ()
-                .text (new SimpleStringProperty (r.getSummary ()))
+            // TODO Move to the Rule.
+            this.infoText = new SimpleStringProperty (r.getSummary ());
+            this.descText = new SimpleStringProperty (r.getDescription ());
+
+            this.info = QuollTextView.builder ()
+                //BasicHtmlTextFlow.builder ()
+                .text (this.infoText)
                 .styleClassName (StyleClassNames.SUMMARY)
-                .withHandler (viewer)
+                .withViewer (viewer)
                 .build ();
             HBox.setHgrow (this.info,
                            Priority.ALWAYS);
-            this.desc = BasicHtmlTextFlow.builder ()
-                .text (new SimpleStringProperty (r.getDescription ()))
+            this.desc = QuollTextView.builder ()
+                //BasicHtmlTextFlow.builder ()
+                .text (this.descText)
                 .styleClassName (StyleClassNames.DESCRIPTION)
-                .withHandler (viewer)
+                //.withHandler (viewer)
+                .withViewer (viewer)
                 .build ();
             this.desc.managedProperty ().bind (this.desc.visibleProperty ());
             this.desc.setVisible (false);
@@ -867,7 +878,6 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
                         QuollPopup qp = QuollPopup.messageBuilder ()
                             .withViewer (viewer)
-                            .withHandler (viewer)
                             .styleClassName (StyleClassNames.DELETE)
                             .title (problemfinder,config,removerule,title)
                             .removeOnClose (true)
@@ -951,8 +961,8 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         public void update ()
         {
 
-            this.desc.setText (this.rule.getDescription ());
-            this.info.setText (this.rule.getSummary ());
+            this.descText.setValue (this.rule.getDescription ());
+            this.infoText.setValue (this.rule.getSummary ());
 
         }
 

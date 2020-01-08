@@ -655,12 +655,12 @@ Removed so that the full screen properties will inherit from the standard editor
 
   <property id="projectSidebarSections" type="string">
     <description>The sections that the project sidebar should display.</description>
-    <value>chapter|character|location|object|researchitem|note|projecteditor</value>
+    <value>chapter|character|location|object|researchitem|projecteditor</value>
   </property>
 
   <property id="defaultProjectSidebarSections" type="string">
     <description>The default sections that the project sidebar should display.</description>
-    <value>chapter|character|location|object|researchitem|note|projecteditor</value>
+    <value>chapter|character|location|object|researchitem|projecteditor</value>
   </property>
 
   <property id="highlightSplitpaneDividers" type="boolean">
@@ -718,5 +718,12 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>9</value>
   </property>
 
+  <property id="autoSnapshotsTime" type="integer"><value><![CDATA[43200000]]></value></property>
+  <property id="enableAutoSnapshots" type="boolean"><value><![CDATA[true]]></value></property>
+  <property id="splitPaneDividerLocation" type="integer"><description><![CDATA[The default split pane position.]]></description><value><![CDATA[250]]></value></property>
+  <property id="windowHeight" type="integer"><description><![CDATA[The default window height.]]></description><value><![CDATA[800]]></value></property>
+  <property id="chapterAutoSaveEnabled" type="boolean"><value><![CDATA[true]]></value></property>
+  <property id="windowWidth" type="integer"><description><![CDATA[The default window width.]]></description><value><![CDATA[1000]]></value></property>
+  <property id="chapterAutoSaveInterval" type="integer"><value><![CDATA[300000]]></value></property>
 
 </properties>

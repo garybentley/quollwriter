@@ -2,6 +2,7 @@ package com.quollwriter.data;
 
 import java.io.*;
 import java.nio.file.*;
+import java.nio.file.attribute.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -51,37 +52,37 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     public static final String OBJECT_TYPE = "projectinfo";
 
     private EditorEditor forEditor = null;
-    private File               projectDirectory = null;
-    private Date               lastEdited = null;
+    private ObjectProperty<Path> projectDirectoryProp = null;
     private boolean            noCredentials = false;
     private String             type = Project.NORMAL_PROJECT_TYPE;
     private File               icon = null;
-    private File               filesDirectory = null;
-    private Map<Statistic, Object> statistics = new HashMap ();
+    private Path               filesDirectory = null;
+    private ObservableMap<Statistic, Object> statistics = null;
     private boolean            encrypted = false;
     private Project            project = null;
     private String             filePassword = null;
 	private boolean opening = false;
-    private Path backupDirPath = null;
     private ObjectProperty<Path> backupDirPathProp = null;
     private ObservableSet<Path> backupPaths = null;
-    private SetProperty<Path> backupPathsProp = null;
 
     private StringProperty statusProp = null;
     private ObjectProperty<Date> lastEditedProp = null;
+    private IPropertyBinder binder = null;
 
     public ProjectInfo ()
     {
 
         super (OBJECT_TYPE);
 
+        this.statistics = FXCollections.observableMap (new HashMap<> ());
+
         final ProjectInfo _this = this;
+        this.binder = new PropertyBinder ();
 
         this.statusProp = new SimpleStringProperty (this, STATUS_PROP_NAME);
         this.statusProp.addListener ((p, oldv, newv) ->
         {
 
-            // TODO Change to pass the property with the old/new values.
             _this.firePropertyChangedEvent (STATUS_PROP_NAME,
                                             oldv,
                                             newv);
@@ -98,8 +99,8 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
         });
 
-        this.backupPathsProp = new SimpleSetProperty<> ();
         this.backupDirPathProp = new SimpleObjectProperty<> ();
+        this.projectDirectoryProp = new SimpleObjectProperty<> ();
 
     }
 
@@ -108,35 +109,18 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
         this ();
 
-        this.type = from.getType ();
-
-        this.project = from;
-
-        this.encrypted = from.isEncrypted ();
-        this.noCredentials = from.isNoCredentials ();
-        this.lastEdited = from.getLastEdited ();
         this.setId (from.getId ());
-        this.forEditor = from.getForEditor ();
-        this.filePassword = from.getFilePassword ();
 
-        this.update ();
+        this.setProject (from);
 
-        this.project.addPropertyChangedListener (this);
+        //this.project.addPropertyChangedListener (this);
 
     }
 
-    public SetProperty<Path> backupPathsProperty ()
-                                           throws GeneralException
+    public void dispose ()
     {
 
-        if (this.backupPathsProp.get () == null)
-        {
-
-            this.backupPathsProp.set (this.getBackupPaths ());
-
-        }
-
-        return this.backupPathsProp;
+        this.binder.dispose ();
 
     }
 
@@ -146,14 +130,67 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
         if (this.backupPaths == null)
         {
-
+System.out.println ("NO BACKUP PATHS");
             this.backupPaths = FXCollections.observableSet (new TreeSet<> ((p1, p2) ->
             {
 
                 try
                 {
 
-                    return -1 * Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
+                    FileTime l1 = null;
+                    FileTime l2 = null;
+
+                    if (Files.exists (p1))
+                    {
+
+                        l1 = Files.getLastModifiedTime (p1);
+
+                    }
+
+                    if (Files.exists (p2))
+                    {
+
+                        l2 = Files.getLastModifiedTime (p2);
+
+                    }
+
+                    if ((l1 == null)
+                        &&
+                        (l2 == null)
+                       )
+                    {
+
+                        return 0;
+
+                    }
+
+                    int ret = 0;
+
+                    if (l1 == null)
+                    {
+
+                        ret = 1;
+
+                    }
+
+                    if (l2 == null)
+                    {
+
+                        ret = -1;
+
+                    }
+
+                    if ((l1 != null)
+                        &&
+                        (l2 != null)
+                       )
+                    {
+
+                        ret = l1.compareTo (l2);
+
+                    }
+
+                    return -1 * ret;//Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
 
                 } catch (Exception e) {
 
@@ -162,7 +199,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
                 }
 
             }));
-
+System.out.println ("BP: " + this.backupPaths.hashCode ());
             Path p = this.getBackupDirPath ();
 
             if (p != null)
@@ -172,7 +209,22 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
                 {
 
                     this.backupPaths.addAll (Files.list (p)
-                        .filter (path -> path.getFileName ().toString ().endsWith (".zip"))
+                        .filter (path ->
+                        {
+
+                            try
+                            {
+
+                                return Utils.isBackupFile (path);
+
+                            } catch (Exception e) {
+
+                                throw new RuntimeException ("Unable to determine if path: " + p + " is a backup file.",
+                                                            e);
+
+                            }
+
+                        })
                         .collect (Collectors.toList ()));
 
                 } catch (Exception e) {
@@ -201,9 +253,11 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     public void removeBackupPath (Path p)
                            throws GeneralException
     {
-
+System.out.println ("REMOVING: " + p);
+System.out.println ("CONTAINS: " + this.getBackupPaths ().contains (p) + ", " + Files.exists (p) + ", " + this.getBackupPaths ());
         this.getBackupPaths ().remove (p);
 
+//Files.delete (backupPath);
     }
 
     public synchronized void setOpening (boolean v)
@@ -250,16 +304,16 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
         this.addToStringProperties (props,
                                     "projectDir",
-                                    (this.projectDirectory != null ? this.projectDirectory.getPath () : "Not set"));
+                                    (this.projectDirectoryProp.getValue () != null ? this.projectDirectoryProp.getValue ().toString () : "Not set"));
         this.addToStringProperties (props,
                                     "backupDir",
-                                    (this.backupDirPath != null ? this.backupDirPath.toString () : "Not set"));
+                                    (this.backupDirPathProp.getValue () != null ? this.backupDirPathProp.getValue ().toString () : "Not set"));
         this.addToStringProperties (props,
                                     "filesDir",
-                                    (this.filesDirectory != null ? this.filesDirectory.getPath () : "Not set"));
+                                    (this.filesDirectory != null ? this.filesDirectory.toString () : "Not set"));
         this.addToStringProperties (props,
                                     "lastEdited",
-                                    this.lastEdited);
+                                    this.lastEditedProp.getValue ());
         this.addToStringProperties (props,
                                     "encrypted",
                                     this.encrypted);
@@ -282,7 +336,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
     }
 
-    public Map<Statistic, Object> getStatistics ()
+    public ObservableMap<Statistic, Object> getStatistics ()
     {
 
         return this.statistics;
@@ -292,7 +346,26 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     public void setStatistics (Map<Statistic, Object> stats)
     {
 
-        this.statistics = stats;
+        this.statistics.clear ();
+        this.statistics.putAll (stats);
+
+    }
+
+    private void saveInfo ()
+    {
+
+        try
+        {
+
+          Environment.updateProjectInfo (this);
+
+        } catch (Exception e) {
+
+          Environment.logError ("Unable to update project info for project: " +
+                                this.project,
+                                e);
+
+        }
 
     }
 
@@ -330,17 +403,103 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         if (this.project != null)
         {
 
-            this.project.removePropertyChangedListener (this);
+            //this.project.removePropertyChangedListener (this);
 
         }
 
         this.project = p;
 
+        this.type = p.getType ();
+        this.encrypted = p.isEncrypted ();
+        this.noCredentials = p.isNoCredentials ();
+        this.forEditor = p.getForEditor ();
         this.filePassword = p.getFilePassword ();
+        this.setName (p.getName ());
 
-        this.update ();
+        //this.project.addPropertyChangedListener (this);
 
-        this.project.addPropertyChangedListener (this);
+        this.binder.addChangeListener (this.project.nameProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.setName (newv);
+            this.saveInfo ();
+
+        });
+
+        this.setProjectDirectory (this.project.getProjectDirectory ().toPath ());
+
+        this.binder.addChangeListener (this.project.projectDirectoryProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.setProjectDirectory (newv.toPath ());
+            this.setFilesDirectory (this.project.getFilesDirectory ().toPath ());
+            this.saveInfo ();
+
+        });
+
+        this.setBackupDirPath (this.project.getBackupDirectory ().toPath ());
+
+        this.binder.addChangeListener (this.project.backupDirectoryProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.setBackupDirPath (newv.toPath ());
+            this.saveInfo ();
+
+        });
+
+        this.setLastEdited (this.project.getLastEdited ());
+
+        this.binder.addChangeListener (this.project.lastEditedProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.setLastEdited (newv);
+            this.saveInfo ();
+
+        });
+
+        // TODO Need to deal with the RI.
+
+        this.addStatistic (Statistic.chapterCount,
+                           this.project.getChapterCount ());
+
+        this.binder.addChangeListener (this.project.chapterCountProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.addStatistic (Statistic.chapterCount,
+                               newv);
+            this.saveInfo ();
+
+        });
+
+        /*
+        It would be expensive to try and keep this up to date.
+        this.binder.addChangeListener (this.project.editedWordCountProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.addStatistic (Statistic.editedWordCount,
+                               newv);
+            this.saveInfo ();
+
+        });
+*/
+        this.addStatistic (Statistic.editedWordCount,
+                           this.project.getEditedWordCount ());
+        ReadabilityIndices ri = this.project.getAllProjectReadabilityIndices ();
+
+        this.addStatistic (Statistic.wordCount,
+                           ri.getWordCount ());
+        this.addStatistic (Statistic.gunningFogIndex,
+                           ri.getGunningFogIndex ());
+        this.addStatistic (Statistic.fleschReadingEase,
+                           ri.getFleschReadingEase ());
+        this.addStatistic (Statistic.fleschKincaidGradeLevel,
+                           ri.getFleschKincaidGradeLevel ());
 
     }
 
@@ -361,9 +520,9 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     private void update ()
     {
 
-        this.setProjectDirectory (this.project.getProjectDirectory ());
+        this.setProjectDirectory (this.project.getProjectDirectory ().toPath ());
         this.setBackupDirPath (this.project.getBackupDirectory ().toPath ());
-        this.setFilesDirectory (this.project.getFilesDirectory ());
+        this.setFilesDirectory (this.project.getFilesDirectory ().toPath ());
         this.setName (this.project.getName ());
         this.setLastEdited (this.project.getLastEdited ());
 
@@ -563,7 +722,6 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     public void setLastEdited (Date d)
     {
 
-        this.lastEdited = d;
         this.lastEditedProp.setValue (d);
 
     }
@@ -571,21 +729,21 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     public Date getLastEdited ()
     {
 
-        return this.lastEdited;
+        return this.lastEditedProp.getValue ();
 
     }
 
-    public void setProjectDirectory (File f)
+    public void setProjectDirectory (Path f)
     {
 
-        this.projectDirectory = f;
+        this.projectDirectoryProp.setValue (f);
 
     }
 
-    public File getProjectDirectory ()
+    public Path getProjectDirectory ()
     {
 
-        return this.projectDirectory;
+        return this.projectDirectoryProp.getValue ();
 
     }
 
@@ -599,26 +757,25 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     public Path getBackupDirPath ()
     {
 
-        return this.backupDirPath;
+        return this.backupDirPathProp.getValue ();
 
     }
 
     public void setBackupDirPath (Path f)
     {
 
-        this.backupDirPath = f;
         this.backupDirPathProp.setValue (f);
 
     }
 
-    public File getFilesDirectory ()
+    public Path getFilesDirectory ()
     {
 
         return this.filesDirectory;
 
     }
 
-    public void setFilesDirectory (File f)
+    public void setFilesDirectory (Path f)
     {
 
         this.filesDirectory = f;

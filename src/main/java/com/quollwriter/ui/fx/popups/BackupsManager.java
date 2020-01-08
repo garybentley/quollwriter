@@ -108,10 +108,27 @@ public class BackupsManager extends PopupContent
 
         b.getChildren ().addAll (desc, this.viewBackupsDir, this.noBackups, this.backupsScroll, bb);
 
-        // Ugh, the compiler needs more help here.
-        this.addSetChangeListener (proj.backupPathsProperty (),
+        this.addSetChangeListener (proj.getBackupPaths (),
                                    ev ->
         {
+System.out.println ("GOT CHANGE: " + ev);
+            if (ev.wasRemoved ())
+            {
+System.out.println ("BM REMOVED: " + ev.getElementRemoved ());
+                Optional<Node> n = this.backupsBox.getChildren ().stream ()
+                    .filter (bn -> bn.getUserData ().equals (ev.getElementRemoved ()))
+                    .findFirst ();
+
+                if (n.isPresent ())
+                {
+
+                    this.backupsBox.getChildren ().remove (n.get ());
+                    this.viewer.fireProjectEventLater (ProjectEvent.Type.backups,
+                                                       ProjectEvent.Action.delete);
+
+                }
+
+            }
 
             // We only care about add events, remove is already handled below.
             if (ev.wasAdded ())
@@ -163,9 +180,11 @@ public class BackupsManager extends PopupContent
 
                 QuollPopup.questionBuilder ()
                     .title (prefix,title)
+                    .withViewer (this.viewer)
                     .styleClassName (StyleClassNames.RESTORE)
                     .message (getUILanguageStringProperty (Utils.newList (prefix,text),
                                                            this.proj.nameProperty (),
+                                                           backupPath.getParent ().toUri ().toString (),
                                                            backupPath.toString ()))
                     .confirmButtonLabel (prefix,buttons,confirm)
                     .cancelButtonLabel (prefix,buttons,cancel)
@@ -241,6 +260,8 @@ public class BackupsManager extends PopupContent
                                         QuollPopup.messageBuilder ()
                                             .withViewer (p)
                                             .title (prefix2, title)
+                                            .styleClassName (StyleClassNames.PROJECT)
+                                            .closeButton ()
                                             .message (getUILanguageStringProperty (Utils.newList (prefix2,text),
                                                                          //"The {project} has been restored from file <b>%s</b>.",
                                                                                    backupPath.getFileName ().toString ()))
@@ -520,12 +541,21 @@ TODO Remove
             .onAction (ev ->
             {
 
+                String pid = "deletebackup" + backupPath.toString ();
+
+                if (this.viewer.getPopupById (pid) != null)
+                {
+
+                    return;
+
+                }
+
                 List<String> prefix = Arrays.asList (backups,delete,confirmpopup);
 
                 QuollPopup.questionBuilder ()
                     .title (prefix,title)
                     .withViewer (this.viewer)
-                    .withHandler (this.viewer)
+                    .popupId (pid)
                     .styleClassName (StyleClassNames.DELETE)
                     .message (getUILanguageStringProperty (Utils.newList (prefix,text),
                                                            backupPath.toString ()))
@@ -548,6 +578,8 @@ TODO Remove
                                                              backups,delete,actionerror);
 
                         }
+
+                        this.viewer.getPopupById (pid).close ();
 
                     })
                     .build ();
@@ -600,17 +632,17 @@ TODO Remove
                         throws GeneralException
     {
 
-        Optional<Node> n = this.backupsBox.getChildren ().stream ()
-            .filter (b -> b.getUserData ().equals (backupPath))
-            .findFirst ();
-
-        if (n.isPresent ())
+        try
         {
-
-            this.backupsBox.getChildren ().remove (n.get ());
+System.out.println ("REMOVING BACKUP: " + backupPath + ", " + this.proj.getBackupPaths ());
             this.proj.removeBackupPath (backupPath);
-            this.viewer.fireProjectEventLater (ProjectEvent.Type.backups,
-                                               ProjectEvent.Action.delete);
+
+            Files.delete (backupPath);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to remove backup: " + backupPath,
+                                        e);
 
         }
 
@@ -749,7 +781,7 @@ TODO Remove
                                          throws Exception
     {
 
-        Path dbDir = p.getProjectDirectory ().toPath ();
+        Path dbDir = p.getProjectDirectory ();
 
         // Get the project db file.
         Path dbFile = dbDir.resolve (Constants.FULL_PROJECT_DB_FILE_NAME);
@@ -770,14 +802,15 @@ TODO Remove
         try
         {
 
-            Files.move (dbDir, oldDbFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.move (dbFile, oldDbFile, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (Exception e) {
 
             throw new GeneralException ("Unable to rename project database file to: " +
                                         oldDbFile +
                                         ", for project: " +
-                                        p);
+                                        p,
+                                        e);
 
         }
 
@@ -785,7 +818,7 @@ TODO Remove
         {
 
             Utils.extractZipFile (restorePath.toFile (),
-                                  p.getProjectDirectory ());
+                                  p.getProjectDirectory ().toFile ());
 
             // See if there is a project db file in there now.
             if (Files.notExists (dbFile))
@@ -824,7 +857,17 @@ TODO Remove
                                          final AbstractViewer viewer)
     {
 
+        String pid = "createbackup" + proj.getObjectReference ().asString ();
+
+        if (viewer.getPopupById (pid) != null)
+        {
+
+            return;
+
+        }
+
         QuollPopup.questionBuilder ()
+            .popupId (pid)
             .title (backups,_new,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.CREATEBACKUP)
             .message (getUILanguageStringProperty (Arrays.asList (backups,_new,LanguageStrings.popup,text),
@@ -833,7 +876,6 @@ TODO Remove
             .confirmButtonLabel (backups,_new,LanguageStrings.popup,buttons,confirm)
             .cancelButtonLabel (backups,_new,LanguageStrings.popup,buttons,cancel)
             .withViewer (viewer)
-            .withHandler (viewer)
             .onConfirm (fev ->
             {
 
@@ -845,12 +887,13 @@ TODO Remove
 
                     VBox b = new VBox ();
 
-                    BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
+                    QuollTextView m = QuollTextView.builder ()
+                    //BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
                         .styleClassName (StyleClassNames.MESSAGE)
                         .text (getUILanguageStringProperty (Arrays.asList (backups,_new,confirmpopup,text),
                                                             p.getParent ().toUri ().toString (),
                                                             p.toString ()))
-                        .withHandler (viewer)
+                        .withViewer (viewer)
                         .build ();
 
                     QuollHyperlink l = QuollHyperlink.builder ()
@@ -872,7 +915,10 @@ TODO Remove
                         .title (backups,_new,confirmpopup,title)
                         .styleClassName (StyleClassNames.BACKUPCREATED)
                         .withViewer (viewer)
+                        .closeButton ()
                         .build ();
+
+                    viewer.getPopupById (pid).close ();
 /*
 TODO REmove
                     ComponentUtils.showMessage (viewer,
@@ -1035,32 +1081,13 @@ TODO Remove
 
         }
 
-        String backupCount = proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME);
-
-        int count = -1;
-
-        if ((backupCount != null)
-            &&
-            // Legacy, pre 2.6.5
-            (!backupCount.equals ("All"))
-           )
-        {
-
-            try
-            {
-
-                count = Integer.parseInt (backupCount);
-
-            } catch (Exception e) {}
-
-        }
+        int count = proj.getBackupsToKeepCount ();
 
         try
         {
 
-            // TODO Change to use a Path.
             Path f = om.createBackup (proj,
-                                      (noPrune ? -1 : count)).toPath ();
+                                      (noPrune ? -1 : count));
 
             p.addBackupPath (f);
 

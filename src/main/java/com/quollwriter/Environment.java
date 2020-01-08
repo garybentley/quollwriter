@@ -90,9 +90,6 @@ public class Environment
     private static ScheduledThreadPoolExecutor generalTimer = null;
 
     private static AllProjectsViewer allProjectsViewer = null;
-    private static SetProperty<AbstractViewer> openViewersProp = null;
-    private static MapProperty<ProjectInfo, AbstractProjectViewer> openProjectsProp = null;
-    private static SetProperty<ProjectInfo> allProjectsProp = null;
 
     private static ObservableMap<ProjectInfo, AbstractProjectViewer> openProjects = null;
     private static ObservableSet<ProjectInfo> allProjects = null;
@@ -118,7 +115,7 @@ public class Environment
 
     private static AchievementsManager achievementsManager = null;
 
-    private static Set<UserConfigurableObjectType> userConfigObjTypes = new HashSet<> ();
+    private static ObservableSet<UserConfigurableObjectType> userConfigObjTypes = null;
     private static Map<String, StringProperty> objectTypeNamesSingular = new HashMap<> ();
     private static Map<String, StringProperty> objectTypeNamesPlural = new HashMap<> ();
 
@@ -206,32 +203,22 @@ public class Environment
         });
 
         Environment.openProjects = FXCollections.observableMap (new HashMap<> ());
-        Environment.openProjectsProp = new SimpleMapProperty<> (Environment.openProjects);
-
-        Environment.openProjectsProp.addListener ((pr, oldv, newv) ->
-        {
-
-            // Do nothing, here to force updates.
-
-        });
 
         Environment.openViewers = FXCollections.observableSet (new HashSet<> ());
-        Environment.openViewersProp = new SimpleSetProperty<> (Environment.openViewers);
-
-        Environment.openViewersProp.addListener ((pr, oldv, newv) ->
-        {
-
-            // Do nothing, here to force updates.
-
-        });
 
         Environment.allProjects = FXCollections.observableSet (new HashSet<> ());
-        Environment.allProjectsProp = new SimpleSetProperty<> (Environment.allProjects);
 
-        Environment.allProjectsProp.addListener ((pr, oldv, newv) ->
+        Environment.userConfigObjTypes = FXCollections.observableSet (new HashSet<> ());
+
+        Environment.allProjects.addListener ((SetChangeListener<ProjectInfo>) ch ->
         {
 
-            // Do nothing, here to force updates.
+            if (ch.wasRemoved ())
+            {
+
+                ch.getElementRemoved ().dispose ();
+
+            }
 
         });
 
@@ -1299,48 +1286,32 @@ xxx
 
     }
 
-    public static SetProperty<ProjectInfo> allProjectsProperty ()
-    {
-
-        // TODO Return read only version.
-        return Environment.allProjectsProp;
-
-    }
-
-    public static MapProperty<ProjectInfo, AbstractProjectViewer> openProjectsProperty ()
-    {
-
-        // TODO Return a read only version.
-        return Environment.openProjectsProp;
-
-    }
-
     public static Set<AbstractProjectViewer> getOpenProjectViewers ()
     {
 
-        return new LinkedHashSet<> (Environment.openProjectsProp.values ());
+        return new LinkedHashSet<> (Environment.openProjects.values ());
 
     }
 
     public static AbstractProjectViewer getProjectViewer (ProjectInfo p)
     {
 
-        return Environment.openProjectsProp.get (p);
+        return Environment.openProjects.get (p);
 
     }
 
     public static AbstractProjectViewer getProjectViewer (Project p)
     {
 
-        return Environment.openProjectsProp.get (Environment.getProjectInfo (p));
+        return Environment.openProjects.get (Environment.getProjectInfo (p));
 
     }
 
-    public static SetProperty<AbstractViewer> openViewersProperty ()
+    public static ObservableSet<AbstractViewer> getOpenViewers ()
     {
 
         // TODO Return a read only version.
-        return Environment.openViewersProp;
+        return Environment.openViewers;
 
     }
 
@@ -1428,9 +1399,10 @@ xxx
             return;
 
         }
+System.out.println ("OPENING: " + p.getName ());
 
-        AbstractProjectViewer pv = (AbstractProjectViewer) Environment.openProjectsProp.get (p);
-
+        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+ System.out.println ("OPEN: " + pv);
         if (pv != null)
         {
 
@@ -1447,207 +1419,49 @@ xxx
 
             return;
 
-        } else
+        }
+
+        try
+        {
+
+            pv = AbstractProjectViewer.createProjectViewerForType (p);
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to open project: " +
+                                        p,
+                                        e);
+
+        }
+
+        if (pv == null)
+        {
+
+            throw new GeneralException ("Unable to open project: " +
+                                        p);
+
+        }
+
+        final AbstractProjectViewer fpv = pv;
+
+        Consumer<String> open = pwd ->
         {
 
             try
             {
 
-                pv = AbstractProjectViewer.createProjectViewerForType (p);
-
-            } catch (Exception e)
-            {
-
-                throw new GeneralException ("Unable to open project: " +
-                                            p,
-                                            e);
-
-            }
-
-            if (pv == null)
-            {
-
-                throw new GeneralException ("Unable to open project: " +
-                                            p);
-
-            }
-
-            final AbstractProjectViewer fpv = pv;
-            /*
-            if (onProjectOpen != null)
-            {
-
-                pv.addProjectEventListener (new ProjectEventListener ()
-                {
-
-                    @Override
-                    public void eventOccurred (ProjectEvent ev)
-                    {
-
-                        if ((ev.getType ().equals (Project.OBJECT_TYPE))
-                            &&
-                            (ev.getAction ().equals (ProjectEvent.OPEN))
-                           )
-                        {
-
-                            try
-                            {
-
-                                onProjectOpen.actionPerformed (new ActionEvent (fpv, 1, "open"));
-
-                            } catch (Exception e) {
-
-                                Environment.logError ("Unable to perform action after project open",
-                                                      e);
-
-                            }
-
-                        }
-
-                    }
-
-                });
-
-            }
-            */
-            Environment.incrStartupProgress ();
-
-            java.util.List<String> prefix = new ArrayList ();
-            prefix.add (LanguageStrings.project);
-            prefix.add (LanguageStrings.actions);
-            prefix.add (LanguageStrings.openproject);
-            prefix.add (LanguageStrings.enterpasswordpopup);
-
-            if (p.isEncrypted ())
-            {
-
-                Environment.startupComplete ();
-
-                /*
-                 TODO
-                PasswordInputWindow.create (getUIString (prefix,
-                                                         LanguageStrings.title),
-                                            //"Enter password",
-                                            "lock",
-                                            String.format (Environment.getUIString (prefix,
-                                                                                    LanguageStrings.text),
-                                                           p.getName ()),
-                                            //"{Project}: <b>" + p.getName () + "</b> is encrypted, please enter the password.",
-                                            Environment.getUIString (prefix,
-                                                                     LanguageStrings.buttons,
-                                                                     LanguageStrings.open),
-                                            //"Open",
-                                            new ValueValidator<String> ()
-                                            {
-
-                                                public String isValid (String v)
-                                                {
-
-                                                    if ((v == null)
-                                                        ||
-                                                        (v.trim ().equals (""))
-                                                       )
-                                                    {
-
-                                                        return Environment.getUIString (prefix,
-                                                                                        LanguageStrings.errors,
-                                                                                        LanguageStrings.novalue);
-                                                        //"Please enter the password.";
-
-                                                    }
-
-                                                    try
-                                                    {
-
-                                                        fpv.openProject (p,
-                                                                         v,
-                                                                         onProjectOpen);
-
-                                                    } catch (Exception e) {
-
-                                                        if (ObjectManager.isDatabaseAlreadyInUseException (e))
-                                                        {
-
-                                                            return Environment.getUIString (prefix,
-                                                                                            LanguageStrings.errors,
-                                                                                            LanguageStrings.projectalreadyopen);
-                                                            //"Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
-
-                                                        }
-
-                                                        if (ObjectManager.isEncryptionException (e))
-                                                        {
-
-                                                            return Environment.getUIString (prefix,
-                                                                                            LanguageStrings.errors,
-                                                                                            LanguageStrings.invalidpassword);
-                                                            //return "Password is not valid.";
-
-                                                        }
-
-                                                        Environment.logError ("Cant open project: " +
-                                                                              p,
-                                                                              e);
-
-                                                        UIUtils.showErrorMessage (null,
-                                                                                  Environment.getUIString (prefix,
-                                                                                                           LanguageStrings.errors,
-                                                                                                           LanguageStrings.general));
-                                                                    //"Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
-
-                                                        return null;
-
-                                                    } finally {
-
-                                                        p.setOpening (false);
-
-                                                    }
-
-                                                    return null;
-
-                                                }
-
-                                            },
-                                            new ActionAdapter ()
-                                            {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    // All handled by the validator.
-
-                                                }
-
-                                            },
-                                            new ActionAdapter ()
-                                            {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    Environment.showAllProjects ();
-
-                                                }
-
-                                            }).resize ();
-*/
-
-                return;
-
-            }
-
-            try
-            {
-
-                pv.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+/*
+REMOVE
+                fpv.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
                                     (ev ->
                                     {
-
+xxx
                                         Project proj = fpv.getProject ();
 
                                         ProjectInfo pi = Environment.getProjectInfo (fpv.getProject ().getId (),
                                                                                      fpv.getProject ().getType ());
-
+System.out.println ("PI: " + pi + ", " + proj.getName ());
                                         if (pi != null)
                                         {
 
@@ -1655,31 +1469,28 @@ xxx
 
                                         }
 
-                                        fpv.setVisible (false);
-
-                                        Environment.unregisterViewer (fpv,
-                                                                      null);
-
                                     }));
+*/
+                Viewer v = fpv.createViewer ();
 
-                Viewer v = pv.createViewer ();
+                fpv.openProject (p,
+                                 pwd,
+                                 onProjectOpen);
 
-                pv.openProject (p,
-                                null,
-                                onProjectOpen);
+                Environment.addOpenedProject (fpv);
 
             } catch (Exception e) {
 
                 try
                 {
 
-                    pv.close (() ->
+                    fpv.close (() ->
                     {
 
                       // This prevents QW from going into a shutdown.
                       // TODO: Make this nicer.
 
-                  });
+                    });
 
                 } catch (Exception ee) {
 
@@ -1692,14 +1503,18 @@ xxx
                 {
 
                     ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                     getUILanguageStringProperty (Utils.newList (prefix,errors,projectalreadyopen)));
+                                                     getUILanguageStringProperty (project,actions,openproject,errors,projectalreadyopen));
                         //"Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.");
 
                     return;
 
                 }
 
-                throw e;
+                Environment.logError ("Unable to open project: " + p,
+                                      e);
+
+                ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                                 getUILanguageStringProperty (project,actions,openproject,errors,general));
 
             } finally {
 
@@ -1708,13 +1523,32 @@ xxx
             }
 
             Environment.startupComplete ();
-            /*
-            Environment.openProjects.put (p,
-                                          pv);
-*/
-        }
 
-        //return pv;
+        };
+
+        Environment.incrStartupProgress ();
+
+        if (p.isEncrypted ())
+        {
+
+            Environment.startupComplete ();
+
+            UIUtils.askForPasswordForProject (p,
+                                              null,
+                                              open,
+                                              () ->
+                                              {
+
+                                                  Environment.showAllProjectsViewer ();
+
+                                              },
+                                              Environment.allProjectsViewer.isVisible () ? Environment.allProjectsViewer : null);
+
+        } else {
+
+            open.accept (null);
+
+        }
 
     }
 
@@ -1794,19 +1628,38 @@ TODO NEeded?
      * Creates the specified project (containing the relevant information) at the <b>saveDir/p.getName ()</b> location.
      * If the project is to be encrypted then a <b>filePassword</b> should be supplied.  The schema will be created.
      *
-     * @param saveDir The directory to save the project to.
+     * @param saveDir The directory where the project should be stored.
      * @param p The project.
-     * @param filePassword Optional, provide if the project is to be encrypted.
      * @throws An exception if the schema cannot be created or if a project already exists at the save location.
      */
      // TODO Investigate how this differs from createNewProject.
     public static ObjectManager createProject (Path    saveDir,
-                                               Project p,
-                                               String  filePassword)
+                                               Project p)
                                         throws Exception
     {
 
+        if (saveDir == null)
+        {
+
+            throw new IllegalArgumentException ("Save directory must be specified.");
+
+        }
+
+        if (p.getName () == null)
+        {
+
+            throw new IllegalArgumentException ("Project name must be specified.");
+
+        }
+
         Path projDir = saveDir.resolve (Utils.sanitizeForFilename (p.getName ()));
+
+        if (!Utils.isDirectoryEmpty (projDir))
+        {
+
+            throw new IllegalArgumentException ("New project directory: " + projDir + " is not empty.");
+
+        }
 
         if (Files.exists (projDir))
         {
@@ -1823,18 +1676,16 @@ TODO NEeded?
         String password = UserProperties.get (Constants.DB_PASSWORD_PROPERTY_NAME);
 
         ObjectManager dBMan = new ObjectManager ();
-        // TODO Change to use the path.
         dBMan.init (projDir.resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
                          username,
                          password,
-                         filePassword,
+                         p.getFilePassword (),
                          0);
 
         // Create a file that indicates that the directory can be deleted.
         Utils.createQuollWriterDirFile (projDir);
 
         p.setProjectDirectory (projDir.toFile ());
-        p.setEncrypted (filePassword != null);
 
         dBMan.setProject (p);
 
@@ -1846,11 +1697,8 @@ TODO NEeded?
         Environment.projectInfoManager.saveObject (pi,
                                                    null);
 
-/*
-TODO Needed?
-        Environment.fireProjectInfoChangedEvent (pi,
-                                                 ProjectInfoChangedEvent.ADDED);
-*/
+        Environment.allProjects.add (pi);
+
         return dBMan;
 
     }
@@ -1937,20 +1785,20 @@ TODO Needed?
 
                 }
 */
-                // Delete the backup directory.
-                Utils.deleteDir (pr.getBackupDirPath ().toFile ());
-                // TODO getBackupDirectory ());
-                // TODO Change to use a Path.
-
-                // Delete the files directory.
-                Utils.deleteDir (pr.getFilesDirectory ());
-
-                // Delete the directory.
-                Utils.deleteDir (pr.getProjectDirectory ());
-
                 // Remove the project from the list.
                 try
                 {
+
+                    // Delete the backup directory.
+                    Utils.deleteDir (pr.getBackupDirPath ());
+                    // TODO getBackupDirectory ());
+                    // TODO Change to use a Path.
+
+                    // Delete the files directory.
+                    Utils.deleteDir (pr.getFilesDirectory ());
+
+                    // Delete the directory.
+                    Utils.deleteDir (pr.getProjectDirectory ());
 
                     Environment.projectInfoManager.deleteObject (pr,
                                                                  false,
@@ -1959,9 +1807,14 @@ TODO Needed?
                 } catch (Exception e)
                 {
 
+                    // TODO Need to do more here?  Maybe move the project to a different dir first?
+                    // How do we recover?
                     Environment.logError ("Unable to delete project: " +
                                           pr,
                                           e);
+
+                    ComponentUtils.showErrorMessage (null,
+                                                     getUILanguageStringProperty (project,actions,deleteproject,actionerror));
 
                 }
 
@@ -2120,7 +1973,7 @@ TODO Needed?
     private static void closeDown ()
     {
 
-        if (Environment.openViewersProp.size () > 0)
+        if (Environment.getOpenViewers ().size () > 0)
         {
 
             throw new IllegalStateException ("Cannot closedown when there are open viewers.");
@@ -2235,6 +2088,13 @@ TODO Needed?
         {
 
             Environment.logError ("Unable to schedule, runnable is null.");
+
+            return null;
+
+        }
+
+        if (Environment.generalTimer.isShutdown ())
+        {
 
             return null;
 
@@ -2583,10 +2443,6 @@ TODO Needed?
                 (ev ->
                 {
 
-                    Environment.allProjectsViewer.setVisible (false);
-                    Environment.unregisterViewer (Environment.allProjectsViewer,
-                                                  null);
-
                     Environment.allProjectsViewer = null;
 
                 }));
@@ -2597,7 +2453,8 @@ TODO Needed?
                                       e);
 
                 // TODO Add show error message when no viewer...
-                ComponentUtils.showErrorMessage (getUILanguageStringProperty (allprojects,actionerror));
+                ComponentUtils.showErrorMessage (null,
+                                                 getUILanguageStringProperty (allprojects,actionerror));
 
                 return null;
 
@@ -2612,17 +2469,24 @@ TODO Needed?
 
     }
 
+    public static ObservableSet<ProjectInfo> getAllProjects ()
+    {
+
+        return Environment.allProjects;
+
+    }
+
     public static AbstractViewer getFocusedViewer ()
     {
 
-        if (Environment.openViewersProp.size () == 0)
+        if (Environment.openViewers.size () == 0)
         {
 
             return null;
 
         }
 
-        for (AbstractViewer viewer : Environment.openViewersProp)
+        for (AbstractViewer viewer : Environment.openViewers)
         {
 
             if (viewer.focusedProperty ().getValue ())
@@ -2635,7 +2499,7 @@ TODO Needed?
         }
 
         // Return the first viewer that is showing.
-        for (AbstractViewer viewer : Environment.openViewersProp)
+        for (AbstractViewer viewer : Environment.openViewers)
         {
 
             if (viewer.getViewer ().showingProperty ().getValue ())
@@ -2648,7 +2512,7 @@ TODO Needed?
         }
 
         // What the derp... Return the first.
-        return Environment.openViewersProp.iterator ().next ();
+        return Environment.openViewers.iterator ().next ();
 
     }
 
@@ -3079,7 +2943,7 @@ xxx
         }
 
         ObjectManager dBMan = new ObjectManager ();
-        dBMan.init (new File (p.getProjectDirectory ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
+        dBMan.init (p.getProjectDirectory ().resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
                     username,
                     password,
                     filePassword,
@@ -3280,6 +3144,16 @@ xxx
 
         }
 
+        ProjectInfo _p = p;
+
+        pv.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                         ev ->
+        {
+
+            Environment.openProjects.remove (_p);
+
+        });
+
         Environment.openProjects.put (p,
                                       pv);
 
@@ -3413,6 +3287,12 @@ xxx
                                          Runnable       afterUnregister)
     {
 
+        if (true)
+        {
+                // TODO REMOVE THIS METHOD
+            return;
+        }
+
         Environment.openViewers.remove (v);
 
         if (Environment.openProjects.size () == 0)
@@ -3465,6 +3345,49 @@ xxx
     {
 
         Environment.openViewers.add (v);
+
+        v.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                        ev ->
+        {
+
+            Environment.openViewers.remove (v);
+
+            if (Environment.openProjects.size () == 0)
+            {
+
+                if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+                {
+
+                    Environment.showAllProjectsViewer ();
+
+                    return;
+
+                }
+
+                if ((Environment.allProjectsViewer != null)
+                    &&
+                    (Environment.allProjectsViewer.isVisible ())
+                   )
+                {
+
+                    return;
+
+                }
+
+                Environment.closeDown ();
+
+                return;
+
+            }
+
+            if (Environment.openViewers.size () == 0)
+            {
+
+                Environment.closeDown ();
+
+            }
+
+        });
 
     }
 
@@ -3708,7 +3631,7 @@ xxx
     public static StringProperty canOpenProject (ProjectInfo p)
     {
 
-        java.util.List<String> prefix = Arrays.asList (LanguageStrings.project,LanguageStrings.actions,LanguageStrings.openproject,LanguageStrings.openerrors);
+        List<String> prefix = Arrays.asList (LanguageStrings.project,LanguageStrings.actions,LanguageStrings.openproject,LanguageStrings.openerrors);
 
         if (p == null)
         {
@@ -3718,7 +3641,7 @@ xxx
 
         }
 
-        if (!p.getProjectDirectory ().exists ())
+        if (Files.notExists (p.getProjectDirectory ()))
         {
 
             return getUILanguageStringProperty (Utils.newList (prefix,projectdirnotexist),
@@ -3727,7 +3650,7 @@ xxx
 
         }
 
-        if (!p.getProjectDirectory ().isDirectory ())
+        if (!Files.isDirectory (p.getProjectDirectory ()))
         {
 
             return getUILanguageStringProperty (Utils.newList (prefix,projectdirisfile),
@@ -3736,7 +3659,7 @@ xxx
 
         }
 
-        if (!Utils.getQuollWriterDirFile (p.getProjectDirectory ()).exists ())
+        if (Files.notExists (Utils.getQuollWriterDirFile (p.getProjectDirectory ())))
         {
 
             return getUILanguageStringProperty (Utils.newList (prefix,invalidprojectdir),
@@ -4273,6 +4196,13 @@ TODO Remove
 
     }
 
+    public static ObservableSet<UserConfigurableObjectType> getUserConfigurableObjectTypes ()
+    {
+
+        return Environment.userConfigObjTypes;
+
+    }
+
     public static UserConfigurableObjectType getUserConfigurableObjectType (String userObjType)
     {
 
@@ -4299,10 +4229,10 @@ TODO Remove
                                                   throws GeneralException
     {
 
-        Environment.userConfigObjTypes.remove (type);
-
         Environment.projectInfoManager.deleteObject (type,
                                                      true);
+
+        Environment.userConfigObjTypes.remove (type);
 
         // TODO type.removePropertyChangedListener (Environment.userConfigurableObjectTypeNameListener);
 
@@ -4340,16 +4270,16 @@ TODO Remove
     public static void updateUserConfigurableObjectType (UserConfigurableObjectType type)
                                                   throws GeneralException
     {
-
+System.out.println ("UPDATE CALLED: " + type.getKey ());
         if (!Environment.userConfigObjTypes.contains (type))
         {
-
+System.out.println ("ADDDING: " + type.getKey ());
             Environment.addUserConfigurableObjectType (type);
 
             return;
 
         }
-
+System.out.println ("SAVING TYPE:" + type);
         Environment.projectInfoManager.saveObject (type);
 
         String id = type.getObjectTypeId ();
@@ -4380,6 +4310,10 @@ TODO Remove
         }
 
         Environment.userConfigObjTypes.add (type);
+
+        // Need to now update the column/field state and save again since the field keys are now
+        // available.
+        type.updateSortableFieldsState ();
 
         // Register ourselves as a listener for the name changes.
         // TODO type.addPropertyChangedListener (Environment.userConfigurableObjectTypeNameListener);
@@ -4898,7 +4832,7 @@ TODO Remove
             if (pis.size () > 0)
             {
 
-                return pis.get (0).getProjectDirectory ().getParentFile ().toPath ();
+                return pis.get (0).getProjectDirectory ().getParent ();
 
             }
 
@@ -4942,7 +4876,7 @@ TODO Remove
         }
 
         ObjectManager dBMan = new ObjectManager ();
-        dBMan.init (new File (p.getProjectDirectory ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
+        dBMan.init (p.getProjectDirectory ().resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
                     username,
                     password,
                     filePassword,
@@ -5405,7 +5339,7 @@ TODO Remove
     {
 
         // Show the welcome screen if there are no projects open.
-        if (Environment.openProjectsProp.size () == 0)
+        if (Environment.openProjects.size () == 0)
         {
 
             Environment.showAllProjectsViewer ();
@@ -5844,6 +5778,8 @@ TODO
             try
             {
 
+                v.createViewer ();
+
                 // Put it in the user's directory.
                 v.newProject (Environment.getUserQuollWriterDirPath (),
                               p,
@@ -5894,7 +5830,7 @@ TODO
         for (ProjectInfo p : Environment.allProjects)
         {
 
-            if (p.getProjectDirectory ().toPath ().equals (dir))
+            if (p.getProjectDirectory ().equals (dir))
             {
 
                 return p;

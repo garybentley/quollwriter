@@ -29,13 +29,21 @@ public class ProjectInfoObjectManager extends ObjectManager
     public static final String USER_PROPERTIES_OBJTYPE = "user-properties";
 
     // Key is the object type string, maps to a user config object type.
-    private Map<String, UserConfigurableObjectType> userConfigObjTypes = new HashMap ();
+    private Map<String, UserConfigurableObjectType> userConfigObjTypes = new HashMap<> ();
 
     public ProjectInfoObjectManager ()
     {
 
         this.handlers.put (ProjectInfo.class,
                            new ProjectInfoDataHandler (this));
+
+    }
+
+    @Override
+    public boolean supportsLinks ()
+    {
+
+        return false;
 
     }
 

@@ -71,6 +71,8 @@ public class TextItemManager extends VBox
 
                     String tok = t.nextToken ().trim ();
 
+
+
                     if (b.items.contains (tok))
                     {
 
@@ -557,7 +559,7 @@ public class TextItemManager extends VBox
     public static class ItemEvent extends Event
     {
 
-        public static final EventType<ItemEvent> ADDED_EVENT = new EventType<> ("textiemmanager.itemadded");
+        public static final EventType<ItemEvent> ADDED_EVENT = new EventType<> ("textitemmanager.itemadded");
         public static final EventType<ItemEvent> REMOVED_EVENT = new EventType<> ("textitemanager.itemremoved");
         public static final EventType<ItemEvent> CHANGED_EVENT = new EventType<> ("textitemanager.itemchanged");
 

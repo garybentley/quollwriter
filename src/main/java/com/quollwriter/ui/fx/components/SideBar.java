@@ -201,6 +201,13 @@ public class SideBar extends BaseVBox implements Stateful
     public void init (State state)
     {
 
+        if (state == null)
+        {
+
+            state = new State ();
+
+        }
+
         if (this.scrollPane != null)
         {
 
@@ -208,16 +215,13 @@ public class SideBar extends BaseVBox implements Stateful
 
         }
 
-        if ((this.content != null)
-            &&
-            (state != null)
-           )
+        if (this.content != null)
         {
 
             try
             {
 
-                ((Stateful) this.content).init (state.getAsState (State.Key.content));
+                this.content.init (state.getAsState (State.Key.content));
 
             } catch (Exception e) {
 

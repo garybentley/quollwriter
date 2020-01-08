@@ -763,7 +763,8 @@
         "createbackup" : "${actions.createbackup}",
         "ignore" : "${actions.ignore}",
         "accept" : "Accept",
-        "reject" : "Reject"
+        "reject" : "Reject",
+        "delete" : "${actions.delete}"
     },
     "wizard" :
     {
@@ -789,7 +790,7 @@
         ":comment.charsremaining" : "%1$s is the number of characters that can still be entered into the text area.  This message is appended to {maxchars} and shown below the text area.",
         ":scount.charsremaining" : 1,
         "charsover" : ", %1$s over maximum",
-        ":comment.charsover" : "%1$s is the number of characters over the maximum.  This message is appeded to [maxchars] and shown below the text area.",
+        ":comment.charsover" : "%1$s is the number of characters over the maximum.  This message is appended to [maxchars] and shown below the text area.",
         ":scount.charsover" : 1
     },
     "userobjects" :
@@ -1665,6 +1666,24 @@
         {
             "nodescription" : "Please enter a description."
         },
+        "links" :
+        {
+            "save" :
+            {
+                "actionerror" : "Unable to save the links.",
+                "buttons" :
+                {
+                    "confirm" :
+                    {
+                        "tooltip" : "Click to save the links"
+                    },
+                    "cancel" :
+                    {
+                        "tooltip" : "Click to cancel editing"
+                    }
+                }
+            }
+        },
         "add" :
         {
             "actionerror" : "Unable to add new %1$s",
@@ -1906,21 +1925,18 @@
         "swear50" :
         {
             "name" : "Language Timothy!",
-            ":comment.name" : "This achievement is for the English language only and doesn't need to be translated.",
-            "description" : "Use 50 swear words in a ${objectnames.singular.chapter}."
+            "description" : "Use 50 very English swear words in a ${objectnames.singular.chapter}."
         },
         ":englishonly:swear50" : true,
         "exclamation5" :
         {
-            "name" : "I'm not crazy!",
-            ":comment.name" : "This achievement is for the English language only and doesn't need to be translated.",
+            "name" : "I'm not crazy!!...!!!",
             "description" : "Use ! 5 times or more in a ${objectnames.singular.chapter}."
         },
         ":englishonly.exclamation5" : true,
         "speechverbs10" :
         {
             "name" : "Variation on a theme",
-            ":comment.name" : "This achievement is for the English language only and doesn't need to be translated.",
             "description" : "Use 10 different speech verbs in a ${objectnames.singular.chapter}."
         },
         ":englishonly.speechverbs10" : true,
@@ -2157,7 +2173,7 @@
         "addobject5" :
         {
             "name" : "Itemized",
-            "description" : "Add 5 {Objects}."
+            "description" : "Add 5 ${objectnames.plural.object}."
         },
         "addcharacter" :
         {
@@ -2167,7 +2183,7 @@
         "addobject10" :
         {
             "name" : "All the things",
-            "description" : "Add 10 ${objectnames.plural.character}."
+            "description" : "Add 10 ${objectnames.plural.object}."
         },
         "manageitemtypes" :
         {
@@ -2311,8 +2327,8 @@
         },
         "addeditneedednote5" :
         {
-            "name" : "",
-            "description" : "I'll fix it next time round."
+            "name" : "I'll fix it next time round",
+            "description" : "Create 5 Edit Needed ${objectnames.plural.note}."
         },
         "addeditneedednote10" :
         {
@@ -2511,14 +2527,14 @@
         ":section" : "Project",
         ":comment" : "These items define the tips that are displayed to the user.",
         "1" : "{QW} has a Patreon page.  If you want to help speed up development why not consider donating?  <a href='https://www.patreon.com/quollwriter?ty=h'>Click here to view the Patreon page</a>",
-        "2" : "Did you know you can keep track of how much of a ${objectnames.singular.chapter} you have edited?  Just right click at any point in the chapter and select <b>[Chapter] Edit</b> then [edit-point] <b>Set Edit Point</b>.",
+        "2" : "Did you know you can keep track of how much of a ${objectnames.singular.chapter} you have edited?  Just right click at any point in the chapter and select <b>${objectnames.singular.chapter} Edit</b> then [edit-point] <b>Set Edit Point</b>.",
         "3" : "Don't like what things are called?  <a href='action:editobjectnames'>Click here to change them.</a>",
         "4" : "There is an option to compress the right click menu you see when editing a ${objectnames.singular.chapter}. <a href='action:options.editing'>Click here to view options.</a>",
         "5" : "Don't like the position of the tabs?  Change it in the options.  <a href='action:options.look'>Click here to view options.</a>",
         "6" : "Want to see where you are writing?  Enable writing line highlighting in the text properties.  <a href='action:textproperties'>Click here to view the text properties now.</a>",
         "7" : "Want to change something?  <a href='action:options'>Check out the options, there might be a setting for it.</a>",
         "8" : "Changing the setting of an option will take effect straight away, no need to save.",
-        "9" : "Want to work in full screen mode?  <a href='action:fullscreen'>Click to enter full screen mode now.</a><br />You can also press F5 or use the [fullscreen,fullscreen] button on the toolbar to enter full screen mode.",
+        "9" : "Want to work in full screen mode?  <a href='action:fullscreen'>Click to enter full screen mode now.</a><br />You can also press F5 or use the [fullscreen] button on the toolbar to enter full screen mode.",
         "10" : "Can't remember what the awesome was added in this release?  <a href='action:whatsnew'>Click to see what's new.</a>",
         "11" : "Got writer's block?  <a href='action:warmup'>Why not try a ${objectnames.singular.warmup} exercise?</a> To do a ${objectnames.singular.warmup} at any time select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
         "12" : "Want to record your ideas?  <a href='action:ideaboard'>Click to open the ${names.ideaboard}.</a><br />You can open the ${names.ideaboard} at any time by selecting [idea]<b>${project.settingsmenu.items.ideaboard}</b>.",
@@ -5359,11 +5375,12 @@
                         },
                         "owntab" :
                         {
-                            "text" : "Their own tab"
+                            "text" : "Their own tab",
+                            "tooltip" : "Adding a new ${objectnames.singular.asset} will always be in its own tab."
                         }
                     }
                 },
-                "editassetconfig" : "Edit the ${objectnames.singular.asset} configuration (Layout, Fields, Name, Icon etc)",
+                "editassetconfig" : "Edit the ${objectnames.singular.asset} information",
                 "addtype" : "Add New Type"
             }
         },
@@ -5414,6 +5431,27 @@
                 },
                 "createbackup" : "${buttons.createbackup}",
                 "managebackups" : "${actions.managebackups}"
+            },
+            "prunebackups" :
+            {
+                "actionerror" : "Unable to remove the backup files.",
+                "popup" :
+                {
+                    "title" : "Confirm removal of backup files",
+                    "text" : "Warning!  <b>%1$s</b> backup files are about to be deleted.<br /><br />To delete the backup files please enter the word <b>${form.affirmativevalue}</b> into the box below.",
+                    ":comment.text" : "%1$s is the number of backup files that will be deleted.",
+                    ":scount.text" : 1,
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, delete the backups",
+                        "cancel" : "No, keep them"
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Backup files removed",
+                    "text" : "The excess backup files have been deleted."
+                }
             }
         },
         "lookandsound" :
@@ -5720,7 +5758,7 @@
             "confirmpopup" :
             {
                 "title" : "${objectnames.singular.backup} created",
-                "text" : "A ${objectnames.singular.backup} of the ${objectnames.singular.project} has been created and written to:\n\n  <a href='%1$s'>%2$s</a>",
+                "text" : "A ${objectnames.singular.backup} of the ${objectnames.singular.project} has been created and written to:<br /><br /><a href='%1$s'>%2$s</a>",
                 ":comment.text" : "%1$s is the url to the folder the backup has been written to, %2$s is the path of the backup file.",
                 ":scount.text" : 2,
                 "labels" :
@@ -5736,9 +5774,9 @@
             "popup" :
             {
                 "title" : "Confirm restore",
-                "text" : "Please confirm you wish to restore ${objectnames.singular.project} <b>%1$s</b> using the ${objectnames.singular.backup} file <b>%2$s</b>.<br /><br />A ${objectnames.singular.backup} of the ${objectnames.singular.project} will be created before the restore occurs.",
-                ":comment.text" : "%1$s is the project name.  %2$s is the path to the file that will be used for the restore.",
-                ":scount.text" : 2,
+                "text" : "Please confirm you wish to restore ${objectnames.singular.project} <b>%1$s</b> using the ${objectnames.singular.backup} file:<br /><br /><a href='%2$s'>%3$s</a>.<br /><br />A ${objectnames.singular.backup} of the ${objectnames.singular.project} will be created before the restore occurs.",
+                ":comment.text" : "%1$s is the project name.  %2$s is the url of the parent folder of the file, %3$s is the path to the file that will be used for the restore.",
+                ":scount.text" : 3,
                 "buttons" :
                 {
                     "confirm" : "Yes, restore it",
@@ -6321,7 +6359,7 @@
                 "popup" :
                 {
                     "title" : "Unable to open ${objectnames.singular.project}",
-                    "text" : "Sorry, ${objectnames.singular.project} <b>%1$s</b> cannot be opened for the following reason:<br /><br /><b>%2$s</b><br /><br />This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of ${objectnames.plural.project}?<br /><br />Note: this will <b>only</b> remove the ${objectnames.singular.project} from the list it will not remove any other data.",
+                    "text" : "Sorry, ${objectnames.singular.project} <b>%1$s</b> cannot be opened for the following reason:<ul class='errors'><li>%2$s</li></ul>This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of ${objectnames.plural.project}?<br /><br />Note: this will <b>only</b> remove the ${objectnames.singular.project} from the list it will not remove any other data.",
                     ":comment.text" : "%1$s is the name of the project, %2$s is the reason why the project can't be opened.",
                     ":scount.text" : 2,
                     "buttons" :
@@ -6459,6 +6497,7 @@
             },
             "manage" :
             {
+                "actionerror" : "Unable to show the Note Types manager.",
                 "title" : "Manage the ${objectnames.singular.note} Types",
                 "table" :
                 {
@@ -7181,9 +7220,17 @@
         {
             "actionerror" : "Unable to remove asset type.",
             ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from {deleteitem} rather than having its own values here.",
+            "title" : "Delete all %1$s",
+            ":comment.title" : "%1$s is the plural name of the asset type.",
+            ":scount.title" : 1,
             "text" : "To delete all <b>%1$s</b> please enter the word <b>${form.affirmativevalue}</b> into the box below.<br /><br />Warning!  All <b>%1$s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other ${objectnames.plural.project}.",
             ":comment.text" : "%1$s is the object type name plural for the asset type.",
-            ":scount.text" : 1
+            ":scount.text" : 1,
+            "buttons" :
+            {
+                "confirm" : "Yes, delete them",
+                "cancel" : "No, keep them"
+            }
         },
         "save" :
         {
@@ -7209,7 +7256,7 @@
                 "new" : "Add a new %1$s",
                 ":comment.new" : "%1$s is the name of the object type, i.e. Character, Location etc.",
                 ":scount.new" : 1,
-                "edit" : "Edit the %1$s information/fields",
+                "edit" : "Edit the %1$s information",
                 ":comment.edit" : "%1$s is the name of the object type, i.e. Character, Location etc.",
                 ":scount.edit" : 1,
                 "sort" : "Sort the %1$s by",
@@ -8307,18 +8354,16 @@
             "changebackupdir" :
             {
                 "actionerror" : "Unable to change backup folder.",
+                "errors" :
+                {
+                    "dirnotempty" : "The new backups folder must be empty."
+                },
                 "confirmpopup" :
                 {
                     "title" : "${objectnames.plural.backup} folder changed",
                     "text" : "The ${objectnames.plural.backup} folder for the ${objectnames.singular.project} has been changed to <b>%1$s</b>.",
                     ":comment.text" : "%1$s is the path to the new backup folder.",
-                    ":scount.text" : 1,
-                    "errors" :
-                    {
-                        "dirnotempty" : "New backups folder: %1$s is not empty.",
-                        ":comment.dirnotempty" : "%1$s is the path to the folder.",
-                        ":scount.dirnotempty" : 1
-                    }
+                    ":scount.text" : 1
                 }
             },
             "changeprojectdir" :
@@ -8326,10 +8371,10 @@
                 "actionerror" : "Unable to change ${objectnames.singular.project} folder.",
                 "errors" :
                 {
-                    "backupdirnotempty" : "New backups folder: %1$s is not empty.",
-                    ":comment.backupdirnotempty" : "%1$s is the path to the folder.",
-                    ":scount.backupdirnotempty" : 1,
-                    "dirnotempty" : "Unable to changeNew backups folder: %1$s is not empty.",
+                    "backupdirnotempty" : "New backups folder is not empty.<br /><br /><a href='%1$s'>%2$s</a>",
+                    ":comment.backupdirnotempty" : "%1$s is the url of the path to the folder. %2$s is a formatted, user friendly version of the path.",
+                    ":scount.backupdirnotempty" : 2,
+                    "dirnotempty" : "Unable to change.  New ${objectnames.singular.project} folder is not empty.<br /><br /><a href='%1$s'>%1$s</a>",
                     ":comment.dirnotempty" : "%1$s is the path to the folder.",
                     ":scount.dirnotempty" : 1,
                     "reopenproject" : "Unable to reopen ${objectnames.singular.project}"
@@ -8459,7 +8504,7 @@
                 "openerrors" :
                 {
                     ":comment" : "These are error messages that may be displayed when a user is unable to open a project.",
-                    "general" : "Unable to open ${objectnames.singular.project} <b>%1$s</b>, reason:<br /><br />%2$s",
+                    "general" : "Unable to open ${objectnames.singular.project} <b>%1$s</b>, reason:<ul><li>%2$s</li</ul>",
                     ":comment.general" : "%1$s is the project name.  %2$s is the reason which will be one of the reasons from this section.",
                     ":scount.general" : 2,
                     "unspecified" : "An internal error occurred.",
@@ -8477,6 +8522,7 @@
                     ":comment.cantfindeditor" : "%1$s is the email address of the contact/editor the user is editing the project for.",
                     ":scount.cantfindeditor" : 1,
                     "comments" : "Unable to show ${objectnames.plural.comment}."
+
                 }
             },
             "deleteproject" :

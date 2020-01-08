@@ -148,8 +148,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
                         Environment.logError ("Unable to view editors",
                                               e);
 
-                        ComponentUtils.showErrorMessage (this,
-                                                         this,
+                        ComponentUtils.showErrorMessage (this.viewer,
                                                          getUILanguageStringProperty (editors,vieweditorserror));
                                                   //"Unable to show the {editors}.");
 
@@ -1300,8 +1299,7 @@ TODO ? psuedo class
             Environment.logError ("Unable to show properties",
                                   e);
 
-            ComponentUtils.showErrorMessage (this,
-                                             this,
+            ComponentUtils.showErrorMessage (this.viewer,
                                              getUILanguageStringProperty (fullscreen,actions,showproperties,actionerror));
                                       //"Unable to show properties.");
 

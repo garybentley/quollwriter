@@ -1,7 +1,9 @@
 package com.quollwriter.ui.fx.components;
 
 import java.util.*;
+import java.util.stream.*;
 
+import javafx.util.*;
 import javafx.beans.property.*;
 import javafx.event.*;
 import javafx.collections.*;
@@ -9,6 +11,7 @@ import javafx.scene.control.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -16,10 +19,46 @@ import static com.quollwriter.LanguageStrings.*;
 public class QuollChoiceBox extends ChoiceBox<StringProperty>
 {
 
+    private Map<String, StringProperty> vals = null;
+
     private QuollChoiceBox (Builder b)
     {
 
         this.setItems (FXCollections.observableArrayList (b.items));
+
+        this.vals = b.items.stream ()
+            .collect (Collectors.toMap (o -> o.getValue (),
+                                        o -> o));
+
+        UILanguageStringsManager.uilangProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.vals = b.items.stream ()
+                .collect (Collectors.toMap (o -> o.getValue (),
+                                            o -> o));
+
+        });
+
+        this.setConverter (new StringConverter<StringProperty> ()
+        {
+
+            @Override
+            public StringProperty fromString (String s)
+            {
+
+                return vals.get (s);
+
+            }
+
+            @Override
+            public String toString (StringProperty s)
+            {
+
+                return s.getValue ();
+
+            }
+
+        });
 
         this.getSelectionModel ().select (b.selectedInd);
 

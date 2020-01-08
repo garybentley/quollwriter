@@ -80,7 +80,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private FullScreenView fsf = null;
     private ShowingInFullScreenPanel fsfplaceholder = null;
 
-    private ScheduledFuture autoSaveTask = null;
     private ScheduledFuture chapterCountsUpdater = null;
 
     private ProjectDictionaryProvider   projDict = null;
@@ -206,35 +205,27 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 */
         });
 
-        this.tabs.selectionModelProperty ().getValue ().selectedIndexProperty ().addListener ((ind, oldi, newi) ->
+        this.tabs.getSelectionModel ().selectedItemProperty ().addListener ((pr, oldi, newi) ->
         {
 
-            if ((oldi.intValue () > -1)
-                &&
-                (oldi.intValue () < this.tabs.getTabs ().size ())
-               )
+            if (oldi != null)
             {
 
-                Tab ot = this.tabs.getTabs ().get (oldi.intValue ());
+                Panel p = (Panel) oldi.getContent ();
 
-                if (ot != null)
-                {
+                // Remove the action mappings.
+                p.getActionMappings ().keySet ().stream ()
+                    .forEach (k -> this.getScene ().getAccelerators ().remove (k));
 
-                    Panel p = (Panel) ot.getContent ();
-
-                    // Remove the action mappings.
-                    p.getActionMappings ().keySet ().stream ()
-                        .forEach (k -> this.getScene ().getAccelerators ().remove (k));
-
-                }
+                p.fireEvent (new Panel.PanelEvent (p,
+                                                   Panel.PanelEvent.CLOSE_EVENT));
 
             }
 
-            if (newi.intValue () > -1)
+            if (newi != null)
             {
 
-                Tab t = this.tabs.getTabs ().get (newi.intValue ());
-                Panel qp = (Panel) t.getContent ();
+                Panel qp = (Panel) newi.getContent ();
 
                 // Add the action mappings.
                 this.getScene ().getAccelerators ().putAll (qp.getActionMappings ());
@@ -854,15 +845,19 @@ TODO
             filePassword = null;
 
         }
-
+long ss = System.currentTimeMillis ();
         this.dBMan = new ObjectManager ();
+System.out.println ("T1: " + (System.currentTimeMillis () - ss));
+ss = System.currentTimeMillis ();
 
         // TODO Use Path?
-        this.dBMan.init (new java.io.File (p.getProjectDirectory ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
+        this.dBMan.init (p.getProjectDirectory ().resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
                          username,
                          password,
                          filePassword,
                          Environment.getSchemaVersion ());
+                         System.out.println ("T2: " + (System.currentTimeMillis () - ss));
+                         ss = System.currentTimeMillis ();
 
         Environment.incrStartupProgress ();
 
@@ -882,13 +877,15 @@ TODO
             throw e;
 
         }
+        System.out.println ("T3: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
 
         this.initProperties ();
 
         Environment.incrStartupProgress ();
 
 		this.project.setFilePassword (filePassword);
-        this.project.setProjectDirectory (p.getProjectDirectory ());
+        this.project.setProjectDirectory (p.getProjectDirectory ().toFile ());
 		this.project.setBackupDirectory (p.getBackupDirPath ().toFile ());
         // TODO getBackupDirectory ());
         //this.proj.setFilePassword (filePassword);
@@ -898,10 +895,16 @@ TODO
         this.project.addPropertyChangedListener (this);
 
         Environment.incrStartupProgress ();
+        System.out.println ("T4: " + (System.currentTimeMillis () - ss));
+         ss = System.currentTimeMillis ();
 
         this.handleOpenProject ();
+        System.out.println ("T5: " + (System.currentTimeMillis () - ss));
+         ss = System.currentTimeMillis ();
 
         this.init (null);
+        System.out.println ("T5: " + (System.currentTimeMillis () - ss));
+         ss = System.currentTimeMillis ();
 
         Environment.incrStartupProgress ();
 
@@ -930,7 +933,6 @@ TODO
                     .message (getUILanguageStringProperty (Arrays.asList (fontunavailable,text),
                                                            f))
                     .withViewer (this)
-                    .withHandler (this)
                     .build ();
 
                 //"The font <b>" + f + "</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a chapter tab then <a href='action:textproperties'>click here to change the text properties</a>.");
@@ -948,7 +950,7 @@ TODO
         this.fireProjectEvent (ProjectEvent.Type.projectobject,
                                ProjectEvent.Action.open,
                                this.project);
-
+/*
         // Register ourselves with the environment.
         try
         {
@@ -967,7 +969,7 @@ TODO
             return;
 
         }
-
+*/
 		UIUtils.runLater (onOpen);
 
 		// Check to see if any chapters have overrun the target.
@@ -1248,21 +1250,18 @@ TODO
     }
 
     public void newProject (Path    saveDir,
-                            Project p,
-                            String  filePassword)
+                            Project p)
                      throws Exception
     {
 
         this.newProject (saveDir,
                          p,
-                         filePassword,
                          null);
 
     }
 
     public void newProject (Path     saveDir,
                             Project  p,
-                            String   filePassword,
                             Runnable onOpen)
                      throws Exception
     {
@@ -1284,11 +1283,9 @@ TODO
         this.setIgnoreProjectEvents (true);
 
         this.dBMan = Environment.createProject (saveDir,
-                                                p,
-                                                filePassword);
+                                                p);
 
         this.project = this.dBMan.getProject ();
-		this.project.setFilePassword (filePassword);
 
         this.initProperties ();
 
@@ -1329,7 +1326,6 @@ TODO
 
         this.setIgnoreProjectEvents (false);
 
-        // TODO Change to pass Project.
         this.fireProjectEvent (ProjectEvent.Type.projectobject,
                                ProjectEvent.Action._new,
                                this.project);
@@ -1435,7 +1431,8 @@ TODO
         this.dBMan.updateChapterIndexes (b);
 
     }
-
+/*
+TODO Remove handed by the project now instead.
     public void setLinks (NamedObject o)
     {
 
@@ -1454,7 +1451,7 @@ TODO
         }
 
     }
-
+*/
 
 /*
 TODO Needed?
@@ -1615,7 +1612,16 @@ TODO
     public Panel getCurrentlyVisibleTab ()
     {
 
-        Panel qp = (Panel) this.tabs.getSelectionModel ().getSelectedItem ().getContent ();
+        Tab t = this.tabs.getSelectionModel ().getSelectedItem ();
+
+        if (t == null)
+        {
+
+            return null;
+
+        }
+
+        Panel qp = (Panel) t.getContent ();
 
         return qp;
 
@@ -1867,7 +1873,6 @@ TODO
                 .message (getUILanguageStringProperty (Arrays.asList (closepanel,confirmpopup,text),
                                                        p.getPanel ().titleProperty ()))
                 .withViewer (this)
-                .withHandler (this)
                 .confirmButtonLabel (closepanel,confirmpopup,buttons,save)
                 .cancelButtonLabel (closepanel,confirmpopup,buttons,discard)
                 .onCancel (fev ->
@@ -2564,12 +2569,16 @@ TODO
 
         }
 
+        State s = null;
+
         if (state != null)
         {
 
-            sb.init (new State (state));
+            s = new State (state);
 
         }
+
+        sb.init (s);
 
     }
 
@@ -2643,15 +2652,15 @@ TODO
 
 				}
 
-				if (proj.getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME))
+				if (proj.isAutoBackupsEnabled ())
 				{
 
 					// Get the last backup.
-					java.io.File last = dBMan.getLastBackupFile (proj);
+					Path last = dBMan.getLastBackupFile (proj);
 
-					long lastDate = (last != null ? last.lastModified () : proj.getDateCreated ().getTime ());
+					long lastDate = (last != null ? Files.getLastModifiedTime (last).toMillis () : proj.getDateCreated ().getTime ());
 
-					if ((System.currentTimeMillis () - lastDate) > Utils.getTimeAsMillis (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME)))
+					if ((System.currentTimeMillis () - lastDate) > proj.getAutoBackupsTime ())
 					{
 
                         BackupsManager.createBackupForProject (proj,
@@ -2818,10 +2827,12 @@ TODO
                 continue;
 
             }
-
+long ss = System.currentTimeMillis ();
             // Pass it to the project.
             final DataObject d = this.project.getObjectForReference (r);
-
+            System.out.println ("PANEL: " + panelId);
+System.out.println ("TTT1: " + (System.currentTimeMillis () - ss));
+ss = System.currentTimeMillis ();
             if (d == null)
             {
 
@@ -2829,6 +2840,8 @@ TODO
                 {
 
                     this.openPanelForId (panelId);
+                    System.out.println ("TTT2: " + (System.currentTimeMillis () - ss));
+                    ss = System.currentTimeMillis ();
 
                 } catch (Exception e) {
 
@@ -2844,6 +2857,8 @@ TODO
             {
 
                 this.viewObject (d);
+                System.out.println ("TTT3: " + (System.currentTimeMillis () - ss));
+                ss = System.currentTimeMillis ();
 
             }
 
@@ -3345,7 +3360,6 @@ TODO REmove
                     .title (closeproject,confirmpopup,title)
                     .message (c)
                     .withViewer (this)
-                    .withHandler (this)
                     .confirmButtonLabel (buttons,savechanges)
                     .cancelButtonLabel (buttons,discardchanges)
                     .onCancel (fev ->
@@ -3378,6 +3392,14 @@ TODO REmove
     private boolean closeInternal (boolean  saveUnsavedChanges,
                                    Runnable afterClose)
     {
+
+        if (this.project == null)
+        {
+
+            super.close (afterClose);
+            return true;
+
+        }
 
         if (saveUnsavedChanges)
         {
@@ -3412,7 +3434,10 @@ TODO REmove
 
 						}
 
-						if (showError)
+						if ((showError)
+                            ||
+                            (pqp.hasUnsavedChanges ())
+                           )
 						{
 
 							ComponentUtils.showErrorMessage (this,
@@ -3904,7 +3929,7 @@ TODO REmove
     public void init (State s)
                throws GeneralException
     {
-
+long ss = System.currentTimeMillis ();
         if (this.project == null)
         {
 
@@ -3920,47 +3945,57 @@ TODO REmove
 
             s = new State ();
 
-            int wHeight = this.project.getPropertyAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
-            int wWidth = this.project.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
-            int wTop = this.project.getPropertyAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
-            int wLeft = this.project.getPropertyAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+            if (this.project.getProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME) != null)
+            {
 
-            s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
-                   wHeight);
-            s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
-                   wWidth);
-            s.set (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
-                   wTop);
-            s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
-                   wLeft);
-                   /*
-            s.set (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                   this.project.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
-*/
-            this.project.removeProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
-            this.project.removeProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME);
-            this.project.removeProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
-            this.project.removeProperty (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+                int wHeight = this.project.getPropertyAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
+                int wWidth = this.project.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
+                int wTop = this.project.getPropertyAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+                int wLeft = this.project.getPropertyAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+                s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
+                       wHeight);
+                s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
+                       wWidth);
+                s.set (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
+                       wTop);
+                s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
+                       wLeft);
+                       /*
+                s.set (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
+                       this.project.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
+    */
+                this.project.removeProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
+                this.project.removeProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME);
+                this.project.removeProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+                this.project.removeProperty (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+            }
 
         } else {
 
             s = new State (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME));
 
         }
-
+System.out.println ("TT1: " + (System.currentTimeMillis () - ss));
+ss = System.currentTimeMillis ();
         this.initChapterCounts ();
+        System.out.println ("TT2: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
+
         this.initDictionaryProvider ();
+        System.out.println ("TT3: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
+
         this.targets = new TargetsData (this.project.getProperties ());
         this.startAutoBackups ();
+        System.out.println ("TT4: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
 
         this.titleProp.bind (this.project.nameProperty ());
 
-        this.restoreSideBars ();
-
-        this.restoreTabs ();
-        this.scheduleA4PageCountUpdate ();
-
         // This is done here because the achievements manager needs the project.
+        // Also the achievements panel needs the achievements manager.
         try
         {
 
@@ -3972,6 +4007,20 @@ TODO REmove
                                         e);
 
         }
+        System.out.println ("TT5: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
+
+        this.restoreSideBars ();
+        System.out.println ("TT6: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
+
+        this.restoreTabs ();
+        System.out.println ("TT7: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
+
+        this.scheduleA4PageCountUpdate ();
+        System.out.println ("TT8: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
 
         // This needs to go here since the call is made to the underlying viewer.
         this.addChangeListener (UserProperties.tabsLocationProperty (),
@@ -3989,6 +4038,8 @@ TODO REmove
                             KeyCode.F, KeyCombination.SHORTCUT_DOWN);
 
         super.init (s);
+        System.out.println ("TT9: " + (System.currentTimeMillis () - ss));
+        ss = System.currentTimeMillis ();
 
     }
 
@@ -4932,5 +4983,13 @@ TODO Needed?
                                     throws Exception;
 
     public abstract Set<FindResultsBox> findText (String t);
+
+    public void deleteAllObjectsForType (UserConfigurableObjectType type)
+                                  throws GeneralException
+    {
+
+        // Do nothing, let sub-classes override and provide the behavior.
+
+    }
 
 }

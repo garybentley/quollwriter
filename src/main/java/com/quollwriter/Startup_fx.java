@@ -52,8 +52,6 @@ public class Startup_fx extends Application
 
             Environment.init ();
 
-            Environment.showAllProjectsViewer ();
-
             ss.updateProgress (0.6f);
 
             /*
@@ -79,9 +77,9 @@ public class Startup_fx extends Application
 
             boolean showError = false;
 
-            if (!UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
+            if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
             {
-
+System.out.println ("SHOWING");
                 Environment.showAllProjectsViewer ();
 
             }

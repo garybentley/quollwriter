@@ -172,6 +172,18 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                conn,
                                                loadChildObjects);
 
+                List<Link> links = (List<Link>) this.objectManager.getObjects (Link.class,
+                                               p,
+                                               conn,
+                                               true);
+
+                for (Link l : links)
+                {
+
+                    l.getObject1 ().addLink (l);
+
+                }
+
 /*
                 p.setEditorProject ((EditorProject) this.objectManager.getObjectByKey (EditorProject.class,
                                                                                        -1,

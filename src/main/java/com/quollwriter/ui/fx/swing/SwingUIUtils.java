@@ -397,7 +397,6 @@ public class SwingUIUtils
 
                     // TODO Remove...
                     com.quollwriter.ui.fx.UIUtils.openURL (null,
-                    null,
                                      gotoURLOnClick);
 
                 }
@@ -1057,7 +1056,6 @@ TODO Remove
             {
 
                 com.quollwriter.ui.fx.UIUtils.openURL (viewer,
-                                                       viewer,
                                  "help://" + helpPage);
 
             }

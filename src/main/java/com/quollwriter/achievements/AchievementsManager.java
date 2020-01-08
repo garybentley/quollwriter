@@ -18,6 +18,7 @@ import com.gentlyweb.properties.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.components.*;
 
 import com.quollwriter.achievements.rules.*;
 
@@ -302,6 +303,13 @@ TODO Remove
         }
 
         return new LinkedHashSet<> (prop.getValue ());
+
+    }
+
+    public Set<AchievementRule> getProjectAchievedRules (AbstractProjectViewer v)
+    {
+
+        return this.projAchievedRules.get (v);
 
     }
 
@@ -676,6 +684,19 @@ TODO Remove
     public void addProjectViewer (AbstractProjectViewer v)
                            throws Exception
     {
+
+        v.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                           ev ->
+        {
+
+            this.projAchievedRules.remove (v);
+            this.eventRules.remove (v);
+            this.checkers.remove (v);
+            v.removeProjectEventListener (this);
+
+            System.out.println ("CLEANUP CALLED");
+
+        });
 
         // Get the list of project/chapter achieved achievements.
         Set<String> achieved = this.getAchievedIds (v.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));

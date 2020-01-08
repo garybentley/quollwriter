@@ -425,14 +425,14 @@ public class LayoutColumn extends VBox
 
         vb.getLabel ().setOnDragDetected (ev ->
         {
-
+/*
             if (this.areFieldsBeingEdited ())
             {
 
                 return;
 
             }
-
+*/
             this.setDragItem (vb);
 
             Dragboard db = vb.startDragAndDrop (TransferMode.MOVE);
@@ -511,6 +511,13 @@ public class LayoutColumn extends VBox
             this.requestLayout ();
 
         });
+
+        if (this.areFieldsBeingEdited ())
+        {
+
+            vb.showEditFull ();
+
+        }
 
         return vb;
 

@@ -57,7 +57,7 @@ public class ObjectDescriptionUserConfigurableObjectTypeField extends MultiTextU
     }
 
     @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+    public ObjectDescriptionUserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           AbstractProjectViewer       viewer)
     {

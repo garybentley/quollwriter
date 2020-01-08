@@ -36,25 +36,6 @@ public class QuollImageView extends Pane
         this.iv.setPreserveRatio (true);
         this.managedProperty ().bind (this.visibleProperty ());
 
-        this.imagePathProp.addListener ((pr, oldv, newv) ->
-        {
-
-            try
-            {
-
-                this.setImage (newv);
-
-            } catch (Exception e) {
-
-                // Tell the user?
-                Environment.logError ("Unable to set image path to: " +
-                                      newv,
-                                      e);
-
-            }
-
-        });
-
         iv.relocate (0, 0);
         this.getChildren ().add (iv);
         this.getStyleClass ().add (StyleClassNames.IMAGE);
@@ -135,7 +116,8 @@ public class QuollImageView extends Pane
                 {
 
                     this.overlay.setVisible (false);
-                    this.imagePathProp.setValue (f.toPath ());
+                    this.setImage (f.toPath ());
+                    //this.imagePathProp.setValue (f.toPath ());
                     this.requestLayout ();
                     ev.consume ();
 
@@ -366,6 +348,7 @@ public class QuollImageView extends Pane
         }
 
         this.imagePathProp.setValue (p);
+
         this.setImage (im);
 
     }
@@ -380,25 +363,31 @@ public class QuollImageView extends Pane
     public void setImage (Image im)
     {
 
-        this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, false);
+        //this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, false);
 
         if (im == null)
         {
 
             this.iv.setImage (null);
-            this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, true);
+            //this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, true);
             return;
 
         }
 
         this.iv.setImage (im);
-
         UIUtils.runLater (() ->
         {
 
             this.requestLayout ();
 
         });
+
+    }
+
+    public ObjectProperty<Image> imageProperty ()
+    {
+
+        return this.iv.imageProperty ();
 
     }
 

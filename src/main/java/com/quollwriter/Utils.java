@@ -1049,6 +1049,7 @@ public class Utils
 
     }
 
+    // TODO Use Paths.
     public static void addDirToZip (File f,
                                     File dirToWrite)
                              throws GeneralException
@@ -1119,6 +1120,7 @@ public class Utils
 
     }
 
+    // TODO Move to paths.
     public static void extractZipFile (File   f,
                                        File   toDir)
                                        throws GeneralException
@@ -1737,7 +1739,7 @@ public class Utils
                                           throws IOException
     {
 
-        if (!Files.notExists (d))
+        if (Files.notExists (d))
         {
 
             return;
@@ -1753,6 +1755,44 @@ public class Utils
 
         Files.write (d.resolve (Constants.QUOLLWRITER_DIR_FILE_NAME),
                      "This file indicates to quollwriter that the parent directory can be safely deleted or copied.".getBytes (StandardCharsets.UTF_8));
+
+    }
+
+    public static boolean isDirectoryEmpty (Path d)
+    {
+
+        try
+        {
+
+            if (Files.notExists (d))
+            {
+
+                return true;
+
+            }
+
+            if (!Files.isDirectory (d))
+            {
+
+                return false;
+
+            }
+
+            Path p = Files.list (d)
+                    .findFirst ()
+                    .orElse (null);
+
+            return p == null;
+                    //.orElse (null) == null;
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to determine if path is empty: " + d,
+                                  e);
+
+            return false;
+
+        }
 
     }
 
@@ -1795,11 +1835,19 @@ public class Utils
         return true;
 
     }
-
+/*
+TODO REmove
     public static File getQuollWriterDirFile (File parent)
     {
 
         return new File (parent.getPath () + "/" + Constants.QUOLLWRITER_DIR_FILE_NAME);
+
+    }
+*/
+    public static Path getQuollWriterDirFile (Path parent)
+    {
+
+        return parent.resolve (Constants.QUOLLWRITER_DIR_FILE_NAME);
 
     }
 
@@ -1931,6 +1979,73 @@ public class Utils
 
     }
 
+    public static void deleteDir (Path d)
+                           throws GeneralException
+    {
+
+        if (d == null)
+        {
+
+            return;
+
+        }
+
+        if (!Files.isDirectory (d))
+        {
+
+            return;
+
+        }
+
+        // See if there is a file that indicates we can delete this directory and its contents.
+        if (Files.notExists (d.resolve (Constants.QUOLLWRITER_DIR_FILE_NAME)))
+        {
+
+            return;
+
+        }
+
+        try
+        {
+
+            Files.list (d)
+                .forEach (f ->
+                {
+
+                    try
+                    {
+
+                        if (Files.isDirectory (f))
+                        {
+
+                            Utils.deleteDir (f);
+
+                        } else {
+
+                            Files.delete (f);
+
+                        }
+
+                    } catch (Exception e) {
+
+                        throw new RuntimeException ("Unable to delete file: " + f,
+                                                    e);
+
+                    }
+
+                });
+
+                Files.delete (d);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to delete: " + d,
+                                        e);
+
+        }
+
+    }
+/*
     public static void deleteDir (File d)
     {
 
@@ -1988,7 +2103,7 @@ public class Utils
         d.delete ();
 
     }
-
+*/
     public static Date zeroTimeFields (Date d)
     {
 
@@ -2487,6 +2602,52 @@ public class Utils
         Instant i = (Instant) d.adjustInto (Instant.ofEpochMilli (0));
 
         return new Date (i.toEpochMilli ());
+
+    }
+
+    public static boolean isBackupFile (Path p)
+                                 throws IOException
+    {
+
+        if (Files.isDirectory (p))
+        {
+
+            return false;
+
+        }
+
+        if (Files.notExists (p))
+        {
+
+            return false;
+
+        }
+
+        String fn = p.getFileName ().toString ();
+
+        if  ((!fn.startsWith (Constants.BACKUP_FILE_NAME_PREFIX))
+             ||
+             (!fn.endsWith (Constants.BACKUP_FILE_NAME_SUFFIX))
+            )
+        {
+
+            return false;
+
+        }
+
+        FileSystem fs = FileSystems.newFileSystem (p,
+                                                   null);
+
+        Path pp = fs.getPath ("/" + Constants.PROJECT_DB_FILE_NAME_PREFIX + Constants.H2_DB_FILE_SUFFIX);
+
+        if (Files.notExists (pp))
+        {
+
+            return false;
+
+        }
+
+        return true;
 
     }
 

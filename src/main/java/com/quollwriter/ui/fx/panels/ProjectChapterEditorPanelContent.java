@@ -3043,18 +3043,6 @@ TODO?
             int paraNo = this.editor.getParagraphForOffset (item.getPosition ());
             this.editor.showParagraphAtTop (paraNo);
 
-            b = this.editor.getBoundsForPosition (item.getPosition ());
-            Bounds eb = this.editor.localToScreen (this.editor.getBoundsInLocal ());
-
-            if (!eb.contains (b))
-            {
-
-                double diff = b.getMinY () - eb.getMinY () - (eb.getHeight () / 2);
-
-                this.editor.scrollYBy (diff);
-
-            }
-
             UIUtils.runLater (() ->
             {
 
@@ -3064,6 +3052,18 @@ TODO?
             });
 
             return;
+
+        }
+
+        b = this.editor.getBoundsForPosition (item.getPosition ());
+        Bounds eb = this.editor.localToScreen (this.editor.getBoundsInLocal ());
+
+        if (!eb.contains (b))
+        {
+
+            double diff = b.getMinY () - eb.getMinY () - (eb.getHeight () / 2);
+
+            this.editor.scrollYBy (diff);
 
         }
 
@@ -3268,7 +3268,7 @@ TODO?
 
             qp = new ViewChapterItemPopup (this.viewer,
                                            items).getPopup ();
-
+System.out.println ("HEREX");
             this.showPopupForItem (top,
                                    qp);
 
@@ -3400,29 +3400,34 @@ TODO?
                 this.autoSaveTask = this.viewer.schedule (() ->
                 {
 
-                    if (!_this.unsavedChangesProperty ().getValue ())
+                    UIUtils.runLater (() ->
                     {
 
-                        return;
+                        if (!_this.unsavedChangesProperty ().getValue ())
+                        {
 
-                    }
+                            return;
 
-                    try
-                    {
+                        }
 
-                        _this.saveObject ();
+                        try
+                        {
 
-                    } catch (Exception e)
-                    {
+                            _this.saveObject ();
 
-                        Environment.logError ("Unable to auto save chapter: " +
-                                              _this.object,
-                                              e);
+                        } catch (Exception e)
+                        {
 
-                        ComponentUtils.showErrorMessage (this.viewer,
-                                                         getUILanguageStringProperty (project,editorpanel,actions,autosave,actionerror));
+                            Environment.logError ("Unable to auto save chapter: " +
+                                                  _this.object,
+                                                  e);
 
-                    }
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (project,editorpanel,actions,autosave,actionerror));
+
+                        }
+
+                    });
 
                 },
                 autoSaveInt,

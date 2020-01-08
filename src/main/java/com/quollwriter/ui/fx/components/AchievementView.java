@@ -52,6 +52,7 @@ public class AchievementView extends HBox
         tb.getStyleClass ().add (StyleClassNames.HEADER);
 */
         BasicHtmlTextFlow rt = BasicHtmlTextFlow.builder ()
+        //QuollTextView rt = QuollTextView.builder ()
             .text (ar.descriptionProperty ())
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();

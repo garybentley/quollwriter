@@ -74,10 +74,10 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
             .controls (headerControls)
             .build ();
 
-        BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
+        QuollTextView desc = QuollTextView.builder ()
             .text (getUILanguageStringProperty (achievementspanel,text))
             .styleClassName (StyleClassNames.DESCRIPTION)
-            .withHandler (this.viewer)
+            .withViewer (this.viewer)
             .build ();
 
         this.hide = QuollCheckBox.builder ()
@@ -90,6 +90,8 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
                     .forEach (el ->
                     {
 
+/*
+TODO?
                         Animation anim = new Transition ()
                         {
 
@@ -111,20 +113,18 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
                         };
 
                         anim.play ();
-/*
+*/
                         if (el.getPseudoClassStates ().contains (StyleClassNames.ACHIEVED_PSEUDO_CLASS))
                         {
 
                             el.setVisible (!this.hide.isSelected ());
 
                         }
-*/
+
                     });
 
             })
             .build ();
-
-        Set<AchievementRule> projRules = man.getPerProjectRules ();
 
         Set<AchievementRule> userRules = man.getUserRules ();
 
@@ -137,6 +137,13 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
         VBox all = new VBox ();
 
         ScrollPane sp = new ScrollPane (all);
+
+        sp.vvalueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            sp.pseudoClassStateChanged (StyleClassNames.SCROLLING_PSEUDO_CLASS, newv.doubleValue () > 0);
+
+        });
 
         content.getChildren ().addAll (h, desc, hide, sp);
 
@@ -170,6 +177,61 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
             .build ();
 
         all.getChildren ().add (gen);
+
+        if (viewer instanceof AbstractProjectViewer)
+        {
+
+            AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+
+            Set<AchievementRule> projRules = man.getPerProjectRules ();
+
+            Set<AchievementRule> achieved = man.getProjectAchievedRules (pv);
+
+            Set<String> projAchievedIds = new HashSet<> ();
+
+            if (achieved != null)
+            {
+
+                projAchievedIds = achieved.stream ()
+                    .map (r -> r.getId ())
+                    .collect (Collectors.toSet ());
+
+            }
+
+            VBox projItems = new VBox ();
+
+            for (AchievementRule r : projRules)
+            {
+
+                projItems.getChildren ().add (new AchievementView (r,
+                                                                   projAchievedIds.contains (r.getId ())));
+
+            }
+
+            StringProperty ptitleProp = new SimpleStringProperty ();
+            ptitleProp.bind (Bindings.createStringBinding (() ->
+            {
+
+                Set<AchievementRule> ids = man.getProjectAchievedRules (pv);
+
+                return String.format (getUIString (achievementspanel,sectiontitles,project),
+                                      Environment.formatNumber ((ids != null ? ids.size () : 0)),
+                                      Environment.formatNumber (projRules.size ()));
+
+            },
+            man.projectAchievedProperty (pv),
+            UILanguageStringsManager.uilangProperty ()));
+
+            AccordionItem proj = AccordionItem.builder ()
+                .styleClassName (StyleClassNames.PROJECT)
+                .title (ptitleProp)
+                .openContent (projItems)
+                .build ();
+
+            all.getChildren ().add (proj);
+
+        }
+
 /*
       this.headers.put ("user",
                         gen.getHeader ());

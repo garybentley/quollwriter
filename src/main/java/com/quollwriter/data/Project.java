@@ -57,9 +57,11 @@ public class Project extends NamedObject
 
     private List<Book>         books = new ArrayList<> ();
     private int                lastBookId = 0;
-    private File               projectDirectory = null;
-    private File               backupDirectory = null;
-    private Date               lastEdited = null;
+    //private File               projectDirectory = null;
+    private ObjectProperty<File> backupDirectoryProp = null;
+    private ObjectProperty<File> projectDirectoryProp = null;
+    //private File               backupDirectory = null;
+    //private Date               lastEdited = null;
     private boolean            backup = false;
     private boolean            encrypted = false;
     private String             backupVersion = null;
@@ -86,6 +88,10 @@ public class Project extends NamedObject
 
     private StringProperty toolbarLocationProp = null;
     private ObjectProperty<Date> lastEditedProp = null;
+    private SimpleIntegerProperty chapterCountProp = null;
+    private IntegerProperty backupsToKeepCountProp = null;
+    private IntegerProperty autoBackupsTimeProp = null;
+    private BooleanProperty autoBackupsEnabledProp = null;
 
     public Project (Element pEl)
                     throws  Exception
@@ -254,6 +260,40 @@ public class Project extends NamedObject
     private void init ()
     {
 
+        this.projectDirectoryProp = new SimpleObjectProperty<> ();
+        this.backupDirectoryProp = new SimpleObjectProperty<> ();
+        this.chapterCountProp = new SimpleIntegerProperty ();
+
+        this.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
+                                   ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                this.assets.put (ev.getElementAdded (),
+                                 FXCollections.observableSet (new LinkedHashSet<> ()));
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                this.assets.remove (ev.getElementRemoved ());
+
+            }
+
+        });
+
+        Environment.getUserConfigurableObjectTypes ().stream ()
+            .forEach (t ->
+            {
+
+                this.assets.put (t,
+                                 FXCollections.observableSet (new LinkedHashSet<> ()));
+
+            });
+
         this.addSetChangeListener (Environment.getAllTags (),
                                    ev ->
         {
@@ -272,6 +312,221 @@ public class Project extends NamedObject
         this.lastEditedProp = new SimpleObjectProperty<> ();
 
     }
+
+    public void setBackupsToKeepCount (int c)
+    {
+
+        this.backupsToKeepCountProperty ().setValue (c);
+
+    }
+
+    public int getBackupsToKeepCount ()
+    {
+
+        return this.backupsToKeepCountProperty ().getValue ();
+
+    }
+
+    public IntegerProperty backupsToKeepCountProperty ()
+    {
+
+        if (this.backupsToKeepCountProp == null)
+        {
+
+            this.backupsToKeepCountProp = new SimpleIntegerProperty ();
+
+            com.gentlyweb.properties.AbstractProperty p = this.getProperties ().getPropertyObj (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME);
+
+            if (p != null)
+            {
+
+                // Has the property, try and use it.
+                if (p instanceof com.gentlyweb.properties.IntegerProperty)
+                {
+
+                    this.backupsToKeepCountProp.setValue (((com.gentlyweb.properties.IntegerProperty) p).getInteger ());
+
+                } else {
+
+                    com.gentlyweb.properties.StringProperty sp = (com.gentlyweb.properties.StringProperty) p;
+
+                    String v = sp.getValue ();
+
+                    int iv = -1;
+
+                    // Pre 2.6.5
+                    if (!v.equals ("All"))
+                    {
+
+                        try
+                        {
+
+                            iv = Integer.parseInt (v);
+
+                        } catch (Exception e) {
+
+                            // Ignore.
+
+                        }
+
+                    }
+
+                    this.backupsToKeepCountProp.setValue (iv);
+
+                }
+
+            } else {
+
+                this.backupsToKeepCountProp.setValue (UserProperties.getBackupsToKeepCount ());
+
+            }
+
+            this.backupsToKeepCountProp.addListener ((pr, oldv, newv) ->
+            {
+
+                try
+                {
+
+                    this.setProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME,
+                                      newv.intValue ());
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to set property to: " +
+                                          newv,
+                                          e);
+
+                }
+
+            });
+
+        }
+
+        return this.backupsToKeepCountProp;
+
+    }
+
+    public int getAutoBackupsTime ()
+    {
+
+        return this.autoBackupsTimeProperty ().getValue ();
+
+    }
+
+    public void setAutoBackupsTime (long t)
+    {
+
+        this.autoBackupsTimeProperty ().setValue ((int) t);
+
+    }
+
+    public IntegerProperty autoBackupsTimeProperty ()
+    {
+
+        if (this.autoBackupsTimeProp == null)
+        {
+
+            this.autoBackupsTimeProp = new SimpleIntegerProperty ();
+
+            com.gentlyweb.properties.AbstractProperty p = this.getProperties ().getPropertyObj (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME);
+
+            if (p != null)
+            {
+
+                // Has the property, try and use it.
+                if (p instanceof com.gentlyweb.properties.IntegerProperty)
+                {
+
+                    this.autoBackupsTimeProp.setValue (((com.gentlyweb.properties.IntegerProperty) p).getInteger ());
+
+                } else {
+
+                    this.autoBackupsTimeProp.setValue (Utils.getTimeAsMillis (this.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME)));
+
+                }
+
+            } else {
+
+                this.autoBackupsTimeProp.setValue (UserProperties.getAutoBackupsTime ());
+
+            }
+
+            this.autoBackupsTimeProp.addListener ((pr, oldv, newv) ->
+            {
+
+                try
+                {
+
+                    this.setProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME,
+                                      newv.intValue ());
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to update property to: " +
+                                          newv,
+                                          e);
+
+                }
+
+            });
+
+        }
+
+        return this.autoBackupsTimeProp;
+
+    }
+
+    public boolean isAutoBackupsEnabled ()
+    {
+
+        return this.autoBackupsEnabledProperty ().getValue ();
+
+    }
+
+    public void setAutoBackupsEnabled (boolean v)
+    {
+
+        this.autoBackupsEnabledProperty ().setValue (v);
+
+    }
+
+    public BooleanProperty autoBackupsEnabledProperty ()
+    {
+
+        if (this.autoBackupsEnabledProp == null)
+        {
+
+            this.autoBackupsEnabledProp = new SimpleBooleanProperty ();
+
+            boolean p = this.getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
+
+            this.autoBackupsEnabledProp.setValue (p);
+
+            this.autoBackupsEnabledProp.addListener ((pr, oldv, newv) ->
+            {
+
+                try
+                {
+
+                    this.setProperty (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME,
+                                      newv);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to update property to: " +
+                                          newv,
+                                          e);
+
+                }
+
+            });
+
+        }
+
+        return this.autoBackupsEnabledProp;
+
+    }
+
 
     public StringProperty toolbarLocationProperty ()
     {
@@ -529,26 +784,38 @@ public class Project extends NamedObject
 
     }
 
-    public int getChapterCount ()
+    private void updateChapterCount ()
     {
 
         int c = 0;
 
-        if (this.books == null)
+        if (this.books != null)
         {
 
-            return c;
+            for (Book b : this.books)
+            {
+
+                c += b.getChapters ().size ();
+
+            }
 
         }
 
-        for (Book b : this.books)
-        {
+        this.chapterCountProp.setValue (c);
 
-            c += b.getChapters ().size ();
+    }
 
-        }
+    public int getChapterCount ()
+    {
 
-        return c;
+        return this.chapterCountProp.getValue ();
+
+    }
+
+    public IntegerProperty chapterCountProperty ()
+    {
+
+        return this.chapterCountProp;
 
     }
 
@@ -1388,6 +1655,7 @@ public class Project extends NamedObject
     {
 
         this.filePassword = p;
+        this.setEncrypted (p != null);
 
     }
 
@@ -1415,7 +1683,7 @@ public class Project extends NamedObject
     public Date getLastEdited ()
     {
 
-        return this.lastEdited;
+        return this.lastEditedProp.getValue ();
 
     }
 
@@ -1429,35 +1697,40 @@ public class Project extends NamedObject
     public void setLastEdited (Date d)
     {
 
-        Date oldDate = this.lastEdited;
-
-        this.lastEdited = d;
+        Date oldDate = this.lastEditedProp.getValue ();
 
         this.lastEditedProp.setValue (d);
 
         this.firePropertyChangedEvent (Project.LAST_EDITED,
                                        oldDate,
-                                       this.lastEdited);
+                                       this.lastEditedProp.getValue ());
+
+    }
+
+    public ObjectProperty<File> projectDirectoryProperty ()
+    {
+
+        return this.projectDirectoryProp;
 
     }
 
     public File getProjectDirectory ()
     {
 
-        return this.projectDirectory;
+        return this.projectDirectoryProp.getValue ();
 
     }
 
     public void setProjectDirectory (File dir)
     {
 
-        File oldDir = this.projectDirectory;
+        File oldDir = this.projectDirectoryProp.getValue ();
 
-        this.projectDirectory = dir;
+        this.projectDirectoryProp.setValue (dir);
 
         this.firePropertyChangedEvent (Project.PROJECT_DIRECTORY,
                                        oldDir,
-                                       this.projectDirectory);
+                                       this.projectDirectoryProp.getValue ());
 
     }
 
@@ -1542,7 +1815,7 @@ public class Project extends NamedObject
     public File getFilesDirectory ()
     {
 
-        return new File (this.projectDirectory,
+        return new File (this.projectDirectoryProp.getValue (),
                          Constants.PROJECT_FILES_DIR_NAME);
 
     }
@@ -1550,28 +1823,38 @@ public class Project extends NamedObject
     public File getBackupDirectory ()
     {
 
-        if (this.backupDirectory == null)
+        File d = this.backupDirectoryProp.getValue ();
+
+        if (d == null)
         {
 
-            this.backupDirectory = new File (this.projectDirectory,
-                                             "versions");
+            d = new File (this.getProjectDirectory (),
+                          "versions");
+            this.backupDirectoryProp.setValue (d);
 
         }
 
-        return this.backupDirectory;
+        return this.backupDirectoryProp.getValue ();
+
+    }
+
+    public ObjectProperty<File> backupDirectoryProperty ()
+    {
+
+        return this.backupDirectoryProp;
 
     }
 
     public void setBackupDirectory (File dir)
     {
 
-        File oldDir = this.backupDirectory;
+        File oldDir = this.backupDirectoryProp.getValue ();
 
-        this.backupDirectory = dir;
+        this.backupDirectoryProp.setValue (dir);
 
         this.firePropertyChangedEvent (Project.BACKUP_DIRECTORY,
                                        oldDir,
-                                       this.backupDirectory);
+                                       this.backupDirectoryProp.getValue ());
 
     }
 /*
@@ -1635,10 +1918,8 @@ public class Project extends NamedObject
         if (as == null)
         {
 
-            as = new LinkedHashSet ();
-
-            this.assets.put (a.getUserConfigurableObjectType (),
-                             FXCollections.observableSet (as));
+            throw new IllegalArgumentException ("Unable to find user config type: " +
+                                                a.getUserConfigurableObjectType ());
 
         }
 
@@ -1660,17 +1941,17 @@ public class Project extends NamedObject
 
         this.addToStringProperties (props,
                                     "projectDir",
-                                    (this.projectDirectory != null ? this.projectDirectory.getPath () : "Not set"));
+                                    (this.projectDirectoryProp.getValue () != null ? this.projectDirectoryProp.getValue ().getPath () : "Not set"));
         this.addToStringProperties (props,
                                     "backupDir",
-                                    (this.backupDirectory != null ? this.backupDirectory.getPath () : "Not set"));
+                                    (this.backupDirectoryProp.getValue () != null ? this.backupDirectoryProp.getValue ().getPath () : "Not set"));
         this.addToStringProperties (props,
                                     "filesDir",
                                     (this.getFilesDirectory () != null ? this.getFilesDirectory ().getPath () : "Not set"));
 
         this.addToStringProperties (props,
                                     "lastEdited",
-                                    this.lastEdited);
+                                    this.lastEditedProp.getValue ());
         this.addToStringProperties (props,
                                     "encrypted",
                                     this.encrypted);
@@ -2038,6 +2319,13 @@ public class Project extends NamedObject
 
         this.books.add (b);
 
+        b.getChapters ().addListener ((ListChangeListener<Chapter>) ch ->
+        {
+
+            this.updateChapterCount ();
+
+        });
+
         this.firePropertyChangedEvent (Project.BOOK_ADDED,
                                        null,
                                        b);
@@ -2048,7 +2336,7 @@ public class Project extends NamedObject
     {
 
         int hash = 7;
-        hash = (31 * hash) + ((null == this.projectDirectory) ? 0 : this.projectDirectory.hashCode ());
+        hash = (31 * hash) + ((null == this.projectDirectoryProp.getValue ()) ? 0 : this.projectDirectoryProp.getValue ().hashCode ());
 
         return hash;
 
@@ -2073,14 +2361,14 @@ public class Project extends NamedObject
 
         Project po = (Project) o;
 
-        if (this.projectDirectory == null)
+        if (this.projectDirectoryProp.getValue () == null)
         {
 
             return false;
 
         }
 
-        return this.projectDirectory.equals (po.projectDirectory);
+        return this.projectDirectoryProp.getValue ().equals (po.projectDirectoryProp.getValue ());
 
     }
 

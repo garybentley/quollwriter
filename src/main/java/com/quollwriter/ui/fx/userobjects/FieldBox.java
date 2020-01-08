@@ -881,7 +881,6 @@ xxx
 
         QuollPopup qp = QuollPopup.messageBuilder ()
             .withViewer (this.viewer)
-            .withHandler (this.viewer)
             .styleClassName (StyleClassNames.DELETE)
             .title (assets,fields,delete,popup,title)
             .removeOnClose (true)

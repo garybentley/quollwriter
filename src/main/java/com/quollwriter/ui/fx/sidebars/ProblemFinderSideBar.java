@@ -120,7 +120,6 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
                 List<String> prefix = Arrays.asList (project,LanguageStrings.sidebar,problemfinder,unignore);
                 qp = QuollPopup.questionBuilder ()
                     .withViewer (this.viewer)
-                    .withHandler (this.viewer)
                     .popupId (id)
                     .styleClassName (StyleClassNames.PROBLEMFINDER)
                     .title (getUILanguageStringProperty (Utils.newList (prefix,confirmpopup,title)))

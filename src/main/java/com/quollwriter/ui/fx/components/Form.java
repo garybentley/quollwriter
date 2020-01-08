@@ -13,6 +13,7 @@ import javafx.geometry.*;
 
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
@@ -20,7 +21,7 @@ public class Form extends VBox
 {
 
     private ErrorBox errorBox = null;
-    private URLActionHandler errorHandler = null;
+    private AbstractViewer errorHandler = null;
     private QuollButtonBar buttonBar = null;
 
     public enum LayoutType
@@ -353,7 +354,7 @@ public class Form extends VBox
         private Button confirm = null;
         private Button cancel = null;
         private LayoutType layoutType = LayoutType.stacked;
-        private URLActionHandler handler = null;
+        private AbstractViewer handler = null;
 
         private Builder ()
         {
@@ -384,7 +385,7 @@ public class Form extends VBox
 
         }
 
-        public Builder withHandler (URLActionHandler handler)
+        public Builder withHandler (AbstractViewer handler)
         {
 
             this.handler = handler;

@@ -76,7 +76,6 @@ public class QuollHyperlink extends Hyperlink
             {
 
                 UIUtils.openURL (viewer,
-                                 viewer,
                                  url);
 
             })

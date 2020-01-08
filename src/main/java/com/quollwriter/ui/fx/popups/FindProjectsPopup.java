@@ -200,7 +200,7 @@ public class FindProjectsPopup extends PopupContent
 				{
 
 					pi = new ProjectInfo ();
-					pi.setProjectDirectory (dir.toFile ());
+					pi.setProjectDirectory (dir);
 
 					om = Environment.getProjectObjectManager (pi,
 															  null);
@@ -235,7 +235,7 @@ public class FindProjectsPopup extends PopupContent
 								// Get the file name.
 								pi.setEncrypted (true);
 								pi.setName (WordsCapitalizer.capitalizeEveryWord (dir.getFileName ().toString ()));
-								pi.setProjectDirectory (dir.toFile ());
+								pi.setProjectDirectory (dir);
 
 								Project p = new Project ();
 								p.setProjectDirectory (dir.toFile ());

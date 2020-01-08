@@ -218,6 +218,8 @@ public class Constants
 
     public static final String CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME = "chapterAutoSaveEnabled";
 
+    public static final Integer DEFAULT_AUTO_SNAPSHOTS_SAVE_TIME = 12 * Constants.HOUR_IN_MILLIS;
+
     public static final String AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME = "enableAutoSnapshots";
 
     public static final String AUTO_SNAPSHOTS_TIME_PROPERTY_NAME = "autoSnapshotsTime";
@@ -521,6 +523,8 @@ public class Constants
 
     public static final String AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME = "autoSendErrorsToSupport";
 
+    public static final Integer DEFAULT_BACKUPS_TO_KEEP = -1;
+
     public static final String BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME = "backupsToKeepCount";
     public static final String DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME = "defaultProjectSidebarSections";
 
@@ -549,6 +553,9 @@ public class Constants
     public static final String LOGO_PNG_NAME = "q-app-logo.png"; //"logo-v2.png";
     public static final String LOADING_GIF_NAME = "loading24.gif";
     public static final String TYPING_GIF_NAME = "typing24.gif";
+
+    public static final String BACKUP_FILE_NAME_PREFIX = "backup";
+    public static final String BACKUP_FILE_NAME_SUFFIX = ".zip";
 
     public static final String PROJECT_DB_FILE_NAME_PREFIX = "projectdb";
     public static final String QUOLL_WRITER_DIR_NAME = "QuollWriter";

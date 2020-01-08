@@ -203,6 +203,31 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         this.getChildren ().add (this.contentWrapper);
 
+        this.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
+                                   ch ->
+        {
+
+            if (ch.wasRemoved ())
+            {
+
+                this.removeSection (ch.getElementRemoved ());
+
+            }
+
+            if (ch.wasAdded ())
+            {
+
+                if (ch.getElementAdded ().isAssetObjectType ())
+                {
+
+                    this.addSidebarItem (this.createAssetSidebarItem (ch.getElementAdded ()));
+
+                }
+
+            }
+
+        });
+
         this.addSetChangeListener (Environment.getAllTags (),
                                    ev ->
         {
@@ -243,11 +268,11 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         if (p == null)
         {
-
+System.out.println ("HERENULL");
             return;
 
         }
-
+System.out.println ("PANEL: " + p);
         // Update the toolbar.
         if (p.getContent () instanceof ToolBarSupported)
         {
@@ -353,7 +378,6 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
             }
 
-
         }
 
         if (s == null)
@@ -362,7 +386,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
             s = new State ();
 
         }
-System.out.println ("STATE: " + s);
+
         this.state = s;
 
         if (ids == null)
@@ -443,27 +467,53 @@ System.out.println ("STATE: " + s);
         this.removeSection (TaggedObjectSidebarItem.ID_PREFIX + tag.getKey ());
 
     }
-/*
-TODO Needed?
+
     public void removeSection (UserConfigurableObjectType objType)
     {
 
         if (objType.isAssetObjectType ())
         {
 
-            AssetSidebarItem aai = this.getAssetSidebarItemForObjectType (objType);
+            AssetsSidebarItem aai = this.getAssetSidebarItemForObjectType (objType);
 
             if (aai != null)
             {
 
-                this.contentBox.getChildren ().remove (aai);
+                this.contentBox.getChildren ().remove (aai.getAccordionItem ());
+                this.items.remove (aai.getId ());
 
             }
 
         }
 
     }
-*/
+
+    private AssetsSidebarItem getAssetSidebarItemForObjectType (UserConfigurableObjectType t)
+    {
+
+        for (ProjectObjectsSidebarItem pi : this.items.values ())
+        {
+
+            if (pi instanceof AssetsSidebarItem)
+            {
+
+                AssetsSidebarItem ai = (AssetsSidebarItem) pi;
+
+                if (ai.getUserConfigurableObjectType ().equals (t))
+                {
+
+                    return ai;
+
+                }
+
+            }
+
+        }
+
+        return null;
+
+    }
+
     private void removeSection (String objType)
     {
 
@@ -490,7 +540,7 @@ TODO Needed?
 
         items.add (QuollMenuItem.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,addtag)))
-            .styleClassName (StyleClassNames.EDIT)
+            .styleClassName (StyleClassNames.TAG)
             .onAction (ev ->
             {
 
@@ -501,11 +551,11 @@ TODO Needed?
 
         items.add (QuollMenuItem.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,newobject)))
-            .styleClassName (StyleClassNames.EDIT)
+            .styleClassName (StyleClassNames.ASSET)
             .onAction (ev ->
             {
 
-                this.viewer.runCommand (AbstractViewer.CommandId.newuserobject);
+                this.viewer.showAddNewUserConfigurableType ();
 
             })
             .build ());
@@ -514,7 +564,7 @@ TODO Needed?
         Set<String> defSections = this.getSectionsFromProperty (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
 
         // Get all the user asset types.
-        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (false);
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType t : types)
         {
@@ -549,10 +599,70 @@ TODO Needed?
         // Remove all the sections we already have.
         defSections.removeAll (this.items.keySet ());
 
-        if (defSections.size () > 0)
+        Set<StringProperty> noteTypes = new LinkedHashSet<> ();
+
+        for (StringProperty p : UserProperties.getNoteTypes ())
+        {
+
+            if (this.items.keySet ().contains (Note.OBJECT_TYPE + "/" + p.getValue ()))
+            {
+
+                continue;
+
+            }
+
+            noteTypes.add (p);
+
+        }
+
+        if ((defSections.size () > 0)
+            ||
+            (noteTypes.size () > 0)
+           )
         {
 
             Set<MenuItem> its = new LinkedHashSet<> ();
+
+            if (noteTypes.size () > 0)
+            {
+
+                // Add the note types.
+                Menu m = QuollMenu.builder ()
+                    .label (getUILanguageStringProperty (objectnames,plural,Note.OBJECT_TYPE))
+                    .build ();
+
+                for (StringProperty p : noteTypes)
+                {
+
+                    m.getItems ().add (QuollMenuItem.builder ()
+                        .label (p)
+                        .onAction (ev ->
+                        {
+
+                            NotesSidebarItem it = new NotesSidebarItem (this.viewer,
+                                                                        p,
+                                                                        this);
+
+                            _this.addSidebarItem (it,
+                                                  belowObjType);
+
+                            if (belowObjType != null)
+                            {
+
+                                // Scroll the item into view.
+                                UIUtils.scrollIntoView (it.getAccordionItem (),
+                                                        null);
+
+                            }
+
+                        })
+                        .build ());
+
+                }
+
+                its.add (m);
+
+            }
 
             for (final String sect : defSections)
             {
@@ -701,32 +811,22 @@ TODO Needed?
                         .styleClassName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
+
+                            this.viewer.showDeleteUserConfigurableType (type);
 /*
-                            new YesDeleteConfirmTextInputActionHandler<ProjectViewer> (viewer,
-                                                                                       null)
-                            {
+                            String pid = "deleteall" + type.getObjectReference ().asString ();
 
-                                @Override
-                                public String getHelp ()
-                                {
-
-                                    return String.format (Environment.getUIString (LanguageStrings.assets,
-                                                                                   LanguageStrings.deleteall,
-                                                                                   LanguageStrings.text),
-                                                          type.getObjectTypeNamePlural ());
-
-                                }
-
-                                @Override
-                                public String getDeleteType ()
-                                {
-
-                                    return type.getObjectTypeNamePlural ();
-
-                                }
-
-                                public boolean onConfirm (String v)
-                                                          throws Exception
+                            QuollPopup.yesConfirmTextEntryBuilder ()
+                                .withViewer (_this.viewer)
+                                .title (getUILanguageStringProperty (Arrays.asList (assets,deleteall,title),
+                                                                     type.objectTypeNamePluralProperty ()))
+                                .popupId (pid)
+                                .styleClassName (StyleClassNames.DELETE)
+                                .description (getUILanguageStringProperty (Arrays.asList (assets,deleteall,text),
+                                                                       type.objectTypeNamePluralProperty ()))
+                                .confirmButtonLabel (assets,deleteall,buttons,confirm)
+                                .cancelButtonLabel (assets,deleteall,buttons,cancel)
+                                .onConfirm (eev ->
                                 {
 
                                     try
@@ -745,7 +845,7 @@ TODO Needed?
                                                                   //String.format ("Unable to remove all %1$s.",
                                                                     //             type.getObjectTypeNamePlural ()));
 
-                                        return false;
+                                        return;
 
                                     }
 
@@ -764,20 +864,17 @@ TODO Needed?
                                                                          getUILanguageStringProperty (assets,deleteall,actionerror));
                                                                   //"Unable to remove object.");
 
-                                        return false;
+                                        return;
 
                                     }
 
-                                    _this.removeSection (type.getObjectTypeId ());
+                                    _this.viewer.getPopupById (pid).close ();
 
-                                    return true;
-
-                                }
-
-                            };
+                                })
+                                .build ();
 */
-                        })
-                        .build ());
+                            })
+                            .build ());
 
                     return items2;
 
@@ -793,6 +890,48 @@ TODO Needed?
     {
 
         final ProjectSideBar _this = this;
+
+        if (objType.startsWith (Note.OBJECT_TYPE))
+        {
+
+            return new NotesSidebarItem (this.viewer,
+                                         NotesSidebarItem.getNoteTypeForId (objType),
+                                         this)
+            {
+
+                @Override
+                public Supplier<Set<MenuItem>> getHeaderContextMenuItemSupplier ()
+                {
+
+                    Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
+
+                    return () ->
+                    {
+
+                        Set<MenuItem> items2 = new LinkedHashSet<> (items);
+
+                        items2.add (_this.getHideSectionMenuItem (this.getId ()));//Chapter.OBJECT_TYPE));
+
+                        Set<MenuItem> its = _this.getAddSectionMenu (this.getId ());//Chapter.OBJECT_TYPE);
+
+                        if (its.size () > 0)
+                        {
+
+                            items2.add (new SeparatorMenuItem ());
+
+                        }
+
+                        items2.addAll (its);
+
+                        return items2;
+
+                    };
+
+                }
+
+            };
+
+        }
 
         if (objType.equals (Chapter.OBJECT_TYPE))
         {
@@ -1002,33 +1141,6 @@ TODO REmove
 
             return this.createAssetSidebarItem (Environment.getUserConfigurableObjectType (objType));
 
-        }
-
-        if (objType.equals (Note.OBJECT_TYPE))
-        {
-/*
-TODO
-            return new NotesAccordionItem (this.viewer)
-            {
-
-                @Override
-                public void fillHeaderPopupMenu (JPopupMenu m,
-                                                 MouseEvent ev)
-                {
-
-                    super.fillHeaderPopupMenu (m,
-                                               ev);
-
-                    _this.addHideSectionMenuItem (m,
-                                                  objType);
-
-                    _this.addAddSectionMenu (m,
-                                             objType);
-
-                }
-
-            };
-*/
         }
 
         return null;

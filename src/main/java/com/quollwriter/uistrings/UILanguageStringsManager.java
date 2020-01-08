@@ -1338,7 +1338,7 @@ TODO
     public static LanguageStringsEditor getUILanguageStringsEditor (UILanguageStrings ls)
     {
 
-        for (AbstractViewer v : Environment.openViewersProperty ())
+        for (AbstractViewer v : Environment.getOpenViewers ())
         {
 /*
 TODO

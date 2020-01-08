@@ -368,6 +368,8 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
 
             }
 
+            this.item.setLinks (this.linkedToPanel.getLinkedToPanel ().getSelected ());
+
             this.viewer.saveObject (this.item,
                                     true);
 

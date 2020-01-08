@@ -223,7 +223,15 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
     }
 
-    private void save ()
+    @Override
+    public void saveObject ()
+    {
+
+        this.save ();
+
+    }
+
+    private boolean save ()
     {
 
         this.nameErrorBox.setVisible (false);
@@ -240,14 +248,14 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
             this.nameErrorBox.setVisible (true);
 
             this.lookup (".objectname .control").pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, true);
-            return;
+            return false;
 
         }
 
         if (!this.layout.updateFields ())
         {
 
-            return;
+            return false;
 
         }
 
@@ -264,7 +272,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
             ComponentUtils.showErrorMessage (this.viewer,
                                              getUILanguageStringProperty (assets,add,actionerror));
 
-            return;
+            return false;
 
         }
 
@@ -276,7 +284,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
             this.object.setProject (this.viewer.getProject ());
 
             // Save first so that it has a key.
-            this.saveObject ();
+            super.saveObject ();
 
             this.viewer.getProject ().addAsset (this.object);
 
@@ -292,6 +300,8 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         }
 
+        this.setHasUnsavedChanges (false);
+
         this.viewer.openObjectSection (this.object);
 
         this.viewer.fireProjectEvent (ProjectEvent.Type.asset,
@@ -306,6 +316,8 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         this.viewer.updateProjectDictionaryForNames (this.object.getAllNames (),
                                                      this.object);
+
+        return true;
 
     }
 

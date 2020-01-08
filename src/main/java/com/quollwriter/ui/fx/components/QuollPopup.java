@@ -43,26 +43,24 @@ public class QuollPopup extends StackPane implements IPropertyBinder
     private QuollPopup (Builder b)
     {
 
-        if (b.viewer == null)
-        {
-
-            throw new IllegalArgumentException ("Viewer must be specified.");
-
-        }
-
         this.binder = new PropertyBinder ();
 
         this.childPopups = new HashSet<> ();
 
         this.viewer = b.viewer;
 
-        this.viewer.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                                     ev ->
+        if (b.viewer != null)
         {
 
-            this.close ();
+            this.viewer.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                         ev ->
+            {
 
-        });
+                this.close ();
+
+            });
+
+        }
 
         //this.setPrefSize (javafx.scene.layout.Region.USE__SIZE, javafx.scene.layout.Region.USE_COMPUTED_SIZE);
         //this.setMaxSize (javafx.scene.layout.Region.USE_PREF_SIZE, javafx.scene.layout.Region.USE_PREF_SIZE);
@@ -91,7 +89,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
                 {
                     ev.consume ();
                     _this.close ();
-                    //this.viewer.removePopup (this);
+
                 })
                 .build ();
 
@@ -362,6 +360,13 @@ _this.moving = false;
 
     }
 
+    public static PasswordEntryBuilder passwordEntryBuilder ()
+    {
+
+        return new PasswordEntryBuilder ();
+
+    }
+
     public static TextEntryBuilder textEntryBuilder ()
     {
 
@@ -422,7 +427,12 @@ _this.moving = false;
         if (this.removeOnClose)
         {
 
-            this.viewer.removePopup (this);
+            if (this.viewer != null)
+            {
+
+                this.viewer.removePopup (this);
+
+            }
 
         }
 
@@ -444,6 +454,13 @@ _this.moving = false;
                       Side showWhere)
     {
 
+        if (this.viewer == null)
+        {
+
+            throw new IllegalStateException ("Need a viewer to be able to show popup at node: " + showAt);
+
+        }
+
         this.viewer.showPopup (this,
                                showAt,
                                showWhere);
@@ -463,6 +480,27 @@ _this.moving = false;
     public void show (double x,
                       double y)
     {
+
+        if (this.viewer == null)
+        {
+
+            BasicPopupsViewer p = new BasicPopupsViewer (this);
+
+            // Show in the center of the screen.
+            p.onShowingProperty ().addListener ((pr, oldv, newv) ->
+            {
+
+                Rectangle2D b = Screen.getPrimary().getVisualBounds();
+                p.setX((b.getWidth() - p.getWidth()) / 2);
+                p.setY((b.getHeight() - p.getHeight()) / 2);
+
+            });
+
+            this.fireEvent (new PopupEvent (this,
+                                            PopupEvent.SHOWN_EVENT));
+            return;
+
+        }
 
         this.viewer.showPopup (this,
                                x,
@@ -528,7 +566,7 @@ _this.moving = false;
         private StringProperty confirmButtonLabel = null;
         private StringProperty cancelButtonLabel = null;
         private StringProperty entryLabel = null;
-        private URLActionHandler handler = null;
+        private AbstractViewer handler = null;
         private String text = null;
 
         public TextEntryBuilder text (String t)
@@ -539,7 +577,7 @@ _this.moving = false;
 
         }
 
-        public TextEntryBuilder withHandler (URLActionHandler h)
+        public TextEntryBuilder withHandler (AbstractViewer h)
         {
 
             this.handler = h;
@@ -706,6 +744,230 @@ _this.moving = false;
                 .styleClassName (StyleClassNames.TEXTENTRY)
                 .description (this.description)
                 .withHandler (this.handler)
+                .item (this.entryLabel,
+                       tf)
+                .confirmButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
+                .cancelButton ((this.cancelButtonLabel != null ? this.cancelButtonLabel : getUILanguageStringProperty (buttons,cancel)))
+                .build ();
+
+            this.form (f);
+
+            QuollPopup qp = super.build ();
+
+            Runnable r = () ->
+            {
+
+                f.hideError ();
+
+                StringProperty m = validator.isValid (tf.getText ());
+
+                if (m != null)
+                {
+
+                    f.showError (m);
+                    return;
+
+                }
+
+                Form.FormEvent ev = new Form.FormEvent (f,
+                                                        Form.FormEvent.CONFIRM_EVENT);
+
+                this.onConfirm.handle (ev);
+
+                if (ev.isConsumed ())
+                {
+
+                    return;
+
+                }
+
+                qp.close ();
+
+            };
+
+            f.setOnCancel (this.onCancel);
+
+            f.setOnConfirm (ev ->
+            {
+
+                UIUtils.runLater (r);
+
+            });
+
+            UIUtils.runLater (() ->
+            {
+
+                tf.requestFocus ();
+
+            });
+
+            return qp;
+
+        }
+
+    }
+
+    public static class PasswordEntryBuilder extends FormBuilder<PasswordEntryBuilder>
+    {
+
+        private ValueValidator<String> validator = null;
+        private StringProperty description = null;
+        private EventHandler<Form.FormEvent> onCancel = null;
+        private EventHandler<Form.FormEvent> onConfirm = null;
+        private StringProperty confirmButtonLabel = null;
+        private StringProperty cancelButtonLabel = null;
+        private StringProperty entryLabel = null;
+
+        public PasswordEntryBuilder entryLabel (StringProperty prop)
+        {
+
+            this.entryLabel = prop;
+            return _this ();
+
+        }
+
+        public PasswordEntryBuilder entryLabel (List<String> prefix,
+                                                String...    ids)
+        {
+
+            return this.entryLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public PasswordEntryBuilder entryLabel (String... ids)
+        {
+
+            return this.entryLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public PasswordEntryBuilder confirmButtonLabel (StringProperty prop)
+        {
+
+            this.confirmButtonLabel = prop;
+            return _this ();
+
+        }
+
+        public PasswordEntryBuilder confirmButtonLabel (List<String> prefix,
+                                                        String...    ids)
+        {
+
+            return this.confirmButtonLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public PasswordEntryBuilder confirmButtonLabel (String... ids)
+        {
+
+            return this.confirmButtonLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public PasswordEntryBuilder cancelButtonLabel (StringProperty prop)
+        {
+
+            this.cancelButtonLabel = prop;
+            return _this ();
+
+        }
+
+        public PasswordEntryBuilder cancelButtonLabel (List<String> prefix,
+                                                       String...    ids)
+        {
+
+            return this.cancelButtonLabel (getUILanguageStringProperty (Utils.newList (prefix, ids)));
+
+        }
+
+        public PasswordEntryBuilder cancelButtonLabel (String... ids)
+        {
+
+            return this.cancelButtonLabel (getUILanguageStringProperty (ids));
+
+        }
+
+        public PasswordEntryBuilder onConfirm (EventHandler<Form.FormEvent> c)
+        {
+
+            this.onConfirm = c;
+            return this;
+
+        }
+
+        public PasswordEntryBuilder onCancel (EventHandler<Form.FormEvent> c)
+        {
+
+            this.onCancel = c;
+            return this;
+
+        }
+
+        public PasswordEntryBuilder description (String... m)
+        {
+
+            return this.description (getUILanguageStringProperty (m));
+
+        }
+
+        public PasswordEntryBuilder description (List<String> prefix,
+                                                 String...    m)
+        {
+
+            return this.description (getUILanguageStringProperty (Utils.newList (prefix, m)));
+
+        }
+
+        public PasswordEntryBuilder description (StringProperty m)
+        {
+
+            this.description = m;
+            return _this ();
+
+        }
+
+        public PasswordEntryBuilder validator (ValueValidator<String> v)
+        {
+
+            this.validator = v;
+            return _this ();
+
+        }
+
+        @Override
+        public PasswordEntryBuilder _this ()
+        {
+
+            return this;
+
+        }
+
+        @Override
+        public QuollPopup build ()
+        {
+
+            PasswordField tf = new PasswordField ();
+            // TODO Make a constant.
+            tf.setId ("password");
+
+            if (this.styleName == null)
+            {
+
+                this.styleName = StyleClassNames.QUESTION;
+
+            }
+
+            if (this.validator == null)
+            {
+
+                throw new IllegalStateException ("A validator for the text entry must be provided.");
+
+            }
+
+            Form f = Form.builder ()
+                .styleClassName (StyleClassNames.PASSWORDENTRY)
+                .description (this.description)
+                .withHandler (this.viewer)
                 .item (this.entryLabel,
                        tf)
                 .confirmButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
@@ -980,7 +1242,8 @@ TODO
         protected StringProperty message = null;
         private Node messageNode = null;
         protected Set<Button> buttons = null;
-        private URLActionHandler handler = null;
+        private Button closeButton = null;
+        //private AbstractViewer viewer = null;
 
         public X message (Node n)
         {
@@ -998,15 +1261,15 @@ TODO
             return (X) this;
 
         }
-
-        public X withHandler (URLActionHandler h)
+/*
+        public X withViewer (AbstractViewer h)
         {
 
-            this.handler = h;
+            this.viewer = h;
             return _this ();
 
         }
-
+*/
         public X message (String... m)
         {
 
@@ -1027,6 +1290,40 @@ TODO
 
             this.message = m;
             return _this ();
+
+        }
+
+        public X closeButton (StringProperty label,
+                              Runnable       onClose)
+        {
+
+            this.closeButton = QuollButton.builder ()
+                .label (label != null ? label : getUILanguageStringProperty (LanguageStrings.buttons,close))
+                .onAction (ev ->
+                {
+
+                    UIUtils.runLater (onClose);
+
+                })
+                .build ();
+
+            return this.button (this.closeButton);
+
+        }
+
+        public X closeButton (Runnable onClose)
+        {
+
+            return this.closeButton (null,
+                                     onClose);
+
+        }
+
+        public X closeButton ()
+        {
+
+            return this.closeButton (null,
+                                     null);
 
         }
 
@@ -1099,10 +1396,10 @@ TODO
 
                 }
 
-                content = BasicHtmlTextFlow.builder ()
+                content = QuollTextView.builder ()//BasicHtmlTextFlow.builder ()
                     .text (this.message)
                     .styleClassName (StyleClassNames.MESSAGE)
-                    .withHandler (this.handler)
+                    .withViewer (this.viewer)
                     .build ();
 
             } else {
@@ -1155,6 +1452,19 @@ TODO
                 qp.toFront ();
 
             });
+
+            if (this.closeButton != null)
+            {
+
+                this.closeButton.addEventHandler (ActionEvent.ANY,
+                                                  ev ->
+                {
+
+                    qp.close ();
+
+                });
+
+            }
 
             return qp;
 
@@ -1373,7 +1683,7 @@ TODO
         private boolean hideOnEscape = false;
         private Runnable onClose = null;
         private String popupId = null;
-        protected PopupsViewer viewer = null;
+        protected AbstractViewer viewer = null;
         private boolean show = false;
         private boolean removeOnClose = false;
         private Node showAt = null;
@@ -1418,7 +1728,7 @@ TODO
 
         }
 
-        public X withViewer (PopupsViewer viewer)
+        public X withViewer (AbstractViewer viewer)
         {
 
             this.viewer = viewer;

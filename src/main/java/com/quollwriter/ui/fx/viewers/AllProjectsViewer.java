@@ -11,9 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.*;
 
-// TODO REmove
-import org.fxmisc.flowless.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
@@ -21,6 +18,7 @@ import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.charts.*;
+import com.quollwriter.data.UserConfigurableObjectType;
 import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -56,51 +54,6 @@ public class AllProjectsViewer extends AbstractViewer
         this.addPanel (new NoProjectsPanel (this));
         this.addPanel (new ImportFilePanel (this));
 
-        // TODO Remove
-        this.addPanel (new PanelContent<AllProjectsViewer> (this)
-        {
-
-            @Override
-            public Panel createPanel ()
-            {
-
-                TextEditor editor = TextEditor.builder ()
-                    .text (new StringWithMarkup ("This is a test\nAnother test."))
-                    .build ();
-
-                VirtualizedScrollPane<TextEditor> vsPane = new VirtualizedScrollPane<> (editor);
-                //ScrollPane vsPane = new ScrollPane (this.editor);
-                VBox.setVgrow (vsPane, Priority.ALWAYS);
-
-                TabPane tabs = new TabPane ();
-                Tab tab = new Tab ();
-                tab.setText ("TEST");
-                tab.setContent (vsPane);
-                VBox.setVgrow (tabs, Priority.ALWAYS);
-                //tab.textProperty ().bind (qp.titleProperty ());
-
-                tabs.getTabs ().add (tab);
-
-                SplitPane sp = new SplitPane ();
-                sp.getItems ().addAll (new Pane (), tabs);
-
-                this.getChildren ().add (sp);
-
-                Panel panel = Panel.builder ()
-                    // TODO .title (this.object.nameProperty ())
-                    .title (new SimpleStringProperty ("TEST"))
-                    .content (this)
-                    .styleClassName (StyleClassNames.CHAPTER)
-                    .panelId ("test")
-                    // TODO .headerControls ()
-                    .build ();
-
-                return panel;
-
-            }
-
-        });
-
         this.showPanel (ProjectsPanel.PANEL_ID);
 
         this.setContent (this.content);
@@ -110,18 +63,17 @@ public class AllProjectsViewer extends AbstractViewer
         this.titleProp.bind (Bindings.createStringBinding (() ->
         {
 
-            return String.format (getUIString (LanguageStrings.allprojects, LanguageStrings.title), Environment.formatNumber (Environment.allProjectsProperty ().size ()));
+            return String.format (getUIString (LanguageStrings.allprojects, LanguageStrings.title), Environment.formatNumber (Environment.getAllProjects ().size ()));
 
         },
         UILanguageStringsManager.uilangProperty (),
         Environment.objectTypeNameChangedProperty (),
-        Environment.allProjectsProperty ()));
+        Environment.getAllProjects ()));
 
         this.initKeyMappings ();
 
         this.initActionMappings ();
-/*
-TODO READD
+
         this.setOnDragExited (ev ->
         {
 
@@ -139,7 +91,7 @@ TODO READD
 
         this.setOnDragEntered (ev ->
         {
-
+System.out.println ("HEREXXX");
             _this.checkDragFileImport (ev);
 
         });
@@ -173,8 +125,6 @@ TODO READD
 
                     ev.setDropCompleted (true);
 
-                    System.out.println ("HERE");
-
                     this.showProjectsPanel ();
 
                     // TODO Show the import.
@@ -186,7 +136,7 @@ TODO READD
             }
 
         });
-*/
+
         this.update ();
 
     }
@@ -497,7 +447,7 @@ TODO READD
     public void update ()
     {
 
-        if (Environment.allProjectsProperty ().size () == 0)
+        if (Environment.getAllProjects ().size () == 0)
         {
 
             this.showPanel (NoProjectsPanel.PANEL_ID);
@@ -601,8 +551,8 @@ TODO READD
 
         }
 
-        this.addChangeListener (Environment.allProjectsProperty (),
-                                (val, oldv, newv) -> this.update ());
+        this.addSetChangeListener (Environment.getAllProjects (),
+                                   ch -> this.update ());
 
         super.init (s);
 
@@ -1026,6 +976,14 @@ TODO Remove as not appropriate.
         }
 
         this.showSideBar (TargetsSideBar.SIDEBAR_ID);
+
+    }
+
+    public void deleteAllObjectsForType (UserConfigurableObjectType type)
+                                  throws GeneralException
+    {
+
+        // Do nothing.
 
     }
 
