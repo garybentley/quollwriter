@@ -20,11 +20,14 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class LinkedToUserConfigurableObjectFieldViewEditHandler extends AbstractUserConfigurableObjectFieldViewEditHandler<LinkedToUserConfigurableObjectTypeField, String>
 {
 
-    private LinkedToPanel editItem = null;
+    private LinkedToPanel editPanel = null;
+    private LinkedToPanel viewPanel = null;
+    private IPropertyBinder binder = null;
 
     public LinkedToUserConfigurableObjectFieldViewEditHandler (LinkedToUserConfigurableObjectTypeField typeField,
                                                                UserConfigurableObject                  obj,
                                                                UserConfigurableObjectField             field,
+                                                               IPropertyBinder                         binder,
                                                                AbstractProjectViewer                   viewer)
     {
 
@@ -33,18 +36,30 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
                field,
                viewer);
 
+        this.editPanel = new LinkedToPanel (obj,
+                                            binder,
+                                            viewer);
+        this.editPanel.showEdit ();
+
+        this.viewPanel = new LinkedToPanel (obj,
+                                            binder,
+                                            viewer);
+        this.viewPanel.showView ();
+
     }
 
     @Override
     public void grabInputFocus ()
     {
 
-        if (this.editItem != null)
-        {
+    }
 
-            this.editItem.requestFocus ();
+    @Override
+    public void updateFieldFromInput ()
+                               throws GeneralException
+    {
 
-        }
+        this.obj.setLinks (this.editPanel.getSelected ());
 
     }
 
@@ -54,6 +69,9 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
+
+        items.add (new Form.Item (this.typeField.formNameProperty (),
+                                  this.editPanel));
 
         return items;
 
@@ -98,9 +116,7 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
         Set<Form.Item> items = new LinkedHashSet<> ();
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  new LinkedToPanel (this.obj,
-                                                     null,
-                                                     this.viewer)));
+                                  this.viewPanel));
 
         return items;
 

@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.concurrent.*;
 
+import javafx.beans.value.*;
 import javafx.geometry.*;
 import javafx.css.*;
 import javafx.collections.*;
@@ -15,6 +16,7 @@ import javafx.beans.property.*;
 import javafx.event.*;
 import javafx.stage.*;
 import javafx.scene.*;
+import javafx.beans.binding.*;
 import javafx.scene.input.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -30,18 +32,16 @@ import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class FullScreenView extends Stage implements PopupsViewer, URLActionHandler, IPropertyBinder
+public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractProjectViewer>
 {
 
-    public static final float DEFAULT_X_BORDER_WIDTH = (7f / 100f);
-    public static final float DEFAULT_Y_BORDER_WIDTH = (7f / 100f);
     public static final float DEFAULT_BORDER_OPACITY = 0.7f;
+    public static final double MIN_X_BORDER_WIDTH = 0.05d;
+    public static final double MAX_X_BORDER_WIDTH = 0.4d;
+    public static final double MIN_Y_BORDER_WIDTH = 0.05d;
+    public static final double MAX_Y_BORDER_WIDTH = 0.4d;
+    public static final double MOVE_INCR = 0.002d;
 
-    private float                xBorderWidth = -1f;
-    private float                yBorderWidth = -1f;
-    private float                borderOpacity = -1f;
-
-    private AbstractProjectViewer viewer = null;
     private PanelContent panel = null;
 
     private BackgroundPane background = null;
@@ -64,21 +64,65 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
     private SimpleDateFormat     clockFormat = null;
     private Set<QuollPopup> popups = new HashSet<> ();
 
-    private PropertyBinder propertyBinder = null;
+    private IPropertyBinder propertyBinder = null;
+    private boolean ignoreChange = false;
 
-    public FullScreenView (AbstractProjectViewer viewer,
-                           Set<Node>             headerCons,
-                           PanelContent          p)
+    public ProjectFullScreenContent (AbstractProjectViewer viewer,
+                                     String                styleClassName,
+                                     Region                mainContent)
     {
 
-        final FullScreenView _this = this;
+        super (viewer);
+        this.propertyBinder = viewer.getBinder ();
 
-        this.propertyBinder = new PropertyBinder ();
+        this.propertyBinder.addChangeListener (this.viewer.currentPanelProperty (),
+                                               (pr, oldv, newv) ->
+        {
 
-        this.viewer = viewer;
+            if (oldv != null)
+            {
 
-        double swidth = Screen.getPrimary ().getVisualBounds ().getWidth ();
-        double sheight = Screen.getPrimary ().getVisualBounds ().getHeight ();
+                this.header.getStyleClass ().remove (oldv.getStyleClassName ());
+
+            }
+
+            if (newv != null)
+            {
+
+                PanelContent p = newv.getContent ();
+
+                if (p instanceof AssetViewPanel)
+                {
+
+                    UserConfigurableObjectType type = ((AssetViewPanel) p).getObject ().getUserConfigurableObjectType ();
+
+                    this.header.getIcon ().imageProperty ().unbind ();
+                    this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
+
+                }
+
+                this.header.titleProperty ().unbind ();
+                this.header.titleProperty ().bind (newv.titleProperty ());
+                this.header.getIcon ().imageProperty ().unbind ();
+                this.header.getStyleClass ().add (newv.getStyleClassName ());
+
+            }
+
+            this.showHeader ();
+
+            this.headerHideTimer = this.viewer.schedule (() ->
+            {
+
+                this.hideHeader ();
+
+            },
+            3000,
+            -1);
+
+        });
+
+        //double swidth = Screen.getPrimary ().getVisualBounds ().getWidth ();
+        //double sheight = Screen.getPrimary ().getVisualBounds ().getHeight ();
 
         ToolBar tb = new ToolBar ();
 
@@ -118,14 +162,14 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
         });
 
         tb.getItems ().addAll (this.headerClockLabel, but);
-
+/*
         if (headerCons != null)
         {
 
             tb.getItems ().addAll (headerCons);
 
         }
-
+*/
         if (EditorsEnvironment.isEditorsServiceAvailable ())
         {
 
@@ -199,7 +243,6 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
         this.header.setVisible (false);
         this.header.managedProperty ().bind (this.header.visibleProperty ());
         this.header.titleProperty ().bind (viewer.getProject ().nameProperty ());
-        this.header.setPrefWidth (swidth * 0.8);
 
         this.header.setOnMouseEntered (ev ->
         {
@@ -220,16 +263,120 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
 
         });
 
-        Pane box = new Pane ();
-        box.getStyleClass ().add (StyleClassNames.FULLSCREEN);
+        this.getStyleClass ().add (StyleClassNames.FULLSCREEN);
         VBox.setVgrow (this.header,
                        Priority.NEVER);
 
         this.background = new BackgroundPane (viewer);
+
+        try
+        {
+System.out.println ("FBG: " + UserProperties.getFullScreenBackground ());
+            this.background.setBackgroundObject (UserProperties.getFullScreenBackground ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set background to: " + UserProperties.getFullScreenBackground (),
+                                  e);
+
+        }
+
+        this.background.opacityProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            try
+            {
+
+                this.ignoreChange = true;
+
+                UserProperties.setFullScreenOpacity (newv.doubleValue ());
+
+            } finally {
+
+                this.ignoreChange = false;
+
+            }
+
+        });
+
+        this.background.getBackgroundObject ().backgroundProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            try
+            {
+
+                this.ignoreChange = true;
+
+                UserProperties.setFullScreenBackground (this.background.getBackgroundObject ().getBackgroundObject ());
+
+            } finally {
+
+                this.ignoreChange = false;
+
+            }
+
+        });
+
+        this.propertyBinder.addChangeListener (UserProperties.fullScreenBackgroundProperty (),
+                                               (pr, oldv, newv) ->
+        {
+
+            if (this.ignoreChange)
+            {
+
+                return;
+
+            }
+
+            try
+            {
+
+                this.background.setBackgroundObject (newv);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set background object to: " + newv,
+                                      e);
+
+            }
+
+        });
+
+        this.propertyBinder.addChangeListener (UserProperties.fullScreenOpacityProperty (),
+                                               (pr, oldv, newv) ->
+        {
+
+            if (this.ignoreChange)
+            {
+
+                return;
+
+            }
+
+            this.background.setOpacity (newv.doubleValue ());
+
+        });
+
+        this.background.setDragImportAllowed (true);
+        this.background.prefWidthProperty ().bind (this.widthProperty ());
+        this.background.prefHeightProperty ().bind (this.heightProperty ());
+/*
         this.background.relocate (0, 0);
         this.background.setPrefSize (swidth, sheight);
+*/
+        this.setOnMouseClicked (ev ->
+        {
 
-        box.setOnContextMenuRequested (ev ->
+            if (this.getProperties ().get ("context-menu") != null)
+            {
+
+                ((ContextMenu) this.getProperties ().get ("context-menu")).hide ();
+
+            }
+
+        });
+
+        this.setOnContextMenuRequested (ev ->
         {
 
             ContextMenu m = new ContextMenu ();
@@ -245,12 +392,30 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
                 })
                 .build ());
 
+            m.getItems ().add (QuollMenuItem.builder ()
+                .label (fullscreen,popupmenu,items,selectbackground)
+                .styleClassName (StyleClassNames.SELECTBG)
+                .onAction (eev ->
+                {
+
+                    this.background.showBackgroundSelector ();
+
+                })
+                .build ());
+
             m.setAutoHide (true);
 
-            m.show (box, ev.getScreenX (), ev.getScreenY ());
+            this.getProperties ().put ("context-menu", m);
+
+            m.setAutoFix (true);
+            m.setAutoHide (true);
+            m.setHideOnEscape (true);
+            m.show (this,
+                    ev.getScreenX (),
+                    ev.getScreenY ());
 
         });
-
+/*
         this.addEventHandler (ScrollEvent.SCROLL,
                               ev ->
         {
@@ -302,7 +467,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
 
                     }
 
-                    _this.background.setOpacity (o);
+                    this.background.setOpacity (o);
 
                 }
 
@@ -311,6 +476,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
             ev.consume ();
 
         });
+        */
 
 /*
         VBox.setVgrow (b.content,
@@ -318,28 +484,34 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
 */
         // Get the current panel from the viewer and add to a full screen panel.
 
-        this.popupPane = new Pane ();
-        this.popupPane.getStyleClass ().add (StyleClassNames.POPUPPANE);
-        this.background.relocate (0, 0);
-        this.background.setPrefSize (swidth, sheight);
+        //this.popupPane = new Pane ();
+        //this.popupPane.getStyleClass ().add (StyleClassNames.POPUPPANE);
+        //this.background.relocate (0, 0);
+        //this.background.setPrefSize (swidth, sheight);
 
         this.sidebarsPane = new HBox ();
         this.sidebarsPane.getStyleClass ().add (StyleClassNames.SIDEBARS);
         this.sidebarsPane.pseudoClassStateChanged (StyleClassNames.LEFT_PSEUDO_CLASS, true);
         this.sidebarsPane.managedProperty ().bind (this.sidebarsPane.visibleProperty ());
         this.sidebarsPane.setVisible (false);
-        DragResizer dr = DragResizer.makeResizable (this.sidebarsPane);
-        dr.draggingProperty ().addListener ((pr, oldv, newv) ->
+        DragResizer dr = DragResizer.makeResizable (this.sidebarsPane,
+                                                    Side.RIGHT);
+        dr.newWidthProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            if (!newv)
-            {
-System.out.println ("HERE1");
-                this.hideSideBar ();
+            double mw = this.sidebarsPane.getMinWidth ();
 
-            } else {
-System.out.println ("HERE2");
-                this.cancelHideSideBar ();
+            if (mw < 0)
+            {
+
+                mw = this.sidebarsPane.minWidth (this.sidebarsPane.getHeight ());
+
+            }
+
+            if (newv.doubleValue () > mw)
+            {
+
+                this.sidebarsPane.setPrefWidth (Math.round (newv.doubleValue ()) + this.sidebarsPane.getInsets ().getLeft () + this.sidebarsPane.getInsets ().getRight ());
 
             }
 
@@ -348,6 +520,16 @@ System.out.println ("HERE2");
         this.sidebarsPane.addEventHandler (MouseEvent.MOUSE_EXITED,
                                            ev ->
         {
+
+            if ((this.sidebarsPane.localToScene (this.sidebarsPane.getBoundsInLocal ()).contains (this.sidebarsPane.localToScene (ev.getX (), ev.getY ())))
+                ||
+                (dr.isDragging ())
+               )
+            {
+
+                return;
+
+            }
 
             this.hideSideBar ();
 
@@ -367,19 +549,6 @@ System.out.println ("HERE2");
 
         });
 
-        UIUtils.runLater (() ->
-        {
-
-            double h = Screen.getPrimary ().getVisualBounds ().getHeight ();
-            this.sidebarsPane.relocate (0,
-                                        h * 0.1);
-            this.sidebarsPane.setPrefSize (-1,
-                                           h * 0.8);
-            this.sidebarsPane.setMaxSize (Region.USE_PREF_SIZE,
-                                          Region.USE_PREF_SIZE);
-
-        });
-
         this.info = new HBox ();
         this.info.getStyleClass ().add (StyleClassNames.INFORMATION);
         this.chapWords = QuollLabel.builder ()
@@ -394,107 +563,225 @@ System.out.println ("HERE2");
         this.info.setVisible (false);
         this.info.getChildren ().addAll (this.clockLabel, this.sessWords, this.chapWords);
 
+        Pane mainWrapper = new Pane ();
+        /*
+        mainContent.prefWidthProperty ().bind (Bindings.createDoubleBinding (() ->
+        {
+
+            return (double) Math.round (this.getWidth () - (2 * this.getWidth () * this.xBorderWidthProp.getValue ()));
+
+        },
+        this.xBorderWidthProp));
+
+        mainContent.prefHeightProperty ().bind (Bindings.createDoubleBinding (() ->
+        {
+
+            return (double) Math.round (this.getHeight () - (2 * this.getHeight () * this.yBorderWidthProp.getValue ()));
+
+        },
+        this.yBorderWidthProp));
+*/
+
+        ChangeListener<Number> resizeRelocate = (pr, oldv, newv) ->
+        {
+
+            double h = this.getHeight ();
+            double w = this.getWidth ();
+            double ybw = UserProperties.getFullScreenYBorderWidth ();
+            double xbw = UserProperties.getFullScreenXBorderWidth ();
+            double cx = w * xbw;
+            double cy = h * ybw;
+
+            mainContent.setPrefHeight ((double) Math.round (h - (2 * h * ybw)));
+            mainContent.setPrefWidth ((double) Math.round (w - (2 * w * xbw)));
+            mainWrapper.relocate (Math.round (cx), Math.round (cy));
+
+        };
+
+        this.propertyBinder.addChangeListener (UserProperties.fullScreenXBorderWidthProperty (),
+                                               resizeRelocate);
+        this.propertyBinder.addChangeListener (UserProperties.fullScreenYBorderWidthProperty (),
+                                               resizeRelocate);
+
+        mainContent.relocate (3, 3);
+        mainWrapper.getChildren ().add (mainContent);
+        mainWrapper.prefWidthProperty ().bind (Bindings.createDoubleBinding (() ->
+        {
+
+            return mainContent.prefWidthProperty ().getValue () + 6;
+
+        },
+        mainContent.prefWidthProperty ()));
+
+        mainWrapper.prefHeightProperty ().bind (Bindings.createDoubleBinding (() ->
+        {
+
+            return mainContent.prefHeightProperty ().getValue () + 6;
+
+        },
+        mainContent.prefHeightProperty ()));
+
+        mainWrapper.setVisible (false);
+
+        DragResizer mdr = DragResizer.makeResizable (mainWrapper,
+                                                     Side.TOP,
+                                                     Side.BOTTOM,
+                                                     Side.LEFT,
+                                                     Side.RIGHT);
+/*
+TODO
+        mdr.setOnDoubleClick (s ->
+        {
+
+            if ((s == Side.TOP)
+                ||
+                (s == Side.BOTTOM)
+               )
+            {
+
+                double bw = this.yBorderWidthProp.getValue ();
+
+                if ((bw >= MIN_Y_BORDER_WIDTH)
+                   )
+                {
+
+                    this.yBorderWidthProp.setValue (MAX_Y_BORDER_WIDTH);
+
+                }
+
+                if (bw <= MAX_Y_BORDER_WIDTH)
+                {
+
+                    this.yBorderWidthProp.setValue (MIN_Y_BORDER_WIDTH);
+
+                }
+
+            }
+
+        });
+*/
+        mdr.setOnDraggingLeft (() ->
+        {
+
+            if (mdr.getDragZone () == Side.RIGHT)
+            {
+
+                UserProperties.incrementFullScreenXBorderWidth ();
+
+            }
+
+            if (mdr.getDragZone () == Side.LEFT)
+            {
+
+                UserProperties.decrementFullScreenXBorderWidth ();
+
+            }
+
+        });
+
+        mdr.setOnDraggingRight (() ->
+        {
+
+            if (mdr.getDragZone () == Side.RIGHT)
+            {
+
+                UserProperties.decrementFullScreenXBorderWidth ();
+
+            }
+
+            if (mdr.getDragZone () == Side.LEFT)
+            {
+
+                UserProperties.incrementFullScreenXBorderWidth ();
+
+            }
+
+        });
+
+        mdr.setOnDraggingUp (() ->
+        {
+
+            if (mdr.getDragZone () == Side.TOP)
+            {
+
+                UserProperties.decrementFullScreenYBorderWidth ();
+
+            }
+
+            if (mdr.getDragZone () == Side.BOTTOM)
+            {
+
+                UserProperties.incrementFullScreenYBorderWidth ();
+
+            }
+
+        });
+
+        mdr.setOnDraggingDown (() ->
+        {
+
+            if (mdr.getDragZone () == Side.TOP)
+            {
+
+                UserProperties.incrementFullScreenYBorderWidth ();
+
+            }
+
+            if (mdr.getDragZone () == Side.BOTTOM)
+            {
+
+                UserProperties.decrementFullScreenYBorderWidth ();
+
+            }
+
+        });
+
         UIUtils.runLater (() ->
         {
+System.out.println ("TIME2: " + System.currentTimeMillis ());
+long s= System.currentTimeMillis ();
+            double h = this.getHeight ();//Screen.getPrimary ().getVisualBounds ().getHeight ();
+            this.sidebarsPane.relocate (0,
+                                        h * 0.1);
+            this.sidebarsPane.setPrefSize (-1,
+                                           h * 0.8);
+            this.sidebarsPane.setMaxSize (Region.USE_PREF_SIZE,
+                                          Region.USE_PREF_SIZE);
 
             this.info.relocate (10,
-                                Screen.getPrimary ().getVisualBounds ().getHeight () - this.info.getLayoutBounds ().getHeight ());
+                                this.getHeight () - this.info.getLayoutBounds ().getHeight ());
 
+            double w = this.getWidth ();
+            double ybw = UserProperties.getFullScreenYBorderWidth ();
+            double xbw = UserProperties.getFullScreenXBorderWidth ();
+            double cx = w * xbw;
+            double cy = h * ybw;
+
+            mainContent.setPrefHeight ((double) Math.round (h - (2 * h * ybw)));
+            mainContent.setPrefWidth ((double) Math.round (w - (2 * w * xbw)));
+            mainWrapper.relocate (Math.round (cx), Math.round (cy));
+            mainWrapper.setVisible (true);
+System.out.println ("TOOK: " + (System.currentTimeMillis () - s));
         });
+System.out.println ("TIME: " + System.currentTimeMillis ());
+        this.getChildren ().addAll (this.background, mainWrapper, this.header, this.sidebarsPane, this.info);//, /*this.content*/this.popupPane);
 
-        box.getChildren ().addAll (this.background, this.header, this.sidebarsPane, this.info, /*this.content*/this.popupPane);
-
-        javafx.scene.Scene s = new javafx.scene.Scene (box);
-
-        this.setX (0);
-        this.setY (0);
-        this.setWidth (swidth);
-        this.setHeight (sheight);
-		this.setScene (s);
-        this.setMinWidth (swidth);
-        this.setMinHeight (sheight);
-        this.setMaxWidth (swidth);
-        this.setMaxHeight (sheight);
-        this.sizeToScene ();
-
-        this.propertyBinder.addSetChangeListener (Environment.getStyleSheets (),
-                                                  ev ->
+        this.setOnMouseMoved (ev ->
         {
 
-            if (ev.wasAdded ())
-            {
-
-                this.addStyleSheet (ev.getElementAdded ());
-
-            }
-
-            if (ev.wasRemoved ())
-            {
-
-                this.removeStyleSheet (ev.getElementRemoved ());
-
-            }
-
-        });
-
-        Environment.getStyleSheets ().stream ()
-            .forEach (u ->
-            {
-
-                this.addStyleSheet (u);
-
-            });
-
-        s.setOnMouseMoved (ev ->
-        {
-
-            if (ev.getScreenX () <= 20)
+            if (ev.getX () <= 20)
             {
 
                 this.showSideBar ();
 
             }
 
-            if (ev.getScreenY () <= 20)
+            if (ev.getY () <= 20)
             {
 
                 this.showHeader ();
 
             }
-
-        });
-
-        this.propertyBinder.addChangeListener (UserProperties.uiBaseFontSizeProperty (),
-                                               (pr, oldv, newv) ->
-        {
-
-            this.updateUIBaseFontSize ();
-
-        });
-
-        this.updateUIBaseFontSize ();
-
-        // Listen to the night mode property, add a psuedo class when it is enabled.
-        this.propertyBinder.addChangeListener (Environment.nightModeProperty (),
-                                               (val, oldv, newv) ->
-        {
-
-            box.pseudoClassStateChanged (StyleClassNames.NIGHT_MODE_PSEUDO_CLASS, newv);
-
-        });
-
-        this.getIcons ().addAll (Environment.getWindowIcons ());
-
-        this.initStyle (StageStyle.TRANSPARENT);
-
-        // Hide the window by default, this allows subclasses to set things up.
-        this.hide ();
-
-        this.setOnCloseRequest (ev ->
-        {
-
-            ev.consume ();
-            this.close ();
 
         });
 
@@ -514,56 +801,6 @@ System.out.println ("HERE2");
         },
         500,
         500);
-
-        this.switchTo (p);
-
-        this.addKeyMapping (() ->
-        {
-
-            this.close ();
-
-        },
-        KeyCode.F9);
-
-        this.addKeyMapping (() ->
-        {
-
-            this.close ();
-
-        },
-        KeyCode.ESCAPE);
-
-        this.addKeyMapping (() ->
-        {
-
-            this.viewer.runCommand (AbstractViewer.CommandId.resetfontsize);
-
-        },
-        KeyCode.DIGIT0, KeyCombination.CONTROL_DOWN);
-
-        this.addKeyMapping (() ->
-        {
-
-            this.viewer.runCommand (AbstractViewer.CommandId.incrementfontsize);
-
-        },
-        KeyCode.EQUALS, KeyCombination.CONTROL_DOWN);
-
-        this.addKeyMapping (() ->
-        {
-
-            this.viewer.runCommand (AbstractViewer.CommandId.decrementfontsize);
-
-        },
-        KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
-
-    }
-
-    @Override
-    public PropertyBinder getBinder ()
-    {
-
-        return this.propertyBinder;
 
     }
 
@@ -710,334 +947,17 @@ System.out.println ("HERE2");
 
     }
 
-    public void init ()
-               throws GeneralException
-    {
-
-/*
-        Project proj = this.viewer.getProject ();
-
-        this.xBorderWidth = proj.getPropertyAsFloat (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME);
-
-        if (this.xBorderWidth <= 0)
-        {
-
-            this.xBorderWidth = DEFAULT_X_BORDER_WIDTH;
-
-        }
-
-        this.yBorderWidth = proj.getPropertyAsFloat (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME);
-
-        if (this.yBorderWidth <= 0)
-        {
-
-            this.yBorderWidth = DEFAULT_Y_BORDER_WIDTH;
-
-        }
-
-        this.borderOpacity = proj.getPropertyAsFloat (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME);
-*/
-
-        this.xBorderWidth = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME);
-
-        if (this.xBorderWidth <= 0)
-        {
-
-            this.xBorderWidth = DEFAULT_X_BORDER_WIDTH;
-
-        }
-
-        this.yBorderWidth = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME);
-
-        if (this.yBorderWidth <= 0)
-        {
-
-            this.yBorderWidth = DEFAULT_Y_BORDER_WIDTH;
-
-        }
-
-        this.borderOpacity = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME);
-
-        if (this.borderOpacity <= 0)
-        {
-
-            this.borderOpacity = DEFAULT_BORDER_OPACITY;
-
-        }
-
-        this.background.setOpacity (this.borderOpacity);
-
-        Object bgObj = null;
-
-        String b = UserProperties.get (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
-
-        if (b == null)
-        {
-
-            // Legacy < v2
-            Path _f = UserProperties.getAsFile (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
-            File f = null;
-
-            if (_f != null)
-            {
-
-                f = _f.toFile ();
-
-            }
-
-            if ((f != null)
-                &&
-                (f.exists ())
-                &&
-                (f.isFile ())
-               )
-            {
-
-                bgObj = f;
-
-            }
-
-        } else {
-
-            bgObj = b;
-
-        }
-
-        try
-        {
-
-            this.background.setBackgroundObject (bgObj);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to set background object to: " + bgObj,
-                                  e);
-
-        }
-
-        this.titleProperty ().bind (this.viewer.getViewer ().titleProperty ());
-
-        this.show ();
-
-    }
-
-    private void updateUIBaseFontSize ()
-    {
-
-        this.getScene ().getRoot ().setStyle (String.format ("-fx-font-size: %1$spt;",
-                                                             UserProperties.getUIBaseFontSize ()));
-
-        UIUtils.runLater (() ->
-        {
-
-             this.info.relocate (10,
-                                 Screen.getPrimary ().getVisualBounds ().getHeight () - this.info.getLayoutBounds ().getHeight ());
-
-        });
-
-    }
-
-    public QuollPopup getPopupById (String id)
-    {
-
-        return this.popups.stream ()
-            .filter (p -> p.getPopupId () != null && p.getPopupId ().equals (id))
-            .findFirst ()
-            .orElse (null);
-
-    }
-
-    public void showPopup (QuollPopup p,
-                           Node       n,
-                           Side       s)
-    {
-
-        Bounds b = n.localToScene (n.getBoundsInLocal ());
-        b = this.popupPane.sceneToLocal (b);
-
-        p.setVisible (false);
-        this.addPopup (p);
-
-        this.showPopup (p,
-                        b.getMinX (),
-                        b.getMaxY ());
-
-    }
-
-    public void showPopup (QuollPopup p,
-                           double     x,
-                           double     y)
-    {
-
-        p.setVisible (false);
-        this.addPopup (p);
-        p.applyCss ();
-        p.requestLayout ();
-
-        UIUtils.runLater (() ->
-        {
-
-            double _x = x;
-            double _y = y;
-
-            Bounds nb = p.getLayoutBounds ();
-
-            Bounds b = this.popupPane.getLayoutBounds ();
-
-            if ((y + nb.getHeight ()) > b.getHeight ())
-            {
-
-                _y = b.getHeight () - nb.getHeight ();
-
-            }
-
-            if ((x + nb.getWidth ()) > b.getWidth ())
-            {
-
-                _x = b.getWidth () - nb.getWidth ();
-
-            }
-
-            if (_x == -1)
-            {
-
-                _x = ((b.getWidth () / 2) - (nb.getWidth () / 2d));
-
-            }
-
-            if (_y == -1)
-            {
-
-                _y = ((b.getHeight () / 2) - (nb.getHeight () / 2d));
-
-            }
-
-            if (_x < 0)
-            {
-
-                _x = 0;
-
-            }
-
-            if (_y < 0)
-            {
-
-                _y = 0;
-
-            }
-
-            // Casting to a whole number is required here to prevent blurring.
-            p.relocate ((int) _x,
-                        (int) _y);
-            p.setVisible (true);
-
-        });
-
-    }
-
-    public void removePopup (QuollPopup p)
-    {
-
-        p.setVisible (false);
-        this.popups.remove (p);
-        this.popupPane.getChildren ().remove (p);
-
-    }
-
-    public void addPopup (QuollPopup p)
-    {
-
-        this.popups.add (p);
-
-        if (!this.popupPane.getChildren ().contains (p))
-        {
-
-            this.popupPane.getChildren ().add (p);
-
-        }
-
-    }
-
     public void close ()
     {
 
-        // Set the properties.
-        try
-        {
-
-            UserProperties.set (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME,
-                       this.xBorderWidth);
-            UserProperties.set (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME,
-                       this.yBorderWidth);
-            UserProperties.set (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME,
-                       (float) this.background.getOpacity ());
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to save user properties",
-                                  e);
-
-        }
-
-        try
-        {
-
-            UserProperties.set (Constants.FULL_SCREEN_SIDEBAR_WIDTH_PROPERTY_NAME,
-                                (int) this.sidebarsPane.getBoundsInLocal ().getWidth ());
-
-            this.viewer.saveProject ();
-
-        } catch (Exception e)
-        {
-
-            // Ignore.
-
-        }
-
-        this.propertyBinder.dispose ();
-
         this.updater.cancel (true);
 
-        this.currentSideBar.prefWidthProperty ().unbind ();
-        this.currentSideBar.prefHeightProperty ().unbind ();
-
-        this.hide ();
-
-        //this.viewer.fullScreenClosed ();
+        this.viewer.exitFullScreen ();
 
         EditorsEnvironment.fullScreenExited ();
 
-        this.restorePanel ();
-
         this.viewer.fireProjectEventLater (ProjectEvent.Type.fullscreen,
                                            ProjectEvent.Action.exit);
-
-    }
-
-    public void restorePanel ()
-    {
-
-        if (this.panel != null)
-        {
-
-            //this.viewer.restoreFromFullScreen (this.panel);
-
-        }
-
-    }
-
-    public void removeStyleSheet (URL url)
-    {
-
-        this.getScene ().getStylesheets ().remove (url.toExternalForm ());
-
-    }
-
-    public void addStyleSheet (URL url)
-    {
-
-        this.getScene ().getStylesheets ().add (url.toExternalForm ());
 
     }
 
@@ -1094,70 +1014,6 @@ TODO ? psuedo class
 
     }
 
-    public void showNotificationPopup (StringProperty title,
-                                       StringProperty message,
-                                       int            showFor)
-    {
-
-        Node m = null;
-
-        if (message != null)
-        {
-
-            m = BasicHtmlTextFlow.builder ()
-                .styleClassName (StyleClassNames.MESSAGE)
-                .text (message)
-                .build ();
-
-        }
-
-        QuollPopup popup = QuollPopup.builder ()
-            .title (title)
-            .styleClassName (StyleClassNames.INFORMATION)
-            .content (m)
-            .removeOnClose (true)
-            .build ();
-
-        if (m != null)
-        {
-
-            m.setOnMousePressed (ev ->
-            {
-
-                popup.close ();
-
-            });
-
-        }
-
-        this.viewer.showPopup (popup,
-                              10,
-                              10);
-
-        if (showFor > 0)
-        {
-
-            ScheduledFuture t = this.viewer.schedule (() ->
-            {
-
-                popup.close ();
-
-            },
-            showFor * Constants.SEC_IN_MILLIS,
-            -1);
-
-            popup.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
-                                   ev ->
-            {
-
-                t.cancel (true);
-
-            });
-
-        }
-
-    }
-
     private void setDistractionFreeModeEnabledForChildPanel (boolean v)
     {
 
@@ -1180,63 +1036,6 @@ TODO ? psuedo class
             p.showIconColumn (!v);
 
         }
-
-    }
-
-    public void switchTo (PanelContent p)
-    {
-
-        if (p instanceof AssetViewPanel)
-        {
-
-            UserConfigurableObjectType type = ((AssetViewPanel) p).getObject ().getUserConfigurableObjectType ();
-
-            this.header.getIcon ().imageProperty ().unbind ();
-            this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
-
-        } else {
-
-            if (this.panel != null)
-            {
-
-                this.header.getStyleClass ().remove (this.panel.getPanel ().getStyleClassName ());
-                this.header.getStyleClass ().add (p.getPanel ().getStyleClassName ());
-
-            }
-
-        }
-
-        this.restorePanel ();
-
-        this.panel = p;
-
-        this.initPanel ();
-
-        this.showHeader ();
-
-        this.headerHideTimer = this.viewer.schedule (() ->
-        {
-
-            this.hideHeader ();
-
-        },
-        3000,
-        -1);
-
-    }
-
-    private void initPanel ()
-    {
-
-        if (this.panel != null)
-        {
-
-            this.header.getStyleClass ().remove (this.panel.getPanel ().getStyleClassName ());
-
-        }
-
-        this.header.titleProperty ().bind (this.panel.getPanel ().titleProperty ());
-        this.header.getStyleClass ().add (this.panel.getPanel ().getStyleClassName ());
 
     }
 
@@ -1273,11 +1072,12 @@ TODO ? psuedo class
 
         }
 
-        int w = (int) Screen.getPrimary ().getVisualBounds ().getWidth ();
-
         UIUtils.runLater (() ->
         {
 
+            int w = (int) this.getWidth ();
+
+            this.header.setPrefWidth (this.getWidth () * 0.8);
             this.header.relocate (w * 0.1,
                                   0);
             this.header.setVisible (true);
@@ -1306,7 +1106,8 @@ TODO ? psuedo class
         }
 
     }
-
+/*
+TODO Remove
     @Override
     public void handleURLAction (String     v,
                                  MouseEvent ev)
@@ -1316,7 +1117,7 @@ TODO ? psuedo class
                                      ev);
 
     }
-
+*/
     public void addKeyMapping (Runnable          action,
                                   KeyCode           code,
                                   KeyCombination.Modifier... modifiers)
@@ -1386,6 +1187,137 @@ TODO ? psuedo class
     {
 
         return this.currentSideBar;
+
+    }
+
+    @Override
+    public void showSideBar (SideBar sb)
+    {
+
+        this.showSideBar ();
+
+    }
+
+    @Override
+    public void updateLayout ()
+    {
+
+    }
+
+    @Override
+    public void removeAllNotifications ()
+    {
+
+    }
+
+    @Override
+    public void removeNotification (Notification n)
+    {
+
+    }
+
+    @Override
+    public void addNotification (Notification n)
+    {
+
+    }
+
+    @Override
+    public State getState ()
+    {
+
+        State s = new State ();
+/*
+        s.set (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME,
+               this.xBorderWidthProp.getValue ());
+        s.set (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME,
+               this.yBorderWidthProp.getValue ());
+        s.set (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME,
+               (float) this.background.getOpacity ());
+*/
+        s.set (Constants.FULL_SCREEN_SIDEBAR_WIDTH_PROPERTY_NAME,
+               (int) this.sidebarsPane.getBoundsInLocal ().getWidth ());
+/*
+        s.set ("background",
+               this.background.getState ());
+*/
+        return s;
+
+    }
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        this.addKeyMapping (() ->
+        {
+
+            this.close ();
+
+        },
+        KeyCode.F9);
+
+        this.addKeyMapping (() ->
+        {
+
+            this.close ();
+
+        },
+        KeyCode.ESCAPE);
+
+        this.addKeyMapping (() ->
+        {
+
+            this.viewer.runCommand (AbstractViewer.CommandId.resetfontsize);
+
+        },
+        KeyCode.DIGIT0, KeyCombination.CONTROL_DOWN);
+
+        this.addKeyMapping (() ->
+        {
+
+            this.viewer.runCommand (AbstractViewer.CommandId.incrementfontsize);
+
+        },
+        KeyCode.EQUALS, KeyCombination.CONTROL_DOWN);
+
+        this.addKeyMapping (() ->
+        {
+
+            this.viewer.runCommand (AbstractViewer.CommandId.decrementfontsize);
+
+        },
+        KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
+
+        //this.background.init (bgstate);
+        this.background.setOpacity (UserProperties.getFullScreenOpacity ());
+
+        try
+        {
+
+            this.background.setBackgroundObject (UserProperties.getFullScreenBackground ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set full screen background to: " +
+                                  UserProperties.getFullScreenBackground (),
+                                  e);
+
+        }
+
+        this.background.getBackgroundObject ().backgroundProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.setFullScreenBackground (this.background.getBackgroundObject ().getBackgroundObject ());
+
+        });
+
+    }
+
+    @Override
+    public void dispose ()
+    {
 
     }
 

@@ -51,11 +51,13 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
-        this.editItem = new DatePicker (Utils.dateToLocalDate (this.typeField.getDefault ()));
+        this.editItem = new DatePicker (Utils.dateToLocalDate (this.getFieldValue () != null ? this.getFieldValue () : this.typeField.getDefault ()));
+
 /*
         if (initValue != null)
         {
@@ -124,6 +126,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();

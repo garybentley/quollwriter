@@ -47,6 +47,7 @@ public abstract class AbstractUserConfigurableObjectFieldViewEditHandler<E exten
 
     @Override
     public Set<String> getNamesFromFieldValue ()
+                                        throws GeneralException
     {
 
         return new LinkedHashSet<> ();
@@ -67,15 +68,16 @@ public abstract class AbstractUserConfigurableObjectFieldViewEditHandler<E exten
 
         }
 
-        this.field.setValue (this.getInputSaveValue ());
+        this.field.setValue (this.valueToString (this.getInputSaveValue ()));
 
     }
 
     @Override
     public T getFieldValue ()
+                     throws GeneralException
     {
 
-        return (this.field != null ? (T) this.field.getValue () : null);
+        return (this.field != null ? this.stringToValue (this.field.getValue ()) : null);
 
     }
 

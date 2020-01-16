@@ -15,14 +15,15 @@ public abstract class ViewerContent<E extends AbstractViewer> extends StackPane
 
     public ViewerContent (E viewer)
     {
-
+/*
+TODO Is this right?
         if (viewer == null)
         {
 
             throw new IllegalArgumentException ("Viewer must be specified.");
 
         }
-
+*/
         this.viewer = viewer;
         //this.setFillWidth (true);
 

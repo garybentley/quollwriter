@@ -506,6 +506,9 @@ System.out.println ("HERE!");
                throws GeneralException
     {
 
+        // We do this last because the sidebars will be restored by the super.
+        super.init (s);
+
         this.setMainSideBar (this.sidebar);
 
         this.addSetChangeListener (Environment.getAllTags (),
@@ -522,9 +525,6 @@ System.out.println ("HERE!");
             }
 
         });
-
-        // We do this last because the sidebars will be restored by the super.
-        super.init (s);
 
     }
 
@@ -880,11 +880,11 @@ System.out.println ("HERE!");
         {
 
             Asset a = (Asset) d;
-System.out.println ("VIEWING");
+
             this.viewAsset (a,
                             () ->
             {
-System.out.println ("HEREXXXX");
+
                 AssetViewPanel avp = this.getAssetViewPanel (a);
                 avp.showEdit ();
 
@@ -1163,7 +1163,7 @@ System.out.println ("HEREXXXX");
         if (p != null)
         {
 
-            this.setPanelVisible (p);
+            this.showPanel (p.getPanelId ());
 
             if (doAfterView != null)
             {
@@ -2465,16 +2465,14 @@ TODO
     public Set<FindResultsBox> findText (String t)
     {
 
-        Set<FindResultsBox> res = new LinkedHashSet ();
+        Set<FindResultsBox> res = new LinkedHashSet<> ();
 
-        // Get the snippets.
-        Map<Chapter, List<SentenceMatches>> snippets = this.getSentenceMatches (t);
+        FindResultsBox chres = this.findTextInChapters (t);
 
-        if (snippets.size () > 0)
+        if (chres != null)
         {
 
-            res.add (new ChapterFindResultsBox (snippets,
-                                                this));
+            res.add (chres);
 
         }
 
@@ -2656,7 +2654,23 @@ TODO
     public void showAppearsInChaptersSideBarForAsset (Asset asset)
     {
 
-        // TODO
+        SideBar osb = this.getSideBarById (AppearsInChaptersSideBar.getSideBarIdForObject (asset));
+
+        if (osb != null)
+        {
+
+            this.showSideBar (osb);
+
+            return;
+
+        }
+
+        AppearsInChaptersSideBar sb = new AppearsInChaptersSideBar (this,
+                                                                    asset);
+
+        this.addSideBar (sb);
+
+        this.showSideBar (sb.getSideBar ());
 
     }
 

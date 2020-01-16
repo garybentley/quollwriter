@@ -22,7 +22,8 @@ public interface UserConfigurableObjectFieldViewEditHandler<T extends UserConfig
      * @return The set of items that will be used to collect the input for the object field.
      */
     public Set<Form.Item> getInputFormItems (String   initValue,
-                                             Runnable formSave);
+                                             Runnable formSave)
+                                      throws GeneralException;
 
     /**
      * Grab focus on the relevant input form item.
@@ -37,11 +38,14 @@ public interface UserConfigurableObjectFieldViewEditHandler<T extends UserConfig
     public E getInputSaveValue ()
                          throws GeneralException;
 
-    public Set<Form.Item> getViewFormItems ();
+    public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException;
 
-    public E getFieldValue ();
+    public E getFieldValue ()
+                     throws GeneralException;
 
-    public Set<String> getNamesFromFieldValue ();
+    public Set<String> getNamesFromFieldValue ()
+                                        throws GeneralException;
 
     public T getTypeField ();
 

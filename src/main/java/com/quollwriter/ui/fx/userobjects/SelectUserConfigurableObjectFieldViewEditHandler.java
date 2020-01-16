@@ -46,6 +46,7 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Set<String> sel = new LinkedHashSet<> ();
@@ -149,6 +150,7 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException
     {
 
         List<String> prefix = Arrays.asList (form,view,types,UserConfigurableObjectTypeField.Type.select.getType ());
@@ -160,7 +162,7 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
         if (this.field != null)
         {
 
-            value = (Set<String>) this.field.getValue ();
+            value = this.getFieldValue ();
 
         }
 

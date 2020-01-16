@@ -10,6 +10,7 @@ import javafx.collections.*;
 import javafx.scene.control.*;
 
 import com.quollwriter.*;
+import com.quollwriter.data.IPropertyBinder;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.uistrings.UILanguageStringsManager;
 
@@ -24,20 +25,28 @@ public class QuollChoiceBox extends ChoiceBox<StringProperty>
     private QuollChoiceBox (Builder b)
     {
 
-        this.setItems (FXCollections.observableArrayList (b.items));
-
-        this.vals = b.items.stream ()
-            .collect (Collectors.toMap (o -> o.getValue (),
-                                        o -> o));
-
-        UILanguageStringsManager.uilangProperty ().addListener ((pr, oldv, newv) ->
+        if (b.items != null)
         {
 
-            this.vals = b.items.stream ()
-                .collect (Collectors.toMap (o -> o.getValue (),
-                                            o -> o));
+            this.updateItems (FXCollections.observableArrayList (b.items));
 
-        });
+        }
+
+        if (b.binder != null)
+        {
+
+            b.binder.addChangeListener (UILanguageStringsManager.uilangProperty (),
+                                        (pr, oldv, newv) ->
+            {
+
+                this.vals = this.getItems ().stream ()
+                    .collect (Collectors.toMap (o -> o.getValue (),
+                                                o -> o));
+                this.requestLayout ();
+
+            });
+
+        }
 
         this.setConverter (new StringConverter<StringProperty> ()
         {
@@ -79,6 +88,17 @@ public class QuollChoiceBox extends ChoiceBox<StringProperty>
 
     }
 
+    public void updateItems (ObservableList<StringProperty> its)
+    {
+
+        this.vals = its.stream ()
+            .collect (Collectors.toMap (o -> o.getValue (),
+                                        o -> o));
+        this.getItems ().clear ();
+        this.getItems ().addAll (its);
+
+    }
+
     public static QuollChoiceBox.Builder builder ()
     {
 
@@ -93,6 +113,7 @@ public class QuollChoiceBox extends ChoiceBox<StringProperty>
         private Set<StringProperty> items = null;
         private EventHandler<ActionEvent> onSelected = null;
         private int selectedInd = 0;
+        private IPropertyBinder binder = null;
 
         private Builder ()
         {
@@ -111,6 +132,14 @@ public class QuollChoiceBox extends ChoiceBox<StringProperty>
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder binder (IPropertyBinder b)
+        {
+
+            this.binder = b;
             return this;
 
         }

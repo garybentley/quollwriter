@@ -36,6 +36,8 @@ public class IdeaBoard extends PanelContent<ProjectViewer> implements ToolBarSup
 
         super (viewer);
 
+        // TODO this.getBackgroundPane ().setDragImportAllowed (true);
+
         Set<Node> controls = new LinkedHashSet<> ();
 
         controls.add (QuollButton.builder ()

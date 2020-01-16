@@ -633,7 +633,7 @@ public class Constants
     public static final String DEFAULT_PROJECT_PROPERTIES_FILE = Constants.DATA_DIR + DEFAULT_PROJECT_PROPERTIES_FILE_NAME;
     public static final String DEFAULT_KEY_STROKE_SOUND_FILE = Constants.DATA_DIR + "typewriter-key.wav";
     public static final String DEFAULT_ACHIEVEMENT_SOUND_FILE = Constants.DATA_DIR + "achievement.wav";
-    public static final String DEFAULT_FULL_SCREEN_BG_IMAGE_FILE_NAME = "1-skyline.jpg";
+    public static final String DEFAULT_FULL_SCREEN_BG_IMAGE_FILE_NAME = "bg:_1-skyline.jpg";
 
     public static final String DEFAULT_OBJECT_TYPE_NAMES_FILE = Constants.DATA_DIR + "object-names.xml";
 

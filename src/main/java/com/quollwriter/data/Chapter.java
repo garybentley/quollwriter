@@ -1227,7 +1227,7 @@ public class Chapter extends LegacyUserConfigurableObject
         try
         {
 
-            f.setValue (t);
+            f.setValue (JSONEncoder.encode (t));
 
         } catch (Exception e) {
 
@@ -1290,7 +1290,7 @@ public class Chapter extends LegacyUserConfigurableObject
         try
         {
 
-            f.setValue (t);
+            f.setValue (JSONEncoder.encode (t));
 
         } catch (Exception e) {
 

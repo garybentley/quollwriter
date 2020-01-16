@@ -722,10 +722,35 @@ public class Options extends VBox implements Stateful
         Consumer<String> downloadDictFiles = lang ->
         {
 
-            UIUtils.downloadDictionaryFiles (lang,
+            DownloadPanel langDownload = DownloadPanel.builder ()
+                .title (getUILanguageStringProperty (Arrays.asList (dictionary,download,notification),
+                                                     getUILanguageStringProperty (languagenames,lang)))
+                .styleClassName (StyleClassNames.DOWNLOAD)
+                .build ();
+            langDownload.managedProperty ().bind (langDownload.visibleProperty ());
+
+            Set<Node> controls = new LinkedHashSet<> ();
+            controls.add (langDownload.getStopButton ());
+
+            Notification n = this.viewer.addNotification (langDownload,
+                                                          StyleClassNames.DOWNLOAD,
+                                                          -1,
+                                                          controls);
+
+            UrlDownloader dl = UIUtils.downloadDictionaryFiles (lang,
                                              this.viewer,
+                                             // On progress
+                                             p ->
+                                             {
+
+                                                 langDownload.setProgress (p);
+
+                                             },
+                                             // On complete
                                              () ->
                                              {
+
+                                                 this.viewer.removeNotification (n);
 
                                                  if (this.viewer instanceof AbstractProjectViewer)
                                                  {
@@ -761,7 +786,6 @@ public class Options extends VBox implements Stateful
 
                                                  } else {
 
-                                                     // TODO
                                                      // Add a notification that the files have been downloaded.
                                                      this.viewer.addNotification (getUILanguageStringProperty (Arrays.asList (options,editingchapters,downloaddictionaryfiles,notification,text),
                                                                                  //"The language files for <b>%s</b> have been downloaded and the project language set.",
@@ -771,7 +795,18 @@ public class Options extends VBox implements Stateful
 
                                                  }
 
-                                              });
+                                             },
+                                             // On error
+                                             ex ->
+                                             {
+
+                                                 this.viewer.removeNotification (n);
+
+                                                 ComponentUtils.showErrorMessage (this.viewer,
+                                                                                  getUILanguageStringProperty (Arrays.asList (dictionary,download,actionerror),
+                                                                                                               getUILanguageStringProperty (languagenames,spellcheckLang.valueProperty ().getValue ())));
+
+                                             });
 
         };
 

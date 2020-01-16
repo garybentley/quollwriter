@@ -81,6 +81,28 @@ public class NewUserConfigurableTypeFieldPanel extends VBox
 
             }
 
+            // Only allow a single documents
+            if ((t == UserConfigurableObjectTypeField.Type.documents)
+                &&
+                (type.hasField (t))
+               )
+            {
+
+                continue;
+
+            }
+
+            // Only allow a linked to
+            if ((t == UserConfigurableObjectTypeField.Type.linkedto)
+                &&
+                (type.hasField (t))
+               )
+            {
+
+                continue;
+
+            }
+
             vals.add (t);
 
         }
@@ -118,10 +140,10 @@ public class NewUserConfigurableTypeFieldPanel extends VBox
 
         Form f = Form.builder ()
             .layoutType (Form.LayoutType.stacked)
-            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,LanguageStrings.name)),
-                   this.nameField)
             .item (getUILanguageStringProperty (Utils.newList (prefix,labels,LanguageStrings.type)),
                    selType)
+            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,LanguageStrings.name)),
+                   this.nameField)
             .build ();
         this.getChildren ().addAll (f, fieldBox);
 

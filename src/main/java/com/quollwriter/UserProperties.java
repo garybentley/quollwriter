@@ -29,6 +29,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.ListProperty;
 
@@ -47,6 +48,17 @@ import static com.quollwriter.LanguageStrings.*;
 
 public class UserProperties
 {
+
+    public static final float DEFAULT_FULL_SCREEN_X_BORDER_WIDTH = (7f / 100f);
+    public static final float DEFAULT_FULL_SCREEN_Y_BORDER_WIDTH = (7f / 100f);
+    public static final double DEFAULT_FULL_SCREEN_OPACITY = 1d;
+
+    public static final double FULL_SCREEN_X_BORDER_WIDTH_ADJUST_INCR = 0.002d;
+    public static final double FULL_SCREEN_Y_BORDER_WIDTH_ADJUST_INCR = 0.002d;
+    public static final double FULL_SCREEN_MIN_X_BORDER_WIDTH = 0.05d;
+    public static final double FULL_SCREEN_MAX_X_BORDER_WIDTH = 0.4d;
+    public static final double FULL_SCREEN_MIN_Y_BORDER_WIDTH = 0.05d;
+    public static final double FULL_SCREEN_MAX_Y_BORDER_WIDTH = 0.4d;
 
     public static final String DEFAULT_SEPARATOR = "|";
 
@@ -94,6 +106,11 @@ public class UserProperties
     private static SimpleObjectProperty<Color> problemFinderIssueHighlightColorProp = null;
     private static SimpleObjectProperty<Color> synonymHighlightColorProp = null;
     private static SimpleObjectProperty<Color> findHighlightColorProp = null;
+
+    private static SimpleDoubleProperty fullScreenXBorderWidthProp = null;
+    private static SimpleDoubleProperty fullScreenYBorderWidthProp = null;
+    private static SimpleDoubleProperty fullScreenOpacityProp = null;
+    private static SimpleObjectProperty<Object> fullScreenBackgroundProp = null;
 
     static
     {
@@ -424,6 +441,233 @@ public class UserProperties
                                 newv.intValue ());
 
         });
+
+        UserProperties.fullScreenXBorderWidthProp = new SimpleDoubleProperty (0);
+        Float d = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME);
+        UserProperties.fullScreenXBorderWidthProp.setValue (d != null ? d : DEFAULT_FULL_SCREEN_X_BORDER_WIDTH);
+        UserProperties.fullScreenXBorderWidthProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME,
+                                newv.floatValue ());
+
+        });
+
+        UserProperties.fullScreenYBorderWidthProp = new SimpleDoubleProperty (0);
+        d = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME);
+        UserProperties.fullScreenYBorderWidthProp.setValue (d != null ? d : DEFAULT_FULL_SCREEN_Y_BORDER_WIDTH);
+        UserProperties.fullScreenYBorderWidthProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME,
+                                newv.floatValue ());
+
+        });
+
+        UserProperties.fullScreenOpacityProp = new SimpleDoubleProperty (0);
+        d = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME);
+        UserProperties.fullScreenOpacityProp.setValue (d != null ? d : DEFAULT_FULL_SCREEN_OPACITY);
+        UserProperties.fullScreenOpacityProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME,
+                                newv.floatValue ());
+
+        });
+
+        UserProperties.fullScreenBackgroundProp = new SimpleObjectProperty<> ();
+
+        String v = UserProperties.get (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
+
+        if (v == null)
+        {
+
+            v = Constants.DEFAULT_FULL_SCREEN_BG_IMAGE_FILE_NAME;
+
+        }
+
+        UserProperties.fullScreenBackgroundProp.setValue (BackgroundObject.createBackgroundObjectForId (v));
+        UserProperties.fullScreenBackgroundProp.addListener ((pr, oldv, newv) ->
+        {
+
+            String id = null;
+
+            if (newv != null)
+            {
+
+                BackgroundObject b = new BackgroundObject ();
+
+                try
+                {
+
+                    b.update (newv);
+
+                    id = b.getAsString ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to update full screen background to: " +
+                                          newv,
+                                          e);
+
+                }
+
+            }
+
+            UserProperties.set (Constants.FULL_SCREEN_BG_PROPERTY_NAME,
+                                id);
+
+        });
+
+    }
+
+    public static Object getFullScreenBackground ()
+    {
+
+        return UserProperties.fullScreenBackgroundProp.getValue ();
+
+    }
+
+    public static void setFullScreenBackground (Object b)
+    {
+
+        UserProperties.fullScreenBackgroundProp.setValue (b);
+
+    }
+
+    public static SimpleObjectProperty<Object> fullScreenBackgroundProperty ()
+    {
+
+        return UserProperties.fullScreenBackgroundProp;
+
+    }
+
+    public static double getFullScreenXBorderWidth ()
+    {
+
+        return UserProperties.fullScreenXBorderWidthProp.getValue ();
+
+    }
+
+    public static SimpleDoubleProperty fullScreenXBorderWidthProperty ()
+    {
+
+        return UserProperties.fullScreenXBorderWidthProp;
+
+    }
+
+    public static double getFullScreenYBorderWidth ()
+    {
+
+        return UserProperties.fullScreenYBorderWidthProp.getValue ();
+
+    }
+
+    public static SimpleDoubleProperty fullScreenYBorderWidthProperty ()
+    {
+
+        return UserProperties.fullScreenYBorderWidthProp;
+
+    }
+
+    public static double getFullScreenOpacity ()
+    {
+
+        return UserProperties.fullScreenOpacityProp.getValue ();
+
+    }
+
+    public static SimpleDoubleProperty fullScreenOpacityProperty ()
+    {
+
+        return UserProperties.fullScreenOpacityProp;
+
+    }
+
+    public static void incrementFullScreenXBorderWidth ()
+    {
+
+        UserProperties.adjustFullScreenXBorderWidth (FULL_SCREEN_X_BORDER_WIDTH_ADJUST_INCR);
+
+    }
+
+    public static void decrementFullScreenXBorderWidth ()
+    {
+
+        UserProperties.adjustFullScreenXBorderWidth (-1 * FULL_SCREEN_X_BORDER_WIDTH_ADJUST_INCR);
+
+    }
+
+    private static void adjustFullScreenXBorderWidth (double incr)
+    {
+
+        double v = UserProperties.fullScreenXBorderWidthProp.getValue () + incr;
+
+        if ((v <= FULL_SCREEN_MIN_X_BORDER_WIDTH)
+            ||
+            (v >= FULL_SCREEN_MAX_X_BORDER_WIDTH)
+           )
+        {
+
+            return;
+
+        }
+
+        UserProperties.fullScreenXBorderWidthProp.setValue (v);
+
+    }
+
+    public static void incrementFullScreenYBorderWidth ()
+    {
+
+        UserProperties.adjustFullScreenYBorderWidth (FULL_SCREEN_Y_BORDER_WIDTH_ADJUST_INCR);
+
+    }
+
+    public static void decrementFullScreenYBorderWidth ()
+    {
+
+        UserProperties.adjustFullScreenYBorderWidth (-1 * FULL_SCREEN_Y_BORDER_WIDTH_ADJUST_INCR);
+
+    }
+
+    private static void adjustFullScreenYBorderWidth (double incr)
+    {
+
+        double v = UserProperties.fullScreenYBorderWidthProp.getValue () + incr;
+
+        if ((v <= FULL_SCREEN_MIN_Y_BORDER_WIDTH)
+            ||
+            (v >= FULL_SCREEN_MAX_Y_BORDER_WIDTH)
+           )
+        {
+
+            return;
+
+        }
+
+        UserProperties.fullScreenYBorderWidthProp.setValue (v);
+
+    }
+
+    public static void setFullScreenOpacity (double v)
+    {
+
+        if (v < 0)
+        {
+
+            v = 0;
+
+        }
+
+        if (v > 1)
+        {
+
+            v = 1;
+
+        }
+
+        UserProperties.fullScreenOpacityProp.setValue (v);
 
     }
 

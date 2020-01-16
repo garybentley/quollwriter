@@ -32,8 +32,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         objectdesc ("objectdesc"),
         objectimage ("objectimage"),
         documents ("documents"),
-        linkedto ("linkedto"),
-        appearsinchapters ("appearsinchapters");
+        linkedto ("linkedto");
 
         private String type = null;
 
@@ -69,7 +68,6 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
                 case objectimage : return new ObjectImageUserConfigurableObjectTypeField ();
                 case linkedto : return new LinkedToUserConfigurableObjectTypeField ();
                 case documents : return new DocumentsUserConfigurableObjectTypeField ();
-                case appearsinchapters : return new AppearsInChaptersUserConfigurableObjectTypeField ();
                 default : return null;
 
             }
@@ -146,6 +144,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
 
    public abstract UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                                   UserConfigurableObjectField field,
+                                                                                  IPropertyBinder             binder,
                                                                                   AbstractProjectViewer       viewer);
 
     /**

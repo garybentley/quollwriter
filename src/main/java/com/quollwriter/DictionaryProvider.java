@@ -672,6 +672,12 @@ public class DictionaryProvider
                                                             {
 
                                                                 @Override
+                                                                public void onStop ()
+                                                                {
+                                                                    
+                                                                }
+
+                                                                @Override
                                                                 public void handleError (Exception e)
                                                                 {
 

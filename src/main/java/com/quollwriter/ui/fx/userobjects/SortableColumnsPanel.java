@@ -50,7 +50,7 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
                 last = n;
 
-                //SplitPane.setResizableWithParent (n, false);
+                SplitPane.setResizableWithParent (n, false);
                 Region r = (Region) n;
 
                 r.setMinWidth (USE_COMPUTED_SIZE);
@@ -61,10 +61,11 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
             this.setDividerPositions (pos);
 
-            //SplitPane.setResizableWithParent (last, true);
+            SplitPane.setResizableWithParent (last, true);
 
             this.removeEventHandler (MouseEvent.MOUSE_MOVED,
                                      this.handler);
+            this.requestLayout ();
 
         };
 
@@ -390,6 +391,8 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
                                             this.object,
                                             this,
                                             this.viewer);
+
+        //lc.prefHeightProperty ().bind (this.heightProperty ());
 
         this.getItems ().add ((addAt == -1 ? this.getItems ().size () : addAt),
                               lc);

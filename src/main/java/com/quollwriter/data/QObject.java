@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.jdom.*;
 
+import com.quollwriter.*;
+
 public class QObject extends LegacyAsset
 {
 
@@ -12,7 +14,7 @@ public class QObject extends LegacyAsset
 
     public static final String OBJECT_TYPE = "object";
     public static final String TYPE = "type";
-    
+
     private String type = null;
 
     public QObject ()
@@ -33,39 +35,49 @@ public class QObject extends LegacyAsset
     {
 
         String oldType = this.type;
-    
+
         UserConfigurableObjectField f = this.getLegacyField (TYPE_LEGACY_FIELD_ID);
-                
+
         if (f == null)
         {
-            
-            UserConfigurableObjectTypeField type = this.getLegacyTypeField (TYPE_LEGACY_FIELD_ID);            
-            
+
+            UserConfigurableObjectTypeField type = this.getLegacyTypeField (TYPE_LEGACY_FIELD_ID);
+
             // May not have the field.
             if (type == null)
             {
-                
+
                 return;
-                
+
             }
-            
+
             f = new UserConfigurableObjectField (type);
-            
+
             this.addField (f);
-            
+
         }
-                    
-        Set<String> vals = new LinkedHashSet ();
+
+        Set<String> vals = new LinkedHashSet<> ();
         vals.add (t);
-        
-        f.setValue (vals);
-    
+
+        try
+        {
+
+            f.setValue (JSONEncoder.encode (vals));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to encode: " + vals,
+                                  e);
+
+        }
+
         this.type = t;
 
         this.firePropertyChangedEvent (TYPE,
                                        oldType,
-                                       this.type);        
-        
+                                       this.type);
+
     }
 
     public void getChanges (NamedObject old,

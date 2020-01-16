@@ -1,6 +1,7 @@
 package com.quollwriter.data;
 
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 
 import com.gentlyweb.xml.*;
@@ -31,7 +32,7 @@ public abstract class NamedObject extends DataObject
     private ObservableSet<Link>  links = null;
     private ObservableSet<Note> notes = FXCollections.observableSet (new TreeSet<> (new ChapterItemSorter ()));
     private String     aliases = null;
-    private Set<File> files = new LinkedHashSet<> ();
+    private ObservableSet<Path> files = FXCollections.observableSet (new LinkedHashSet<> ());
     private Set<Tag> tags = new LinkedHashSet<> ();
 
     public NamedObject (String objType,
@@ -351,31 +352,32 @@ public abstract class NamedObject extends DataObject
 
     public abstract Set<NamedObject> getAllNamedChildObjects ();
 
-    public Set<File> getFiles ()
+    public ObservableSet<Path> getFiles ()
     {
 
         return this.files;
 
     }
 
-    public void setFiles (Set<File> files)
+    public void setFiles (Set<Path> files)
     {
 
-        this.files = files;
+        this.files.clear ();
+        this.files.addAll (files);
 
     }
 
-    public void addFile (File f)
+    public void addFile (Path f)
     {
 
-        if (this.files == null)
-        {
-
-            this.files = new LinkedHashSet ();
-
-        }
-
         this.files.add (f);
+
+    }
+
+    public void removeFile (Path f)
+    {
+
+        this.files.remove (f);
 
     }
 

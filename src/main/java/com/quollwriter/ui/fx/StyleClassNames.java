@@ -32,7 +32,18 @@ public final class StyleClassNames
     public static final PseudoClass HASCHANGES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASCHANGES);
     public static final PseudoClass NOIMAGE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NOIMAGE);
     public static final PseudoClass HIDELABELS_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HIDELABELS);
+    public static final PseudoClass INVALID_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.INVALID);
+    public static final PseudoClass NORMAL_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NORMAL);
 
+    public static final String PROGRESS = "progress";
+    public static final String LOADING = "loading";
+    public static final String FIRSTUSEWIZARD = "firstusewizard";
+    public static final String INNER = "inner";
+    public static final String BACKGROUNDSIZEBOX = "backgroundsizebox";
+    public static final String DOCUMENTS = "documents";
+    public static final String FILES = "files";
+    public static final String FILE = "file";
+    public static final String INVALID = "invalid";
     public static final String VIEWERCONTENT = "viewercontent";
     public static final String DIVIDER = "divider";
     public static final String BIGICON = "bigicon";

@@ -223,7 +223,7 @@ public class ObjectDocumentsEditPanel extends Box implements RefreshablePanel
                                           Short.MAX_VALUE));
         sp.setMinimumSize (new Dimension (200,
                                           100));
-
+/*
         for (File f : this.obj.getFiles ())
         {
 
@@ -231,7 +231,7 @@ public class ObjectDocumentsEditPanel extends Box implements RefreshablePanel
                           true);
 
         }
-
+*/
         this.add (sp);
 
     }
@@ -273,7 +273,7 @@ public class ObjectDocumentsEditPanel extends Box implements RefreshablePanel
             try
             {
 
-                this.obj.addFile (f);
+                //this.obj.addFile (f);
 
                 this.viewer.saveObject (this.obj,
                                         false);

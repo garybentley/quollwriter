@@ -55,6 +55,7 @@ public class NewAssetPopup extends PopupContent<ProjectViewer>
 
         this.nameHandler = type.getPrimaryNameField ().getViewEditHandler2 (asset,
                                                                             asset.getField (type.getPrimaryNameField ()),
+                                                                            this.getBinder (),
                                                                             viewer);
 
         if (type.getObjectDescriptionField () != null)
@@ -62,6 +63,7 @@ public class NewAssetPopup extends PopupContent<ProjectViewer>
 
             this.descHandler = type.getObjectDescriptionField ().getViewEditHandler2 (asset,
                                                                                       asset.getField (type.getObjectDescriptionField ()),
+                                                                                      this.getBinder (),
                                                                                       viewer);
 
         }

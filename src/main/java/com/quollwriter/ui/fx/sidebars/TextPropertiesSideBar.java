@@ -38,6 +38,8 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
     private CheckBox indentFirstLine = null;
     private CheckBox highlightWritingLine = null;
 
+    private FullScreenPropertiesPanel fullScreenProps = null;
+
     public TextPropertiesSideBar (E              viewer,
                                   TextProperties props)
     {
@@ -45,6 +47,21 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
         super (viewer);
 
         this.props = props;
+
+        VBox c = new VBox ();
+        this.getChildren ().add (c);
+
+        this.fullScreenProps = new FullScreenPropertiesPanel (viewer,
+                                                              this.getBinder ());
+
+        this.fullScreenProps.managedProperty ().bind (this.fullScreenProps.visibleProperty ());
+        this.getBinder ().addChangeListener (viewer.getViewer ().fullScreenProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            this.fullScreenProps.setVisible (newv);
+
+        });
 
         Form.Builder fb = Form.builder ();
 
@@ -400,7 +417,8 @@ System.out.println ("NEW: " + newv);
 
                                                     }));
 
-        this.getChildren ().add (fb.build ());
+        c.getChildren ().addAll (this.fullScreenProps,
+                                 fb.build ());
 
     }
 

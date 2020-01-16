@@ -2406,7 +2406,7 @@ TODO NEeded?
         for (AbstractProjectViewer pv : Environment.openProjects.values ())
         {
 
-            if (pv.distractionFreeModeProperty ().getValue ())
+            if (pv.isDistractionFreeModeEnabled ())
             {
 
                 return true;
@@ -2418,14 +2418,14 @@ TODO NEeded?
         return false;
 
     }
-/*
+
     public static AllProjectsViewer getAllProjectsViewer ()
     {
 
         return Environment.allProjectsViewer;
 
     }
-*/
+
     public static AbstractViewer showAllProjectsViewer ()
     {
 

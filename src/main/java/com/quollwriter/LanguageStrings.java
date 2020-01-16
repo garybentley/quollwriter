@@ -3,6 +3,7 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String errortooltip = "errortooltip";
     public static final String links = "links";
     public static final String prunebackups = "prunebackups";
     public static final String drop = "drop";

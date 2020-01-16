@@ -479,10 +479,10 @@ public class Utils
 
     }
 
-    public static Set<File> getFilesFromXML (String t)
+    public static Set<Path> getFilesFromXML (String t)
     {
 
-        Set<File> ret = new LinkedHashSet<> ();
+        Set<Path> ret = new LinkedHashSet<> ();
 
         if (t == null)
         {
@@ -538,9 +538,7 @@ public class Utils
 
                 String tf = JDOMUtils.getChildContent (el);
 
-                File f = new File (tf);
-
-                ret.add (f);
+                ret.add (Paths.get (tf));
 
             } catch (Exception e) {
 
@@ -556,6 +554,8 @@ public class Utils
 
     }
 
+/*
+TODO Remove
     public static String getFilesAsXML (Set<File> files)
     {
 
@@ -583,6 +583,53 @@ public class Utils
             root.addContent (fel);
 
             fel.addContent (f.getPath ());
+
+        }
+
+        try
+        {
+
+            return JDOMUtils.getElementAsString (root);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to convert element to string for files: " +
+                                  files,
+                                  e);
+
+            return null;
+
+        }
+
+    }
+*/
+    public static String getFilesAsXML (Set<Path> files)
+    {
+
+        if (files == null)
+        {
+
+            return null;
+
+        }
+
+        if (files.size () == 0)
+        {
+
+            return null;
+
+        }
+
+        Element root = new Element (Environment.XMLConstants.files);
+
+        for (Path f : files)
+        {
+
+            Element fel = new Element (Environment.XMLConstants.file);
+
+            root.addContent (fel);
+
+            fel.addContent (f.toString ());
 
         }
 
@@ -2602,6 +2649,25 @@ TODO REmove
         Instant i = (Instant) d.adjustInto (Instant.ofEpochMilli (0));
 
         return new Date (i.toEpochMilli ());
+
+    }
+
+    public static boolean isProjectDir (Path p)
+    {
+
+        Path pf = p.resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX + Constants.H2_DB_FILE_SUFFIX);
+
+        if ((Files.exists (pf))
+            &&
+            (!Files.isDirectory (pf))
+           )
+        {
+
+            return true;
+
+        }
+
+        return false;
 
     }
 

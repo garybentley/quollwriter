@@ -38,6 +38,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
     @Override
     public Set<String> getNamesFromFieldValue ()
+                                        throws GeneralException
     {
 
         Set<String> ret = new LinkedHashSet ();
@@ -86,6 +87,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Node item = null;
@@ -192,9 +194,10 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException    
     {
 
-        StringWithMarkup text = (this.field != null ? (StringWithMarkup) this.field.getValue () : null);
+        StringWithMarkup text = this.getFieldValue ();
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 

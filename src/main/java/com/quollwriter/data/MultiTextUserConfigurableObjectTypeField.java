@@ -43,6 +43,7 @@ public class MultiTextUserConfigurableObjectTypeField extends UserConfigurableOb
     @Override
     public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
+                                                                          IPropertyBinder             binder,
                                                                           AbstractProjectViewer       viewer)
     {
 

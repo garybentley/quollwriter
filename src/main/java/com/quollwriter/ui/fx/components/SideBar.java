@@ -183,6 +183,13 @@ public class SideBar extends BaseVBox implements Stateful
 
     }
 
+    public Header getHeader ()
+    {
+
+        return this.header;
+
+    }
+
     public SideBarContent getContent ()
     {
 
@@ -211,7 +218,8 @@ public class SideBar extends BaseVBox implements Stateful
         if (this.scrollPane != null)
         {
 
-            this.scrollPane.setVvalue (state.getAsInt (State.Key.scrollpanev));
+            this.scrollPane.setVvalue (state.getAsInt (State.Key.scrollpanev,
+                                                       0));
 
         }
 

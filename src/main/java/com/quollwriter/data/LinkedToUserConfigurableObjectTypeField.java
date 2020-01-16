@@ -36,12 +36,14 @@ public class LinkedToUserConfigurableObjectTypeField extends UserConfigurableObj
     @Override
     public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
+                                                                           IPropertyBinder            binder,
                                                                           AbstractProjectViewer       viewer)
     {
 
         return new LinkedToUserConfigurableObjectFieldViewEditHandler (this,
                                                                        obj,
                                                                        field,
+                                                                       binder,
                                                                        viewer);
 
     }

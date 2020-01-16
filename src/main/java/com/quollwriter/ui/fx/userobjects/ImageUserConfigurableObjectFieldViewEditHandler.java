@@ -59,6 +59,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -181,6 +182,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
     }
 
     public boolean hasImage ()
+                      throws GeneralException
     {
 
         final Path pf = this.viewer.getProjectFile (this.getFieldValue ());
@@ -215,6 +217,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException    
     {
 
         final List<String> prefix = Arrays.asList (form,view,types,UserConfigurableObjectTypeField.Type.image.getType ());

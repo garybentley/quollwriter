@@ -10381,6 +10381,12 @@ TODO Moved to BackupsManager.
                                                             new DownloadListener ()
                                                             {
 
+                                                                @Override
+                                                                public void onStop ()
+                                                                {
+                                                                    
+                                                                }
+
                                                                 public void handleError (Exception e)
                                                                 {
 

@@ -63,8 +63,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     protected Project project = null;
     private BooleanProperty spellCheckingEnabledProp = null;
     private StringProperty projectSpellCheckLanguageProp = null;
-    private BooleanProperty inFullScreenModeProp = null;
-    private BooleanProperty distractionFreeModeProp = null;
     private BooleanProperty typeWriterScrollingEnabledProp = null;
     private StringProperty titleProp = null;
 
@@ -76,8 +74,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private TabPane tabs = null;
     private Map<String, Panel> panels = new HashMap<> ();
     private ObjectProperty<Panel> currentPanelProp = null;
-    private VBox toolbarWrapper = null;
-    private FullScreenView fsf = null;
+    //private VBox toolbarWrapper = null;
+    private WindowedContent windowedContent = null;
+    private ProjectFullScreenContent fullScreenContent = null;
     private ShowingInFullScreenPanel fsfplaceholder = null;
 
     private ScheduledFuture chapterCountsUpdater = null;
@@ -101,6 +100,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private IntegerProperty sessionWordCountProp = null;
 
     private FindSideBar findSideBar = null;
+    private Pane fullScreenPanelView = null;
 
     public AbstractProjectViewer ()
     {
@@ -111,6 +111,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.currentPanelProp = new SimpleObjectProperty<> ();
         this.selectedTextProp = new SimpleStringProperty ();
         this.sessionWordCountProp = new SimpleIntegerProperty (0);
+
+        this.fullScreenPanelView = new Pane ();
 
         this.chapterCurrentlyEditedProp = new SimpleObjectProperty<> ();
 
@@ -153,9 +155,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         });
 
-        this.inFullScreenModeProp = new SimpleBooleanProperty (false);
+        //this.inFullScreenModeProp = new SimpleBooleanProperty (false);
         this.typeWriterScrollingEnabledProp = new SimpleBooleanProperty (false);
-        this.distractionFreeModeProp = new SimpleBooleanProperty (false);
+        //this.distractionFreeModeProp = new SimpleBooleanProperty (false);
 
         this.projectSpellCheckLanguageProp = new SimpleStringProperty (null);
 
@@ -167,7 +169,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         });
 
         this.tabs = new TabPane ();
-        this.setContent (this.tabs);
         this.tabs.setTabClosingPolicy (TabPane.TabClosingPolicy.ALL_TABS);
         this.tabs.setSide (UserProperties.tabsLocationProperty ().getValue ().equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
         this.tabs.setTabDragPolicy (TabPane.TabDragPolicy.REORDER);
@@ -217,8 +218,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                 p.getActionMappings ().keySet ().stream ()
                     .forEach (k -> this.getScene ().getAccelerators ().remove (k));
 
-                p.fireEvent (new Panel.PanelEvent (p,
-                                                   Panel.PanelEvent.CLOSE_EVENT));
+                this.restoreFromFullScreen (oldi);
 
             }
 
@@ -245,6 +245,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                 this.currentPanelProp.setValue (qp);
 
+                if (this.isInFullScreenMode ())
+                {
+
+                    this.showInFullScreen (newi);
+
+                }
+
                 qp.fireEvent (new Panel.PanelEvent (qp,
                                                     Panel.PanelEvent.SHOW_EVENT));
 
@@ -261,7 +268,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                                  });
 
-        this.toolbarWrapper = new VBox ();
+        //this.toolbarWrapper = new VBox ();
 
         this.chaptersOverWordCountTargetProp = new SimpleSetProperty<> (this.chaptersOverWordCountTarget);
         this.chaptersOverReadabilityTargetProp = new SimpleSetProperty<> (this.chaptersOverReadabilityTarget);
@@ -1054,9 +1061,11 @@ ss = System.currentTimeMillis ();
 
                     }
 
-                    BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
+                    QuollTextView m = QuollTextView.builder ()
+                    //BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
                         .text (getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets, chaptersoverreadabilitymaximum,t),
                                                             rchaps.size ()))
+                        .withViewer (this)
                         .build ();
 
 					final Notification n = _this.addNotification (m,
@@ -1839,7 +1848,8 @@ TODO
 
         if (p.unsavedChangesProperty ().getValue ())
         {
-
+/*
+TODO Remove?
             if ((_this.fsf != null)
                 &&
                 (p == _this.fsf.getPanel ())
@@ -1853,7 +1863,7 @@ TODO
                 // TODO? _this.fsf.showBlankPanel ();
 
             }
-
+*/
             String popupId = "close-" + p.getPanelId ();
 
             QuollPopup qp = this.getPopupById (popupId);
@@ -2080,6 +2090,9 @@ TODO
         p.getActionMappings ().keySet ().stream ()
             .forEach (k -> this.getScene ().getAccelerators ().remove (k));
 
+        p.fireEvent (new Panel.PanelEvent (p,
+                                           Panel.PanelEvent.CLOSE_EVENT));
+
 		this.panels.remove (panelId);
 
         if (onRemove != null)
@@ -2090,7 +2103,8 @@ TODO
         }
 
 	}
-
+/*
+TODO Remove
     private void updateToolbarForPanel (Panel qp)
     {
 
@@ -2103,7 +2117,7 @@ TODO
             tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
             tb.getStyleClass ().add (qp.getStyleClassName ());
 
-            Set<Node> items = qp.getToolBarItems (this.inFullScreenModeProp.getValue ());
+            Set<Node> items = qp.getToolBarItems (this.isInFullScreenMode ());
 
             if (items != null)
             {
@@ -2124,7 +2138,7 @@ TODO
         }
 
     }
-
+*/
     public Panel getPanel (String panelId)
     {
 
@@ -2142,9 +2156,9 @@ TODO
     protected void setPanelVisible (Panel qp)
     {
 
-        this.updateToolbarForPanel (qp);
+        //this.updateToolbarForPanel (qp);
 
-        if (!this.inFullScreenModeProp.getValue ())
+        if (!this.isInFullScreenMode ())
         {
 
             int tInd = this.getTabIndexForPanelId (qp.getPanelId ());
@@ -2582,30 +2596,6 @@ TODO
 
     }
 
-    public BooleanProperty distractionFreeModeProperty ()
-    {
-
-        return this.distractionFreeModeProp;
-
-    }
-
-    public boolean isDistractionFreeModeEnabled ()
-    {
-
-        return this.distractionFreeModeProp.getValue ();
-
-    }
-
-    public void setDistractionFreeModeEnabled (boolean v)
-    {
-
-        this.distractionFreeModeProp.setValue (v);
-
-        UserProperties.set (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
-                            v);
-
-    }
-
     public void setUseTypewriterScrolling (boolean v)
     {
 
@@ -2871,23 +2861,33 @@ ss = System.currentTimeMillis ();
 
         AtomicBoolean b = new AtomicBoolean (false);
 
-        this.tabs.getTabs ().stream ()
-            .forEach (t ->
+        Tab pt = null;
+        Panel p = null;
+
+        for (Tab t : this.tabs.getTabs ())
+        {
+
+            Panel tp = (Panel) t.getContent ();
+
+            if (tp.getPanelId ().equals (pid))
             {
 
-                Panel p = (Panel) t.getContent ();
+                this.tabs.getSelectionModel ().select (t);
+                pt = t;
+                p = tp;
 
-                if (p.getPanelId ().equals (pid))
-                {
+            }
 
-                    this.tabs.getSelectionModel ().select (t);
-                    b.set (true);
+        }
 
-                }
+        if (pt == null)
+        {
 
-            });
+            return false;
 
-        return b.get ();
+        }
+
+        return true;
 
     }
 
@@ -3116,6 +3116,8 @@ ss = System.currentTimeMillis ();
                 // Turn off spell checking until the download is complete.
                 this.setProjectSpellCheckLanguage (null);
 
+                // TODO Change to use UIUtils.downloadDictionaryFiles instead...
+
                 // Download them.
                 DictionaryProvider.downloadDictionaryFiles (this.getProjectSpellCheckLanguage (),
                                                             this,
@@ -3230,9 +3232,9 @@ TODO REmove
     public TextProperties getTextProperties ()
     {
 
-        return Environment.getProjectTextProperties ();
+        //return Environment.getProjectTextProperties ();
 
-        // TODO return (this.fsf != null ? Environment.getFullScreenTextProperties () : Environment.getProjectTextProperties ());
+        return (this.isInFullScreenMode () ? Environment.getFullScreenTextProperties () : Environment.getProjectTextProperties ());
 
     }
 
@@ -3462,7 +3464,7 @@ TODO REmove
         // Get the state and save it.
         try
         {
-
+System.out.println ("GOT STATE: " + this.getState ());
             this.project.setProperty (Constants.PROJECT_STATE_PROPERTY_NAME,
                                       this.getState ().asString ());
 
@@ -3929,7 +3931,8 @@ TODO REmove
     public void init (State s)
                throws GeneralException
     {
-long ss = System.currentTimeMillis ();
+
+
         if (this.project == null)
         {
 
@@ -3977,20 +3980,17 @@ long ss = System.currentTimeMillis ();
             s = new State (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME));
 
         }
-System.out.println ("TT1: " + (System.currentTimeMillis () - ss));
-ss = System.currentTimeMillis ();
+
+        super.init (s);
+
+        //this.windowedContent.init (s.getAsState ("splitpane"));
+
         this.initChapterCounts ();
-        System.out.println ("TT2: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         this.initDictionaryProvider ();
-        System.out.println ("TT3: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         this.targets = new TargetsData (this.project.getProperties ());
         this.startAutoBackups ();
-        System.out.println ("TT4: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         this.titleProp.bind (this.project.nameProperty ());
 
@@ -4007,20 +4007,12 @@ ss = System.currentTimeMillis ();
                                         e);
 
         }
-        System.out.println ("TT5: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         this.restoreSideBars ();
-        System.out.println ("TT6: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         this.restoreTabs ();
-        System.out.println ("TT7: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         this.scheduleA4PageCountUpdate ();
-        System.out.println ("TT8: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         // This needs to go here since the call is made to the underlying viewer.
         this.addChangeListener (UserProperties.tabsLocationProperty (),
@@ -4036,10 +4028,8 @@ ss = System.currentTimeMillis ();
                             KeyCode.F1);
         this.addKeyMapping (CommandId.find,
                             KeyCode.F, KeyCombination.SHORTCUT_DOWN);
-
-        super.init (s);
-        System.out.println ("TT9: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
+        this.setTitle (this.titleProp);
+        this.windowedContent.setTitle (this.titleProp);
 
     }
 
@@ -4081,18 +4071,6 @@ ss = System.currentTimeMillis ();
         this.initSideBar (sb.getSideBar ());
 
         super.addSideBar (sb);
-
-    }
-
-    public void exitFullScreen ()
-    {
-
-        if (this.fsf != null)
-        {
-
-            this.fsf.close ();
-
-        }
 
     }
 
@@ -4185,14 +4163,14 @@ ss = System.currentTimeMillis ();
         {
 
             TextProperties props = this.getTextProperties ();
-
+/*
             if (this.fsf != null)
             {
 
                 props = Environment.getFullScreenTextProperties ();
 
             }
-
+*/
             this.addSideBar (new TextPropertiesSideBar (this,
                                                         props));
 
@@ -4359,13 +4337,16 @@ ss = System.currentTimeMillis ();
 
     }
 
+    @Override
     public void enterFullScreen ()
     {
+
+        super.enterFullScreen ();
 
         try
         {
 
-            this.showInFullScreen (this.getCurrentlyVisibleTab ());
+            this.showInFullScreen (this.tabs.getSelectionModel ().getSelectedItem ());
 
         } catch (Exception e) {
 
@@ -4392,6 +4373,68 @@ ss = System.currentTimeMillis ();
         }
 
         this.showInFullScreen (panel.getContent ());
+
+    }
+
+    @Override
+    public void dispose ()
+    {
+
+        if (this.windowedContent != null)
+        {
+
+            this.windowedContent.dispose ();
+
+        }
+
+        super.dispose ();
+
+    }
+
+    @Override
+    public ProjectFullScreenContent getFullScreenContent ()
+    {
+
+        if (this.fullScreenContent == null)
+        {
+
+            this.fullScreenContent = new ProjectFullScreenContent (this,
+                                                                   this.getStyleClassName (),
+                                                                   this.fullScreenPanelView);
+
+        }
+
+        return this.fullScreenContent;
+
+    }
+
+    @Override
+    public WindowedContent getWindowedContent ()
+    {
+
+        if (this.windowedContent == null)
+        {
+
+            Supplier<Set<Node>> hcsupp = this.getTitleHeaderControlsSupplier ();
+
+            Set<Node> headerCons = new LinkedHashSet<> ();
+
+            if (hcsupp != null)
+            {
+
+                headerCons.addAll (hcsupp.get ());
+
+            }
+
+            this.windowedContent = new WindowedContent (this,
+                                                        this.getStyleClassName (),
+                                                        headerCons,
+                                                        this.tabs);
+
+
+        }
+
+        return this.windowedContent;
 
     }
 
@@ -4468,7 +4511,7 @@ TODO Remove?
 
         }
 */
-
+/*
         int tabInd = this.getTabIndexForPanelId (qep.getPanelId ());
 
         if (tabInd > -1)
@@ -4482,16 +4525,16 @@ TODO Remove?
             this.tabs.getTabs ().get (tabInd).setContent (this.fsfplaceholder.getPanel ());
 
         }
+*/
+        //if (this.fsf != null)
+        //{
 
-        if (this.fsf != null)
-        {
+            //this.fsf.setIconified (false);
+            //this.fsf.switchTo (qep);
 
-            this.fsf.setIconified (false);
-            this.fsf.switchTo (qep);
-
-        } else
-        {
-
+        //} else
+        //{
+/*
             Set<Node> items = new LinkedHashSet<> ();
 
             this.fsf = new FullScreenView (this,
@@ -4507,11 +4550,13 @@ TODO Remove?
             this.fireProjectEvent (new ProjectEvent (this.project,
                                                      ProjectEvent.Type.fullscreen,
                                                      ProjectEvent.Action.enter));
+*/
+        //}
 
-        }
-
-        this.getViewer ().hide ();
+        //this.getViewer ().hide ();
         //this.setIconified (true);
+/*
+        this.getViewer ().setFullScreen (true);
 
 		final AbstractProjectViewer _this = this;
 
@@ -4526,9 +4571,10 @@ TODO Remove?
 			}
 
 		});
-
+*/
     }
-
+/*
+TODO
     public void fullScreenClosed ()
     {
 
@@ -4545,43 +4591,151 @@ TODO Remove?
                           null);
 
     }
+*/
 
-    public void restoreFromFullScreen (PanelContent qp)
+    private void showInFullScreen (Tab t)
     {
-
-        if (qp == null)
+long s = System.currentTimeMillis ();
+        if ((!this.isInFullScreenMode ())
+            ||
+            (t == null)
+           )
         {
 
-            throw new NullPointerException ("Panel must be provided.");
+            return;
 
         }
 
-        if (qp instanceof ProjectChapterEditorPanelContent)
+        Panel p = (Panel) t.getContent ();
+
+        PanelContent pc = p.getContent ();
+
+        boolean hasChanges = false;
+
+        ChapterEditorPanelContent cep = null;
+
+        if (pc instanceof ChapterEditorPanelContent)
         {
 
-            ProjectChapterEditorPanelContent edPanel = (ProjectChapterEditorPanelContent) qp;
+            cep = (ChapterEditorPanelContent) pc;
+
+            hasChanges = cep.hasUnsavedChanges ();
+
+        }
+
+        if (pc instanceof ProjectChapterEditorPanelContent)
+        {
+
+            ProjectChapterEditorPanelContent edPanel = (ProjectChapterEditorPanelContent) pc;
 
             edPanel.bindTextPropertiesTo (this.getTextProperties ());
 
-            this.setUseTypewriterScrolling (false);
+            // TODO this.setUseTypewriterScrolling (false);
 
         }
 
-        for (Tab t : this.tabs.getTabs ())
+        // Put a placeholder panel in the tab.
+        this.fsfplaceholder = new ShowingInFullScreenPanel (this,
+                                                            p);
+        t.setContent (this.fsfplaceholder.getPanel ());
+
+        p.prefWidthProperty ().unbind ();
+        p.prefHeightProperty ().unbind ();
+        p.prefWidthProperty ().bind (this.fullScreenPanelView.widthProperty ());
+        p.prefHeightProperty ().bind (this.fullScreenPanelView.heightProperty ());
+        this.fullScreenPanelView.getChildren ().clear ();
+        this.fullScreenPanelView.getChildren ().add (p);
+
+        if (cep != null)
         {
 
-            Node n = t.getContent ();
+            ChapterEditorPanelContent _cep = cep;
+            boolean _hasChanges = hasChanges;
 
-            if (n == this.fsfplaceholder.getPanel ())
+            UIUtils.runLater (() ->
             {
 
-                t.setContent (qp.getPanel ());
+                _cep.setHasUnsavedChanges (_hasChanges);
+                _cep.requestLayout ();
 
-                return;
+            });
+
+        }
+System.out.println ("TOOKX: " + (System.currentTimeMillis () - s));
+    }
+
+    private void restoreFromFullScreen (Tab t)
+    {
+
+        Panel p = (Panel) t.getContent ();
+
+        if (p.getContent () instanceof ShowingInFullScreenPanel)
+        {
+
+            // Restore the panel.
+            ShowingInFullScreenPanel fsfp = (ShowingInFullScreenPanel) p.getContent ();
+
+            Panel fp = fsfp.getOriginalPanel ();
+
+            fp.prefWidthProperty ().unbind ();
+            fp.prefHeightProperty ().unbind ();
+
+            boolean hasChanges = false;
+            ChapterEditorPanelContent cep = null;
+
+            if (fp.getContent () instanceof ChapterEditorPanelContent)
+            {
+
+                cep = (ChapterEditorPanelContent) fp.getContent ();
+
+                hasChanges = cep.hasUnsavedChanges ();
+
+            }
+
+            t.setContent (fp);
+
+            if (fp.getContent () instanceof ProjectChapterEditorPanelContent)
+            {
+
+                ProjectChapterEditorPanelContent edPanel = (ProjectChapterEditorPanelContent) fp.getContent ();
+
+                edPanel.bindTextPropertiesTo (this.getTextProperties ());
+
+                this.setUseTypewriterScrolling (false);
+
+            }
+
+            ChapterEditorPanelContent _cep = cep;
+            boolean _hasChanges = hasChanges;
+            if (cep != null)
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    _cep.setHasUnsavedChanges (_hasChanges);
+                    _cep.requestLayout ();
+
+                });
 
             }
 
         }
+
+    }
+
+    @Override
+    public void exitFullScreen ()
+    {
+
+        for (Tab t : this.tabs.getTabs ())
+        {
+
+            this.restoreFromFullScreen (t);
+
+        }
+
+        super.exitFullScreen ();
 
     }
 
@@ -4671,7 +4825,8 @@ TODO Needed?
     public void showSideBar (String   id,
                              Runnable doAfterView)
     {
-
+/*
+TODO Remove?
         if (this.fsf != null)
         {
 
@@ -4681,7 +4836,7 @@ TODO Needed?
             return;
 
         }
-
+*/
         super.showSideBar (id,
                            doAfterView);
 
@@ -4725,13 +4880,10 @@ TODO Needed?
 
     }
 
-    public Map<Chapter, List<SentenceMatches>> getSentenceMatches (String  s)
+    public Map<Chapter, List<SentenceMatches>> getSentenceMatches (Set<String> s)
     {
 
         Map<Chapter, List<SentenceMatches>> data = new LinkedHashMap<> ();
-
-        List<String> names = new ArrayList<> ();
-        names.add (s);
 
         // Get all the books and chapters.
         List<Book> books = this.getProject ().getBooks ();
@@ -4755,7 +4907,7 @@ TODO Needed?
 
                 }
 
-                List<SentenceMatches> snippets = TextUtilities.getSentenceMatches (names,
+                List<SentenceMatches> snippets = TextUtilities.getSentenceMatches (s,
                                                                                    t);
 
                 if ((snippets != null) &&
@@ -4772,6 +4924,16 @@ TODO Needed?
         }
 
         return data;
+
+    }
+
+    public Map<Chapter, List<SentenceMatches>> getSentenceMatches (String  s)
+    {
+
+        Set<String> names = new HashSet<> ();
+        names.add (s);
+
+        return this.getSentenceMatches (names);
 
     }
 
@@ -4989,6 +5151,187 @@ TODO Needed?
     {
 
         // Do nothing, let sub-classes override and provide the behavior.
+
+    }
+
+    @Override
+    public void handleURLAction (String     v,
+                                 MouseEvent ev)
+    {
+
+        try
+        {
+
+            if (v.equals (Constants.BACKUPS_HTML_PANEL_ACTION))
+            {
+
+                BackupsManager.showForProject (Environment.getProjectInfo (this.project),
+                                               this);
+
+                return;
+
+            }
+
+            if (v.equals ("textproperties"))
+            {
+
+                Panel qp = this.getCurrentlyVisibleTab ();
+
+                if (qp.getContent () instanceof ChapterEditorPanelContent)
+                {
+
+                    this.showTextProperties ();
+
+                }
+
+                return;
+
+            }
+
+            if (v.equals ("find"))
+            {
+
+                this.showFind ();
+
+                return;
+
+            }
+
+            if (v.equals ("spellcheckoff"))
+            {
+
+                this.setSpellCheckingEnabled (false);
+
+                return;
+
+            }
+
+            if (v.equals ("spellcheckon"))
+            {
+
+                this.setSpellCheckingEnabled (true);
+
+                return;
+
+            }
+
+            if (v.equals ("statistics"))
+            {
+
+                this.viewStatistics (null);
+
+                return;
+
+            }
+
+            if (v.equals ("wordcounts"))
+            {
+
+                this.showWordCounts ();
+
+                return;
+
+            }
+
+            if (v.equals ("wordcounthistory"))
+            {
+
+                this.viewStatistics (null);
+
+                return;
+
+            }
+
+            if (v.equals ("projectoptions"))
+            {
+
+                this.showOptions ("project");
+
+                return;
+
+            }
+
+            if (v.equals ("dictionarymanager"))
+            {
+
+                this.showDictionaryManager ();
+
+                return;
+
+            }
+
+            if (v.equals ("enabletypewritersound"))
+            {
+/*
+TODO Use property.
+				boolean old = Environment.isPlaySoundOnKeyStroke ();
+
+				Environment.setPlaySoundOnKeyStroke (true);
+
+				Environment.playKeyStrokeSound ();
+
+				Environment.setPlaySoundOnKeyStroke (old);
+*/
+                return;
+
+            }
+
+            if (v.equals ("fullscreen"))
+            {
+
+                try
+                {
+
+                    this.enterFullScreen ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to show in full screen mode",
+                                          e);
+
+                }
+
+                return;
+
+            }
+
+            if (v.equals ("projectsidebar"))
+            {
+
+                this.showMainSideBar ();
+
+                return;
+
+            }
+
+            super.handleURLAction (v,
+                                   ev);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to perform action: " +
+                                  v,
+                                  e);
+
+        }
+
+    }
+
+    public ChapterFindResultsBox findTextInChapters (String t)
+    {
+
+        // Get the snippets.
+        Map<Chapter, List<SentenceMatches>> snippets = this.getSentenceMatches (t);
+
+        if (snippets.size () > 0)
+        {
+
+            return new ChapterFindResultsBox (snippets,
+                                              this);
+
+        }
+
+        return null;
 
     }
 

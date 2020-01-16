@@ -52,7 +52,16 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
 
             String t = rs.getString (ind++);
 
-            f = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.valueOf (t));
+            try
+            {
+
+                f = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.valueOf (t));
+
+            } catch (Exception e) {
+
+                return null;
+
+            }
 
             if (f == null)
             {
@@ -139,9 +148,18 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
             while (rs.next ())
             {
 
-                ret.add (this.getUserConfigurableObjectTypeField (rs,
-                                                                  type,
-                                                                  loadChildObjects));
+                UserConfigurableObjectTypeField t = this.getUserConfigurableObjectTypeField (rs,
+                                                                                             type,
+                                                                                             loadChildObjects);
+
+                if (t == null)
+                {
+
+                    continue;
+
+                }
+
+                ret.add (t);
 
             }
 

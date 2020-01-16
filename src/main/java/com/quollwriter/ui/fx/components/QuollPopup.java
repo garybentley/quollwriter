@@ -114,6 +114,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
             .controls (controls)
             .build ();
         h.managedProperty ().bind (h.visibleProperty ());
+        h.getStyleClass ().add (StyleClassNames.TITLE);
 
         VBox vb = new VBox ();
         this.getStyleClass ().add (StyleClassNames.QPOPUP);

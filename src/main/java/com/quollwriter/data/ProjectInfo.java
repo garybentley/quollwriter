@@ -130,7 +130,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
         if (this.backupPaths == null)
         {
-System.out.println ("NO BACKUP PATHS");
+
             this.backupPaths = FXCollections.observableSet (new TreeSet<> ((p1, p2) ->
             {
 
@@ -199,7 +199,7 @@ System.out.println ("NO BACKUP PATHS");
                 }
 
             }));
-System.out.println ("BP: " + this.backupPaths.hashCode ());
+
             Path p = this.getBackupDirPath ();
 
             if (p != null)
@@ -219,8 +219,10 @@ System.out.println ("BP: " + this.backupPaths.hashCode ());
 
                             } catch (Exception e) {
 
-                                throw new RuntimeException ("Unable to determine if path: " + p + " is a backup file.",
-                                                            e);
+                                Environment.logError ("Unable to determine if path: " + path + " is a backup file.",
+                                                      e);
+
+                                return false;
 
                             }
 
@@ -253,11 +255,9 @@ System.out.println ("BP: " + this.backupPaths.hashCode ());
     public void removeBackupPath (Path p)
                            throws GeneralException
     {
-System.out.println ("REMOVING: " + p);
-System.out.println ("CONTAINS: " + this.getBackupPaths ().contains (p) + ", " + Files.exists (p) + ", " + this.getBackupPaths ());
+
         this.getBackupPaths ().remove (p);
 
-//Files.delete (backupPath);
     }
 
     public synchronized void setOpening (boolean v)

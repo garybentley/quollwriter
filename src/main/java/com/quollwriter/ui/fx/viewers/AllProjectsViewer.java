@@ -33,6 +33,7 @@ public class AllProjectsViewer extends AbstractViewer
     private Map<String, PanelContent> panels = null;
     private StringProperty titleProp = null;
     private StackPane content = null;
+    private WindowedContent windowedContent = null;
 
     public interface CommandId extends AbstractViewer.CommandId
     {
@@ -55,8 +56,6 @@ public class AllProjectsViewer extends AbstractViewer
         this.addPanel (new ImportFilePanel (this));
 
         this.showPanel (ProjectsPanel.PANEL_ID);
-
-        this.setContent (this.content);
 
         this.titleProp = new SimpleStringProperty ();
         // TODO Create a binding that
@@ -91,7 +90,7 @@ public class AllProjectsViewer extends AbstractViewer
 
         this.setOnDragEntered (ev ->
         {
-System.out.println ("HEREXXX");
+
             _this.checkDragFileImport (ev);
 
         });
@@ -138,6 +137,43 @@ System.out.println ("HEREXXX");
         });
 
         this.update ();
+
+    }
+
+    @Override
+    public AbstractViewer.Content getFullScreenContent ()
+    {
+
+        return null;
+
+    }
+
+    @Override
+    public WindowedContent getWindowedContent ()
+    {
+
+        if (this.windowedContent == null)
+        {
+
+            Supplier<Set<Node>> hcsupp = this.getTitleHeaderControlsSupplier ();
+
+            Set<Node> headerCons = new LinkedHashSet<> ();
+
+            if (hcsupp != null)
+            {
+
+                headerCons.addAll (hcsupp.get ());
+
+            }
+
+            this.windowedContent = new WindowedContent (this,
+                                                        this.getStyleClassName (),
+                                                        headerCons,
+                                                        this.content);
+
+        }
+
+        return this.windowedContent;
 
     }
 

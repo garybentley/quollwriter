@@ -524,9 +524,14 @@ public class UIUtils
 
             }
 
-            Environment.fireUserProjectEvent (new ProjectEvent (Environment.getFocusedViewer (),
-                                                                 ProjectEvent.Type.help,
-                                                                 ProjectEvent.Action.show));
+            if (Environment.getFocusedViewer () != null)
+            {
+
+                Environment.fireUserProjectEvent (new ProjectEvent (Environment.getFocusedViewer (),
+                                                                     ProjectEvent.Type.help,
+                                                                     ProjectEvent.Action.show));
+
+            }
 
         }
 
@@ -854,7 +859,25 @@ public class UIUtils
     {
 
         SnapshotParameters parms = new SnapshotParameters ();
+/*
+        double w = n.getWidth ();
 
+        if (w < 0)
+        {
+
+            w = n.prefWidth (-1);
+
+        }
+
+        double h = n.getHeight ();
+
+        if (h < 0)
+        {
+
+            h = n.prefHeight (w);
+
+        }
+*/
         WritableImage im = new WritableImage ((int) n.boundsInParentProperty ().getValue ().getWidth (), (int) n.boundsInParentProperty ().getValue ().getHeight ());
 
         return n.snapshot (parms,
@@ -2547,9 +2570,11 @@ public class UIUtils
 
     }
 
-    public static void downloadDictionaryFiles (String         lang,
-                                                AbstractViewer viewer,
-                                                Runnable       onComplete)
+    public static UrlDownloader downloadDictionaryFiles (String              lang,
+                                                         AbstractViewer      viewer,
+                                                         Consumer<Double>    onProgress,
+                                                         Runnable            onComplete,
+                                                         Consumer<Exception> onError)
     {
 
         if (UILanguageStrings.isEnglish (lang))
@@ -2594,11 +2619,24 @@ public class UIUtils
             Environment.logError ("Unable to download language files, cant create url",
                                   e);
 
+            if (onError != null)
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    onError.accept (e);
+
+                });
+
+            }
+/*
+TODO Remove
             ComponentUtils.showErrorMessage (viewer,
                                              getUILanguageStringProperty (dictionary,download,actionerror));
                                       //"Unable to download language files");
-
-            return;
+*/
+            return null;
 
         }
 
@@ -2618,40 +2656,31 @@ public class UIUtils
             Environment.logError ("Unable to download language files, cant create temp file",
                                   e);
 
+            if (onError != null)
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    onError.accept (e);
+
+                });
+
+            }
+
+            /*
+             TODO Remove
             ComponentUtils.showErrorMessage (viewer,
                                              getUILanguageStringProperty (dictionary,download,actionerror));
                                     //"Unable to download language files");
-
-            return;
+*/
+            return null;
 
         }
 
         _file.deleteOnExit ();
 
         final File file = _file;
-
-        VBox content = new VBox ();
-        content.getChildren ().add (BasicHtmlTextFlow.builder ()
-            .withHandler (viewer)
-            .text (getUILanguageStringProperty (Arrays.asList (dictionary,download,notification),
-                                                getUILanguageStringProperty (languagenames,lang)))
-                    //"The language files for <b>%s</b> are now being downloaded.",
-            .build ());
-
-        ProgressBar prog = new ProgressBar ();
-        content.getChildren ().add (prog);
-
-        Set<Node> controls = new LinkedHashSet<> ();
-
-        QuollButton stop = QuollButton.builder ()
-            .styleClassName (StyleClassNames.STOP)
-            .build ();
-        controls.add (stop);
-
-        final Notification n = viewer.addNotification (content,
-                                                       StyleClassNames.DOWNLOAD,
-                                                       -1,
-                                                       controls);
 
         final UrlDownloader downloader = new UrlDownloader (url,
                                                             file,
@@ -2662,16 +2691,38 @@ public class UIUtils
                                                                 public void handleError (Exception e)
                                                                 {
 
-                                                                    UIUtils.runLater (() -> n.removeNotification ());
-
                                                                     Environment.logError ("Unable to download language files for: " +
                                                                                           langOrig,
                                                                                           e);
 
+                                                                    if (onError != null)
+                                                                    {
+
+                                                                        UIUtils.runLater (() ->
+                                                                        {
+
+                                                                            onError.accept (e);
+
+                                                                        });
+
+                                                                    }
+
+                                                                    // TODO Remove UIUtils.runLater (() -> n.removeNotification ());
+/*
+ TODO Remove
                                                                     ComponentUtils.showErrorMessage (viewer,
                                                                                                      getUILanguageStringProperty (Arrays.asList (dictionary,download,actionerror),
                                                                                                                                   getUILanguageStringProperty (languagenames,langOrig)));
+                                                                                                                                  */
                                                                                               //"A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+
+                                                                }
+
+                                                                @Override
+                                                                public void onStop ()
+                                                                {
+
+                                                                    file.delete ();
 
                                                                 }
 
@@ -2680,12 +2731,17 @@ public class UIUtils
                                                                                       final int total)
                                                                 {
 
-                                                                    UIUtils.runLater (() ->
+                                                                    if (onProgress != null)
                                                                     {
 
-                                                                        prog.setProgress ((double) downloaded / (double) total);
+                                                                        UIUtils.runLater (() ->
+                                                                        {
 
-                                                                    });
+                                                                            onProgress.accept ((double) downloaded / (double) total);
+
+                                                                        });
+
+                                                                    }
 
                                                                 }
 
@@ -2693,12 +2749,17 @@ public class UIUtils
                                                                 public void finished (int total)
                                                                 {
 
-                                                                    UIUtils.runLater (() ->
+                                                                    if (onProgress != null)
                                                                     {
 
-                                                                        prog.setProgress (1);
+                                                                        UIUtils.runLater (() ->
+                                                                        {
 
-                                                                    });
+                                                                            onProgress.accept (1d);
+
+                                                                        });
+
+                                                                    }
 
                                                                     Environment.schedule (() ->
                                                                     {
@@ -2718,10 +2779,23 @@ public class UIUtils
                                                                                                   Environment.getUserQuollWriterDirPath (),
                                                                                                   e);
 
+                                                                            if (onError != null)
+                                                                            {
+
+                                                                                UIUtils.runLater (() ->
+                                                                                {
+
+                                                                                    onError.accept (e);
+
+                                                                                });
+
+                                                                            }
+/*
+TODO Remove
                                                                              ComponentUtils.showErrorMessage (viewer,
                                                                                                               getUILanguageStringProperty (Arrays.asList (dictionary,download,actionerror),
                                                                                                                                            getUILanguageStringProperty (languagenames, langOrig)));
-
+*/
                                                                             return;
 
                                                                         } finally {
@@ -2732,7 +2806,7 @@ public class UIUtils
 
                                                                         UIUtils.runLater (onComplete);
 
-                                                                        UIUtils.runLater (() -> n.removeNotification ());
+                                                                        // TODO Remove UIUtils.runLater (() -> n.removeNotification ());
 
                                                                     },
                                                                     1,
@@ -2742,7 +2816,9 @@ public class UIUtils
 
                                                             });
 
-        stop.setOnAction (ev ->
+/*
+TODO Remove
+        content.setOnStop (() ->
         {
 
             downloader.stop ();
@@ -2750,8 +2826,10 @@ public class UIUtils
             file.delete ();
 
         });
-
+*/
         downloader.start ();
+
+        return downloader;
 
     }
 
@@ -4128,7 +4206,35 @@ TODO
     public static boolean isImageFile (File f)
     {
 
-        String fn = f.getName ().toLowerCase ();
+        if (f == null)
+        {
+
+            return false;
+
+        }
+
+        return UIUtils.isImageFile (f.toPath ());
+
+    }
+
+    public static boolean isImageFile (Path f)
+    {
+
+        if (f == null)
+        {
+
+            return false;
+
+        }
+
+        if (Files.isDirectory (f))
+        {
+
+            return false;
+
+        }
+
+        String fn = f.getFileName ().toString ().toLowerCase ();
 
         String s = UIUtils.imageFileFilter.getExtensions ().stream ()
             .filter (ext -> fn.endsWith (ext.toLowerCase ().substring (2)))

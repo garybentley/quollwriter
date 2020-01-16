@@ -1,5 +1,8 @@
 package com.quollwriter.ui.fx.components;
 
+import java.io.*;
+import java.util.*;
+
 import javafx.scene.layout.*;
 import javafx.scene.input.*;
 
@@ -11,11 +14,14 @@ import com.quollwriter.ui.fx.viewers.*;
 public class BackgroundPane extends Pane implements Stateful
 {
 
-    private String BG_ID = "bgid";
-    private String BG_OPACITY = "bgopacity";
+    public static final String BG_ID = "bgid";
+    public static final String BG_OPACITY = "bgopacity";
 
     private AbstractViewer viewer = null;
     private BackgroundObject backgroundObject = null;
+    private Object origBgObject = null;
+    private boolean dragImportAllowed = false;
+    private String bgselpid = null;
 
     public BackgroundPane (AbstractViewer viewer)
     {
@@ -27,6 +33,158 @@ public class BackgroundPane extends Pane implements Stateful
         {
 
             this.updateBackground ();
+
+        });
+
+        this.setOnDragDropped (ev ->
+        {
+
+            if (this.dragImportAllowed)
+            {
+
+                List<File> files = ev.getDragboard ().getFiles ();
+
+                if (files != null)
+                {
+
+                    if (files.size () > 1)
+                    {
+
+                        return;
+
+                    }
+
+                    File f = files.get (0);
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        try
+                        {
+
+                            this.origBgObject = null;
+                            this.backgroundObject.update (f.toPath ());
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to set background to path: " + f,
+                                                  e);
+
+                        }
+
+                        ev.consume ();
+
+                    }
+
+                }
+
+            }
+
+        });
+
+        this.setOnDragExited (ev ->
+        {
+
+            try
+            {
+
+                if (this.origBgObject != null)
+                {
+
+                    this.backgroundObject.update (this.origBgObject);
+                    this.origBgObject = null;
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to update background to original object: " +
+                                      this.origBgObject,
+                                      e);
+
+            }
+
+        });
+
+        this.setOnDragEntered (ev ->
+        {
+
+            if (this.dragImportAllowed)
+            {
+
+                List<File> files = ev.getDragboard ().getFiles ();
+
+                if (files != null)
+                {
+
+                    if (files.size () > 1)
+                    {
+
+                        return;
+
+                    }
+
+                    File f = files.get (0);
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
+
+                        try
+                        {
+
+                            this.origBgObject = this.backgroundObject.getBackgroundObject ();
+                            this.backgroundObject.updateForUserPath (f.toPath ());
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to set background to path: " + f,
+                                                  e);
+
+                        }
+
+                        ev.consume ();
+
+                    }
+
+                }
+
+            }
+
+        });
+
+        this.setOnDragOver (ev ->
+        {
+
+            if (this.dragImportAllowed)
+            {
+
+                List<File> files = ev.getDragboard ().getFiles ();
+
+                if (files != null)
+                {
+
+                    if (files.size () > 1)
+                    {
+
+                        return;
+
+                    }
+
+                    File f = files.get (0);
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
+                        ev.consume ();
+
+                    }
+
+                }
+
+            }
 
         });
 
@@ -74,6 +232,13 @@ public class BackgroundPane extends Pane implements Stateful
             }
 
         });
+
+    }
+
+    public void setDragImportAllowed (boolean v)
+    {
+
+        this.dragImportAllowed = v;
 
     }
 
@@ -138,7 +303,14 @@ public class BackgroundPane extends Pane implements Stateful
         try
         {
 
-            QuollPopup qp = this.viewer.getPopupById (SelectBGPopup.POPUP_ID);
+            if (this.bgselpid == null)
+            {
+
+                this.bgselpid = "selectbg" + UUID.randomUUID ().toString ();
+
+            }
+
+            QuollPopup qp = this.viewer.getPopupById (this.bgselpid);
 
             if (qp != null)
             {
@@ -151,6 +323,7 @@ public class BackgroundPane extends Pane implements Stateful
 
             SelectBGPopup p = new SelectBGPopup (this.viewer,
                                                  this.backgroundObject.getBackgroundObject ());
+            p.getPopup ().setPopupId (this.bgselpid);
             p.show ();
 
             p.selectedProperty ().addListener ((pr, oldv, newv) ->

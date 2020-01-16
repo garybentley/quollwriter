@@ -11,6 +11,7 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.popups.*;
 import javafx.stage.*;
 import javafx.application.*;
 import javafx.beans.property.*;
@@ -21,9 +22,35 @@ import static com.quollwriter.LanguageStrings.*;
 public class Startup_fx extends Application
 {
 
+    private Splashscreen ss = null;
+
     @Override
     public void init ()
     {
+
+    }
+
+    public void updateProgress (double v)
+    {
+
+        if (ss != null)
+        {
+
+            ss.updateProgress (v);
+
+        }
+
+    }
+
+    public void finish ()
+    {
+
+        if (ss != null)
+        {
+
+            ss.finish ();
+
+        }
 
     }
 
@@ -31,127 +58,136 @@ public class Startup_fx extends Application
     public void start (Stage s)
     {
 
-        //Splashscreen ss = null;
-        Splashscreen ss = null;
+        //Platform.setImplicitExit (false);
 
         try
         {
 
-            ss = Splashscreen.builder ().build ();
+            this.ss = Splashscreen.builder ().build ();
 
-            ss.show ();
+            this.ss.show ();
 
             javafx.geometry.Rectangle2D rb = Screen.getPrimary ().getBounds ();
 
-            ss.setX (((rb.getWidth () - ss.getWidth ()) / 2));
-            ss.setY (((rb.getHeight () - ss.getHeight ()) / 2));
+            this.ss.setX (((rb.getWidth () - this.ss.getWidth ()) / 2));
+            this.ss.setY (((rb.getHeight () - this.ss.getHeight ()) / 2));
 
             //DoubleProperty progress = ss.progressProperty ();
 
-            ss.updateProgress (0.5f);
+            this.updateProgress (0.5f);
 
-            Environment.init ();
+        } catch (Exception e) {
 
-            ss.updateProgress (0.6f);
+            e.printStackTrace ();
 
-            /*
-            if (Environment.isFirstUse ())
+        }
+
+        UIUtils.runLater (() ->
+        {
+
+            try
             {
 
-                new FirstUseWizard ().init ();
+                Environment.init ();
 
-                return;
+                this.updateProgress (0.6f);
 
-            }
-*/
-            if (Environment.getAllProjectInfos ().size () == 0)
-            {
-
-                ss.finish ();
-
-                Environment.showAllProjectsViewer ();
-
-                return;
-
-            }
-
-            boolean showError = false;
-
-            if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
-            {
-System.out.println ("SHOWING");
-                Environment.showAllProjectsViewer ();
-
-            }
-
-            // See if the user property is to open the last edited project.
-            if (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
-            {
-
-                try
+                if (!Environment.isFirstUse ())
                 {
 
-                    if (!Environment.openLastEditedProject ())
+                    new FirstUseWizard ().show ();
+
+                    this.finish ();
+
+                    return;
+
+                }
+
+                if (Environment.getAllProjectInfos ().size () == 0)
+                {
+
+                    this.finish ();
+
+                    Environment.showAllProjectsViewer ();
+
+                    return;
+
+                }
+
+                boolean showError = false;
+
+                if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
+                {
+
+                    Environment.showAllProjectsViewer ();
+
+                }
+
+                // See if the user property is to open the last edited project.
+                if (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
+                {
+
+                    try
+                    {
+
+                        if (!Environment.openLastEditedProject ())
+                        {
+
+                            showError = true;
+
+                        }
+
+                    } catch (Exception e)
                     {
 
                         showError = true;
 
                     }
 
-                } catch (Exception e)
+                }
+
+                // Need to do this here since, if there is no visible frame (somewhere) then showErrorMessage will throw an error that crashes the jvm... nice...
+                if (showError)
                 {
 
-                    showError = true;
+                    Environment.showAllProjectsViewer ();
+
+                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,cantopenlastprojecterror,text));
 
                 }
 
-            }
-
-            // Need to do this here since, if there is no visible frame (somewhere) then showErrorMessage will throw an error that crashes the jvm... nice...
-            if (showError)
+            } catch (Exception eee)
             {
 
-                Environment.showAllProjectsViewer ();
+                if (eee instanceof OverlappingFileLockException)
+                {
 
-                ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,cantopenlastprojecterror,text));
+                    // We need to show english here since we don't have the ui strings set up yet.
+                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,alreadyrunningerror));
 
-            }
+                } else {
 
-        } catch (Exception eee)
-        {
+                    Environment.logError ("Unable to open Quoll Writer",
+                                          eee);
 
-            if (eee instanceof OverlappingFileLockException)
+                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,unabletostarterror));
+
+                }
+
+            } catch (Error err) {
+
+                err.printStackTrace ();
+
+            } finally
             {
 
-                // We need to show english here since we don't have the ui strings set up yet.
-                ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,alreadyrunningerror));
+                this.finish ();
 
-            } else {
-
-                Environment.logError ("Unable to open Quoll Writer",
-                                      eee);
-
-                ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,unabletostarterror));
+                Environment.startupComplete ();
 
             }
 
-        } catch (Error err) {
-
-            err.printStackTrace ();
-
-        } finally
-        {
-
-            if (ss != null)
-            {
-
-                ss.finish ();
-
-            }
-
-            Environment.startupComplete ();
-
-        }
+        });
 
     }
 

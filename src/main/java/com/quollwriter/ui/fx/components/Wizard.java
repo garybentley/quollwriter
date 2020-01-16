@@ -380,6 +380,15 @@ public class Wizard extends VBox
 
     }
 
+    public void enableButtons ()
+    {
+
+        this.nextBut.setDisable (false);
+        this.prevBut.setDisable (false);
+        this.cancelBut.setDisable (false);
+
+    }
+
     public void enableButton (String  name,
                               boolean enable)
     {

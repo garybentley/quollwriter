@@ -52,6 +52,7 @@ public class NumberUserConfigurableObjectFieldViewEditHandler extends AbstractUs
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -315,11 +316,12 @@ TODO Remove?
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException    
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
-        Double d = (this.field != null ? (Double) this.field.getValue () : null);
+        Double d = this.getFieldValue ();
 
         if (d != null)
         {

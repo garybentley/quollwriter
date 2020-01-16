@@ -519,12 +519,37 @@ TODO
 
                }));
 
+        // Build a custom undo manager that is suspendable, see: https://github.com/FXMisc/RichTextFX/issues/735
+        this.suspendUndos = new SuspendableYes ();
+
         this.setUseInitialStyleForInsertion (true);
         this.props = new TextProperties ();
         this.bindTo (props);
 
-        // Build a custom undo manager that is suspendable, see: https://github.com/FXMisc/RichTextFX/issues/735
-        this.suspendUndos = new SuspendableYes ();
+        this.parentProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv == null)
+            {
+
+                this.ignoreDocumentChange = true;
+
+            }
+
+            if (newv != null)
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    this.ignoreDocumentChange = false;
+
+                });
+
+            }
+
+        });
+
         this.setUndoManager (UndoManagerFactory.unlimitedHistoryFactory ().createMultiChangeUM(this.multiRichChanges ().conditionOn (this.suspendUndos),
                                                                             TextChange::invert,
                                                                             UndoUtils.applyMultiRichTextChange(this),
@@ -1884,6 +1909,13 @@ TODO
 
     }
 
+    public void setIgnoreDocumentChanges (boolean v)
+    {
+
+        this.ignoreDocumentChange = v;
+
+    }
+
     public void bindTo (TextProperties props)
     {
 
@@ -1896,7 +1928,17 @@ TODO
 
         }
 
-        this.props.bindTo (props);
+        this.suspendUndos.suspendWhile (() ->
+        {
+
+            this.ignoreDocumentChange = true;
+
+            this.props.bindTo (props);
+
+            this.ignoreDocumentChange = false;
+
+
+        });
 
         //this.setIgnoreDocumentChanges (true);
 

@@ -45,7 +45,9 @@ public class FieldBox extends VBox
     public FieldBox (UserConfigurableObjectTypeField         field,
                      UserConfigurableObject                  object,
                      LayoutColumn                            column,
+                     IPropertyBinder                         binder,
                      ProjectViewer                           viewer)
+              throws GeneralException
     {
 
         this.object = object;
@@ -60,10 +62,30 @@ public class FieldBox extends VBox
             .build ();
         this.label.managedProperty ().bind (this.label.visibleProperty ());
 
+        this.label.setOnMouseClicked (ev ->
+        {
+
+            if (ev.isPopupTrigger ())
+            {
+
+                return;
+
+            }
+
+            if (ev.getClickCount () == 2)
+            {
+
+                this.showEditSingle ();
+
+            }
+
+        });
+
         this.getChildren ().add (this.label);
 
         this.handler = field.getViewEditHandler2 (object,
                                                   object.getField (field),
+                                                  binder,
                                                   viewer);
 
         this.managedProperty ().bind (this.visibleProperty ());
@@ -80,11 +102,28 @@ public class FieldBox extends VBox
         {
 
             this.getStyleClass ().add (StyleClassNames.OBJECTDESCRIPTION);
+/*
+            VBox.setVgrow (this,
+                           Priority.ALWAYS);
+*/
+        }
+/*
+        if (handler instanceof LinkedToUserConfigurableObjectFieldViewEditHandler)
+        {
+
             VBox.setVgrow (this,
                            Priority.ALWAYS);
 
         }
 
+        if (handler instanceof DocumentsUserConfigurableObjectFieldViewEditHandler)
+        {
+
+            VBox.setVgrow (this,
+                           Priority.ALWAYS);
+
+        }
+*/
         if (handler instanceof ObjectImageUserConfigurableObjectFieldViewEditHandler)
         {
 
@@ -409,7 +448,20 @@ public class FieldBox extends VBox
 
             }
 
-            this.showView ();
+            try
+            {
+
+                this.showView ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view field: " + field,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (assets,fields,LanguageStrings.view,actionerror));
+
+            }
 
         }).show (this.label,
                  Side.BOTTOM);
@@ -759,6 +811,7 @@ xxx
     }
 
     public void showView ()
+                   throws GeneralException
     {
 
         this.edit.setVisible (false);
@@ -1025,7 +1078,21 @@ xxx
             .onAction (ev ->
             {
 
-                this.showView ();
+                try
+                {
+
+                    this.showView ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to view field: " + this.field,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (this.viewer,
+                                                     getUILanguageStringProperty (assets,fields,LanguageStrings.view,actionerror));
+
+                }
+
                 this.fireEvent (new Event (this, this, CANCEL_EVENT));
 
             })

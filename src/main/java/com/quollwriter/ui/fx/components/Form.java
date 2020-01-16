@@ -53,10 +53,10 @@ public class Form extends VBox
         if (b.description != null)
         {
 
-            BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
+            QuollTextView desc = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.DESCRIPTION)
                 .text (b.description)
-                .withHandler (b.handler)
+                .withViewer (b.handler)
                 .build ();
 
             this.getChildren ().add (desc);

@@ -20,95 +20,95 @@ public abstract class AbstractUserConfigurableObjectFieldViewEditHandler<E exten
     protected E typeField = null;
     protected AbstractProjectViewer viewer = null;
     protected UserConfigurableObject obj = null;
-         
+
     public AbstractUserConfigurableObjectFieldViewEditHandler (E                           typeField,
                                                                UserConfigurableObject      obj,
                                                                UserConfigurableObjectField field,
                                                                AbstractProjectViewer       viewer)
     {
-        
+
         this.field = field;
         this.viewer = viewer;
-        
+
         this.typeField = typeField;
-        
+
         if (obj == null)
         {
-            
+
             throw new NullPointerException ("User object cannot be null.");
-            
+
         }
-        
+
         this.obj = obj;
-        
+
     }
 
     @Override
     public Set<String> getNamesFromFieldValue ()
     {
-        
+
         return new LinkedHashSet ();
-        
+
     }
 
     @Override
     public void updateFieldFromInput ()
                                throws GeneralException
     {
-        
+
         if (this.field == null)
         {
-            
+
             this.field = new UserConfigurableObjectField (this.typeField);
-            
+
             this.obj.addField (this.field);
-            
+
         }
-        
-        this.field.setValue (this.getInputSaveValue ());
-        
-    }    
-    
+
+        this.field.setValue (this.valueToString (this.getInputSaveValue ()));
+
+    }
+
     @Override
     public T getFieldValue ()
     {
-        
+
         return (this.field != null ? (T) this.field.getValue () : null);
-        
+
     }
-    
+
     @Override
     public UserConfigurableObjectField getField ()
     {
-        
+
         return this.field;
-        
+
     }
-    
+
     @Override
     public E getTypeField ()
     {
-        
+
         return this.typeField;
-        
+
     }
-    
+
     public FormItem createNoValueItem ()
     {
 
         return this.createNoValueItem (null);
-    
+
     }
-    
+
     public FormItem createNoValueItem (String label)
     {
-    
+
         return new AnyFormItem (this.typeField.getFormName (),
                                 UIUtils.createInformationLabel ((label != null ? label : Environment.getUIString (LanguageStrings.form,
                                                                                                                   LanguageStrings.view,
                                                                                                                   LanguageStrings.novalue))));
         //"Not provided."));
-        
+
     }
-    
+
 }

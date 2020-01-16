@@ -66,6 +66,7 @@ public class AccordionItem extends VBox implements Stateful
             // TODO REmove, use css .cursor (Cursor.HAND)
             .contextMenu (b.contextMenuItemSupplier)
             .build ();
+        this.header.managedProperty ().bind (this.header.visibleProperty ());
 
         this.header.titleLabelProperty ().getValue ().setOnMouseClicked (ev ->
         {

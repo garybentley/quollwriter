@@ -183,7 +183,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
     public Set<FormItem> getViewFormItems ()
     {
 
-        StringWithMarkup text = (this.field != null ? (StringWithMarkup) this.field.getValue () : null);
+        StringWithMarkup text = this.getFieldValue ();
 
         Set<FormItem> items = new LinkedHashSet ();
 

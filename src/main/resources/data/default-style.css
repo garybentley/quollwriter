@@ -143,11 +143,22 @@ Text
     -fx-graphic-text-gap: 0.25em;
     -fx-padding: 0;
     -fx-underline: false;
+    -fx-text-wrap: true;
 }
 
 .hyperlink.warning
 {
     -fx-graphic: url(/imgs/warning16.png);
+}
+
+.hyperlink.find
+{
+    -fx-graphic: url(/imgs/find16.png);
+}
+
+.hyperlink.selectbg
+{
+    -fx-graphic: url(/imgs/bg-select16.png);
 }
 
 .hyperlink.linkedto
@@ -814,11 +825,23 @@ Text
  Icons for menu items.
  The > * > for menu-items is deliberate and used to prevent cascade issues for submenus.
  */
+.menu-item.stop .image-view,
+.button.stop
+{
+    -fx-image: url(/imgs/stop16.png);
+    -fx-graphic: url(/imgs/stop16.png);
+}
 .menu-item.add .image-view,
 .button.add
 {
     -fx-image: url(/imgs/add16.png);
     -fx-graphic: url(/imgs/add16.png);
+}
+.menu-item.project .image-view,
+.button.project
+{
+    -fx-image: url(/imgs/project16.png);
+    -fx-graphic: url(/imgs/project16.png);
 }
 
 .menu-item.convert .image-view,
@@ -1205,7 +1228,9 @@ Text
 .qpopup.problemfinderconfig .button.add,
 .qpopup.problemfinderconfig .menu-button.add,
 .qpopup.problemfinderconfig .button.delete,
-.toolbar.buttons .button
+.toolbar.buttons .button,
+.progress .button,
+.filefind .button
  {
      -fx-border-color: transparent;
      -fx-border-width: 1px;
@@ -1240,7 +1265,11 @@ Text
 .qpopup.problemfinderconfig .menu-button.add:hover,
 .qpopup.problemfinderconfig .menu-button.add:focused,
 .qpopup.problemfinderconfig .button.delete:hover,
-.qpopup.problemfinderconfig .button.delete:focused
+.qpopup.problemfinderconfig .button.delete:focused,
+.progress .button:hover,
+.progress .button:focused,
+.filefind .button:hover,
+.filefind .button:focused
  {
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
@@ -1286,23 +1315,32 @@ Text
     -fx-pref-height: 800px;
 }
 
-.viewer > .header
+.viewer .header
 {
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-insets: 0px;
-    -fx-border-color: -qw-component-border-color;
     -fx-max-width: Infinity;
     -fx-alignment: center-left;
     -fx-padding: 0 0 0 0.5em;
 
 }
 
-.viewer > .header .title
+.viewer .header.title
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-insets: 0px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.viewer .header .title
 {
     -fx-font-size: 2.5em;
     -fx-padding: 0 0.5em 0 0.5em;
     -fx-max-width: Infinity;
     -fx-text-fill: -fx-text-base-color;
+}
+
+.sidebar .header
+{
+    -fx-border-width: 0;
 }
 
 /*
@@ -1444,7 +1482,7 @@ Text
     -fx-padding: 0 0 0 0.3em;
 }
 
-.viewer.allprojects > .header .icon
+.viewer.allprojects .header .icon
 {
     -fx-image: url(/imgs/project24.png);
 }
@@ -2102,6 +2140,11 @@ Text
     -fx-border-color: -qw-component-border-color;
 }
 
+.qpopup .form .choice-box .label
+{
+    -fx-padding: 0.25em;
+}
+
 .root:night .combo-box .combo-box-popup .list-view, .root:night .combo-box .combo-box-popup .list-cell
 {
 -fx-background-color: -qw-bg-color;
@@ -2155,7 +2198,7 @@ Text
     -fx-border-width: 0;
     -fx-border-insets: 0;
     -fx-border-style: none;
-    -fx-background-color: #4d4d4d;
+    -fx-background-color: #aaaaaa;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-radius: 0;
@@ -2294,6 +2337,11 @@ Text
      -fx-padding: 0 0 0 0.5em;
      -fx-background-color: -qw-bg-color;
  }
+
+.viewer .qpopup .header
+{
+
+}
 
  .qpopup .header .title
  {
@@ -2787,6 +2835,11 @@ Text
 .notification.tips .icon
 {
     -fx-image: url(/imgs/help24.png);
+}
+
+.notification .readability, .notification .wordcounts
+{
+    -fx-cursor: hand;
 }
 
 .notification.information .icon
@@ -3446,7 +3499,7 @@ Text
     -fx-min-width: 20em;
 }
 
-.sidebar.find > .header .icon
+.viewer .sidebar.find .header .icon
 {
     -fx-image: url(/imgs/find16.png);
 }
@@ -3581,7 +3634,7 @@ Text
     -fx-min-width: 20em;
 }
 
-.sidebar.contacts > .header .icon
+.viewer .sidebar.contacts > .header .icon
 {
     -fx-image: url(/imgs/editors16.png);
 }
@@ -3589,7 +3642,7 @@ Text
 /*
  * Targets sidebar (TargetsSideBar)
  */
-.sidebar.targets > .header .icon
+.viewer .sidebar.targets .header .icon
 {
     -fx-image: url(/imgs/goals16.png);
 }
@@ -3712,7 +3765,7 @@ Text
     -fx-vbar-policy: as-needed;
 }
 
-.viewer.project > .header .icon
+.viewer.project .header .icon
 {
     -fx-image: url(/imgs/project24.png);
 }
@@ -4009,6 +4062,11 @@ Text
 .qpopup.readability .header .icon
 {
     -fx-image: url(/imgs/eye16.png);
+}
+
+.qpopup.readability .label.title, .qpopup.readability .label
+{
+    -fx-min-width: 3em;
 }
 
 .qpopup.readability .items .hyperlink, .qpopup.readability .items .label
@@ -4414,6 +4472,12 @@ Text
 .fullscreen .sidebars:left
 {
     -fx-border-width: 1px 1px 1px 0;
+}
+
+.fullscreen .panel
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
 }
 
 .panel.showinginfullscreen
@@ -5169,6 +5233,126 @@ Text
     -fx-content-display: text-only;
 }
 
+.panel.asset .edit .controls .control .scroll-pane
+{
+    -fx-fit-to-width: true;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.panel.asset .view .control .scroll-pane
+{
+    -fx-fit-to-width: false;
+    -fx-fit-to-height: false;
+}
+
+.panel.asset .view .control .documents .file
+{
+    -fx-border-width: 0 0 1px 0;
+}
+
+.panel.asset .edit .controls .control .documents .label.add
+{
+    -fx-font-size: 1.2em;
+    -fx-font-style: normal;
+    -fx-alignment: center;
+    -fx-padding: 0.5em;
+    -fx-graphic: url(/imgs/add20.png);
+    -fx-cursor: hand;
+    -fx-wrap-text: true;
+}
+
+.panel.asset .view .documents .label.add
+{
+    visibility: false;
+}
+
+.panel.asset .documents .files
+{
+    -fx-fill-width: true;
+}
+
+.panel.asset .documents .file
+{
+    -fx-cursor: hand;
+    -fx-padding: 0.5em;
+}
+
+.panel.asset .documents .menu-item .label
+{
+    -fx-content-display: text-only;
+    -fx-padding: 0.25em;
+}
+
+.panel.asset .documents .file:normal .label
+{
+    -fx-graphic: url(/imgs/document-normal.png);
+}
+
+
+.panel.asset .documents .file .label
+{
+    -fx-alignment: center-left;
+    -fx-wrap-text: true;
+}
+
+.panel.asset .documents .file .label .text
+{
+    -fx-font-style: normal;
+    -fx-wrap-text: true;
+}
+
+.panel.asset .documents .files .file:hover
+{
+    -fx-background-color: -qw-hover-bg;
+}
+
+.panel.asset .edit .controls .control .documents .overlay
+{
+    -fx-alignment: top-center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+}
+
+.panel.asset .edit .controls .control .documents .overlay .label
+{
+    -fx-font-size: 1.5em;
+    -fx-text-alignment: center;
+    -fx-alignment: top-center;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: #ffffff;
+    -fx-opacity: 1;
+    -fx-padding: 1em;
+    -fx-graphic: url(/imgs/down24.png);
+    -fx-wrap-text: true;
+}
+
+.panel.asset .linkedto
+{
+    -fx-padding: 0.25em;
+}
+
+.panel.asset .linkedto .tree.edit, .panel.asset .linkedto .tree.view
+{
+    -fx-cell-indent: 1.3em;
+}
+
+.panel.asset .linkedto .tree .cell
+{
+    -fx-padding: 0;
+}
+
+.panel.asset .linkedto .tree .label .text
+{
+    -fx-font-style: normal;
+}
+
+.panel.asset .linkedto .tree .cell:leaf .label
+{
+    -fx-graphic: url(/imgs/bullet16.png);
+}
+
 body
 {
     overflow-x: hidden;
@@ -5328,4 +5512,121 @@ a
 .smallicon:noimage .image-view
 {
     -fx-image: url(/imgs/find16.png);
+}
+
+.sidebar.appearsinchapters
+{
+    -fx-min-width: 20em;
+}
+
+.sidebar.appearsinchapters .header
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.sidebar.appearsinchapters .description
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.sidebar.appearsinchapters .nomatches
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+    -fx-font-style: italic;
+}
+
+.sidebar.appearsinchapters .results .cell .label.chapter
+{
+    -fx-graphic: url(/imgs/chapter16.png);
+}
+
+.sidebar.appearsinchapters .results .accordion .tree .cell
+{
+    -fx-cursor: hand;
+    -fx-padding: 0 0 0 0em;
+}
+
+.sidebar.appearsinchapters .results .cell .snippet
+{
+    -fx-graphic: url(/imgs/bullet16.png);
+}
+
+.sidebar.appearsinchapters .content .results
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.sidebar.appearsinchapters .content .results .header
+{
+    visibility: hidden;
+}
+
+.sidebar.editproperties .fullscreen .background
+{
+    -fx-min-height: 10em;
+    -fx-min-width: 10em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+.sidebar.editproperties .fullscreen .backgroundsizebox
+{
+    -fx-pref-height: 15em;
+    -fx-min-height: 15em;
+    -fx-max-height: 15em;
+}
+
+.sidebar.editproperties .fullscreen .inner
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-hover-bg;
+}
+
+.qpopup.firstusewizard
+{
+    -fx-pref-width: 50em;
+    -fx-pref-height: 40em;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+}
+
+.qpopup.firstusewizard .header.title .title
+{
+    -fx-font-size: 2em;
+}
+
+.qpopup.firstusewizard .header.title .icon
+{
+    -fx-image: url(/imgs/qw24.png);
+}
+
+.qpopup.firstusewizard .content .form .control
+{
+    -fx-padding: 0.5em 0 0.5em 0.5em;
+}
+
+.qpopup.firstusewizard .content .label.loading
+{
+    -fx-graphic: url(/imgs/loading24.gif);
+}
+
+.qpopup.firstUseWizard .content .download
+{
+    -fx-fit-width: true;
+}
+
+.qpopup.firstusewizard .content .download .progress
+{
+    -fx-padding: 0.25em;
+    -fx-alignment: center;
+    -fx-spacing: 0.25em;
+}
+
+.qpopup.firstusewizard .content .download .progress-bar
+{
+    -fx-max-width: Infinity;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
 }

@@ -38,6 +38,7 @@ public class WebpageUserConfigurableObjectTypeField extends UserConfigurableObje
     @Override
     public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
+                                                                          IPropertyBinder             binder,
                                                                           AbstractProjectViewer       viewer)
     {
 

@@ -494,7 +494,7 @@
             "decide" :
             {
                 "title" : "Your first ${objectnames.singular.project}",
-                "text" : "If you already have your story in a .docx or .doc file then use the import option below, otherwise use the create option.  You can also just drag your .docx or .doc file onto this window.",
+                "text" : "If you already have your story in a .docx or .doc file then use the import option below, otherwise use the create option.",
                 "labels" :
                 {
                     "newproject" : "Create a ${objectnames.singular.project}",
@@ -505,7 +505,7 @@
             "selectfile" :
             {
                 "title" : "Select a file to import",
-                "text" : "Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help:importing-a-file'>the import guide</a> to ensure your file has the correct format.",
+                "text" : "Microsoft Word files (.docx) are supported.  Please check <a href='help:importing-a-file'>the import guide</a> to ensure your file has the correct format.<br /><br />You can also drag your <b>.docx</b> file onto the area below.",
                 "finder" :
                 {
                     "title" : "Select a file to import",
@@ -532,7 +532,7 @@
             "start" :
             {
                 "title" : "Select the User Interface language",
-                "text" : "Welcome to {QW}, this wizard will help you get started.<br /><br />First, select the language you would like to use for the user interface.  You can download additional languages in the Options panel later.",
+                "text" : "First, select the language you would like to use for the user interface.  You can download additional languages in the Options panel later.",
                 "downloading" : "The user interface files are being downloaded... please wait...",
                 "actionerror" : "Unable to download user interface language strings."
             }
@@ -1844,7 +1844,8 @@
             "notification" : "The language files for <b>%1$s</b> are now being downloaded.",
             ":comment.notification" : "%1$s is the name of the language being downloaded.",
             ":scount.notification" : 1,
-            "actionerror" : "Unable to download language file."
+            "actionerror" : "Unable to download language file.",
+            "complete" : "Download complete"
         },
         "spellcheck" :
         {
@@ -5703,7 +5704,8 @@
         {
             "items" :
             {
-                "editproperties" : "${actions.edit} full screen properties"
+                "editproperties" : "${actions.edit} full screen properties",
+                "selectbackground" : "${actions.selectbackground}"
             }
         }
     },
@@ -6926,6 +6928,14 @@
                     "hide" : "Hide field labels"
                 }
             },
+            "add" :
+            {
+                "actionerror" : "Unable to add field."
+            },
+            "view" :
+            {
+                "actionerror" : "Unable to view field."
+            },
             "delete" :
             {
                 "popup" :
@@ -6954,6 +6964,7 @@
                     "title" : "Select a file",
                     "button" : "${actions.select}"
                 },
+                "drop" : "Drop the file to add",
                 "errors" :
                 {
                     "valueexists" :

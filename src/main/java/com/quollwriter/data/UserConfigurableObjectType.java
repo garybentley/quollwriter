@@ -927,6 +927,25 @@ TODO Remove
 
     }
 
+    public boolean hasField (UserConfigurableObjectTypeField.Type t)
+    {
+
+        for (UserConfigurableObjectTypeField f : this.getConfigurableFields ())
+        {
+
+            if (f.getType () == t)
+            {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
+
     public ObjectImageUserConfigurableObjectTypeField getObjectImageField ()
     {
 

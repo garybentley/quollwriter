@@ -99,6 +99,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         this.nameFieldHandler = nameTypeField.getViewEditHandler2 (this.object,
                                                                    nameField,
+                                                                   this.getBinder (),
                                                                    this.viewer);
 
         VBox nbox = new VBox ();

@@ -1,12 +1,15 @@
 package com.quollwriter.ui.fx.userobjects;
 
 import java.time.*;
+import java.io.*;
 import java.util.*;
 
 import com.gentlyweb.utils.*;
 
 import javafx.beans.property.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -20,11 +23,13 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class DocumentsUserConfigurableObjectFieldViewEditHandler extends AbstractUserConfigurableObjectFieldViewEditHandler<DocumentsUserConfigurableObjectTypeField, String>
 {
 
-    private DocumentsPanel editItem = null;
+    private DocumentsPanel editPanel = null;
+    private DocumentsPanel viewPanel = null;
 
     public DocumentsUserConfigurableObjectFieldViewEditHandler (DocumentsUserConfigurableObjectTypeField typeField,
                                                                 UserConfigurableObject                   obj,
                                                                 UserConfigurableObjectField              field,
+                                                                IPropertyBinder                          binder,
                                                                 AbstractProjectViewer                    viewer)
     {
 
@@ -33,18 +38,19 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
                field,
                viewer);
 
+        this.editPanel = new DocumentsPanel (this.obj,
+                                             binder,
+                                             this.viewer);
+
+       this.viewPanel = new DocumentsPanel (this.obj,
+                                            binder,
+                                            this.viewer);
+
     }
 
     @Override
     public void grabInputFocus ()
     {
-
-        if (this.editItem != null)
-        {
-
-            this.editItem.requestFocus ();
-
-        }
 
     }
 
@@ -54,6 +60,9 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
+
+        items.add (new Form.Item (this.typeField.formNameProperty (),
+                                  this.editPanel));
 
         return items;
 
@@ -98,8 +107,7 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
         Set<Form.Item> items = new LinkedHashSet<> ();
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  new DocumentsPanel (this.obj,
-                                                      this.viewer)));
+                                  this.viewPanel));
 
         return items;
 

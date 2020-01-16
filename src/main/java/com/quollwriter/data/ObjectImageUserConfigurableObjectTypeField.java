@@ -36,6 +36,7 @@ public class ObjectImageUserConfigurableObjectTypeField extends ImageUserConfigu
     @Override
     public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
+                                                                          IPropertyBinder             binder,
                                                                           AbstractProjectViewer       viewer)
     {
 

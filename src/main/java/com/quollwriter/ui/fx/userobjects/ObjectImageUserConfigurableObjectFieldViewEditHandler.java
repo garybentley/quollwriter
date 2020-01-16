@@ -38,6 +38,8 @@ public class ObjectImageUserConfigurableObjectFieldViewEditHandler extends Image
     }
 
     //@Override
+    /*
+    TODO Remove?
     public Set<Form.Item> getViewFormItems2 ()
     {
 
@@ -107,7 +109,9 @@ public class ObjectImageUserConfigurableObjectFieldViewEditHandler extends Image
         return items;
 
     }
-
+*/
+/*
+ TODO Remove
     public Node getViewImageNode ()
     {
 
@@ -122,5 +126,5 @@ public class ObjectImageUserConfigurableObjectFieldViewEditHandler extends Image
                                        null).iterator ().next ().control;
 
     }
-
+*/
 }

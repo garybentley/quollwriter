@@ -64,6 +64,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
         super (viewer);
 
+        this.getBackgroundPane ().setDragImportAllowed (true);
         final ProjectsPanel _this = this;
 
         this.titleProp = new SimpleStringProperty (this, "title");

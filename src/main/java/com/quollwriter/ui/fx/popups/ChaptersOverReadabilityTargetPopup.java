@@ -6,6 +6,7 @@ import java.nio.file.*;
 import org.jdom.*;
 
 import javafx.scene.*;
+import javafx.geometry.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -48,15 +49,19 @@ public class ChaptersOverReadabilityTargetPopup extends PopupContent<AbstractPro
 
         ColumnConstraints col1 = new ColumnConstraints ();
         col1.setHgrow (Priority.NEVER);
+        col1.setHalignment (HPos.RIGHT);
 
         ColumnConstraints col2 = new ColumnConstraints ();
         col2.setHgrow (Priority.NEVER);
+        col2.setHalignment (HPos.RIGHT);
 
         ColumnConstraints col3 = new ColumnConstraints ();
         col3.setHgrow (Priority.NEVER);
+        col3.setHalignment (HPos.RIGHT);
 
         ColumnConstraints col4 = new ColumnConstraints ();
         col4.setHgrow (Priority.NEVER);
+        col4.setHalignment (HPos.RIGHT);
 
         gp.getColumnConstraints ().add (col0);
         gp.getColumnConstraints ().add (col1);

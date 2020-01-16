@@ -21,12 +21,14 @@ public class ShowingInFullScreenPanel extends PanelContent<AbstractViewer>
 {
 
     public static final String PANEL_ID = "showinginfullscreen";
+    private Panel origPanel = null;
 
     public ShowingInFullScreenPanel (AbstractProjectViewer viewer,
-                                     PanelContent          content)
+                                     Panel                 origPanel)
     {
 
         super (viewer);
+        this.origPanel = origPanel;
 
         VBox v = new VBox ();
 
@@ -59,6 +61,13 @@ public class ShowingInFullScreenPanel extends PanelContent<AbstractViewer>
             viewer.exitFullScreen ();
 
         });
+
+    }
+
+    public Panel getOriginalPanel ()
+    {
+
+        return this.origPanel;
 
     }
 

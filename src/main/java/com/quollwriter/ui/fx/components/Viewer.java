@@ -200,7 +200,7 @@ public class Viewer extends Stage implements Stateful
             throw new IllegalArgumentException ("Content must be provided.");
 
         }
-
+/*
         if (b.title == null)
         {
 
@@ -217,15 +217,18 @@ public class Viewer extends Stage implements Stateful
         this.titleProp = b.title;
 
         this.titleProperty ().bind (b.title);
-
+*/
         VBox box = new VBox ();
         box.getStyleClass ().add (StyleClassNames.VIEWER);
         box.getStyleClass ().add (b.styleName);
+        /*
         VBox.setVgrow (this.header,
                        Priority.NEVER);
+                       */
         VBox.setVgrow (b.content,
                        Priority.ALWAYS);
-        box.getChildren ().addAll (this.header, b.content);
+        //box.getChildren ().addAll (this.header, b.content);
+        box.getChildren ().add (b.content);
         this.content = b.content;
 
         Scene s = new Scene (box);

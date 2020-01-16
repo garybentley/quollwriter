@@ -49,6 +49,7 @@ public class FileUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -174,6 +175,7 @@ public class FileUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();

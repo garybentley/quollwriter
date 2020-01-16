@@ -57,6 +57,68 @@ public abstract class PanelContent<E extends AbstractViewer> extends ViewerConte
 
         });
 
+/*
+ TODO
+        this.setOnDragEntered (ev ->
+        {
+
+            if (!ev.isConsumed ())
+            {
+
+                this.getBackgroundPane ().fireEvent (ev);
+
+            }
+
+        });
+
+        this.setOnDragExited (ev ->
+        {
+
+            if (!ev.isConsumed ())
+            {
+
+                this.getBackgroundPane ().fireEvent (ev);
+
+            }
+
+        });
+
+        this.setOnDragOver (ev ->
+        {
+
+            if (!ev.isConsumed ())
+            {
+
+                this.getBackgroundPane ().fireEvent (ev);
+
+            }
+
+        });
+
+        this.setOnDragDetected (ev ->
+        {
+
+            if (!ev.isConsumed ())
+            {
+
+                this.getBackgroundPane ().fireEvent (ev);
+
+            }
+
+        });
+
+        this.setOnDragDropped (ev ->
+        {
+
+            if (!ev.isConsumed ())
+            {
+
+                this.getBackgroundPane ().fireEvent (ev);
+
+            }
+
+        });
+*/
         this.getChildren ().add (this.background);
 
         this.addEventHandler (ScrollEvent.SCROLL,

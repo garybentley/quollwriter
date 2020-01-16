@@ -744,6 +744,13 @@ xxx
 
         }
 
+        if (ti == null)
+        {
+
+            return total;
+
+        }
+
         if (ti.isExpanded ())
         {
 

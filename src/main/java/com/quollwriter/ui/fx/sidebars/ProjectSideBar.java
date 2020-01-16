@@ -268,11 +268,11 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         if (p == null)
         {
-System.out.println ("HERENULL");
+
             return;
 
         }
-System.out.println ("PANEL: " + p);
+
         // Update the toolbar.
         if (p.getContent () instanceof ToolBarSupported)
         {

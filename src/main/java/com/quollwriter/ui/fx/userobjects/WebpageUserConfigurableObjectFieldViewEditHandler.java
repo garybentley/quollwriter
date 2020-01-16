@@ -49,12 +49,13 @@ public class WebpageUserConfigurableObjectFieldViewEditHandler extends AbstractU
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
         this.editItem = QuollTextField.builder ()
-            .text (this.field != null ? (String) this.field.getValue () : initValue)
+            .text (this.getFieldValue () != null ? (String) this.field.getValue () : initValue)
             .build ();
 
         UIUtils.addDoOnReturnPressed (this.editItem,
@@ -101,11 +102,12 @@ public class WebpageUserConfigurableObjectFieldViewEditHandler extends AbstractU
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException    
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
-        String value = (this.field != null ? (String) this.field.getValue () : null);
+        String value = this.getFieldValue ();
 
         if (value != null)
         {

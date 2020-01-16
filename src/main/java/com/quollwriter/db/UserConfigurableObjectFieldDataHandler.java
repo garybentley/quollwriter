@@ -96,6 +96,9 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
 
             String v = rs.getString (ind++);
 
+            f.setValue (v);
+            /*
+            TODO Remove
             if (v != null)
             {
 
@@ -104,7 +107,7 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
                                                    null).stringToValue (v));
 
             }
-
+*/
             f.setName (rs.getString (ind++));
 
             f.setDescription (new StringWithMarkup (rs.getString (ind++),
@@ -255,11 +258,14 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
         params.add (t.getKey ());
         params.add (t.getUserConfigurableObjectTypeField ().getKey ());
         params.add (t.getParent ().getKey ());
-
-        params.add (t.getUserConfigurableObjectTypeField ().getViewEditHandler (t.getParentObject (),
+        params.add (t.getValue ());
+/*
+TODO Remove
+        params.add (t.getUserConfigurableObjectTypeField ().getViewEditHandler2 (t.getParentObject (),
                                                                                 t,
-                                                                                null).valueToString (t.getValue ()));
-
+                                                                                null,
+                                                                                null).valueToString ((t != null ? t.getValue () : null)));
+*/
         this.objectManager.executeStatement ("INSERT INTO userobjectfield (dbkey, userobjecttypefielddbkey, namedobjectdbkey, value) VALUES (?, ?, ?, ?)",
                                              params,
                                              conn);
@@ -305,13 +311,15 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
                               Connection                  conn)
                        throws GeneralException
     {
-
-        String val = t.getUserConfigurableObjectTypeField ().getViewEditHandler (t.getParentObject (),
+/*
+TODO Remove
+        String val = t.getUserConfigurableObjectTypeField ().getViewEditHandler2 (t.getParentObject (),
                                                                                  t,
-                                                                                 null).valueToString (t.getValue ());
-
+                                                                                 null,
+                                                                                 null).valueToString ((t != null ? t.getValue (): null));
+*/
         this.objectManager.executeStatement ("UPDATE userobjectfield SET value = ? WHERE dbkey = ?",
-                                             Arrays.asList (val, t.getKey ()),
+                                             Arrays.asList (t.getValue (), t.getKey ()),
                                              conn);
 
     }

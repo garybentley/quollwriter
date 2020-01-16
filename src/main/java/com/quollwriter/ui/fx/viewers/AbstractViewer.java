@@ -10,6 +10,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.text.*;
 import javafx.stage.*;
+import javafx.scene.image.*;
 import javafx.beans.property.*;
 import javafx.event.*;
 import javafx.scene.input.*;
@@ -116,15 +117,16 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     private Map<String, SideBar> sideBars = new HashMap<> ();
     private Stack<SideBar>  activeSideBars = new Stack<> ();
     private SideBar       currentOtherSideBar = null;
+    private ObjectProperty<SideBar> currentOtherSideBarProp = null;
     private SideBar       mainSideBar = null;
+    private BooleanProperty inFullScreenModeProp = null;
 
-    private StackPane sidebarsPane = null;
-    private StackPane otherSidebarsPane = null;
-    //private SplitPane parentPane = null;
-    private ViewerSplitPane parentPane = null;
-    private StackPane parentWrapper = null;
-    private Node content = null;
-    private VBox notifications = null;
+    //private StackPane sidebarsPane = null;
+    //private StackPane otherSidebarsPane = null;
+    //private ViewerSplitPane parentPane = null;
+    //private StackPane parentWrapper = null;
+    //private Node content = null;
+    //private VBox notifications = null;
 
     private EditorsSideBar editorsSideBar = null;
 
@@ -137,10 +139,19 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     private PropertyBinder binder = new PropertyBinder ();
 
+    private Content currentContent = null;
+    private BooleanProperty distractionFreeModeProp = null;
+    private Content windowedContent = null;
+    private Content fullScreenContent = null;
+    private State fullScreenState = null;
+
     public AbstractViewer ()
     {
 
         final AbstractViewer _this = this;
+
+        this.inFullScreenModeProp = new SimpleBooleanProperty (false);
+        this.distractionFreeModeProp = new SimpleBooleanProperty (false);
 
         this.generalTimer = new ScheduledThreadPoolExecutor (2,
                                                              new ThreadFactory ()
@@ -164,13 +175,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
         this.setFillWidth (true);
 
-        this.notifications = new VBox ();
-
-        this.getChildren ().add (this.notifications);
-        this.notifications.getStyleClass ().add (StyleClassNames.NOTIFICATIONS);
-        VBox.setVgrow (this.notifications,
-                       Priority.NEVER);
-
+/*
         this.sidebarsPane = new StackPane ();
         this.sidebarsPane.getStyleClass ().add (StyleClassNames.SIDEBARS);
         this.sidebarsPane.managedProperty ().bind (this.sidebarsPane.visibleProperty ());
@@ -180,11 +185,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         this.otherSidebarsPane.getStyleClass ().add (StyleClassNames.OTHERSIDEBARS);
         this.otherSidebarsPane.managedProperty ().bind (this.otherSidebarsPane.visibleProperty ());
         SplitPane.setResizableWithParent (this.otherSidebarsPane, false);
-
-        this.popupPane = new Pane ();
-        this.popupPane.getStyleClass ().add (StyleClassNames.POPUPPANE);
-        VBox.setVgrow (this.popupPane,
-                       Priority.ALWAYS);
+*/
 /*
         this.parentWrapper = new StackPane ();
         this.parentWrapper.getStyleClass ().add (StyleClassNames.CONTENT);
@@ -201,12 +202,33 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         this.popupPane.getChildren ().add (this.parentPane);
 */
 
+/*
+        this.header = Header.builder ()
+            //.controls (b.headerControlsSupplier.get ())
+            .toolbar (b.headerToolbar)
+            .styleClassName (StyleClassNames.HEADER)
+            .build ();
+        this.header.titleProperty ().bind (this.titleProperty ());
+        VBox.setVgrow (this.header,
+                       Priority.NEVER);
+        this.normalContent.getChildren ().addAll (this.header, b.content);
+        this.content = b.content;
+
         this.parentPane = new ViewerSplitPane (UserProperties.uiLayoutProperty (),
                                                this);
-        //this.parentPane.setMainSideBar (this.sidebarsPane);
-        //this.parentPane.setOtherSidebar (this.otherSidebarsPane);
         this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
-        this.popupPane.getChildren ().add (this.parentPane);
+        VBox.setVgrow (this.parentPane,
+                       Priority.ALWAYS);
+
+        this.normalContent.getChildren ().addAll (this.header, this.parentPane);
+*/
+
+        this.popupPane = new Pane ();
+        this.popupPane.getStyleClass ().add (StyleClassNames.POPUPPANE);
+        VBox.setVgrow (this.popupPane,
+                       Priority.ALWAYS);
+
+        this.currentOtherSideBarProp = new SimpleObjectProperty<> ();
 
         this.getChildren ().add (this.popupPane);
 
@@ -253,6 +275,227 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     }
 
+    public QuollMenuButton createViewerMenuButton ()
+    {
+
+        AbstractViewer _this = this;
+
+        List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
+
+        QuollMenuButton context = QuollMenuButton.builder ()
+            .styleClassName (StyleClassNames.VIEWERMENU)
+            .tooltip (prefix,projectmenu,tooltip)
+            .items (() ->
+            {
+        //Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
+
+                Supplier<Set<MenuItem>> menuItemSupp = _this.getSettingsMenuSupplier ();
+
+                Set<MenuItem> items = new LinkedHashSet<> ();
+
+                if (menuItemSupp != null)
+                {
+
+                     items.addAll (menuItemSupp.get ());
+
+                 }
+
+                if (items.size () > 0)
+                {
+
+                    items.add (new SeparatorMenuItem ());
+
+                }
+
+                List<String> mprefix = Arrays.asList (LanguageStrings.project,settingsmenu,LanguageStrings.items);
+
+                items.add (QuollMenuItem.builder ()
+                    .label (mprefix,options)
+                    .styleClassName (StyleClassNames.OPTIONS)
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AbstractViewer.CommandId.options);
+
+                    })
+                    .build ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (mprefix,achievements)
+                    .styleClassName (StyleClassNames.ACHIEVEMENTS)
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AbstractViewer.CommandId.viewachievements);
+
+                    })
+                    .build ());
+
+                items.add (new SeparatorMenuItem ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (mprefix,whatsnew)
+                    .styleClassName (StyleClassNames.WHATSNEW)
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AbstractViewer.CommandId.whatsnew);
+
+                    })
+                    .build ());
+
+                QuollMenu helpMenu = QuollMenu.builder ()
+                    .label (mprefix,help)
+                    .styleClassName (StyleClassNames.HELP)
+                    .build ();
+
+                items.add (helpMenu);
+
+                // Report Bug/Problem
+                helpMenu.getItems ().add (QuollMenuItem.builder ()
+                    .label (mprefix,reportbug)
+                    .styleClassName (StyleClassNames.REPORTBUG)
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AbstractViewer.CommandId.reportbug);
+
+                    })
+                    .build ());
+
+                // Contact Support
+                helpMenu.getItems ().add (QuollMenuItem.builder ()
+                    .label (mprefix,contactsupport)
+                    .styleClassName (StyleClassNames.CONTACTSUPPORT)
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AbstractViewer.CommandId.contactsupport);
+
+                    })
+                    .build ());
+
+                // View the User Guide
+                helpMenu.getItems ().add (QuollMenuItem.builder ()
+                    .label (mprefix,viewuserguide)
+                    .styleClassName (StyleClassNames.VIEWUSERGUIDE)
+                    .onAction (ev ->
+                    {
+
+                        UIUtils.openURL (_this,
+                                         "help:getting-started");
+
+                    })
+                    .build ());
+
+                // Keyboard shortcuts
+                helpMenu.getItems ().add (QuollMenuItem.builder ()
+                    .label (mprefix,keyboardshortcuts)
+                    .styleClassName (StyleClassNames.KEYBOARDSHORTCUTS)
+                    .onAction (ev ->
+                    {
+
+                        UIUtils.openURL (_this,
+                                         "help:keyboard-shortcuts");
+
+                    })
+                    .build ());
+
+                // About Quoll Writer
+                items.add (QuollMenuItem.builder ()
+                    .label (mprefix,about)
+                    .styleClassName (StyleClassNames.ABOUT)
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AbstractViewer.CommandId.about);
+
+                    })
+                    .build ());
+
+                if (Environment.isDebugModeEnabled ())
+                {
+
+                    // Debug Console
+                    items.add (QuollMenuItem.builder ()
+                        .label ("Debug Console")
+                        .styleClassName (StyleClassNames.DEBUGCONSOLE)
+                        .onAction (ev ->
+                        {
+
+                            _this.runCommand (AbstractViewer.CommandId.debugconsole);
+
+                        })
+                        .build ());
+
+                }
+
+                return items;
+
+            })
+            .build ();
+
+        return context;
+
+    }
+/*
+    private void createNormalContent ()
+    {
+
+        AbstractViewer _this = this;
+
+        Supplier<Set<Node>> hcsupp = this.getTitleHeaderControlsSupplier ();
+
+        Set<Node> headerCons = new LinkedHashSet<> ();
+
+        if (hcsupp != null)
+        {
+
+            headerCons.addAll (hcsupp.get ());
+
+        }
+
+        List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
+
+        QuollMenuButton context = this.createViewerMenuButton ();
+        headerCons.add (context);
+
+        Set<Node> visItems = new LinkedHashSet<> ();
+        visItems.add (context);
+
+        ConfigurableToolbar ctb = ConfigurableToolbar.builder ()
+            .items (headerCons)
+            .visibleItems (headerCons)
+            .withViewer (this)
+            .build ();
+
+        this.windowedContent = new NormalContent (this,
+                                                  this.getStyleClassName (),
+                                                  ctb);
+        this.windowedContent.prefWidthProperty ().bind (this.popupPane.widthProperty ());
+        this.windowedContent.prefHeightProperty ().bind (this.popupPane.heightProperty ());
+
+    }
+*/
+    public static abstract class Content<E extends AbstractViewer> extends Pane implements Stateful,
+                                                                                           NotificationViewer,
+                                                                                           SideBarViewer,
+                                                                                           Disposable
+    {
+
+        protected E viewer = null;
+
+        public Content (E viewer)
+        {
+
+            this.viewer = viewer;
+
+        }
+
+        public abstract void updateLayout ();
+
+    }
+
     @Override
     public IPropertyBinder getBinder ()
     {
@@ -265,7 +508,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     {
 
         this.binder.dispose ();
-        this.parentPane.dispose ();
 
     }
 
@@ -414,9 +656,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
             double _y = y;
 
             Bounds nb = p.getLayoutBounds ();
+            nb = p.getBoundsInParent ();
 
             Bounds b = this.getLayoutBounds ();
-
             if ((y + nb.getHeight ()) > b.getHeight ())
             {
 
@@ -498,14 +740,11 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     }
 
-    public void setContent (Region n)
+    public void setTitle (StringProperty t)
     {
 
-        this.content = n;
-
-        this.parentPane.setContent (n);
-
-        this.updateLayout ();
+        this.getViewer ().titleProperty ().unbind ();
+        this.getViewer ().titleProperty ().bind (t);
 
     }
 
@@ -950,8 +1189,16 @@ TODO
 
         }
 
-        s.set ("splitpane",
-               this.parentPane.getState ());
+        s.set ("windowed",
+               this.windowedContent.getState ());
+
+        if (this.fullScreenContent != null)
+        {
+
+            s.set ("fullscreen",
+                   this.fullScreenState);
+
+        }
 
         return s;
 
@@ -964,6 +1211,25 @@ TODO
     public void init (State s)
                throws GeneralException
     {
+System.out.println ("INIT STATE: " + s);
+        // Get our windowed content here so that everything is already setup and ready to be shown.
+        this.windowedContent = this.getWindowedContent ();
+
+        this.windowedContent.prefWidthProperty ().bind (this.popupPane.widthProperty ());
+        this.windowedContent.prefHeightProperty ().bind (this.popupPane.heightProperty ());
+
+        this.popupPane.getChildren ().add (this.windowedContent);
+
+        if (s != null)
+        {
+
+            this.windowedContent.init (s.getAsState ("windowed"));
+
+            this.fullScreenState = s.getAsState ("fullscreen");
+
+        }
+
+        this.currentContent = this.windowedContent;
 
         this.getViewer ().init (s);
 
@@ -977,6 +1243,8 @@ TODO
         this.handleShowTips ();
 
         // When we update our user property, update the layout property.
+        /*
+TODO Remove handled by the content.
         this.addChangeListener (UserProperties.uiLayoutProperty (),
                                 (prop, oldv, newv) ->
         {
@@ -984,18 +1252,12 @@ TODO
             this.updateLayout ();
 
         });
+        */
 
         // We show later to ensure that the init has worked.
         Environment.registerViewer (this);
+
         this.updateLayout ();
-
-        this.parentPane.init (s.getAsState ("splitpane"));
-        UIUtils.runLater (() ->
-        {
-
-            //this.show ();
-
-        });
 
         this.show ();
     }
@@ -1003,7 +1265,7 @@ TODO
     public void close (Runnable afterClose)
     {
 
-        this.notifications.setVisible (false);
+        this.currentContent.dispose ();
 
         this.generalTimer.shutdown ();
 
@@ -1083,247 +1345,12 @@ TODO
     public void updateLayout ()
     {
 
-        this.parentPane.requestLayout ();
+        this.currentContent.updateLayout ();
         if (true)
         {
             return;
         }
 
-long s = System.currentTimeMillis ();
-        String layout = UserProperties.uiLayoutProperty ().getValue ();
-
-        //double w = this.parentPane.getWidth ();
-
-        //this.parentPane.getItems ().clear ();
-//layout = Constants.LAYOUT_PS_CH_OS;
-//layout = Constants.LAYOUT_PS_CH;
-/*
-        if (layout.equals (Constants.LAYOUT_PS_CH_OS))
-        {
-
-            double w = 0;
-
-            this.parentWrapper.getChildren ().clear ();
-
-            SplitPane sp = new SplitPane ();
-            this.parentPane = sp;
-            this.parentWrapper.getChildren ().add (sp);
-            //this.parentPane = new SplitPane ();
-            SplitPane.setResizableWithParent (sp, true);
-
-            if (this.mainSideBar != null)
-            {
-
-                w = this.mainSideBar.getWidth ();
-
-                sp.getItems ().add (this.sidebarsPane);
-
-            }
-
-            sp.getItems ().add (this.content);
-
-            if (this.currentOtherSideBar != null)
-            {
-
-                sp.getItems ().add (this.otherSidebarsPane);
-
-            }
-
-            if (this.mainSideBar != null)
-            {
-
-                w = this.mainSideBar.getWidth ();
-
-                double _w = w;
-
-                double mw = _w;
-
-                if (mw < 1)
-                {
-
-                    mw = Math.min (this.mainSideBar.prefWidth (this.parentWrapper.getHeight ()), _w);
-
-                }
-
-                double pw = this.parentWrapper.getWidth ();
-
-                //this.parentPane.setDividerPositions (mw / pw);
-                sp.setDividerPosition (0,
-                                       mw / pw);
-
-            }
-
-            if (this.currentOtherSideBar != null)
-            {
-
-                w = this.currentOtherSideBar.getWidth ();
-
-                double _w = w;
-
-                double mw = _w;
-
-                if (mw < 1)
-                {
-
-                    mw = Math.min (this.currentOtherSideBar.prefWidth (this.parentWrapper.getHeight ()), _w);
-
-                }
-
-                double pw = this.parentWrapper.getWidth ();
-
-                //this.parentPane.setDividerPositions (mw / pw);
-                sp.setDividerPosition (1,
-                                       1 - (mw / pw));
-
-            }
-
-        }
-
-        if (layout.equals (Constants.LAYOUT_OS_CH_PS))
-        {
-
-            if (this.currentOtherSideBar != null)
-            {
-
-                this.parentPane.getItems ().add (this.otherSidebarsPane);
-
-            }
-
-            if (this.mainSideBar != null)
-            {
-
-                this.parentPane.getItems ().add (this.sidebarsPane);
-
-            }
-
-            this.parentPane.getItems ().addAll (this.content);
-
-            // Update the divider locations?
-
-        }
-
-        if (layout.equals (Constants.LAYOUT_PS_OS_CH))
-        {
-
-            if (this.mainSideBar != null)
-            {
-
-                this.parentPane.getItems ().add (this.sidebarsPane);
-
-            }
-
-            if (other != null)
-            {
-
-                this.parentPane.getItems ().add (this.otherSidebarsPane);
-
-            }
-
-            this.parentPane.getItems ().add (this.content);
-
-            // Update the divider locations?
-
-        }
-
-        if (layout.equals (Constants.LAYOUT_CH_OS_PS))
-        {
-
-            this.parentPane.getItems ().add (this.content);
-
-            if (other != null)
-            {
-
-                this.parentPane.getItems ().add (this.otherSidebarsPane);
-
-            }
-
-            if (this.mainSideBar != null)
-            {
-
-                this.parentPane.getItems ().add (this.sidebarsPane);
-
-            }
-
-        }
-
-        if (layout.equals (Constants.LAYOUT_PS_CH))
-        {
-
-            double w = 0;//this.parentWrapper.getWidth ();
-
-            this.parentWrapper.getChildren ().clear ();
-
-            SplitPane sp = new SplitPane ();
-            this.parentPane = sp;
-            this.parentWrapper.getChildren ().add (sp);
-            //this.parentPane = new SplitPane ();
-            SplitPane.setResizableWithParent (sp, true);
-            //this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
-            //this.parentPane.prefWidthProperty ().bind (this.popupPane.widthProperty ());
-            //this.parentPane.prefHeightProperty ().bind (this.popupPane.heightProperty ());
-
-            SideBar sb = (this.currentOtherSideBar != null ? this.currentOtherSideBar : this.mainSideBar);
-
-            if (sb != null)
-            {
-
-                w = this.sidebarsPane.getWidth ();
-
-                this.sidebarsPane.getChildren ().clear ();
-                this.sidebarsPane.getChildren ().add (sb);
-
-                //this.parentPane.getItems ().add (this.sidebarsPane);
-                sp.getItems ().add (this.sidebarsPane);
-
-            }
-
-            //this.parentPane.getItems ().add (this.content);
-            sp.getItems ().add (this.content);
-
-            if (sb != null)
-            {
-
-                double _w = w;
-
-                double mw = _w;
-
-                if (mw < 1)
-                {
-
-                    mw = Math.min (sb.prefWidth (this.parentWrapper.getHeight ()), _w);
-
-                }
-
-                double pw = this.parentWrapper.getWidth ();
-
-                //this.parentPane.setDividerPositions (mw / pw);
-                sp.setDividerPositions (mw / pw);
-
-            }
-
-        }
-
-        if (layout.equals (Constants.LAYOUT_CH_PS))
-        {
-
-            this.parentPane.getItems ().addAll (this.content);
-
-            if (this.mainSideBar != null)
-            {
-
-                this.parentPane.getItems ().add (this.sidebarsPane);
-
-            }
-
-        }
-System.out.println ("LAYOUT TIME: " + (System.currentTimeMillis () - s));
-        UIUtils.runLater (() ->
-        {
-
-            this.requestLayout ();
-
-        });
-*/
     }
 
     public Notification addNotification (Node    comp,
@@ -1373,43 +1400,21 @@ System.out.println ("LAYOUT TIME: " + (System.currentTimeMillis () - s));
     public void removeAllNotifications ()
     {
 
-        this.notifications.getChildren ().clear ();
+        this.currentContent.removeAllNotifications ();
 
     }
 
     public void removeNotification (Notification n)
     {
 
-        UIUtils.runLater (() ->
-        {
-
-            this.notifications.getChildren ().remove (n);
-
-            if (this.notifications.getChildren ().size () == 0)
-            {
-
-                this.notifications.setVisible (false);
-                this.requestLayout ();
-            }
-
-        });
+        this.currentContent.removeNotification (n);
 
     }
 
     public void addNotification (Notification n)
     {
 
-        UIUtils.runLater (() ->
-        {
-
-            this.notifications.getChildren ().add (0,
-                                                   n);
-
-            this.notifications.setVisible (true);
-
-            n.init ();
-
-        });
+        this.currentContent.addNotification (n);
 
     }
 
@@ -1431,8 +1436,8 @@ System.out.println ("LAYOUT TIME: " + (System.currentTimeMillis () - s));
                                          EventHandler<MouseEvent> clickListener)
     {
 
-        // TODO Improve to use markdown/html?
-        BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
+        QuollTextView t = QuollTextView.builder ()
+            .withViewer (this)
             .text (text)
             .build ();
         t.setOnMouseClicked (clickListener);
@@ -1661,7 +1666,7 @@ System.out.println ("LAYOUT TIME: " + (System.currentTimeMillis () - s));
                 Notification n = Notification.builder ()
                     .styleName (StyleClassNames.TIPS)
                     .content (textc)
-                    .duration (900000)
+                    .duration (90)
                     .withControl (next)
                     .withControl (off)
                     .inViewer (this)
@@ -2154,6 +2159,9 @@ TODO
 
     }
 
+    public abstract Content getWindowedContent ();
+    public abstract Content getFullScreenContent ();
+
     public abstract String getStyleClassName ();
 
     public abstract Supplier<Set<MenuItem>> getSettingsMenuSupplier ();
@@ -2221,10 +2229,6 @@ TODO
 
         this.mainSideBar = sb;
         this.addSideBar (sb);
-        //this.parentPane.showSideBar (sb);
-        this.parentPane.updateLayout ();
-        //this.sidebarsPane.getChildren ().clear ();
-        //this.sidebarsPane.getChildren ().add (sb);
         this.updateLayout ();
 
     }
@@ -2316,16 +2320,10 @@ TODO
 
             }
 
-            //this.parentPane.showSideBar (this.getMainSideBar ());
-
         } else {
 
             this.currentOtherSideBar = b;
             this.currentOtherSideBar.setVisible (true);
-
-            this.parentPane.updateLayout ();
-            //this.otherSidebarsPane.getChildren ().clear ();
-            //this.otherSidebarsPane.getChildren ().add (this.currentOtherSideBar);
 
             this.activeSideBars.remove (b);
 
@@ -2337,27 +2335,25 @@ TODO
 
         }
 
-        this.updateLayout ();
+        this.currentOtherSideBarProp.setValue (b);
 
-/*
-TODO
-        if (this.fsf != null)
-        {
+        this.currentContent.showSideBar (b);
 
-            this.fsf.showSideBar ();
+        //this.updateLayout ();
 
-        } else {
-
-            this.updateLayout ();
-
-		}
-*/
         if (doAfterView != null)
         {
 
             UIUtils.runLater (doAfterView);
 
         }
+
+    }
+
+    public ObjectProperty<SideBar> currentOtherSideBarProperty ()
+    {
+
+        return this.currentOtherSideBarProp;
 
     }
 
@@ -2403,38 +2399,23 @@ TODO Clean up?
 
         String l = UserProperties.uiLayoutProperty ().getValue ();
 
-        if (this.currentOtherSideBar != null)
+        if (this.mainSideBar != null)
         {
 
-            if ((l.equals (Constants.LEFT))
-                ||
-                (l.equals (Constants.RIGHT))
-                ||
-                (l.equals (Constants.LAYOUT_PS_CH))
-                ||
-                (l.equals (Constants.LAYOUT_CH_PS))
-               )
-            {
-
-                if (this.mainSideBar != null)
+            QuollMenuItem mi = QuollMenuItem.builder ()
+                .label (this.mainSideBar.activeTitleProperty ())
+                .styleClassName (this.mainSideBar.getStyleClassName ())
+                .onAction (ev ->
                 {
 
-                    QuollMenuItem mi = QuollMenuItem.builder ()
-                        .label (this.mainSideBar.activeTitleProperty ())
-                        .styleClassName (this.mainSideBar.getStyleClassName ())
-                        .onAction (ev ->
-                        {
+                    _this.showMainSideBar ();
 
-                            _this.showMainSideBar ();
+                })
+                .build ();
+            mi.setGraphic (new ImageView (this.mainSideBar.getHeader ().getIcon ().getImage ()));
+            //mi.setGraphic (this.mainSideBar.getHeader ().getIcon ());
 
-                        })
-                        .build ();
-
-                    m.getItems ().add (mi);
-
-                }
-
-            }
+            m.getItems ().add (mi);
 
         }
 
@@ -2465,6 +2446,7 @@ TODO Clean up?
 
                 })
                 .build ();
+            mi.setGraphic (new ImageView (sb.getHeader ().getIcon ().getImage ()));
 
             m.getItems ().add (mi);
 
@@ -2481,11 +2463,8 @@ TODO Clean up?
         {
 
             this.showSideBar (this.getMainSideBarId ());
-            return;
 
         }
-
-        this.updateLayout ();
 
     }
 
@@ -2540,10 +2519,11 @@ TODO Clean up?
 
         this.currentOtherSideBar = null;
 
-        this.parentPane.updateLayout ();
-        this.updateLayout ();
+        this.currentOtherSideBarProp.setValue (null);
 
-        //this.showMainSideBar ();
+        this.currentContent.showSideBar (this.currentOtherSideBar);
+
+        this.updateLayout ();
 
     }
 
@@ -3293,6 +3273,115 @@ TODO Not needed, is a function of the sidebar itself...
 
         this.tempOptions.put (name,
                               value);
+
+    }
+
+    public BooleanProperty distractionFreeModeProperty ()
+    {
+
+        return this.distractionFreeModeProp;
+
+    }
+
+    public boolean isDistractionFreeModeEnabled ()
+    {
+
+        return this.distractionFreeModeProp.getValue ();
+
+    }
+
+    public void setDistractionFreeModeEnabled (boolean v)
+    {
+
+        this.distractionFreeModeProp.setValue (v);
+
+        UserProperties.set (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
+                            v);
+
+    }
+
+    public boolean isInFullScreenMode ()
+    {
+
+        return this.inFullScreenModeProp.getValue ();
+
+    }
+
+    public BooleanProperty inFullScreenModeProperty ()
+    {
+
+        return this.inFullScreenModeProp;
+
+    }
+
+    public void exitFullScreen ()
+    {
+
+        if (!this.isInFullScreenMode ())
+        {
+
+            return;
+
+        }
+
+        this.fullScreenState = this.fullScreenContent.getState ();
+        this.fullScreenContent.setVisible (false);
+        this.windowedContent.setVisible (true);
+        this.currentContent = this.windowedContent;
+        this.currentContent.updateLayout ();
+
+        this.getViewer ().setFullScreen (false);
+        this.inFullScreenModeProp.setValue (false);
+        this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
+                                    ProjectEvent.Action.exit);
+
+    }
+
+    public void enterFullScreen ()
+    {
+
+        if (this.fullScreenContent == null)
+        {
+
+            this.fullScreenContent = this.getFullScreenContent ();
+
+            if (this.fullScreenContent == null)
+            {
+
+                throw new IllegalStateException ("Unable to enter full screen, no full screen content available.");
+
+            }
+
+            this.fullScreenContent.prefWidthProperty ().bind (this.popupPane.widthProperty ());
+            this.fullScreenContent.prefHeightProperty ().bind (this.popupPane.heightProperty ());
+            this.popupPane.getChildren ().add (this.fullScreenContent);
+
+        }
+
+        this.getViewer ().setFullScreenExitHint ("");
+        this.windowedContent.setVisible (false);
+
+        try
+        {
+
+            this.fullScreenContent.init (this.fullScreenState);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to init full screen with state: " + this.fullScreenState,
+                                  e);
+
+        }
+
+        this.currentContent = this.fullScreenContent;
+        this.currentContent.updateLayout ();
+        this.getViewer ().setFullScreen (true);
+
+        this.fullScreenContent.setVisible (true);
+        this.inFullScreenModeProp.setValue (true);
+
+        this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
+                                    ProjectEvent.Action.enter);
 
     }
 

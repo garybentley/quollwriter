@@ -803,13 +803,19 @@ public class ViewerSplitPane extends Pane implements Stateful
 
             }
 
-            VBox.setVgrow (sb,
-                           Priority.ALWAYS);
-
-            this.div1.setVisible (true);
             this.mainSidebar.getChildren ().clear ();
-            this.mainSidebar.getChildren ().add (sb);
             this.otherSidebar.getChildren ().clear ();
+
+            if (sb != null)
+            {
+
+                VBox.setVgrow (sb,
+                               Priority.ALWAYS);
+
+                this.div1.setVisible (true);
+                this.mainSidebar.getChildren ().add (sb);
+
+            }
 
         }
 
@@ -1396,7 +1402,7 @@ public class ViewerSplitPane extends Pane implements Stateful
                                    //true);
 
                 x = x + msw;
-
+System.out.println ("D1W: " + d1w + ", " + x + ", " + this.div1.getInsets ());
                 this.layoutInArea (this.div1,
                                    x,
                                    y,

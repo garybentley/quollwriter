@@ -297,6 +297,8 @@ TODO Remove
 
     }
 
+/*
+TODO Remove
     public Set<UserConfigurableObjectFieldViewEditHandler> getViewEditHandlers2 (ProjectViewer viewer)
     {
 
@@ -328,5 +330,5 @@ TODO Remove
         return handlers;
 
     }
-
+*/
 }

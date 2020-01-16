@@ -311,6 +311,337 @@ public class UILanguageStringsManager
 
     }
 
+    public static UrlDownloader downloadUILanguageFile2 (String                       id,
+                                                         BiConsumer<Integer, Integer> onProgress,
+                                                         Runnable                     onStop,
+                                                         Runnable                     onComplete,
+                                                         Consumer<Exception>          onError)
+    {
+
+        String lastMod = "";
+
+        UILanguageStrings ls = null;
+
+        try
+        {
+
+            ls = UILanguageStringsManager.getUILanguageStrings (id);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get language strings: " + id,
+                                  e);
+
+            if (onError != null)
+            {
+
+                onError.accept (e);
+
+            }
+
+            return null;
+
+        }
+
+        if (ls != null)
+        {
+
+            Date d = ls.getLastModified ();
+
+            if (d == null)
+            {
+
+                d = ls.getDateCreated ();
+
+            }
+
+            lastMod = d.getTime () + "";
+
+        }
+
+        String url = UserProperties.get (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+
+        url = StringUtils.replaceString (url,
+                                         Constants.VERSION_TAG,
+                                         Environment.getQuollWriterVersion ().toString ());
+
+        url = StringUtils.replaceString (url,
+                                         Constants.ID_TAG,
+                                         id);
+
+        url = StringUtils.replaceString (url,
+                                         Constants.LAST_MOD_TAG,
+                                         lastMod);
+
+        try
+        {
+
+            //String data = Utils.getUrlFileAsString ();
+
+            URL u = new URL (Environment.getQuollWriterWebsite () + "/" + url);
+
+            UrlDownloader dl = UrlDownloader.builder ()
+                .url (u)
+                .onComplete (temp ->
+                {
+
+                    // Get the file as a string.
+                    String data = null;
+
+                    try
+                    {
+
+                        data = new String (Files.readAllBytes (temp),
+                                           StandardCharsets.UTF_8);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to get bytes from temp file: " + temp,
+                                              e);
+
+                        if (onError != null)
+                        {
+
+                            onError.accept (e);
+
+                        }
+
+                        return;
+
+                    }
+
+                    if (data.startsWith (Constants.JSON_RETURN_PREFIX))
+                    {
+
+                        data = data.substring (Constants.JSON_RETURN_PREFIX.length ());
+
+                    }
+
+                    if (data.trim ().length () == 0)
+                    {
+
+                        Environment.logError ("No language strings data available for: " + id + ", " + Environment.getQuollWriterVersion ());
+
+                        if (onError != null)
+                        {
+
+                            onError.accept (null);
+
+                        }
+
+                        return;
+
+                    }
+
+                    // Will be a collection.
+                    Collection col = null;
+
+                    try
+                    {
+
+                        col = (Collection) JSONDecoder.decode (data);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to decode language strings data for id: " + id + ", " + Environment.getQuollWriterVersion (),
+                                              e);
+
+                        if (onError != null)
+                        {
+
+                            onError.accept (e);
+
+                        }
+
+                        return;
+
+                    }
+
+                    Iterator iter = col.iterator ();
+
+                    while (iter.hasNext ())
+                    {
+
+                        Map m = (Map) iter.next ();
+
+                        String nid = (String) m.get (":id");
+
+                        if (id == null)
+                        {
+
+                            Environment.logError ("No id found in strings for url: " + u);
+
+                            if (onError != null)
+                            {
+
+                                onError.accept (null);
+
+                            }
+
+                        }
+
+                        try
+                        {
+
+                            Path f = UILanguageStringsManager.getUILanguageStringsFilePath (nid);
+
+                            Files.write (f, JSONEncoder.encode (m).getBytes (StandardCharsets.UTF_8));
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to save ids: " + nid,
+                                                  e);
+
+                            if (onError != null)
+                            {
+
+                                onError.accept (e);
+
+                            }
+
+                        }
+
+                    }
+
+                    UIUtils.runLater (onComplete);
+
+                })
+                .onProgress (onProgress)
+                .onStop (onStop)
+                .onError (e ->
+                {
+
+                    Environment.logError ("Unable to download ui language files for: " +
+                                          id +
+                                          ", with url: " +
+                                          u,
+                                          e);
+
+                    if (onError != null)
+                    {
+
+                        onError.accept (e);
+
+                    }
+
+                })
+                .build ();
+
+            dl.start ();
+
+            return dl;
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to download ui language files for: " +
+                                  id,
+                                  e);
+
+            if (onError != null)
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    onError.accept (e);
+
+                });
+
+            }
+
+            return null;
+
+        }
+/*
+TODO Remove
+            UrlDownloader dl = new UrlDownloader (new URL (Environment.getQuollWriterWebsite () + "/" + url),
+                                                  temp,
+                                                  new DownloadListener ()
+                                                  {
+
+                                                          @Override
+                                                          public void handleError (Exception e)
+                                                          {
+
+
+                                                              if (onError != null)
+                                                              {
+
+                                                                  UIUtils.runLater (() ->
+                                                                  {
+
+                                                                      onError.accept (e);
+
+                                                                  });
+
+                                                              }
+
+                                                          }
+
+                                                          @Override
+                                                          public void onStop ()
+                                                          {
+
+                                                              temp.delete ();
+
+                                                          }
+
+                                                          @Override
+                                                          public void progress (final int downloaded,
+                                                                                final int total)
+                                                          {
+
+                                                              if (onProgress != null)
+                                                              {
+
+                                                                  UIUtils.runLater (() ->
+                                                                  {
+
+                                                                      onProgress.accept ((double) downloaded / (double) total);
+
+                                                                  });
+
+                                                              }
+
+                                                          }
+
+                                                          @Override
+                                                          public void finished (int total)
+                                                          {
+
+                                                              if (onProgress != null)
+                                                              {
+
+                                                                  UIUtils.runLater (() ->
+                                                                  {
+
+                                                                      onProgress.accept (1d);
+
+                                                                  });
+
+                                                              }
+
+                                                          } catch (Exception e) {
+
+                                                              Environment.logError ("Unable to get user interface files for: " + id + ", " + Environment.getQuollWriterVersion (),
+                                                                                    e);
+
+                                                              UIUtils.runLater (onError);
+
+                                                          }
+
+
+                                                          }
+
+                                                      });
+
+
+        },
+        1 * Constants.SEC_IN_MILLIS,
+        -1);
+*/
+    }
+
     public static void setUILanguage (String id)
                                throws Exception
     {
@@ -322,13 +653,33 @@ public class UILanguageStringsManager
         if (ls == null)
         {
 
-            throw new GeneralException ("No language strings found for id: " +
-                                        id);
+            Environment.logError ("No language strings found for id: " +
+                                  id);
+
+            UILanguageStringsManager.setUILanguage (UILanguageStrings.ENGLISH_ID);
+
+            return;
 
         }
 
         UILanguageStringsManager.uiLanguageStrings = new UILanguageStrings (ls)
         {
+
+            @Override
+            public String getLanguageName ()
+            {
+
+                return this.getDerivedFrom ().getLanguageName ();
+
+            }
+
+            @Override
+            public String getNativeName ()
+            {
+
+                return this.getDerivedFrom ().getNativeName ();
+
+            }
 
             @Override
             public String getId ()
@@ -371,7 +722,7 @@ public class UILanguageStringsManager
             }
 
         };
-
+System.out.println ("CURRENT LANG NAME: " + UILanguageStringsManager.uiLanguageStrings.getLanguageName ());
         UserProperties.set (Constants.USER_UI_LANGUAGE_PROPERTY_NAME, id);
 
         UILanguageStringsManager.uilangProp.setValue (id);

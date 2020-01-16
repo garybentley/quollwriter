@@ -29,25 +29,18 @@ public class QuollFileField extends HBox
     private QuollTextField text = null;
     private ObjectProperty<Path> fileProp = null;
     private StringProperty chooserTitle = null;
-    private AbstractViewer viewer = null;
     private Type limitTo = Type.file;
     private FileChooser.ExtensionFilter fileExtFilter = null;
+    private AbstractViewer viewer = null;
 
     private QuollFileField (Builder b)
     {
 
-        if (b.viewer == null)
-        {
-
-            throw new IllegalArgumentException ("Viewer must be provided.");
-
-        }
-
         final QuollFileField _this = this;
 
+        this.viewer = b.viewer;
         this.fileProp = new SimpleObjectProperty<> ();
 
-        this.viewer = b.viewer;
         this.chooserTitle = b.chooserTitle;
         this.limitTo = b.limitTo;
         this.fileExtFilter = b.fileExtFilter;
@@ -183,8 +176,8 @@ public class QuollFileField extends HBox
 
             }
 
-            File _f = f.showOpenDialog (this.viewer.getViewer ());
-            _this.fileProp.setValue (_f.toPath ());
+            File _f = f.showOpenDialog (this.getScene ().getWindow ());
+            _this.fileProp.setValue ((_f == null ? null : _f.toPath ()));
 
             return;
 
@@ -208,7 +201,7 @@ public class QuollFileField extends HBox
 
             }
 
-            File f = d.showDialog (this.viewer.getViewer ());
+            File f = d.showDialog (this.getScene ().getWindow ());
 
             _this.fileProp.setValue ((f != null ? f.toPath () : this.fileProp.getValue ()));
 
@@ -253,11 +246,12 @@ public class QuollFileField extends HBox
         private StringProperty clearButtonTooltip = null;
         private StringProperty viewButtonTooltip = null;
         private Path initialFile = null;
-        private AbstractViewer viewer = null;
+        private Stage stage = null;
         private StringProperty chooserTitle = null;
         private Type limitTo = null;
         private FileChooser.ExtensionFilter fileExtFilter = null;
         private boolean showClear = false;
+        private AbstractViewer viewer = null;
 
         private Builder ()
         {
@@ -276,6 +270,14 @@ public class QuollFileField extends HBox
         {
 
             this.limitTo = t;
+            return this;
+
+        }
+
+        public Builder inStage (Stage s)
+        {
+
+            this.stage = s;
             return this;
 
         }
@@ -438,8 +440,28 @@ public class QuollFileField extends HBox
 
             this.fileExtFilter = new FileChooser.ExtensionFilter (b.toString (),
                                                                   lexts.stream ()
-                                                                    .map (e -> "*." + e)
+                                                                    .map (e ->
+                                                                    {
+
+                                                                        if (e.startsWith ("*."))
+                                                                        {
+
+                                                                            return e;
+
+                                                                        }
+
+                                                                        if (e.startsWith ("."))
+                                                                        {
+
+                                                                            return "*" + e;
+
+                                                                        }
+
+                                                                        return "*." + e;
+
+                                                                    })
                                                                     .collect (Collectors.toList ()));
+                                                                    System.out.println ("EXTS: " + this.fileExtFilter.getExtensions ());
             return this;
 
         }

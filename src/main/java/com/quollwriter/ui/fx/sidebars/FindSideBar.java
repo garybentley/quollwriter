@@ -62,6 +62,7 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
 
         this.noMatches = QuollLabel.builder ()
             .label (getUILanguageStringProperty (objectfinder,novalue))
+            .styleClassName (StyleClassNames.NOMATCHES)
             .build ();
         this.noMatches.managedProperty ().bind (this.noMatches.visibleProperty ());
         this.noMatches.setVisible (false);

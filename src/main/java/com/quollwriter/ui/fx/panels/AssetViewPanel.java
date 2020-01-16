@@ -44,6 +44,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         super (pv,
                a);
 
+        this.getBackgroundPane ().setDragImportAllowed (true);
         this.layoutModeEnabled = new SimpleBooleanProperty (false);
 
         this.getStyleClass ().add (StyleClassNames.ASSET);
@@ -156,6 +157,15 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
                        Priority.ALWAYS);
 
         ScrollPane sp = new ScrollPane (this.layout);
+        /*
+        sp.viewportBoundsProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.layout.setMinWidth (newv.getWidth ());
+
+        });
+        */
+        //this.layout.minWidthProperty ().bind (sp.widthProperty ());
         sp.setPannable (true);
         sp.setOnDragOver (ev ->
         {
@@ -416,6 +426,7 @@ System.out.println ("HEREXXX");
 
         this.layout.showView ();
 /*
+TODO Remove
         Set<UserConfigurableObjectFieldViewEditHandler> handlers = this.object.getViewEditHandlers2 (this.viewer);
 
         this.content.getChildren ().clear ();

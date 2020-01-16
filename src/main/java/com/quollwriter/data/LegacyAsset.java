@@ -128,7 +128,17 @@ public abstract class LegacyAsset extends Asset
 
             }
 
-            f.setValue (a);
+            try
+            {
+
+                f.setValue (JSONEncoder.encode (a));
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to encode: " + a,
+                                      e);
+
+            }
 
         }
 

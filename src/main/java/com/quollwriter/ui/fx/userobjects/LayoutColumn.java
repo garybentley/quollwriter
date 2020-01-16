@@ -47,7 +47,7 @@ public class LayoutColumn extends VBox
         this.fieldsBox = new VBox ();
         this.fieldsBox.getStyleClass ().add (StyleClassNames.FIELDS);
         this.fieldsBox.pseudoClassStateChanged (StyleClassNames.HIDELABELS_PSUEDO_CLASS, !col.isShowFieldLabels ());
-        this.maxWidthProperty ().bind (this.prefWidthProperty ());
+        //this.maxWidthProperty ().bind (this.prefWidthProperty ());
         VBox.setVgrow (this.fieldsBox,
                        Priority.ALWAYS);
 
@@ -208,8 +208,21 @@ public class LayoutColumn extends VBox
                     for (int i = ch.getFrom (); i < ch.getTo (); i++)
                     {
 
-                        this.addField (col.fields ().get (i),
-                                       i);
+                        try
+                        {
+
+                            this.addField (col.fields ().get (i),
+                                           i);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to add field: " + col.fields ().get (i),
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (assets,fields,add,actionerror));
+
+                        }
 
                     }
 
@@ -229,8 +242,21 @@ public class LayoutColumn extends VBox
 
             }
 
-            this.addField (f,
-                           -1);
+            try
+            {
+
+                this.addField (f,
+                               -1);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to add field: " + f,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (assets,fields,add,actionerror));
+
+            }
 
         }
 
@@ -271,8 +297,25 @@ public class LayoutColumn extends VBox
     public void showView ()
     {
 
-        this.getFieldBoxes ().stream ()
-            .forEach (b -> b.showView ());
+        for (FieldBox fb : this.getFieldBoxes ())
+        {
+
+            try
+            {
+
+                fb.showView ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to view field: " + fb.getTypeField (),
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (assets,fields,view,actionerror));
+
+            }
+
+        }
 
     }
 
@@ -387,6 +430,7 @@ public class LayoutColumn extends VBox
 
     public FieldBox addField (UserConfigurableObjectTypeField field,
                               FieldBox                        addBelow)
+                       throws GeneralException
     {
 
         int ind = -1;
@@ -405,11 +449,13 @@ public class LayoutColumn extends VBox
 
     public FieldBox addField (UserConfigurableObjectTypeField field,
                               int                             addAt)
+                       throws GeneralException
     {
 
         FieldBox vb = new FieldBox (field,
                                     this.object,
                                     this,
+                                    this.binder,
                                     this.viewer);
         vb.showView ();
 
@@ -507,10 +553,16 @@ public class LayoutColumn extends VBox
             this.setDragItem (null);
 
             ev.setDropCompleted (true);
+
+            p.reflow ();
+            tp.reflow ();
+
             ev.consume ();
             this.requestLayout ();
 
         });
+
+        this.reflow ();
 
         if (this.areFieldsBeingEdited ())
         {
@@ -520,6 +572,30 @@ public class LayoutColumn extends VBox
         }
 
         return vb;
+
+    }
+
+    private void reflow ()
+    {
+
+        FieldBox last = null;
+
+        for (FieldBox f : this.getFieldBoxes ())
+        {
+
+            VBox.setVgrow (f,
+                           Priority.NEVER);
+            last = f;
+
+        }
+
+        if (last != null)
+        {
+
+            VBox.setVgrow (last,
+                           Priority.ALWAYS);
+
+        }
 
     }
 

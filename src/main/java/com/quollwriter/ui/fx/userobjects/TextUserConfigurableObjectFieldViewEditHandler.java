@@ -35,6 +35,7 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
     @Override
     public Set<String> getNamesFromFieldValue ()
+                                        throws GeneralException
     {
 
         Set<String> ret = new LinkedHashSet<> ();
@@ -83,6 +84,7 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
+                                      throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -175,6 +177,7 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
     @Override
     public Set<Form.Item> getViewFormItems ()
+                                     throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -187,10 +190,11 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
            )
         {
 
-            BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
-                .withHandler (this.viewer)
+            QuollTextView t = QuollTextView.builder ()
+                //BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
+                .withViewer (this.viewer)
                 .text (text.getText ())
-                .noMarkup (true)
+                //.noMarkup (true)
                 .build ();
 
             items.add (new Form.Item (this.typeField.formNameProperty (),
