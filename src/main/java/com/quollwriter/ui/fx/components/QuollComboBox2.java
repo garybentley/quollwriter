@@ -125,7 +125,7 @@ public class QuollComboBox2<T> extends Button
 
         ScrollPane sp = new ScrollPane (vb);
         p.getScene ().setRoot (sp);
-        p.getScene ().getStylesheets ().add (UserProperties.getUserStyleSheetURL ().toExternalForm ());
+        //p.getScene ().getStylesheets ().add (UserProperties.getUserStyleSheetURL ().toExternalForm ());
         sp.setPrefWidth (300);
         sp.setPrefHeight (300);
         p.sizeToScene ();

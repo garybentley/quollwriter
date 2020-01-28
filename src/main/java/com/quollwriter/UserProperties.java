@@ -112,6 +112,8 @@ public class UserProperties
     private static SimpleDoubleProperty fullScreenOpacityProp = null;
     private static SimpleObjectProperty<Object> fullScreenBackgroundProp = null;
 
+    private static SimpleObjectProperty<Path> userStyleSheetProp = null;
+
     static
     {
 
@@ -141,6 +143,19 @@ public class UserProperties
                                                                                     Constants.DEFAULT_PROJECT_INFO_FORMAT);
         UserProperties.tabsLocationProp = UserProperties.createMappedProperty (Constants.TABS_LOCATION_PROPERTY_NAME);
         UserProperties.toolbarLocationProp = UserProperties.createMappedProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME);
+
+        UserProperties.userStyleSheetProp = new SimpleObjectProperty<> ();
+
+        String us = UserProperties.get (Constants.USER_STYLE_SHEET_FILE_NAME_PROPERTY_NAME);
+
+        if (us != null)
+        {
+
+            Path p = Paths.get (us);
+
+            UserProperties.userStyleSheetProp.setValue (p);
+
+        }
 
         UserProperties.editMarkerColorProp = new SimpleObjectProperty<> ();
         UserProperties.problemFinderBlockHighlightColorProp = new SimpleObjectProperty<> ();
@@ -1295,11 +1310,43 @@ public class UserProperties
 
     }
 
-    public static URL getUserStyleSheetURL ()
+    public static URL getDefaultStyleSheetURL ()
     {
 
-        // TODO Make a property.
         return UserProperties.class.getResource (Constants.DEFAULT_STYLE_SHEET_FILE_NAME);
+
+    }
+
+    public static SimpleObjectProperty<Path> userStyleSheetProperty ()
+    {
+
+        return UserProperties.userStyleSheetProp;
+
+    }
+
+    public static void setUserStyleSheet (Path p)
+    {
+
+        if (p == null)
+        {
+
+            UserProperties.remove (Constants.USER_STYLE_SHEET_FILE_NAME_PROPERTY_NAME);
+
+        } else {
+
+            UserProperties.set (Constants.USER_STYLE_SHEET_FILE_NAME_PROPERTY_NAME,
+                                p.toString ());
+
+        }
+
+        UserProperties.userStyleSheetProp.setValue (p);
+
+    }
+
+    public static Path getUserStyleSheet ()
+    {
+
+        return UserProperties.userStyleSheetProp.getValue ();
 
     }
 

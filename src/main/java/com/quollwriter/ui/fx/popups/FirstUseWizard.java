@@ -79,6 +79,11 @@ public class FirstUseWizard extends PopupContent
 
         this.binder = new PropertyBinder ();
 
+        this.newProjectPanel = new NewProjectPanel (this.viewer,
+                                                    getUILanguageStringProperty (firstusewizard,stages,newproject,LanguageStrings.text),
+                                                    false,
+                                                    false);
+
         this.itemsTree = new QuollTreeView<> ();
         this.itemsTree.setShowRoot (false);
 
@@ -421,8 +426,6 @@ System.out.println ("HERE2");
 
                 Environment.showAllProjectsViewer ();
 
-                // TODO Environment.getLanding ().showFindProjects ();
-
                 this.close ();
 
                 return false;
@@ -444,8 +447,23 @@ System.out.println ("HERE2");
         if (START_STAGE.equals (currentStage))
         {
 
+            if (this.uilangSel.getSelectionModel ().getSelectedItem () != null)
+            {
+
+                return;
+
+            }
+
             wizard.enableButton (Wizard.NEXT_BUTTON_ID,
                                  false);
+
+        }
+
+        if (NEW_PROJECT_STAGE.equals (currentStage))
+        {
+
+            wizard.enableButton (Wizard.FINISH_BUTTON_ID,
+                                 true);
 
         }
 
@@ -460,8 +478,11 @@ System.out.println ("HERE2");
         if (SELECT_FILE_STAGE.equals (currentStage))
         {
 
+            boolean v = this.doesFileHaveExtension (this.fileFind.getFile (),
+                                                    Constants.DOCX_FILE_EXTENSION);
+
             wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                 (this.fileFind.getFile () != null));
+                                 v);
 
         }
 
@@ -489,6 +510,21 @@ System.out.println ("HERE2");
 
     }
 
+    private boolean doesFileHaveExtension (Path   p,
+                                           String ext)
+    {
+
+        if (p == null)
+        {
+
+            return false;
+
+        }
+
+        return p.getFileName ().toString ().toLowerCase ().endsWith (ext.toLowerCase ());
+
+    }
+
     public boolean handleFinish ()
     {
 
@@ -497,6 +533,14 @@ System.out.println ("HERE2");
             (this.createNewProject.isSelected ())
            )
         {
+
+            if (this.importFile.isSelected ())
+            {
+
+                // Need to create a project with the selected items.
+                this.newProjectPanel.setProject (this.getSelectedItems ());
+
+            }
 
             return this.newProjectPanel.createProject ();
 
@@ -512,14 +556,6 @@ System.out.println ("HERE2");
         Wizard.Step ws = new Wizard.Step ();
 
         ws.title = getUILanguageStringProperty (firstusewizard,stages,newproject,title);
-
-        //VBox b = new VBox ();
-
-        this.newProjectPanel = new NewProjectPanel (this.viewer,
-                                                    getUILanguageStringProperty (firstusewizard,stages,newproject,LanguageStrings.text),
-                                                    false);
-
-        //b.getChildren ().addAll (this.newProjectPanel);
 
         ws.content = this.newProjectPanel;
         return ws;
@@ -879,7 +915,11 @@ System.out.println ("HERE2");
             .text (getUILanguageStringProperty (firstusewizard,stages,selectitems,text))
             .build ());
 
-        b.getChildren ().add (new ScrollPane (this.itemsTree));
+        ScrollPane sp = new ScrollPane (this.itemsTree);
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
+
+        b.getChildren ().add (sp);
 
         ws.content = b;
 
@@ -1352,6 +1392,9 @@ System.out.println ("HERE2");
                                             UIUtils.runLater (() ->
                                             {
 
+                                                _this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                                                           true);
+
                                                 if (_this.itemsTree != null)
                                                 {
 
@@ -1363,7 +1406,7 @@ System.out.println ("HERE2");
 
                                                     _this.newProjectPanel.setName (p.getName ());
 
-                                                    _this.newProjectPanel.setProject (p);
+                                                    //_this.newProjectPanel.setProject (p);
 
                                                 }
 
@@ -1412,6 +1455,7 @@ System.out.println ("HERE2");
                     CheckBoxTreeItem<NamedObject> chi = new CheckBoxTreeItem<> (ch);
                     ci.getChildren ().add (chi);
                     chi.setExpanded (true);
+                    chi.setIndependent (true);
 
                     String t = this.getFirstLastSentence (ch.getChapterText ());
 
@@ -1445,15 +1489,6 @@ System.out.println ("HERE2");
 
         }
 
-        root.addEventHandler (CheckBoxTreeItem.checkBoxSelectionChangedEvent (),
-                              ev ->
-        {
-
-            this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                      this.getSelectedCount (root) > 0);
-
-        });
-
         return root;
 
     }
@@ -1486,7 +1521,7 @@ System.out.println ("HERE2");
         {
 
             CheckBoxTreeItem<NamedObject> cai = new CheckBoxTreeItem<> (a);
-
+            cai.setIndependent (true);
             ci.getChildren ().add (cai);
 
             String t = this.getFirstLastSentence (a.getDescriptionText ());
@@ -1571,6 +1606,79 @@ System.out.println ("HERE2");
         }
 
         return b.toString ();
+
+    }
+
+    private void getSelectedObjects (TreeItem<NamedObject> t,
+                                     Set<NamedObject>      objs)
+    {
+
+        if (t instanceof CheckBoxTreeItem)
+        {
+
+            CheckBoxTreeItem ct = (CheckBoxTreeItem) t;
+
+            if (ct.isSelected ())
+            {
+
+                objs.add ((NamedObject) ct.getValue ());
+
+            }
+
+        }
+
+        t.getChildren ().stream ()
+            .forEach (c -> this.getSelectedObjects (c,
+                                                    objs));
+
+    }
+
+    private Project getSelectedItems ()
+    {
+
+        Project p = new Project (this.importProj.getName ());
+
+        Book b = new Book (p,
+                           null);
+
+        p.addBook (b);
+        b.setName (p.getName ());
+
+        Set<NamedObject> objs = new HashSet<> ();
+
+        this.getSelectedObjects (this.itemsTree.getRoot (),
+                                 objs);
+
+        for (NamedObject o : objs)
+        {
+
+            if (o instanceof Asset)
+            {
+
+                p.addAsset ((Asset) o);
+
+            }
+
+            if (o instanceof Chapter)
+            {
+
+                b.addChapter ((Chapter) o);
+
+            }
+
+        }
+
+        if ((b.getChapters () != null)
+            &&
+            (b.getChapters ().size () == 0)
+           )
+        {
+
+            p.getBooks ().remove (b);
+
+        }
+
+        return p;
 
     }
 
@@ -1665,6 +1773,13 @@ System.out.println ("HERE2");
 
         if (NEW_PROJECT_STAGE.equals (currStage))
         {
+
+            if (this.importFile.isSelected ())
+            {
+
+                return IMPORT_STAGE;
+
+            }
 
             return DECIDE_STAGE;
 

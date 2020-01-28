@@ -906,7 +906,6 @@ System.out.println ("HERE");
             });
 
             this.getChildren ().addAll (this.newIdea, this.helpText, this.view);
-
             this.addIdeasToView ();
 
         }
@@ -991,6 +990,7 @@ System.out.println ("HERE");
                     IdeaBox ib = new IdeaBox (i,
                                               this.board.getViewer (),
                                               false);
+
                     this.ideaBoxes.put (i,
                                         ib);
 
@@ -1043,20 +1043,29 @@ System.out.println ("HERE");
             this.view.managedProperty ().bind (this.view.visibleProperty ());
             this.getChildren ().add (this.view);
 
+            StringProperty shortDescP = new SimpleStringProperty ();
             // TODO Use QuollTextView
-            BasicHtmlTextFlow shortDesc = BasicHtmlTextFlow.builder ()
+            //BasicHtmlTextFlow shortDesc = BasicHtmlTextFlow.builder ()
+            QuollTextView shortDesc = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.SHORTTEXT)
-                .withHandler (viewer)
+                //.withHandler (viewer)
+                .withViewer (viewer)
+                .text (shortDescP)
                 .build ();
             shortDesc.managedProperty ().bind (shortDesc.visibleProperty ());
             shortDesc.setVisible (!showFull);
 
             this.view.getChildren ().add (shortDesc);
 
+            StringProperty fullDescP = new SimpleStringProperty ();
+
             // TODO Use QuollTextView
-            BasicHtmlTextFlow fullDesc = BasicHtmlTextFlow.builder ()
+            //BasicHtmlTextFlow fullDesc = BasicHtmlTextFlow.builder ()
+            QuollTextView fullDesc = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.FULLTEXT)
-                .withHandler (viewer)
+                //.withHandler (viewer)
+                .withViewer (viewer)
+                .text (fullDescP)
                 .build ();
             fullDesc.managedProperty ().bind (fullDesc.visibleProperty ());
             fullDesc.setVisible (showFull);
@@ -1068,7 +1077,8 @@ System.out.println ("HERE");
 
                 StringWithMarkup sm = this.idea.getDescription ();
 
-                fullDesc.setText (sm.getMarkedUpText ());
+                //fullDesc.setText (sm.getMarkedUpText ());
+                fullDescP.setValue (sm.getMarkedUpText ());
 
             };
 
@@ -1096,7 +1106,8 @@ System.out.println ("HERE");
 
                 }
 
-                shortDesc.setText (firstSent);
+                //shortDesc.setText (firstSent);
+                shortDescP.setValue (firstSent);
 
             };
 

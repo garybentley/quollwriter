@@ -662,6 +662,7 @@ public class Constants
     public static final String DOCUMENT_NORMAL_FILE_NAME = Constants.DATA_DIR + "document-normal.png";
     public static final String DOCUMENT_ERROR_FILE_NAME = Constants.DATA_DIR + "document-error.png";
 
+    public static final String USER_STYLE_SHEET_FILE_NAME_PROPERTY_NAME = "userStyleSheet";
     public static final String DEFAULT_STYLE_SHEET_FILE_NAME = Constants.DATA_DIR + "default-style.css";
 
     //public static final String MINS_5 = "5 mins";

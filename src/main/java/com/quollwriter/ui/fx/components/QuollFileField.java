@@ -65,22 +65,14 @@ public class QuollFileField extends HBox
         this.fileProp.addListener ((v, oldv, newv) ->
         {
 
-            if ((newv == null)
-                &&
-                (b.initialFile == null)
-               )
+            if (newv == null)
             {
 
                 _this.text.setText ("");
 
             } else {
 
-                if (newv != null)
-                {
-
-                    _this.text.setText (newv.toString ());
-
-                }
+                _this.text.setText (newv.toString ());
 
             }
 
@@ -461,7 +453,7 @@ public class QuollFileField extends HBox
 
                                                                     })
                                                                     .collect (Collectors.toList ()));
-                                                                    System.out.println ("EXTS: " + this.fileExtFilter.getExtensions ());
+
             return this;
 
         }

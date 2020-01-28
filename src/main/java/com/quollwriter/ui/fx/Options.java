@@ -2339,6 +2339,26 @@ TODO Remove NO longer needed.
 
         });
 
+        QuollFileField styleSheet = QuollFileField.builder ()
+            .initialFile (UserProperties.getUserStyleSheet ())
+            .limitTo (QuollFileField.Type.file)
+            .withViewer (this.viewer)
+            .chooserTitle (options,lookandsound,stylesheet,finder,title)
+            .showClear (true)
+            .viewButtonTooltip (options,lookandsound,stylesheet,finder,view,tooltip)
+            .findButtonTooltip (options,lookandsound,stylesheet,finder,find,tooltip)
+            .clearButtonTooltip (options,lookandsound,stylesheet,finder,clear,tooltip)
+            .fileExtensionFilter (getUILanguageStringProperty (options,lookandsound,stylesheet,finder,extensionfilter),
+                                  "css")
+            .build ();
+
+        styleSheet.fileProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.setUserStyleSheet (newv);
+
+        });
+
         Section s = Section.builder ()
             .sectionId (Section.Id.look)
             .styleClassName (StyleClassNames.LOOKS)
@@ -2346,6 +2366,48 @@ TODO Remove NO longer needed.
             .description (options,lookandsound,text)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,uilanguage),
                        uilangb)
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefont),
+                       uiFont)
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefontsize),
+                       thb)
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,stylesheet,text),
+                       styleSheet)
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
+                       this.createLayoutSelector ())
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
+                       QuollComboBox.builder ()
+                         .items (getUILanguageStringProperty (options,lookandsound,labels,abovesidebar),
+                                 getUILanguageStringProperty (options,lookandsound,labels,belowsidebar))
+                         .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TOOLBAR_LOCATION_PROPERTY_NAME)) ? 0 : 1)
+                         .onSelected (ev ->
+                         {
+
+                             ComboBox cb = (ComboBox) ev.getSource ();
+
+                             int ind = cb.getSelectionModel ().getSelectedIndex ();
+
+                             UserProperties.set (Constants.TOOLBAR_LOCATION_PROPERTY_NAME,
+                                                 ind == 0 ? Constants.TOP : Constants.BOTTOM);
+
+                         })
+                         .build ())
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtabs),
+                       QuollComboBox.builder ()
+                          .items (getUILanguageStringProperty (options,lookandsound,labels,showtabstop),
+                                  getUILanguageStringProperty (options,lookandsound,labels,showtabsbottom))
+                          .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TABS_LOCATION_PROPERTY_NAME)) ? 0 : 1)
+                          .onSelected (ev ->
+                          {
+
+                              ComboBox cb = (ComboBox) ev.getSource ();
+
+                              int ind = cb.getSelectionModel ().getSelectedIndex ();
+
+                              UserProperties.set (Constants.TABS_LOCATION_PROPERTY_NAME,
+                                                  ind == 0 ? Constants.TOP : Constants.BOTTOM);
+
+                          })
+                          .build ())
             .mainItem (QuollCheckBox.builder ()
                 .label (options,lookandsound,labels,keepprojectswindowsopen)
                 .userProperty (Constants.KEEP_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME)
@@ -2360,46 +2422,6 @@ TODO Remove NO longer needed.
                 .label (options,lookandsound,labels,shownotes)
                 .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
                 .build ())
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefont),
-                       uiFont)
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefontsize),
-                       thb)
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
-                       this.createLayoutSelector ())
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
-                       QuollComboBox.builder ()
-                          .items (getUILanguageStringProperty (options,lookandsound,labels,abovesidebar),
-                                  getUILanguageStringProperty (options,lookandsound,labels,belowsidebar))
-                          .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TOOLBAR_LOCATION_PROPERTY_NAME)) ? 0 : 1)
-                          .onSelected (ev ->
-                          {
-
-                              ComboBox cb = (ComboBox) ev.getSource ();
-
-                              int ind = cb.getSelectionModel ().getSelectedIndex ();
-
-                              UserProperties.set (Constants.TOOLBAR_LOCATION_PROPERTY_NAME,
-                                                  ind == 0 ? Constants.TOP : Constants.BOTTOM);
-
-                          })
-                          .build ())
-            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtabs),
-                       QuollComboBox.builder ()
-                           .items (getUILanguageStringProperty (options,lookandsound,labels,showtabstop),
-                                   getUILanguageStringProperty (options,lookandsound,labels,showtabsbottom))
-                           .selectedIndex (Constants.TOP.equals (UserProperties.get (Constants.TABS_LOCATION_PROPERTY_NAME)) ? 0 : 1)
-                           .onSelected (ev ->
-                           {
-
-                               ComboBox cb = (ComboBox) ev.getSource ();
-
-                               int ind = cb.getSelectionModel ().getSelectedIndex ();
-
-                               UserProperties.set (Constants.TABS_LOCATION_PROPERTY_NAME,
-                                                   ind == 0 ? Constants.TOP : Constants.BOTTOM);
-
-                           })
-                           .build ())
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,whenfind),
                        QuollRadioButtons.builder ()
                             .button (QuollRadioButton.builder ()
@@ -2429,10 +2451,6 @@ TODO Remove NO longer needed.
             .subItem (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,selectownwavfile),
                       ownSoundF)
             .subItem (playSoundB)
-            .mainItem (QuollCheckBox.builder ()
-                .label (options,lookandsound,labels,highlightdividers,text)
-                .userProperty (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME)
-                .build ())
             .build ();
 
         return s;

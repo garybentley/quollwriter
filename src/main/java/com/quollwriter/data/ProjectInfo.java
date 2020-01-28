@@ -202,7 +202,10 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
             Path p = this.getBackupDirPath ();
 
-            if (p != null)
+            if ((p != null)
+                &&
+                (Files.exists (p))
+               )
             {
 
                 try

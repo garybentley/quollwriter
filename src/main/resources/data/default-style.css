@@ -1352,7 +1352,9 @@ Text
 .fullscreen .header .fullscreenexit { -fx-graphic: url(/imgs/fullscreen-exit24.png); }
 .viewer .header .controls .find,
 .fullscreen .header .find { -fx-graphic: url(/imgs/find24.png); }
+.fullscreen .header .bug { -fx-graphic: url(/imgs/bug24.png); }
 .viewer .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
+.viewer .header .controls .bug { -fx-graphic: url(/imgs/bug24.png); }
 .viewer .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
 .viewer .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
 .viewer .header .controls .help { -fx-graphic: url(/imgs/help24.png); }
@@ -1416,6 +1418,8 @@ Text
     -fx-padding: 0 0 0 1px;
     -fx-background-color: -qw-component-border-color;
     -fx-pref-width: 1px;
+    -fx-max-width: 1px;
+    -fx-min-width: 1px;
 }
 
 .viewer .divider:hover
@@ -1680,7 +1684,7 @@ Text
     -fx-padding: 0.5em 0.5em 0.5em 0.5em;
 }
 
-.achievement .title
+.panel.achievements .content .achievement .title
 {
     -fx-font-size: 1.3em;
     -fx-padding: -0.3em 0 0 0.75em;
@@ -1702,41 +1706,41 @@ Text
     -fx-padding: 0 0 0.5em 1em;
 }
 
-.achievement .icon { -fx-image: url(/imgs/achievement24.png); }
-.achievement.fullscreen .icon { -fx-image: url(/imgs/fullscreen24.png); }
-.achievement.spellchecker  .icon { -fx-image: url(/imgs/spellchecker24.png); }
-.achievement.edit .icon { -fx-image: url(/imgs/edit24.png); }
-.achievement.help .icon { -fx-image: url(/imgs/help24.png); }
-.achievement.find .icon { -fx-image: url(/imgs/find24.png); }
-.achievement.clock .icon { -fx-image: url(/imgs/clock24.png); }
-.achievement.bold .icon { -fx-image: url(/imgs/bold24.png); }
-.achievement.editors .icon { -fx-image: url(/imgs/editor24.png); }
-.achievement.project-export .icon { -fx-image: url(/imgs/project-import24.png); }
-.achievement.settings .icon { -fx-image: url(/imgs/settings24.png); }
-.achievement.sound .icon { -fx-image: url(/imgs/notify24.png); }
-.achievement.warmups .icon { -fx-image: url(/imgs/warmups24.png); }
-.achievement.eye .icon { -fx-image: url(/imgs/eye24.png); }
-.achievement.project .icon { -fx-image: url(/imgs/project24.png); }
-.achievement.idea .icon { -fx-image: url(/imgs/idea24.png); }
-.achievement.bug .icon { -fx-image: url(/imgs/bug24.png); }
-.achievement.save .icon { -fx-image: url(/imgs/save24.png); }
-.achievement.snapshot .icon { -fx-image: url(/imgs/snapshot24.png); }
-.achievement.comment .icon { -fx-image: url(/imgs/comment24.png); }
-.achievement.note .icon { -fx-image: url(/imgs/note24.png); }
-.achievement.chapter .icon { -fx-image: url(/imgs/chapter24.png); }
-.achievement.character .icon { -fx-image: url(/imgs/character24.png); }
-.achievement.object .icon { -fx-image: url(/imgs/object24.png); }
-.achievement.location .icon { -fx-image: url(/imgs/location24.png); }
-.achievement.project-import .icon { -fx-image: url(/imgs/project-import24.png); }
-.achievement.researchitem .icon { -fx-image: url(/imgs/researchitem24.png); }
-.achievement.outlineitem .icon { -fx-image: url(/imgs/outlineitem24.png); }
-.achievement.scene .icon { -fx-image: url(/imgs/scene24.png); }
-.achievement.statistics .icon,
-.achievement.wordcount .icon
+.panel.achievements .achievement .icon { -fx-image: url(/imgs/achievement24.png); }
+.panel.achievements .achievement.fullscreen .icon { -fx-image: url(/imgs/fullscreen24.png); }
+.panel.achievements .achievement.spellchecker  .icon { -fx-image: url(/imgs/spellchecker24.png); }
+.panel.achievements .achievement.edit .icon { -fx-image: url(/imgs/edit24.png); }
+.panel.achievements .achievement.help .icon { -fx-image: url(/imgs/help24.png); }
+.panel.achievements .achievement.find .icon { -fx-image: url(/imgs/find24.png); }
+.panel.achievements .achievement.clock .icon { -fx-image: url(/imgs/clock24.png); }
+.panel.achievements .achievement.bold .icon { -fx-image: url(/imgs/bold24.png); }
+.panel.achievements .achievement.editors .icon { -fx-image: url(/imgs/editor24.png); }
+.panel.achievements .achievement.project-export .icon { -fx-image: url(/imgs/project-import24.png); }
+.panel.achievements .achievement.settings .icon { -fx-image: url(/imgs/settings24.png); }
+.panel.achievements .achievement.sound .icon { -fx-image: url(/imgs/notify24.png); }
+.panel.achievements .achievement.warmups .icon { -fx-image: url(/imgs/warmups24.png); }
+.panel.achievements .achievement.eye .icon { -fx-image: url(/imgs/eye24.png); }
+.panel.achievements .achievement.project .icon { -fx-image: url(/imgs/project24.png); }
+.panel.achievements .achievement.idea .icon { -fx-image: url(/imgs/idea24.png); }
+.panel.achievements .achievement.bug .icon { -fx-image: url(/imgs/bug24.png); }
+.panel.achievements .achievement.save .icon { -fx-image: url(/imgs/save24.png); }
+.panel.achievements .achievement.snapshot .icon { -fx-image: url(/imgs/snapshot24.png); }
+.panel.achievements .achievement.comment .icon { -fx-image: url(/imgs/comment24.png); }
+.panel.achievements .achievement.note .icon { -fx-image: url(/imgs/note24.png); }
+.panel.achievements .achievement.chapter .icon { -fx-image: url(/imgs/chapter24.png); }
+.panel.achievements .achievement.character .icon { -fx-image: url(/imgs/character24.png); }
+.panel.achievements .achievement.object .icon { -fx-image: url(/imgs/object24.png); }
+.panel.achievements .achievement.location .icon { -fx-image: url(/imgs/location24.png); }
+.panel.achievements .achievement.project-import .icon { -fx-image: url(/imgs/project-import24.png); }
+.panel.achievements .achievement.researchitem .icon { -fx-image: url(/imgs/researchitem24.png); }
+.panel.achievements .achievement.outlineitem .icon { -fx-image: url(/imgs/outlineitem24.png); }
+.panel.achievements .achievement.scene .icon { -fx-image: url(/imgs/scene24.png); }
+.panel.achievements .achievement.statistics .icon,
+.panel.achievements .achievement.wordcount .icon
 { -fx-image: url(/imgs/wordcount24.png); }
-.achievement.warning .icon { -fx-image: url(/imgs/warning24.png); }
+.panel.achievements .achievement.warning .icon { -fx-image: url(/imgs/warning24.png); }
 
-.achievement:achieved .achieved
+.panel.achievements .achievement:achieved .achieved
 {
     -fx-scale-x: 0.75;
     -fx-scale-y: 0.75;
@@ -2084,6 +2088,7 @@ Text
 /**
  * COPIED FROM AeroFX
  */
+
 .button, .toggle-button{
     -fx-alignment: center;
     -fx-background-color:
@@ -2293,7 +2298,7 @@ Text
 
 .qtextarea .max
 {
-    -fx-padding: 0.2em 0 0 0;
+    -fx-padding: 0.2em 0 0 0em;
     -fx-text-fill: -qw-focus-color;
 }
 
@@ -2328,20 +2333,15 @@ Text
 {
      -fx-padding: 0.5em 0.75em 0.5em 0.75em;
      -fx-pref-width: -qw-popup-width;
-     -fx-min-width: -qw-popup-width;
      -fx-background-color: -qw-bg-color;
 }
 
- .qpopup .header
+ .viewer .qpopup .header
  {
      -fx-padding: 0 0 0 0.5em;
      -fx-background-color: -qw-bg-color;
+     -fx-border-width: 0;
  }
-
-.viewer .qpopup .header
-{
-
-}
 
  .qpopup .header .title
  {
@@ -2425,14 +2425,14 @@ Text
     -fx-image: url(/imgs/add16.png);
 }
 
-.new-project .passwords, .qpopup.createproject .passwords
+.newproject .passwords, .qpopup.createproject .passwords
 {
     -fx-spacing: 0.5em;
     -fx-alignment: center-left;
     -fx-padding: 0.5em 0 0 0;
 }
 
-.new-project .passwords .label, .qpopup.createproject .passwords .label
+.newproject .passwords .label, .qpopup.createproject .passwords .label
 {
     -fx-padding: 0 0 0 0.5em;
 }
@@ -2440,9 +2440,14 @@ Text
 /*
  Report bug Popup (ReportBugPopup)
  */
-.qpopup.reportbug .header .icon
+.viewer .qpopup.reportbug .header .icon, .viewer .qpopup.bug .header .icon
 {
     -fx-image: url(/imgs/bug16.png);
+}
+
+.qpopup.reportbug .qtextarea
+{
+    -fx-min-height: 10em;
 }
 
 /*
@@ -2528,6 +2533,7 @@ Text
 {
     -fx-graphic: url(/imgs/previous16.png);
     -fx-min-width: 16px;
+    -fx-content-display: graphic-only;
 }
 
 .qpopup.dowarmup .chooseprompt .weblinks
@@ -3234,7 +3240,6 @@ Text
 {
     -fx-max-height: 30em;
     -fx-pref-height: 30em;
-    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
 }
 
 .qpopup.import .content .header
@@ -3765,7 +3770,7 @@ Text
     -fx-vbar-policy: as-needed;
 }
 
-.viewer.project .header .icon
+.viewer.project .normal .header.title .icon
 {
     -fx-image: url(/imgs/project24.png);
 }
@@ -3780,7 +3785,7 @@ Text
 {
     -fx-pref-width: 16em;
     -fx-min-width: 16em;
-    -fx-pref-width: 50em;
+    -fx-pref-width: 20em;
 }
 
 .sidebar.project .accordion:dragover
@@ -5116,6 +5121,11 @@ Text
     -fx-padding: 0;
 }
 
+.panel.asset .column .header .icon
+{
+    visibility: hidden;
+}
+
 .panel.asset .column .header .title
 {
     -fx-font-size: 1.5em;
@@ -5592,6 +5602,11 @@ a
     -fx-border-color: transparent;
 }
 
+.qpopup.firstusewizard .header
+{
+    -fx-padding: 0 0.5em 0 0.5em;
+}
+
 .qpopup.firstusewizard .header.title .title
 {
     -fx-font-size: 2em;
@@ -5629,4 +5644,26 @@ a
     -fx-max-width: Infinity;
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
+}
+
+.qpopup.firstusewizard .content .scroll-pane
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+    -fx-fit-to-height: true;
+    -fx-fit-to-width: false;
+}
+
+.qpopup.firstusewizard .content .tree .cell
+{
+    -fx-padding: 0;
+}
+
+.qpopup.firstusewizard .content .tree .cell .chapter
+{
+    -fx-graphic: url(/imgs/chapter16.png);
+}
+
+.qpopup.firstusewizard .content .newproject .control
+{
+    -fx-padding: 0 0 0.5em 1em;
 }

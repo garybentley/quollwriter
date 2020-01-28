@@ -42,12 +42,12 @@ public class ConfigurableToolbar extends ToolBar
 
             if (this.otherItems.getItems ().contains (this.moving))
             {
-System.out.println ("XXX");
+
                 ev.consume ();
                 return;
 
             }
-System.out.println ("HERE1");
+
             Dragboard db = this.otherItems.startDragAndDrop (TransferMode.ANY);
             db.setDragView (this.moving.snapshot (null, null));
             ev.consume ();
@@ -65,7 +65,7 @@ System.out.println ("HERE1");
 
         this.otherItems.setOnDragEntered (ev ->
         {
-System.out.println ("HERE2");
+
             ev.acceptTransferModes (TransferMode.MOVE);
 
             ev.consume ();
@@ -80,7 +80,7 @@ System.out.println ("HERE2");
 
                 if (this.otherItems.getItems ().contains (this.moving))
                 {
-System.out.println ("XXX1");
+
                     return;
 
                 }
@@ -119,7 +119,7 @@ System.out.println ("XXX1");
                     prev = n;
 
                 }
-System.out.println ("XXX2: " + ind);
+
                 this.getItems ().remove (this.moving);
                 this.otherItems.getItems ().add (ind,
                                                  this.moving);
@@ -204,7 +204,7 @@ System.out.println ("XXX2: " + ind);
 
         if (b.visibleItems != null)
         {
-
+System.out.println ("VIS: " + b.visibleItems);
             this.getItems ().addAll (b.visibleItems);
 
         }

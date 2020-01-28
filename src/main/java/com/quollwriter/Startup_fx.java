@@ -72,8 +72,6 @@ public class Startup_fx extends Application
             this.ss.setX (((rb.getWidth () - this.ss.getWidth ()) / 2));
             this.ss.setY (((rb.getHeight () - this.ss.getHeight ()) / 2));
 
-            //DoubleProperty progress = ss.progressProperty ();
-
             this.updateProgress (0.5f);
 
         } catch (Exception e) {
@@ -92,7 +90,7 @@ public class Startup_fx extends Application
 
                 this.updateProgress (0.6f);
 
-                if (!Environment.isFirstUse ())
+                if (Environment.isFirstUse ())
                 {
 
                     new FirstUseWizard ().show ();

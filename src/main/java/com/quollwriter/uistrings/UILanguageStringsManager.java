@@ -722,7 +722,7 @@ TODO Remove
             }
 
         };
-System.out.println ("CURRENT LANG NAME: " + UILanguageStringsManager.uiLanguageStrings.getLanguageName ());
+
         UserProperties.set (Constants.USER_UI_LANGUAGE_PROPERTY_NAME, id);
 
         UILanguageStringsManager.uilangProp.setValue (id);

@@ -14,6 +14,7 @@ import java.nio.charset.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
 
+import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.scene.text.*;
 import javafx.beans.property.*;
@@ -80,8 +81,8 @@ public class Environment
     public static boolean  isLinux = false;
     private static boolean isFirstUse = false;
 
-    private static long styleSheetLastModified = 0;
-    private static ScheduledFuture styleSheetModifiedChecker = null;
+    private static long userStyleSheetLastModified = 0;
+    private static ScheduledFuture userStyleSheetModifiedChecker = null;
 
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
     private static DecimalFormat floatNumFormat = new DecimalFormat ("###,###.#");
@@ -1071,104 +1072,120 @@ TODO
         // Get all the projects.
         Environment.initProjectInfos ();
 
-        //URL url = UserProperties.getUserStyleSheetURL ();
-        Path p = Paths.get ("d:/development/github/quollwriterv3/src/main/resources/data/default-style.css");
+        URL u = UserProperties.getDefaultStyleSheetURL ();
 
-        if (Files.exists (p))
+        Environment.styleSheets.add (u);
+
+        ObjectProperty<Path> usProp = UserProperties.userStyleSheetProperty ();
+
+        ChangeListener<Path> usPropList = (pr, oldv, newv) ->
         {
 
-            Environment.styleSheets.add (p.toUri ().toURL ());
-
-            Environment.styleSheetLastModified = Files.getLastModifiedTime (p).toMillis ();
-
-            Environment.styleSheetModifiedChecker = Environment.schedule (() ->
+            if (Environment.userStyleSheetModifiedChecker != null)
             {
 
-                long t = 0;
+                Environment.userStyleSheetLastModified = 0;
+                Environment.userStyleSheetModifiedChecker.cancel (true);
+
+            }
+
+            if (oldv != null)
+            {
 
                 try
                 {
 
-                    t = Files.getLastModifiedTime (p).toMillis ();
+                    Environment.styleSheets.remove (oldv.toUri ().toURL ());
 
                 } catch (Exception e) {
 
-                    // Has the file been removed?
-                    Environment.styleSheetModifiedChecker.cancel (true);
-                    return;
+                    Environment.logError ("Unable to remove old stylesheet path: " +
+                                          oldv,
+                                          e);
 
                 }
-/*
-                Path tp = null;
+
+            }
+
+            if ((newv != null)
+                &&
+                (Files.exists (newv))
+               )
+            {
 
                 try
                 {
 
-                    tp = Files.createTempFile ("temp-user", ".css");
-
-                    Files.write (tp, ".root { -fx-font-size: 20pt; }".getBytes (StandardCharsets.UTF_8));
+                    Environment.styleSheets.add (newv.toUri ().toURL ());
+                    Environment.userStyleSheetLastModified = Files.getLastModifiedTime (newv).toMillis ();
 
                 } catch (Exception e) {
 
-                    Environment.printStackTrace (e);
+                    Environment.logError ("Unable to add new stylesheet path: " +
+                                          newv,
+                                          e);
+
                     return;
 
                 }
 
-                final Path _tp = tp;
-*/
-                if (t != Environment.styleSheetLastModified)
+                Environment.userStyleSheetModifiedChecker = Environment.schedule (() ->
                 {
 
-                    UIUtils.runLater (() ->
+                    long t = 0;
+
+                    try
                     {
 
-                        try
-                        {
+                        t = Files.getLastModifiedTime (newv).toMillis ();
 
-                            Environment.styleSheets.remove (p.toUri ().toURL ());
-                            Environment.styleSheets.add (p.toUri ().toURL ());
+                    } catch (Exception e) {
 
-                        } catch (Exception e) {
+                        // Has the file been removed?
+                        Environment.userStyleSheetModifiedChecker.cancel (true);
+                        return;
 
-                            Environment.logError ("Unable to update stylesheet: " + p,
-                                                  e);
+                    }
 
-                        }
-
-                    });
-
-                    Environment.styleSheetLastModified = t;
-
-/*
-                    Environment.doForOpenViewers (pv ->
+                    if (t != Environment.userStyleSheetLastModified)
                     {
-xxx
-                        try
+
+                        UIUtils.runLater (() ->
                         {
 
-                            // Update the stylesheet.
-                            pv.getViewer ().removeStyleSheet (p.toUri ().toURL ());
-                            pv.getViewer ().addStyleSheet (p.toUri ().toURL ());
+                            try
+                            {
 
-                            //pv.getViewer ().addStyleSheet (_tp.toUri ().toURL ());
+                                Environment.styleSheets.remove (newv.toUri ().toURL ());
+                                Environment.styleSheets.add (newv.toUri ().toURL ());
 
-                        } catch (Exception e) {
+                            } catch (Exception e) {
 
-                            e.printStackTrace ();
+                                Environment.logError ("Unable to update stylesheet: " + newv,
+                                                      e);
 
-                        }
+                            }
 
-                    });
-*/
+                        });
 
-                }
+                        Environment.userStyleSheetLastModified = t;
 
-            },
-            1000,
-            1000);
+                    }
 
-        }
+                },
+                1000,
+                1000);
+
+            }
+
+        };
+
+        usProp.addListener (usPropList);
+
+        // Init...
+        usPropList.changed (UserProperties.userStyleSheetProperty (),
+                            null,
+                            UserProperties.userStyleSheetProperty ().getValue ());
 
     }
 
@@ -1814,7 +1831,8 @@ TODO NEeded?
                                           e);
 
                     ComponentUtils.showErrorMessage (null,
-                                                     getUILanguageStringProperty (project,actions,deleteproject,actionerror));
+                                                     getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,actionerror),
+                                                                                  pr.getName ()));
 
                 }
 
@@ -1838,6 +1856,13 @@ TODO NEeded?
 
         if (viewer != null)
         {
+System.out.println ("HERE: " + Environment.openViewers.size ());
+            if (Environment.openViewers.size () == 1)
+            {
+
+                Environment.showAllProjectsViewer ();
+
+            }
 
             // Don't try and save changes.
             viewer.close (false,
@@ -2439,7 +2464,7 @@ TODO NEeded?
                 Environment.allProjectsViewer.createViewer ();
                 Environment.allProjectsViewer.init (null);
 
-                Environment.allProjectsViewer.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                Environment.allProjectsViewer.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
                 (ev ->
                 {
 
@@ -4270,16 +4295,16 @@ TODO Remove
     public static void updateUserConfigurableObjectType (UserConfigurableObjectType type)
                                                   throws GeneralException
     {
-System.out.println ("UPDATE CALLED: " + type.getKey ());
+
         if (!Environment.userConfigObjTypes.contains (type))
         {
-System.out.println ("ADDDING: " + type.getKey ());
+
             Environment.addUserConfigurableObjectType (type);
 
             return;
 
         }
-System.out.println ("SAVING TYPE:" + type);
+
         Environment.projectInfoManager.saveObject (type);
 
         String id = type.getObjectTypeId ();

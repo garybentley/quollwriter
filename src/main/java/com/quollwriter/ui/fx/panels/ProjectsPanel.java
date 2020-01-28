@@ -457,6 +457,30 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 */
     }
 
+    private void deleteProject (ProjectInfo p)
+    {
+
+        try
+        {
+
+            Environment.deleteProject (p);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to remove project: " +
+                                  p.getName (),
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.getViewer (),
+                                             getUILanguageStringProperty (allprojects,actions,removeproject,actionerror));
+                                      //"Unable to remove project, please contact Quoll Writer support for assistance.");
+
+            return;
+
+        }
+
+    }
+
     private void showRemoveProject (final ProjectInfo p)
     {
 
@@ -476,25 +500,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
             .onConfirm (ev ->
             {
 
-                try
-                {
-
-                    Environment.deleteProject (p);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to remove project: " +
-                                          p.getName (),
-                                          e);
-
-                    ComponentUtils.showErrorMessage (_this.getViewer (),
-                                                     getUILanguageStringProperty (prefix,actionerror));
-                                              //"Unable to remove project, please contact Quoll Writer support for assistance.");
-
-                    return;
-
-                }
-
+                this.deleteProject (p);
 
             })
             .build ();
@@ -1052,7 +1058,8 @@ TODO
                         .onAction (ev ->
                         {
 
-                            _this.parent.showRemoveProject (_this.project);
+                            _this.parent.deleteProject (_this.project);
+                            //_this.parent.showRemoveProject (_this.project);
 
                         })
                         .build ());

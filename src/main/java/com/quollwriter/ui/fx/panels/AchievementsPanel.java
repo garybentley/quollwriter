@@ -390,7 +390,7 @@ TODO?
             .styleClassName (StyleClassNames.ACHIEVEMENTS)
             .panelId (PANEL_ID)
             .build ();
-
+        panel.setId (StyleClassNames.ACHIEVEMENTS);
         return panel;
 
     }

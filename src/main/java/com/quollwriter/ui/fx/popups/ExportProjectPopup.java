@@ -850,6 +850,7 @@ public class ExportProjectPopup extends PopupContent
 
         this.newProjectPanel = new NewProjectPanel (this.viewer,
                                                     getUILanguageStringProperty (importproject,stages,newproject,LanguageStrings.text),
+                                                    false,
                                                     false);
 
         b.getChildren ().addAll (this.newProjectPanel);

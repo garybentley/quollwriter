@@ -2817,12 +2817,10 @@ TODO Remove
                 continue;
 
             }
-long ss = System.currentTimeMillis ();
+
             // Pass it to the project.
             final DataObject d = this.project.getObjectForReference (r);
-            System.out.println ("PANEL: " + panelId);
-System.out.println ("TTT1: " + (System.currentTimeMillis () - ss));
-ss = System.currentTimeMillis ();
+
             if (d == null)
             {
 
@@ -2830,8 +2828,6 @@ ss = System.currentTimeMillis ();
                 {
 
                     this.openPanelForId (panelId);
-                    System.out.println ("TTT2: " + (System.currentTimeMillis () - ss));
-                    ss = System.currentTimeMillis ();
 
                 } catch (Exception e) {
 
@@ -2847,8 +2843,6 @@ ss = System.currentTimeMillis ();
             {
 
                 this.viewObject (d);
-                System.out.println ("TTT3: " + (System.currentTimeMillis () - ss));
-                ss = System.currentTimeMillis ();
 
             }
 
@@ -3464,7 +3458,7 @@ TODO REmove
         // Get the state and save it.
         try
         {
-System.out.println ("GOT STATE: " + this.getState ());
+
             this.project.setProperty (Constants.PROJECT_STATE_PROPERTY_NAME,
                                       this.getState ().asString ());
 

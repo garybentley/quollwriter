@@ -1211,7 +1211,7 @@ TODO
     public void init (State s)
                throws GeneralException
     {
-System.out.println ("INIT STATE: " + s);
+
         // Get our windowed content here so that everything is already setup and ready to be shown.
         this.windowedContent = this.getWindowedContent ();
 
@@ -2983,6 +2983,13 @@ TODO Not needed, is a function of the sidebar itself...
 
         Set<Node> headerCons = new LinkedHashSet<> ();
 
+        if (Environment.getQuollWriterVersion ().isBeta ())
+        {
+
+            headerCons.add (this.getTitleHeaderControl (HeaderControl.reportbug));
+
+        }
+
         if (hcsupp != null)
         {
 
@@ -2997,7 +3004,6 @@ TODO Not needed, is a function of the sidebar itself...
             .tooltip (prefix,projectmenu,tooltip)
             .items (() ->
             {
-        //Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
 
                 Supplier<Set<MenuItem>> menuItemSupp = _this.getSettingsMenuSupplier ();
 
@@ -3157,7 +3163,7 @@ TODO Not needed, is a function of the sidebar itself...
 
         Viewer v = Viewer.builder ()
             //.headerControls (headerCons)
-            .headerToolbar (ctb)
+            //.headerToolbar (ctb)
             .styleClassName (this.getStyleClassName ())
             .content (this)
             .title (this.titleProperty ())
@@ -3212,7 +3218,12 @@ TODO Not needed, is a function of the sidebar itself...
 
         }
 
-        this.achievementsPopup.showAchievement (ar);
+        UIUtils.runLater (() ->
+        {
+
+            this.achievementsPopup.showAchievement (ar);
+
+        });
 
     }
 

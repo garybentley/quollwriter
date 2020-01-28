@@ -1274,7 +1274,8 @@ public class ViewerSplitPane extends Pane implements Stateful
                 cw = mw;
 
             }
-
+System.out.println ("CW: " + cw);
+System.out.println ("INSET: " + this.div1.getInsets ());
             d1w = cw + this.div1.getInsets ().getLeft () + this.div1.getInsets ().getRight ();
 
         }
@@ -1402,7 +1403,7 @@ public class ViewerSplitPane extends Pane implements Stateful
                                    //true);
 
                 x = x + msw;
-System.out.println ("D1W: " + d1w + ", " + x + ", " + this.div1.getInsets ());
+
                 this.layoutInArea (this.div1,
                                    x,
                                    y,

@@ -50,7 +50,7 @@ public class NotesSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         super (pv,
                binder);
-
+System.out.println ("NOTE TYPE: " + noteType);
         this.noteType = noteType;
         this.countProp = new SimpleIntegerProperty (0);
 

@@ -58,11 +58,11 @@ public class AllProjectsViewer extends AbstractViewer
         this.showPanel (ProjectsPanel.PANEL_ID);
 
         this.titleProp = new SimpleStringProperty ();
-        // TODO Create a binding that
         this.titleProp.bind (Bindings.createStringBinding (() ->
         {
 
-            return String.format (getUIString (LanguageStrings.allprojects, LanguageStrings.title), Environment.formatNumber (Environment.getAllProjects ().size ()));
+            return getUILanguageStringProperty (Arrays.asList (allprojects,title),
+                                                Environment.getAllProjects ().size ()).getValue ();
 
         },
         UILanguageStringsManager.uilangProperty (),
@@ -170,7 +170,9 @@ public class AllProjectsViewer extends AbstractViewer
                                                         this.getStyleClassName (),
                                                         headerCons,
                                                         this.content);
-
+            this.windowedContent.setTitle (this.titleProp);
+            this.setTitle (this.titleProp);
+            
         }
 
         return this.windowedContent;

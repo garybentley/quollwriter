@@ -32,6 +32,7 @@ public class NewProjectPopup extends PopupContent
 
         NewProjectPanel projPanel = new NewProjectPanel (viewer,
                                                          getUILanguageStringProperty (newproject, LanguageStrings.popup,text),
+                                                         true,
                                                          true);
 
         projPanel.setOnCreate (ev -> _this.getPopup ().close ());

@@ -3,7 +3,8 @@
     ":nativename" : "English",
     ":version" : 1,
     ":id" : ":English",
-    ":qwversion" : "2.6.14",
+    ":qwversion.old" : "2.6.14",
+    ":qwversion" : "3.0.0",
     ":created" : 0,
     ":user" : false,
     ":email" : "gary@quollwriter.com",
@@ -5477,6 +5478,27 @@
                     {
                         "title" : "Select a layout",
                         "tooltip" : "Click to select a layout"
+                    }
+                },
+                "stylesheet" :
+                {
+                    "text" : "Use the following <a href='help:stylesheet'>stylesheet</a> (this overrides the default)",
+                    "finder" :
+                    {
+                        "title" : "Find a stylesheet",
+                        "find" :
+                        {
+                            "tooltip" : "Click to find a stylesheet"
+                        },
+                        "clear" :
+                        {
+                            "tooltip" : "Click to stop using this stylesheet"
+                        },
+                        "view" :
+                        {
+                            "tooltip" : "Click to view the stylesheet"
+                        },
+                        "extensionfilter" : "Stylesheet file: .css"
                     }
                 },
                 "basefontsize" : "How big should the text be?",

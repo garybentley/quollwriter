@@ -161,14 +161,14 @@ public class UserConfigurableObjectType extends NamedObject
 
         if (this.ignoreFieldsStateChanges)
         {
-System.out.println ("IGNORING");
+
             return;
 
         }
 
         try
         {
-System.out.println ("UPDATING TO: " + this.getSortableFieldsState ().asString ());
+
             this.setProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME,
                               this.getSortableFieldsState ().asString ());
 
@@ -674,7 +674,7 @@ System.out.println ("UPDATING TO: " + this.getSortableFieldsState ().asString ()
 
         this.sortableFieldsColumns.stream ()
             .forEach (c -> fields.addAll (c.fields ()));
-System.out.println ("FIELDS: " + fields.size ());
+
         return fields;
 
     }

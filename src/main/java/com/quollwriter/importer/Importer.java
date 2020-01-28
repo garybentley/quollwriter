@@ -23,9 +23,10 @@ public class Importer
     {
 
         Map m = Importer.handlers;
-
+/*
         m.put (Constants.DOC_FILE_EXTENSION,
                MSWordDocumentImporter.class);
+*/
         m.put (Constants.DOCX_FILE_EXTENSION,
                MSWordDocumentImporter.class);
 
@@ -140,8 +141,10 @@ public class Importer
                             {
 
                                 // Use the file name.
-                                String fn = url.getFile ().substring (0,
+                                String fn = url.getFile ().substring (url.getPath ().lastIndexOf ("/") + 1,
                                                                       url.getFile ().length () - Constants.DOCX_FILE_EXTENSION.length ());
+
+                                fn = URLDecoder.decode (fn);
 
                                 p.setName (fn);
                                 p.getBooks ().get (0).setName (fn);

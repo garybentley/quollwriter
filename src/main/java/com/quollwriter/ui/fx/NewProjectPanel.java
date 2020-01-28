@@ -31,12 +31,14 @@ public class NewProjectPanel extends VBox
 
     public NewProjectPanel (AbstractViewer viewer,
                             StringProperty desc,
-                            boolean        showButtons)
+                            boolean        showButtons,
+                            boolean        createOnReturn)
     {
 
         final NewProjectPanel _this = this;
 
         this.viewer = viewer;
+        this.getStyleClass ().add (StyleClassNames.NEWPROJECT);
 
         this.setFillWidth (true);
 
@@ -69,12 +71,17 @@ public class NewProjectPanel extends VBox
 
         };
 
-        UIUtils.addDoOnReturnPressed (this.name,
-                                      r);
-        UIUtils.addDoOnReturnPressed (this.passwords.getPasswordField1 (),
-                                      r);
-        UIUtils.addDoOnReturnPressed (this.passwords.getPasswordField2 (),
-                                      r);
+        if (createOnReturn)
+        {
+
+            UIUtils.addDoOnReturnPressed (this.name,
+                                          r);
+            UIUtils.addDoOnReturnPressed (this.passwords.getPasswordField1 (),
+                                          r);
+            UIUtils.addDoOnReturnPressed (this.passwords.getPasswordField2 (),
+                                          r);
+
+        }
 
         this.form = Form.builder ()
             .description (desc)
@@ -91,7 +98,12 @@ public class NewProjectPanel extends VBox
         this.form.setOnConfirm (ev ->
         {
 
-            r.run ();
+            if (createOnReturn)
+            {
+
+                r.run ();
+
+            }
 
         });
 

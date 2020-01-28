@@ -716,6 +716,16 @@ public class UIUtils
                                  Path           f)
     {
 
+        if ((f == null)
+            ||
+            (Files.notExists (f))
+           )
+        {
+
+            return;
+
+        }
+
         try
         {
 

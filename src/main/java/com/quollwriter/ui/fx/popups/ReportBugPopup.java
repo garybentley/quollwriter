@@ -158,6 +158,8 @@ public class ReportBugPopup extends PopupContent
                         .title (prefix,confirmpopup,title)
                         .message (prefix,confirmpopup,text)
                         .withViewer (this.getViewer ())
+                        .styleClassName (StyleClassNames.BUG)
+                        .closeButton ()
                         .build ();
 
                     _this.getViewer ().fireProjectEvent (ProjectEvent.Type.bugreport,

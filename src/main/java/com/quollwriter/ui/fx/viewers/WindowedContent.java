@@ -34,6 +34,13 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
 
         Set<Node> hc = new LinkedHashSet<> ();
 
+        if (Environment.getQuollWriterVersion ().isBeta ())
+        {
+
+            hc.add (viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.reportbug));
+
+        }
+
         if (headerCons != null)
         {
 
@@ -59,6 +66,7 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
             .toolbar (ctb)
             .styleClassName (StyleClassNames.HEADER)
             .build ();
+        this.header.getStyleClass ().add (StyleClassNames.TITLE);
         VBox.setVgrow (this.header,
                        Priority.NEVER);
         this.notifications = new VBox ();
@@ -163,6 +171,14 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
 
     }
 */
+
+    public StringProperty getTitle ()
+    {
+
+        return this.header.titleProperty ();
+
+    }
+
     public void setTitle (StringProperty t)
     {
 

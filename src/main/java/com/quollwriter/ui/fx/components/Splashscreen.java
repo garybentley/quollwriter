@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.components;
 
 import java.net.*;
+import java.util.stream.*;
 
 import javafx.application.*;
 import javafx.beans.property.*;
@@ -33,7 +34,9 @@ public class Splashscreen extends Stage
 
         Scene s = new Scene (content);
         s.setFill (Color.TRANSPARENT);
-        s.getStylesheets ().add (UserProperties.getUserStyleSheetURL ().toExternalForm ());
+        s.getStylesheets ().addAll (Environment.getStyleSheets ().stream ()
+            .map (ss -> ss.toExternalForm ())
+            .collect (Collectors.toList ()));
         this.setScene (s);
 
         ImageView image = new ImageView ();
