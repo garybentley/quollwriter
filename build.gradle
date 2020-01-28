@@ -14,8 +14,8 @@ plugins {
     id 'application'
 }
 
-//version '3.0.0'
-version '2.6.14'
+version '3.0.0b1'
+//version '2.6.14'
 
 sourceSets {
     main {
@@ -29,9 +29,19 @@ repositories {
     mavenCentral()
 
     // Needed for the EPUB lib artifact.
+/*
     maven {
         url 'http://maven.openkm.com/'
     }
+*/
+    maven {
+        //id 'psiegman-repo'
+        url 'https://github.com/psiegman/mvn-repo/raw/master/releases'
+    }
+
+    maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
 
 }
 
@@ -112,17 +122,18 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java7:4.3.3'
 
     // RichtextFX
-    implementation 'org.fxmisc.richtext:richtextfx:0.10.2'
+    //implementation 'org.fxmisc.richtext:richtextfx:0.10.2'
+    //implementation 'org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT'
 
     // This is temporary for testing changes to a local version of richtextfx.  Ignore.
     // TEMP ADD RICHTEXTFX JARS AND DEPS
-    // implementation fileTree('d:/reference/java/richtextfx/RichTextFX/richtextfx/build/libs/') {
-    //    include 'richtextfx-1.0.0-SNAPSHOT.jar'
-    //    include 'flowless-0.6.jar'
-    //    include 'reactfx-2.0-M5.jar'
-    //    include 'undofx-2.1.0.jar'
-    //    include 'wellbehavedfx-0.3.3.jar'
-    //}
+     implementation fileTree('d:/reference/java/richtextfx/RichTextFX/richtextfx/build/libs/') {
+        include 'richtextfx-1.0.0-SNAPSHOT.jar'
+        include 'flowless-0.6.jar'
+        include 'reactfx-2.0-M5.jar'
+        include 'undofx-2.1.0.jar'
+        include 'wellbehavedfx-0.3.3.jar'
+    }
 
     // Flying Saucer (can be removed when no longer using Swing)
     implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
@@ -140,6 +151,7 @@ dependencies {
 }
 
 compileJava {
+
     options.compilerArgs =
     [
         '--add-modules=java.base,javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
@@ -147,6 +159,10 @@ compileJava {
         'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
         '--add-exports',
         'javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.web/com.sun.javafx.webkit=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.web/com.sun.webkit=ALL-UNNAMED',
         '--module-path',
         'D:/reference/java/javafx/javafx-sdk-12/lib',
         '-Xmaxerrs',
@@ -189,6 +205,10 @@ application {
         'javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED',
         '--add-exports',
         'javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.web/com.sun.javafx.webkit=ALL-UNNAMED',
+        '--add-exports',
+        'javafx.web/com.sun.webkit=ALL-UNNAMED',
         '--module-path',
         'D:/reference/java/javafx/javafx-sdk-12/lib'
     ]
