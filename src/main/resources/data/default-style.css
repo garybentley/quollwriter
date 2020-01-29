@@ -3770,7 +3770,7 @@ Text
     -fx-vbar-policy: as-needed;
 }
 
-.viewer.project .normal .header.title .icon
+.viewer.project .header.title .icon
 {
     -fx-image: url(/imgs/project24.png);
 }

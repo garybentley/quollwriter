@@ -28,7 +28,7 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
     {
 
         super (viewer);
-        this.getStyleClass ().add (StyleClassNames.NORMAL);
+        //this.getStyleClass ().add (StyleClassNames.NORMAL);
 
         List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
 
