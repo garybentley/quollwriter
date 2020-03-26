@@ -77,12 +77,25 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
 
         this.parentPane = new ViewerSplitPane (UserProperties.uiLayoutProperty (),
                                                this.viewer);
-        this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
+        //this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
         VBox.setVgrow (this.parentPane,
                        Priority.ALWAYS);
         this.parentPane.setContent (mainContent);
 
         VBox b = new VBox ();
+
+        UIUtils.addStyleSheet (b,
+                               Constants.VIEWER_STYLESHEET_TYPE,
+                               StyleClassNames.WINDOWED);
+/*
+        if (b.styleSheet != null)
+        {
+
+            this.getStylesheets ().add (b.styleSheet);
+
+        }
+*/
+        b.getStyleClass ().add (StyleClassNames.WINDOWED);
         b.prefWidthProperty ().bind (this.widthProperty ());
         b.prefHeightProperty ().bind (this.heightProperty ());
         this.getChildren ().add (b);

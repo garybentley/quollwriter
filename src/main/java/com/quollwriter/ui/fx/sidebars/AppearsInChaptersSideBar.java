@@ -64,7 +64,7 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
         QuollTextView desc = QuollTextView.builder ()
             .styleClassName (StyleClassNames.DESCRIPTION)
             .text (getUILanguageStringProperty (appearsinchapters,LanguageStrings.sidebar,text))
-            .withViewer (viewer)
+            .inViewer (viewer)
             .build ();
 
         b.getChildren ().addAll (desc, this.noMatches, sp);
@@ -129,6 +129,7 @@ System.out.println ("GOT RES: " + this.results);
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.APPEARSINCHAPTERS)
+            .styleSheet (StyleClassNames.APPEARSINCHAPTERS)
             .withScrollPane (false)
             .canClose (true)
             //.headerControls ()?

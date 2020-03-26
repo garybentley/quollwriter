@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.*;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.text.*;
 
@@ -29,6 +30,11 @@ import com.quollwriter.ui.userobjects.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 
+import javafx.beans.property.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import com.quollwriter.ui.fx.components.*;
+
 import org.docx4j.jaxb.*;
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -38,9 +44,11 @@ import org.docx4j.wml.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 {
+    public static final String HOW_TO_SAVE_STAGE = "how-to-save";
 
     public static final String HEADING1 = "Heading1";
     public static final String HEADING2 = "Heading2";
@@ -51,13 +59,16 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
     protected ExportSettings settings = null;
     private JComboBox        exportOthersType = null;
     private JComboBox        exportChaptersType = null;
-    private JScrollPane      itemsTreeScroll = null;
+
+    private QuollChoiceBox exportChaptersType2 = null;
+    private QuollChoiceBox exportOthersType2 = null;
+
     private CTLanguage lang = null;
 
     public String getStartStage ()
     {
 
-        return "select-items";
+        return HOW_TO_SAVE_STAGE;
 
     }
 
@@ -150,9 +161,65 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 
+    @Override
+    public com.quollwriter.ui.fx.components.Wizard.Step getStage2 (String stage)
+    {
+
+        final MSWordDocXDocumentExporter _this = this;
+
+        com.quollwriter.ui.fx.components.Wizard.Step ws = new com.quollwriter.ui.fx.components.Wizard.Step ();
+
+        if (HOW_TO_SAVE_STAGE.equals (stage))
+        {
+
+            ws.title = getUILanguageStringProperty (exportproject,stages,howtosave,title);
+            //"How should the selected items be saved";
+
+            Set<StringProperty> exportChaptersTypes = new LinkedHashSet<> ();
+            exportChaptersTypes.add (getUILanguageStringProperty (exportproject,stages,howtosave,types,singlefile));
+            exportChaptersTypes.add (getUILanguageStringProperty (exportproject,stages,howtosave,types,onefileperchapter));
+
+            this.exportChaptersType2 = QuollChoiceBox.builder ()
+                .items (exportChaptersTypes)
+                .build ();
+
+            Set<StringProperty> exportOthersTypes = new LinkedHashSet<> ();
+            exportOthersTypes.add (getUILanguageStringProperty (exportproject,stages,howtosave,types,singlefile));
+            exportOthersTypes.add (getUILanguageStringProperty (exportproject,stages,howtosave,types,onefileperitemtype));
+
+            this.exportOthersType2 = QuollChoiceBox.builder ()
+                .items (exportOthersTypes)
+                .build ();
+
+            Form f = Form.builder ()
+                .description (exportproject,stages,howtosave,text)
+                .item (getUILanguageStringProperty (exportproject,stages,howtosave,labels,chapters),
+                       this.exportChaptersType2)
+                .item (getUILanguageStringProperty (exportproject,stages,howtosave,labels,otheritems),
+                       this.exportOthersType2)
+                .build ();
+
+            ws.content = f;
+            ws.content.getStyleClass ().add (HOW_TO_SAVE_STAGE);
+
+        }
+
+        return ws;
+
+    }
+
     public String getNextStage (String currStage)
     {
 
+        if (HOW_TO_SAVE_STAGE.equals (currStage))
+        {
+
+            return null;
+
+        }
+
+        return HOW_TO_SAVE_STAGE;
+/*
         if (currStage == null)
         {
 
@@ -168,12 +235,14 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         }
 
         return null;
-
+*/
     }
 
     public String getPreviousStage (String currStage)
     {
 
+        return null;
+/*
         if (currStage == null)
         {
 
@@ -189,7 +258,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         }
 
         return null;
-
+*/
     }
 
     private void addParagraph (Paragraph        para,
@@ -923,14 +992,15 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
     }
 
     @Override
-    public void exportProject (File dir)
+    public void exportProject (Path    dir,
+                               Project itemsToExport)
                         throws GeneralException
     {
 
         ExportSettings es = new ExportSettings ();
-        es.outputDirectory = dir;
-        es.chapterExportType = ((this.exportChaptersType.getSelectedIndex () == 0) ? ExportSettings.SINGLE_FILE : ExportSettings.INDIVIDUAL_FILE);
-        es.otherExportType = ((this.exportOthersType.getSelectedIndex () == 0) ? ExportSettings.SINGLE_FILE : ExportSettings.INDIVIDUAL_FILE);
+        es.outputDirectory = dir.toFile ();
+        es.chapterExportType = ((this.exportChaptersType2.getSelectionModel ().getSelectedIndex () == 0) ? ExportSettings.SINGLE_FILE : ExportSettings.INDIVIDUAL_FILE);
+        es.otherExportType = ((this.exportOthersType2.getSelectionModel ().getSelectedIndex () == 0) ? ExportSettings.SINGLE_FILE : ExportSettings.INDIVIDUAL_FILE);
 
         this.settings = es;
 
@@ -940,8 +1010,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         this.lang.setVal (this.getLanguageCode (this.proj));
 
-        Project p = ExportUtils.getSelectedItems (this.itemsTree,
-                                                  this.proj);
+        Project p = itemsToExport;
 
         try
         {

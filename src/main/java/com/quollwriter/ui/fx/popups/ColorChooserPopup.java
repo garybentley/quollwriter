@@ -62,6 +62,7 @@ public class ColorChooserPopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (colorchooser,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.COLORCHOOSER)
+            .styleSheet (StyleClassNames.COLORCHOOSER)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -70,7 +71,7 @@ public class ColorChooserPopup extends PopupContent
             .removeOnClose (true)
             .build ();
 
-        p.setPrefWidth (300);
+        //p.setPrefWidth (300);
         p.requestFocus ();
 
         return p;

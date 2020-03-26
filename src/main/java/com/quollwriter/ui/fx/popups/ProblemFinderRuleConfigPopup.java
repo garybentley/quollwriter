@@ -771,6 +771,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         QuollPopup p = QuollPopup.builder ()
             .title (problemfinder,config,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.PROBLEMFINDERCONFIG)
+            .styleSheet (StyleClassNames.PROBLEMFINDERCONFIG)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -813,7 +814,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
                 //BasicHtmlTextFlow.builder ()
                 .text (this.infoText)
                 .styleClassName (StyleClassNames.SUMMARY)
-                .withViewer (viewer)
+                .inViewer (viewer)
                 .build ();
             HBox.setHgrow (this.info,
                            Priority.ALWAYS);
@@ -822,7 +823,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
                 .text (this.descText)
                 .styleClassName (StyleClassNames.DESCRIPTION)
                 //.withHandler (viewer)
-                .withViewer (viewer)
+                .inViewer (viewer)
                 .build ();
             this.desc.managedProperty ().bind (this.desc.visibleProperty ());
             this.desc.setVisible (false);

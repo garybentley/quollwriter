@@ -9,6 +9,7 @@ import java.net.*;
 import java.util.jar.*;
 import java.util.*;
 import java.util.zip.*;
+import java.util.stream.*;
 import java.nio.file.*;
 import java.nio.charset.*;
 
@@ -1817,20 +1818,23 @@ TODO Remove
                 return true;
 
             }
-
+/*
             if (!Files.isDirectory (d))
             {
-
+System.out.println ("RET1: " + d);
                 return false;
 
             }
+*/
+            try (Stream<Path> ls = Files.list (d))
+            {
 
-            Path p = Files.list (d)
-                    .findFirst ()
-                    .orElse (null);
+                Path p = ls.findFirst ()
+                        .orElse (null);
 
-            return p == null;
-                    //.orElse (null) == null;
+                return p == null;
+
+            }
 
         } catch (Exception e) {
 
@@ -2055,9 +2059,19 @@ TODO REmove
         try
         {
 
-            Files.list (d)
-                .forEach (f ->
+            // Need the try(){} to auto close the stream.
+            try (Stream<Path> ls = Files.list (d))
+            {
+
+                ls.forEach (f ->
                 {
+
+                    if (Files.notExists (f))
+                    {
+
+                        return;
+
+                    }
 
                     try
                     {
@@ -2082,7 +2096,9 @@ TODO REmove
 
                 });
 
-                Files.delete (d);
+            }
+
+            Files.delete (d);
 
         } catch (Exception e) {
 
@@ -2634,8 +2650,10 @@ TODO REmove
         if (d != null)
         {
 
-            Instant i = Instant.ofEpochMilli (d.getTime ());
-            ld = LocalDate.from (i);
+            ld = Instant.ofEpochMilli (d.getTime ())
+                .atZone (ZoneId.systemDefault ())
+                .toLocalDate ();
+            //ld = LocalDate.from (i);
 
         }
 
@@ -2646,9 +2664,14 @@ TODO REmove
     public static Date localDateToDate (LocalDate d)
     {
 
-        Instant i = (Instant) d.adjustInto (Instant.ofEpochMilli (0));
+        if (d == null)
+        {
 
-        return new Date (i.toEpochMilli ());
+            return null;
+
+        }
+
+        return Date.from (d.atStartOfDay (ZoneId.systemDefault ()).toInstant ());
 
     }
 

@@ -571,6 +571,7 @@ System.out.println ("REG: " + r);
                 {
 
                     ImageView iv = new ImageView (UIUtils.getImage (f));
+
                     iv.setFitWidth (48);
                     iv.setFitHeight (48);
 

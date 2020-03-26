@@ -257,6 +257,10 @@ public class Options extends VBox implements Stateful
                 .show ()
                 .build ();
 
+            UIUtils.addStyleSheet (qp,
+                                   Constants.POPUP_STYLESHEET_TYPE,
+                                   StyleClassNames.LAYOUTSELECTOR);
+
             QuollPopup _qp = qp;
 
             List<String> layoutTypes = new ArrayList<> ();
@@ -283,7 +287,7 @@ public class Options extends VBox implements Stateful
                 QuollTextView text = QuollTextView.builder ()
                     .styleClassName (StyleClassNames.DESCRIPTION)
                     .text (getUILanguageStringProperty (options,lookandsound,interfacelayouts,lt))
-                    .withViewer (_this.viewer)
+                    .inViewer (_this.viewer)
                     .build ();
                 HBox.setHgrow (text,
                                Priority.ALWAYS);
@@ -1122,14 +1126,113 @@ public class Options extends VBox implements Stateful
             .userProperty (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME)
             .build ();
 
+        boolean soundSel = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
+
+        QuollButton playSoundB = QuollButton.builder ()
+            .label (options,lookandsound,labels,playtypewritersound,buttons,playsound)
+            .onAction (ev ->
+            {
+
+                UserProperties.playKeyStrokeSound ();
+
+            })
+            .build ();
+
+        QuollCheckBox playSoundCB = QuollCheckBox.builder ()
+            .selected (soundSel)
+            .label (options,lookandsound,labels,playtypewritersound,text)
+            .build ();
+
+        playSoundCB.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.setPlaySoundOnKeyStroke (playSoundCB.isSelected ());
+
+        });
+
+        Path kp = null;
+
+        String kf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
+
+        if (kf != null)
+        {
+
+            kp = Paths.get (kf);
+
+        }
+
+        QuollFileField ownSoundF = QuollFileField.builder ()
+            .showClear (true)
+            .limitTo (QuollFileField.Type.file)
+            .styleClassName (StyleClassNames.OWNSOUND)
+            .withViewer (this.viewer)
+            .fileExtensionFilter (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,filter),
+                                  "wav")
+            .chooserTitle (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,title))
+            .findButtonTooltip (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,tooltip))
+            .initialFile (kp)
+            .build ();
+
+        ownSoundF.fileProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.setKeyStrokeSoundFilePath (newv);
+
+        });
+
+        playSoundB.setDisable (!soundSel);
+        ownSoundF.setDisable (!soundSel);
+
+        playSoundCB.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            playSoundB.setDisable (!playSoundCB.isSelected ());
+            ownSoundF.setDisable (!playSoundCB.isSelected ());
+
+        });
+
+        QuollCheckBox showPreviewCB = QuollCheckBox.builder ()
+            .label (options,lookandsound,labels,showpreview)
+            .userProperty (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME)
+            .build ();
+
+        QuollButton changeDisplayBut = QuollButton.builder ()
+            .label (options,lookandsound,labels,changedisplay)
+            .onAction (ev ->
+            {
+
+                QuollPopup qp = this.viewer.getPopupById (ChangeProjectItemPreviewDisplayPopup.POPUP_ID);
+
+                if (qp != null)
+                {
+
+                    qp.toFront ();
+                    return;
+
+                }
+
+                new ChangeProjectItemPreviewDisplayPopup (this.viewer).show ();
+
+            })
+            .build ();
+
+        changeDisplayBut.setDisable (!showPreviewCB.isSelected ());
+
+        showPreviewCB.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            changeDisplayBut.setDisable (!newv);
+
+        });
+
         Section s = Section.builder ()
             .styleClassName (StyleClassNames.EDITING)
             .sectionId (Section.Id.editing)
             .title (options,editingchapters,title)
             .description (options,editingchapters,text)
             .mainItem (enableAutosave)
-            .mainItem (getUILanguageStringProperty (options,editingchapters,labels,autosavewhen),
-                       autosaveAmount)
+            .subItem (getUILanguageStringProperty (options,editingchapters,labels,autosavewhen),
+                      autosaveAmount)
             .mainItem (getUILanguageStringProperty (options,editingchapters,labels,showicon),
                        QuollCheckBox.builder ()
                             .label (options,editingchapters,labels,haseditposition)
@@ -1167,6 +1270,10 @@ public class Options extends VBox implements Stateful
                            })
                            .build ())
             .mainItem (QuollCheckBox.builder ()
+                .label (options,lookandsound,labels,shownotes)
+                .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
+                .build ())
+            .mainItem (QuollCheckBox.builder ()
                 .label (options,editingchapters,labels,showeditposition)
                 .userProperty (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME)
                 .build ())
@@ -1199,6 +1306,8 @@ public class Options extends VBox implements Stateful
 
                           })
                           .build ())
+            .mainItem (showPreviewCB)
+            .subItem (changeDisplayBut)
             .mainItem (QuollCheckBox.builder ()
                 .label (options,editingchapters,labels,seteditcompleteatchapterend)
                 .userProperty (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME)
@@ -1247,6 +1356,10 @@ public class Options extends VBox implements Stateful
 
                 })
                 .build ())
+            .mainItem (playSoundCB)
+            .subItem (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,selectownwavfile),
+                      ownSoundF)
+            .subItem (playSoundB)
             .build ();
 
         return s;
@@ -1618,10 +1731,31 @@ public class Options extends VBox implements Stateful
         ErrorBox projBackupDirErr = ErrorBox.builder ()
             .build ();
 
+        Path backupDir = proj.getBackupDirectory ().toPath ();
+
+        if (Files.notExists (backupDir))
+        {
+
+            try
+            {
+
+                Files.createDirectory (backupDir);
+
+                Utils.createQuollWriterDirFile (backupDir);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to create backup dir: " + backupDir,
+                                      e);
+
+            }
+
+        }
+
         QuollFileField projBackupDirF = QuollFileField.builder ()
             .chooserTitle (getUILanguageStringProperty (options,projectandbackup,labels,selectbackupdir,finder,title))
             .limitTo (QuollFileField.Type.directory)
-            .initialFile (proj.getBackupDirectory ().toPath ())
+            .initialFile (backupDir.getParent ())
             .withViewer (viewer)
             .build ();
 
@@ -2188,87 +2322,6 @@ TODO Remove NO longer needed.
         VBox uilangb = new VBox ();
         uilangb.getChildren ().addAll (hb, bb);
 
-        QuollCheckBox showPreviewCB = QuollCheckBox.builder ()
-            .label (options,lookandsound,labels,showpreview)
-            .userProperty (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME)
-            .build ();
-
-        QuollButton changeDisplayBut = QuollButton.builder ()
-            .label (options,lookandsound,labels,changedisplay)
-            .onAction (ev ->
-            {
-
-                QuollPopup qp = this.viewer.getPopupById (ChangeProjectItemPreviewDisplayPopup.POPUP_ID);
-
-                if (qp != null)
-                {
-
-                    qp.toFront ();
-                    return;
-
-                }
-
-                new ChangeProjectItemPreviewDisplayPopup (this.viewer).show ();
-
-            })
-            .build ();
-
-        changeDisplayBut.setDisable (!showPreviewCB.isSelected ());
-
-        showPreviewCB.selectedProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            changeDisplayBut.setDisable (!newv);
-
-        });
-
-        boolean soundSel = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
-
-        QuollButton playSoundB = QuollButton.builder ()
-            .label (options,lookandsound,labels,playtypewritersound,buttons,playsound)
-            .onAction (ev ->
-            {
-
-                Environment.playKeyStrokeSound ();
-
-            })
-            .build ();
-
-        QuollCheckBox playSoundCB = QuollCheckBox.builder ()
-            .selected (soundSel)
-            .label (options,lookandsound,labels,playtypewritersound,text)
-            .build ();
-
-        QuollFileField ownSoundF = QuollFileField.builder ()
-            .showClear (true)
-            .limitTo (QuollFileField.Type.file)
-            .styleClassName (StyleClassNames.OWNSOUND)
-            .withViewer (this.viewer)
-            .fileExtensionFilter (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,filter),
-                                  "wav")
-            .chooserTitle (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,title))
-            .findButtonTooltip (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,tooltip))
-            .initialFile (UserProperties.getAsFile (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME))
-            .build ();
-
-        ownSoundF.fileProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            Environment.setKeyStrokeSoundFilePath (newv);
-
-        });
-
-        playSoundB.setDisable (!soundSel);
-        ownSoundF.setDisable (!soundSel);
-
-        playSoundCB.selectedProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            playSoundB.setDisable (!playSoundCB.isSelected ());
-            ownSoundF.setDisable (!playSoundCB.isSelected ());
-
-        });
-
         Slider textSize = new Slider (5, 30, 1);
         textSize.setBlockIncrement (1);
         textSize.setMajorTickUnit (5);
@@ -2386,8 +2439,7 @@ TODO Remove NO longer needed.
 
                              int ind = cb.getSelectionModel ().getSelectedIndex ();
 
-                             UserProperties.set (Constants.TOOLBAR_LOCATION_PROPERTY_NAME,
-                                                 ind == 0 ? Constants.TOP : Constants.BOTTOM);
+                             UserProperties.setToolbarLocation (ind == 0 ? Constants.TOP : Constants.BOTTOM);
 
                          })
                          .build ())
@@ -2416,12 +2468,6 @@ TODO Remove NO longer needed.
                 .label (options,lookandsound,labels,showprojectswindownoopenproject)
                 .userProperty (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME)
                 .build ())
-            .mainItem (showPreviewCB)
-            .subItem (changeDisplayBut)
-            .mainItem (QuollCheckBox.builder ()
-                .label (options,lookandsound,labels,shownotes)
-                .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
-                .build ())
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,whenfind),
                        QuollRadioButtons.builder ()
                             .button (QuollRadioButton.builder ()
@@ -2447,10 +2493,12 @@ TODO Remove NO longer needed.
                                         .selected (UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
                                         .build ())
                             .build ())
+                            /*
             .mainItem (playSoundCB)
             .subItem (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,selectownwavfile),
                       ownSoundF)
             .subItem (playSoundB)
+            */
             .build ();
 
         return s;
@@ -3221,8 +3269,11 @@ TODO Remove NO longer needed.
             try
             {
 
-                Files.list (oldDir)
-                    .forEach (f ->
+                // Need the try(){} to auto close the underlying resources.
+                try (Stream<Path> ls = Files.list (oldDir))
+                {
+
+                    ls.forEach (f ->
                     {
 
                         try
@@ -3241,6 +3292,8 @@ TODO Remove NO longer needed.
                         }
 
                     });
+
+                }
 
                 Files.delete (oldDir);
 

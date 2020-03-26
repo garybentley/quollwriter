@@ -31,7 +31,9 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
 
         this.field = f;
 
-        this.minsp = new Spinner<> (new SpinnerValueFactory.DoubleSpinnerValueFactory (Double.MIN_VALUE, Double.MAX_VALUE, 0d, 1d));
+        this.minsp = new Spinner<> (-1 * Double.MAX_VALUE,
+                                    Double.MAX_VALUE,
+                                    0d);
         this.minsp.setEditable (true);
 
         try
@@ -53,7 +55,9 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
 
         }
 
-        this.maxsp = new Spinner<> (new SpinnerValueFactory.DoubleSpinnerValueFactory (Double.MIN_VALUE, Double.MAX_VALUE, 0d, 1d));
+        this.maxsp = new Spinner<> (-1 * Double.MAX_VALUE,
+                                    Double.MAX_VALUE,
+                                    0d);
         this.maxsp.setEditable (true);
 
         try

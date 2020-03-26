@@ -121,6 +121,7 @@ public class TextViewEditBox extends StackPane
         ToolBar bb = new ToolBar ();
         bb.getStyleClass ().add (StyleClassNames.BUTTONS);
         bb.getItems ().addAll (saveB, cancelB);
+        bb.setSnapToPixel (true);
 
         this.edit.getChildren ().add (bb);
 

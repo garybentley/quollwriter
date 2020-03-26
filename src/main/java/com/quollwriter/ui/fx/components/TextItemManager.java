@@ -23,11 +23,17 @@ public class TextItemManager extends VBox
 
     private ListView<String> current = null;
     private TextField addText = null;
+    private ErrorBox newError = null;
+    private ErrorBox existingError = null;
 
     private TextItemManager (Builder b)
     {
 
         final TextItemManager _this = this;
+
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.ITEMMANAGER);
 
         this.getStyleClass ().add (StyleClassNames.ITEMMANAGER);
 
@@ -51,46 +57,45 @@ public class TextItemManager extends VBox
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ());
 
+        this.newError = ErrorBox.builder ()
+            .build ();
+
+        ab.getChildren ().add (this.newError);
+
         this.addText = new TextField ();
         this.current = new ListView<> ();
 
         String seps = b.sep != null ? b.sep : getUILanguageStringProperty (manageitems,newitems,separators).get ();
 
-        Runnable addItems = new Runnable ()
+        Runnable addItems = () ->
         {
 
-            @Override
-            public void run ()
+            this.newError.setVisible (false);
+
+            StringTokenizer t = new StringTokenizer (addText.getText (),
+                                                     seps);
+
+            while (t.hasMoreTokens ())
             {
 
-                StringTokenizer t = new StringTokenizer (addText.getText (),
-                                                         seps);
+                String tok = t.nextToken ().trim ();
 
-                while (t.hasMoreTokens ())
+                if (b.items.contains (tok))
                 {
 
-                    String tok = t.nextToken ().trim ();
-
-
-
-                    if (b.items.contains (tok))
-                    {
-
-                        continue;
-
-                    }
-
-                    b.items.add (tok);
-
-                    _this.fireEvent (new ItemEvent (null,
-                                                    tok,
-                                                    ItemEvent.ADDED_EVENT));
+                    continue;
 
                 }
 
-                addText.setText (null);
+                b.items.add (tok);
+
+                _this.fireEvent (new ItemEvent (null,
+                                                tok,
+                                                ItemEvent.ADDED_EVENT));
 
             }
+
+            addText.setText (null);
 
         };
 
@@ -130,6 +135,11 @@ public class TextItemManager extends VBox
 
         }
 
+        this.existingError = ErrorBox.builder ()
+            .build ();
+
+        cb.getChildren ().add (this.existingError);
+
         this.current.getSelectionModel ().setSelectionMode (SelectionMode.MULTIPLE);
         this.current.setEditable (true);
         this.current.setCellFactory (list ->
@@ -142,6 +152,7 @@ public class TextItemManager extends VBox
                 public void cancelEdit ()
                 {
 
+                    _this.existingError.setVisible (false);
                     this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
                     super.cancelEdit ();
 
@@ -189,6 +200,8 @@ public class TextItemManager extends VBox
                     // TODO Check value here and either allow or prevent.
                     super.commitEdit (newVal);
 
+                    _this.existingError.setVisible (false);
+
                     _this.fireEvent (new ItemEvent (oldVal,
                                                     newVal,
                                                     ItemEvent.CHANGED_EVENT));
@@ -209,6 +222,8 @@ public class TextItemManager extends VBox
                 .styleClassName (StyleClassNames.EDIT)
                 .onAction (eev ->
                 {
+
+                    this.existingError.setVisible (false);
 
                     c.startEdit ();
 
@@ -260,6 +275,8 @@ public class TextItemManager extends VBox
                         .buttonType (ButtonBar.ButtonData.APPLY)
                         .onAction (ev ->
                         {
+
+                            this.existingError.setVisible (false);
 
                             List<String> sel = new ArrayList<> (_this.current.getSelectionModel ().getSelectedItems ());
 
@@ -318,6 +335,22 @@ public class TextItemManager extends VBox
 
         this.addEventHandler (ItemEvent.ADDED_EVENT,
                               handler);
+
+    }
+
+    public void showNewError (StringProperty e)
+    {
+
+        this.newError.setErrors (e);
+        this.newError.setVisible (true);
+
+    }
+
+    public void showExistingError (StringProperty e)
+    {
+
+        this.existingError.setErrors (e);
+        this.existingError.setVisible (true);
 
     }
 

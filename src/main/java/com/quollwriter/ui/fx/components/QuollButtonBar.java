@@ -28,6 +28,7 @@ public class QuollButtonBar extends HBox
 
         this.getChildren ().add (this.buttonBar);
         this.getStyleClass ().add (StyleClassNames.BUTTONS);
+        this.setSnapToPixel (true);
 
     }
 

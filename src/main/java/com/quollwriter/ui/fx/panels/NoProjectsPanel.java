@@ -5,6 +5,7 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
@@ -24,6 +25,21 @@ public class NoProjectsPanel extends PanelContent<AbstractViewer>
     {
 
         super (viewer);
+
+        VBox b = new VBox ();
+        b.getStyleClass ().add (StyleClassNames.NOPROJECTS);
+        QuollLabel l = QuollLabel.builder ()
+            .label (allprojects,noprojects)
+            .build ();
+        b.getChildren ().add (l);
+        b.setOnMouseClicked (ev ->
+        {
+
+            viewer.runCommand (AbstractViewer.CommandId.newproject);
+
+        });
+
+        this.getChildren ().add (b);
 
     }
 

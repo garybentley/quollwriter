@@ -67,7 +67,13 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
         });
 
         VBox content = new VBox ();
-        this.getChildren ().add (content);
+
+        UIUtils.runLater (() ->
+        {
+
+            this.getChildren ().add (content);
+
+        });
 
         Header h = Header.builder ()
             .title (achievementspanel,title)
@@ -77,7 +83,7 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
         QuollTextView desc = QuollTextView.builder ()
             .text (getUILanguageStringProperty (achievementspanel,text))
             .styleClassName (StyleClassNames.DESCRIPTION)
-            .withViewer (this.viewer)
+            .inViewer (this.viewer)
             .build ();
 
         this.hide = QuollCheckBox.builder ()
@@ -388,6 +394,7 @@ TODO?
             .title (achievementspanel,title)
             .content (this)
             .styleClassName (StyleClassNames.ACHIEVEMENTS)
+            .styleSheet (StyleClassNames.ACHIEVEMENTS)
             .panelId (PANEL_ID)
             .build ();
         panel.setId (StyleClassNames.ACHIEVEMENTS);

@@ -1,0 +1,11 @@
+/*
+ * Base styles for panels using com.quollwriter.ui.fx.components.Panel
+ */
+.panel { -fx-background-color: -qw-bg-color; }
+.panel .header { -fx-padding: 0 0 0 0.5em; }
+.panel .header .title {
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-font-size: 1.7em;
+    -fx-padding: 0 0 0 0.3em;
+}

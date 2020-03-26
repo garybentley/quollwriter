@@ -84,7 +84,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         Header header = Header.builder ()
             .title (getUILanguageStringProperty (Arrays.asList (assets,add,LanguageStrings.panel,title),
-                                                 a.getUserConfigurableObjectType ().nameProperty ()))
+                                                 a.getUserConfigurableObjectType ().objectTypeNameProperty ()))
             .styleClassName (a.getUserConfigurableObjectType ().getObjectType ())
             .controls (items)
             .build ();
@@ -106,7 +106,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
         nbox.getStyleClass ().addAll (StyleClassNames.OBJECTNAME, StyleClassNames.FIELD);
 
         nbox.getChildren ().add (QuollLabel.builder ()
-            .label (nameTypeField.nameProperty ())
+            .label (nameTypeField.formNameProperty ())
             .build ());
 
         Runnable doSave = () ->
@@ -187,7 +187,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         Panel panel = Panel.builder ()
             .title (getUILanguageStringProperty (Arrays.asList (assets,add,LanguageStrings.panel,title),
-                                                 this.object.getUserConfigurableObjectType ().nameProperty ()))
+                                                 this.object.getUserConfigurableObjectType ().objectTypeNameProperty ()))
             .content (this)
             .styleClassName (StyleClassNames.ASSET)
             .panelId (this.object.getUserConfigurableObjectType ().getObjectReference ().asString ())

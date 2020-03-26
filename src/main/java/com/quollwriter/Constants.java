@@ -580,6 +580,15 @@ public class Constants
 
     public static final String EDITORS_EDITOR_FILE_NAME = "editor.xml";
 
+    public static final String LEGACY_CHARACTER_SMALL_ICON_IMAGE_NAME = "/imgs/character16.png";
+    public static final String LEGACY_CHARACTER_LARGE_ICON_IMAGE_NAME = "/imgs/character24.png";
+    public static final String LEGACY_LOCATION_SMALL_ICON_IMAGE_NAME = "/imgs/location16.png";
+    public static final String LEGACY_LOCATION_LARGE_ICON_IMAGE_NAME = "/imgs/location24.png";
+    public static final String LEGACY_RESEARCHITEM_SMALL_ICON_IMAGE_NAME = "/imgs/researchitem16.png";
+    public static final String LEGACY_RESEARCHITEM_LARGE_ICON_IMAGE_NAME = "/imgs/researchitem24.png";
+    public static final String LEGACY_OBJECT_SMALL_ICON_IMAGE_NAME = "/imgs/object16.png";
+    public static final String LEGACY_OBJECT_LARGE_ICON_IMAGE_NAME = "/imgs/object24.png";
+
     public static final String LEGACY_OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names.xml";
 
     public static final String OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names" + JSON_FILE_EXT;
@@ -619,6 +628,7 @@ public class Constants
     public static final String WORD_SYLLABLE_COUNTS_FILE = Constants.DATA_DIR + "word-syllable-counts.txt";
     public static final String UPDATE_SCRIPTS_DIR = Constants.SCHEMA_DIR + "update-scripts";
     public static final String EDITOR_UPDATE_SCRIPTS_DIR = Constants.EDITOR_SCHEMA_DIR + "update-scripts";
+    public static final String WEBVIEW_HEADER_FILE = Constants.DATA_DIR + "webview-header.txt";
 
     public static final String PROJECT_INFO_DB_FILE_NAME_PREFIX = "project-info-db";
     public static final String PROJECT_INFO_SCHEMA_DIR = Constants.DATA_DIR + "project-info-schema/";
@@ -664,6 +674,19 @@ public class Constants
 
     public static final String USER_STYLE_SHEET_FILE_NAME_PROPERTY_NAME = "userStyleSheet";
     public static final String DEFAULT_STYLE_SHEET_FILE_NAME = Constants.DATA_DIR + "default-style.css";
+
+    public static final String COMPONENT_STYLESHEET_TYPE = "components";
+    public static final String POPUP_STYLESHEET_TYPE = "popups";
+    public static final String VIEWER_STYLESHEET_TYPE = "viewers";
+    public static final String PANEL_STYLESHEET_TYPE = "panels";
+    public static final String SIDEBAR_STYLESHEET_TYPE = "sidebars";
+
+    /**
+     * The path to the stylesheet, %1$s is replaced by the type of stylesheet to add, i.e. Constants.COMPONENT_STYLESHEET_TYPE
+     * or Constants.POPUP_STYLESHEET_TYPE.  %2$s is replaced by the actual stylesheet name, e.g.
+     * /data/stylesheets/components/notification.css
+     */
+    public static final String STYLESHEET_PATH = "/data/stylesheets/%1$s/%2$s.css";
 
     //public static final String MINS_5 = "5 mins";
     //public static final String MINS_10 = "10 mins";

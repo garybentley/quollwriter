@@ -61,7 +61,7 @@ public class ContactUILanguageStringsCreatorPopup extends PopupContent
                    this.desc)
             .item (getUILanguageStringProperty (Utils.newList (prefix, LanguageStrings.popup,LanguageStrings.email,text)),
                    this.email)
-            .withHandler (this.viewer)
+            .inViewer (this.viewer)
             .build ();
 
         f.setOnCancel (ev -> _this.getPopup ().close ());

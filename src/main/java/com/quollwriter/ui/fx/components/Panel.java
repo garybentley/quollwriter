@@ -118,6 +118,7 @@ public class Panel extends BaseVBox implements Stateful
                        Priority.ALWAYS);
         this.setFillWidth (true);
         this.getChildren ().add (b.content);
+
         this.getStyleClass ().add (StyleClassNames.PANEL);
 
         if (b.styleName != null)
@@ -125,6 +126,19 @@ public class Panel extends BaseVBox implements Stateful
 
             this.getStyleClass ().add (b.styleName);
             this.styleName = b.styleName;
+
+        }
+
+        UIUtils.addStyleSheet (this,
+                               Constants.PANEL_STYLESHEET_TYPE,
+                               StyleClassNames.PANEL);
+
+        if (b.styleSheet != null)
+        {
+
+            UIUtils.addStyleSheet (this,
+                                   Constants.PANEL_STYLESHEET_TYPE,
+                                   b.styleSheet);
 
         }
 
@@ -184,6 +198,7 @@ public class Panel extends BaseVBox implements Stateful
 
         private PanelContent content = null;
         private String styleName = null;
+        private String styleSheet = null;
         private String panelId = null;
         private Map<KeyCombination, Runnable> actionMappings = null;
         private StringProperty title = null;
@@ -194,6 +209,14 @@ public class Panel extends BaseVBox implements Stateful
         {
 
             this.actionMappings = am;
+            return this;
+
+        }
+
+        public Builder styleSheet (String s)
+        {
+
+            this.styleSheet = s;
             return this;
 
         }

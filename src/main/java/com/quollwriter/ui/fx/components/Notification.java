@@ -35,6 +35,16 @@ public class Notification extends HBox
 
         }
 
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.NOTIFICATION);
+        if (builder.styleSheet != null)
+        {
+
+            this.getStylesheets ().add (builder.styleSheet);
+
+        }
+
         this.getStyleClass ().add (StyleClassNames.NOTIFICATION);
         this.getStyleClass ().add (builder.styleName);
 
@@ -130,7 +140,7 @@ public class Notification extends HBox
 
         }
 
-        this.timerId = this.viewer.schedule (UIUtils.createRunLater (() -> _this.removeNotification ()),
+        this.timerId = this.viewer.schedule (UIUtils.createRunLater (() -> { System.out.println ("HERE"); _this.removeNotification ();}),
                                              this.duration * Constants.SEC_IN_MILLIS,
                                              -1);
 
@@ -166,6 +176,7 @@ public class Notification extends HBox
         private AbstractViewer viewer = null;
         private int duration = 0;
         private Runnable onRemove = null;
+        private String styleSheet = null;
 
         private Builder ()
         {
@@ -184,6 +195,14 @@ public class Notification extends HBox
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder styleSheet (String u)
+        {
+
+            this.styleSheet = u;
             return this;
 
         }

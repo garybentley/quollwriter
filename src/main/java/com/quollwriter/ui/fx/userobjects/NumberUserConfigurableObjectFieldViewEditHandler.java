@@ -89,37 +89,63 @@ TODO Remove?
         }
 */
 
-        double min = Double.MIN_VALUE;
+        double min = -1 * Double.MAX_VALUE;
 
-        try
+        Double fMin = this.typeField.getMinimum ();
+
+        if (fMin != null)
         {
 
-            min = Math.max (this.typeField.getMinimum (), Double.MIN_VALUE);
+            try
+            {
 
-        } catch (Exception e) {
+                min = Math.max (fMin, min);
 
-            Environment.logError ("Unable to get minimum.",
-                                  e);
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get minimum.",
+                                      e);
+
+            }
 
         }
 
         double max = Double.MAX_VALUE;
 
-        try
+        Double fMax = this.typeField.getMaximum ();
+
+        if (fMax != null)
         {
 
-            max = Math.min (this.typeField.getMaximum (), Double.MAX_VALUE);
+            try
+            {
 
-        } catch (Exception e) {
+                max = Math.min (fMax, max);
 
-            Environment.logError ("Unable to get maximum.",
-                                  e);
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get maximum.",
+                                      e);
+
+            }
+
+        }
+
+        Double v = this.getFieldValue ();
+
+        double _v = 0;
+
+        if (v != null)
+        {
+
+            _v = v.doubleValue ();
 
         }
 
         this.editItem = new Spinner<> (min,
                                        max,
-                                       this.getFieldValue ());
+                                       _v);
+        this.editItem.setEditable (true);
 
         UIUtils.addDoOnReturnPressed (this.editItem.getEditor (),
                                       formSave);
@@ -316,7 +342,7 @@ TODO Remove?
 
     @Override
     public Set<Form.Item> getViewFormItems ()
-                                     throws GeneralException    
+                                     throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();

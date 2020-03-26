@@ -271,7 +271,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
         this.addActionMapping (() ->
         {
-System.out.println ("HERE!");
+
             UIUtils.showDeleteProjectPopup (this.project,
                                             null,
                                             this);
@@ -1355,7 +1355,7 @@ TODO
         {
 
             // Get all objects with the tag, remove the tag.
-            Set<NamedObject> objs = this.project.getAllObjectsWithTag (tag);
+            Set<NamedObject> objs = new HashSet<> (this.project.getAllObjectsWithTag (tag));
 
             for (NamedObject o : objs)
             {
@@ -1366,6 +1366,8 @@ TODO
 
             this.saveObjects (new ArrayList (objs),
                               true);
+
+            this.sidebar.removeTagSection (tag);
 
         } catch (Exception e) {
 
@@ -1676,6 +1678,9 @@ TODO
         // Need to get the links, they may not be setup.
         // TODO Remove this.setLinks (n);
 
+        // Remove the tags.
+        this.project.removeObject (n);
+
         this.dBMan.deleteObject (n,
                                  false,
                                  null);
@@ -1720,6 +1725,9 @@ TODO
 
         // Get the editor panel for the item.
         Chapter c = s.getChapter ();
+
+        // Remove the tags.
+        this.project.removeObject (s);
 
         this.dBMan.deleteObject (s,
                                  deleteOutlineItems,
@@ -1772,6 +1780,9 @@ TODO
 
         // Get the editor panel for the item.
         Chapter c = it.getChapter ();
+
+        // Remove the tags.
+        this.project.removeObject (it);
 
         this.dBMan.deleteObject (it,
                                  false,

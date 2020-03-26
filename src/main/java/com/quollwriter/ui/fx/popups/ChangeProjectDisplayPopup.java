@@ -172,6 +172,7 @@ public class ChangeProjectDisplayPopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (allprojects,changedisplay,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.CHANGEPROJECTDISPLAY)
+            .styleSheet (StyleClassNames.CHANGEPROJECTDISPLAY)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

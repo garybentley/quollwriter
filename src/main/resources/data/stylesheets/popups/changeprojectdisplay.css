@@ -1,0 +1,17 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.ChangeProjectDisplayPopup
+ */
+.header.title .icon { -fx-image: url(/imgs/edit16.png); }
+.content .header .icon { visibility: hidden; }
+.header.example {
+    -fx-padding: 0.5em 0 0.5em 0;
+    -fx-content-display: text-only;
+    -fx-graphic-text-gap: 0;
+    -fx-label-padding: 0;
+}
+.header.example .title { -fx-padding: 0; -fx-font-size: 5em;}
+.qtextarea.format, .qtextarea.format .text-area {
+    -fx-min-height: 6em;
+    -fx-pref-height: 6em;
+}
+.info { -fx-padding: 0 0.5em 0.5em; }

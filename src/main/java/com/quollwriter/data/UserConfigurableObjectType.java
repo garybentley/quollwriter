@@ -1027,13 +1027,17 @@ TODO Remove
 
         String oldName = this.getName ();
 
-        this.setName (n);
+        if (n != null)
+        {
+
+            this.setName (n);
+            this.singularNameSet = (n != null);
+
+        }
 
         this.firePropertyChangedEvent (OBJECT_TYPE_NAME,
                                        oldName,
                                        n);
-
-        this.singularNameSet = (n != null);
 
     }
 
@@ -1047,9 +1051,31 @@ TODO Remove
 
         }
 
-        return Environment.getUIString (objectnames,singular,this.userObjectType);
+        StringProperty s = Environment.getObjectTypeName (this.userObjectType);
 
-        //return this.getName ();
+        if (s != null)
+        {
+
+            return s.getValue ();
+
+        }
+
+        return null;
+
+    }
+
+    @Override
+    public StringProperty nameProperty ()
+    {
+
+        if (this.singularNameSet)
+        {
+
+            return super.nameProperty ();
+
+        }
+
+        return Environment.getObjectTypeName (this.userObjectType);
 
     }
 
@@ -1077,9 +1103,16 @@ TODO Remove
 
         }
 
-        return Environment.getUIString (objectnames,plural,this.userObjectType);
+        StringProperty s = Environment.getObjectTypeNamePlural (this.userObjectType);
 
-        //return this.objectTypeNamePlural;
+        if (s != null)
+        {
+
+            return s.getValue ();
+
+        }
+
+        return null;
 
     }
 
@@ -1095,13 +1128,17 @@ TODO Remove
 
         String oldName = this.objectTypeNamePlural;
 
-        this.objectTypeNamePlural = n;
+        if (n != null)
+        {
+
+            this.objectTypeNamePlural = n;
+            this.pluralNameSet = (n != null);
+
+        }
 
         this.firePropertyChangedEvent (OBJECT_TYPE_NAME_PLURAL,
                                        oldName,
                                        n);
-
-        this.pluralNameSet = (n != null);
 
         this.objectTypeNamePluralProp.setValue (this.objectTypeNamePlural);
 
@@ -1110,7 +1147,14 @@ TODO Remove
     public StringProperty objectTypeNamePluralProperty ()
     {
 
-        return this.objectTypeNamePluralProp;
+        if (this.pluralNameSet)
+        {
+
+            return this.objectTypeNamePluralProp;
+
+        }
+
+        return Environment.getObjectTypeNamePlural (this);
 
     }
 

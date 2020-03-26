@@ -20,7 +20,7 @@ import javafx.scene.image.*;
 
 import com.gentlyweb.xml.*;
 
-import com.quollwriter.importer.*;
+import com.quollwriter.exporter.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -37,73 +37,113 @@ import static com.quollwriter.LanguageStrings.*;
 import javafx.beans.value.*;
 import javafx.collections.*;
 
-public class ExportProjectPopup extends PopupContent
+public class ExportProjectPopup extends PopupContent<ProjectViewer>
 {
 
     public static final String POPUP_ID = "exportproject";
 
+    public static final String WHERE_TO_SAVE_STAGE = "where-to-save";
     public static final String SELECT_ITEMS_STAGE = "select-items";
-    public static final String SELECT_FILE_STAGE = "select-file";
-    public static final String SELECT_PROJECT_STAGE = "select-project";
-    public static final String CHOOSE_STAGE = "choose";
-    public static final String DECIDE_STAGE = "decide";
-    public static final String NEW_PROJECT_STAGE = "new-project";
 
-    private boolean         addToProjectOnly = false;
-    private boolean         newProjectOnly = false;
-    private Path filePathToImport = null;
-    private Project         proj = null;
-    private Project importFromProj = null;
-    private NewProjectPanel newProjectPanel = null;
+    private static Map<String, String> fileTypes = new LinkedHashMap<> ();
+    private static Map<String, Class> handlers = new HashMap<> ();
+
+    static
+    {
+
+        Map m = ExportProjectPopup.handlers;
+
+        m.put (Constants.HTML_FILE_EXTENSION,
+               HTMLDocumentExporter.class);
+        m.put (Constants.DOCX_FILE_EXTENSION,
+               MSWordDocXDocumentExporter.class);
+        m.put (Constants.EPUB_FILE_EXTENSION,
+               EPUBDocumentExporter.class);
+        m.put (Constants.PDF_FILE_EXTENSION,
+               PDFDocumentExporter.class);
+        m.put (Constants.HTML_FILE_EXTENSION,
+               HTMLDocumentExporter.class);
+        m.put (Constants.PDF_FILE_EXTENSION,
+               PDFDocumentExporter.class);
+        /*
+        m.put (Constants.TXT_FILE_EXTENSION,
+               TextDocumentExporter.class);
+*/
+
+        m = ExportProjectPopup.fileTypes;
+
+        m.put ("Microsoft Word 2007 (.docx)",
+               Constants.DOCX_FILE_EXTENSION);
+        m.put ("EPUB (.epub)",
+               Constants.EPUB_FILE_EXTENSION);
+        /*
+        m.put ("PDF (.pdf)",
+               Constants.PDF_FILE_EXTENSION);
+               */
+        m.put ("HTML (.html)",
+               Constants.HTML_FILE_EXTENSION);
+        /*
+        m.put ("PDF",
+               "pdf");
+        m.put ("Web page (.html)",
+               "html");
+        m.put ("Plain text (.txt)",
+               "txt");
+         */
+    }
+
+    private Project                       proj = null;
+    private Map<String, DocumentExporter> exporters = new HashMap<> ();
+
     private Wizard wizard = null;
-    private RadioButton addToProject = null;
-    private QuollFileField fileFind = null;
-    private Form selectFileForm = null;
-    private RadioButton importFromFile = null;
-    private RadioButton importFromProject = null;
-    private RadioButton createNewProject = null;
-    private ProjectViewer pv = null;
-    private FileChooser.ExtensionFilter fileFilter = null;
     private QuollTreeView<NamedObject> itemsTree = null;
-    private VBox projectList = null;
-    private Set<String> filesToCopy = new HashSet<> ();
+
+    private QuollFileField dirFind = null;
+    private QuollChoiceBox fileType = null;
+    private Form dirFindForm = null;
 
     private Map<String, Wizard.Step> steps = new HashMap<> ();
 
-    public ExportProjectPopup (AbstractProjectViewer viewer)
+    public ExportProjectPopup (ProjectViewer viewer)
     {
 
         super (viewer);
 
-        if (viewer instanceof ProjectViewer)
+        this.proj = this.viewer.getProject ();
+
+        String def = this.viewer.getProject ().getProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME);
+
+        java.io.File defFile = javax.swing.filechooser.FileSystemView.getFileSystemView ().getDefaultDirectory ();
+
+        if (def != null)
         {
 
-            this.pv = (ProjectViewer) viewer;
-
-            this.addToProject.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (importproject,stages,decide,options,addtoproject),
-                                                                                 pv.getProject ().nameProperty ()));
-
-        } else {
-
-            this.newProjectOnly = true;
+            defFile = new File (def);
 
         }
 
-        this.fileFind = QuollFileField.builder ()
-            .chooserTitle (getUILanguageStringProperty (importproject,stages,selectfile,finder,title))
-            .limitTo (QuollFileField.Type.file)
+        this.dirFind = QuollFileField.builder ()
+            .chooserTitle (getUILanguageStringProperty (exportproject,stages,wheretosave,finder,title))
+            .limitTo (QuollFileField.Type.directory)
+            .initialFile (defFile.toPath ())
             .withViewer (viewer)
-            .fileExtensionFilter (getUILanguageStringProperty (importproject,supportedfiletypesdescription),
-                                  "docx",
-                                  "doc")
             .build ();
 
-        this.fileFind.fileProperty ().addListener ((p, oldv, newv) ->
-        {
+        Set<StringProperty> types = new LinkedHashSet<> ();
 
-            this.filePathToImport = newv;
+        ExportProjectPopup.fileTypes.keySet ().stream ()
+            .forEach (ft -> types.add (new SimpleStringProperty (ft)));
 
-        });
+        this.fileType = QuollChoiceBox.builder ()
+            .items (types)
+            .build ();
+
+        this.dirFindForm = Form.builder ()
+            .item (getUILanguageStringProperty (exportproject,stages,wheretosave,finder,label),
+                  this.dirFind)
+            .item (getUILanguageStringProperty (exportproject,stages,wheretosave,filetype,label),
+                   this.fileType)
+            .build ();
 
         this.itemsTree = new QuollTreeView<> ();
 
@@ -139,7 +179,7 @@ public class ExportProjectPopup extends PopupContent
 
                     l = BasicHtmlTextFlow.builder ()
                         .text (n.nameProperty ())
-                        .styleClassName (StyleClassNames.TEXT)
+                        .styleClassName (com.quollwriter.ui.fx.StyleClassNames.TEXT)
                         .build ();
 
                 } else {
@@ -160,67 +200,8 @@ public class ExportProjectPopup extends PopupContent
                 .build ();
 
         });
-        /*
-        .builder ()
-            .cellFactory (treeView ->
-            {
-
-                return new NamedObjectCheckBoxTreeCell (treeItem ->
-                {
-
-                    return new SimpleBooleanProperty (treeItem.getValue ().getObjectType ().equals ("_string"));
-
-                });
-
-            })
-            .build ();
-*/
         this.itemsTree.setShowRoot (false);
 
-        EventHandler<ActionEvent> hand = ev ->
-        {
-
-            this.enableButtons (this.wizard,
-                                this.wizard.getCurrentStepId ());
-
-            this.proj = null;
-
-            if (this.itemsTree != null)
-            {
-
-                this.itemsTree.setRoot (null);
-
-            }
-
-            if (this.projectList != null)
-            {
-
-                UIUtils.unselectChildren (this.projectList);
-
-            }
-
-        };
-
-        this.importFromProject = QuollRadioButton.builder ()
-            .label (getUILanguageStringProperty (importproject,stages,choose,options,importfromproject))
-            .onAction (hand)
-            .build ();
-
-        this.importFromFile = QuollRadioButton.builder ()
-            .label (getUILanguageStringProperty (importproject,stages,choose,options,importfromfile))
-            .onAction (hand)
-            .build ();
-
-        this.addToProject = QuollRadioButton.builder ()
-            .onAction (ev -> this.wizard.enableButton (Wizard.NEXT_BUTTON_ID, true))
-            .build ();
-
-        this.createNewProject = QuollRadioButton.builder ()
-            .label (getUILanguageStringProperty (importproject,stages,decide,options,newproject))
-            .onAction (ev -> this.wizard.enableButton (Wizard.NEXT_BUTTON_ID, true))
-            .build ();
-
-        // Maybe move to UIUtils?
         this.wizard = Wizard.builder ()
             .startStepId (this.getStartStepId ())
             .nextStepIdProvider (currId ->
@@ -288,27 +269,7 @@ public class ExportProjectPopup extends PopupContent
     public String getStartStepId ()
     {
 
-        if ((this.newProjectOnly)
-            &&
-            (this.filePathToImport != null)
-           )
-        {
-
-            return SELECT_ITEMS_STAGE;
-
-        }
-
-        if ((this.addToProjectOnly)
-            &&
-            (this.filePathToImport != null)
-           )
-        {
-
-            return SELECT_ITEMS_STAGE;
-
-        }
-
-        return CHOOSE_STAGE;
+        return WHERE_TO_SAVE_STAGE;
 
     }
 
@@ -318,206 +279,6 @@ public class ExportProjectPopup extends PopupContent
 
         final ExportProjectPopup _this = this;
 
-        if (SELECT_PROJECT_STAGE.equals (oldStepId)
-            &&
-            (SELECT_ITEMS_STAGE.equals (newStepId))
-           )
-        {
-
-            List<Node> sel = UIUtils.getSelected (this.projectList);
-
-            if (sel.size () == 0)
-            {
-
-                return false;
-
-            }
-
-            final ProjectInfo pi = (ProjectInfo) sel.get (0).getUserData (); // TODO Remove this.projectList.getSelectedValue ();
-
-            Runnable r = () ->
-            {
-
-                Project p = null;
-
-                try
-                {
-
-                    p = Environment.getProjectObjectManager (pi,
-                                                             pi.getFilePassword ()).getProject ();
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to get project for: " +
-                                          p,
-                                          e);
-
-                    ComponentUtils.showErrorMessage (_this.viewer,
-                                                     getUILanguageStringProperty (Arrays.asList (importproject,errors,cantopenproject)));
-                                              //"Unable to open {project}");
-
-                    return;
-
-                }
-
-                for (NamedObject n : p.getAllNamedChildObjects ())
-                {
-
-                    if (n instanceof Chapter)
-                    {
-
-                        Chapter c = (Chapter) n;
-
-                        for (NamedObject cn : c.getAllNamedChildObjects ())
-                        {
-
-                            if (cn instanceof ChapterItem)
-                            {
-
-                                c.removeChapterItem ((ChapterItem) cn);
-
-                            }
-
-                        }
-
-                    }
-
-                    if (n instanceof IdeaType)
-                    {
-
-                        p.getIdeaTypes ().remove ((IdeaType) n);
-
-                    }
-
-                }
-
-                // Need to null the key/id for all items in the project.
-                for (NamedObject n : p.getAllNamedChildObjects ())
-                {
-
-                    n.setKey (null);
-                    n.setId (null);
-                    n.setDateCreated (new java.util.Date ());
-
-                    // For all the object fields, null the id/key.
-
-                    if (n instanceof UserConfigurableObject)
-                    {
-
-                        UserConfigurableObject cn = (UserConfigurableObject) n;
-
-                        for (UserConfigurableObjectField f : cn.getFields ())
-                        {
-
-                            f.setKey (null);
-                            f.setId (null);
-                            f.setDateCreated (new java.util.Date ());
-
-                        }
-
-                    }
-
-                }
-
-                // Need a selectable tree here.
-                _this.itemsTree.setRoot (_this.createTree (p));
-
-                _this.enableButtons (_this.wizard,
-                                     newStepId);
-
-                _this.importFromProj = p;
-
-                _this.proj = p;
-
-            };
-
-            if ((pi != null)
-                &&
-                (pi.isEncrypted ())
-                &&
-                (Environment.getProjectViewer (pi) == null)
-                &&
-                (pi.getFilePassword () == null)
-               )
-            {
-
-                UIUtils.askForPasswordForProject (pi,
-                                                  null,
-                                                  pwd ->
-                                                  {
-
-                                                      pi.setFilePassword (pwd);
-
-                                                      this.wizard.showStep (SELECT_ITEMS_STAGE);
-
-                                                      UIUtils.runLater (r);
-
-                                                  },
-                                                  null,
-                                                  this.viewer);
-
-                return false;
-
-            } else {
-
-                UIUtils.runLater (r);
-
-            }
-
-            return true;
-
-        }
-
-        if (SELECT_FILE_STAGE.equals (oldStepId))
-        {
-
-            if (CHOOSE_STAGE.equals (newStepId))
-            {
-
-                return true;
-
-            }
-
-            return this.checkForFileToImport ();
-
-        }
-
-        if (SELECT_ITEMS_STAGE.equals (newStepId))
-        {
-
-            if (this.importFromProject.isSelected ())
-            {
-
-                return true;
-
-            }
-
-            if (!SELECT_PROJECT_STAGE.equals (oldStepId))
-            {
-
-                this.importFromProj = null;
-
-                return this.checkForFileToImport ();
-
-            }
-
-        }
-
-        if ((NEW_PROJECT_STAGE.equals (oldStepId))
-            &&
-            (newStepId == null)
-           )
-        {
-
-            if (!this.newProjectPanel.checkForm ())
-            {
-
-                return false;
-
-            }
-
-        }
-
         return true;
 
     }
@@ -525,247 +286,76 @@ public class ExportProjectPopup extends PopupContent
     private void handleFinish ()
     {
 
-        this.proj = this.getSelectedItems ();
+        Path dir = this.dirFind.getFile ();
 
-        if (this.addToProject.isSelected ())
+        try
         {
 
-            // Add all the items.
-            Set<NamedObject> objs = this.proj.getAllNamedChildObjects ();
+            DocumentExporter de = this.getExporter ();
 
-            Book b = this.pv.getProject ().getBooks ().get (0);
+            Files.createDirectories (dir);
 
-            for (NamedObject n : objs)
-            {
+            de.exportProject (dir,
+                              this.getSelectedItems ());
 
-                if (n instanceof Asset)
-                {
+            this.viewer.saveObject (this.proj,
+                                    false);
 
-                    String prefix = "Imported";
+            this.viewer.createActionLogEntry (this.proj,
+                                              "Exported project to directory: " +
+                                              dir);
 
-                    Asset a = (Asset) n;
+            this.viewer.fireProjectEvent (ProjectEvent.Type._export,
+                                          ProjectEvent.Action.any);
 
-                    // See if we should merge.
-                    Asset oa = this.pv.getProject ().getAssetByName (a.getName (),
-                                                                     a.getUserConfigurableObjectType ());
-
-                    if (oa != null)
-                    {
-
-                        // Don't merge but don't add either, merging is no longer viable.
-                        /*
-                        // Merge.
-                        oa.merge (a);
-
-                        a = oa;
-
-                        prefix = "Merged";
-                        */
-
-                    } else {
-
-                        this.pv.getProject ().addAsset (a);
-
-                    }
-
-                    try
-                    {
-
-                        this.pv.saveObject (a,
-                                            true);
-
-                        this.pv.createActionLogEntry (a,
-                                                      prefix + " asset from: " +
-                                                      this.fileFind.getFile ());
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to save asset: " +
-                                              a,
-                                              e);
-
-                        ComponentUtils.showErrorMessage (this.viewer,
-                                                         getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletosave),
-                                                                                      a.getName ()));
-
-                    }
-
-                    this.pv.openObjectSection (a.getObjectType ());
-
-                }
-
-                if (n instanceof Chapter)
-                {
-
-                    Chapter c = (Chapter) n;
-
-                    b.addChapter (c);
-
-                    try
-                    {
-
-                        this.pv.saveObject (c,
-                                            true);
-
-                        this.pv.createActionLogEntry (c,
-                                                      "Imported chapter from project: " +
-                                                      this.proj.getId ());
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to save chapter: " +
-                                              c,
-                                              e);
-
-                        ComponentUtils.showErrorMessage (this.viewer,
-                                                         getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletosave),
-                                                                                      //"Unable to save: " +
-                                                                                      c.getName ()));
-
-                        continue;
-
-                    }
-
-                    this.pv.addChapterToTreeAfter (c,
-                                                   null);
-
-                    this.pv.openObjectSection (c.getObjectType ());
-
-                }
-
-            }
-
-            if (this.importFromProj != null)
-            {
-
-                for (String fn : this.filesToCopy)
-                {
-
-                    File f = new File (this.importFromProj.getFilesDirectory (),
-                                       fn);
-
-                    try
-                    {
-
-                        this.pv.getProject ().saveToFilesDirectory (f,
-                                                                    fn);
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to copy file: " +
-                                              f,
-                                              e);
-
-                    }
-
-                }
-
-            }
-
-            this.pv.fireProjectEvent (ProjectEvent.Type._import,
-                                      ProjectEvent.Action.any);
-
-            QuollPopup.messageBuilder ()
-                .withViewer (this.pv)
-                .title (importproject,importcompletepopup,title)
-                .message (importproject,importcompletepopup,text)
-                .build ();
-
-        } else {
-
-            // Create a new project.
-            ProjectViewer pj = new ProjectViewer ();
-
-            String pwd = this.newProjectPanel.getPassword ();
-
-            try
-            {
-
-                // Get the "old" files dir.
-
-                this.proj.setName (this.newProjectPanel.getName ());
-                this.proj.setFilePassword (pwd);
-
-                pj.newProject (this.newProjectPanel.getSaveDirectory (),
-                               this.proj);
-
-                if (this.filesToCopy != null)
-                {
-
-                    for (String fn : this.filesToCopy)
-                    {
-
-                        pj.getProject ().saveToFilesDirectory (new File (this.importFromProj.getFilesDirectory (),
-                                                                         fn),
-                                                               fn);
-
-                    }
-
-                }
-
-                pj.init (null);
-
-                pj.createActionLogEntry (pj.getProject (),
-                                         "Project imported from: " +
-                                         this.fileFind.getFile ());
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to create new project: " +
-                                      this.proj,
-                                      e);
-
-                ComponentUtils.showErrorMessage (this.viewer,
-                                                 getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletocreateproject),
-                                                                              this.proj.getName ()));
-                                          //"Unable to create new project: " + this.proj.getName ());
-
-                return;
-
-            }
-
-            pj.fireProjectEvent (ProjectEvent.Type._import,
-                                 ProjectEvent.Action.any);
-
-        }
-
-    }
-
-    public void setFilePathToImport (Path p)
-    {
-
-        if (p == null)
+        } catch (Exception e)
         {
 
-            this.filePathToImport = null;
+            Environment.logError ("Unable to export project: " +
+                                  this.proj,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (exportproject,actionerror));
 
             return;
 
         }
 
-        String fn = p.getFileName ().toString ().toLowerCase ();
+        QuollPopup.messageBuilder ()
+            .withViewer (this.viewer)
+            .styleClassName (StyleClassNames.EXPORT)
+            .closeButton ()
+            .title (exportproject,exportcompletepopup,title)
+            .message (getUILanguageStringProperty (Arrays.asList (exportproject,exportcompletepopup,text),
+                                                                  this.proj.getName (),
+                                                                  this.dirFind.getFile ().toUri ().toString (),
+                                                                  this.dirFind.getFile ()))
+            .build ();
 
-        if ((!fn.endsWith (".docx"))
-            &&
-            (!fn.endsWith (".doc"))
-           )
+        try
         {
 
-            throw new IllegalArgumentException ("File type not supported for path: " + p);
+            java.awt.Desktop.getDesktop ().open (dir.toFile ());
+
+        } catch (Exception e)
+        {
 
         }
 
-        if (this.fileFind != null)
-        {
+    }
 
-            this.fileFind.setFile (p);
+    private Wizard.Step createWhereToSaveStep ()
+    {
 
-        }
+        Wizard.Step ws = new Wizard.Step ();
 
-        this.filePathToImport = p;
+        ws.title = getUILanguageStringProperty (exportproject,stages,wheretosave,title);
+        //"Select the file type and directory to save to";
+
+        ws.content = this.dirFindForm;
+
+        return ws;
 
     }
 
@@ -783,51 +373,58 @@ public class ExportProjectPopup extends PopupContent
 
         }
 
-        ws = new Wizard.Step ();
+        ws = null;
 
-        if (stepId.equals (NEW_PROJECT_STAGE))
+        if (WHERE_TO_SAVE_STAGE.equals (stepId))
         {
 
-            ws = this.createNewProjectStep ();
+            ws = this.createWhereToSaveStep ();
 
         }
 
-        if (stepId.equals (DECIDE_STAGE))
-        {
-
-            ws = this.createDecideStep ();
-
-        }
-
-        if (stepId.equals (SELECT_ITEMS_STAGE))
+        if (SELECT_ITEMS_STAGE.equals (stepId))
         {
 
             ws = this.createSelectItemsStep ();
 
         }
 
-        if (stepId.equals (SELECT_FILE_STAGE))
+        if (ws == null)
         {
 
-            ws = this.createSelectFileStep ();
+            DocumentExporter de = null;
+
+            try
+            {
+
+                de = this.getExporter ();
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to get exporter",
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (exportproject,actionerror));
+
+                return null;
+
+            }
+
+            String ft = this.getFileType ();
+
+            if (stepId.startsWith (ft))
+            {
+
+                stepId = stepId.substring (ft.length () + 1);
+
+            }
+
+            de.setProject (this.viewer.getProject ());
+            ws = de.getStage2 (stepId);
 
         }
-
-        if (stepId.equals (CHOOSE_STAGE))
-        {
-
-            ws = this.createChooseStep ();
-
-        }
-
-        if (stepId.equals (SELECT_PROJECT_STAGE))
-        {
-
-            ws = this.createSelectProjectStep ();
-
-        }
-
-        ws.content.getStyleClass ().add (stepId);
 
         this.steps.put (stepId,
                         ws);
@@ -836,71 +433,91 @@ public class ExportProjectPopup extends PopupContent
 
     }
 
-    private Wizard.Step createNewProjectStep ()
+    private Wizard.Step createSelectItemsStep ()
     {
 
         Wizard.Step ws = new Wizard.Step ();
 
-        ws.title = getUILanguageStringProperty (importproject,stages,newproject,title);
-        //"Enter the new {Project} details";
+        ws.title = getUILanguageStringProperty (exportproject,stages,selectitems,title);
+        //"Select the items you wish to export";
 
         VBox b = new VBox ();
+        b.getChildren ().add (QuollTextView.builder ()
+            .styleClassName (StyleClassNames.DESCRIPTION)
+            .text (getUILanguageStringProperty (exportproject,stages,selectitems,text))
+            .build ());
 
-        //"To create a new {Project} enter the name below and select the directory where it should be saved.";
+        this.itemsTree.setRoot (this.createTree (this.viewer.getProject ()));
 
-        this.newProjectPanel = new NewProjectPanel (this.viewer,
-                                                    getUILanguageStringProperty (importproject,stages,newproject,LanguageStrings.text),
-                                                    false,
-                                                    false);
+        ScrollPane sp = new ScrollPane (this.itemsTree);
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
 
-        b.getChildren ().addAll (this.newProjectPanel);
-
-        // TODO Need to handle the buttons.
+        b.getChildren ().add (sp);
 
         ws.content = b;
-/*
-        ws.panel = this.newProjectPanel.createPanel (this,
-                                                     null,
-                                                     false,
-                                                     null,
-                                                     false);
-*/
+        ws.content.getStyleClass ().add (SELECT_ITEMS_STAGE);
+
         return ws;
 
     }
 
-    private Wizard.Step createDecideStep ()
+    private String getFileType ()
     {
 
-        Wizard.Step ws = new Wizard.Step ();
-
-        ws.title = getUILanguageStringProperty (importproject,stages,decide,title);
-        //"What would you like to do?";
-
-                                   //"Add to " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + ": " + pv.getProject ().getName ());
-/*
-TODO Remove
-            this.createNewProject = new JRadioButton (Environment.getUIString (LanguageStrings.importproject,
-                                                                               LanguageStrings.stages,
-                                                                               LanguageStrings.decide,
-                                                                               LanguageStrings.options,
-                                                                               LanguageStrings.newproject));
-                                                      //"Create a new " + Environment.getObjectTypeName (Project.OBJECT_TYPE));
-
-            this.createNewProject.setOpaque (false);
-*/
-
-        QuollRadioButtons buts = QuollRadioButtons.builder ()
-            .button (this.addToProject)
-            .button (this.createNewProject)
-            .build ();
-
-        ws.content = buts;
-
-        return ws;
+        return ExportProjectPopup.fileTypes.get (this.fileType.getSelectionModel ().getSelectedItem ().getValue ());
 
     }
 
+    public DocumentExporter getExporter ()
+                                  throws GeneralException
+    {
+
+        String fileType = this.getFileType ();
+
+        DocumentExporter de = this.exporters.get (fileType);
+
+        if (de != null)
+        {
+
+            return de;
+
+        }
+
+        Class c = ExportProjectPopup.handlers.get (fileType);
+
+        if (c == null)
+        {
+
+            throw new GeneralException ("Unable to find export handler for extension: " +
+                                        fileType);
+
+        }
+
+        try
+        {
+
+            de = (DocumentExporter) c.getDeclaredConstructor ().newInstance ();
+            de.setProject (this.viewer.getProject ());
+
+            this.exporters.put (fileType,
+                                de);
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to create new instance of exporter: " +
+                                        c.getName () +
+                                        " for file type: " +
+                                        fileType,
+                                        e);
+
+        }
+
+        return de;
+
+    }
+/*
     private Wizard.Step createSelectItemsStep ()
     {
 
@@ -923,78 +540,6 @@ TODO Remove
         this.addToProject.selectedProperty ()));
         //"Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item." + (this.addToProject.isSelected () ? ("  Only items not already in the " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + " will be listed.") : "");
 
-/*
-        this.itemsTree.addMouseListener (new MouseAdapter ()
-            {
-
-                private void selectAllChildren (DefaultTreeModel       model,
-                                                DefaultMutableTreeNode n,
-                                                boolean                v)
-                {
-
-                    Enumeration<TreeNode> en = n.children ();
-
-                    while (en.hasMoreElements ())
-                    {
-
-                        DefaultMutableTreeNode c = (DefaultMutableTreeNode) en.nextElement ();
-
-                        Object uo = c.getUserObject ();
-
-                        if (uo instanceof SelectableDataObject)
-                        {
-
-                            SelectableDataObject s = (SelectableDataObject) uo;
-
-                            s.selected = v;
-
-                            // Tell the model that something has changed.
-                            model.nodeChanged (c);
-
-                            // Iterate.
-                            this.selectAllChildren (model,
-                                                    c,
-                                                    v);
-
-                        }
-
-                    }
-
-                }
-
-                public void mousePressed (MouseEvent ev)
-                {
-
-                    TreePath tp = _this.itemsTree.getPathForLocation (ev.getX (),
-                                                                      ev.getY ());
-
-                    if (tp != null)
-                    {
-
-                        DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
-
-                        // Tell the model that something has changed.
-                        DefaultTreeModel model = (DefaultTreeModel) _this.itemsTree.getModel ();
-
-                        SelectableDataObject s = (SelectableDataObject) n.getUserObject ();
-
-                        s.selected = !s.selected;
-
-                        model.nodeChanged (n);
-
-                        this.selectAllChildren (model,
-                                                n,
-                                                s.selected);
-
-                    }
-
-                }
-
-            });
-
-        this.itemsTree.setCellRenderer (new SelectableProjectTreeCellRenderer ());
-*/
-
         ScrollPane sp = new ScrollPane (this.itemsTree);
         //this.createFileSystemTree ());
 
@@ -1008,339 +553,7 @@ TODO Remove
         return ws;
 
     }
-
-    private Wizard.Step createSelectFileStep ()
-    {
-
-        Wizard.Step ws = new Wizard.Step ();
-
-        ws.title = getUILanguageStringProperty (importproject,stages,selectfile,title);
-        //"Select a file to import";
-
-        VBox b = new VBox ();
-        b.getChildren ().add (BasicHtmlTextFlow.builder ()
-            .styleClassName (StyleClassNames.DESCRIPTION)
-            .text (getUILanguageStringProperty (importproject,stages,selectfile,text))
-            .build ());
-        //"Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help://projects/importing-a-file'>the import guide</a> to ensure your file has the correct format.";
-
-        // TODO Add the error.
-        this.selectFileForm = Form.builder ()
-            .item (getUILanguageStringProperty (importproject,stages,selectfile,finder,label),
-                   this.fileFind)
-            .build ();
-
-        b.getChildren ().add (this.selectFileForm);
-/*
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        this.fileFindError.setVisible (false);
-        this.fileFindError.setBorder (UIUtils.createPadding (0, 5, 5, 5));
-        b.add (this.fileFindError);
-        */
-/*
-        FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
-                                        "p");
-
-        PanelBuilder builder = new PanelBuilder (fl);
-
-        CellConstraints cc = new CellConstraints ();
-
-        this.fileFind.setOnSelectHandler (new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.file = _this.fileFind.getSelectedFile ();
-
-                //_this.checkForFileToImport ();
-
-            }
-
-        });
 */
-/*
-        this.fileFind.setApproveButtonText (Environment.getUIString (LanguageStrings.importproject,
-                                                                     LanguageStrings.stages,
-                                                                     LanguageStrings.selectfile,
-                                                                     LanguageStrings.finder,
-                                                                     LanguageStrings.button));
-                                            //"Select");
-        this.fileFind.setFinderSelectionMode (JFileChooser.FILES_ONLY);
-        this.fileFind.setFinderTitle (Environment.getUIString (LanguageStrings.importproject,
-                                                               LanguageStrings.stages,
-                                                               LanguageStrings.selectfile,
-                                                               LanguageStrings.finder,
-                                                               LanguageStrings.title));
-*/
-        String def = null;
-
-        if (this.pv != null)
-        {
-
-            def = this.pv.getProject ().getProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME);
-
-        }
-
-        Path f = null;
-
-        if (this.filePathToImport != null)
-        {
-
-            f = this.filePathToImport;
-
-        }
-
-        if (f == null)
-        {
-
-            if (def != null)
-            {
-
-                f = Paths.get (def);
-
-            }
-        }
-
-        if (f == null)
-        {
-
-            f = Paths.get (System.getProperty ("user.home"));
-            // TODO Remove? FileSystemView.getFileSystemView ().getDefaultDirectory ();
-
-        }
-
-        this.fileFind.setFile (f);
-/*
-TODO Add tool tip?
-        this.fileFind.setFileFilter (ImportProject.fileFilter);
-
-        this.fileFind.setFindButtonToolTip (Environment.getUIString (LanguageStrings.importproject,
-                                                                     LanguageStrings.stages,
-                                                                     LanguageStrings.selectfile,
-                                                                     LanguageStrings.finder,
-                                                                     LanguageStrings.title));
-*/
-/*
-        //"Click to find a file");
-        this.fileFind.setClearOnCancel (true);
-        this.fileFind.init ();
-*/
-/*
-        builder.addLabel (Environment.getUIString (LanguageStrings.importproject,
-                                                   LanguageStrings.stages,
-                                                   LanguageStrings.selectfile,
-                                                   LanguageStrings.finder,
-                                                   LanguageStrings.label),
-                          //"File",
-                          cc.xy (2,
-                                 1));
-        builder.add (this.fileFind,
-                     cc.xy (4,
-                            1));
-
-        JPanel p = builder.getPanel ();
-        p.setOpaque (false);
-        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        b.add (p);
-*/
-        ws.content = b;
-
-        return ws;
-
-    }
-
-    private Wizard.Step createChooseStep ()
-    {
-
-        Wizard.Step ws = new Wizard.Step ();
-
-        VBox b = new VBox ();
-
-        b.getStyleClass ().add (CHOOSE_STAGE);
-
-        b.getChildren ().add (BasicHtmlTextFlow.builder ()
-            .styleClassName (StyleClassNames.DESCRIPTION)
-            .text (getUILanguageStringProperty (importproject,stages,choose,text))
-            .build ());
-
-        this.importFromFile.setSelected (false);
-        this.importFromProject.setSelected (false);
-
-        QuollRadioButtons rbs = QuollRadioButtons.builder ()
-            .button (this.importFromFile)
-            .button (this.importFromProject)
-            .build ();
-
-        b.getChildren ().add (rbs);
-
-        ws.content = b;
-        ws.title = getUILanguageStringProperty (importproject,stages,choose,title);
-        //"What would you like to import?";
-        //"Select whether you wish to import from a file or from one of your {projects}.";
-
-        return ws;
-
-    }
-
-    private Wizard.Step createSelectProjectStep ()
-    {
-
-        Wizard.Step ws = new Wizard.Step ();
-
-        ws.title = getUILanguageStringProperty (importproject,stages,selectproject,title);
-        //"Select a {Project} to import from";
-        // TODO: Fix this, we need some text otherwise the textbox collapses.
-
-        List<ProjectInfo> projs = null;
-
-        try
-        {
-
-            projs = new ArrayList<> (Environment.getAllProjectInfos ());
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to get all projects",
-                                  e);
-
-            ComponentUtils.showErrorMessage (this.viewer,
-                                             getUILanguageStringProperty (importproject,stages,selectproject,getallprojectserror));
-                                      //"Unable to get all the {projects}.");
-
-            return null;
-
-        }
-
-        if (this.pv != null)
-        {
-
-            projs.remove (Environment.getProjectInfo (this.pv.getProject ()));
-
-        }
-
-        Collections.sort (projs,
-                          new ProjectInfoSorter ());
-
-        this.projectList = new VBox ();
-        this.projectList.getStyleClass ().add (StyleClassNames.PROJECTS);
-
-        projs.stream ()
-            .forEach (pr ->
-            {
-
-                QuollLabel l = QuollLabel.builder ()
-                    .label (pr.nameProperty ())
-                    .tooltip (importproject,stages,selectproject,projectslist,tooltip)
-                    .build ();
-
-                l.setUserData (pr);
-
-                l.setOnMouseClicked (ev ->
-                {
-
-                    UIUtils.toggleSelected (this.projectList,
-                                            l);
-
-                    if (UIUtils.isSelected (l))
-                    {
-
-                        this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                                  true);
-
-                    }
-
-                });
-
-                this.projectList.getChildren ().add (l);
-
-            });
-/*
-        this.projectList = new JList (new Vector (projs));
-        this.projectList.setLayoutOrientation (JList.VERTICAL);
-        this.projectList.setOpaque (true);
-        this.projectList.setBackground (UIUtils.getComponentColor ());
-        this.projectList.setToolTipText (Environment.getUIString (LanguageStrings.importproject,
-                                                                  LanguageStrings.stages,
-                                                                  LanguageStrings.selectproject,
-                                                                  LanguageStrings.projectslist,
-                                                                  LanguageStrings.tooltip));
-                                         //Environment.replaceObjectNames ("Click to select this {Project}."));
-        UIUtils.setAsButton (this.projectList);
-
-        this.projectList.addListSelectionListener (new ListSelectionListener ()
-        {
-
-            @Override
-            public void valueChanged (ListSelectionEvent ev)
-            {
-
-                this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                   true);
-
-            }
-
-        });
-
-        this.projectList.setCellRenderer (new DefaultListCellRenderer ()
-        {
-
-            public Component getListCellRendererComponent (JList   list,
-                                                           Object  value,
-                                                           int     index,
-                                                           boolean isSelected,
-                                                           boolean cellHasFocus)
-            {
-
-                JLabel c = (JLabel) super.getListCellRendererComponent (list,
-                                                                        value,
-                                                                        index,
-                                                                        isSelected,
-                                                                        cellHasFocus);
-
-                ProjectInfo p = (ProjectInfo) value;
-                c.setFont (c.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
-                c.setText (p.getName ());
-                c.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
-
-                if (isSelected)
-                {
-
-                    c.setForeground (UIUtils.getComponentColor ());
-
-                } else {
-
-                    c.setForeground (UIUtils.getTitleColor ());
-
-                }
-
-                if (cellHasFocus)
-                {
-
-                    c.setBackground (list.getSelectionBackground ());
-
-                }
-
-                return c;
-
-            }
-
-        });
-*/
-        ScrollPane sp = new ScrollPane (this.projectList);
-
-        VBox b = new VBox ();
-
-        b.getStyleClass ().add (SELECT_PROJECT_STAGE);
-        b.getChildren ().add (sp);
-
-        ws.content = b;
-
-        return ws;
-
-    }
 
     public String getNextStepId (String currStage)
     {
@@ -1348,83 +561,68 @@ TODO Add tool tip?
         if (currStage == null)
         {
 
-            return CHOOSE_STAGE;
+            return WHERE_TO_SAVE_STAGE;
 
         }
 
-        if (currStage.equals (CHOOSE_STAGE))
+        if (WHERE_TO_SAVE_STAGE.equals (currStage))
         {
 
-            if (this.importFromFile.isSelected ())
+            // Save the directory selected by the user.
+            try
             {
 
-                return SELECT_FILE_STAGE;
+                this.proj.setProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME,
+                                       this.dirFind.getFile ().toString ());
 
-            }
-
-            if (this.importFromProject.isSelected ())
+            } catch (Exception e)
             {
 
-                return SELECT_PROJECT_STAGE;
+                // No need to bother the user with this.
+                Environment.logError ("Unable to save property: " +
+                                      Constants.EXPORT_DIRECTORY_PROPERTY_NAME +
+                                      " with value: " +
+                                      this.dirFind.getFile (),
+                                      e);
 
             }
-
-            return CHOOSE_STAGE;
-
-        }
-
-        if (currStage.equals (SELECT_FILE_STAGE))
-        {
 
             return SELECT_ITEMS_STAGE;
 
         }
 
-        if (SELECT_PROJECT_STAGE.equals (currStage))
+        // Create a new exporter.
+        DocumentExporter de = null;
+
+        try
         {
 
-            return SELECT_ITEMS_STAGE;
+            de = this.getExporter ();
 
-        }
-
-        if (SELECT_ITEMS_STAGE.equals (currStage))
+        } catch (Exception e)
         {
 
-            if (this.newProjectOnly)
-            {
+            Environment.logError ("Unable to get exporter",
+                                  e);
 
-                return NEW_PROJECT_STAGE;
-
-            }
-
-            return DECIDE_STAGE;
-
-            //return null;
-
-        }
-
-        if (currStage.equals (DECIDE_STAGE))
-        {
-
-            if (this.addToProject.isSelected ())
-            {
-
-                return null;
-
-            }
-
-            return NEW_PROJECT_STAGE;
-
-        }
-
-        if (NEW_PROJECT_STAGE.equals (currStage))
-        {
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (exportproject,errors,createexporter));
+            //"Unable to go to next page, please contact support for assistance.");
 
             return null;
 
         }
 
-        return null;
+        String ft = this.getFileType ();
+
+        if (currStage.startsWith (ft))
+        {
+
+            currStage = currStage.substring (ft.length () + 1);
+
+        }
+
+        return de.getNextStage (currStage);
 
     }
 
@@ -1438,57 +636,62 @@ TODO Add tool tip?
 
         }
 
-
-        if (currStage.equals (NEW_PROJECT_STAGE))
+        if (SELECT_ITEMS_STAGE.equals (currStage))
         {
 
-            if (this.newProjectOnly)
-            {
-
-                return SELECT_ITEMS_STAGE;
-
-            }
-
-            return DECIDE_STAGE;
+            return WHERE_TO_SAVE_STAGE;
 
         }
 
-        if (currStage.equals (SELECT_FILE_STAGE))
+        if (WHERE_TO_SAVE_STAGE.equals (currStage))
         {
 
-            return CHOOSE_STAGE;
+            return null;
 
         }
 
-        if (currStage.equals (SELECT_PROJECT_STAGE))
+        // Create a new exporter.
+        DocumentExporter de = null;
+
+        try
         {
 
-            return CHOOSE_STAGE;
+            de = this.getExporter ();
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to get exporter",
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (exportproject,errors,createexporter));
+                                      //"Unable to go to previous page, please contact support for assistance.");
+
+            return null;
 
         }
 
-        if (currStage.equals (DECIDE_STAGE))
+        String ft = this.getFileType ();
+
+        if (currStage.startsWith (ft))
+        {
+
+            currStage = currStage.substring (ft.length () + 1);
+
+        }
+
+        String stage = de.getPreviousStage (currStage);
+
+        if (stage == null)
         {
 
             return SELECT_ITEMS_STAGE;
+            //WHERE_TO_SAVE_STAGE;
 
         }
 
-        if (currStage.equals (SELECT_ITEMS_STAGE))
-        {
-
-            if (this.importFromProject.isSelected ())
-            {
-
-                return SELECT_PROJECT_STAGE;
-
-            }
-
-            return SELECT_FILE_STAGE;
-
-        }
-
-        return null;
+        return this.getFileType () + ":" + stage;
 
     }
 
@@ -1501,7 +704,10 @@ TODO Add tool tip?
 
             CheckBoxTreeItem<NamedObject> cti = (CheckBoxTreeItem<NamedObject>) item;
 
-            if (cti.isSelected ())
+            if ((cti.isSelected ())
+                &&
+                (!(cti.getValue () instanceof TreeParentNode))
+               )
             {
 
                 selected.add (cti.getValue ());
@@ -1518,37 +724,15 @@ TODO Add tool tip?
     private Project getSelectedItems ()
     {
 
-        String projName = null;
-
-        if (this.newProjectPanel == null)
-        {
-
-            projName = this.pv.getProject ().getName ();
-
-        } else {
-
-            projName = this.newProjectPanel.getName ();
-
-        }
-
-        this.filesToCopy = new HashSet<> ();
-
-        Project p = new Project (projName);
+        Project p = new Project (this.proj.getName ());
 
         Book b = new Book (p,
                            null);
 
-        if (this.proj != null)
-        {
-
-            p.setProjectDirectory (this.proj.getProjectDirectory ());
-
-        }
-
         p.addBook (b);
-        b.setName (projName);
+        b.setName (p.getName ());
 
-        Set<NamedObject> selected = new HashSet<> ();
+        Set<NamedObject> selected = new LinkedHashSet<> ();
         this.getSelectedObjects (this.itemsTree.getRoot (),
                                  selected);
 
@@ -1571,38 +755,6 @@ TODO Add tool tip?
 
             }
 
-            if (this.importFromProj != null)
-            {
-
-                if (n instanceof UserConfigurableObject)
-                {
-
-                    UserConfigurableObject uo = (UserConfigurableObject) n;
-
-                    // Get the files that need to be transfered/copied.
-                    for (UserConfigurableObjectField f : uo.getFields ())
-                    {
-
-                        for (String fn : f.getProjectFileNames ())
-                        {
-
-                            if (fn == null)
-                            {
-
-                                continue;
-
-                            }
-
-                            this.filesToCopy.add (fn);
-
-                        }
-
-                    }
-
-                }
-
-            }
-
         }
 
         if ((b.getChapters () != null)
@@ -1619,14 +771,12 @@ TODO Add tool tip?
 
     }
 
-    private boolean checkForFileToImport ()
+    private boolean checkForFile ()
     {
 
-        final ExportProjectPopup _this = this;
+        this.dirFindForm.hideError ();
 
-        this.selectFileForm.hideError ();
-
-        Path f = this.fileFind.getFile ();
+        Path f = this.dirFind.getFile ();
 
         Path file = null;
 
@@ -1640,12 +790,12 @@ TODO Add tool tip?
         if (file == null)
         {
 
-            this.selectFileForm.showError (getUILanguageStringProperty (importproject,errors,nofileselected));
+            this.dirFindForm.showError (getUILanguageStringProperty (exportproject,errors,nodirselected));
                                         //"Please select a file to import.");
             return false;
 
         }
-
+/*
         if (Files.notExists (file))
         {
 
@@ -1654,83 +804,7 @@ TODO Add tool tip?
             return false;
 
         }
-
-        // TODO, remove this can't happen.
-        if (Files.isDirectory (file))
-        {
-
-            this.selectFileForm.showError (getUILanguageStringProperty (importproject,errors,dirselected));
-            return false;
-
-        }
-
-        try
-        {
-
-            Importer.importProject (file.toUri (),
-                                    new ImportCallback ()
-            {
-
-                @Override
-                public void projectCreated (Project p,
-                                            URI     u)
-                {
-
-                    UIUtils.runLater (() ->
-                    {
-
-                        if (_this.itemsTree != null)
-                        {
-
-                            _this.itemsTree.setRoot (_this.createTree (p));
-
-                            // TODO Needed? UIUtils.expandAllNodesWithChildren (_this.itemsTree.getRoot ());
-
-                            _this.proj = p;
-
-                            _this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                                       true);
-
-                        }
-
-                    });
-
-                }
-
-                public void exceptionOccurred (Exception e,
-                                               URI       u)
-                {
-
-                    Environment.logError ("Unable to import file/directory: " +
-                                          u,
-                                          e);
-
-                    UIUtils.runLater (() ->
-                    {
-
-                        ComponentUtils.showErrorMessage (_this.getViewer (),
-                                                         getUILanguageStringProperty (importproject,errors,general));
-                                                      //"Unable to import file");
-
-                    });
-
-                }
-
-            });
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to convert: " +
-                                  file +
-                                  " to a uri",
-                                  e);
-
-            this.selectFileForm.showError (getUILanguageStringProperty (importproject,errors,openfile));
-
-            return false;
-
-        }
+*/
 
         return true;
 
@@ -1759,35 +833,9 @@ TODO Add tool tip?
                 for (Chapter ch : b.getChapters ())
                 {
 
-                    if ((this.pv != null) &&
-                        (this.addToProject.isSelected ()))
-                    {
-
-                        if (this.pv.getProject ().getBooks ().get (0).getChapterByName (ch.getName ()) != null)
-                        {
-
-                            continue;
-
-                        }
-
-                    }
-
                     CheckBoxTreeItem<NamedObject> chi = new CheckBoxTreeItem<> (ch);
                     ci.getChildren ().add (chi);
                     chi.setExpanded (true);
-
-                    String t = this.getFirstLastSentence (ch.getChapterText ());
-
-                    if (t.length () > 0)
-                    {
-
-                        TreeParentNode n = new TreeParentNode ("_string",
-                                                               t);
-
-                        // Get the first and last sentence.
-                        chi.getChildren ().add (new TreeItem<NamedObject> (n));
-
-                    }
 
                 }
 
@@ -1818,6 +866,13 @@ TODO Add tool tip?
         });
 
         return root;
+
+    }
+
+    private int getSelectedCount ()
+    {
+
+        return this.getSelectedCount (this.itemsTree.getRoot ());
 
     }
 
@@ -1884,83 +939,11 @@ TODO Add tool tip?
         for (Asset a : lassets)
         {
 
-            if ((this.pv != null) &&
-                (this.addToProject.isSelected ()))
-            {
-
-                if (this.pv.getProject ().hasAsset (a))
-                {
-
-                    continue;
-
-                }
-
-            }
-
             CheckBoxTreeItem<NamedObject> cai = new CheckBoxTreeItem<> (a);
 
             ci.getChildren ().add (cai);
 
-            String t = this.getFirstLastSentence (a.getDescriptionText ());
-
-            if (t.length () > 0)
-            {
-
-                // Get the first and last sentence.
-                cai.getChildren ().add (new TreeItem<NamedObject> (new TreeParentNode ("_string", t)));
-
-            }
-
         }
-
-    }
-
-    private String getFirstLastSentence (String s)
-    {
-
-        if (s == null)
-        {
-
-            return "";
-
-        }
-
-        Paragraph p = new Paragraph (s,
-                                     0);
-
-        if (p.getSentenceCount () == 0)
-        {
-
-            return "";
-
-        }
-
-        StringBuilder b = new StringBuilder (p.getFirstSentence ().getText ());
-
-        if (p.getSentenceCount () > 1)
-        {
-
-            b.append (getUILanguageStringProperty (importproject,moretextindicator).getValue ());
-
-            b.append (p.getFirstSentence ().getNext ().getText ());
-
-        }
-
-        return b.toString ();
-
-    }
-
-    public void setAddToProjectOnly (boolean v)
-    {
-
-        this.addToProjectOnly = v;
-
-    }
-
-    public void setNewProjectOnly (boolean v)
-    {
-
-        this.newProjectOnly = v;
 
     }
 
@@ -1971,13 +954,10 @@ TODO Add tool tip?
         wizard.enableButton (Wizard.NEXT_BUTTON_ID,
                              true);
 
-        if (CHOOSE_STAGE.equals (currentStepId))
+        if (WHERE_TO_SAVE_STAGE.equals (currentStepId))
         {
 
-            if ((!this.importFromFile.isSelected ())
-                &&
-                (!this.importFromProject.isSelected ())
-               )
+            if (this.dirFind.getFile () == null)
             {
 
                 wizard.enableButton (Wizard.NEXT_BUTTON_ID,
@@ -1987,38 +967,11 @@ TODO Add tool tip?
 
         }
 
-        if ((SELECT_ITEMS_STAGE.equals (currentStepId))
-            &&
-            (this.proj == null)
-           )
+        if (SELECT_ITEMS_STAGE.equals (currentStepId))
         {
 
             wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                 false);
-
-        }
-
-        if ((SELECT_ITEMS_STAGE.equals (currentStepId))
-            &&
-            (this.itemsTree.getRoot () != null)
-           )
-        {
-
-            wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                 this.getSelectedCount (this.itemsTree.getRoot ()) > 0);
-
-        }
-
-        if (SELECT_PROJECT_STAGE.equals (currentStepId))
-        {
-
-            if (UIUtils.getSelected (this.projectList).size () == 0)
-            {
-
-                wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                     false);
-
-            }
+                                 this.getSelectedCount () > 0);
 
         }
 
@@ -2029,8 +982,9 @@ TODO Add tool tip?
     {
 
         QuollPopup p = QuollPopup.builder ()
-            .title (getUILanguageStringProperty (importproject,title))
-            .styleClassName (StyleClassNames.IMPORT)
+            .title (getUILanguageStringProperty (exportproject,LanguageStrings.popup,title))
+            .styleClassName (StyleClassNames.EXPORT)
+            .styleSheet (StyleClassNames.EXPORT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -2041,7 +995,7 @@ TODO Add tool tip?
         p.requestFocus ();
 
         Environment.fireUserProjectEvent (this.viewer,
-                                          ProjectEvent.Type._import,
+                                          ProjectEvent.Type._export,
                                           ProjectEvent.Action.show);
 
         return p;

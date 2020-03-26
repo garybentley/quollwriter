@@ -59,6 +59,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     public interface CommandId
     {
 
+        String exitfullscreen = "exitfullscreen";
+        String showfullscreenheader = "showfullscreenheader";
         String debug = "debug";
         String debugmode = "debugmode";
         String whatsnew = "whatsnew";
@@ -898,6 +900,10 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                             KeyCode.F5);
         this.addKeyMapping (CommandId.nightmode,
                             KeyCode.F8);
+        this.addKeyMapping (CommandId.showfullscreenheader,
+                            KeyCode.F6);
+        this.addKeyMapping (CommandId.exitfullscreen,
+                            KeyCode.F9);
         this.addKeyMapping (CommandId.resetfontsize,
                             KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN);
         this.addKeyMapping (CommandId.incrementfontsize,
@@ -930,8 +936,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
         this.addActionMapping (() ->
         {
-/*
-TODO
+
             QuollPopup qp = this.getPopupById (TagsManager.POPUP_ID);
 
             if (qp != null)
@@ -942,8 +947,8 @@ TODO
 
             }
 
-            new TagsManager (this.viewer).show ();
-*/
+            new TagsManager (this).show ();
+
             this.fireProjectEvent (ProjectEvent.Type.tags,
                                    ProjectEvent.Action.edit);
 
@@ -1025,6 +1030,14 @@ TODO
 
         },
         CommandId.closepopup);
+
+        this.addActionMapping (() ->
+        {
+
+            this.exitFullScreen ();
+
+        },
+        CommandId.exitfullscreen);
 
         this.addActionMapping (() -> this.showWarmupPromptSelect (),
                                CommandId.dowarmup,
@@ -1135,6 +1148,14 @@ TODO
 
         try
         {
+
+            if (v.equals ("reportbug"))
+            {
+
+                this.runCommand (AbstractViewer.CommandId.reportbug);
+                return;
+
+            }
 
             // TODO: Make this work with the action mappings.
             if (v.startsWith ("options"))
@@ -1259,19 +1280,32 @@ TODO Remove handled by the content.
 
         this.updateLayout ();
 
-        this.show ();
+        UIUtils.runLater (() ->
+        {
+
+            this.show ();
+
+        });
+
     }
 
     public void close (Runnable afterClose)
     {
 
-        this.currentContent.dispose ();
+        if (this.currentContent != null)
+        {
+
+            this.currentContent.dispose ();
+
+        }
 
         this.generalTimer.shutdown ();
 
         this.dispose ();
 
         this.getViewer ().close ();
+
+        this.viewer = null;
 
         UIUtils.runLater (afterClose);
 
@@ -1414,6 +1448,8 @@ TODO Remove handled by the content.
     public void addNotification (Notification n)
     {
 
+        n.init ();
+
         this.currentContent.addNotification (n);
 
     }
@@ -1437,7 +1473,7 @@ TODO Remove handled by the content.
     {
 
         QuollTextView t = QuollTextView.builder ()
-            .withViewer (this)
+            .inViewer (this)
             .text (text)
             .build ();
         t.setOnMouseClicked (clickListener);
@@ -1646,7 +1682,7 @@ TODO Remove handled by the content.
 
                 QuollTextView text = QuollTextView.builder ()
                     .text (tipText)
-                    .withViewer (this)
+                    .inViewer (this)
                     .formatter (formatter)
                     .build ();
                 textc.getChildren ().add (text);
@@ -1685,7 +1721,7 @@ TODO Remove handled by the content.
                         textc.getChildren ().clear ();
                         QuollTextView ntext = QuollTextView.builder ()
                             .text (t)
-                            .withViewer (this)
+                            .inViewer (this)
                             .formatter (formatter)
                             .build ();
                         textc.getChildren ().add (ntext);
@@ -2009,7 +2045,7 @@ TODO Remove handled by the content.
     public void showReportProblem (String bugText)
     {
 
-        // TODO
+        // TODO Should allow for multiple?
         new ReportBugPopup (this).show ();
 
     }
@@ -2283,6 +2319,17 @@ TODO
         {
 
             this.currentOtherSideBar.setVisible (true);
+            this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
+                                                                          this.currentOtherSideBar,
+                                                                          SideBar.SideBarEvent.SHOW_EVENT));
+
+            if (this.fullScreenContent != null)
+            {
+
+                this.fullScreenContent.showSideBar (this.currentOtherSideBar);
+
+            }
+
             return;
 
         }
@@ -2711,6 +2758,14 @@ TODO
                        throws GeneralException
   {
 
+      // TODO
+      UIUtils.showFeatureComingSoonPopup ();
+
+      if (true)
+      {
+          return true;
+      }
+
       // See if the user has an account or has already registered, if so show the sidebar
       // otherwise show the register.
       if (!EditorsEnvironment.hasRegistered ())
@@ -3014,7 +3069,7 @@ TODO Not needed, is a function of the sidebar itself...
 
                      items.addAll (menuItemSupp.get ());
 
-                 }
+                }
 
                 if (items.size () > 0)
                 {
@@ -3182,6 +3237,18 @@ TODO Not needed, is a function of the sidebar itself...
         v.init (null);
 
         this.viewer = v;
+
+        this.viewer.fullScreenProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (!newv)
+            {
+
+                this.exitFullScreen ();
+
+            }
+
+        });
 
         return v;
 

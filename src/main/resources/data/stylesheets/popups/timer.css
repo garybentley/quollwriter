@@ -1,0 +1,10 @@
+/*
+ * Used by the popup created in: com.quollwriter.ui.fx.WordCountTimerProgress
+ */
+ .header.title .icon { -fx-image: url(/imgs/clock16.png); }
+.content { -fx-pref-width: 25em; }
+.content HBox {
+    -fx-alignment: center-left;
+    -fx-spacing: 0.5em;
+}
+.button.start { -fx-content-display: graphic-only; }

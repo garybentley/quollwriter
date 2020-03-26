@@ -74,6 +74,10 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
 
         this.editor.setEditable (true);
 
+        UIUtils.addStyleSheet (this,
+                               Constants.PANEL_STYLESHEET_TYPE,
+                               "chapteredit");
+
         final ProjectChapterEditorPanelContent _this = this;
 
         this.addChangeListener (UserProperties.chapterAutoSaveEnabledProperty (),
@@ -91,6 +95,8 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
            this.tryScheduleAutoSave ();
 
         });
+
+        this.tryScheduleAutoSave ();
 /*
 TODO
         this.addChangeListener (chapter.editPositionProperty (),
@@ -133,6 +139,13 @@ TODO
 
         this.editor.readyForUseProperty ().addListener ((pr, oldv, newv) ->
         {
+
+            if (!newv)
+            {
+
+                return;
+
+            }
 
             UIUtils.runLater (() ->
             {

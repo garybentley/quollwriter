@@ -317,7 +317,7 @@ public class NewAssetPopup extends PopupContent<ProjectViewer>
 
         QuollPopup p = QuollPopup.builder ()
             .title (getUILanguageStringProperty (Arrays.asList (assets,add,LanguageStrings.popup,title),
-                                                 this.asset.getUserConfigurableObjectType ().nameProperty ()))
+                                                 Environment.getObjectTypeName (this.asset)))
             .styleClassName (StyleClassNames.CREATEASSET)
             .hideOnEscape (true)
             .withClose (true)

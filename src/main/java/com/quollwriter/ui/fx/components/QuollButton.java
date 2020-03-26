@@ -35,10 +35,10 @@ public class QuollButton extends Button
 
         }
 
-        if (b.styleName != null)
+        if (b.styleNames != null)
         {
 
-            this.getStyleClass ().add (b.styleName);
+            this.getStyleClass ().addAll (b.styleNames);
 
         }
 
@@ -56,6 +56,8 @@ public class QuollButton extends Button
                                      b.type);
 
         }
+
+        this.setSnapToPixel (true);
 
     }
 
@@ -76,7 +78,7 @@ public class QuollButton extends Button
     {
 
         private StringProperty label = null;
-        private String styleName = null;
+        private Set<String> styleNames = null;
         private StringProperty tooltip = null;
         private EventHandler<ActionEvent> onAction = null;
         private ButtonBar.ButtonData type = ButtonBar.ButtonData.APPLY;
@@ -110,10 +112,15 @@ public class QuollButton extends Button
 
         }
 
-        public Builder styleClassName (String n)
+        public Builder styleClassName (String... n)
         {
 
-            this.styleName = n;
+            if (n != null)
+            {
+
+                this.styleNames = new LinkedHashSet<> (Arrays.asList (n));
+
+            }
 
             return this;
 

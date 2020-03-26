@@ -51,7 +51,7 @@ public class ErrorBox extends VBox
         }
 
         QuollTextView tv = QuollTextView.builder ()
-            .withViewer (this.viewer)
+            .inViewer (this.viewer)
             .text (errs.stream ()
                     .map (p ->
                     {

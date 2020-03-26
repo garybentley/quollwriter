@@ -1,0 +1,216 @@
+/*
+ * Styles related to viewing an asset, com.quollwriter.ui.fx.panels.AssetViewPanel
+ */
+.header.userconfigobjtype .controls .edit { -fx-graphic: url(/imgs/edit20.png); }
+.header.userconfigobjtype .controls .save { -fx-graphic: url(/imgs/save20.png); }
+.header.userconfigobjtype .controls .cancel { -fx-graphic: url(/imgs/cancel20.png); }
+.header.userconfigobjtype .controls { -fx-padding: 0 0.5em 0 0;}
+.header.userconfigobjtype { -fx-padding: 0.25em 0 0.2em 0.5em; }
+.scroll-pane {
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+    -fx-pannable: true;
+}
+.split-pane-divider {
+    -fx-background-color: transparent;
+    -fx-pref-width: 1px;
+}
+.split-pane-divider:hover { -fx-background-color: -qw-component-border-color; }
+.view,
+.edit .single,
+.edit .full { -fx-padding: 0 0.5em 0.25em 0.5em; }
+.field .view > .label,
+.field .edit > .single .label,
+.field .edit > .full .label { -fx-font-style: italic; }
+.column { -fx-padding: 0.5em; }
+.field .view .control { -fx-padding: 0.25em 0.25em 0.25em 0.5em; }
+.column .fields .qtextarea.name {
+    -fx-min-height: 5em;
+    -fx-pref-height: 5em;
+    -fx-max-height: 5em;
+}
+.column .fields .list-view {
+    -fx-min-height: 7em;
+    -fx-pref-height: 7em;
+    -fx-max-height: 7em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit .single .controls, .edit .full .controls {
+    -fx-padding: 0.25em 0 0.25em 0.5em;
+    -fx-spacing: 0;
+}
+.edit .single .controls.date, .edit .single .controls.number { -fx-max-width: 15em; }
+.edit .single .buttons {
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-border-width: 0px 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit .single .control { -fx-padding: 0em 0 0 0em; }
+.edit .single .control .documents {
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit .documents .label.add:hover { -fx-background-color: -qw-hover-bg; }
+.column {
+    -fx-min-width: 15em;
+    -fx-border-width: 1px 1px 0 1px;
+    -fx-border-color: transparent;
+}
+.column .fields { -fx-padding: 0 0 0 0; }
+.column .fields:hidelabels .field > .label { visibility: false; }
+.column .header {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0;
+}
+.column .header .icon { visibility: hidden; }
+.column .header .title {
+    -fx-font-size: 1.5em;
+    -fx-cursor: move;
+}
+.column:dragover {
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-width: 1px 1px 0 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.field { -fx-padding: 0 0.5em 0 0; }
+.field {
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+    -fx-padding: 0 0.5em 0 0;
+}
+.field:dragover {
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+    -fx-cursor: move;
+    -fx-background-color: -qw-hover-bg;
+}
+.field .control .image {
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+
+ /*
+  * These styles hide the labels for the special fields (object name/object image/object description)
+  * when certain layouts are used.
+  */
+.objectdescription .edit .control { -fx-min-height: 20em; }
+.fields .field .label { -fx-border-width: 0; }
+.fields .field .label .title {
+    -fx-font-size: 1.1em;
+    -fx-font-style: italic;
+}
+.field .control { -fx-snap-to-pixel: true; }
+.field .image:dragging { -fx-opacity: 0.75; }
+.objectimage .edit .single .control .image {
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit .control .image:noimage .image-view { -fx-image: url(/data/default-find-image.png); }
+.header:scrolling {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.new.field {
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em;
+}
+.new.field .header { -fx-padding: 0; }
+.new.field .header .title { -fx-font-size: 1.5em; }
+.new.field .header .icon { -fx-image: url(/imgs/add16.png); }
+.new.field .buttons { -fx-padding: 0.25em 0 0.25em 1em; }
+.new.field .form .buttons .button { -fx-content-display: text-only; }
+.edit .controls .control .scroll-pane {
+    -fx-fit-to-width: true;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.view .control .scroll-pane {
+    -fx-fit-to-width: false;
+    -fx-fit-to-height: false;
+}
+.edit .documents .label.add {
+    -fx-font-size: 1.2em;
+    -fx-font-style: normal;
+    -fx-alignment: center;
+    -fx-padding: 0.5em;
+    -fx-graphic: url(/imgs/add20.png);
+    -fx-cursor: hand;
+    -fx-wrap-text: true;
+}
+.view .documents .label.add { visibility: false; }
+.documents .files { -fx-fill-width: true; }
+.documents .file {
+    -fx-cursor: hand;
+    -fx-padding: 0.5em;
+}
+.documents .menu-item .label {
+    -fx-content-display: text-only;
+    -fx-padding: 0.25em;
+}
+.documents .file:normal .label { -fx-graphic: url(/imgs/document-normal.png); }
+.documents .file .label {
+    -fx-alignment: center-left;
+    -fx-wrap-text: true;
+}
+.documents .file .label .text {
+    -fx-font-style: normal;
+    -fx-wrap-text: true;
+}
+.documents .files .file {
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+}
+.documents .files .file:hover {
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit .controls .documents {
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+ }
+.edit .controls .documents .files .file {
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit .controls .control .documents .overlay {
+    -fx-alignment: top-center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+}
+.edit .controls .control .documents .overlay .label {
+    -fx-font-size: 1.5em;
+    -fx-text-alignment: center;
+    -fx-alignment: top-center;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: #ffffff;
+    -fx-opacity: 1;
+    -fx-padding: 1em;
+    -fx-graphic: url(/imgs/down24.png);
+    -fx-wrap-text: true;
+}
+.linkedto { -fx-padding: 0.25em; }
+.edit .controls.linkedto .control {
+    -fx-border-width: 0px;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit .controls.linkedto .scroll-pane {
+    -fx-fit-to-width: false;
+    -fx-padding: 0;
+}
+.edit .controls.linkedto .scroll-pane .linkedto { -fx-border-width: 0; }
+.edit .linkedto .scroll-pane .viewport {
+    -fx-border-width: 0px;
+    -fx-fit-to-width: false;
+}
+.linkedto .tree.edit, .linkedto .tree.view { -fx-cell-indent: 1.3em; }
+.linkedto .tree .cell { -fx-padding: 0; }
+.linkedto .tree .label .text,
+.edit .linkedto .tree .label { -fx-font-style: normal; }
+.linkedto .tree .cell:leaf .label { -fx-graphic: url(/imgs/bullet16.png); }
+.edit .linkedto .tree .cell:leaf .label { -fx-content-display: text-only; }

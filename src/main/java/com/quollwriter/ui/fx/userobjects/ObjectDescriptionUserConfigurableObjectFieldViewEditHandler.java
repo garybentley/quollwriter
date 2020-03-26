@@ -159,7 +159,10 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
 
         Form.Item item = null;
 
-        if (text != null)
+        if ((text != null)
+            &&
+            (text.hasText ())
+           )
         {
 
             Node n = null;

@@ -1,0 +1,88 @@
+/*
+ * Styles for com.quollwriter.ui.fx.panels.IdeaBoard
+ */
+.header.ideaboard {
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.3em;
+}
+.header .controls { -fx-padding: 0 0.5em 0 0;}
+.header.ideaboard .icon { -fx-image: url(/imgs/idea24.png); }
+.header.ideaboard .controls .add { -fx-graphic: url(/imgs/add20.png); }
+.header.ideaboard .controls .help { -fx-graphic: url(/imgs/help20.png); }
+.scroll-pane { -fx-fit-to-height: false; }
+.categories {
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+    -fx-padding: 1em;
+    -fx-alignment: top-center;
+    -qw-item-width: 25em;
+}
+.categories .ideatype {
+    -fx-min-width: 30em;
+    -fx-max-width: 30em;
+    -fx-pref-width: 30em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    /*-fx-effect: -qw-drop-shadow;*/
+}
+.categories .ideatype .header {
+    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+.categories .ideatype .header .title { -fx-font-size: 1.5em; }
+.categories .ideatype .header .controls .add {
+    -fx-image: url(/imgs/add16.png);
+    -fx-graphic: url(/imgs/add16.png);
+}
+.categories .ideatype { -fx-background-color: -qw-bg-color; }
+.categories .ideatype .help {
+    -fx-padding: 0.5em;
+    -fx-font-style: italic;
+}
+.categories .ideatype .scene.header .icon { -fx-image: url(/imgs/scene16.png); }
+.categories .ideatype .chapter.header .icon { -fx-image: url(/imgs/chapter16.png); }
+.categories .ideatype .location.header .icon { -fx-image: url(/imgs/location16.png); }
+.categories .ideatype .character.header .icon { -fx-image: url(/imgs/character16.png); }
+.categories .ideatype .object.header .icon { -fx-image: url(/imgs/object16.png); }
+.categories .ideatype .researchitem.header .icon { -fx-image: url(/imgs/researchitem16.png); }
+.idea {
+    /*-fx-padding: 0.25em 0.5em 0.5em 0.5em;*/
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.idea > .edit, .ideatype .newidea {
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px 0 1px 0;
+}
+.idea .edit .qtextarea, .ideatype .newidea .qtextarea {
+    -fx-border-width: 0;
+    -fx-padding: 0.25em;
+}
+.idea .edit .buttons, .ideatype .newidea .buttons {
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.25em;
+    -fx-alignment: center-right;
+}
+.idea:last { -fx-border-width: 0; }
+.idea .view { -fx-padding: 0.25em 0.25em 0.25em 0.5em; }
+.idea .shorttext { -fx-cursor: hand; }
+.idea .tool-bar {
+    -fx-padding: 0;
+    -fx-alignment: center-left ;
+    -fx-fill-height: true;
+}
+.starbar {
+    -fx-fill-height: false;
+    -fx-alignment: center-left;
+}
+.starbar .star {
+    -fx-padding: 0.25em;
+    -fx-cursor: hand;
+}
+.starbar .star .image-view { -fx-image: url(/imgs/star-disabled16.png); }
+.starbar .star:tempselected .image-view,
+.starbar .star:selected .image-view { -fx-image: url(/imgs/star16.png); }

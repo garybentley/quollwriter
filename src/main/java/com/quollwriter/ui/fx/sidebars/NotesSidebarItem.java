@@ -50,7 +50,7 @@ public class NotesSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         super (pv,
                binder);
-System.out.println ("NOTE TYPE: " + noteType);
+
         this.noteType = noteType;
         this.countProp = new SimpleIntegerProperty (0);
 
@@ -346,6 +346,48 @@ System.out.println ("NOTE TYPE: " + noteType);
     }
 
     @Override
+    public boolean canImport (NamedObject o)
+    {
+/*
+        if (o instanceof Note)
+        {
+
+            Note n = (Note) o;
+
+            return !this.tree.getTreeItemForObject (n);
+
+        }
+*/
+/*
+TODO
+        if (o instanceof Note)
+        {
+
+            Note c = (Note) o;
+
+            // TODO Support drag-n-drop import from other projects.
+            if (ut.getParent ().equals ())
+            {
+
+                return true;
+
+            }
+
+        }
+*/
+        return false;
+
+    }
+
+    @Override
+    public void importObject (NamedObject o)
+    {
+
+        new IllegalStateException ("Shouldnt be possible.");
+
+    }
+
+    @Override
     public Node getContent ()
     {
 
@@ -354,10 +396,10 @@ System.out.println ("NOTE TYPE: " + noteType);
     }
 
     @Override
-    public String getStyleClassName ()
+    public List<String> getStyleClassNames ()
     {
 
-        return StyleClassNames.NOTES;
+        return Arrays.asList (StyleClassNames.NOTES);
 
     }
 

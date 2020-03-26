@@ -62,6 +62,7 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
             this.fullScreenProps.setVisible (newv);
 
         });
+        this.fullScreenProps.setVisible (viewer.getViewer ().isFullScreen ());
 
         Form.Builder fb = Form.builder ();
 
@@ -417,8 +418,18 @@ System.out.println ("NEW: " + newv);
 
                                                     }));
 
+        Form ff = fb.build ();
+        this.getBinder ().addChangeListener (viewer.currentPanelProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            ff.setVisible (viewer.isCurrentPanelChapterEditor ());
+
+        });
+        ff.setVisible (viewer.isCurrentPanelChapterEditor ());
+
         c.getChildren ().addAll (this.fullScreenProps,
-                                 fb.build ());
+                                 ff);
 
     }
 
@@ -433,6 +444,7 @@ System.out.println ("NEW: " + newv);
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.EDITPROPERTIES)
+            .styleSheet (StyleClassNames.EDITPROPERTIES)
             .withScrollPane (true)
             .canClose (true)
             //.headerControls ()?

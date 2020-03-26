@@ -53,6 +53,7 @@ public class ProjectEvent extends EventObject
         note ("note"),
         outlineitem ("outlineitem"),
         chapter ("chapter"),
+        warmup ("warmup"),
         asset ("asset"),
         project ("project"),
         tag ("tag");

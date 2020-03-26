@@ -26,6 +26,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.editors.*;
 
 import static com.quollwriter.LanguageStrings.*;
@@ -36,11 +37,6 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 {
 
     public static final float DEFAULT_BORDER_OPACITY = 0.7f;
-    public static final double MIN_X_BORDER_WIDTH = 0.05d;
-    public static final double MAX_X_BORDER_WIDTH = 0.4d;
-    public static final double MIN_Y_BORDER_WIDTH = 0.05d;
-    public static final double MAX_Y_BORDER_WIDTH = 0.4d;
-    public static final double MOVE_INCR = 0.002d;
 
     private PanelContent panel = null;
 
@@ -67,6 +63,10 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
     private IPropertyBinder propertyBinder = null;
     private boolean ignoreChange = false;
 
+    private ProgressBar timerProgress = null;
+    private WordCountProgressTimer wctimer = null;
+    private boolean allowHeaderHide = false;
+
     public ProjectFullScreenContent (AbstractProjectViewer viewer,
                                      String                styleClassName,
                                      Region                mainContent)
@@ -75,17 +75,33 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         super (viewer);
         this.propertyBinder = viewer.getBinder ();
 
+        viewer.addActionMapping (() ->
+        {
+
+            this.header.setVisible (true);
+
+        },
+        AbstractViewer.CommandId.showfullscreenheader);
+
         this.propertyBinder.addChangeListener (this.viewer.currentPanelProperty (),
                                                (pr, oldv, newv) ->
         {
 
-            if (oldv != null)
+            if (!this.viewer.getViewer ().isFullScreen ())
             {
 
-                this.header.getStyleClass ().remove (oldv.getStyleClassName ());
+                this.header.setVisible (false);
+                return;
 
             }
 
+            if (oldv != null)
+            {
+
+                //this.header.getStyleClass ().remove (oldv.getStyleClassName ());
+
+            }
+/*
             if (newv != null)
             {
 
@@ -107,8 +123,13 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
                 this.header.getStyleClass ().add (newv.getStyleClassName ());
 
             }
+*/
+            UIUtils.runLater (() ->
+            {
 
-            this.showHeader ();
+                this.showHeader ();
+
+            });
 
             this.headerHideTimer = this.viewer.schedule (() ->
             {
@@ -139,6 +160,10 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             .onAction (ev ->
             {
 
+                // TODO
+                UIUtils.showFeatureComingSoonPopup ();
+                if (true){return;}
+
                 this.viewer.setDistractionFreeModeEnabled (!this.viewer.isDistractionFreeModeEnabled ());
 
                 UserProperties.set (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
@@ -161,7 +186,101 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         });
 
-        tb.getItems ().addAll (this.headerClockLabel, but);
+        tb.getItems ().addAll (this.headerClockLabel);
+
+        if (Environment.getQuollWriterVersion ().isBeta ())
+        {
+
+            tb.getItems ().add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.reportbug));
+
+        }
+
+        tb.getItems ().add (but);
+
+        tb.getItems ().add (QuollButton.builder ()
+            .tooltip (fullscreen,title,toolbar,buttons,ideaboard,tooltip)
+            .styleClassName (StyleClassNames.IDEABOARD)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.ideaboard);
+
+            })
+            .build ());
+
+        QuollButton tbut = QuollButton.builder ()
+            .tooltip (fullscreen,title,toolbar,buttons,timer,tooltip)
+            .styleClassName (StyleClassNames.TIMER)
+            .build ();
+        tbut.setOnAction (ev ->
+        {
+
+            // Switch off hiding the header.
+            this.allowHeaderHide = false;
+
+            String pid = "fullscreen-wctimer";
+
+            if (this.viewer.getPopupById (pid) != null)
+            {
+
+                return;
+
+            }
+
+            WordCountTimerSelectPopup p = new WordCountTimerSelectPopup (this.viewer,
+                                                                         (mins, words) ->
+            {
+
+                this.timerProgress.setVisible (true);
+                tbut.setVisible (false);
+
+                if (this.wctimer != null)
+                {
+
+                    this.wctimer.stop ();
+
+                }
+
+                this.wctimer = new WordCountProgressTimer (this.viewer,
+                                                           mins,
+                                                           words,
+                                                           this.timerProgress);
+
+                this.viewer.getPopupById (pid).close ();
+
+            });
+            p.getPopup ().setOnClose (() ->
+            {
+
+                this.allowHeaderHide = true;
+
+            });
+            p.getPopup ().setPopupId (pid);
+            p.getPopup ().show (tbut,
+                      Side.BOTTOM);
+
+        });
+        tbut.managedProperty ().bind (tbut.visibleProperty ());
+
+        tb.getItems ().add (tbut);
+
+        this.timerProgress = new ProgressBar ();
+        this.timerProgress.managedProperty ().bind (this.timerProgress.visibleProperty ());
+        this.timerProgress.setVisible (false);
+        tb.getItems ().add (this.timerProgress);
+
+/*
+        QuollButton.builder ()
+            .tooltip (fullscreen,title,toolbar,buttons,timer,tooltip)
+            .styleClassName (StyleClassNames.TIMER)
+            .onAction (ev ->
+            {
+
+                //this.viewer.runCommand (CommandId.ideaboard);
+
+            })
+            .build ());
+*/
 /*
         if (headerCons != null)
         {
@@ -243,6 +362,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         this.header.setVisible (false);
         this.header.managedProperty ().bind (this.header.visibleProperty ());
         this.header.titleProperty ().bind (viewer.getProject ().nameProperty ());
+        this.header.getStyleClass ().add (Project.OBJECT_TYPE);
 
         this.header.setOnMouseEntered (ev ->
         {
@@ -271,7 +391,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         try
         {
-System.out.println ("FBG: " + UserProperties.getFullScreenBackground ());
+
             this.background.setBackgroundObject (UserProperties.getFullScreenBackground ());
 
         } catch (Exception e) {
@@ -376,10 +496,31 @@ System.out.println ("FBG: " + UserProperties.getFullScreenBackground ());
 
         });
 
+        this.addEventHandler (MouseEvent.MOUSE_CLICKED,
+                              ev ->
+        {
+
+            if (ev.isPopupTrigger ())
+            {
+
+                return;
+
+            }
+
+            if (this.getProperties ().get ("context-menu") != null)
+            {
+
+                ((ContextMenu) this.getProperties ().get ("context-menu")).hide ();
+
+            }
+
+        });
+
         this.setOnContextMenuRequested (ev ->
         {
 
-            ContextMenu m = new ContextMenu ();
+            QuollContextMenu m = QuollContextMenu.builder ()
+                .build ();
 
             m.getItems ().add (QuollMenuItem.builder ()
                 .label (fullscreen,popupmenu,items,editproperties)
@@ -402,8 +543,6 @@ System.out.println ("FBG: " + UserProperties.getFullScreenBackground ());
 
                 })
                 .build ());
-
-            m.setAutoHide (true);
 
             this.getProperties ().put ("context-menu", m);
 
@@ -559,6 +698,7 @@ System.out.println ("FBG: " + UserProperties.getFullScreenBackground ());
             .build ();
         this.sessWords = QuollLabel.builder ()
             .styleClassName (StyleClassNames.SESSION)
+            .tooltip (fullscreen,LanguageStrings.info,sessionwordcount,tooltip)
             .build ();
         this.info.setVisible (false);
         this.info.getChildren ().addAll (this.clockLabel, this.sessWords, this.chapWords);
@@ -587,8 +727,9 @@ System.out.println ("FBG: " + UserProperties.getFullScreenBackground ());
 
             double h = this.getHeight ();
             double w = this.getWidth ();
-            double ybw = UserProperties.getFullScreenYBorderWidth ();
-            double xbw = UserProperties.getFullScreenXBorderWidth ();
+            double ybw = this.getYBorderWidth ();
+            double xbw = this.getXBorderWidth ();
+
             double cx = w * xbw;
             double cy = h * ybw;
 
@@ -736,14 +877,13 @@ TODO
 
         });
 
-        UIUtils.runLater (() ->
+        this.heightProperty ().addListener ((pr, oldv, newv) ->
         {
-System.out.println ("TIME2: " + System.currentTimeMillis ());
-long s= System.currentTimeMillis ();
-            double h = this.getHeight ();//Screen.getPrimary ().getVisualBounds ().getHeight ();
+
+            double h = this.getHeight ();
             this.sidebarsPane.relocate (0,
                                         h * 0.1);
-            this.sidebarsPane.setPrefSize (-1,
+            this.sidebarsPane.setPrefSize (this.sidebarsPane.getPrefWidth (),
                                            h * 0.8);
             this.sidebarsPane.setMaxSize (Region.USE_PREF_SIZE,
                                           Region.USE_PREF_SIZE);
@@ -752,8 +892,9 @@ long s= System.currentTimeMillis ();
                                 this.getHeight () - this.info.getLayoutBounds ().getHeight ());
 
             double w = this.getWidth ();
-            double ybw = UserProperties.getFullScreenYBorderWidth ();
-            double xbw = UserProperties.getFullScreenXBorderWidth ();
+            double xbw = this.getXBorderWidth ();
+            double ybw = this.getYBorderWidth ();
+
             double cx = w * xbw;
             double cy = h * ybw;
 
@@ -761,9 +902,31 @@ long s= System.currentTimeMillis ();
             mainContent.setPrefWidth ((double) Math.round (w - (2 * w * xbw)));
             mainWrapper.relocate (Math.round (cx), Math.round (cy));
             mainWrapper.setVisible (true);
-System.out.println ("TOOK: " + (System.currentTimeMillis () - s));
+
         });
-System.out.println ("TIME: " + System.currentTimeMillis ());
+
+        this.widthProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            double h = this.getHeight ();
+            double w = this.getWidth ();
+            double xbw = this.getXBorderWidth ();
+            double ybw = this.getYBorderWidth ();
+
+            double cx = w * xbw;
+            double cy = h * ybw;
+
+            mainContent.setPrefHeight ((double) Math.round (h - (2 * h * ybw)));
+            mainContent.setPrefWidth ((double) Math.round (w - (2 * w * xbw)));
+            mainWrapper.relocate (Math.round (cx), Math.round (cy));
+            mainWrapper.setVisible (true);
+
+        });
+
+        UIUtils.addStyleSheet (this,
+                               Constants.VIEWER_STYLESHEET_TYPE,
+                               StyleClassNames.FULLSCREEN);
+
         this.getChildren ().addAll (this.background, mainWrapper, this.header, this.sidebarsPane, this.info);//, /*this.content*/this.popupPane);
 
         this.setOnMouseMoved (ev ->
@@ -801,6 +964,53 @@ System.out.println ("TIME: " + System.currentTimeMillis ());
         },
         500,
         500);
+
+    }
+
+    private double getXBorderWidth ()
+    {
+
+        double xbw = UserProperties.getFullScreenXBorderWidth ();
+
+        if (xbw < UserProperties.FULL_SCREEN_MIN_X_BORDER_WIDTH)
+        {
+
+            xbw = UserProperties.FULL_SCREEN_MIN_X_BORDER_WIDTH;
+
+        }
+
+        if (xbw > UserProperties.FULL_SCREEN_MAX_X_BORDER_WIDTH)
+        {
+
+            xbw = UserProperties.FULL_SCREEN_MAX_X_BORDER_WIDTH;
+
+        }
+
+        return xbw;
+
+    }
+
+    private double getYBorderWidth ()
+    {
+
+        double ybw = UserProperties.getFullScreenYBorderWidth ();
+
+        if ((ybw < UserProperties.FULL_SCREEN_MIN_Y_BORDER_WIDTH)
+           )
+        {
+
+            ybw = UserProperties.FULL_SCREEN_MIN_Y_BORDER_WIDTH;
+
+        }
+
+        if (ybw > UserProperties.FULL_SCREEN_MAX_Y_BORDER_WIDTH)
+        {
+
+            ybw = UserProperties.FULL_SCREEN_MAX_Y_BORDER_WIDTH;
+
+        }
+
+        return ybw;
 
     }
 
@@ -874,8 +1084,6 @@ System.out.println ("TIME: " + System.currentTimeMillis ());
 
         }
 
-        UIUtils.setTooltip (this.sessWords,
-                            getUILanguageStringProperty (Utils.newList (prefix,sessionwordcount,tooltip)));
         //"Session word count");
 
         String pl = LanguageStrings.words;
@@ -952,7 +1160,16 @@ System.out.println ("TIME: " + System.currentTimeMillis ());
 
         this.updater.cancel (true);
 
+        if (this.wctimer != null)
+        {
+
+            this.wctimer.stop ();
+
+        }
+
         this.viewer.exitFullScreen ();
+
+        //this.viewer.removeActionMapping (AbstractViewer.CommandId.showfullscreenheader);
 
         EditorsEnvironment.fullScreenExited ();
 
@@ -1042,6 +1259,13 @@ TODO ? psuedo class
     private void hideHeader ()
     {
 
+        if (!this.allowHeaderHide)
+        {
+
+            return;
+
+        }
+
         this.header.setVisible (false);
 
         if (this.headerHideTimer != null)
@@ -1061,7 +1285,6 @@ TODO ? psuedo class
         {
 
             this.headerHideTimer.cancel (false);
-            this.headerHideTimer = null;
 
         }
 
@@ -1069,6 +1292,42 @@ TODO ? psuedo class
         {
 
             return;
+
+        }
+
+        this.header.setVisible (false);
+        Panel p = this.viewer.getCurrentPanel ();
+
+        this.header.getStyleClass ().clear ();
+        this.header.getStyleClass ().add (StyleClassNames.HEADER);
+
+        this.header.getStyleClass ().remove (Project.OBJECT_TYPE);
+
+        if (p != null)
+        {
+
+            PanelContent pc = p.getContent ();
+
+            if (pc instanceof AssetViewPanel)
+            {
+
+                UserConfigurableObjectType type = ((AssetViewPanel) pc).getObject ().getUserConfigurableObjectType ();
+
+                this.header.getIcon ().imageProperty ().unbind ();
+                this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
+
+            }
+
+            this.header.titleProperty ().unbind ();
+            this.header.titleProperty ().bind (p.titleProperty ());
+            this.header.getIcon ().imageProperty ().unbind ();
+            this.header.getStyleClass ().add (p.getStyleClassName ());
+
+        } else {
+
+            this.header.getStyleClass ().add (Project.OBJECT_TYPE);
+            this.header.titleProperty ().unbind ();
+            this.header.titleProperty ().bind (this.viewer.getProject ().nameProperty ());
 
         }
 
@@ -1171,15 +1430,19 @@ TODO Remove
         }
 
         this.sidebarsPane.getChildren ().clear ();
+/*
         ScrollPane c = new ScrollPane (b);
-        HBox.setHgrow (c,
+        */
+        HBox.setHgrow (b,
                        Priority.ALWAYS);
-        this.sidebarsPane.getChildren ().add (c);
-        b.prefWidthProperty ().bind (c.widthProperty ());
-        b.prefHeightProperty ().bind (c.heightProperty ());
+
+        this.sidebarsPane.getChildren ().add (b);
+        //b.prefWidthProperty ().bind (c.widthProperty ());
+        //b.prefHeightProperty ().bind (c.heightProperty ());
 
         this.currentSideBar = b;
         this.sidebarsPane.setVisible (true);
+
 
     }
 
@@ -1241,6 +1504,7 @@ TODO Remove
         s.set ("background",
                this.background.getState ());
 */
+
         return s;
 
     }
@@ -1312,6 +1576,13 @@ TODO Remove
             UserProperties.setFullScreenBackground (this.background.getBackgroundObject ().getBackgroundObject ());
 
         });
+
+        if (s != null)
+        {
+
+            this.sidebarsPane.setPrefWidth (s.getAsInt (Constants.FULL_SCREEN_SIDEBAR_WIDTH_PROPERTY_NAME));
+
+        }
 
     }
 

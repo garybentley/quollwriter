@@ -762,6 +762,7 @@ TODO
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.TARGETS)
+            .styleSheet (StyleClassNames.TARGETS)
             .withScrollPane (true)
             .canClose (true)
             .headerControls (headerCons)

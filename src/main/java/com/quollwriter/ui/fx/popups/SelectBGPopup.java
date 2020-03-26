@@ -4,6 +4,7 @@ import java.nio.file.*;
 import java.nio.charset.*;
 import java.net.*;
 import java.util.*;
+import java.util.stream.*;
 import java.util.concurrent.*;
 
 import javafx.beans.property.*;
@@ -38,7 +39,7 @@ public class SelectBGPopup extends PopupContent
     private Object origBG = null;
     private Object origSwatchSel = null;
     private FlowPane colorsPane = null;
-    private FlowPane imagesPane = null;
+    private TilePane imagesPane = null;
     private BackgroundObject bgObj = null;
 
     public SelectBGPopup (AbstractViewer viewer,
@@ -52,7 +53,7 @@ public class SelectBGPopup extends PopupContent
 
         final SelectBGPopup _this = this;
 
-        this.imagesPane = new FlowPane ();
+        this.imagesPane = new TilePane ();
 
         Set<Path> userImages = UserProperties.userBGImagePathsProperty ().getValue ();
 
@@ -87,8 +88,10 @@ public class SelectBGPopup extends PopupContent
             if (Files.exists (p))
             {
 
-                Files.list (p)
-                    .filter (f -> Files.isRegularFile (f))
+                try (Stream<Path> ls = Files.list (p))
+                {
+
+                    ls.filter (f -> Files.isRegularFile (f))
                     .sorted ((o1, o2) ->
                     {
 
@@ -130,7 +133,6 @@ public class SelectBGPopup extends PopupContent
                         swatch.getStyleClass ().add ("bgimage");
                         swatch.getStyleClass ().add (s.substring (0, s.lastIndexOf (".")));
                         swatch.setUserData (s);
-
                         UIUtils.setTooltip (swatch,
                                             getUILanguageStringProperty (selectbackground,types,image,tooltip));
                         Group g = new Group ();
@@ -139,6 +141,8 @@ public class SelectBGPopup extends PopupContent
                         this.imagesPane.getChildren ().add (g);
 
                     });
+
+                }
 
             }
 
@@ -343,7 +347,12 @@ public class SelectBGPopup extends PopupContent
 
                 Node n = ns.iterator ().next ();
 
-                sp.scrollIntoView (n);
+                javafx.application.Platform.runLater (() ->
+                {
+
+                    sp.scrollIntoView (n);
+
+                });
 
             }
 
@@ -358,9 +367,9 @@ public class SelectBGPopup extends PopupContent
 
     }
 
-    private void createUserBGImageSwatch (Path     p,
-                                          int      addAt,
-                                          FlowPane parent)
+    private void createUserBGImageSwatch (Path p,
+                                          int  addAt,
+                                          Pane parent)
     {
 
         final SelectBGPopup _this = this;
@@ -584,6 +593,7 @@ public class SelectBGPopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (selectbackground,title)
             .styleClassName (StyleClassNames.SELECTBG)
+            .styleSheet (StyleClassNames.SELECTBG)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -595,17 +605,18 @@ public class SelectBGPopup extends PopupContent
 
         p.requestFocus ();
 
-        if (this.origBG != null)
+        p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                           ev ->
         {
 
-            UIUtils.runLater (() ->
+            if (this.origBG != null)
             {
 
                 _this.selectedProp.setValue (_this.origBG);
 
-            });
+            }
 
-        }
+        });
 
         return p;
 

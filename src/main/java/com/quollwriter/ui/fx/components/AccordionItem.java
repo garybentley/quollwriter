@@ -52,10 +52,10 @@ public class AccordionItem extends VBox implements Stateful
 
         this.getStyleClass ().add (StyleClassNames.ACCORDION);
 
-        if (b.styleName != null)
+        if (b.styleNames != null)
         {
 
-            this.getStyleClass ().add (b.styleName);
+            this.getStyleClass ().addAll (b.styleNames);
 
         }
 
@@ -229,7 +229,7 @@ public class AccordionItem extends VBox implements Stateful
         private Node openContent = null;
         private Node closedContent = null;
         private Set<Node> headerCons = null;
-        private String styleName = null;
+        private List<String> styleNames = null;
         private String accId = null;
         private boolean open = true;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
@@ -255,11 +255,41 @@ public class AccordionItem extends VBox implements Stateful
 
         }
 
-        public X styleClassName (String name)
+        public X styleClassNames (List<String> names)
         {
 
-            this.styleName = name;
+            if (this.styleNames == null)
+            {
+
+                this.styleNames = new ArrayList<> ();
+
+            }
+
+            for (String s : names)
+            {
+
+                if ((s.indexOf (" ") > -1)
+                    ||
+                    (s.indexOf (".") > -1)
+                   )
+                {
+
+                    throw new IllegalArgumentException ("Style cannot contain whitespace: " + s);
+
+                }
+
+                this.styleNames.add (s);
+
+            }
+
             return _this ();
+
+        }
+
+        public X styleClassName (String... name)
+        {
+
+            return this.styleClassNames (Arrays.asList (name));
 
         }
 

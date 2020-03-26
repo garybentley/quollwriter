@@ -37,7 +37,7 @@ import static com.quollwriter.LanguageStrings.*;
 import javafx.beans.value.*;
 import javafx.collections.*;
 
-public class ImportPopup extends PopupContent
+public class ImportPopup extends PopupContent<AbstractViewer>
 {
 
     public static final String POPUP_ID = "import";
@@ -140,7 +140,7 @@ public class ImportPopup extends PopupContent
                 if (tn.getForObjectType ().equals ("_string"))
                 {
 
-                    l = BasicHtmlTextFlow.builder ()
+                    l = QuollTextView.builder ()
                         .text (n.nameProperty ())
                         .styleClassName (StyleClassNames.TEXT)
                         .build ();
@@ -286,6 +286,13 @@ public class ImportPopup extends PopupContent
 
     public String getStartStepId ()
     {
+
+        if (Environment.getAllProjects ().size () == 1)
+        {
+
+            return SELECT_FILE_STAGE;
+
+        }
 
         if ((this.newProjectOnly)
             &&
@@ -1017,7 +1024,7 @@ TODO Remove
         //"Select a file to import";
 
         VBox b = new VBox ();
-        b.getChildren ().add (BasicHtmlTextFlow.builder ()
+        b.getChildren ().add (QuollTextView.builder ()
             .styleClassName (StyleClassNames.DESCRIPTION)
             .text (getUILanguageStringProperty (importproject,stages,selectfile,text))
             .build ());
@@ -1160,7 +1167,7 @@ TODO Add tool tip?
 
         b.getStyleClass ().add (CHOOSE_STAGE);
 
-        b.getChildren ().add (BasicHtmlTextFlow.builder ()
+        b.getChildren ().add (QuollTextView.builder ()
             .styleClassName (StyleClassNames.DESCRIPTION)
             .text (getUILanguageStringProperty (importproject,stages,choose,text))
             .build ());
@@ -1198,7 +1205,7 @@ TODO Add tool tip?
         try
         {
 
-            projs = new ArrayList<> (Environment.getAllProjectInfos ());
+            projs = new ArrayList<> (Environment.getAllProjects ());
 
         } catch (Exception e) {
 
@@ -1437,6 +1444,17 @@ TODO Add tool tip?
 
         }
 
+        if (SELECT_FILE_STAGE.equals (currStage))
+        {
+
+            if (Environment.getAllProjects ().size () == 1)
+            {
+
+                return null;
+
+            }
+
+        }
 
         if (currStage.equals (NEW_PROJECT_STAGE))
         {
@@ -2030,6 +2048,7 @@ TODO Add tool tip?
         QuollPopup p = QuollPopup.builder ()
             .title (getUILanguageStringProperty (importproject,title))
             .styleClassName (StyleClassNames.IMPORT)
+            .styleSheet (StyleClassNames.IMPORT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

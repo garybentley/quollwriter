@@ -415,6 +415,24 @@ System.out.println ("HERE2");
 
         }
 
+        if ((newStage == null)
+            &&
+            (NEW_PROJECT_STAGE.equals (oldStage))
+           )
+        {
+
+            if (this.importFile.isSelected ())
+            {
+
+                // Need to create a project with the selected items.
+                this.newProjectPanel.setProject (this.getSelectedItems ());
+
+            }
+
+            return this.newProjectPanel.createProject ();
+
+        }
+
         if ((EXISTING_STAGE.equals (oldStage))
             &&
             (newStage == null)
@@ -527,24 +545,6 @@ System.out.println ("HERE2");
 
     public boolean handleFinish ()
     {
-
-        if ((this.importFile.isSelected ())
-            ||
-            (this.createNewProject.isSelected ())
-           )
-        {
-
-            if (this.importFile.isSelected ())
-            {
-
-                // Need to create a project with the selected items.
-                this.newProjectPanel.setProject (this.getSelectedItems ());
-
-            }
-
-            return this.newProjectPanel.createProject ();
-
-        }
 
         return true;
 
@@ -1887,6 +1887,7 @@ System.out.println ("HERE2");
         QuollPopup p = QuollPopup.builder ()
             .title (firstusewizard,title)
             .styleClassName (StyleClassNames.FIRSTUSEWIZARD)
+            .styleSheet (StyleClassNames.FIRSTUSEWIZARD)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

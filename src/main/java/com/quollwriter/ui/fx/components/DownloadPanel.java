@@ -34,7 +34,7 @@ public class DownloadPanel extends VBox
         {
 
             this.getChildren ().add (QuollTextView.builder ()
-            .withViewer (b.viewer)
+            .inViewer (b.viewer)
             .text (b.title)
             .build ());
 

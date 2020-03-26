@@ -33,24 +33,34 @@ public class Startup_fx extends Application
     public void updateProgress (double v)
     {
 
-        if (ss != null)
+        UIUtils.runLater (() ->
         {
 
-            ss.updateProgress (v);
+            if (ss != null)
+            {
 
-        }
+                //ss.updateProgress (v);
+
+            }
+
+        });
 
     }
 
     public void finish ()
     {
 
-        if (ss != null)
+        UIUtils.runLater (() ->
         {
 
-            ss.finish ();
+            if (ss != null)
+            {
 
-        }
+                ss.finish ();
+
+            }
+
+        });
 
     }
 
@@ -72,12 +82,142 @@ public class Startup_fx extends Application
             this.ss.setX (((rb.getWidth () - this.ss.getWidth ()) / 2));
             this.ss.setY (((rb.getHeight () - this.ss.getHeight ()) / 2));
 
-            this.updateProgress (0.5f);
+            this.updateProgress (0.2d);
 
         } catch (Exception e) {
 
             e.printStackTrace ();
 
+        }
+
+        Thread t = new Thread (() ->
+        {
+
+            try
+            {
+
+                Environment.init (this.ss.progressProperty (),
+                                  () ->
+                {
+
+                    try
+                    {
+
+                        Environment.incrStartupProgress ();
+
+                        if (Environment.isFirstUse ())
+                        {
+
+                            new FirstUseWizard ().show ();
+
+                            this.finish ();
+
+                            return;
+
+                        }
+
+                        if (Environment.getAllProjectInfos ().size () == 0)
+                        {
+
+                            this.finish ();
+
+                            Environment.showAllProjectsViewer ();
+
+                            return;
+
+                        }
+
+                        boolean showError = false;
+
+                        if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
+                        {
+
+                            Environment.showAllProjectsViewer ();
+
+                        }
+
+                        // See if the user property is to open the last edited project.
+                        if (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
+                        {
+
+                            try
+                            {
+
+                                if (!Environment.openLastEditedProject ())
+                                {
+
+                                    showError = true;
+
+                                }
+
+                            } catch (Exception e)
+                            {
+
+                                showError = true;
+
+                            }
+
+                        }
+
+                        // Need to do this here since, if there is no visible frame (somewhere) then showErrorMessage will throw an error that crashes the jvm... nice...
+                        if (showError)
+                        {
+
+                            Environment.showAllProjectsViewer ();
+
+                            ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,cantopenlastprojecterror,text));
+
+                        }
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to start up: " +
+                                              e);
+
+                        ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,unabletostarterror));
+
+                    }
+
+                });
+
+            } catch (Exception eee)
+            {
+
+                if (eee instanceof OverlappingFileLockException)
+                {
+
+                    // We need to show english here since we don't have the ui strings set up yet.
+                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,alreadyrunningerror));
+
+                } else {
+
+                    Environment.logError ("Unable to open Quoll Writer",
+                                          eee);
+
+                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (startup,unabletostarterror));
+
+                }
+
+            } catch (Error err) {
+
+                err.printStackTrace ();
+
+            } finally
+            {
+
+                this.finish ();
+
+                Environment.startupComplete ();
+
+            }
+
+        });
+
+        t.start ();
+
+        if (true)
+        {
+            return;
         }
 
         UIUtils.runLater (() ->
@@ -86,7 +226,7 @@ public class Startup_fx extends Application
             try
             {
 
-                Environment.init ();
+                Environment.init (null, null);
 
                 this.updateProgress (0.6f);
 

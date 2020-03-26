@@ -56,7 +56,7 @@ public class FieldBox extends VBox
         this.field = field;
 
         this.label = Header.builder ()
-            .title (field.nameProperty ())
+            .title (field.formNameProperty ())
             .styleClassName (StyleClassNames.LABEL)
             .contextMenu (() -> this.getViewContextMenuItems ())
             .build ();
@@ -189,14 +189,6 @@ public class FieldBox extends VBox
                    ev.getScreenY ());
 
         });
-
-        this.inputItems = this.handler.getInputFormItems (null,
-                                                          () ->
-                                                          {
-
-                                                              this.fireEvent (new Event (this, this, SAVE_EVENT));
-
-                                                          });
 
     }
 
@@ -375,6 +367,13 @@ public class FieldBox extends VBox
     public boolean save ()
     {
 
+        if (this.inputItems == null)
+        {
+
+            return true;
+
+        }
+
         this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
         this.errors.setVisible (false);
         Set<StringProperty> errs = this.handler.getInputFormItemErrors ();
@@ -396,6 +395,8 @@ public class FieldBox extends VBox
         {
 
             this.handler.updateFieldFromInput ();
+
+            this.inputItems = null;
 
         } catch (Exception e) {
 
@@ -987,6 +988,37 @@ xxx
     public void showEditFull ()
     {
 
+        this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
+        this.errors.setVisible (false);
+
+        try
+        {
+
+            if (this.inputItems == null)
+            {
+
+                this.inputItems = this.handler.getInputFormItems (null,
+                                                                  () ->
+                                                                  {
+
+                                                                      this.fireEvent (new Event (this, this, SAVE_EVENT));
+
+                                                                  });
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to edit field: " + this.field,
+                                  e);
+
+            this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, true);
+            this.errors.setVisible (true);
+            this.errors.setErrors (getUILanguageStringProperty (assets,fields,LanguageStrings.edit,actionerror));
+            return;
+
+        }
+
         this.fireEvent (new Event (this, this, EDIT_EVENT));
 
         this.saveObject = false;
@@ -1007,14 +1039,7 @@ xxx
 
         for (Form.Item it : this.inputItems)
         {
-/*
-           if (it.label != null)
-           {
 
-               b.getChildren ().add (it.label);
-
-           }
-*/
            VBox cb = new VBox ();
            cb.getStyleClass ().add (StyleClassNames.CONTROL);
            cb.getChildren ().add (it.control);
@@ -1044,6 +1069,37 @@ xxx
 
     public void showEditSingle ()
     {
+
+        this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
+        this.errors.setVisible (false);
+
+        try
+        {
+
+            if (this.inputItems == null)
+            {
+
+                this.inputItems = this.handler.getInputFormItems (null,
+                                                                  () ->
+                                                                  {
+
+                                                                      this.fireEvent (new Event (this, this, SAVE_EVENT));
+
+                                                                  });
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to edit field: " + this.field,
+                                  e);
+
+            this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, true);
+            this.errors.setVisible (true);
+            this.errors.setErrors (getUILanguageStringProperty (assets,fields,LanguageStrings.edit,actionerror));
+            return;
+
+        }
 
         this.fireEvent (new Event (this, this, EDIT_EVENT));
 
@@ -1078,6 +1134,8 @@ xxx
             .onAction (ev ->
             {
 
+                this.inputItems = null;
+
                 try
                 {
 
@@ -1104,19 +1162,13 @@ xxx
 
         VBox tb = new VBox ();
         tb.getStyleClass ().add (StyleClassNames.CONTROLS);
+        tb.getStyleClass ().add (this.field.getType ().getType ());
         VBox.setVgrow (tb,
                        Priority.ALWAYS);
 
         for (Form.Item it : this.inputItems)
         {
-/*
-           if (it.label != null)
-           {
 
-               b.getChildren ().add (it.label);
-
-           }
-*/
            VBox cb = new VBox ();
            cb.getStyleClass ().add (StyleClassNames.CONTROL);
            cb.getChildren ().add (it.control);

@@ -18,6 +18,7 @@ import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.ui.fx.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -65,6 +66,46 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
         });
 
         this.tree = NamedObjectTree.builder ()
+            .labelProvider (treeItem ->
+            {
+
+                NamedObject n = treeItem.getValue ();
+
+                QuollLabel l = null;
+
+                if ((n instanceof UserConfigurableObject)
+                    &&
+                    (!(n instanceof Chapter))
+                   )
+                {
+
+                    UserConfigurableObject nu = (UserConfigurableObject) n;
+
+                    UserConfigurableObjectType uc = nu.getUserConfigurableObjectType ();
+
+                    QuollLabel nl = QuollLabel.builder ()
+                        .label (n.nameProperty ())
+                        .build ();
+
+                    ImageView iv = new ImageView ();
+                    iv.imageProperty ().bind (uc.icon16x16Property ());
+
+                    nl.setGraphic (iv);
+
+                    l = nl;
+
+                } else {
+
+                    l = QuollLabel.builder ()
+                    .label (n.nameProperty ())
+                    .styleClassName (n.getObjectType ())
+                    .build ();
+
+                }
+
+                return l;
+
+            })
             .onDragDropped (obj ->
             {
 
@@ -173,6 +214,41 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
     }
 
     @Override
+    public boolean canImport (NamedObject o)
+    {
+
+        return !o.hasTag (this.tag);
+
+    }
+
+    @Override
+    public void importObject (NamedObject o)
+    {
+
+        try
+        {
+
+            o.addTag (this.tag);
+
+            this.viewer.saveObject (o,
+                                    true);
+
+            //this.reloadTree ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to add tag: " +
+                                  this.tag,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (project,actions,addtag,actionerror));
+
+        }
+
+    }
+
+    @Override
     public StringProperty getTitle ()
     {
 
@@ -189,10 +265,10 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
     }
 
     @Override
-    public String getStyleClassName ()
+    public List<String> getStyleClassNames ()
     {
 
-        return StyleClassNames.TAG;
+        return Arrays.asList (StyleClassNames.TAG);
 
     }
 /*
@@ -342,11 +418,19 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
                 .styleClassName (StyleClassNames.EDIT)
                 .onAction (ev ->
                 {
-/*
-TODO
-                    new RenameTagActionHandler (_this.tag,
-                                                _this.viewer);
-*/
+
+                    QuollPopup qp = this.viewer.getPopupById (RenameTagPopup.getPopupIdForTag (this.tag));
+
+                    if (qp != null)
+                    {
+
+                        return;
+
+                    }
+
+                    new RenameTagPopup (this.viewer,
+                                        this.tag).show ();
+
                 })
                 .build ());
 
@@ -355,6 +439,17 @@ TODO
                 .styleClassName (StyleClassNames.DELETE)
                 .onAction (ev ->
                 {
+
+                    String pid = "deletetag" + this.tag.getKey ();
+
+                    QuollPopup qp = this.viewer.getPopupById (pid);
+
+                    if (qp != null)
+                    {
+
+                        return;
+
+                    }
 
                     List<String> prefix2 = Arrays.asList (project,actions,deletetag);
 
@@ -369,6 +464,8 @@ TODO
                                         {
 
                                             Environment.deleteTag (_this.tag);
+
+                                            _this.viewer.getPopupById (pid).close ();
 
                                         } catch (Exception e) {
 
@@ -395,6 +492,8 @@ TODO
 
                                             _this.viewer.removeTag (_this.tag);
 
+                                            _this.viewer.getPopupById (pid).close ();
+
                                         } catch (Exception e) {
 
                                             Environment.logError ("Unable to remove tag: " +
@@ -412,7 +511,8 @@ TODO
 
                     QuollPopup.questionBuilder ()
                         .withViewer (_this.viewer)
-                        .title (getUILanguageStringProperty (prefix2,title))
+                        .popupId (pid)
+                        .title (getUILanguageStringProperty (Utils.newList (prefix2,title)))
                         .styleClassName (StyleClassNames.DELETE)
                         .message (getUILanguageStringProperty (Utils.newList (prefix2,text),
                                                                _this.tag.nameProperty ()))
@@ -458,6 +558,8 @@ TODO
         }
 
         this.tree.setRoot (root);
+
+        this.tree.requestLayout ();
 
     }
 

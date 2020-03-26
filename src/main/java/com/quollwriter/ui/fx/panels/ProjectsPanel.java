@@ -147,6 +147,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
             .title (t)
             .content (this)
             .styleClassName (StyleClassNames.ALLPROJECTS)
+            .styleSheet (StyleClassNames.ALLPROJECTS)
             .panelId (PANEL_ID)
             .contextMenu (() ->
             {
@@ -488,8 +489,11 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
         final ProjectsPanel _this = this;
 
+        String pid = UUID.randomUUID ().toString ();
+
         QuollPopup.questionBuilder ()
             .title (prefix,popup,title)
+            .popupId (pid)
             .styleClassName (StyleClassNames.WARNING)
             .message (getUILanguageStringProperty (Utils.newList (prefix,popup,text),
                                                    p.getName (),
@@ -501,6 +505,8 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
             {
 
                 this.deleteProject (p);
+
+                this.getViewer ().getPopupById (pid).close ();
 
             })
             .build ();
@@ -678,7 +684,7 @@ TODO Remove
 
 		// Get how we should sort.
 		String sortBy = UserProperties.get (Constants.SORT_PROJECTS_BY_PROPERTY_NAME);
-System.out.println ("SORT: " + sortBy);
+
 		if (sortBy == null)
 		{
 
@@ -883,6 +889,13 @@ System.out.println ("SORT: " + sortBy);
                 }
 
             });
+
+            if (Environment.canOpenProject (this.project) != null)
+            {
+
+                this.getStyleClass ().add (StyleClassNames.ERROR);
+
+            }
 
             this.setOnMouseEntered (ev ->
 			{
@@ -1628,7 +1641,6 @@ TODO
 
           QuollPopup.textEntryBuilder ()
             .withViewer (this.parent.getViewer ())
-            .withHandler (this.parent.getViewer ())
             .title (prefix,popup,title)
             .description (prefix,popup,text)
             .confirmButtonLabel (prefix,popup,buttons,save)

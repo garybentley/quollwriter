@@ -1363,6 +1363,21 @@ public class Project extends NamedObject
 
         }
 
+        if (d instanceof NamedObject)
+        {
+
+            NamedObject n = (NamedObject) d;
+
+            for (Tag t : new ArrayList<> (n.getTags ()))
+            {
+
+                this.removeTagFromObject (t,
+                                          n);
+
+            }
+
+        }
+
     }
 
     public boolean hasAsset (Asset a)
@@ -2561,6 +2576,8 @@ public class Project extends NamedObject
                                     FXCollections.observableSet (objs));
 
         }
+
+        this.taggedObjects.get (tag).add (n);
 
     }
 

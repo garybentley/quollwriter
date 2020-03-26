@@ -54,14 +54,14 @@ public class SplashScreen extends JWindow
 
         this.setVisible (true);
         this.toFront ();
-
+/*
         Environment.startupProgressProperty ().addListener ((p, oldv, newv) ->
         {
 
             this.setProgress (newv.intValue ());
 
         });
-
+*/
     }
 
     public void finish ()

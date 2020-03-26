@@ -29,9 +29,10 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
     {
 
         super (viewer);
-
+long ss = System.currentTimeMillis ();
         Header h = Header.builder ()
             .title (getUILanguageStringProperty (LanguageStrings.options,title))
+            .styleClassName (StyleClassNames.MAIN)
             .controls (headerControls)
             .build ();
 
@@ -42,7 +43,6 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
         bb.getStyleClass ().add (StyleClassNames.SECTIONS);
         VBox.setVgrow (bb,
                        Priority.ALWAYS);
-
         this.options = new Options (viewer,
                                     this.getBinder (),
                                     sects);
@@ -151,6 +151,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
             .title (getUILanguageStringProperty (LanguageStrings.options,title))
             .content (this)
             .styleClassName (StyleClassNames.OPTIONS)
+            .styleSheet (StyleClassNames.OPTIONS)
             .panelId (PANEL_ID)
             // TODO .headerControls ()
             .toolbar (() ->

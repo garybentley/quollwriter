@@ -75,6 +75,18 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         this.contentWrapper = new VBox ();
         ScrollPane sp = new ScrollPane (this.contentBox);
         UIUtils.makeDraggable (sp);
+        this.contentBox.getChildren ().addListener ((ListChangeListener<Node>) ch ->
+        {
+
+            // We turn on/off fit to width depending upon whether we have any children otherwise
+            // content box won't stretch when it's empty.
+            sp.setStyle (this.contentBox.getChildren ().size () == 0 ? "-fx-fit-to-width: true; " : "-fx-fit-to-width: false;");
+
+        });
+
+        sp.setStyle (this.contentBox.getChildren ().size () == 0 ? "-fx-fit-to-width: true; " : "-fx-fit-to-width: false;");
+
+        //this.contentBox.prefWidthProperty ().bind (sp.prefViewportWidthProperty ());
         this.contentBox.prefHeightProperty ().bind (sp.prefViewportHeightProperty ());
         this.contentBox.addEventHandler (MouseEvent.MOUSE_CLICKED,
                                          ev ->
@@ -273,6 +285,37 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         }
 
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.TOP), false);
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.BOTTOM), false);
+
+        this.toolbarBox.setVisible (false);
+        this.toolbarBox.getChildren ().clear ();
+
+        String loc = UserProperties.toolbarLocationProperty ().getValue ();
+
+        if (loc == null)
+        {
+
+            loc = Constants.BOTTOM;
+
+        }
+
+        this.contentWrapper.getChildren ().remove (this.toolbarBox);
+
+        if (loc.equals (Constants.TOP))
+        {
+
+            this.contentWrapper.getChildren ().add (0,
+                                                    this.toolbarBox);
+
+        } else {
+
+            this.contentWrapper.getChildren ().add (this.toolbarBox);
+
+        }
+
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (loc), true);
+
         // Update the toolbar.
         if (p.getContent () instanceof ToolBarSupported)
         {
@@ -297,39 +340,9 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
             }
 
-            this.toolbarBox.getChildren ().clear ();
             this.toolbarBox.getChildren ().add (tb);
 
             this.toolbarBox.setVisible (true);
-
-            String loc = this.viewer.getProject ().toolbarLocationProperty ().getValue ();
-
-            if (loc == null)
-            {
-
-                loc = Constants.BOTTOM;
-
-            }
-
-            this.contentWrapper.getChildren ().remove (this.toolbarBox);
-
-            if (loc.equals (Constants.TOP))
-            {
-
-                this.contentWrapper.getChildren ().add (0,
-                                                        this.toolbarBox);
-
-            } else {
-
-                this.contentWrapper.getChildren ().add (this.toolbarBox);
-
-            }
-
-            this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (loc), true);
-
-        } else {
-
-            this.toolbarBox.setVisible (false);
 
         }
 
@@ -348,6 +361,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.PROJECT)
+            .styleSheet (StyleClassNames.PROJECT)
             .withScrollPane (false)
             .canClose (false)
             //.headerControls ()?
@@ -482,6 +496,9 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
                 this.contentBox.getChildren ().remove (aai.getAccordionItem ());
                 this.items.remove (aai.getId ());
 
+                this.state.set (aai.getId (),
+                                aai.getAccordionItem ().getState ());
+
             }
 
         }
@@ -524,6 +541,9 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
             this.contentBox.getChildren ().remove (ai);
             this.items.remove (objType);
+
+            this.state.set (objType,
+                            ai.getState ());
 
         }
 
@@ -629,6 +649,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
                 // Add the note types.
                 Menu m = QuollMenu.builder ()
                     .label (getUILanguageStringProperty (objectnames,plural,Note.OBJECT_TYPE))
+                    .styleClassName (StyleClassNames.NOTE)
                     .build ();
 
                 for (StringProperty p : noteTypes)
@@ -641,7 +662,40 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
                             NotesSidebarItem it = new NotesSidebarItem (this.viewer,
                                                                         p,
-                                                                        this);
+                                                                        this)
+                            {
+
+                                @Override
+                                public Supplier<Set<MenuItem>> getHeaderContextMenuItemSupplier ()
+                                {
+
+                                    Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
+
+                                    return () ->
+                                    {
+
+                                        Set<MenuItem> items2 = new LinkedHashSet<> (items);
+
+                                        items2.add (_this.getHideSectionMenuItem (this.getId ()));//Chapter.OBJECT_TYPE));
+
+                                        Set<MenuItem> its = _this.getAddSectionMenu (this.getId ());//Chapter.OBJECT_TYPE);
+
+                                        if (its.size () > 0)
+                                        {
+
+                                            items2.add (new SeparatorMenuItem ());
+
+                                        }
+
+                                        items2.addAll (its);
+
+                                        return items2;
+
+                                    };
+
+                                }
+
+                            };
 
                             _this.addSidebarItem (it,
                                                   belowObjType);
@@ -785,10 +839,10 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
             public Supplier<Set<MenuItem>> getHeaderContextMenuItemSupplier ()
             {
 
-                Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
-
                 return () ->
                 {
+
+                    Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
 
                     Set<MenuItem> items2 = new LinkedHashSet<> (items);
 
@@ -1058,8 +1112,27 @@ TODO
 
                     Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
 
-                    return _this.getHeaderContextMenuItemSupplier (objType,
-                                                                   items);
+                    return () ->
+                    {
+
+                        Set<MenuItem> items2 = new LinkedHashSet<> (items);
+
+                        items2.add (_this.getHideSectionMenuItem (this.getId ()));
+
+                        Set<MenuItem> its = _this.getAddSectionMenu (this.getId ());
+
+                        if (its.size () > 0)
+                        {
+
+                            items2.add (new SeparatorMenuItem ());
+
+                        }
+
+                        items2.addAll (its);
+
+                        return items2;
+
+                    };
 
                 }
 /*

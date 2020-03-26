@@ -1,0 +1,10 @@
+/*
+ * Base styles applicable to all instances of com.quollwriter.ui.fx.components.Viewer
+ */
+ .viewer
+ {
+     -fx-min-width: 500px;
+     -fx-min-height: 500px;
+     -fx-pref-width: 800px;
+     -fx-pref-height: 800px;
+ }

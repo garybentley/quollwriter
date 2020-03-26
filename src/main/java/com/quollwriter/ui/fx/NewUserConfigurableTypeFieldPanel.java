@@ -25,6 +25,7 @@ public class NewUserConfigurableTypeFieldPanel extends VBox
 
     private QuollTextField nameField = null;
     private UserConfigurableObjectTypeField field = null;
+    private EventHandler<Form.FormEvent> formHandler = null;
 
     public NewUserConfigurableTypeFieldPanel (UserConfigurableObjectType type)
     {
@@ -185,8 +186,19 @@ public class NewUserConfigurableTypeFieldPanel extends VBox
                 .confirmButton (getUILanguageStringProperty (buttons,save))
                 .cancelButton (getUILanguageStringProperty (buttons,cancel))
                 .build ();
+
+            if (this.formHandler != null)
+            {
+
+                f.removeEventHandler (Form.FormEvent.CONFIRM_EVENT,
+                                      this.formHandler);
+
+            }
+
+            this.formHandler = ev -> bf.fireEvent (ev);
+
             f.addEventHandler (Form.FormEvent.CONFIRM_EVENT,
-                               ev -> bf.fireEvent (ev));
+                               this.formHandler);
             bf.setOnConfirm (ev ->
             {
 
@@ -244,7 +256,7 @@ public class NewUserConfigurableTypeFieldPanel extends VBox
                 _field.setOrder (type.getConfigurableFields ().size ());
 
                 this.field = _field;
-
+System.out.println ("TYPE: " + this.field.getClass ().getName ());
                 this.fireEvent (new Event (FIELD_CREATED_EVENT));
 
             });

@@ -1,0 +1,11 @@
+<update-script from="3" to="4">
+  <item canFail="true">
+    <log>Drop the orderby constraint for the object type field.</log>
+    <sql>ALTER TABLE userobjecttypefield DROP CONSTRAINT userobjecttypefield_typedbkey_orderby</sql>
+  </item>
+
+  <item>
+    <log>Drop the orderby column.</log>
+    <sql>ALTER TABLE userobjecttypefield DROP COLUMN orderby</sql>
+  </item>
+</update-script>

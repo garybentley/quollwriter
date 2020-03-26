@@ -117,8 +117,6 @@ public class FullScreenPropertiesPanel extends VBox
             })
             .build ());
 
-        fb.build ();
-
         this.bgopacity = new Slider (0, 1, UserProperties.getFullScreenOpacity ());
         UIUtils.setTooltip (this.bgopacity,
                             getUILanguageStringProperty (project,sidebar,fullscreenproperties,LanguageStrings.bgopacity,tooltip));
@@ -192,12 +190,25 @@ public class FullScreenPropertiesPanel extends VBox
         binder.addChangeListener (UserProperties.fullScreenYBorderWidthProperty (),
                                   resizeRelocate);
 
-        UIUtils.runLater (() ->
+        this.sceneProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            resizeRelocate.changed (UserProperties.fullScreenXBorderWidthProperty (),
-                                    0,
-                                    0);
+            if ((oldv == null)
+                &&
+                (newv != null)
+               )
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    resizeRelocate.changed (UserProperties.fullScreenXBorderWidthProperty (),
+                                            0,
+                                            0);
+
+                });
+
+            }
 
         });
 
@@ -291,6 +302,8 @@ public class FullScreenPropertiesPanel extends VBox
             .label (project,sidebar,fullscreenproperties,showtimewordcount,text)
             .userProperty (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME)
             .build ();
+
+        fb.item (this.bgshowwctime);
 
         this.getChildren ().add (fb.build ());
 

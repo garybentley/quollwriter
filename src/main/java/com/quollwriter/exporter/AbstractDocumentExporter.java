@@ -8,6 +8,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 
+import javafx.scene.*;
+import javafx.scene.image.*;
+import javafx.scene.control.*;
+
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -16,6 +20,7 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.renderers.*;
 
+import com.quollwriter.ui.fx.components.*;
 
 public abstract class AbstractDocumentExporter implements DocumentExporter
 {
@@ -23,6 +28,11 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
     protected Project proj = null;
 
     protected JTree itemsTree = null;
+
+    public AbstractDocumentExporter ()
+    {
+
+    }
 
     public void setProject (Project p)
     {

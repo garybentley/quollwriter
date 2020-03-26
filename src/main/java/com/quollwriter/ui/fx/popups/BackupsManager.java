@@ -111,10 +111,10 @@ public class BackupsManager extends PopupContent
         this.addSetChangeListener (proj.getBackupPaths (),
                                    ev ->
         {
-System.out.println ("GOT CHANGE: " + ev);
+
             if (ev.wasRemoved ())
             {
-System.out.println ("BM REMOVED: " + ev.getElementRemoved ());
+
                 Optional<Node> n = this.backupsBox.getChildren ().stream ()
                     .filter (bn -> bn.getUserData ().equals (ev.getElementRemoved ()))
                     .findFirst ();
@@ -759,6 +759,7 @@ System.out.println ("REMOVING BACKUP: " + backupPath + ", " + this.proj.getBacku
         QuollPopup p = QuollPopup.builder ()
             .title (backups,show, LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.BACKUPS)
+            .styleSheet (StyleClassNames.BACKUPS)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -893,7 +894,7 @@ System.out.println ("REMOVING BACKUP: " + backupPath + ", " + this.proj.getBacku
                         .text (getUILanguageStringProperty (Arrays.asList (backups,_new,confirmpopup,text),
                                                             p.getParent ().toUri ().toString (),
                                                             p.toString ()))
-                        .withViewer (viewer)
+                        .inViewer (viewer)
                         .build ();
 
                     QuollHyperlink l = QuollHyperlink.builder ()

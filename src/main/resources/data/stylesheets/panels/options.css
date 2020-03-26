@@ -1,0 +1,49 @@
+/*
+ * Styles related to the Options panel, com.quollwriter.ui.fx.panels.OptionsPanel
+ */
+.options .header.main { -fx-padding: 0.3em; }
+.options .header.main .icon { -fx-image: url(/imgs/options24.png); }
+.controls .close {
+    -fx-graphic: url(/imgs/close16.png);
+    -fx-content-display: graphic-only;
+    -fx-padding: 0.2em;
+}
+.sections { -fx-padding: 0.5em; }
+.sections .header {
+    -fx-padding: 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.sections .header .title {
+    -fx-font-size: 1.5em;
+    -fx-cursor: hand;
+}
+.accordion { -fx-padding: 0 0 0.5em 0; }
+.accordion :closed { -fx-padding: 0.5em 0 0 0.5em; }
+.looks .header .icon { -fx-image: url(/imgs/eye16.png); }
+.naming .header .icon, .start .header .icon { -fx-image: url(/imgs/settings16.png); }
+.accordion.project .header .icon { -fx-image: url(/imgs/project16.png); }
+.assets .header .icon { -fx-image: url(/imgs/assets16.png); }
+.editing .header .icon { -fx-image: url(/imgs/chapter16.png); }
+.contacts .header .icon { -fx-image: url(/imgs/editors16.png); }
+.edit .header .icon { -fx-image: url(/imgs/edit16.png); }
+.warmup .header .icon { -fx-image: url(/imgs/warmups16.png); }
+.achievements .header .icon { -fx-image: url(/imgs/achievement16.png); }
+.bug .header .icon { -fx-image: url(/imgs/bug16.png); }
+.editing .hyperlink {
+    -fx-graphic: url(/imgs/view16.png);
+    -fx-graphic-text-gap: 0.5em;
+}
+.header:scrolling {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.sections .main { -fx-padding: 0.5em 0.5em 0.75em 0.5em; }
+.sections .sub { -fx-padding: 0 0 0.75em 1em; }
+.sections .sub .item, .sections .main .item {
+    -fx-padding: 0 0 0.5em 0;
+    -fx-spacing: 0.5em;
+    -fx-alignment: center-left;
+}
+.sections .sub .check-box { -fx-padding: 0 0 0.5em 0; }
+.ownsound { -fx-max-width: 50em; }

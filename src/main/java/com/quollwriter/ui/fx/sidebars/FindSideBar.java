@@ -147,6 +147,7 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.FIND)
+            .styleSheet (StyleClassNames.FIND)
             .withScrollPane (false)
             .canClose (true)
             //.headerControls ()?
@@ -171,10 +172,42 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
 
         });
 
-        UIUtils.runLater (() ->
+        sb.addEventHandler (SideBar.SideBarEvent.SHOW_EVENT,
+                            ev ->
         {
 
-            this.text.requestFocus ();
+            UIUtils.runLater (() ->
+            {
+
+
+
+                if (this.text.getScene () == null)
+                {
+
+                    // Needed because sometimes the scene is not set yet.
+                    this.getBinder ().addChangeListener (this.text.sceneProperty (),
+                                                         (pr, oldv, newv) ->
+                    {
+
+                        if ((oldv == null)
+                            &&
+                            (newv != null)
+                           )
+                        {
+
+                            this.text.requestFocus ();
+
+                        }
+
+                    });
+
+                } else {
+
+                    this.text.requestFocus ();
+
+                }
+
+            });
 
         });
 

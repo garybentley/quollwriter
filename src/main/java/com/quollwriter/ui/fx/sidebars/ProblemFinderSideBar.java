@@ -245,6 +245,7 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.PROBLEMFINDER)
+            .styleSheet (StyleClassNames.PROBLEMFINDER)
             .withScrollPane (false)
             .canClose (true)
             .headerControls (cons)

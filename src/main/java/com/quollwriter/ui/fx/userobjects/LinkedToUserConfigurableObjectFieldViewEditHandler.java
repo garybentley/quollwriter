@@ -13,6 +13,7 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.data.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -36,15 +37,7 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
                field,
                viewer);
 
-        this.editPanel = new LinkedToPanel (obj,
-                                            binder,
-                                            viewer);
-        this.editPanel.showEdit ();
-
-        this.viewPanel = new LinkedToPanel (obj,
-                                            binder,
-                                            viewer);
-        this.viewPanel.showView ();
+        this.binder = binder;
 
     }
 
@@ -70,8 +63,13 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
+        this.editPanel = new LinkedToPanel (obj,
+                                            binder,
+                                            viewer);
+        this.editPanel.showEdit ();
+
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  this.editPanel));
+                                  new ScrollPane (this.editPanel)));
 
         return items;
 
@@ -114,6 +112,11 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
+
+        this.viewPanel = new LinkedToPanel (this.obj,
+                                            this.binder,
+                                            this.viewer);
+        this.viewPanel.showView ();
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
                                   this.viewPanel));

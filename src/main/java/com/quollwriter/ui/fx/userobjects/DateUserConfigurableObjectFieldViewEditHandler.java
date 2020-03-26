@@ -88,9 +88,13 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     {
 
         LocalDate l = this.editItem.getValue ();
-        Instant i = (Instant) l.adjustInto (Instant.ofEpochMilli (0));
+        //Instant i = (Instant) l.adjustInto (Instant.ofEpochMilli (0));
 
-        return new Date (i.toEpochMilli ());
+        return Utils.localDateToDate (l);
+
+        //return Date.from (l.atStartOfDay (ZoneId.systemDefault ()).toInstant ());
+
+        //return new Date (i.toEpochMilli ());
 
     }
 

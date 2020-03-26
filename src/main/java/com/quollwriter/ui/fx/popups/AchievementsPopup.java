@@ -36,6 +36,7 @@ public class AchievementsPopup extends PopupContent
         super (viewer);
 
         this.content = new VBox ();
+        this.getStyleClass ().add (StyleClassNames.ACHIEVEMENTS);
         this.getChildren ().add (this.content);
 
     }
@@ -48,7 +49,7 @@ public class AchievementsPopup extends PopupContent
 
         this.show (10, 10);
 
-        this.scheduleHide (10000);
+        this.scheduleHide (100000000);
 
     }
 

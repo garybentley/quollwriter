@@ -279,7 +279,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         items.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,appearsinchapters,tooltip),
-                                                   this.object.getUserConfigurableObjectType ().nameProperty ()))
+                                                   Environment.getObjectTypeName (this.object)))
             .styleClassName (StyleClassNames.APPEARSINCHAPTERS)
             .onAction (ev ->
             {
@@ -353,7 +353,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
                                           KeyCombination.SHORTCUT_DOWN),
                   () ->
                   {
-System.out.println ("HEREXXX");
+
                       this.save ();
 
                   });
@@ -380,6 +380,7 @@ System.out.println ("HEREXXX");
             .title (this.object.nameProperty ())
             .content (this)
             .styleClassName (StyleClassNames.ASSET)
+            .styleSheet ("viewasset")
             .panelId (this.object.getObjectReference ().asString ())
             .actionMappings (am)
             .build ();

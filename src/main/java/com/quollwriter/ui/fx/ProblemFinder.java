@@ -54,6 +54,10 @@ public class ProblemFinder extends VBox
 
         List<String> prefix = Arrays.asList (project,editorpanel,actions,problemfinder);
 
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.PROBLEMFINDER);
+
         this.getStyleClass ().add (StyleClassNames.PROBLEMFINDER);
 
        Set<Node> controls = new LinkedHashSet<> ();

@@ -32,11 +32,14 @@ public class Splashscreen extends Stage
         VBox content = new VBox ();
         content.getStyleClass ().add (StyleClassNames.SPLASHSCREEN);
 
+        UIUtils.addStyleSheet (content,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.SPLASHSCREEN);
+
         Scene s = new Scene (content);
         s.setFill (Color.TRANSPARENT);
-        s.getStylesheets ().addAll (Environment.getStyleSheets ().stream ()
-            .map (ss -> ss.toExternalForm ())
-            .collect (Collectors.toList ()));
+
+        s.getStylesheets ().add (UserProperties.getDefaultStyleSheetURL ().toExternalForm ());
         this.setScene (s);
 
         ImageView image = new ImageView ();
@@ -57,8 +60,23 @@ public class Splashscreen extends Stage
         content.getChildren ().add (progress);
 
         this.getIcons ().addAll (Environment.getWindowIcons ());
+        this.setTitle (Constants.QUOLL_WRITER_NAME);
 
         this.sizeToScene ();
+
+        UIUtils.runLater (() ->
+        {
+
+            this.toFront ();
+
+        });
+
+        content.setOnMouseClicked (ev ->
+        {
+
+            this.close ();
+
+        });
 
     }
 
@@ -73,11 +91,11 @@ public class Splashscreen extends Stage
     public void updateProgress (double v)
     {
 
-        final Splashscreen _this = this;
-
         UIUtils.runLater (() ->
         {
 
+            this.progress.setProgress (v);
+/*
             double n = _this.progress.getProgress () + v;
 
             if (n > 100)
@@ -88,7 +106,7 @@ public class Splashscreen extends Stage
             }
 
             _this.progress.setProgress (n);
-
+*/
         });
 
     }

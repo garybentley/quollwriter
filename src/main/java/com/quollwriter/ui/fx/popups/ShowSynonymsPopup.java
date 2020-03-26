@@ -186,6 +186,7 @@ public class ShowSynonymsPopup extends PopupContent<AbstractViewer>
         QuollPopup p = QuollPopup.builder ()
             .title (t)
             .styleClassName (StyleClassNames.SYNONYMS)
+            .styleSheet (StyleClassNames.SYNONYMS)
             .hideOnEscape (true)
             .withClose (true)
             .onClose (() ->

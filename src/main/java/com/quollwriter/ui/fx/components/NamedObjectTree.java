@@ -65,17 +65,19 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
             } else {
 
-                if (n instanceof UserConfigurableObjectType)
+                if (n instanceof UserConfigurableObject)
                 {
 
-                    UserConfigurableObjectType uc = (UserConfigurableObjectType) n;
+                    UserConfigurableObject nu = (UserConfigurableObject) n;
+
+                    UserConfigurableObjectType uc = nu.getUserConfigurableObjectType ();
 
                     QuollLabel nl = QuollLabel.builder ()
                         .label (n.nameProperty ())
                         .build ();
 
                     ImageView iv = new ImageView ();
-                    iv.imageProperty ().bind (uc.icon16x16Property ());
+                    //iv.imageProperty ().bind (uc.icon16x16Property ());
 
                     nl.setGraphic (iv);
 

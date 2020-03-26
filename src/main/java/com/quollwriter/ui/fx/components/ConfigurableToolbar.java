@@ -204,7 +204,7 @@ public class ConfigurableToolbar extends ToolBar
 
         if (b.visibleItems != null)
         {
-System.out.println ("VIS: " + b.visibleItems);
+
             this.getItems ().addAll (b.visibleItems);
 
         }

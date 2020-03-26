@@ -1,0 +1,41 @@
+/*
+ * Base level styles, i.e. applicable to all sub-classes of com.quollwriter.ui.fx.viewers.WindowedContent
+ */
+.windowed > .header {
+    -fx-max-width: Infinity;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 0.5em;
+}
+.windowed > .header.title {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-insets: 0px;
+    -fx-border-color: -qw-component-border-color;
+}
+.windowed > .header.title .title {
+    -fx-font-size: 2.5em;
+    -fx-padding: 0 0.5em 0 0.5em;
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+}
+.windowed > .header .controls .viewermenu { -fx-graphic: url(/imgs/options24.png); }
+.windowed > .header .controls .fullscreenenter { -fx-graphic: url(/imgs/fullscreen24.png); }
+.windowed > .header .controls .find { -fx-graphic: url(/imgs/find24.png); }
+.windowed > .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
+.windowed > .header .controls .bug { -fx-graphic: url(/imgs/bug24.png); }
+.windowed > .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
+.windowed > .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
+.windowed > .header .controls .help { -fx-graphic: url(/imgs/help24.png); }
+.windowed > .header .controls .edit { -fx-graphic: url(/imgs/edit24.png); }
+.windowed > .header .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
+.tab-pane { -fx-min-width: 300px; }
+.viewer .divider:hover { -fx-cursor: h-resize; }
+ /*
+  * Notifications area.
+  */
+ .windowed > .notifications > *
+ {
+     -fx-padding: 0.25em;
+     -fx-border-style: solid;
+     -fx-border-width: 0 0 1px 0;
+     -fx-border-color: -qw-component-border-color;
+ }

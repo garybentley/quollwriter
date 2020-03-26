@@ -1,0 +1,18 @@
+/*
+ * Used by: com.quollwriter.ui.fx.popups.ProjectStatusItemManager
+ */
+ .qpopup.projectstatuses .header .icon
+ {
+     -fx-image: url(/imgs/edit16.png);
+ }
+
+ .qpopup.projectstatuses .content .header .icon
+ {
+     visibility: hidden;
+ }
+
+ .projectstatuses .buttons
+ {
+     -fx-alignment: center;
+     -fx-padding: 0 0 0.5em 0;
+ }

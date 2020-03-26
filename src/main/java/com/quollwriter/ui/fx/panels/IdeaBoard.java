@@ -23,7 +23,7 @@ import com.quollwriter.uistrings.UILanguageStringsManager;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class IdeaBoard extends PanelContent<ProjectViewer> implements ToolBarSupported
+public class IdeaBoard extends PanelContent<ProjectViewer> //implements ToolBarSupported
 {
 
     public static final String PANEL_ID = "ideaboard";
@@ -87,16 +87,18 @@ System.out.println ("HERE");
 
         });
 */
-        this.categories.setOnContextMenuRequested (ev ->
-        {
+        ScrollPane sp = new ScrollPane (this.categories);
 
+        sp.setOnContextMenuRequested (ev ->
+        {
+/*
             if (ev.getTarget () != this.categories)
             {
 
                 return;
 
             }
-
+*/
             Set<MenuItem> its = new LinkedHashSet<> ();
 
             its.add (QuollMenuItem.builder ()
@@ -130,7 +132,6 @@ System.out.println ("HERE");
 
         });
 
-        ScrollPane sp = new ScrollPane (this.categories);
         VBox.setVgrow (sp,
                        Priority.ALWAYS);
 
@@ -313,6 +314,8 @@ System.out.println ("HERE");
 
     }
 
+/*
+TODO: Not really needed?
     @Override
     public Set<Node> getToolBarItems ()
     {
@@ -329,7 +332,7 @@ System.out.println ("HERE");
 
             })
             .build ());
-/*
+
             t.getItems ().add (QuollButton.builder ()
                 .tooltip (ideaboard,LanguageStrings.toolbar,buttons,selectbackground,tooltip)
                 .styleClassName (StyleClassNames.SELECTBG)
@@ -340,7 +343,7 @@ System.out.println ("HERE");
 
                 })
                 .build ());
-*/
+
         its.add (UIUtils.createHelpPageButton (this.viewer,
                                                "idea-board/overview",
                                                getUILanguageStringProperty (ideaboard,LanguageStrings.toolbar,buttons,selectbackground,tooltip)));
@@ -348,7 +351,7 @@ System.out.println ("HERE");
         return its;
 
     }
-
+*/
     public void showAddNewIdeaType ()
     {
 
@@ -367,7 +370,6 @@ System.out.println ("HERE");
             .title (getUILanguageStringProperty (ideaboard,ideatypes,_new,title))
             .description (getUILanguageStringProperty (ideaboard,ideatypes,_new,text))
             .styleClassName (StyleClassNames.ADD)
-            .withHandler (this.viewer)
             .withViewer (this.viewer)
             .validator (v ->
             {
@@ -437,6 +439,7 @@ System.out.println ("HERE");
             .title (getUILanguageStringProperty (ideaboard,title))
             .content (this)
             .styleClassName (StyleClassNames.IDEABOARD)
+            .styleSheet (StyleClassNames.IDEABOARD)
             .panelId (PANEL_ID)
             // TODO .headerControls ()
             .toolbar (() ->
@@ -664,7 +667,6 @@ System.out.println ("HERE");
                                 .title (getUILanguageStringProperty (ideaboard,ideatypes,edit,LanguageStrings.title))
                                 .description (getUILanguageStringProperty (ideaboard,ideatypes,edit,text))
                                 .styleClassName (StyleClassNames.EDIT)
-                                .withHandler (this.board.getViewer ())
                                 .withViewer (this.board.getViewer ())
                                 .validator (v ->
                                 {
@@ -803,7 +805,7 @@ System.out.println ("HERE");
             if (type.getIconType () != null)
             {
 
-                /*h.getStyleClass ().add (type.getIconType ());*/
+                h.getStyleClass ().add (type.getIconType ());
 
                 // TODO: Not a good hack...
                 if (type.getIconType ().startsWith ("asset:"))
@@ -890,17 +892,19 @@ System.out.println ("HERE");
             this.newIdea.managedProperty ().bind (this.newIdea.visibleProperty ());
             this.newIdea.setVisible (false);
 
-            this.helpText = BasicHtmlTextFlow.builder ()
+            this.helpText = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.HELP)
                 .text (getUILanguageStringProperty (ideaboard,ideatypes,LanguageStrings.view,noideas))
-                .withHandler (this.board.getViewer ())
+                .inViewer (this.board.getViewer ())
                 .build ();
+            this.helpText.managedProperty ().bind (this.helpText.visibleProperty ());
             this.helpText.setVisible (false);
 
             this.helpText.addEventHandler (MouseEvent.MOUSE_RELEASED,
                                            ev ->
             {
 
+                this.helpText.setVisible (false);
                 this.showAddNewIdea ();
 
             });
@@ -1006,12 +1010,15 @@ System.out.println ("HERE");
 
             }
 
+            this.view.setVisible (ideas.size () > 0);
+
         }
 
         public void showAddNewIdea ()
         {
 
             this.newIdea.setVisible (true);
+            this.helpText.setVisible (false);
 
         }
 
@@ -1041,6 +1048,7 @@ System.out.println ("HERE");
             this.view = new VBox ();
             this.view.getStyleClass ().add (StyleClassNames.VIEW);
             this.view.managedProperty ().bind (this.view.visibleProperty ());
+            //this.view.setVisible (false);
             this.getChildren ().add (this.view);
 
             StringProperty shortDescP = new SimpleStringProperty ();
@@ -1049,7 +1057,7 @@ System.out.println ("HERE");
             QuollTextView shortDesc = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.SHORTTEXT)
                 //.withHandler (viewer)
-                .withViewer (viewer)
+                .inViewer (viewer)
                 .text (shortDescP)
                 .build ();
             shortDesc.managedProperty ().bind (shortDesc.visibleProperty ());
@@ -1064,7 +1072,7 @@ System.out.println ("HERE");
             QuollTextView fullDesc = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.FULLTEXT)
                 //.withHandler (viewer)
-                .withViewer (viewer)
+                .inViewer (viewer)
                 .text (fullDescP)
                 .build ();
             fullDesc.managedProperty ().bind (fullDesc.visibleProperty ());

@@ -355,6 +355,13 @@ TODO The add is really complex... need to find the parent and the right position
 
     }
 
+    public void expandAlInView ()
+    {
+
+        this.viewTree.expandAll ();
+
+    }
+
     public void showView ()
     {
 

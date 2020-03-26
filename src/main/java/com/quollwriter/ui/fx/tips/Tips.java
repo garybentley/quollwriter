@@ -281,6 +281,13 @@ public class Tips
 
                         Panel qp = pv.getCurrentlyVisibleTab ();
 
+                        if (qp == null)
+                        {
+
+                            return false;
+
+                        }
+
                         Node qpc = qp.getContent ();
 
                         if (qp != null)

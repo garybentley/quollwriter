@@ -129,7 +129,8 @@ public class ExportProject extends Wizard<ProjectViewer>
 
             dir.mkdirs ();
 
-            de.exportProject (dir);
+            de.exportProject (dir.toPath (),
+                              null);
 
             this.viewer.createActionLogEntry (this.proj,
                                               "Exported project to directory: " +

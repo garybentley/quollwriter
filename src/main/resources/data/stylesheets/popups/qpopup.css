@@ -1,0 +1,63 @@
+/*
+ * Base styles for com.quollwriter.ui.fx.components.QuollPopup
+ */
+.qpopup {
+    -fx-effect: dropshadow(gaussian, #666666, 20, 0.5, 0, 0);
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: -qw-bg-color;
+}
+.content {
+    -fx-padding: 0.5em 0.75em 0.5em 0.75em;
+    -fx-pref-width: -qw-popup-width;
+    -fx-background-color: -qw-bg-color;
+}
+.header {
+    -fx-padding: 0 0 0 0.5em;
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0;
+}
+.header .title {
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-font-size: 1.5em;
+    -fx-padding: 0 0 0 0.3em;
+}
+.header .controls .close {
+    -fx-graphic: url(/imgs/close16.png);
+    -fx-content-display: graphic-only;
+    -fx-padding: 0.2em;
+}
+.description { -fx-padding: 0 0 0.5em 0; }
+.buttons {
+    -fx-alignment: center;
+    -fx-padding: 1em 0.5em 0.5em 0.5em;
+}
+.button { -fx-content-display: text-only; }
+.toolbar.buttons .button { -fx-content-display: graphic-only; }
+.form .buttons {
+    -fx-alignment: center-left;
+    -fx-padding: 0.5em 0.5em 0.5em 1em;
+}
+.form.textentry .buttons {
+    -fx-alignment: center-left;
+    -fx-padding: 0.5em 0.5em 0.5em 0em;
+}
+.delete .buttons {
+    -fx-aligment: center;
+    -fx-padding: 1em 0.5em 0.5em 0;
+}
+.add .header.title .icon { -fx-image: url(/imgs/add16.png); }
+.edit .header.title .icon { -fx-image: url(/imgs/edit16.png); }
+.delete .header.title .icon { -fx-image: url(/imgs/delete16.png); }
+.warning .header.title .icon { -fx-image: url(/imgs/warning16.png); }
+.question .header.title .icon { -fx-image: url(/imgs/help16.png); }
+.save .header.title .icon { -fx-image: url(/imgs/save16.png); }
+.rename .header.title .icon { -fx-image: url(/imgs/edit16.png); }
+.error .header.title .icon { -fx-image: url(/imgs/warning16.png); }
+.form.textentry .items { -fx-padding: 0; }
+.form.textentry .items .control { -fx-padding: 0 0 0.5em 0; }
+.controls .import { -fx-graphic: url(/imgs/project-import24.png); }
+.controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
+.controls .add { -fx-graphic: url(/imgs/add24.png); }

@@ -11,7 +11,7 @@ import com.quollwriter.data.*;
 public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<UserConfigurableObjectTypeField, UserConfigurableObjectType>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, type, orderby, name, definition, description, markup, lastmodified, datecreated, properties, id, version, userobjecttypedbkey FROM userobjecttypefield_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, type, name, definition, description, markup, lastmodified, datecreated, properties, id, version, userobjecttypedbkey FROM userobjecttypefield_v ";
 
     /**
      * A cache, since the same field can be used in multiple places
@@ -71,7 +71,6 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
             }
 
             f.setKey (key);
-            f.setOrder (rs.getInt (ind++));
             f.setFormName (rs.getString (ind++));
 
             String d = rs.getString (ind++);
@@ -141,7 +140,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
             List params = new ArrayList ();
             params.add (type.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND userobjecttypedbkey = ? ORDER BY orderby",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND userobjecttypedbkey = ?",
                                                             params,
                                                             conn);
 
@@ -242,12 +241,11 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
 
         List params = new ArrayList ();
         params.add (t.getKey ());
-        params.add (t.getOrder ());
         params.add (t.getUserConfigurableObjectType ().getKey ());
         params.add (t.getType ().getType ());
         params.add (JSONEncoder.encode (t.getDefinition ()));
 
-        this.objectManager.executeStatement ("INSERT INTO userobjecttypefield (dbkey, orderby, userobjecttypedbkey, type, definition) VALUES (?, ?, ?, ?, ?)",
+        this.objectManager.executeStatement ("INSERT INTO userobjecttypefield (dbkey, userobjecttypedbkey, type, definition) VALUES (?, ?, ?, ?)",
                                              params,
                                              conn);
 
@@ -261,7 +259,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
 
         List params = new ArrayList ();
         params.add (t.getKey ());
-System.out.println ("DELETE FIELD: " + t.getKey ());
+
         this.objectManager.executeStatement ("DELETE FROM userobjecttypefield WHERE dbkey = ?",
                                              params,
                                              conn);
@@ -275,11 +273,10 @@ System.out.println ("DELETE FIELD: " + t.getKey ());
 
         List params = new ArrayList ();
 
-        params.add (t.getOrder ());
         params.add (JSONEncoder.encode (t.getDefinition ()));
         params.add (t.getKey ());
 
-        this.objectManager.executeStatement ("UPDATE userobjecttypefield SET orderby = ?, definition = ? WHERE dbkey = ?",
+        this.objectManager.executeStatement ("UPDATE userobjecttypefield SET definition = ? WHERE dbkey = ?",
                                              params,
                                              conn);
 

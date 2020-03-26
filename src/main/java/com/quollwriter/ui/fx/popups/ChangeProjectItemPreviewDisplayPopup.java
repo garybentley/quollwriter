@@ -168,6 +168,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (project,sidebar,chapters,preview,edit,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.PROJECTITEMPREVIEW)
+            .styleSheet (StyleClassNames.PROJECTITEMPREVIEW)
             .popupId (POPUP_ID)
             .content (this)
             .withClose (true)

@@ -4,6 +4,7 @@ import java.nio.file.*;
 import java.nio.charset.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.*;
 
 import javafx.beans.property.*;
 import javafx.scene.*;
@@ -50,7 +51,7 @@ public class FindProjectsPopup extends PopupContent
                    find)
             .confirmButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,LanguageStrings.find)))
             .cancelButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)))
-            .withHandler (viewer)
+            .inViewer (viewer)
             .build ();
 
 /*
@@ -106,8 +107,10 @@ public class FindProjectsPopup extends PopupContent
                 try
                 {
 
-                    Files.walk (find.getFile ())
-                        .forEach (p ->
+                    try (Stream<Path> ls = Files.walk (find.getFile ()))
+                    {
+
+                        ls.forEach (p ->
                         {
 
                             if (!Files.isDirectory (p))
@@ -131,6 +134,8 @@ public class FindProjectsPopup extends PopupContent
                         });
 
                         _this.notification.removeNotification ();
+
+                    }
 
                 } catch (Exception e) {
 

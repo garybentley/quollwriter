@@ -69,7 +69,7 @@ public class QuollMenuButton extends MenuButton
                 this.getItems ().addAll (b.itemSupplier.get ());
 
             }
-            
+
         });
 
     }

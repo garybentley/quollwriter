@@ -1,0 +1,28 @@
+/*
+ * Styles for com.quollwriter.ui.fx.sidebars.TargetsSideBar
+ */
+.sidebar.targets .header .icon { -fx-image: url(/imgs/goals16.png); }
+.accordion.mywriting .header .icon { -fx-image: url(/imgs/edit16.png); }
+.accordion.chapter .header .icon { -fx-image: url(/imgs/chapter16.png); }
+.accordion.readability .header .icon { -fx-image: url(/imgs/eye16.png); }
+.content {
+    -fx-pref-width: 270px;
+    -fx-min-width: 270px;
+    -fx-padding: 0 0.5em 1em 0.5em;
+}
+.hyperlink.warning { -fx-padding: 0.5em 0 0 0; }
+.spinner {
+    -fx-pref-width: 7em;
+    -fx-max-width: 7em;
+}
+.form .control .label {
+    -fx-padding: 0 0 0 0.5em;
+    -fx-alignment: center-left;
+}
+.form .control { -fx-alignment: center-left; }
+.form .label { -fx-alignment: center-right; }
+.hyperlink.chart {
+    -fx-padding: 0.5em 0.5em 0.5em 0em;
+    -fx-graphic: url(/imgs/chart16.png);
+    -fx-graphic-text-gap: 0.5em;
+}

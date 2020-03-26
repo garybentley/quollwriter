@@ -344,6 +344,33 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     Chapter c = (Chapter) n;
 
+                    l.setOnMouseEntered (ev ->
+                    {
+
+                        if (UserProperties.getAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME,
+                                                         null))
+                        {
+
+                            String prevformat = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
+                                                                    Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
+
+                            StringProperty sp = new SimpleStringProperty ();
+                            sp.setValue (UIUtils.getChapterInfoPreview (c,
+                                                                        new StringWithMarkup (prevformat),
+                                                                        pv));
+
+                            UIUtils.setTooltip (l,
+                                                sp);
+
+                        } else {
+
+                            UIUtils.setTooltip (l,
+                                                null);
+
+                        }
+
+                    });
+
                     l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, (!c.isEditComplete () && c.getEditPosition () > 0));
                     l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, c.isEditComplete ());
 
@@ -900,6 +927,16 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     }
 
+                    if (this.noteTreeLabels.get (c) == null)
+                    {
+
+                        TreeItem<NamedObject> noteLabel = this.createNotesItem (c);
+
+                        // Notes always go at the bottom.
+                        this.tree.getTreeItemForObject (c).getChildren ().add (noteLabel);
+
+                    }
+
                     // TODO Add in positioning.
                     pti = this.tree.getTreeItemForObject (this.noteTreeLabels.get (c));
                     ind = new ArrayList (c.getNotes ()).indexOf (ci);
@@ -1033,6 +1070,37 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
     }
 
     @Override
+    public boolean canImport (NamedObject o)
+    {
+/*
+        if (o instanceof Chapter)
+        {
+
+            Chapter c = (Chapter) o;
+
+            // TODO Support drag-n-drop import from other projects.
+            if (c.getParent ().equals (this.objType.getParent ()))
+            {
+
+                return true;
+
+            }
+
+        }
+*/
+        return false;
+
+    }
+
+    @Override
+    public void importObject (NamedObject o)
+    {
+
+        new IllegalStateException ("Shouldnt be possible.");
+
+    }
+
+    @Override
     public Node getContent ()
     {
 
@@ -1041,10 +1109,10 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
     }
 
     @Override
-    public String getStyleClassName ()
+    public List<String> getStyleClassNames ()
     {
 
-        return StyleClassNames.CHAPTER;
+        return Arrays.asList (StyleClassNames.CHAPTER);
 
     }
 
@@ -1278,16 +1346,36 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
         if (s.startsWith (NoteTreeLabel.OBJECT_TYPE))
         {
 
-            s = s.substring (s.indexOf ("/") + 1);
+            int ind = s.indexOf ("-");
 
-            ObjectReference ref = ObjectReference.parseObjectReference (s);
-
-            NamedObject o = (NamedObject) this.viewer.getProject ().getObjectForReference (ref);
-
-            if (o instanceof Chapter)
+            if (ind > -1)
             {
 
-                return this.noteTreeLabels.get ((Chapter) o);
+                s = s.substring (0,
+                                 ind);
+
+            }
+
+            StringTokenizer t = new StringTokenizer (s,
+                                                     "/");
+
+            t.nextToken ();
+
+            String k = t.nextToken ();
+
+            try
+            {
+
+                Chapter c = this.viewer.getProject ().getChapterByKey (Long.parseLong (k));
+
+                if (c != null)
+                {
+
+                    return this.noteTreeLabels.get (c);
+
+                }
+
+            } catch (Exception e) {
 
             }
 
@@ -1353,7 +1441,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
         public ObjectReference getObjectReference ()
         {
 
-            return new ObjectReference (this.getObjectType () + "/" + this.chapter.getObjectReference ().asString (),
+            return new ObjectReference (this.getObjectType () + "/" + this.chapter.getKey (),
                                         1L,
                                         this.chapter.getObjectReference ());
 

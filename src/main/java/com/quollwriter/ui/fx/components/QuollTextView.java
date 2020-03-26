@@ -52,12 +52,21 @@ public class QuollTextView extends VBox
 
         }
 
+        this.managedProperty ().bind (this.visibleProperty ());
+
         this.text = new WebViewFitContent ((link, ev) ->
         {
 
-            UIUtils.openURL (b.viewer,
+            UIUtils.openURL (b.viewer != null ? b.viewer :Environment.getFocusedViewer (),
                              link,
                              ev);
+
+        });
+
+        this.visibleProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.text.setVisible (newv);
 
         });
 
@@ -113,7 +122,7 @@ public class QuollTextView extends VBox
 
         }
 
-        public Builder withViewer (AbstractViewer viewer)
+        public Builder inViewer (AbstractViewer viewer)
         {
 
             this.viewer = viewer;

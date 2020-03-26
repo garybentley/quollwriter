@@ -8,6 +8,8 @@ import javafx.scene.control.*;
 
 import org.reactfx.*;
 
+import org.fxmisc.richtext.model.PlainTextChange;
+
 import com.quollwriter.text.*;
 import com.quollwriter.DictionaryProvider2;
 import com.quollwriter.synonyms.SynonymProvider;
@@ -33,7 +35,6 @@ public class QSpellChecker implements DictionaryChangedListener
     private SynonymProvider    synonymProvider = null;
     private Subscription subscription = null;
     private int lastCaretPos = -1;
-    private Deque<Range> rangesToCheck = new ConcurrentLinkedDeque<> ();
 
     public QSpellChecker(TextEditor          text,
                          DictionaryProvider2 prov)
@@ -42,30 +43,6 @@ public class QSpellChecker implements DictionaryChangedListener
         this.text = text;
 
         this.setDictionaryProvider (prov);
-
-        Environment.schedule (() ->
-        {
-
-            if (text.isBeingUpdated ())
-            {
-
-                return;
-
-            }
-UIUtils.runLater (() ->
-{
-            IndexRange r = null;
-
-            while (!this.rangesToCheck.isEmpty ())
-            {
-
-                this.checkRange (this.rangesToCheck.pop ());
-
-            }
-});
-        },
-        100,
-        100);
 
     }
 
@@ -99,40 +76,30 @@ UIUtils.runLater (() ->
 
                     try
                     {
-    //System.out.println ("W: " + w.getAllTextStartOffset () + ", " + ir.getStart () + ", " + w.getAllTextEndOffset () + ", " + ir.getEnd ());
-                        int wordStart = w.getAllTextStartOffset () + start; //ir.getStart ();
-                        int wordEnd = w.getAllTextEndOffset () + start; //ir.getStart ();
-    //System.out.println ("S: " + wordStart + ", " + w.getText ().length ());
+
+                        int wordStart = w.getAllTextStartOffset () + start;
+                        int wordEnd = w.getAllTextEndOffset () + start;
                         errors.add (new IndexRange (wordStart, wordStart + w.getText ().length ()));
-                        //this.text.addSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
 
                     } catch (Exception e)
                     {
-    e.printStackTrace ();
-                    }
 
-                } else {
+                        e.printStackTrace ();
 
-                    try
-                    {
-
-                        int wordStart = w.getAllTextStartOffset () + start;//ir.getStart ();
-                        int wordEnd = w.getAllTextEndOffset () + start; //ir.getStart ();
-
-                        //this.text.removeSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
-
-                    } catch (Exception e)
-                    {
-    e.printStackTrace ();
                     }
 
                 }
 
             }
 
-            this.text.setSpellingErrors (start,
-                                         pr.getEnd (),
-                                         errors);
+            UIUtils.runLater (() ->
+            {
+
+                this.text.setSpellingErrors (start,
+                                             pr.getEnd (),
+                                             errors);
+
+            });
 
         },
         -1,
@@ -632,7 +599,7 @@ TODO Remove?
         if (w.isPunctuation ())
         {
 
-            this.text.removeSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
+            this.removeSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
 
             this.checkWordInParagraph (paraStartOffset,
                                        w.getPrevious ());
@@ -642,169 +609,38 @@ TODO Remove?
             if (!this.isWordCorrect (w))
             {
 
-                this.text.addSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
+                this.addSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
 
             } else {
 
-                this.text.removeSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
+                this.removeSpellingError (new IndexRange (wordStart, wordStart + w.getText ().length ()));
             }
 
         }
 
     }
 
-    private void checkRange (Range rr)
+    private void removeSpellingError (IndexRange r)
     {
 
-        int op = this.text.getParagraphForOffset (rr.from);
-        int np = this.text.getParagraphForOffset (rr.to);
-
-        int diff = rr.from - rr.to;
-
-        if ((op != np)
-            &&
-            (rr.textChange)
-            &&
-            (Math.abs (rr.from - rr.to) > 1)
-           )
+        UIUtils.runLater (() ->
         {
 
-            // Check all the affected paragraphs.
-            int min = Math.min (op, np);
-            int max = Math.max (op, np);
+            this.text.removeSpellingError (r);
 
-            for (int i = min; i < max + 1; i++)
-            {
+        });
 
-                this.checkParagraph (i);
+    }
 
-            }
+    private void addSpellingError (IndexRange r)
+    {
 
-        } else {
-
-            IndexRange or = this.text.getParagraphTextRange (op);
-
-            this.checkWordInParagraph (op,
-                                       rr.from - or.getStart ());
-
-           IndexRange nr = this.text.getParagraphTextRange (np);
-
-           this.checkWordInParagraph (np,
-                                      rr.to - nr.getStart ());
-
-        }
-
-        if (true) {return;}
-
-        int oldp = this.text.getParagraphForOffset (rr.from);
-        int newp = this.text.getParagraphForOffset (rr.to);
-System.out.println ("CHECKING RANGE: " + rr);
-        if (oldp != newp)
+        UIUtils.runLater (() ->
         {
 
-            // Check the old word.
-            this.checkWordInParagraph (op,
-                                       rr.from);
-            return;
+            this.text.addSpellingError (r);
 
-        } else {
-
-            TextIterator ti = new TextIterator (this.text.getParagraphs ().get (newp).getText ());
-
-            IndexRange r = this.text.getParagraphTextRange (newp);
-
-            Word ow = ti.getWordAt (rr.from - r.getStart ());
-            Word nw = ti.getWordAt (rr.to - r.getStart ());
-
-            if (ow == nw)
-            {
-System.out.println ("RET");
-                return;
-
-            }
-System.out.println ("OW: " + ow + ", " + nw);
-            char nc = this.text.getText ().charAt (rr.to - 1);
-
-            if ((Character.isWhitespace (nc))
-                ||
-                (!Character.isLetterOrDigit (nc))
-               )
-            {
-
-                if (ow != null)
-                {
-
-                    this.checkWordInParagraph (r.getStart (),
-                                               ow);
-
-                }
-
-                return;
-
-            }
-
-            if ((ow == null)
-                &&
-                (nw == null)
-               )
-            {
-
-                return;
-
-            }
-
-            if (ow == nw)
-            {
-
-                this.text.removeSpellingError (new IndexRange (r.getStart (), r.getStart () + nw.getText ().length ()));
-                return;
-
-            }
-
-            if (ow != null)
-            {
-
-                IndexRange rrr = this.text.getParagraphTextRange (oldp);
-
-                if ((rr.from < r.getStart () + ow.getAllTextStartOffset ())
-                    ||
-                    ((rr.to > r.getStart () + ow.getAllTextEndOffset ()))
-                   )
-                {
-
-                    this.checkWordInParagraph (r.getStart (),
-                                               ow);
-                    return;
-
-                }
-
-            }
-
-            if ((nw != null)
-                &&
-                (nw.isPunctuation ())
-               )
-            {
-
-                this.checkWordInParagraph (r.getStart (),
-                                           nw);
-                return;
-
-            }
-
-            if ((ow != null)
-                &&
-                (ow.isPunctuation ())
-               )
-            {
-
-                this.checkWordInParagraph (r.getStart (),
-                                           ow);
-                return;
-
-            }
-
-        }
+        });
 
     }
 
@@ -815,82 +651,78 @@ System.out.println ("OW: " + ow + ", " + nw);
 
         this.enabled = v;
 
+        // Conditions
+        //   1. Leave word - move caret
+        //   2. type punctuation
+        //   3. space
+        //   4. newline
+
         if (turningOn)
         {
 
             this.text.caretPositionProperty ().addListener ((pr, oldv, newv) ->
             {
 
-                this.rangesToCheck.add (new Range (oldv, newv));
-/*
-                int oldp = this.text.getParagraphForOffset (oldv);
-                int newp = this.text.getParagraphForOffset (newv);
-System.out.println ("CARET: " + oldv + ", " + newv);
-                if (oldp != newp)
+                Environment.schedule (() ->
                 {
 
-                    // Check the old word.
-                    this.checkWordInParagraph (oldp,
-                                               oldv);
-                    return;
+                    int oldp = this.text.getParagraphForOffset (oldv);
+                    int newp = this.text.getParagraphForOffset (newv);
+                    int olds = 0;
 
-                } else {
+                    Word ow = null;
+                    Word nw = null;
 
-                    TextIterator ti = new TextIterator (this.text.getParagraphs ().get (newp).getText ());
-
-                    IndexRange r = this.text.getParagraphTextRange (newp);
-
-                    Word ow = ti.getWordAt (oldv - r.getStart ());
-                    Word nw = ti.getWordAt (newv - r.getStart ());
-
-                    char nc = this.text.getText ().charAt (newv - 1);
-
-                    if ((Character.isWhitespace (nc))
-                        ||
-                        (!Character.isLetterOrDigit (nc))
-                       )
+                    if (newp != -1)
                     {
 
-                        if (ow != null)
+                        TextIterator nti = new TextIterator (this.text.getParagraphs ().get (newp).getText ());
+                        IndexRange r = this.text.getParagraphTextRange (newp);
+                        nw = nti.getWordAt (newv - r.getStart ());
+
+                        if (nw == null)
                         {
 
-                            this.checkWordInParagraph (r.getStart (),
-                                                       ow);
+                            if (newv - r.getStart () > -1)
+                            {
+
+                                nw = nti.getWordAt (newv - r.getStart () - 1);
+
+                            }
 
                         }
 
-                        return;
-
                     }
 
-                    if ((ow == null)
-                        &&
-                        (nw == null)
-                       )
+                    if (oldp != -1)
                     {
 
-                        return;
+                        TextIterator oti = new TextIterator (this.text.getParagraphs ().get (oldp).getText ());
+                        IndexRange r = this.text.getParagraphTextRange (oldp);
+                        olds = r.getStart ();
+                        ow = oti.getWordAt (oldv - olds);
 
-                    }
+                        if (ow == null)
+                        {
 
-                    if (ow == nw)
-                    {
+                            if (oldv - r.getStart () > -1)
+                            {
 
-                        this.text.removeSpellingError (new IndexRange (r.getStart (), r.getStart () + nw.getText ().length ()));
-                        return;
+                                ow = oti.getWordAt (oldv - r.getStart () - 1);
+
+                            }
+
+                        }
 
                     }
 
                     if (ow != null)
                     {
 
-                        if ((newv < r.getStart () + ow.getAllTextStartOffset ())
-                            ||
-                            ((newv > r.getStart () + ow.getAllTextEndOffset ()))
-                           )
+                        if (!ow.equals (nw))
                         {
 
-                            this.checkWordInParagraph (r.getStart (),
+                            this.checkWordInParagraph (olds,
                                                        ow);
                             return;
 
@@ -898,119 +730,23 @@ System.out.println ("CARET: " + oldv + ", " + newv);
 
                     }
 
-                    if ((nw != null)
-                        &&
-                        (nw.isPunctuation ())
-                       )
-                    {
+                },
+                -1,
+                -1);
 
-                        this.checkWordInParagraph (r.getStart (),
-                                                   nw);
-                        return;
-
-                    }
-
-                    if ((ow != null)
-                        &&
-                        (ow.isPunctuation ())
-                       )
-                    {
-
-                        this.checkWordInParagraph (r.getStart (),
-                                                   ow);
-                        return;
-
-                    }
-
-                }
-*/
             });
 
             this.subscription = this.text.plainTextChanges ().subscribe (change ->
             {
 
-                this.rangesToCheck.add (new Range (change.getPosition (),
-                                                   change.getPosition () + change.getNetLength (),
-                                                   true));
-
-                if (true) {return;}
-
-                if (change.getNetLength () == 1)
-                {
-/*
-                    // Typed a single character.
-                    if (Character.isWhitespace (this.text.getText ().charAt (change.getPosition ())))
-                    {
-
-                        // Added a word.
-                        this.text.removeSpellingError (new IndexRange (change.getPosition (), change.getPosition () + 1));
-
-                    }
-
-                    int pi = text.getParagraphForOffset (change.getPosition ());
-
-                    // Check previous word.
-                    TextIterator ti = new TextIterator (this.text.getParagraphs ().get (pi).getText ());
-
-                    IndexRange r = this.text.getParagraphTextRange (pi);
-
-                    Word w = ti.getWordAt (change.getPosition () - r.getStart () - 1);
-
-                    this.checkWordInParagraph (r.getStart (),
-                                               w);
-*/
-                } else {
-
-                    // Get previous word.
-                    int pi = text.getParagraphForOffset (change.getPosition ());
-
-                    // Get the end paragraph.
-                    int epi = text.getParagraphForOffset (change.getRemovalEnd ());
-                    int e2pi = text.getParagraphForOffset (change.getInsertionEnd ());
-
-                    epi = Math.max (epi, e2pi);
-
-                    for (int i = pi; i < epi + 1; i++)
-                    {
-
-                        this.checkParagraph (i);
-
-                    }
-
-                }
-
-                if (true) {return;}
-
-                // Check the range.
-                int pi = text.getParagraphForOffset (change.getPosition ());
-
-                // Get the end paragraph.
-                int epi = text.getParagraphForOffset (change.getRemovalEnd ());
-                int e2pi = text.getParagraphForOffset (change.getInsertionEnd ());
-
-                epi = Math.max (epi, e2pi);
-
-                if (Character.isWhitespace (this.text.getText ().charAt (change.getPosition ())))
+                Environment.schedule (() ->
                 {
 
-                    try
-                    {
+                    this.handleTextChange (change);
 
-                        this.text.removeSpellingError (new IndexRange (change.getPosition (), change.getPosition () + 1));
-
-                    } catch (Exception e)
-                    {
-
-                    }
-
-                    for (int i = pi; i < epi + 1; i++)
-                    {
-
-                        this.checkParagraph (i);
-
-                    }
-
-                }
+                },
+                -1,
+                -1);
 
             });
 
@@ -1031,295 +767,81 @@ System.out.println ("CARET: " + oldv + ", " + newv);
         }
 
     }
-/*
-    public void insertUpdate (DocumentEvent ev)
+
+    private void handleTextChange (PlainTextChange change)
     {
 
-        if (!this.enabled)
+        String ins = change.getInserted ();
+
+        if ((ins != null)
+            &&
+            (!"".equals (ins))
+           )
         {
 
-            return;
-
-        }
-
-        if (ev.getLength () == 1)
-        {
-
-            this.lastCharacterOver = QSpellChecker.NULL_CHAR;
-
-        }
-
-        if (ev.getLength () == 1)
-        {
-
-            String t = null;
-
-            try
+            if (ins.length () == 1)
             {
 
-                t = ev.getDocument ().getText (ev.getOffset (),
-                                               ev.getLength ());
-
-            } catch (Exception e) {
-
-                // Wtf...
-                return;
-
-            }
-
-            if (t.trim ().length () == 0)
-            {
-
-                // Check the previous element.
-                Element element;
-
-                try
+                if (!Character.isLetterOrDigit (ins.charAt (0)))
                 {
 
-                    element = ((AbstractDocument) ev.getDocument ()).getParagraphElement (ev.getOffset ());
+                    // A new line, space or punctuation character has been entered.  Check the previous word.
+                    int pos = change.getPosition ();
 
-                } catch (Exception ex)
-                {
-
-                    return;
-
-                }
-
-                this.checkElement (element);
-
-            }
-
-        } else {
-
-            this.checkElements (ev.getOffset (),
-                                ev.getLength ());
-
-        }
-
-    }
-*/
-/*
-    public void changedUpdate (DocumentEvent ev)
-    {
-
-    }
-*/
-/*
-    public void removeUpdate (DocumentEvent ev)
-    {
-
-        if (!this.enabled)
-        {
-
-            return;
-
-        }
-
-        if (ev.getOffset () == 0)
-        {
-
-            return;
-
-        }
-
-        if (ev.getLength () == 1)
-        {
-
-            this.lastCharacterOver = QSpellChecker.NULL_CHAR;
-
-        }
-
-        if (ev.getLength () == 1)
-        {
-
-            // Check the previous char, if there is one then don't check, if it's whitespace then check.
-            if (ev.getOffset () > 0)
-            {
-
-                String t = null;
-
-                try
-                {
-
-                    t = ev.getDocument ().getText (ev.getOffset () - 1,
-                                                   ev.getLength ());
-
-                } catch (Exception e) {
-
-                    // Wtf...
-                    return;
-
-                }
-
-                // Check the previous element.
-                Element element;
-
-                try
-                {
-
-                    element = ((AbstractDocument) ev.getDocument ()).getParagraphElement (ev.getOffset ());
-
-                } catch (Exception ex)
-                {
-
-                    return;
-
-                }
-
-                this.checkElement (element);
-
-                return;
-
-            }
-
-        } else {
-
-            this.checkElements (ev.getOffset (),
-                                ev.getLength ());
-
-        }
-
-    }
-*/
-/*
-    public void caretUpdate (CaretEvent ev)
-    {
-
-        if (!this.enabled)
-        {
-
-            return;
-
-        }
-
-        if (this.lastCaret == -1)
-        {
-
-            this.lastCaret = ev.getDot ();
-
-            return;
-
-        }
-
-        Document document = this.text.getDocument ();
-
-        try
-        {
-
-            Element oldEl = ((AbstractDocument) document).getParagraphElement (this.lastCaret);
-            Element newEl = ((AbstractDocument) document).getParagraphElement (ev.getDot ());
-
-            if (oldEl != newEl)
-            {
-
-                this.checkElements (this.lastCaret);
-
-            } else
-            {
-
-                boolean d = false;
-
-                if ((Math.max (this.lastCaret,
-                               ev.getDot ()) - Math.min (this.lastCaret,
-                                                         ev.getDot ())) > 1)
-                {
-
-                    this.checkElement (newEl);
-
-                } else
-                {
-
-                    if (this.lastCharacterOver != QSpellChecker.NULL_CHAR)
+                    while (pos > 0)
                     {
 
-                        String text = this.text.getText ();
-
-                        if ((text.length () == 0) ||
-                            (ev.getDot () > (text.length () - 1)))
+                        // Find the first previous word.
+                        if (!Character.isLetterOrDigit (this.text.getText ().charAt (pos)))
                         {
 
-                            return;
+                            this.removeSpellingError (new IndexRange (pos, pos + 1));
+                            pos--;
+                            continue;
 
                         }
 
-                        if ((Character.isWhitespace (this.lastCharacterOver)) &&
-                            (Character.isWhitespace (text.charAt (ev.getDot ()))))
-                        {
+                        // Found a letter or digit.
+                        int pi = this.text.getParagraphForOffset (pos);
 
-                            d = true;
+                        TextIterator ti = new TextIterator (this.text.getParagraphs ().get (pi).getText ());
 
-                        }
+                        IndexRange r = this.text.getParagraphTextRange (pi);
 
-                        try
-                        {
+                        Word w = ti.getWordAt (pos - r.getStart ());
 
-                            if (ev.getDot () < this.lastCaret)
-                            {
+                        this.checkWordInParagraph (r.getStart (),
+                                                   w);
 
-                                if ((!Character.isWhitespace (this.lastCharacterOver)) &&
-                                    (Character.isWhitespace (text.charAt (ev.getDot ()))))
-                                {
-
-                                    d = true;
-
-                                }
-
-                            } else
-                            {
-
-                                if (Character.isWhitespace (this.lastCharacterOver))
-                                {
-
-                                    d = true;
-
-                                }
-
-                            }
-
-                        } catch (Exception e)
-                        {
-
-                            com.quollwriter.Environment.logError ("HERE: ",
-                                                                  e);
-
-                        }
+                        return;
 
                     }
 
                 }
 
-                if (d)
+            } else {
+
+                // Inserted a lot of text.  Check affected paragraphs.
+                int pi = text.getParagraphForOffset (change.getPosition ());
+
+                // Get the end paragraph.
+                int epi = text.getParagraphForOffset (change.getRemovalEnd ());
+                int e2pi = text.getParagraphForOffset (change.getInsertionEnd ());
+
+                epi = Math.max (epi, e2pi);
+
+                for (int i = pi; i < epi + 1; i++)
                 {
 
-                    this.checkElement (newEl);
+                    this.checkParagraph (i);
 
                 }
 
             }
 
-        } catch (Exception e)
-        {
-
-            return;
-
         }
-
-        this.lastCaret = ev.getDot ();
-
-        String t = this.text.getText ();
-
-        if ((this.lastCaret >= t.length ()) ||
-            (this.lastCaret < 0))
-        {
-
-            return;
-
-        }
-
-        this.lastCharacterOver = this.text.getText ().charAt (this.lastCaret);
 
     }
-*/
 
     private static class Range
     {

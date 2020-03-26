@@ -57,6 +57,18 @@ public class SideBar extends BaseVBox implements Stateful
         this.sidebarId = b.sidebarId;
         this.viewer = b.viewer;
 
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.SIDEBAR);
+        if (b.styleSheet != null)
+        {
+
+            UIUtils.addStyleSheet (this,
+                                   Constants.SIDEBAR_STYLESHEET_TYPE,
+                                   b.styleSheet);
+
+        }
+
         this.getStyleClass ().add (StyleClassNames.SIDEBAR);
 
         if (b.styleName != null)
@@ -294,6 +306,7 @@ public class SideBar extends BaseVBox implements Stateful
         private String sidebarId = null;
         private boolean wrapInScrollPane = true;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
+        private String styleSheet = null;
 
         private Builder ()
         {
@@ -312,6 +325,14 @@ public class SideBar extends BaseVBox implements Stateful
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder styleSheet (String s)
+        {
+
+            this.styleSheet = s;
             return this;
 
         }

@@ -117,12 +117,26 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         h.getStyleClass ().add (StyleClassNames.TITLE);
 
         VBox vb = new VBox ();
+
+        UIUtils.addStyleSheet (this,
+                               Constants.POPUP_STYLESHEET_TYPE,
+                               StyleClassNames.QPOPUP);
+
         this.getStyleClass ().add (StyleClassNames.QPOPUP);
 
         if (b.styleName != null)
         {
 
             this.getStyleClass ().add (b.styleName);
+
+        }
+
+        if (b.styleSheet != null)
+        {
+
+            UIUtils.addStyleSheet (this,
+                                   Constants.POPUP_STYLESHEET_TYPE,
+                                   b.styleSheet);
 
         }
 
@@ -485,6 +499,21 @@ _this.moving = false;
         if (this.viewer == null)
         {
 
+            AbstractViewer viewer = Environment.getFocusedViewer ();
+
+            if (viewer != null)
+            {
+
+                viewer.showPopup (this,
+                                  x,
+                                  y);
+
+                this.fireEvent (new PopupEvent (this,
+                                                PopupEvent.SHOWN_EVENT));
+                return;
+
+            }
+
             BasicPopupsViewer p = new BasicPopupsViewer (this);
 
             // Show in the center of the screen.
@@ -567,7 +596,7 @@ _this.moving = false;
         private StringProperty confirmButtonLabel = null;
         private StringProperty cancelButtonLabel = null;
         private StringProperty entryLabel = null;
-        private AbstractViewer handler = null;
+        private AbstractViewer viewer = null;
         private String text = null;
 
         public TextEntryBuilder text (String t)
@@ -578,10 +607,10 @@ _this.moving = false;
 
         }
 
-        public TextEntryBuilder withHandler (AbstractViewer h)
+        public TextEntryBuilder inViewer (AbstractViewer h)
         {
 
-            this.handler = h;
+            this.viewer = h;
             return _this ();
 
         }
@@ -744,7 +773,7 @@ _this.moving = false;
             Form f = Form.builder ()
                 .styleClassName (StyleClassNames.TEXTENTRY)
                 .description (this.description)
-                .withHandler (this.handler)
+                .inViewer (this.viewer)
                 .item (this.entryLabel,
                        tf)
                 .confirmButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
@@ -968,7 +997,7 @@ _this.moving = false;
             Form f = Form.builder ()
                 .styleClassName (StyleClassNames.PASSWORDENTRY)
                 .description (this.description)
-                .withHandler (this.viewer)
+                //.withHandler (this.viewer)
                 .item (this.entryLabel,
                        tf)
                 .confirmButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
@@ -1400,7 +1429,7 @@ TODO
                 content = QuollTextView.builder ()//BasicHtmlTextFlow.builder ()
                     .text (this.message)
                     .styleClassName (StyleClassNames.MESSAGE)
-                    .withViewer (this.viewer)
+                    //.withViewer (this.viewer)
                     .build ();
 
             } else {
@@ -1640,7 +1669,9 @@ TODO
                     .onAction (this.onConfirm)
                     .build ();
 
-                buts.add (confirm);
+                this.button (confirm);
+
+                //buts.add (confirm);
 
             }
 
@@ -1651,9 +1682,11 @@ TODO
                 .onAction (this.onCancel)
                 .build ();
 
-            buts.add (cancel);
+            //buts.add (cancel);
 
-            this.buttons (buts);
+            this.button (cancel);
+
+            //this.buttons (buts);
 
             if (this.styleName == null)
             {
@@ -1689,6 +1722,7 @@ TODO
         private boolean removeOnClose = false;
         private Node showAt = null;
         private Side showWhere = null;
+        private String styleSheet = null;
 
         protected Builder ()
         {
@@ -1708,6 +1742,14 @@ TODO
         {
 
             return (X) this;
+
+        }
+
+        public X styleSheet (String s)
+        {
+
+            this.styleSheet = s;
+            return _this ();
 
         }
 

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.*;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.text.*;
 
@@ -34,17 +35,25 @@ import com.quollwriter.ui.userobjects.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 
+import com.quollwriter.ui.fx.components.*;
+
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class EPUBDocumentExporter extends AbstractDocumentExporter
 {
+
+    public static final String DETAILS_STAGE = "details";
 
     // private ExportSettings settings = null;
     private ZipOutputStream zout = null;
 
     private JTextField author = null;
     private JTextField id = null;
+
+    private QuollTextField author2 = null;
+    private QuollTextField id2 = null;
 
     public EPUBDocumentExporter()
     {
@@ -54,7 +63,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
     public String getStartStage ()
     {
 
-        return "select-items";
+        return DETAILS_STAGE;
 
     }
 
@@ -93,7 +102,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
         }
 
-        if (stage.equals ("details"))
+        if (DETAILS_STAGE.equals (stage))
         {
 
             ws.title = getUIString (exportproject,stages,bookdetails,title);
@@ -141,9 +150,58 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
     }
 
+    @Override
+    public com.quollwriter.ui.fx.components.Wizard.Step getStage2 (String stage)
+    {
+
+        final EPUBDocumentExporter _this = this;
+
+        com.quollwriter.ui.fx.components.Wizard.Step ws = new com.quollwriter.ui.fx.components.Wizard.Step ();
+
+        if (DETAILS_STAGE.equals (stage))
+        {
+
+            ws.title = getUILanguageStringProperty (exportproject,stages,bookdetails,title);
+
+            this.author2 = QuollTextField.builder ()
+                .build ();
+
+            this.author2.setText (this.proj.getProperty (Constants.AUTHOR_NAME_PROPERTY_NAME));
+
+            this.id2 = QuollTextField.builder ()
+                .build ();
+
+            this.id2.setText (this.proj.getProperty (Constants.BOOK_ID_PROPERTY_NAME));
+
+            Form f = Form.builder ()
+                .description (exportproject,stages,bookdetails,text)
+                .item (getUILanguageStringProperty (exportproject,stages,bookdetails,labels,authorname),
+                       this.author2)
+                .item (getUILanguageStringProperty (exportproject,stages,bookdetails,labels,LanguageStrings.id),
+                       this.id2)
+                .build ();
+
+            ws.content = f;
+            ws.content.getStyleClass ().add (DETAILS_STAGE);
+
+        }
+
+        return ws;
+
+    }
+
     public String getNextStage (String currStage)
     {
 
+        if (DETAILS_STAGE.equals (currStage))
+        {
+
+            return null;
+
+        }
+
+        return DETAILS_STAGE;
+/*
         if (currStage == null)
         {
 
@@ -159,12 +217,14 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         }
 
         return null;
-
+*/
     }
 
     public String getPreviousStage (String currStage)
     {
 
+        return null;
+/*
         if (currStage == null)
         {
 
@@ -180,7 +240,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         }
 
         return null;
-
+*/
     }
 
     private void addEntry (String name,
@@ -221,15 +281,18 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    public void exportProject (File dir)
+    public void exportProject (Path    dir,
+                               Project itemsToExport)
                         throws GeneralException
     {
 
         try
         {
 
-            Project p = ExportUtils.getSelectedItems (this.itemsTree,
-                                                      this.proj);
+            this.proj.setProperty (Constants.AUTHOR_NAME_PROPERTY_NAME,
+                                   this.author2.getText ().trim ());
+            this.proj.setProperty (Constants.BOOK_ID_PROPERTY_NAME,
+                                   this.id2.getText ().trim ());
 
             // Create new Book
             nl.siegmann.epublib.domain.Book book = new nl.siegmann.epublib.domain.Book ();
@@ -238,7 +301,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             book.getMetadata ().addTitle (this.proj.getName ());
 
             // Add an Author
-            book.getMetadata ().addAuthor (new Author (this.author.getText ()));
+            book.getMetadata ().addAuthor (new Author (this.author2.getText ()));
             book.getMetadata ().setLanguage (this.getLanguageCode (this.proj));
 
             // Set cover image
@@ -275,7 +338,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ("utf-8")),
                                                     "main.css"));
 
-            Book b = p.getBook (0);
+            Book b = itemsToExport.getBook (0);
 
             String cTemp = Utils.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
 
@@ -333,7 +396,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             for (UserConfigurableObjectType type : assetTypes)
             {
 
-                Set<Asset> as = p.getAssets (type);
+                Set<Asset> as = itemsToExport.getAssets (type);
 
                 if ((as == null)
                     ||
@@ -445,7 +508,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             EpubWriter epubWriter = new EpubWriter ();
 
             // Write the Book as Epub
-            epubWriter.write (book, new FileOutputStream (new File (dir.getPath () + "/" + this.sanitizeName (this.proj.getName ()) + Constants.EPUB_FILE_EXTENSION)));
+            epubWriter.write (book, Files.newOutputStream (dir.resolve (this.sanitizeName (this.proj.getName ()) + Constants.EPUB_FILE_EXTENSION)));
 
         } catch (Exception e) {
 

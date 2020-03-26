@@ -28,6 +28,9 @@ import static com.quollwriter.LanguageStrings.*;
 public class AllProjectsViewer extends AbstractViewer
 {
 
+    public static final int DEFAULT_WINDOW_WIDTH = 500;
+    public static final int DEFAULT_WINDOW_HEIGHT = 500;
+
     public static final String VIEWER_STATE_ID = "allprojects.state";
     private State state = null;
     private Map<String, PanelContent> panels = null;
@@ -172,7 +175,7 @@ public class AllProjectsViewer extends AbstractViewer
                                                         this.content);
             this.windowedContent.setTitle (this.titleProp);
             this.setTitle (this.titleProp);
-            
+
         }
 
         return this.windowedContent;
@@ -562,10 +565,24 @@ public class AllProjectsViewer extends AbstractViewer
                 // Legacy, pre v3
                 int wh = UserProperties.getAsInt ("landing-window-height");
 
+                if (wh == 0)
+                {
+
+                    wh = DEFAULT_WINDOW_HEIGHT;
+
+                }
+
                 s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
                        wh);
 
                 int ww = UserProperties.getAsInt ("landing-window-width");
+
+                if (ww == 0)
+                {
+
+                    ww = DEFAULT_WINDOW_WIDTH;
+
+                }
 
                 s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
                        ww);

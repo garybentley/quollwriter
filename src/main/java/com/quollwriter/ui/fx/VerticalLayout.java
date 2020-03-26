@@ -174,7 +174,7 @@ public class VerticalLayout extends Pane
 
         Insets insets = this.getInsets ();
 
-        return this.itemWidth.getValue () - insets.getLeft () - insets.getRight ();
+        return Math.round (this.itemWidth.getValue () - insets.getLeft () - insets.getRight ());
 
     }
 
@@ -288,7 +288,7 @@ public class VerticalLayout extends Pane
 
             }
 
-            return y - vg + insets.getBottom ();
+            return Math.round (y - vg + insets.getBottom ());
 
         }
 
@@ -349,7 +349,7 @@ public class VerticalLayout extends Pane
 
         }
 
-        return maxHeight;
+        return Math.round (maxHeight);
 
     }
 
@@ -471,10 +471,10 @@ public class VerticalLayout extends Pane
 
                 double h = c.prefHeight (iw);
 
-                c.resizeRelocate (x,
-                                  y,
-                                  iw,
-                                  h);
+                c.resizeRelocate (Math.round (x),
+                                  Math.round (y),
+                                  Math.round (iw),
+                                  Math.round (h));
 
                 y += h + vg;
 
@@ -508,10 +508,10 @@ public class VerticalLayout extends Pane
 
             }
 
-            c.resizeRelocate (x,
-                              y,
-                              iw,
-                              h);
+            c.resizeRelocate (Math.round (x),
+                              Math.round (y),
+                              Math.round (iw),
+                              Math.round (h));
 
             x += iw;
             y += h + vg;

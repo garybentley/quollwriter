@@ -124,7 +124,6 @@ CREATE TABLE userobjecttypefield
     userobjecttypedbkey BIGINT NOT NULL,
     type CLOB,
     definition CLOB,
-    orderby NUMBER,
     PRIMARY KEY (dbkey)
 )
     </sql>
@@ -189,14 +188,14 @@ ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjtype_dbkey___userobjtypefi
 ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjtypefield_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
     </sql>
   </item>
-
+<!--
   <item>
     <log>Add a unique constraint on the userobjecttypedbkey/orderby for userobjecttypefield.</log>
     <sql>
 ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjecttypefield_typedbkey_orderby UNIQUE(userobjecttypedbkey,orderby)
     </sql>
   </item>
-
+-->
   <item>
     <log>Initing info record.</log>
     <sql>

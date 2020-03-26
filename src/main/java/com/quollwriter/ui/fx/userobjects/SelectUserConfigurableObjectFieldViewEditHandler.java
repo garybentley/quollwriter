@@ -74,12 +74,19 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
 
         }
 
-        ObservableList<String> vals = FXCollections.observableList (new ArrayList (this.typeField.getItems ()));
+        ObservableList<String> vals = FXCollections.observableList (new ArrayList<> (this.typeField.getItems ()));
 
         this.editItem = new ListView<> (vals);
         this.editItem.setEditable (false);
 
         this.editItem.getSelectionModel ().setSelectionMode (this.typeField.isAllowMulti () ? SelectionMode.MULTIPLE : SelectionMode.SINGLE);
+
+        for (String v : this.getFieldValue ())
+        {
+
+            this.editItem.getSelectionModel ().select (v);
+
+        }
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 

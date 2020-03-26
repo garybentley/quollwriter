@@ -1,0 +1,58 @@
+/*
+ * Base styles for a sidebar, com.quollwriter.ui.fx.components.SideBar
+ */
+ .sidebar > .header
+ {
+     -fx-padding: 0em 0 0.5em 0.5em;
+ }
+
+ .sidebar > .header .close.button
+ {
+     -fx-graphic: url(/imgs/close16.png);
+ }
+
+ .sidebar > .header .help.button
+ {
+     -fx-graphic: url(/imgs/help16.png);
+ }
+
+ .sidebar > .header .other.button
+ {
+     -fx-graphic: url(/imgs/sidebars16.png);
+ }
+
+ .sidebar > .header .title
+ {
+     -fx-padding: 0 0 0 0.5em;
+     -fx-font-size: 1.5em;
+     -fx-max-width: Infinity;
+     -fx-text-gap: 0.5em;
+ }
+
+ .accordion .header
+ {
+     -fx-padding: 0 0 0.5em 0;
+     -fx-cursor: hand;
+ }
+
+ .accordion .header .title
+ {
+     -fx-font-size: 1.3em;
+     -fx-padding: 0 0 0 0.5em;
+ }
+
+ /*
+  * We don't show the header for the project (main) sidebar.
+  */
+ .project > .header
+ {
+     visibility: hidden;
+ }
+
+ /*
+  * Icon definitions need to be here since SideBar is a wrapper around the actual sidebar content.
+  */
+ .find > .header .icon
+ {
+     -fx-image: url(/imgs/find16.png);
+ }

@@ -2,6 +2,7 @@ package com.quollwriter.text.rules;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.stream.*;
 
 import java.util.*;
 
@@ -84,8 +85,10 @@ public class RuleFactory
         // Load the user defined rules.
         Path dir = Environment.getUserPath (Constants.USER_PROBLEM_FINDER_RULES_DIR);
 
-        Files.walk (dir)
-            .filter (f -> f.getFileName ().toString ().endsWith (".xml"))
+        try (Stream<Path> ls = Files.walk (dir))
+        {
+
+            ls.filter (f -> f.getFileName ().toString ().endsWith (".xml"))
             .forEach (f ->
             {
 
@@ -118,6 +121,8 @@ public class RuleFactory
                 }
 
             });
+
+        }
 
     }
 

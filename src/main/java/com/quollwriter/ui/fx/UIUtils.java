@@ -156,7 +156,7 @@ public class UIUtils
     }
 
     /**
-     * Run the passed in Runnable on the event thread.
+     * Run the passed in Runnable on the event thread, if already on the event thread then run immediately.
      *
      * @param r The runnable to run.
      */
@@ -165,6 +165,25 @@ public class UIUtils
 
         if (r == null)
         {
+
+            return;
+
+        }
+
+        if (Platform.isFxApplicationThread ())
+        {
+
+            try
+            {
+
+                r.run ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to run: " + r,
+                                      e);
+
+            }
 
             return;
 
@@ -221,14 +240,24 @@ public class UIUtils
         Tooltip t = new Tooltip ();
 
         t.setContentDisplay (ContentDisplay.GRAPHIC_ONLY);
-        QuollTextView tf = QuollTextView.builder ()
-            .text (prop)
-            .build ();
-        t.setGraphic (tf);
-        tf.setMinWidth (300);
-        tf.setMaxWidth (300);
+
+        t.setOnShowing (ev ->
+        {
+
+            QuollTextView tf = QuollTextView.builder ()
+                .text (prop)
+                .build ();
+                /*
+            tf.setPrefWidth (300);
+            tf.setMinWidth (300);
+            tf.setMaxWidth (300);
+            */
+            t.setGraphic (tf);
+
+        });
+
         node.getProperties ().put ("tooltip", t);
-        t.prefWidthProperty ().bind (tf.widthProperty ());
+        t.minWidthProperty ().bind (t.prefWidthProperty ());
 
         Tooltip.install (node,
                          t);
@@ -1573,7 +1602,7 @@ public class UIUtils
             .cancelButtonLabel (deleteitem,cancel)
             .onConfirm (onConfirm)
             .onCancel (onCancel)
-            .withHandler (viewer)
+            //.withHandler (viewer)
             .withViewer (viewer)
             .styleClassName (style)
             .build ();
@@ -2222,7 +2251,6 @@ public class UIUtils
 
         QuollPopup.textEntryBuilder ()
             .withViewer (viewer)
-            .withHandler (viewer)
             .title (prefix,title)
             .description (prefix,text)
             .styleClassName (StyleClassNames.ADDNEWUILANGSTRINGS)
@@ -2442,7 +2470,7 @@ public class UIUtils
 
         QuollPopup.textEntryBuilder ()
             .withViewer (viewer)
-            .withHandler (viewer)
+            //.withHandler (viewer)
             .title (prefix,title)
             .description (prefix,text)
             .styleClassName (StyleClassNames.ADDNEWWEBSITELANGSTRINGS)
@@ -3688,7 +3716,7 @@ TODO
                                        ignore);
 
         QuollTextView tv = QuollTextView.builder ()
-           .withViewer (viewer)
+           //.withViewer (viewer)
            .text (t)
            .build ();
 
@@ -3705,7 +3733,7 @@ TODO
         TextIterator iter = new TextIterator (text.getText ());
 
         QuollTextView tv = QuollTextView.builder ()
-            .withViewer (viewer)
+            //.withViewer (viewer)
             .text (iter.getParagraphs ().stream ()
                     .map (p ->
                     {
@@ -4390,6 +4418,80 @@ TODO
             }
 
         });
+
+    }
+
+    public static void addStyleSheet (Parent parent,
+                                      String type,
+                                      String name)
+    {
+
+        try
+        {
+
+            URL u = Utils.getResourceUrl (String.format (Constants.STYLESHEET_PATH,
+                                                         type,
+                                                         name));
+
+            if (u != null)
+            {
+
+                parent.getStylesheets ().add (u.toExternalForm ());
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError (String.format ("Unable to get/apply stylesheet for: %1$s, type: %2$s, name: %3$s",
+                                                 parent,
+                                                 type,
+                                                 name),
+                                  e);
+
+        }
+
+    }
+
+    public static void addStyleSheet (Scene parent,
+                                      String type,
+                                      String name)
+    {
+
+        try
+        {
+
+            URL u = Utils.getResourceUrl (String.format (Constants.STYLESHEET_PATH,
+                                                         type,
+                                                         name));
+
+            if (u != null)
+            {
+
+                parent.getStylesheets ().add (u.toExternalForm ());
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError (String.format ("Unable to get/apply stylesheet for: %1$s, type: %2$s, name: %3$s",
+                                                 parent,
+                                                 type,
+                                                 name),
+                                  e);
+
+        }
+
+    }
+
+    public static void showFeatureComingSoonPopup ()
+    {
+
+        QuollPopup.messageBuilder ()
+            .styleClassName (StyleClassNames.WARNING)
+            .title (new SimpleStringProperty ("Coming soon!"))
+            .message (new SimpleStringProperty ("This fantastic feature is coming soon!  I promise."))
+            .closeButton ()
+            .build ();
 
     }
 

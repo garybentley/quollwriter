@@ -30,12 +30,11 @@ public class Viewer extends Stage implements Stateful
     public static final int DEFAULT_WINDOW_WIDTH = 800;
 	public static final int DEFAULT_WINDOW_HEIGHT = 800;
 
-    private Node content = null;
-    private Header header = null;
     private String styleName = null;
     private StringProperty titleProp = null;
     private Supplier<Set<Node>> headerControlsSupplier = null;
     private IPropertyBinder binder = new PropertyBinder ();
+    private Scene scene = null;
 
     private Viewer (Builder b)
     {
@@ -60,22 +59,48 @@ public class Viewer extends Stage implements Stateful
 
         });
 
-        this.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                              ev ->
+        Viewer _v = this;
+
+        EventHandler<Viewer.ViewerEvent> h = new EventHandler<> ()
         {
 
-            this.binder.dispose ();
+            @Override
+            public void handle (Viewer.ViewerEvent ev)
+            {
 
-        });
+                Viewer v = (Viewer) ev.getSource ();
+
+                v.binder.dispose ();
+                v.removeEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                       this);
+
+            }
+
+        };
+
+        this.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                              h);
+
+        EventHandler<WindowEvent> wh = new EventHandler<> ()
+        {
+
+            @Override
+            public void handle (WindowEvent ev)
+            {
+
+                Window w = (Window) ev.getSource ();
+
+                w.fireEvent (new Viewer.ViewerEvent ((Viewer) w,
+                                                      Viewer.ViewerEvent.CLOSE_EVENT));
+                w.removeEventHandler (WindowEvent.WINDOW_HIDDEN,
+                                       this);
+
+            }
+
+        };
 
         this.addEventHandler (WindowEvent.WINDOW_HIDDEN,
-                              ev ->
-        {
-
-            this.fireEvent (new Viewer.ViewerEvent (this,
-                                                    Viewer.ViewerEvent.CLOSE_EVENT));
-
-        });
+                              wh);
 
         this._init (b);
 
@@ -86,29 +111,15 @@ public class Viewer extends Stage implements Stateful
                throws GeneralException
     {
 
+        Integer wh = null;
+        Integer ww = null;
+
         if (s != null)
         {
 
-            Integer wh = s.getAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
+            wh = s.getAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
 
-            if (wh == null)
-            {
-
-                wh = DEFAULT_WINDOW_HEIGHT;
-
-            }
-
-            Integer ww = s.getAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
-
-            if (ww == null)
-            {
-
-                ww = DEFAULT_WINDOW_WIDTH;
-
-            }
-
-            this.setHeight (wh);
-            this.setWidth (ww);
+            ww = s.getAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
 
             Integer y = s.getAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
 
@@ -138,6 +149,23 @@ public class Viewer extends Stage implements Stateful
 
         }
 
+        if (wh == null)
+        {
+
+            wh = DEFAULT_WINDOW_HEIGHT;
+
+        }
+
+        if (ww == null)
+        {
+
+            ww = DEFAULT_WINDOW_WIDTH;
+
+        }
+
+        this.setHeight (wh);
+        this.setWidth (ww);
+
     }
 
     private void updateUIBaseFontAndSize ()
@@ -152,7 +180,7 @@ public class Viewer extends Stage implements Stateful
 
         }
 
-        this.getScene ().getRoot ().setStyle (String.format ("-fx-font-size: %1$spt; -fx-font-family: \"%2$s\"",
+        this.scene.getRoot ().setStyle (String.format ("-fx-font-size: %1$spt; -fx-font-family: \"%2$s\"",
                                                              UserProperties.getUIBaseFontSize (),
                                                              f.getName ()));
 
@@ -200,42 +228,33 @@ public class Viewer extends Stage implements Stateful
             throw new IllegalArgumentException ("Content must be provided.");
 
         }
-/*
-        if (b.title == null)
+
+        VBox box = new VBox ();
+
+        UIUtils.addStyleSheet (box,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.VIEWER);
+        if (b.styleSheet != null)
         {
 
-            throw new IllegalArgumentException ("Title must be provided.");
+            box.getStylesheets ().add (b.styleSheet);
 
         }
 
-        this.header = Header.builder ()
-            //.controls (b.headerControlsSupplier.get ())
-            .toolbar (b.headerToolbar)
-            .styleClassName (StyleClassNames.HEADER)
-            .build ();
-        this.header.titleProperty ().bind (b.title);
-        this.titleProp = b.title;
-
-        this.titleProperty ().bind (b.title);
-*/
-        VBox box = new VBox ();
         box.getStyleClass ().add (StyleClassNames.VIEWER);
         box.getStyleClass ().add (b.styleName);
-        /*
-        VBox.setVgrow (this.header,
-                       Priority.NEVER);
-                       */
         VBox.setVgrow (b.content,
                        Priority.ALWAYS);
-        //box.getChildren ().addAll (this.header, b.content);
         box.getChildren ().add (b.content);
-        this.content = b.content;
 
-        Scene s = new Scene (box);
+        this.scene = new Scene (box);
 
-		this.setScene (s);
-        this.setMinWidth (300);
-        this.setMinHeight (300);
+        UIUtils.runLater (() ->
+        {
+
+            this.setScene (this.scene);
+
+        });
 
         Environment.getStyleSheets ().stream ()
             .forEach (u ->
@@ -244,6 +263,11 @@ public class Viewer extends Stage implements Stateful
                 this.addStyleSheet (u);
 
             });
+
+        this.updateUIBaseFontAndSize ();
+
+        this.setMinWidth (300);
+        this.setMinHeight (300);
 
         this.binder.addChangeListener (UserProperties.uiBaseFontSizeProperty (),
                                        (pr, oldv, newv) ->
@@ -260,8 +284,6 @@ public class Viewer extends Stage implements Stateful
             this.updateUIBaseFontAndSize ();
 
         });
-
-        this.updateUIBaseFontAndSize ();
 
         // Listen to the night mode property, add a psuedo class when it is enabled.
         this.binder.addChangeListener (Environment.nightModeProperty (),
@@ -290,6 +312,15 @@ public class Viewer extends Stage implements Stateful
         private StringProperty title = null;
         private Supplier<Set<Node>> headerControlsSupplier = null;
         private ToolBar headerToolbar = null;
+        private String styleSheet = null;
+
+        public Builder styleSheet (String s)
+        {
+
+            this.styleSheet = s;
+            return this;
+
+        }
 
         public Builder headerToolbar (ToolBar tb)
         {
@@ -387,38 +418,38 @@ public class Viewer extends Stage implements Stateful
     public void removeStyleSheet (URL url)
     {
 
-        this.getScene ().getStylesheets ().remove (url.toExternalForm ());
+        this.scene.getStylesheets ().remove (url.toExternalForm ());
 
     }
 
     public void addStyleSheet (URL url)
     {
 
-        this.getScene ().getStylesheets ().add (url.toExternalForm ());
+        this.scene.getStylesheets ().add (url.toExternalForm ());
 
     }
-
+/*
     public Node getContent ()
     {
 
         return this.content;
 
     }
-
+*/
     public String getStyleClassName ()
     {
 
         return this.styleName;
 
     }
-
+/*
     public Header getHeader ()
     {
 
         return this.header;
 
     }
-
+*/
     public static class ViewerEvent extends Event
     {
 

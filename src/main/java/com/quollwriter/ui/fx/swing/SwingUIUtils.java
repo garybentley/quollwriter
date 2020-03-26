@@ -121,7 +121,7 @@ public class SwingUIUtils
 
                 }
 
-                Environment.playKeyStrokeSound ();
+                UserProperties.playKeyStrokeSound ();
 
             }
         });

@@ -1274,8 +1274,7 @@ public class ViewerSplitPane extends Pane implements Stateful
                 cw = mw;
 
             }
-System.out.println ("CW: " + cw);
-System.out.println ("INSET: " + this.div1.getInsets ());
+
             d1w = cw + this.div1.getInsets ().getLeft () + this.div1.getInsets ().getRight ();
 
         }

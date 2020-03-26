@@ -151,10 +151,10 @@ public class EditorsEnvironment
         }
 
         // Bit of spelunking anyone???
-        Environment.startupProgressProperty ().addListener ((p, oldv, newv) ->
+        Environment.startupCompleteProperty ().addListener ((p, oldv, newv) ->
         {
 
-            if ((newv.intValue () == 100)
+            if ((newv)
                 &&
                 (!EditorsEnvironment.startupLoginTried)
                )

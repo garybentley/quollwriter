@@ -49,6 +49,7 @@ public class NewProjectPopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (newproject, LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.CREATEPROJECT)
+            .styleSheet (StyleClassNames.CREATEPROJECT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -56,7 +57,7 @@ public class NewProjectPopup extends PopupContent
             .withViewer (this.viewer)
             .removeOnClose (true)
             .build ();
-
+            
         p.requestFocus ();
 
         return p;

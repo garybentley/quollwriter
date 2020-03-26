@@ -50,9 +50,13 @@ public abstract class ProjectObjectsSidebarItem<E extends AbstractProjectViewer>
 
     public abstract Supplier<Set<MenuItem>> getHeaderContextMenuItemSupplier ();
 
-    public abstract String getStyleClassName ();
+    public abstract List<String> getStyleClassNames ();
 
     public abstract BooleanProperty showItemCountOnHeader ();
+
+    public abstract boolean canImport (NamedObject o);
+
+    public abstract void importObject (NamedObject o);
 
     @Override
     public State getState ()
@@ -105,9 +109,75 @@ public abstract class ProjectObjectsSidebarItem<E extends AbstractProjectViewer>
                 .title (t)
                 .accordionId (this.getId ())
                 .openContent (this.getContent ())
-                .styleClassName (this.getStyleClassName ())
+                .styleClassNames (this.getStyleClassNames ())
                 .contextMenu (this.getHeaderContextMenuItemSupplier ())
                 .build ();
+
+            Header h = this.item.getHeader ();
+
+            h.setOnDragOver (ev ->
+            {
+
+                h.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+                Dragboard db = ev.getDragboard ();
+
+                Object o = db.getContent (NamedObjectTree.PROJECT_OBJECT_DATA_FORMAT);
+
+                if (o != null)
+                {
+
+                    NamedObject on = (NamedObject) this.viewer.getProject ().getObjectForReference (ObjectReference.parseObjectReference (o.toString ()));
+
+                    if (!this.canImport (on))
+                    {
+
+                        return;
+
+                    }
+
+                    h.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, true);
+
+                    ev.acceptTransferModes (TransferMode.MOVE, TransferMode.COPY);
+
+                }
+
+            });
+
+            h.setOnDragExited (ev ->
+            {
+
+                h.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            });
+
+            h.setOnDragDone (ev ->
+            {
+
+                h.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+                h.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+
+            });
+
+            h.setOnDragDropped (ev ->
+            {
+
+                h.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+                Dragboard db = ev.getDragboard ();
+
+                Object o = db.getContent (NamedObjectTree.PROJECT_OBJECT_DATA_FORMAT);
+
+                if (o != null)
+                {
+
+                    NamedObject on = (NamedObject) this.viewer.getProject ().getObjectForReference (ObjectReference.parseObjectReference (o.toString ()));
+
+                    this.importObject (on);
+
+                }
+
+            });
 
         }
 

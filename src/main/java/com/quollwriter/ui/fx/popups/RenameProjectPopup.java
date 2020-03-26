@@ -35,20 +35,16 @@ public class RenameProjectPopup extends PopupContent<AbstractProjectViewer>
         super (viewer);
 
         this.project = project;
-        BasicHtmlTextFlow mess = BasicHtmlTextFlow.builder ()
-            .styleClassName (StyleClassNames.DESCRIPTION)
-            .withHandler (viewer)
-            .text (getUILanguageStringProperty (LanguageStrings.project,actions,renameproject,text))
-            .build ();
 
         QuollTextField text = QuollTextField.builder ()
             .text (this.project.getName ())
             .build ();
 
         Form f = Form.builder ()
-            .withHandler (this.viewer)
+            .inViewer (this.viewer)
             .confirmButton (LanguageStrings.project,actions,renameproject,confirm)
             .cancelButton (actions,cancel)
+            .description (LanguageStrings.project,actions,renameproject,LanguageStrings.text)
             .item (text)
             .build ();
 
@@ -119,7 +115,7 @@ public class RenameProjectPopup extends PopupContent<AbstractProjectViewer>
 
         VBox b = new VBox ();
         VBox.setVgrow (f, Priority.ALWAYS);
-        b.getChildren ().addAll (mess, f);
+        b.getChildren ().addAll (f);
 
         this.getChildren ().addAll (b);
 

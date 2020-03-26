@@ -102,7 +102,7 @@ public class WebpageUserConfigurableObjectFieldViewEditHandler extends AbstractU
 
     @Override
     public Set<Form.Item> getViewFormItems ()
-                                     throws GeneralException    
+                                     throws GeneralException
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -122,10 +122,23 @@ public class WebpageUserConfigurableObjectFieldViewEditHandler extends AbstractU
 
             }
 
+            StringProperty l = new SimpleStringProperty (value);
+
+            QuollHyperlink link = QuollHyperlink.builder ()
+                .styleClassName (StyleClassNames.HYPERLINK)
+                .label (l)
+                .onAction (ev ->
+                {
+
+                    UIUtils.openURL (this.viewer,
+                                     l.getValue ());
+
+                })
+                .build ();
+
+
             items.add (new Form.Item (this.typeField.formNameProperty (),
-                                      QuollLabel2.builder ()
-                                        .label (new SimpleStringProperty (value))
-                                        .build ()));
+                                      link));
 
         } else {
 

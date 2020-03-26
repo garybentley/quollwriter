@@ -1,0 +1,76 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.FirstUseWizard
+ */
+ .firstusewizard
+ {
+     -fx-pref-width: 50em;
+     -fx-pref-height: 40em;
+     -fx-border-width: 0;
+     -fx-border-color: transparent;
+ }
+
+ .firstusewizard .header
+ {
+     -fx-padding: 0 0.5em 0 0.5em;
+ }
+
+ .firstusewizard .header.title .title
+ {
+     -fx-font-size: 2em;
+ }
+
+ .firstusewizard .header.title .icon
+ {
+     -fx-image: url(/imgs/qw24.png);
+ }
+
+ .firstusewizard .content .form .control
+ {
+     -fx-padding: 0.5em 0 0.5em 0.5em;
+ }
+
+ .firstusewizard .content .label.loading
+ {
+     -fx-graphic: url(/imgs/loading24.gif);
+ }
+
+ .firstUseWizard .content .download
+ {
+     -fx-fit-width: true;
+ }
+
+ .firstusewizard .content .download .progress
+ {
+     -fx-padding: 0.25em;
+     -fx-alignment: center;
+     -fx-spacing: 0.25em;
+ }
+
+ .firstusewizard .content .download .progress-bar
+ {
+     -fx-max-width: Infinity;
+     -fx-border-width: 1px;
+     -fx-border-color: -qw-component-border-color;
+ }
+
+ .firstusewizard .content .scroll-pane
+ {
+     -fx-padding: 0.5em 0 0.5em 0;
+     -fx-fit-to-height: true;
+     -fx-fit-to-width: false;
+ }
+
+ .firstusewizard .content .tree .cell
+ {
+     -fx-padding: 0;
+ }
+
+ .firstusewizard .content .tree .cell .chapter
+ {
+     -fx-graphic: url(/imgs/chapter16.png);
+ }
+
+ .firstusewizard .content .newproject .control
+ {
+     -fx-padding: 0 0 0.5em 1em;
+ }

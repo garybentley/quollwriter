@@ -3564,6 +3564,8 @@ TODO REmove
 
         }
 
+        this.project = null;
+
     }
 /*
     public void saveWordCounts (java.util.Date start,

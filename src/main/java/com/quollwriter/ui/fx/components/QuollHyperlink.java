@@ -19,6 +19,13 @@ public class QuollHyperlink extends Hyperlink
     private QuollHyperlink (Builder b)
     {
 
+        if (b.styleSheet != null)
+        {
+
+            this.getStylesheets ().add (b.styleSheet);
+
+        }
+
         if (b.label != null)
         {
 
@@ -90,6 +97,7 @@ public class QuollHyperlink extends Hyperlink
         private String styleName = null;
         private StringProperty tooltip = null;
         private EventHandler<ActionEvent> onAction = null;
+        private String styleSheet = null;
 
         private Builder ()
         {
@@ -108,6 +116,14 @@ public class QuollHyperlink extends Hyperlink
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder styleSheet (String s)
+        {
+
+            this.styleSheet = s;
             return this;
 
         }

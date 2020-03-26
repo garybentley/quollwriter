@@ -35,6 +35,9 @@ public final class StyleClassNames
     public static final PseudoClass INVALID_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.INVALID);
     public static final PseudoClass NORMAL_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NORMAL);
 
+    public static final String TIMER = "timer";
+    public static final String WINDOWED = "windowed";
+    public static final String TAGSMANAGER = "tagsmanager";
     public static final String NEWPROJECT = "newproject";
     public static final String PROGRESS = "progress";
     public static final String LOADING = "loading";

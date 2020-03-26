@@ -43,17 +43,17 @@ public class Startup
 
             ss.updateProgress (5);
 
-            Environment.init ();
+            Environment.init (null, null);
 
             final Splashscreen _ss = ss;
-
+/*
             Environment.startupProgressProperty ().addListener ((p, oldv, newv) ->
             {
 
                 _ss.updateProgress (5);
 
             });
-
+*/
             if (Environment.isFirstUse ())
             {
 

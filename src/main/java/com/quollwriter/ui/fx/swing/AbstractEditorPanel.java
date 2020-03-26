@@ -162,7 +162,7 @@ public abstract class AbstractEditorPanel<E extends AbstractProjectViewer> exten
 
                 }
 
-                Environment.playKeyStrokeSound ();
+                UserProperties.playKeyStrokeSound ();
 
             }
         });

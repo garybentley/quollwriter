@@ -45,6 +45,16 @@ public class QuollFileField extends HBox
         this.limitTo = b.limitTo;
         this.fileExtFilter = b.fileExtFilter;
 
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.FILEFIND);
+        if (b.styleSheet != null)
+        {
+
+            this.getStylesheets ().add (b.styleSheet);
+
+        }
+
         if (b.styleName != null)
         {
 
@@ -168,8 +178,27 @@ public class QuollFileField extends HBox
 
             }
 
+            if (this.fileProp.getValue () != null)
+            {
+
+                if (Files.exists (this.fileProp.getValue ()))
+                {
+
+                    f.setInitialDirectory (this.fileProp.getValue ().getParent ().toFile ());
+                    f.setInitialFileName (this.fileProp.getValue ().getFileName ().toString ());
+
+                }
+
+            }
+
             File _f = f.showOpenDialog (this.getScene ().getWindow ());
-            _this.fileProp.setValue ((_f == null ? null : _f.toPath ()));
+
+            if (_f != null)
+            {
+
+                _this.fileProp.setValue (_f.toPath ());
+
+            }
 
             return;
 
@@ -179,7 +208,13 @@ public class QuollFileField extends HBox
         {
 
             DirectoryChooser d = new DirectoryChooser ();
-            d.titleProperty ().bind (this.chooserTitle);
+
+            if (this.chooserTitle != null)
+            {
+
+                d.titleProperty ().bind (this.chooserTitle);
+
+            }
 
             if (this.fileProp.getValue () != null)
             {
@@ -244,9 +279,18 @@ public class QuollFileField extends HBox
         private FileChooser.ExtensionFilter fileExtFilter = null;
         private boolean showClear = false;
         private AbstractViewer viewer = null;
+        private String styleSheet = null;
 
         private Builder ()
         {
+
+        }
+
+        public Builder styleSheet (String s)
+        {
+
+            this.styleSheet = s;
+            return this;
 
         }
 

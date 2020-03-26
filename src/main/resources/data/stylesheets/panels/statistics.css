@@ -1,0 +1,85 @@
+/*
+ * Styles related to the statistics panel, com.quollwriter.ui.fx.panels.StatisticsPanel
+ */
+ .panel.statistics .controls
+ {
+     -fx-padding: 0.5em;
+     -fx-alignment: center-left;
+ }
+
+ .panel.statistics .controls .label, .panel.statistics .controls .check-box
+ {
+     -fx-padding: 0 0.5em 0 0.5em;
+ }
+
+ .panel.statistics .detail
+ {
+     -fx-padding: 0.5em 0.5em 1em 1em;
+     -fx-alignment: center;
+ }
+
+ .panel.statistics .markers
+ {
+     -fx-vertical-grid-lines-visible: false;
+     -fx-horizontal-grid-lines-visible: false;
+     -fx-horizontal-zero-line-visible: false;
+ }
+
+ .panel.statistics .markers .axis
+ {
+     -fx-opacity: 0;
+ }
+
+ .panel.statistics .detail > *
+ {
+     -fx-alignment: center;
+ }
+
+ .panel.statistics .detail .item
+ {
+     -fx-padding: 0 0.5em 0 0;
+ }
+
+ .panel.statistics .detail .item .image-view
+ {
+     -fx-image: url(/imgs/tree-branch-closed16.png);
+ }
+
+ .panel.statistics .chart
+ {
+     -fx-category-gap: 10em;
+     -fx-legend-visible: false;
+     -fx-vertical-grid-lines-visible: false;
+ }
+
+ .panel.statistics .axis-label
+ {
+     -fx-font-size: 1.2em;
+ }
+
+ .panel.statistics .axis > *
+ {
+     -fx-font-size: 1.1em;
+ }
+
+ .panel.statistics .chart-plot-background
+ {
+     -fx-background-color: transparent;
+ }
+
+ .panel.statistics .chart-bar.series0
+ {
+     -fx-background-color: #f5b800;
+     -fx-min-width: 2em;
+     -fx-pref-width: 2em;
+ }
+
+  .panel.statistics .header .icon
+  {
+      -fx-image: url(/imgs/chart24.png);
+  }
+
+  .panel.statistics .header .controls .close
+  {
+      -fx-graphic: url(/imgs/close16.png);
+  }

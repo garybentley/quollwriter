@@ -35,21 +35,17 @@ public class RenameAssetPopup extends PopupContent<ProjectViewer>
         super (viewer);
 
         this.asset = asset;
-        BasicHtmlTextFlow mess = BasicHtmlTextFlow.builder ()
-            .styleClassName (StyleClassNames.DESCRIPTION)
-            .withHandler (viewer)
-            .text (getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,renameasset,text),
-                                                this.asset.getUserConfigurableObjectType ().nameProperty ()))
-            .build ();
 
         QuollTextField text = QuollTextField.builder ()
             .text (this.asset.getName ())
             .build ();
 
         Form f = Form.builder ()
-            .withHandler (this.viewer)
+            .inViewer (this.viewer)
             .confirmButton (LanguageStrings.project,actions,renameasset,confirm)
             .cancelButton (actions,cancel)
+            .description (getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,renameasset,LanguageStrings.text),
+                                                       this.asset.getUserConfigurableObjectType ().nameProperty ()))
             .item (text)
             .build ();
 
@@ -144,7 +140,7 @@ public class RenameAssetPopup extends PopupContent<ProjectViewer>
 
         VBox b = new VBox ();
         VBox.setVgrow (f, Priority.ALWAYS);
-        b.getChildren ().addAll (mess, f);
+        b.getChildren ().addAll (f);
 
         this.getChildren ().addAll (b);
 

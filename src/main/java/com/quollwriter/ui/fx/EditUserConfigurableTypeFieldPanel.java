@@ -38,7 +38,7 @@ public class EditUserConfigurableTypeFieldPanel extends VBox
 
         this.nameField = QuollTextField.builder ()
             .styleClassName (StyleClassNames.NAME)
-            .text (field.getName ())
+            .text (field.getFormName ())
             .build ();
 
         Form.Builder fb = Form.builder ()

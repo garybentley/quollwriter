@@ -1,0 +1,61 @@
+/*
+ * Styles relating to the editing of a chapter via com.quollwriter.ui.fx.components.TextEditor
+ * This stylesheet is added to the TextEditor.
+ */
+ .texteditor
+ {
+     -fx-background-color: transparent;
+ }
+
+ .texteditor .margin, .margin-bg
+ {
+     -fx-pref-width: 4.5em;
+     -fx-max-width: 4.5em;
+     -fx-min-width: 4.5em;
+     -fx-max-height: Infinity;
+     -fx-pref-height: Infinity;
+     -fx-background-color: #dfdfdf;
+     /*
+      * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
+      * for the note ident.  So you can have a margin that is too small to display the item.
+      */
+     -qw-note-item-indent: 0.5em;
+     /*
+      * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
+      * for the note ident.  So you can have a margin that is too small to display the item.
+      */
+     -qw-structure-item-indent: 2.7em;
+ }
+
+ .texteditor .margin .outlineitem,
+ .texteditor .margin .scene,
+ .texteditor .margin .note,
+ .texteditor .margin .editneedednote
+ {
+     -fx-cursor: hand;
+ }
+
+ .texteditor .margin .editmarker
+ {
+     -fx-pref-width: 2px;
+ }
+
+ .texteditor .margin .scene .image-view
+ {
+     -fx-image: url(/imgs/scene16.png);
+ }
+
+ .texteditor .margin .outlineitem .image-view
+ {
+     -fx-image: url(/imgs/outlineitem16.png);
+ }
+
+ .texteditor .margin .editneedednote .image-view
+ {
+     -fx-image: url(/imgs/edit-needed-note16.png);
+ }
+
+ .texteditor .margin .note .image-view
+ {
+     -fx-image: url(/imgs/note16.png);
+ }

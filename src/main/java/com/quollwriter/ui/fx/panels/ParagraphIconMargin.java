@@ -119,6 +119,7 @@ public class ParagraphIconMargin extends Pane
     private ChapterItemSorter sorter = new ChapterItemSorter ();
 
     private ChangeListener<javafx.scene.Scene> sceneList = null;
+    private IPropertyBinder binder = new PropertyBinder ();
 
     public ParagraphIconMargin (ProjectViewer                           viewer,
                                 ProjectChapterEditorPanelContent        editor,
@@ -176,6 +177,35 @@ public class ParagraphIconMargin extends Pane
         this.editMarker = new Pane ();
         this.editMarker.getStyleClass ().add (StyleClassNames.EDITMARKER);
         this.editMarker.setVisible (false);
+
+        this.sceneProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if ((oldv != null)
+                &&
+                (newv == null)
+               )
+            {
+
+                this.binder.dispose ();
+
+            }
+
+        });
+
+        this.editMarker.setBackground (new Background (new BackgroundFill (UserProperties.getEditMarkerColor (),
+                                                                           null,
+                                                                           null)));
+        this.binder.addChangeListener (UserProperties.editMarkerColorProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.editMarker.setBackground (new Background (new BackgroundFill (UserProperties.getEditMarkerColor (),
+                                                                               null,
+                                                                               null)));
+
+        });
+
         this.getChildren ().add (this.editMarker);
 
         this.addStructureItems ();

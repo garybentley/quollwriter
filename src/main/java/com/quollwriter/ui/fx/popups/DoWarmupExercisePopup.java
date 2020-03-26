@@ -483,6 +483,7 @@ public class DoWarmupExercisePopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (Arrays.asList (dowarmup,LanguageStrings.popup,title))
             .styleClassName (StyleClassNames.DOWARMUP)
+            .styleSheet (StyleClassNames.DOWARMUP)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

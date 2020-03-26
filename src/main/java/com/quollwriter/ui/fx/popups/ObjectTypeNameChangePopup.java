@@ -289,6 +289,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (objectnames,changer, LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.OBJECTTYPENAMECHANGE)
+            .styleSheet (StyleClassNames.OBJECTTYPENAMECHANGE)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

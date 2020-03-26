@@ -90,7 +90,7 @@ public class QuollTextArea extends VBox
                                                           if (its.size () > 0)
                                                           {
 
-                                                              cm.getItems ().add (new SeparatorMenuItem ());
+                                                              //cm.getItems ().add (new SeparatorMenuItem ());
 
                                                           }
 

@@ -214,6 +214,42 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
     }
 
     @Override
+    public boolean canImport (NamedObject o)
+    {
+
+        if (o instanceof UserConfigurableObject)
+        {
+
+            UserConfigurableObject ut = (UserConfigurableObject) o;
+
+            // TODO Support drag-n-drop import from other projects.
+            if ((ut.getParent ().equals (this.objType.getParent ()))
+                &&
+                (ut.getUserConfigurableObjectType ().equals (this.objType))
+                &&
+                (this.tree.getTreeItemForObject (ut) == null)
+               )
+            {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
+
+    @Override
+    public void importObject (NamedObject o)
+    {
+
+        new IllegalStateException ("Shouldnt be possible.");
+
+    }
+
+    @Override
     public Node getContent ()
     {
 
@@ -222,10 +258,21 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
     }
 
     @Override
-    public String getStyleClassName ()
+    public List<String> getStyleClassNames ()
     {
 
-        return StyleClassNames.ASSET;
+        List<String> cn = new ArrayList<> ();
+
+        cn.add (StyleClassNames.ASSET);
+
+        if (this.objType.isLegacyObjectType ())
+        {
+
+            cn.add (this.objType.getUserObjectType ());
+
+        }
+
+        return cn;
 
     }
 
@@ -397,7 +444,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
         {
 
             Set<MenuItem> items = new LinkedHashSet<> ();
-System.out.println ("CALLED: " + this.objType.getObjectTypeName ());
+
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings._new),
                                                           //"Add a new %s",
@@ -748,6 +795,8 @@ System.out.println ("CALLED: " + this.objType.getObjectTypeName ());
         }
 
         this.tree.setRoot (this.createTree ());
+
+        this.tree.requestLayout ();
 
     }
 

@@ -2557,7 +2557,7 @@
         "26_1" : "Want to find a synonym?  Highlight a word while editing a ${objectnames.singular.chapter} and right click.",
         "26_2" : "Want to find a synonym?  Highlight a word and right click.",
         "27" : "Missing the sound of a typewriter?  <a href='action:enabletypewritersound'>Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the <b>How things look and sound</b> section of the <a href='action:options.look'>options</a>.",
-        "28" : "{Warmups} can be converted into ${objectnames.plural.project}.  <a href='action:warmup'>Click to do a ${objectnames.singular.warmup} now.</a><br />You can do a ${objectnames.singular.warmup} at any time, just select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
+        "28" : "${objectnames.plural.warmup} can be converted into ${objectnames.plural.project}.  <a href='action:warmup'>Click to do a ${objectnames.singular.warmup} now.</a><br />You can do a ${objectnames.singular.warmup} at any time, just select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
         "29" : "In full screen mode you can change the size of the writing area and how transparent the background is?  Just move your cursor to the top of the screen to see the options.",
         "30" : "Did you know that in full screen mode you can change the color of the text and the background of the writing area? <a href='action:fullscreen'>Click to enter full screen mode now.",
         "31" : "Did you know that in full screen mode you can set an image for the background?  <a href='action:fullscreen'>Click to enter full screen mode now.</a>",
@@ -5464,7 +5464,7 @@
             {
                 "keepprojectswindowsopen" : "Keep the ${objectnames.plural.project} window open when a ${objectnames.singular.project} is opened",
                 "showprojectswindownoopenproject" : "Show the ${objectnames.plural.project} window when I have no open ${objectnames.plural.project}",
-                "showpreview" : "Show a brief preview of the object when you mouse over its name in the ${objectnames.singular.project} sidebar",
+                "showpreview" : "Show a brief preview of the ${objectnames.singular.chapter} when you mouse over its name in the ${objectnames.singular.project} sidebar",
                 "changedisplay" : "Change what is displayed",
                 "shownotes" : "Show ${objectnames.plural.note} in the ${objectnames.plural.chapter} list",
                 "uilanguage" : "Use the following language for the User Interface",
@@ -5564,8 +5564,8 @@
         },
         "editingchapters" :
         {
-            "title" : "Editing ${objectnames.plural.chapter}",
-            "text" : "Everything to do with editing ${objectnames.plural.chapter}.  Manage your personal dictionary, the language for the ${objectnames.singular.project}, set up auto save and how edit positions behave.  All this and more for the low, low price of a few clicks.",
+            "title" : "${objectnames.plural.chapter}",
+            "text" : "Everything to do with ${objectnames.plural.chapter}.  Manage your personal dictionary, the language for the ${objectnames.singular.project}, set up auto save and how edit positions behave.  All this and more for the low, low price of a few clicks.",
             "downloaddictionaryfiles" :
             {
                 "actionerror" : "Unable to download dictionary files",
@@ -5695,6 +5695,10 @@
                     "ideaboard" :
                     {
                         "tooltip" : "Click to open the ${names.ideaboard}"
+                    },
+                    "timer" :
+                    {
+                        "tooltip" : "Click to select a time or amount of words to write for"
                     }
                 }
             }
@@ -6573,7 +6577,7 @@
                     "valueexists" : "Already have a tag called <b>%1$s</b>.",
                     ":comment.valueexists" : "%1$s is the tag.",
                     ":scount.valueexists" : 1,
-                    "general" : "Unable to check ${objectnames.plural.tag}"
+                    "general" : "Unable to rename ${objectnames.plural.tag}."
                 }
             },
             "manage" :
@@ -6588,7 +6592,8 @@
                     "actionerror" : "Unable to add new ${objectnames.singular.tag}.",
                     "errors" :
                     {
-                        "novalue" : "Please enter at least one ${objectnames.singular.tag}."
+                        "novalue" : "Please enter at least one ${objectnames.singular.tag}.",
+                        "valueexists" : "Already have a ${objectnames.singular.tag} with that name."
                     }
                 },
                 "table" :
@@ -6950,6 +6955,10 @@
                     "hide" : "Hide field labels"
                 }
             },
+            "edit" :
+            {
+                "actionerror" : "Unable to edit this field.  Please contact <a href='action:reportbug'>{QW} support</a> for assistance."
+            },
             "add" :
             {
                 "actionerror" : "Unable to add field."
@@ -7111,9 +7120,27 @@
                     ":comment.tooltip" : "%1$s is the asset type name.",
                     ":scount.tooltip" : 1
                 },
+                "edit" :
+                {
+                    "tooltip" : "Click to edit"
+                },
+                "config" :
+                {
+                    "tooltip" : "Click to configure the %1$s information",
+                    ":comment.tooltip" : "%1$s is the asset type name.",
+                    ":scount.tooltip" : 1
+                },
+                "save" :
+                {
+                    "tooltip" : "Click to save the changes"
+                },
+                "cancel" :
+                {
+                    "tooltip" : "Click to cancel"
+                },
                 "new" :
                 {
-                    "tooltip" : "Click to add a new ${objectnames.singluar.asset}"
+                    "tooltip" : "Click to add a new ${objectnames.singular.asset}"
                 },
                 "tags" :
                 {
@@ -8537,7 +8564,7 @@
                 "openerrors" :
                 {
                     ":comment" : "These are error messages that may be displayed when a user is unable to open a project.",
-                    "general" : "Unable to open ${objectnames.singular.project} <b>%1$s</b>, reason:<ul><li>%2$s</li</ul>",
+                    "general" : "Unable to open ${objectnames.singular.project} <b>%1$s</b>, reason:<ul><li>%2$s</li></ul>",
                     ":comment.general" : "%1$s is the project name.  %2$s is the reason which will be one of the reasons from this section.",
                     ":scount.general" : 2,
                     "unspecified" : "An internal error occurred.",
@@ -8626,7 +8653,7 @@
                 "popup" :
                 {
                     "title" : "Report a Bug/Problem",
-                    "text" : "Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The operating system you are using and the Java version will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
+                    "text" : "Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The version of {QW} and operating system you are using will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
                     "errorlabel" : "Please enter a description of the problem/bug.",
                     "description" :
                     {

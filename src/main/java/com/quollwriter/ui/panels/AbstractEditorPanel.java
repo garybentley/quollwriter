@@ -185,7 +185,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
                 }
 
-                Environment.playKeyStrokeSound ();
+                UserProperties.playKeyStrokeSound ();
 
             }
         });

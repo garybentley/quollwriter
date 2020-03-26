@@ -67,8 +67,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         try
         {
-long ss = System.currentTimeMillis ();
-System.out.println ("TIME: " + System.currentTimeMillis ());
+
             this.editor = TextEditor.builder ()
                 //.text (chapter.getText ())
                 .textProperties (props)
@@ -76,7 +75,7 @@ System.out.println ("TIME: " + System.currentTimeMillis ());
                 .synonymProvider (viewer.getSynonymProvider ())
                 .formattingEnabled (true)
                 .build ();
-System.out.println ("ED: " + (System.currentTimeMillis () - ss));
+
         } catch (Exception e) {
 
             throw new GeneralException ("Unable to create editor panel for chapter: " +
@@ -147,6 +146,60 @@ System.out.println ("ED: " + (System.currentTimeMillis () - ss));
                                                  }
 
                                              }));
+
+       Nodes.addInputMap (this.editor,
+                          InputMap.process (EventPattern.keyPressed (),
+                                            ev ->
+                                            {
+
+                                                // TODO Maybe whitelist this...
+
+                                                if (!UserProperties.isPlaySoundOnKeyStroke ())
+                                                {
+
+                                                    return InputHandler.Result.PROCEED;
+
+                                                }
+
+                                                KeyCode kc = ev.getCode ();
+
+                                                if ((kc == KeyCode.ESCAPE)
+                                                    ||
+                                                    (kc.isFunctionKey ())
+                                                    ||
+                                                    (kc.isNavigationKey ())
+                                                    ||
+                                                    (kc.isModifierKey ())
+                                                    ||
+                                                    (kc.isArrowKey ())
+                                                    ||
+                                                    (kc.isMediaKey ())
+                                                   )
+                                                {
+
+                                                    return InputHandler.Result.PROCEED;
+
+                                                }
+
+                                                if ((ev.isShortcutDown ())
+                                                    ||
+                                                    (ev.isMetaDown ())
+                                                    ||
+                                                    (ev.isControlDown ())
+                                                    ||
+                                                    (ev.isAltDown ())
+                                                   )
+                                                {
+
+                                                    return InputHandler.Result.PROCEED;
+
+                                                }
+
+                                                UserProperties.playKeyStrokeSound ();
+
+                                                return InputHandler.Result.PROCEED;
+
+                                            }));
 
         Nodes.addInputMap (this.editor,
                            InputMap.process (EventPattern.mouseEntered (),
@@ -298,9 +351,9 @@ System.out.println ("ED: " + (System.currentTimeMillis () - ss));
 
             }
 
-            //this.editor.requestFollowCaret ();
+            this.editor.requestFollowCaret ();
 
-            // this.editor.setSpellCheckEnabled (this.viewer.isSpellCheckingEnabled ());
+            this.editor.setSpellCheckEnabled (this.viewer.isSpellCheckingEnabled ());
 
             //this.editor.requestFocus ();
 
@@ -375,8 +428,6 @@ System.out.println ("ED: " + (System.currentTimeMillis () - ss));
     @Override
     public Panel createPanel ()
     {
-
-
 
         this.scrollPane = new VirtualizedScrollPane<> (this.editor);
         VBox.setVgrow (this.scrollPane, Priority.ALWAYS);

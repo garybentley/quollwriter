@@ -1,0 +1,16 @@
+/*
+ * Styles for com.quollwriter.ui.fx.components.Splashscreen
+ */
+.splashscreen {
+    -fx-border-color: -qw-border-color;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+}
+.image.image-view { -fx-image: url(/imgs/q-app-logo.png); }
+.progress-bar {
+    -fx-min-width: 500px;
+    -fx-pref-width: 500px;
+    -fx-max-width: 500px;
+ }
+.progress-bar .bar { -fx-background-color: #4d4d4d; }

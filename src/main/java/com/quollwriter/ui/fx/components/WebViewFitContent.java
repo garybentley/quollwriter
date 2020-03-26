@@ -4,6 +4,8 @@
  */
 package com.quollwriter.ui.fx.components;
 
+import java.nio.file.*;
+import java.nio.charset.*;
 import java.net.*;
 import java.util.*;
 import java.util.function.*;
@@ -16,6 +18,7 @@ import javafx.concurrent.Worker.State;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebEngine;
@@ -46,72 +49,114 @@ public class WebViewFitContent extends Region {
 
     private static ConcurrentLinkedQueue<WebViewFitContent> heightUpdates = null;
     private static ScheduledFuture adjust = null;
+    private static String header = null;
 
     static
     {
 
         WebViewFitContent.heightUpdates = new ConcurrentLinkedQueue ();
 
-    }
-
-    public WebViewFitContent (BiConsumer<String, MouseEvent> onLinkClicked)
-    {
-
-        if (WebViewFitContent.adjust == null)
+        WebViewFitContent.adjust = Environment.schedule (() ->
         {
 
-            WebViewFitContent.adjust = Environment.schedule (() ->
+            if (WebViewFitContent.heightUpdates.size () == 0)
             {
 
-                if (WebViewFitContent.heightUpdates.size () == 0)
-                {
+                return;
 
-                    return;
+            }
+/*
+            synchronized (WebViewFitContent.heightUpdates)
+            {
+
+                WebViewFitContent r = null;
+
+                while ((r = WebViewFitContent.heightUpdates.poll ()) != null)
+                {
+WebViewFitContent _r = r;
+System.out.println ("ADDING: " + r);
+                    try
+                    {
+                        UIUtils.runLater (() -> _r.doAdjustHeight ());
+                        //r.run ();
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to update height",
+                                              e);
+
+                    }
 
                 }
 
-                UIUtils.runLater (() ->
+            }
+            */
+
+            UIUtils.runLater (() ->
+            {
+
+                synchronized (WebViewFitContent.heightUpdates)
                 {
 
-                    synchronized (WebViewFitContent.heightUpdates)
+                    WebViewFitContent r = null;
+
+                    while ((r = WebViewFitContent.heightUpdates.poll ()) != null)
                     {
 
-                        WebViewFitContent r = null;
-
-                        while ((r = WebViewFitContent.heightUpdates.poll ()) != null)
+                        try
                         {
+                            r.doAdjustHeight ();
+                            //r.run ();
 
-                            try
-                            {
-                                r.doAdjustHeight ();
-                                //r.run ();
+                        } catch (Exception e) {
 
-                            } catch (Exception e) {
-
-                                Environment.logError ("Unable to update height",
-                                                      e);
-
-                            }
+                            Environment.logError ("Unable to update height",
+                                                  e);
 
                         }
 
                     }
 
-                });
+                }
 
-            },
-            5,
-            50);
+            });
+
+        },
+        5,
+        50);
+
+    }
+
+    public WebViewFitContent (BiConsumer<String, MouseEvent> onLinkClicked)
+    {
+
+        if (WebViewFitContent.header == null)
+        {
+
+            try
+            {
+
+                WebViewFitContent.header = new String (Files.readAllBytes (Paths.get (Utils.getResourceUrl (Constants.WEBVIEW_HEADER_FILE).toURI ())),
+                                                       StandardCharsets.UTF_8);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to load webview header",
+                                      e);
+
+                WebViewFitContent.header = "<html>";
+
+            }
 
         }
 
         this.onLinkClicked = onLinkClicked;
 
         this.webview.setPrefHeight (0);
+        this.webview.setMaxHeight (0);
         this.managedProperty ().bind (this.visibleProperty ());
-        //this.setVisible (false);
-        this.webview.setVisible (false);
         this.webview.setContextMenuEnabled (false);
+        this.webview.setVisible (false);
         this.getStyleClass ().add ("qwebview");
         this.label.setVisible (false);
         this.label.fontProperty ().addListener ((pr, oldv, newv) ->
@@ -131,22 +176,46 @@ public class WebViewFitContent extends Region {
         this.backgroundProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            this.setContent (this.content);
+            //this.setContent (this.content);
+
+        });
+
+        this.visibleProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv)
+            {
+
+                this.adjustHeight ();
+
+            }
 
         });
 
         this.widthProperty ().addListener ((pr, oldv, newv) ->
         {
 
+            if (newv.doubleValue () == 0)
+            {
+
+                return;
+
+            }
+
             this.webview.setPrefWidth (newv.doubleValue ());
             this.adjustHeight ();
+/*
+            UIUtils.runLater (() ->
+            {
 
+                this.adjustHeight ();
+            });
+*/
         });
 
         this.heightProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            this.setContent (this.content);
             this.adjustHeight ();
 
         });
@@ -154,8 +223,7 @@ public class WebViewFitContent extends Region {
         this.parentProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            this.setContent (this.content);
-            //this.adjustHeight ();
+            this.adjustHeight ();
 
         });
 
@@ -163,17 +231,9 @@ public class WebViewFitContent extends Region {
         this.sceneProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            _this.setContent (_this.content);
-/*
-            com.quollwriter.ui.fx.UIUtils.runLater (() ->
-            {
+            this.adjustHeight ();
 
-
-            });
-*/
         });
-
-        //final WebViewFitContent _this = this;
 
         this.webEngine.getLoadWorker ().stateProperty ().addListener ((pr, oldv, newv) ->
         {
@@ -262,6 +322,27 @@ public class WebViewFitContent extends Region {
             ev.consume ();
         });
 
+        webview.setOnKeyPressed (ev ->
+        {
+
+            this.getParent ().fireEvent (ev);
+            ev.consume ();
+        });
+
+        webview.setOnMousePressed (ev ->
+        {
+
+            this.getParent ().fireEvent (ev);
+            ev.consume ();
+        });
+
+        webview.setOnMouseReleased (ev ->
+        {
+
+            this.getParent ().fireEvent (ev);
+            ev.consume ();
+        });
+
         this.getChildren ().add (this.webview);
         this.getChildren ().add (this.label);
     }
@@ -278,32 +359,29 @@ public class WebViewFitContent extends Region {
 
         this.content = content;
 
-        StringBuilder b = new StringBuilder ();
-        b.append ("<html><head>");
-
-        b.append ("<style>");
-        b.append ("html, body{padding: 0px; margin: 0px; offset-x: hidden; offset-y: hidden;}");
-        b.append (String.format ("body{background-color: %1$s;}",
-                                 this.getBackgroundAsCssString (this.getBackground ())));
-        b.append (String.format ("body{font-size: %1$spx; font-family: %2$s; color: %3$s;}",
+        StringBuilder b = new StringBuilder (WebViewFitContent.header);
+        b.append (String.format ("body{background-color:%1$s;font-size:%2$spx;font-family:%3$s;color:%4$s;}",
+                                 this.getBackgroundAsCssString (this.getBackground ()),
                                  this.label.getFont ().getSize () + "",
                                  this.label.getFont ().getFamily (),
                                  this.getPaintAsCssString (this.label.getTextFill ())));
-        b.append (".b{font-weight: bold;}");
-        b.append (".i{font-style: italic;}");
+/*
+        b.append (".b{font-weight: bold;}.i{font-style: italic;}");
         b.append (".u{text-decoration: underline;}");
-        b.append ("a{text-decoration:none;}");
+        b.append ("a{text-decoration:none;font-weight: normal;}");
         b.append ("a:hover{text-decoration:underline;}");
         b.append ("ul{margin: 0;padding: 0.5em; padding-left: 2em;}");
         b.append ("ul.errors{color:red;}");
         b.append ("img.icon{display: inline-block; margin-right: 0.25em; vertical-align: middle}");
-        b.append ("</style>");
-
+*/
+        //b.append ("</style>");
+/*
         b.append ("<script>");
         b.append ("function noScroll(){window.scrollTo(0,0);}window.addEventListener('scroll', noScroll);");
+        b.append ("document.addEventListener('DOMContentLoaded',function(e){window.___domready=true;});");
         b.append ("</script>");
-
-        b.append ("</head");
+*/
+        b.append ("</style></head><body>");
 
         String c = StringUtils.replaceString (this.content,
                                               String.valueOf ('\n'),
@@ -316,13 +394,11 @@ public class WebViewFitContent extends Region {
 
         }
 
-        b.append (String.format ("<body><div id='%1$s'>",
+        b.append (String.format ("<div id='%1$s'>",
                                  divId));
         b.append (c);
 
         b.append ("</div></body></html>");
-
-        this.webview.setVisible (false);
 
         webEngine.loadContent (b.toString ());
 
@@ -332,6 +408,14 @@ public class WebViewFitContent extends Region {
     {
 
         this.formatter = f;
+
+    }
+
+    @Override
+    protected double computeMaxHeight (double width)
+    {
+
+        return this.currHeight;
 
     }
 
@@ -362,6 +446,20 @@ public class WebViewFitContent extends Region {
     private void doAdjustHeight ()
     {
 
+        if (!this.isVisible ())
+        {
+
+            return;
+
+        }
+
+        if (this.webview.getPrefWidth () == 0)
+        {
+
+            return;
+
+        }
+
         try
         {
 
@@ -373,7 +471,13 @@ public class WebViewFitContent extends Region {
 
             }
 
-            Object result = this.webEngine.executeScript (String.format ("document.getElementById('%1$s').scrollHeight",
+            // Set the width of the element to match the width of the webview.
+            // The initial width can be a lot smaller than it "should be".
+            this.webEngine.executeScript (String.format ("document.getElementById('%1$s').style.width='%2$spx'",
+                                                         divId,
+                                                         Environment.formatNumber (this.webview.getPrefWidth ())));
+
+             Object result = this.webEngine.executeScript (String.format ("document.getElementById('%1$s').scrollHeight",
                                                                          divId));
 
             if (result instanceof Integer)
@@ -388,13 +492,27 @@ public class WebViewFitContent extends Region {
 
                     this.currHeight = height;
                     this.webview.setPrefHeight (height);
+                    this.webview.setMaxHeight (height);
                     this.webview.setVisible (true);
-                    this.webview.requestLayout ();
+                    this.webview.setMinHeight (height);
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        this.webview.requestLayout ();
+
+                    });
 
                 } else {
 
                     this.webview.setVisible (true);
-                    this.webview.requestLayout ();
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        this.webview.requestLayout ();
+
+                    });
 
                 }
 
@@ -410,70 +528,8 @@ public class WebViewFitContent extends Region {
 
     private void adjustHeight ()
     {
-/*
-        if (this.adjust != null)
-        {
 
-            this.adjust.cancel (true);
-
-        }
-*/
-
-        Runnable r = () ->
-        {
-
-            try
-            {
-
-                // The document can sometimes be null, usually when the change is the result of a parent width change.
-                if (this.webEngine.getDocument () == null)
-                {
-
-                    return;
-
-                }
-
-                Object result = this.webEngine.executeScript (String.format ("document.getElementById('%1$s').scrollHeight",
-                                                                             divId));
-
-                if (result instanceof Integer)
-                {
-
-                    Integer i = (Integer) result;
-                    double height = i.doubleValue ();
-
-                    // This check ensures that we don't get into a weird loop where the view is constantly resizing.
-                    if (height != this.currHeight)
-                    {
-
-                        this.currHeight = height;
-                        this.webview.setPrefHeight (height);
-                        this.webview.setVisible (true);
-                        this.webview.requestLayout ();
-
-                    } else {
-
-                        this.webview.setVisible (true);
-                        this.webview.requestLayout ();
-
-                    }
-
-                }
-
-            } catch (Exception e) {
-
-                // You should do something about this!
-                e.printStackTrace ();
-            }
-
-        };
-
-        if (!WebViewFitContent.heightUpdates.contains (this))
-        {
-
-            WebViewFitContent.heightUpdates.add (this);
-
-        }
+        this.doAdjustHeight ();
 
         if (true)
         {
@@ -483,7 +539,7 @@ public class WebViewFitContent extends Region {
         this.adjust = com.quollwriter.Environment.schedule (() ->
         {
 
-        Platform.runLater (() ->
+        UIUtils.runLater (() ->
         {
 
             try
@@ -533,7 +589,7 @@ public class WebViewFitContent extends Region {
         });
 
         },
-        10,
+        1000,
         -1);
 
     }

@@ -13,6 +13,7 @@ import java.nio.file.*;
 import java.nio.charset.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
+import java.security.*;
 
 import javafx.beans.value.*;
 import javafx.collections.*;
@@ -22,6 +23,7 @@ import javafx.scene.media.*;
 import javafx.application.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
+import javafx.event.*;
 
 import org.jdom.*;
 
@@ -98,7 +100,7 @@ public class Environment
 
     private static Set<Image> windowIcons = null;
 
-    private static IntegerProperty startupProgressProp = null;
+    private static DoubleProperty startupProgressProp = null;
     private static BooleanProperty startupCompleteProp = null;
 
     private static BooleanProperty nightModeProp = null;
@@ -119,10 +121,6 @@ public class Environment
     private static ObservableSet<UserConfigurableObjectType> userConfigObjTypes = null;
     private static Map<String, StringProperty> objectTypeNamesSingular = new HashMap<> ();
     private static Map<String, StringProperty> objectTypeNamesPlural = new HashMap<> ();
-
-    private static BooleanProperty playSoundOnKeyStrokeProp = null;
-    private static ObjectProperty<Path> keyStrokeSoundPathProp = null;
-    private static AudioClip keyStrokeSound = null;
 
     private static Map<String, com.quollwriter.ui.UserPropertyHandler> userPropertyHandlers = new HashMap<> ();
     private static ProjectTextProperties projectTextProps = null;
@@ -187,13 +185,14 @@ public class Environment
 
     }
 
-    public static void init ()
+    public static void init (DoubleProperty startupProgressProp,
+                             Runnable       onInitComplete)
                       throws Exception
     {
-
+long s = System.currentTimeMillis ();
         SvgImageLoaderFactory.install (new PrimitiveDimensionProvider());
 
-        Environment.startupProgressProp = new SimpleIntegerProperty (0);
+        Environment.startupProgressProp = startupProgressProp;
         Environment.startupCompleteProp = new SimpleBooleanProperty (false);
 
         Environment.startupCompleteProp.addListener ((pr, oldv, newv) ->
@@ -343,13 +342,14 @@ public class Environment
 
         com.gentlyweb.properties.Properties sysProps = new com.gentlyweb.properties.Properties (Utils.getResourceStream (Constants.DEFAULT_PROPERTIES_FILE),
                                                                                                 null);
-
         sysProps.setId ("system");
 
         // Temporarily set the user properties to the system properties.
         UserProperties.init (sysProps);
 
         UILanguageStringsManager.init ();
+
+        Environment.incrStartupProgress ();
 
         // Try and get a lock on the file.
         // Change to Path?
@@ -460,6 +460,9 @@ public class Environment
 
         }
 
+        Environment.incrStartupProgress ();
+
+
 /*
  TODO Get rid of default project properties.
         // Get the system default project properties.
@@ -500,7 +503,16 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         }
 
-        UILanguageStringsManager.setUILanguage (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME));
+        UILanguageStringsManager.setUILanguage (UserProperties.get (Constants.DEFAULT_UI_LANGUAGE_PROPERTY_NAME));
+
+        String userUILang = UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
+
+        if (userUILang != null)
+        {
+
+            UILanguageStringsManager.setUILanguage (userUILang);
+
+        }
 
         try
         {
@@ -612,54 +624,6 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         Environment.fullScreenTextProps = new FullScreenTextProperties ();
 
-        Environment.playSoundOnKeyStrokeProp = new SimpleBooleanProperty (UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME));
-
-        Environment.playSoundOnKeyStrokeProp.addListener ((p, oldv, newv) ->
-        {
-
-            UserProperties.set (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
-                                newv);
-
-            Environment.fireUserProjectEvent (ProjectEvent.Type.typewritersound,
-                                              (newv ? ProjectEvent.Action.on : ProjectEvent.Action.off));
-
-        });
-
-        Environment.keyStrokeSoundPathProp = new SimpleObjectProperty<Path> ();
-
-        Environment.keyStrokeSoundPathProp.addListener ((p, oldv, newv) ->
-        {
-
-            if (newv == null)
-            {
-
-                UserProperties.remove (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
-
-                return;
-
-            }
-
-            UserProperties.set (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME,
-                                newv.toUri ().toString ());
-
-            // TODO Add an event?
-
-        });
-
-        String sf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
-
-        try
-        {
-
-            Environment.setKeyStrokeSoundFilePath ((sf != null ? Paths.get (Utils.getResourceUrl (sf).toURI ()) : null));
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to load key stroke sound from: " + sf,
-                                  e);
-
-        }
-
         Environment.incrStartupProgress ();
 /*
 TODO
@@ -733,7 +697,7 @@ TODO
             }
 
         },
-        1 * Constants.SEC_IN_MILLIS,
+        5 * Constants.SEC_IN_MILLIS,
         -1);
 
         // Try and preload the font families.
@@ -756,7 +720,7 @@ TODO
                 });
 
         },
-        1 * Constants.SEC_IN_MILLIS,
+        10 * Constants.SEC_IN_MILLIS,
         -1);
 
         Environment.incrStartupProgress ();
@@ -1116,6 +1080,7 @@ TODO
                 try
                 {
 
+
                     Environment.styleSheets.add (newv.toUri ().toURL ());
                     Environment.userStyleSheetLastModified = Files.getLastModifiedTime (newv).toMillis ();
 
@@ -1186,6 +1151,8 @@ TODO
         usPropList.changed (UserProperties.userStyleSheetProperty (),
                             null,
                             UserProperties.userStyleSheetProperty ().getValue ());
+
+        UIUtils.runLater (onInitComplete);
 
     }
 
@@ -1416,10 +1383,9 @@ TODO
             return;
 
         }
-System.out.println ("OPENING: " + p.getName ());
 
         AbstractProjectViewer pv = Environment.getProjectViewer (p);
- System.out.println ("OPEN: " + pv);
+
         if (pv != null)
         {
 
@@ -1530,8 +1496,12 @@ System.out.println ("PI: " + pi + ", " + proj.getName ());
                 Environment.logError ("Unable to open project: " + p,
                                       e);
 
+                Environment.showAllProjectsViewer ();
+
                 ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                 getUILanguageStringProperty (project,actions,openproject,errors,general));
+                                                 getUILanguageStringProperty (Arrays.asList (project,actions,openproject,openerrors,general),
+                                                                              p.getName (),
+                                                                              getUILanguageStringProperty (project,actions,openproject,openerrors,unspecified)));
 
             } finally {
 
@@ -1808,8 +1778,6 @@ TODO NEeded?
 
                     // Delete the backup directory.
                     Utils.deleteDir (pr.getBackupDirPath ());
-                    // TODO getBackupDirectory ());
-                    // TODO Change to use a Path.
 
                     // Delete the files directory.
                     Utils.deleteDir (pr.getFilesDirectory ());
@@ -1820,6 +1788,8 @@ TODO NEeded?
                     Environment.projectInfoManager.deleteObject (pr,
                                                                  false,
                                                                  null);
+
+                    pr.dispose ();
 
                 } catch (Exception e)
                 {
@@ -1856,7 +1826,7 @@ TODO NEeded?
 
         if (viewer != null)
         {
-System.out.println ("HERE: " + Environment.openViewers.size ());
+
             if (Environment.openViewers.size () == 1)
             {
 
@@ -2128,13 +2098,43 @@ System.out.println ("HERE: " + Environment.openViewers.size ());
         if (repeat < 1)
         {
 
-            return Environment.generalTimer.schedule (r,
+            return Environment.generalTimer.schedule (() ->
+            {
+
+                try
+                {
+
+                    r.run ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to run: " + r,
+                                          e);
+
+                }
+
+            },
                                                       delay,
                                                       TimeUnit.MILLISECONDS);
 
         } else {
 
-            return Environment.generalTimer.scheduleAtFixedRate (r,
+            return Environment.generalTimer.scheduleAtFixedRate (() ->
+            {
+
+                try
+                {
+
+                    r.run ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to run: " + r,
+                                          e);
+
+                }
+
+            },
                                                                  delay,
                                                                  repeat,
                                                                  TimeUnit.MILLISECONDS);
@@ -2307,18 +2307,11 @@ System.out.println ("HERE: " + Environment.openViewers.size ());
 
     }
 
-    public static ReadOnlyIntegerProperty startupProgressProperty ()
-    {
-
-        return Environment.startupProgressProp.readOnlyIntegerProperty (Environment.startupProgressProp);
-
-    }
-
     public static void startupComplete ()
     {
 
         Environment.startupCompleteProp.setValue (true);
-        Environment.startupProgressProp.setValue (100);
+        Environment.startupProgressProp.setValue (1);
 
     }
 
@@ -2332,96 +2325,16 @@ System.out.println ("HERE: " + Environment.openViewers.size ());
 
         }
 
-        int v = Environment.startupProgressProp.getValue () + 9;
+        double v = Environment.startupProgressProp.getValue () + 0.09d;
 
-        if (v > 100)
+        if (v > 1)
         {
 
-            v = 100;
+            v = 1;
 
         }
 
         Environment.startupProgressProp.setValue (v);
-
-    }
-
-    public static void setPlaySoundOnKeyStroke (boolean v)
-    {
-
-        Environment.playSoundOnKeyStrokeProp.setValue (v);
-
-    }
-
-    public static void setKeyStrokeSoundFilePath (Path p)
-    {
-
-        if (p == null)
-        {
-
-            try
-            {
-
-                p = Paths.get (Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
-
-            } catch (Exception e) {
-
-                throw new IllegalArgumentException ("Unable to get path for: " + Constants.DEFAULT_KEY_STROKE_SOUND_FILE,
-                                                    e);
-
-            }
-
-        }
-
-        try
-        {
-
-            Environment.keyStrokeSound = null;
-
-            if (p == null)
-            {
-
-                Environment.keyStrokeSoundPathProp.setValue (null);
-
-                return;
-
-            }
-
-            // TODO Handle this... getting exception from AudioClip.
-
-            javax.sound.sampled.AudioInputStream audioInputStream = javax.sound.sampled.AudioSystem.getAudioInputStream(p.toFile ().getAbsoluteFile());
-            javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.start();
-
-            AudioClip s = new AudioClip (p.toUri ().toString ());
-
-            Environment.keyStrokeSound = s;
-
-            Environment.keyStrokeSoundPathProp.setValue (p);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to set key stroke sound file: " +
-                                  p,
-                                  e);
-
-            Environment.keyStrokeSoundPathProp.setValue (null);
-
-        }
-
-    }
-
-    public static ObjectProperty<Path> keyStrokeSoundPathProperty ()
-    {
-
-        return Environment.keyStrokeSoundPathProp;
-
-    }
-
-    public static ReadOnlyBooleanProperty playSoundOnKeyStrokeProperty ()
-    {
-
-        return Environment.playSoundOnKeyStrokeProp;
 
     }
 
@@ -2468,6 +2381,7 @@ System.out.println ("HERE: " + Environment.openViewers.size ());
                 (ev ->
                 {
 
+                    Environment.openViewers.remove (Environment.allProjectsViewer);
                     Environment.allProjectsViewer = null;
 
                 }));
@@ -2998,20 +2912,6 @@ xxx
 
     }
 
-    public static void playKeyStrokeSound ()
-    {
-
-        if (Environment.keyStrokeSound != null)
-        {
-
-            Environment.keyStrokeSound.stop ();
-
-            Environment.keyStrokeSound.play ();
-
-        }
-
-    }
-
     public static void doNewsAndVersionCheck (final AbstractViewer viewer)
     {
 
@@ -3171,14 +3071,27 @@ xxx
 
         ProjectInfo _p = p;
 
-        pv.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                                         ev ->
+        // This is needed to remove the handler after use.
+        // Using a lambda won't work because of the "this" problem and this creates
+        // a hard reference to the viewer and proejct.
+        EventHandler<Viewer.ViewerEvent> h = new EventHandler<> ()
         {
 
-            Environment.openProjects.remove (_p);
+            @Override
+            public void handle (Viewer.ViewerEvent ev)
+            {
 
-        });
+                Environment.openProjects.remove (_p);
+/*
+                pv.getViewer ().removeEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                                    this);
+*/
+            }
 
+        };
+
+        pv.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                         h);
         Environment.openProjects.put (p,
                                       pv);
 
@@ -3371,48 +3284,59 @@ xxx
 
         Environment.openViewers.add (v);
 
-        v.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                                        ev ->
+        EventHandler<Viewer.ViewerEvent> h = new EventHandler<> ()
         {
 
-            Environment.openViewers.remove (v);
-
-            if (Environment.openProjects.size () == 0)
+            @Override
+            public void handle (Viewer.ViewerEvent ev)
             {
 
-                if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+                v.getViewer ().removeEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                                   this);
+
+                Environment.openViewers.remove (v);
+
+                if (Environment.openProjects.size () == 0)
                 {
 
-                    Environment.showAllProjectsViewer ();
+                    if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+                    {
+
+                        Environment.showAllProjectsViewer ();
+
+                        return;
+
+                    }
+
+                    if ((Environment.allProjectsViewer != null)
+                        &&
+                        (Environment.allProjectsViewer.isVisible ())
+                       )
+                    {
+
+                        return;
+
+                    }
+
+                    Environment.closeDown ();
 
                     return;
 
                 }
 
-                if ((Environment.allProjectsViewer != null)
-                    &&
-                    (Environment.allProjectsViewer.isVisible ())
-                   )
+                if (Environment.openViewers.size () == 0)
                 {
 
-                    return;
+                    Environment.closeDown ();
 
                 }
 
-                Environment.closeDown ();
-
-                return;
-
             }
 
-            if (Environment.openViewers.size () == 0)
-            {
+        };
 
-                Environment.closeDown ();
-
-            }
-
-        });
+        v.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                        h);
 
     }
 
@@ -3565,7 +3489,7 @@ xxx
                                              ProjectEvent.Action action)
     {
 
-        Environment.fireUserProjectEvent (new ProjectEvent (null,
+        Environment.fireUserProjectEvent (new ProjectEvent (new Object (),
                                                             type,
                                                             action,
                                                             null));
@@ -4411,7 +4335,8 @@ TODO Remove
                                                   Map<String, StringProperty> plural)
                                            throws Exception
     {
-
+/*
+TODO: IS THIS NEEDED?
         UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
 
         // TODO: Fix this nonsense...
@@ -4430,7 +4355,7 @@ TODO Remove
         }
 
         Environment.updateUserConfigurableObjectType (type);
-
+*/
         Object o = new Object ();
 
         synchronized (o)
@@ -4512,10 +4437,8 @@ TODO Remove
      *
      * @param key The key.
      * @return The tag.
-     * @throws GeneralException If the tag can't be retrieved.
      */
     public static Tag getTagByKey (long key)
-                            throws GeneralException
     {
 
         Set<Tag> tags = Environment.getAllTags ();
@@ -4540,10 +4463,8 @@ TODO Remove
      * Get a tag by name.
      *
      * @return The tag, if found.
-     * @throws GeneralException If the tags can't be retrieved from the db.
      */
     public static Tag getTagByName (String name)
-                             throws GeneralException
     {
 
         Set<Tag> tags = Environment.getAllTags ();
@@ -5044,7 +4965,21 @@ TODO Remove
 
             UserConfigurableObject ut = (UserConfigurableObject) t;
 
-            return ut.objectTypeNameProperty ();
+            StringProperty p = ut.objectTypeNameProperty ();
+
+            if (p == null)
+            {
+
+                if (ut.getUserConfigurableObjectType ().isAssetObjectType ())
+                {
+
+                    p = getUILanguageStringProperty (objectnames,singular,ut.getUserConfigurableObjectType ().getUserObjectType ());
+
+                }
+
+            }
+
+            return p;
 
         }
 

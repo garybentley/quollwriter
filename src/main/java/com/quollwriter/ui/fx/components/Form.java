@@ -37,6 +37,16 @@ public class Form extends VBox
 
         final Form _this = this;
 
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.FORM);
+        if (b.styleSheet != null)
+        {
+
+            this.getStylesheets ().add (b.styleSheet);
+
+        }
+
         this.setFillWidth (true);
         VBox.setVgrow (this,
                        Priority.ALWAYS);
@@ -52,19 +62,20 @@ public class Form extends VBox
 
         if (b.description != null)
         {
-/*
+
             QuollTextView desc = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.DESCRIPTION)
                 .text (b.description)
-                .withViewer (b.handler)
+                .inViewer (b.viewer)
                 .build ();
-*/
+
+/*
             BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
                 .styleClassName (StyleClassNames.DESCRIPTION)
                 .text (b.description)
-                .withHandler (b.handler)
+                .withHandler (b.viewer)
                 .build ();
-
+*/
             this.getChildren ().add (desc);
 
         }
@@ -72,7 +83,7 @@ public class Form extends VBox
         // Add an error
         this.errorBox = ErrorBox.builder ()
             .build ();
-        this.errorHandler = b.handler;
+        this.errorHandler = b.viewer;
         this.getChildren ().add (this.errorBox);
 
         int r = 0;
@@ -360,7 +371,8 @@ public class Form extends VBox
         private Button confirm = null;
         private Button cancel = null;
         private LayoutType layoutType = LayoutType.stacked;
-        private AbstractViewer handler = null;
+        private AbstractViewer viewer = null;
+        private String styleSheet = null;
 
         private Builder ()
         {
@@ -383,6 +395,14 @@ public class Form extends VBox
 
         }
 
+        public Builder styleSheet (String s)
+        {
+
+            this.styleSheet = s;
+            return this;
+
+        }
+
         public Builder layoutType (LayoutType t)
         {
 
@@ -391,10 +411,10 @@ public class Form extends VBox
 
         }
 
-        public Builder withHandler (AbstractViewer handler)
+        public Builder inViewer (AbstractViewer viewer)
         {
 
-            this.handler = handler;
+            this.viewer = viewer;
             return this;
 
         }

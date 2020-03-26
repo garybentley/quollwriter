@@ -1,0 +1,111 @@
+/*
+ * Base level styles for com.quollwriter.ui.fx.viewers.ProjectFullScreenContent
+ */
+
+ .fullscreen > .header
+ {
+     -fx-border-width: 0 1px 1px 1px;
+     -fx-border-color: -qw-border-color;
+     -fx-padding: 0 0 0 0.5em;
+     -fx-background-color: -qw-bg-color;
+ }
+
+ .fullscreen > .header .title
+ {
+     -fx-font-size: 2.5em;
+     -fx-padding: 0 0.5em 0 0.5em;
+     /*-fx-max-width: Infinity;*/
+     -fx-text-fill: -fx-text-base-color;
+ }
+
+ .fullscreen > .header .clock
+ {
+     -fx-font-size: 2em;
+     -fx-padding: 0 0.5em 0 0;
+ }
+
+ .fullscreen > .header.chapter .icon
+ {
+     -fx-image: url(/imgs/chapter24.png);
+ }
+
+ .fullscreen > .header.options .icon
+ {
+     -fx-image: url(/imgs/options24.png);
+ }
+
+ .fullscreen > .header.achievements .icon
+ {
+     -fx-image: url(/imgs/achievement24.png);
+ }
+
+ .fullscreen > .header.statistics .icon
+ {
+     -fx-image: url(/imgs/chart24.png);
+ }
+
+ .fullscreen > .header.ideaboard .icon
+ {
+     -fx-image: url(/imgs/idea24.png);
+ }
+
+ .fullscreen .information
+ {
+     -fx-padding: 0.5em 0 0.5em 1em;
+     -fx-border-width: 1px 1px 0 1px;
+     -fx-border-color: -qw-border-color;
+     -fx-background-color: -qw-bg-color;
+ }
+
+ .fullscreen .information .label
+ {
+     -fx-font-size: 1.5em;
+     -fx-padding: 0 1em 0 0;
+ }
+
+ .fullscreen .information .label.session
+ {
+     -fx-graphic: url(/imgs/clock16.png);
+ }
+
+ .fullscreen .information .label.chapter
+ {
+     -fx-graphic: url(/imgs/chapter16.png);
+ }
+
+ .fullscreen .sidebars
+ {
+     -fx-background-color: -qw-bg-color;
+     -fx-border-color: -qw-border-color;
+     /*-fx-pref-width: 30em;*/
+ }
+
+ .fullscreen .sidebars:left
+ {
+     -fx-border-width: 1px 1px 1px 0;
+ }
+
+ .fullscreen .panel
+ {
+     -fx-border-width: 1px;
+     -fx-border-color: -qw-border-color;
+ }
+
+ .fullscreen > .header .fullscreenexit { -fx-graphic: url(/imgs/fullscreen-exit24.png); }
+ .fullscreen > .header .find { -fx-graphic: url(/imgs/find24.png); }
+ .fullscreen > .header .bug { -fx-graphic: url(/imgs/bug24.png); }
+ .fullscreen > .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
+ .fullscreen > .header .contacts { -fx-graphic: url(/imgs/editors24.png); }
+ .fullscreen > .header .distractionfreeenter { -fx-graphic: url(/imgs/distraction-free24.png); }
+ .fullscreen > .header .distractionfreeexit { -fx-graphic: url(/imgs/distraction-free-exit24.png); }
+ .fullscreen > .header .editproperties { -fx-graphic: url(/imgs/options24.png); }
+ .fullscreen > .header .timer { -fx-graphic: url(/imgs/clock24.png); }
+
+.fullscreen > .header .progress { -fx-alignment: center; }
+
+.fullscreen > .header .progress-bar {
+    -fx-pref-height: 24px;
+    -fx-pref-width: 15em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}

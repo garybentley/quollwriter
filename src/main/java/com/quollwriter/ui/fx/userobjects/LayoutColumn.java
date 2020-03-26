@@ -404,6 +404,7 @@ public class LayoutColumn extends VBox
 
         QuollPopup.textEntryBuilder ()
          .withViewer (this.viewer)
+         .styleClassName (StyleClassNames.EDIT)
          .title (assets,view,column,LanguageStrings.title,edit,popup,LanguageStrings.title)
          .description (assets,view,column,LanguageStrings.title,edit,popup,text)
          .confirmButtonLabel (assets,view,column,LanguageStrings.title,edit,popup,buttons,confirm)
@@ -677,7 +678,7 @@ public class LayoutColumn extends VBox
         if (addBelow != null)
         {
 
-            qp.show (addBelow,
+            qp.show (addBelow.getLabel (),
                      Side.BOTTOM);
 
         } else {

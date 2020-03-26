@@ -121,6 +121,70 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     {
 
         this.binder.dispose ();
+        this.project = null;
+        this.projectDirectoryProp = null;
+        this.backupDirPathProp = null;
+
+        if (this.backupPaths != null)
+        {
+
+            this.backupPaths.clear ();
+
+        }
+
+        this.backupPaths = null;
+
+    }
+
+    private void initBackupPaths ()
+                           throws GeneralException
+    {
+
+        Path p = this.getBackupDirPath ();
+
+        if ((p != null)
+            &&
+            (Files.exists (p))
+           )
+        {
+
+            try
+            {
+
+                // Need this to auto close the underlying resources.
+                try (Stream<Path> ls = Files.list (p))
+                {
+
+                    this.backupPaths.addAll (ls.filter (path ->
+                    {
+
+                        try
+                        {
+
+                            return Utils.isBackupFile (path);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to determine if path: " + path + " is a backup file.",
+                                                  e);
+
+                            return false;
+
+                        }
+
+                    })
+                    .collect (Collectors.toList ()));
+
+                }
+
+            } catch (Exception e) {
+
+                throw new GeneralException ("Unable to get backup paths from: " + p,
+                                            e);
+
+            }
+
+        }
 
     }
 
@@ -131,117 +195,88 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         if (this.backupPaths == null)
         {
 
-            this.backupPaths = FXCollections.observableSet (new TreeSet<> ((p1, p2) ->
+            try
             {
 
-                try
+                this.backupPaths = FXCollections.observableSet (new TreeSet<> ((p1, p2) ->
                 {
 
-                    FileTime l1 = null;
-                    FileTime l2 = null;
-
-                    if (Files.exists (p1))
+                    try
                     {
 
-                        l1 = Files.getLastModifiedTime (p1);
+                        FileTime l1 = null;
+                        FileTime l2 = null;
 
-                    }
-
-                    if (Files.exists (p2))
-                    {
-
-                        l2 = Files.getLastModifiedTime (p2);
-
-                    }
-
-                    if ((l1 == null)
-                        &&
-                        (l2 == null)
-                       )
-                    {
-
-                        return 0;
-
-                    }
-
-                    int ret = 0;
-
-                    if (l1 == null)
-                    {
-
-                        ret = 1;
-
-                    }
-
-                    if (l2 == null)
-                    {
-
-                        ret = -1;
-
-                    }
-
-                    if ((l1 != null)
-                        &&
-                        (l2 != null)
-                       )
-                    {
-
-                        ret = l1.compareTo (l2);
-
-                    }
-
-                    return -1 * ret;//Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
-
-                } catch (Exception e) {
-
-                    throw new RuntimeException (e);
-
-                }
-
-            }));
-
-            Path p = this.getBackupDirPath ();
-
-            if ((p != null)
-                &&
-                (Files.exists (p))
-               )
-            {
-
-                try
-                {
-
-                    this.backupPaths.addAll (Files.list (p)
-                        .filter (path ->
+                        if (Files.exists (p1))
                         {
 
-                            try
-                            {
+                            l1 = Files.getLastModifiedTime (p1);
 
-                                return Utils.isBackupFile (path);
+                        }
 
-                            } catch (Exception e) {
+                        if (Files.exists (p2))
+                        {
 
-                                Environment.logError ("Unable to determine if path: " + path + " is a backup file.",
-                                                      e);
+                            l2 = Files.getLastModifiedTime (p2);
 
-                                return false;
+                        }
 
-                            }
+                        if ((l1 == null)
+                            &&
+                            (l2 == null)
+                           )
+                        {
 
-                        })
-                        .collect (Collectors.toList ()));
+                            return 0;
 
-                } catch (Exception e) {
+                        }
 
-                    throw new GeneralException ("Unable to get backup paths from: " + p,
-                                                e);
+                        int ret = 0;
 
-                }
+                        if (l1 == null)
+                        {
+
+                            ret = 1;
+
+                        }
+
+                        if (l2 == null)
+                        {
+
+                            ret = -1;
+
+                        }
+
+                        if ((l1 != null)
+                            &&
+                            (l2 != null)
+                           )
+                        {
+
+                            ret = l1.compareTo (l2);
+
+                        }
+
+                        return -1 * ret;//Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
+
+                    } catch (Exception e) {
+
+                        throw new RuntimeException (e);
+
+                    }
+
+                }));
+
+            } catch (Exception e) {
+
+                throw new GeneralException ("Unable to init backup paths",
+                                            e);
 
             }
 
         }
+
+        this.initBackupPaths ();
 
         return this.backupPaths;
 
@@ -449,6 +484,27 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         {
 
             this.setBackupDirPath (newv.toPath ());
+
+            if (this.backupPaths != null)
+            {
+
+                this.backupPaths.clear ();
+
+            }
+
+            try
+            {
+
+                // Repopulate.
+                this.getBackupPaths ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to init backup paths",
+                                      e);
+
+            }
+
             this.saveInfo ();
 
         });

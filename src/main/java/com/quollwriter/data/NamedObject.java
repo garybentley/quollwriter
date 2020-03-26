@@ -698,14 +698,15 @@ public abstract class NamedObject extends DataObject
         String oldName = this.name;
 
         this.name = n;
-
+/*
+TODO Remove, isn't working.
         if (this.name == null)
         {
 
             this.name = "#ERROR:[NO NAME]";
 
         }
-
+*/
         this.nameProp.setValue (this.name);
 
         this.setLastModified (new Date ());
@@ -917,6 +918,13 @@ public abstract class NamedObject extends DataObject
         this.firePropertyChangedEvent (NamedObject.TAG,
                                        t,
                                        null);
+
+    }
+
+    public Set<Tag> getTags ()
+    {
+
+        return this.tags;
 
     }
 

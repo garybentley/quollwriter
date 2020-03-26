@@ -4,6 +4,8 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.geometry.*;
 
+import com.quollwriter.ui.fx.StyleClassNames;
+
 public class QScrollPane extends ScrollPane
 {
 
@@ -23,12 +25,26 @@ public class QScrollPane extends ScrollPane
 
         super ();
 
+        this.vvalueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.pseudoClassStateChanged (StyleClassNames.SCROLLING_PSEUDO_CLASS, newv.doubleValue () > 0);
+
+        });
+
     }
 
     public QScrollPane (Node content)
     {
 
         super (content);
+
+        this.vvalueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.pseudoClassStateChanged (StyleClassNames.SCROLLING_PSEUDO_CLASS, newv.doubleValue () > 0);
+
+        });
 
     }
 

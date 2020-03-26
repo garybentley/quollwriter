@@ -3119,7 +3119,7 @@ TODO Remove should be handled by the property in UserProperties.
 
                 }
 
-                Environment.setPlaySoundOnKeyStroke (sel);
+                UserProperties.setPlaySoundOnKeyStroke (sel);
 
                 _this.updateUserProperty (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
                                           sel);

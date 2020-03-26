@@ -217,7 +217,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 
     @Override
     public Set<Form.Item> getViewFormItems ()
-                                     throws GeneralException    
+                                     throws GeneralException
     {
 
         final List<String> prefix = Arrays.asList (form,view,types,UserConfigurableObjectTypeField.Type.image.getType ());

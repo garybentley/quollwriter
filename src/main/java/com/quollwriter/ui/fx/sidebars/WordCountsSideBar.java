@@ -98,6 +98,13 @@ public class WordCountsSideBar extends SideBarContent<AbstractProjectViewer>
         chap.visibleProperty ().bind (Bindings.createBooleanBinding (() ->
         {
 
+            if (viewer.getCurrentPanel () == null)
+            {
+
+                return false;
+
+            }
+
             return viewer.getCurrentPanel ().getContent () instanceof ChapterEditorPanelContent;
 
         },
@@ -779,6 +786,7 @@ TODO
             .withScrollPane (true)
             .canClose (true)
             .headerControls (headerCons)
+            .styleSheet (StyleClassNames.WORDCOUNTS)
             .withViewer (this.viewer)
             .content (this)
             .sideBarId (SIDEBAR_ID)

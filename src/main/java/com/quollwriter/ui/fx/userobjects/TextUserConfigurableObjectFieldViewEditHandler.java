@@ -192,7 +192,7 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
             QuollTextView t = QuollTextView.builder ()
                 //BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
-                .withViewer (this.viewer)
+                //.withViewer (this.viewer)
                 .text (text.getText ())
                 //.noMarkup (true)
                 .build ();

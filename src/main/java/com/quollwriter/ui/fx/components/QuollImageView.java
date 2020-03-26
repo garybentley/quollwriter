@@ -363,13 +363,13 @@ public class QuollImageView extends Pane
     public void setImage (Image im)
     {
 
-        //this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, false);
+        this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, false);
 
         if (im == null)
         {
 
             this.iv.setImage (null);
-            //this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, true);
+            this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, true);
             return;
 
         }

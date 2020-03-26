@@ -70,6 +70,45 @@
 
 }
 
+.root:night
+{
+    -qw-bg-color: #4d4d4d;
+
+    /*
+     * The dark color.  Generally used for borders and drop shadows as well as solid colors.
+     */
+    -qw-dark-color: #ffffff;
+
+    /*
+     * Used for hover effects on things you can click on.
+     */
+    -qw-hover-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
+
+    -qw-armed-bg: linear-gradient(from 0% 0% to 0% 100%, -fx-pressed-base 0%, #ffffff 100%);
+
+    /**
+     * The color of borders around components.
+     */
+    -qw-border-color: -qw-dark-color;
+
+    /*
+     * The color used when items have focus.
+     */
+    -qw-focus-color: #aaaaaa;
+
+    /*
+     * The standard drop shadow.
+     */
+    -qw-drop-shadow: dropshadow(gaussian, -qw-border-color, 30, 0.5, 0, 0);
+
+    -fx-text-base-color: #ffffff;
+
+    -qw-hyperlink-color: lightblue;
+
+    -qw-component-border-color: #ffffff;
+
+}
+
 /*
  These elements are used in a TextFlow.
  */
@@ -126,6 +165,12 @@ Text
     -fx-background-radius: 0px;
 }
 
+.tooltip .qtextview
+{
+    -fx-max-width: 30em;
+    -fx-pref-width: 30em;
+}
+
 .tooltip .text
 {
     -fx-font-size: 1em;
@@ -134,46 +179,6 @@ Text
 .tool-bar
 {
     -fx-background-color: transparent;
-}
-
-.hyperlink
-{
-    -fx-fill: -qw-hyperlink-color;
-    -fx-text-fill: -qw-hyperlink-color;
-    -fx-graphic-text-gap: 0.25em;
-    -fx-padding: 0;
-    -fx-underline: false;
-    -fx-text-wrap: true;
-}
-
-.hyperlink.warning
-{
-    -fx-graphic: url(/imgs/warning16.png);
-}
-
-.hyperlink.find
-{
-    -fx-graphic: url(/imgs/find16.png);
-}
-
-.hyperlink.selectbg
-{
-    -fx-graphic: url(/imgs/bg-select16.png);
-}
-
-.hyperlink.linkedto
-{
-    -fx-graphic: url(/imgs/link16.png);
-}
-
-.hyperlink.edit
-{
-    -fx-graphic: url(/imgs/edit16.png);
-}
-
-.hyperlink:hover
-{
-    -fx-underline: true;
 }
 
 .textsize
@@ -296,535 +301,18 @@ Text
     -fx-border-insets: 0, 0 0 0 1;
 }
 
-.bgimage
-{
-    -fx-background-size: contain;
-}
-
-/*
- * Built-in background images
- * Note: some of the images are resized, the point here is to try and show the user the potential repetition of the image
- * it is not to have a completely accurate representation of the image.
- */
-.bgimage._1-park
-{
-    -fx-background-image: url(/imgs/bgs/_1-park.jpg);
-}
-
-.bgimage._1-sand
-{
-    -fx-background-image: url(/imgs/bgs/_1-sand.jpg);
-    -fx-background-size: stretch;
-}
-
-.bgimage._1-skyline
-{
-    -fx-background-image: url(/imgs/bgs/_1-skyline.jpg);
-    -fx-background-size: stretch;
-}
-
-.bgimage.bamboo-1
-{
-    -fx-background-image: url(/imgs/bgs/bamboo-1.jpg);
-}
-
-.bgimage.bamboo-2
-{
-    -fx-background-image: url(/imgs/bgs/bamboo-2.jpg);
-}
-
-.bgimage.bamboo-3
-{
-    -fx-background-image: url(/imgs/bgs/bamboo-3.jpg);
-}
-
-.bgimage.beige-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/beige-flowers-1.jpg);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.beige-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/beige-squares-1.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.black-dots-1
-{
-    -fx-background-image: url(/imgs/bgs/black-dots-1.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.black-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/black-flowers-1.jpg);
-}
-
-.bgimage.black-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/black-squares-1.jpg);
-}
-
-.bgimage.black-squares-2
-{
-    -fx-background-image: url(/imgs/bgs/black-squares-2.gif);
-    -fx-background-size: 1em 1em;
-}
-
-.bgimage.blue-dots-1
-{
-    -fx-background-image: url(/imgs/bgs/blue-dots-1.gif);
-}
-
-.bgimage.blue-dots-2
-{
-    -fx-background-image: url(/imgs/bgs/blue-dots-2.gif);
-}
-
-.bgimage.blue-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/blue-flowers-1.jpg);
-}
-
-.bgimage.blue-snowflakes-1
-{
-    -fx-background-image: url(/imgs/bgs/blue-snowflakes-1.jpg);
-}
-
-.bgimage.blue-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/blue-squares-1.jpg);
-}
-
-.bgimage.blue-teardrops-1
-{
-    -fx-background-image: url(/imgs/bgs/blue-teardrops-1.png);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.brick-1
-{
-    -fx-background-image: url(/imgs/bgs/brick-1.jpg);
-}
-
-.bgimage.brick-2
-{
-    -fx-background-image: url(/imgs/bgs/brick-2.jpg);
-}
-
-.bgimage.brick-3
-{
-    -fx-background-image: url(/imgs/bgs/brick-3.jpg);
-}
-
-.bgimage.brick-4
-{
-    -fx-background-image: url(/imgs/bgs/brick-4.jpg);
-}
-
-.bgimage.brown-blobs-1
-{
-    -fx-background-image: url(/imgs/bgs/brown-blobs-1.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.brown-circles-1
-{
-    -fx-background-image: url(/imgs/bgs/brown-circles-1.jpg);
-}
-
-.bgimage.brown-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/brown-flowers-1.jpg);
-}
-
-.bgimage.brown-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/brown-squares-1.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.clouds-1
-{
-    -fx-background-image: url(/imgs/bgs/clouds-1.jpg);
-}
-
-.bgimage.clouds-2
-{
-    -fx-background-image: url(/imgs/bgs/clouds-2.jpg);
-}
-
-.bgimage.clouds-3
-{
-    -fx-background-image: url(/imgs/bgs/clouds-3.jpg);
-}
-
-.bgimage.clouds-4
-{
-    -fx-background-image: url(/imgs/bgs/clouds-4.jpg);
-}
-
-.bgimage.clouds-5
-{
-    -fx-background-image: url(/imgs/bgs/clouds-5.jpg);
-}
-
-.bgimage.clouds-6
-{
-    -fx-background-image: url(/imgs/bgs/clouds-6.jpg);
-}
-
-.bgimage.clouds-7
-{
-    -fx-background-image: url(/imgs/bgs/clouds-7.jpg);
-}
-
-.bgimage.grass-1
-{
-    -fx-background-image: url(/imgs/bgs/grass-1.jpg);
-}
-
-.bgimage.grass-2
-{
-    -fx-background-image: url(/imgs/bgs/grass-2.jpg);
-}
-
-.bgimage.green-circles-1
-{
-    -fx-background-image: url(/imgs/bgs/green-circles-1.jpg);
-}
-
-.bgimage.green-circles-2
-{
-    -fx-background-image: url(/imgs/bgs/green-circles-2.jpg);
-}
-
-.bgimage.green-diagonal-1
-{
-    -fx-background-image: url(/imgs/bgs/green-diagonal-1.gif);
-}
-
-.bgimage.green-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/green-flowers-1.jpg);
-}
-
-.bgimage.green-light-bulb-1
-{
-    -fx-background-image: url(/imgs/bgs/green-light-bulb-1.jpg);
-}
-
-.bgimage.green-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/green-squares-1.jpg);
-}
-
-.bgimage.grey-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/grey-squares-1.jpg);
-}
-
-.bgimage.grey-squares-2
-{
-    -fx-background-image: url(/imgs/bgs/grey-squares-2.png);
-    -fx-background-size: 12em 4em;
-}
-
-.bgimage.grey-squares-3
-{
-    -fx-background-image: url(/imgs/bgs/grey-squares-3.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.grey-tribal-1
-{
-    -fx-background-image: url(/imgs/bgs/grey-tribal-1.jpg);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.orange-diagonal
-{
-    -fx-background-image: url(/imgs/bgs/orange-diagonal.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.orange-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/orange-flowers-1.jpg);
-}
-
-.bgimage.orange-flowers-2
-{
-    -fx-background-image: url(/imgs/bgs/orange-flowers-2.jpg);
-}
-
-.bgimage.orange-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/orange-squares-1.jpg);
-}
-
-.bgimage.paper-1
-{
-    -fx-background-image: url(/imgs/bgs/paper-1.jpg);
-}
-
-.bgimage.paper-2
-{
-    -fx-background-image: url(/imgs/bgs/paper-2.jpg);
-}
-
-.bgimage.paper-3
-{
-    -fx-background-image: url(/imgs/bgs/paper-3.jpg);
-}
-
-.bgimage.paper-4
-{
-    -fx-background-image: url(/imgs/bgs/paper-4.jpg);
-}
-
-.bgimage.paper-5
-{
-    -fx-background-image: url(/imgs/bgs/paper-5.jpg);
-}
-
-.bgimage.paper-6
-{
-    -fx-background-image: url(/imgs/bgs/paper-6.jpg);
-}
-
-.bgimage.pink-butterfly-1
-{
-    -fx-background-image: url(/imgs/bgs/pink-butterfly-1.gif);
-}
-
-.bgimage.pink-circles-1
-{
-    -fx-background-image: url(/imgs/bgs/pink-circles-1.jpg);
-}
-
-.bgimage.pink-dots-1
-{
-    -fx-background-image: url(/imgs/bgs/pink-dots-1.gif);
-}
-
-.bgimage.pink-dots-2
-{
-    -fx-background-image: url(/imgs/bgs/pink-dots-2.gif);
-}
-
-.bgimage.pink-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/pink-flowers-1.png);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.pink-flowers-2
-{
-    -fx-background-image: url(/imgs/bgs/pink-flowers-2.jpg);
-}
-
-.bgimage.pink-flowers-3
-{
-    -fx-background-image: url(/imgs/bgs/pink-flowers-3.gif);
-}
-
-.bgimage.pink-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/pink-squares-1.png);
-    -fx-background-size: 12em 4em;
-}
-
-.bgimage.pink-squares-2
-{
-    -fx-background-image: url(/imgs/bgs/pink-squares-2.gif);
-}
-
-.bgimage.pink-squares-3
-{
-    -fx-background-image: url(/imgs/bgs/pink-squares-3.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.pink-squares-4
-{
-    -fx-background-image: url(/imgs/bgs/pink-squares-4.jpg);
-}
-
-.bgimage.pink-stars-1
-{
-    -fx-background-image: url(/imgs/bgs/pink-stars-1.jpg);
-    -fx-background-size: 12em 11em;
-}
-
-.bgimage.pink-stars-2
-{
-    -fx-background-image: url(/imgs/bgs/pink-stars-2.gif);
-}
-
-.bgimage.pink-strips-1
-{
-    -fx-background-image: url(/imgs/bgs/pink-strips-1.gif);
-}
-
-.bgimage.purple-dots
-{
-    -fx-background-image: url(/imgs/bgs/purple-dots.gif);
-}
-
-.bgimage.purple-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/purple-flowers-1.jpg);
-}
-
-.bgimage.purple-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/purple-squares-1.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.purple-squares-2
-{
-    -fx-background-image: url(/imgs/bgs/purple-squares-2.jpg);
-}
-
-.bgimage.purple-squares-3
-{
-    -fx-background-image: url(/imgs/bgs/purple-squares-3.png);
-    -fx-background-size: 12em 4em;
-}
-
-.bgimage.purple-stars-1
-{
-    -fx-background-image: url(/imgs/bgs/purple-stars-1.gif);
-}
-
-.bgimage.red-stars-1
-{
-    -fx-background-image: url(/imgs/bgs/red-stars-1.jpg);
-}
-
-.bgimage.trees-1
-{
-    -fx-background-image: url(/imgs/bgs/trees-1.png);
-}
-
-.bgimage.wood-1
-{
-    -fx-background-image: url(/imgs/bgs/wood-1.jpg);
-}
-
-.bgimage.wood-2
-{
-    -fx-background-image: url(/imgs/bgs/wood-2.jpg);
-}
-
-.bgimage.wood-3
-{
-    -fx-background-image: url(/imgs/bgs/wood-3.jpg);
-}
-
-.bgimage.wood-4
-{
-    -fx-background-image: url(/imgs/bgs/wood-4.jpg);
-}
-
-.bgimage.wood-5
-{
-    -fx-background-image: url(/imgs/bgs/wood-5.jpg);
-}
-
-.bgimage.wood-6
-{
-    -fx-background-image: url(/imgs/bgs/wood-6.jpg);
-}
-
-.bgimage.wood-7
-{
-    -fx-background-image: url(/imgs/bgs/wood-7.jpg);
-}
-
-.bgimage.wood-8
-{
-    -fx-background-image: url(/imgs/bgs/wood-8.jpg);
-}
-
-.bgimage.wood-9
-{
-    -fx-background-image: url(/imgs/bgs/wood-9.jpg);
-}
-
-.bgimage.wood-10
-{
-    -fx-background-image: url(/imgs/bgs/wood-10.jpg);
-}
-
-.bgimage.wood-11
-{
-    -fx-background-image: url(/imgs/bgs/wood-11.jpg);
-}
-
-.bgimage.yellow-dots-1
-{
-    -fx-background-image: url(/imgs/bgs/yellow-dots-1.gif);
-}
-
-.bgimage.yellow-flowers-1
-{
-    -fx-background-image: url(/imgs/bgs/yellow-flowers-1.jpg);
-}
-
-.bgimage.yellow-flowers-2
-{
-    -fx-background-image: url(/imgs/bgs/yellow-flowers-2.jpg);
-}
-
-.bgimage.yellow-light-bulb-1
-{
-    -fx-background-image: url(/imgs/bgs/yellow-light-bulb-1.jpg);
-}
-
-.bgimage.yellow-squares-1
-{
-    -fx-background-image: url(/imgs/bgs/yellow-squares-1.gif);
-    -fx-background-size: 3em 3em;
-}
-
-.bgimage.yellow-squares-2
-{
-    -fx-background-image: url(/imgs/bgs/yellow-squares-2.png);
-    -fx-background-size: 12em 4em;
-}
-
-.bgimage.yellow-squares-3
-{
-    -fx-background-image: url(/imgs/bgs/yellow-squares-3.png);
-    -fx-background-size: 12em 4em;
-}
-
-.splashscreen
-{
-    -fx-border-color: -qw-border-color;
-    -fx-border-style: solid;
-    -fx-border-width: 1;
-    -fx-background-color: transparent;
-}
-
-.splashscreen .image
-{
-    -fx-image: url(/imgs/q-app-logo.png);
-}
-
-.splashscreen .progress-bar
-{
-    -fx-min-width: 500px;
-}
-
 /*
  Icons for menu items.
  The > * > for menu-items is deliberate and used to prevent cascade issues for submenus.
  */
+
+ .menu-item.start .image-view,
+ .button.start
+ {
+     -fx-image: url(/imgs/play16.png);
+     -fx-graphic: url(/imgs/play16.png);
+ }
+
 .menu-item.stop .image-view,
 .button.stop
 {
@@ -1190,6 +678,7 @@ Text
 .tree .cell .label
 {
     -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
+
 }
 
 .tree .cell:selected > .label
@@ -1228,6 +717,7 @@ Text
 .qpopup.problemfinderconfig .button.add,
 .qpopup.problemfinderconfig .menu-button.add,
 .qpopup.problemfinderconfig .button.delete,
+.qpopup.timer .button.start,
 .toolbar.buttons .button,
 .progress .button,
 .filefind .button
@@ -1266,6 +756,8 @@ Text
 .qpopup.problemfinderconfig .menu-button.add:focused,
 .qpopup.problemfinderconfig .button.delete:hover,
 .qpopup.problemfinderconfig .button.delete:focused,
+.qpopup.timer .button.start:hover,
+.qpopup.timer .button.start:focused,
 .progress .button:hover,
 .progress .button:focused,
 .filefind .button:hover,
@@ -1287,7 +779,8 @@ Text
 .qpopup.problemfinderconfig .button.add:armed,
 .qpopup.problemfinderconfig .menu-button.add:armed,
 .qpopup.problemfinderconfig .button.delete:armed,
-.qpopup.problemfinderconfig .menu-button.delete:armed
+.qpopup.problemfinderconfig .menu-button.delete:armed,
+.qpopup.timer .button.start:armed
  {
      -fx-background-color: -qw-armed-bg;
  }
@@ -1307,72 +800,9 @@ Text
     -fx-alignment: center-left;
 }
 
-.viewer
-{
-    -fx-min-width: 500px;
-    -fx-min-height: 500px;
-    -fx-pref-width: 800px;
-    -fx-pref-height: 800px;
-}
-
-.viewer .header
-{
-    -fx-max-width: Infinity;
-    -fx-alignment: center-left;
-    -fx-padding: 0 0 0 0.5em;
-
-}
-
-.viewer .header.title
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-insets: 0px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.viewer .header .title
-{
-    -fx-font-size: 2.5em;
-    -fx-padding: 0 0.5em 0 0.5em;
-    -fx-max-width: Infinity;
-    -fx-text-fill: -fx-text-base-color;
-}
-
 .sidebar .header
 {
     -fx-border-width: 0;
-}
-
-/*
- * Header button images
- */
-.viewer .header .controls .viewermenu { -fx-graphic: url(/imgs/options24.png); }
-.viewer .header .controls .fullscreenenter { -fx-graphic: url(/imgs/fullscreen24.png); }
-.viewer .header .controls .fullscreenexit,
-.fullscreen .header .fullscreenexit { -fx-graphic: url(/imgs/fullscreen-exit24.png); }
-.viewer .header .controls .find,
-.fullscreen .header .find { -fx-graphic: url(/imgs/find24.png); }
-.fullscreen .header .bug { -fx-graphic: url(/imgs/bug24.png); }
-.viewer .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
-.viewer .header .controls .bug { -fx-graphic: url(/imgs/bug24.png); }
-.viewer .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
-.viewer .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
-.viewer .header .controls .help { -fx-graphic: url(/imgs/help24.png); }
-.viewer .header .controls .edit { -fx-graphic: url(/imgs/edit24.png); }
-.viewer .header .controls .save { -fx-graphic: url(/imgs/save24.png); }
-.viewer .header .controls .cancel { -fx-graphic: url(/imgs/close24.png); }
-.viewer .header .controls .contacts,
-.fullscreen .header .contacts { -fx-graphic: url(/imgs/editors24.png); }
-.fullscreen .header .distractionfreeenter { -fx-graphic: url(/imgs/distraction-free24.png); }
-.fullscreen .header .distractionfreeexit { -fx-graphic: url(/imgs/distraction-free-exit24.png); }
-.fullscreen .header .editproperties { -fx-graphic: url(/imgs/options24.png); }
-
-/*
- Viewer
-*/
-.viewer .content
-{
-
 }
 
 .qw-textarea
@@ -1415,21 +845,11 @@ Text
 
 .split-pane-divider, .viewer .divider
 {
-    -fx-padding: 0 0 0 1px;
-    -fx-background-color: -qw-component-border-color;
-    -fx-pref-width: 1px;
-    -fx-max-width: 1px;
-    -fx-min-width: 1px;
-}
-
-.viewer .divider:hover
-{
-    -fx-cursor: h-resize;
-}
-
-.viewer .tab-pane
-{
-    -fx-min-width: 300px;
+    -fx-border-width: 0 1px 0 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-pref-width: 2px;
+    -fx-max-width: 2px;
+    -fx-min-width: 2px;
 }
 
 .viewer .viewercontent:dragging
@@ -1464,44 +884,12 @@ Text
 
 */
 
-.qpopup .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
-.qpopup .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
-.qpopup .controls .add { -fx-graphic: url(/imgs/add24.png); }
-
-.panel
-{
-    -fx-background-color: -qw-bg-color;
-}
-
-.panel .header
-{
-    -fx-padding: 0 0 0 0.5em;
-}
-
-.panel .header .title
-{
-    -fx-max-width: Infinity;
-    -fx-text-fill: -fx-text-base-color;
-    -fx-font-size: 1.7em;
-    -fx-padding: 0 0 0 0.3em;
-}
-
 .viewer.allprojects .header .icon
 {
     -fx-image: url(/imgs/project24.png);
 }
 
-/*
- AllProjects panel/Project list displayed in the panel.
- Panel#allprojects/Panel#allprojects.ProjectsList
-*/
-
-.panel.allprojects .projectslist .project .header .controls
-{
-    visibility: false;
-}
-
-.panel.allprojects .projectslist .project .header .title, .changeprojectdisplay .example.project .header .title
+.changeprojectdisplay .example.project .header .title
 {
     -fx-padding: -0.5em 0 0 0.3em;
     -fx-font-size: 1.7em;
@@ -1512,74 +900,21 @@ Text
     -fx-pref-width: 25em;
 }
 
-.panel.allprojects .projectslist .project .header, .changeprojectdisplay .example.project .header .title
+.changeprojectdisplay .example.project .header .title
 {
     -fx-alignment: top-left;
 }
 
-.panel.allprojects .projectslist .project .header .icon, .changeprojectdisplay .example.project .header .icon
+.changeprojectdisplay .example.project .header .icon
 {
     -fx-image: url(/imgs/project20.png);
-}
-
-.panel.allprojects .projectslist .warmup .header .icon { -fx-image: url(/imgs/warmups20.png); }
-.panel.allprojects .projectslist .editor .header .icon { -fx-image: url(/imgs/editor20.png); }
-.panel.allprojects .projectslist .encrypted .header .icon { -fx-image: url(/imgs/lock20.png); }
-.panel.allprojects .projectslist .error .header .icon { -fx-image: url(/imgs/warning20.png); }
-
-.panel.allprojects .projectslist .scroll-pane .scroll-bar:vertical
-{
-    -fx-unit-increment: 10em;
-}
-
-.panel.allprojects .scroll-pane
-{
-    -fx-padding: 0px;
-}
-
-.panel.allprojects .scroll-pane, .panel.options .scroll-pane
-{
-    -fx-hbar-policy: as-needed;
-    -fx-vbar-policy: as-needed;
-    /*
-    -fx-fit-to-width: true;
-    -fx-fit-to-height: true;
-    */
-    -fx-pannable: true;
-    -fx-background-insets: 0;
-}
-
-.panel.allprojects .scroll-bar
-{
-    -fx-block-increment: 100;
-    -fx-unit-increment: 100;
-}
-
-.panel.allprojects .scroll-pane
-{
-    -fx-vbar-policy: as-needed;
-    -fx-hbar-policy: as-needed;
-    -fx-fit-to-height: false;
-    -fx-fit-to-width: true;
-}
-
-.panel.allprojects .projectslist
-{
-    -fx-hgap: 0.75em;
-    -fx-vgap: 0.75em;
-    -fx-padding: 0.75em;
-    -fx-row-valignment: top;
-    -fx-alignment: top-center;
-    -fx-orientation: horizontal;
-    /* All items in the projects list have the same width (column width), the rule below defines that width */
-    -qw-item-width: 25em;
 }
 
 /*
  * A project box in the projects window.
  * Setting both max AND min width is needed to ensure the height is calculated.
  */
-.panel.allprojects .projectslist .project, .changeprojectdisplay .example.project
+.changeprojectdisplay .example.project
 {
     -fx-padding: 0.5em;
     -fx-border-width: 1px;
@@ -1590,7 +925,7 @@ Text
     -fx-background-color: -qw-bg-color;
 }
 
-.panel.allprojects .projectslist .project:hover, .panel.allprojects .projectslist .project:focused, .changeprojectdisplay .example.project:hover
+ .changeprojectdisplay .example.project:hover
 {
     -fx-border-width: 1px;
     -fx-border-insets: 0px;
@@ -1599,7 +934,7 @@ Text
     -fx-cursor: hand;
 }
 
-.panel.allprojects:bgcolor .projectslist .project, .panel.allprojects:bgimage .projectslist .project, .changeprojectdisplay .example.project
+ .changeprojectdisplay .example.project
 {
     -fx-border-color: -qw-border-color;
 }
@@ -1607,7 +942,7 @@ Text
 /*
  * The info about a project in the projects window.
  */
-.panel.allprojects .projectslist .project .info, .changeprojectdisplay .example.project .info
+.changeprojectdisplay .example.project .info
 {
     -fx-font-size: 1.1em;
     -fx-padding: 0em 0 0 2em;
@@ -1621,356 +956,6 @@ Text
 {
     -fx-font-size: 2.5em;
     -fx-label-padding: 0 0 0 0.2em;
-}
-
-/*
- * Achievements panel (AchievementsPanel)
- */
-.panel.achievements .header
-{
-    -fx-padding: 0.3em;
-}
-
-.panel.achievements .header .icon
-{
-    -fx-image: url(/imgs/achievement24.png);
-}
-
-.panel.achievements .scroll-pane
-{
-    -fx-border-width: 1px 0 0 0;
-    -fx-border-color: transparent;
-}
-
-.panel.achievements .scroll-pane:scrolling
-{
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.achievements .header .controls .close
-{
-    -fx-graphic: url(/imgs/close16.png);
-}
-
-.panel.achievements .description
-{
-    -fx-padding: 0.5em 0.5em 0.5em 1em;
-}
-
-.panel.achievements .accordion
-{
-    -fx-padding: 0 0 1em 0;
-}
-
-.panel.achievements .accordion > .header
-{
-    -fx-cursor: hand;
-}
-
-.panel.achievements .accordion .content
-{
-    -fx-padding: 0 1em 0 1em;
-}
-
-.panel.achievements .accordion .header
-{
-    -fx-padding: 0 0 0.5em 1em;
-}
-
-.panel.achievements .achievement
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
-}
-
-.panel.achievements .content .achievement .title
-{
-    -fx-font-size: 1.3em;
-    -fx-padding: -0.3em 0 0 0.75em;
-    -fx-alignment: top-left;
-}
-
-.panel.achievements .accordion.project .header .icon
-{
-    -fx-image: url(/imgs/project24.png);
-}
-
-.panel.achievements .achievement .description
-{
-    -fx-padding: 0 0 0 1em;
-}
-
-.panel.achievements .hide
-{
-    -fx-padding: 0 0 0.5em 1em;
-}
-
-.panel.achievements .achievement .icon { -fx-image: url(/imgs/achievement24.png); }
-.panel.achievements .achievement.fullscreen .icon { -fx-image: url(/imgs/fullscreen24.png); }
-.panel.achievements .achievement.spellchecker  .icon { -fx-image: url(/imgs/spellchecker24.png); }
-.panel.achievements .achievement.edit .icon { -fx-image: url(/imgs/edit24.png); }
-.panel.achievements .achievement.help .icon { -fx-image: url(/imgs/help24.png); }
-.panel.achievements .achievement.find .icon { -fx-image: url(/imgs/find24.png); }
-.panel.achievements .achievement.clock .icon { -fx-image: url(/imgs/clock24.png); }
-.panel.achievements .achievement.bold .icon { -fx-image: url(/imgs/bold24.png); }
-.panel.achievements .achievement.editors .icon { -fx-image: url(/imgs/editor24.png); }
-.panel.achievements .achievement.project-export .icon { -fx-image: url(/imgs/project-import24.png); }
-.panel.achievements .achievement.settings .icon { -fx-image: url(/imgs/settings24.png); }
-.panel.achievements .achievement.sound .icon { -fx-image: url(/imgs/notify24.png); }
-.panel.achievements .achievement.warmups .icon { -fx-image: url(/imgs/warmups24.png); }
-.panel.achievements .achievement.eye .icon { -fx-image: url(/imgs/eye24.png); }
-.panel.achievements .achievement.project .icon { -fx-image: url(/imgs/project24.png); }
-.panel.achievements .achievement.idea .icon { -fx-image: url(/imgs/idea24.png); }
-.panel.achievements .achievement.bug .icon { -fx-image: url(/imgs/bug24.png); }
-.panel.achievements .achievement.save .icon { -fx-image: url(/imgs/save24.png); }
-.panel.achievements .achievement.snapshot .icon { -fx-image: url(/imgs/snapshot24.png); }
-.panel.achievements .achievement.comment .icon { -fx-image: url(/imgs/comment24.png); }
-.panel.achievements .achievement.note .icon { -fx-image: url(/imgs/note24.png); }
-.panel.achievements .achievement.chapter .icon { -fx-image: url(/imgs/chapter24.png); }
-.panel.achievements .achievement.character .icon { -fx-image: url(/imgs/character24.png); }
-.panel.achievements .achievement.object .icon { -fx-image: url(/imgs/object24.png); }
-.panel.achievements .achievement.location .icon { -fx-image: url(/imgs/location24.png); }
-.panel.achievements .achievement.project-import .icon { -fx-image: url(/imgs/project-import24.png); }
-.panel.achievements .achievement.researchitem .icon { -fx-image: url(/imgs/researchitem24.png); }
-.panel.achievements .achievement.outlineitem .icon { -fx-image: url(/imgs/outlineitem24.png); }
-.panel.achievements .achievement.scene .icon { -fx-image: url(/imgs/scene24.png); }
-.panel.achievements .achievement.statistics .icon,
-.panel.achievements .achievement.wordcount .icon
-{ -fx-image: url(/imgs/wordcount24.png); }
-.panel.achievements .achievement.warning .icon { -fx-image: url(/imgs/warning24.png); }
-
-.panel.achievements .achievement:achieved .achieved
-{
-    -fx-scale-x: 0.75;
-    -fx-scale-y: 0.75;
-    -fx-translate-x: 12px;
-    -fx-translate-y: 16px;
-    -fx-image: url(/imgs/ok-green16.png);
-}
-
-/*
- * Statistics panel (StatisticsPanel)
- */
-.panel.statistics .controls
-{
-    -fx-padding: 0.5em;
-    -fx-alignment: center-left;
-}
-
-.panel.statistics .controls .label, .panel.statistics .controls .check-box
-{
-    -fx-padding: 0 0.5em 0 0.5em;
-}
-
-.panel.statistics .detail
-{
-    -fx-padding: 0.5em 0.5em 1em 1em;
-    -fx-alignment: center;
-}
-
-.panel.statistics .markers
-{
-    -fx-vertical-grid-lines-visible: false;
-    -fx-horizontal-grid-lines-visible: false;
-    -fx-horizontal-zero-line-visible: false;
-}
-
-.panel.statistics .markers .axis
-{
-    -fx-opacity: 0;
-}
-
-.panel.statistics .detail > *
-{
-    -fx-alignment: center;
-}
-
-.panel.statistics .detail .item
-{
-    -fx-padding: 0 0.5em 0 0;
-}
-
-.panel.statistics .detail .item .image-view
-{
-    -fx-image: url(/imgs/tree-branch-closed16.png);
-}
-
-.panel.statistics .chart
-{
-    -fx-category-gap: 10em;
-    -fx-legend-visible: false;
-    -fx-vertical-grid-lines-visible: false;
-}
-
-.panel.statistics .axis-label
-{
-    -fx-font-size: 1.2em;
-}
-
-.panel.statistics .axis > *
-{
-    -fx-font-size: 1.1em;
-}
-
-.panel.statistics .chart-plot-background
-{
-    -fx-background-color: transparent;
-}
-
-.panel.statistics .chart-bar.series0
-{
-    -fx-background-color: #f5b800;
-    -fx-min-width: 2em;
-    -fx-pref-width: 2em;
-}
-
- .panel.statistics .header .icon
- {
-     -fx-image: url(/imgs/chart24.png);
- }
-
- .panel.statistics .header .controls .close
- {
-     -fx-graphic: url(/imgs/close16.png);
- }
-
-/*
- * Options panel
- */
-
-.panel.options .header
-{
-    -fx-padding: 0.3em;
-}
-
-.panel.options .header .icon
-{
-    -fx-image: url(/imgs/options24.png);
-}
-
-.panel.options .controls .close
-{
-    -fx-graphic: url(/imgs/close16.png);
-    -fx-content-display: graphic-only;
-    -fx-padding: 0.2em;
-}
-
-.panel.options .sections
-{
-    -fx-padding: 0.5em;
-}
-
-.panel.options .sections .header
-{
-    -fx-padding: 0 0 0 0;
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.options .sections .header .title
-{
-    -fx-font-size: 1.5em;
-    -fx-cursor: hand;
-}
-
-.panel.options .accordion
-{
-    -fx-padding: 0 0 0.5em 0;
-}
-
-.panel.options .accordion :closed
-{
-    -fx-padding: 0.5em 0 0 0.5em;
-}
-
-.panel.options .looks .header .icon
-{
-    -fx-image: url(/imgs/eye16.png);
-}
-
-.panel.options .naming .header .icon, .panel.options .start .header .icon
-{
-    -fx-image: url(/imgs/settings16.png);
-}
-
-.panel.options .project .header .icon
-{
-    -fx-image: url(/imgs/project16.png);
-}
-
-.panel.options .assets .header .icon
-{
-    -fx-image: url(/imgs/assets16.png);
-}
-
-.panel.options .editing .header .icon
-{
-    -fx-image: url(/imgs/chapter16.png);
-}
-
-.panel.options .contacts .header .icon
-{
-    -fx-image: url(/imgs/editors16.png);
-}
-
-.panel.options .edit .header .icon
-{
-    -fx-image: url(/imgs/edit16.png);
-}
-
-.panel.options .warmup .header .icon
-{
-    -fx-image: url(/imgs/warmups16.png);
-}
-
-.panel.options .achievements .header .icon
-{
-    -fx-image: url(/imgs/achievement16.png);
-}
-
-.panel.options .bug .header .icon
-{
-    -fx-image: url(/imgs/bug16.png);
-}
-
-.panel.options .editing .hyperlink
-{
-    -fx-graphic: url(/imgs/view16.png);
-    -fx-graphic-text-gap: 0.5em;
-}
-
-.panel.options .header:scrolling
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.options .sections .main
-{
-    -fx-padding: 0.5em 0.5em 0.75em 0.5em;
-}
-
-.panel.options .sections .sub
-{
-    -fx-padding: 0 0 0.75em 1em;
-}
-
-.panel.options .sections .sub .item, .panel.options .sections .main .item
-{
-    -fx-padding: 0 0 0.5em 0;
-    -fx-spacing: 0.5em;
-    -fx-alignment: center-left;
-}
-
-.panel.options .sections .sub .check-box
-{
-    -fx-padding: 0 0 0.5em 0;
-}
-
-.panel.options .ownsound
-{
-    -fx-max-width: 50em;
 }
 
 /*
@@ -2028,62 +1013,6 @@ Text
 {
     -fx-image: url(/imgs/save16.png);
 }
-
-.qpopup.layoutselector .header .icon
-{
-    -fx-image: url(/imgs/edit16.png);
-}
-
-.qpopup.layoutselector .item
-{
-    -fx-padding: 0.25em;
-    -fx-cursor: hand;
-}
-
-.qpopup.layoutselector .item
-{
-    -fx-border-width: 1px;
-    -fx-border-color: transparent;
-}
-
-.qpopup.layoutselector .item:selected .layout
-{
-    -fx-border-color: white;
-}
-
-.qpopup.layoutselector .item:selected, .qpopup.layoutselector .item:selected:hover
-{
-    -fx-background-color: -qw-selected-border-color;
-    -fx-border-color: -qw-selected-border-color;
-}
-
-.qpopup.layoutselector .item .description
-{
-    -fx-padding: 0 0 0 0.5em;
-}
-
-.qpopup.layoutselector .item:selected .description > *, .qpopup.layoutselector .item:selected:hover .description > *
-{
-    -fx-fill: white;
-    -fx-font-smoothing-type: lcd;
-}
-
-.qpopup.layoutselector .item:hover
- {
-     -fx-background-color: -qw-hover-bg;
-     -fx-border-width: 1px;
-     -fx-border-color: -qw-border-color;
- }
-
- .qpopup.layoutselector .item:hover .description > *
- {
-     -fx-fill: black;
- }
-
- .qpopup.layoutselector .item:selected .description .label
- {
-     -fx-text-fill: #ffffff;
- }
 
 /**
  * COPIED FROM AeroFX
@@ -2165,29 +1094,7 @@ Text
 {
     -fx-text-fill: -fx-text-base-color;
 }
-/*
-.button:hover{
-    -fx-background-color:
-        rgb(60,127,177),
-        linear-gradient(rgb(250,253,254),rgb(250,253,254)),
-        linear-gradient(rgb(234, 246, 253) 0%, rgb(217, 240, 252) 49%, rgb(190, 230, 253) 50%, rgb(167, 217, 245) 100%);
-}
 
-.button:default{
-    -fx-background-color:
-        rgb(60,127,177),
-        linear-gradient(rgb(47,212,255), rgb(47,212,255)),
-        linear-gradient(rgb(234,246,252) 0%, rgb(228,243,252) 49%, rgb(202,233,250) 50%, rgb(182,222,245) 100%);
-}
-*/
-/*
-.button:armed, .toggle-button:armed{
-    -fx-background-color:
-        rgb(44,98,139),
-        linear-gradient(rgb(158,176,186), rgb(158,176,186)),
-        linear-gradient(rgb(229,244,252) 0%, rgb(196,229,246) 49%, rgb(152,209,239) 50%, rgb(104,179,219) 100%);
-}
-*/
 .progress-bar .track
 {
     -fx-border-width: 0;
@@ -2209,58 +1116,10 @@ Text
     -fx-border-radius: 0;
 }
 
-.root:night
-{
-    -qw-bg-color: #4d4d4d;
-
-    /*
-     * The dark color.  Generally used for borders and drop shadows as well as solid colors.
-     */
-    -qw-dark-color: #ffffff;
-
-    /*
-     * Used for hover effects on things you can click on.
-     */
-    -qw-hover-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
-
-    -qw-armed-bg: linear-gradient(from 0% 0% to 0% 100%, -fx-pressed-base 0%, #ffffff 100%);
-
-    /**
-     * The color of borders around components.
-     */
-    -qw-border-color: -qw-dark-color;
-
-    /*
-     * The color used when items have focus.
-     */
-    -qw-focus-color: #aaaaaa;
-
-    /*
-     * The standard drop shadow.
-     */
-    -qw-drop-shadow: dropshadow(gaussian, -qw-border-color, 30, 0.5, 0, 0);
-
-    -fx-text-base-color: #ffffff;
-
-    -qw-hyperlink-color: lightblue;
-
-    -qw-component-border-color: #ffffff;
-
-}
-
-.viewer.allprojects .projectslist .project:hover .title, .viewer.allprojects .projectslist .project:hover .info
-{
-    -fx-text-fill: #333333;
-}
-
 .root.popup
 {
     -fx-pref-width: 200px;
     -fx-pref-height: 200px;
-}
-
-.root.popup
-{
     -fx-background-color: transparent;
     -fx-background-radius: 0px;
 }
@@ -2283,12 +1142,13 @@ Text
     -fx-border-color: -qw-component-error-border-color;
 }
 
-.qtextara
+.qtextarea
 {
-    -fx-pref-height: 10em;
+    -fx-pref-height: 15em;
+    -fx-min-height: 15em;
 }
 
-.qtextarea, .form .control .qtextarea.description
+.qtextarea .styled-text-area
 {
     -fx-border-style: solid;
     -fx-border-width: 1px;
@@ -2296,9 +1156,11 @@ Text
     -fx-padding: 0.2em;
 }
 
+.qtextarea.description { -fx-padding: 0; }
+
 .qtextarea .max
 {
-    -fx-padding: 0.2em 0 0 0em;
+    -fx-padding: 5.2em 0 0 0em;
     -fx-text-fill: -qw-focus-color;
 }
 
@@ -2320,135 +1182,23 @@ Text
 /*
  Popup (QuollPopup)
  */
- .qpopup
- {
-     -fx-effect: dropshadow(gaussian, #666666, 20, 0.5, 0, 0);
-     -fx-border-style: solid;
-     -fx-border-width: 1px;
-     -fx-border-color: -qw-border-color;
-     -fx-background-color: -qw-bg-color;
- }
-
-.qpopup .content
-{
-     -fx-padding: 0.5em 0.75em 0.5em 0.75em;
-     -fx-pref-width: -qw-popup-width;
-     -fx-background-color: -qw-bg-color;
-}
-
- .viewer .qpopup .header
- {
-     -fx-padding: 0 0 0 0.5em;
-     -fx-background-color: -qw-bg-color;
-     -fx-border-width: 0;
- }
-
- .qpopup .header .title
- {
-     -fx-max-width: Infinity;
-     -fx-text-fill: -fx-text-base-color;
-     -fx-font-size: 1.5em;
-     -fx-padding: 0 0 0 0.3em;
- }
-
- .qpopup .header .controls .close
- {
-     -fx-graphic: url(/imgs/close16.png);
-     -fx-content-display: graphic-only;
-     -fx-padding: 0.2em;
- }
-
- .qpopup .description
- {
-     -fx-padding: 0 0 0.5em 0;
- }
-
- .qpopup .buttons
- {
-     -fx-alignment: center;
-     -fx-padding: 1em 0.5em 0.5em 0.5em;
- }
-
-.qpopup .buttons .button
-{
-    -fx-content-display: text-only;
-}
-
-.qpopup .toolbar.buttons .button
-{
-    -fx-content-display: graphic-only;
-}
-
- .qpopup .form .buttons
- {
-     -fx-alignment: center-left;
-     -fx-padding: 0.5em 0.5em 0.5em 1em;
- }
-
-.qpopup .form.textentry .buttons
-{
-    -fx-alignment: center-left;
-    -fx-padding: 0.5em 0.5em 0.5em 0em;
-}
-
-.qpopup.delete .buttons
-{
-    -fx-aligment: center;
-    -fx-padding: 1em 0.5em 0.5em 0;
-}
-
-.qpopup.add .header .icon { -fx-image: url(/imgs/add16.png); }
-.qpopup.edit .header .icon { -fx-image: url(/imgs/edit16.png); }
-.qpopup.delete .header .icon { -fx-image: url(/imgs/delete16.png); }
-.qpopup.warning .header .icon { -fx-image: url(/imgs/warning16.png); }
-
-/*
- * The text entry popup.
- * It contains a Form but is styled to not look that way since it's only a
- * single field.
- */
-.qpopup .form.textentry .items
-{
-    -fx-padding: 0;
-}
-
-.qpopup .form.textentry .items .control
-{
-    -fx-padding: 0 0 0.5em 0;
-}
-
 /*
  Create new project Popup (NewProjectPopup)
  */
-.qpopup.createproject .header .icon
-{
-    -fx-image: url(/imgs/add16.png);
-}
-
-.newproject .passwords, .qpopup.createproject .passwords
+.newproject .passwords
 {
     -fx-spacing: 0.5em;
     -fx-alignment: center-left;
     -fx-padding: 0.5em 0 0 0;
 }
 
-.newproject .passwords .label, .qpopup.createproject .passwords .label
+.newproject .passwords .label
 {
     -fx-padding: 0 0 0 0.5em;
 }
 
-/*
- Report bug Popup (ReportBugPopup)
- */
-.viewer .qpopup.reportbug .header .icon, .viewer .qpopup.bug .header .icon
-{
-    -fx-image: url(/imgs/bug16.png);
-}
-
-.qpopup.reportbug .qtextarea
-{
-    -fx-min-height: 10em;
-}
+.qpopup.reportbug .header .icon, .qpopup.bug .header .icon { -fx-image: url(/imgs/bug16.png); }
+.qpopup.export .header .icon { -fx-image: url(/imgs/project-export16.png); }
 
 /*
  * Contact support popup (ContactSupportPopup)
@@ -2488,181 +1238,11 @@ Text
 }
 
 /*
- * Do a warmup popup (DoWarmupExercisePopup)
- */
-.qpopup.dowarmup .header .icon
-{
-    -fx-image: url(/imgs/warmups16.png);
-}
-
-.qpopup.dowarmup .content .header .icon
-{
-    visibility: false;
-}
-
-.qpopup.dowarmup .chooseprompt .header, .qpopup.dowarmup .chooseprompt .header .title,
-.qpopup.dowarmup .ownprompt .header, .qpopup.dowarmup .ownprompt .header .title,
-.qpopup.dowarmup .config .header, .qpopup.dowarmup .config .header .title
-{
-    -fx-padding: 0;
-}
-
-.qpopup.dowarmup .chooseprompt, .qpopup.dowarmup .ownprompt, .qpopup.dowarmup .config
-{
-    -fx-padding: 0 0 1em 0;
-}
-
-.qpopup.dowarmup .chooseprompt .scroll-pane
-{
-    -fx-min-height: 9em;
-    -fx-padding: 0 0 0 0.5em;
-}
-
-.qpopup.dowarmup .chooseprompt .buttons
-{
-    -fx-alignment: center-left;
-    -fx-padding: 1em 0 0 0.5em;
-}
-
-.qpopup.dowarmup .chooseprompt .next
-{
-    -fx-graphic: url(/imgs/next16.png);
-}
-
-.qpopup.dowarmup .chooseprompt .previous
-{
-    -fx-graphic: url(/imgs/previous16.png);
-    -fx-min-width: 16px;
-    -fx-content-display: graphic-only;
-}
-
-.qpopup.dowarmup .chooseprompt .weblinks
-{
-    -fx-graphic: url(/imgs/website-links16.png);
-    -fx-content-display: graphic-only;
-    -fx-min-width: 16px;
-}
-
-.qpopup.dowarmup .ownprompt .text
-{
-    -fx-padding: 0.5em 0 0 0.5em;
-}
-
-.qpopup.dowarmup .ownprompt .text .text-area
-{
-    -fx-max-height: 5em;
-    -fx-pref-height: 5em;
-    -fx-min-height: 5em;
-}
-
-.qpopup.dowarmup .config > *
-{
-    -fx-padding: 0.5em 0 0 0.5em;
-}
-
-.qpopup.dowarmup .config > HBox
-{
-    -fx-spacing: 0.5em;
-    -fx-alignment: baseline-left;
-}
-
-/*
  Error popup
  */
 .qpopup.error .header .icon
 {
     -fx-image: url(/imgs/warning16.png);
-}
-
-/*
- Select BG popup (SelectBGPopup)
-*/
-.qpopup.selectbg .header .controls .reset
-{
-    -fx-graphic: url(/imgs/restore16.png);
-}
-
-.qpopup.selectbg .header .icon
-{
-    -fx-image: url(/imgs/bg-select16.png);
-}
-
-.qpopup.selectbg .scroll-pane
-{
-    -fx-pref-height: 31em;
-    -fx-min-height: 31em;
-    -fx-border-width: 0;
-    -fx-hbar-policy: never;
-    -fx-vbar-policy: as-needed;
-    -fx-fit-to-width: true;
-    -fx-pannable: true;
-    -fx-background-insets: 0;
-}
-
-.qpopup.selectbg .scroll-pane .viewport
-{
-    -fx-border-width: 0px;
-}
-
-.qpopup.selectbg .accordion
-{
-    -fx-padding: 0 0 0.5em 0;
-}
-
-.qpopup.selectbg .accordion .header
-{
-    -fx-padding: 0 0 0 0;
-    -fx-cursor: hand;
-    -fx-border-style: solid;
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.qpopup.selectbg .accordion .content
-{
-    -fx-hgap: 0.0em;
-    -fx-vgap: 0.0em;
-    -fx-padding: 0;
-    -fx-alignment: top-left;
-    -fx-min-width: 1px;
-}
-
-.qpopup.selectbg .accordion .content .item
-{
-    -fx-border-style: solid;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-    -fx-cursor: hand;
-    -fx-pref-width: 6.25em;
-    -fx-pref-height: 6.25em;
-    -fx-effect: -qw-no-effect-spacer;
-}
-
-.qpopup.selectbg .accordion .content :selected .item
-{
-    -fx-border-color: -qw-selected-border-color;
-    -fx-effect: -qw-selected-effect;
-}
-
-.qpopup.selectbg .accordion .content :hover .item
-{
-    -fx-border-color: -qw-selected-border-color;
-    -fx-effect: -qw-selected-effect;
-}
-
-.qpopup.selectbg .accordion .header .controls .add
-{
-    -fx-graphic: url(/imgs/add16.png);
-}
-
-.qpopup.selectbg .accordion.images .header .icon
-{
-    -fx-image: url(/imgs/scene16.png);
-}
-
-.qpopup.selectbg .accordion.colors .header .icon
-{
-    -fx-image: url(/imgs/transparency16.png);
 }
 
 /*
@@ -2724,398 +1304,10 @@ Text
     -fx-graphic: url(/imgs/scene16.png);
 }
 
-/*
- * Form (Form)
- */
-.form.stacked .label
-{
-    -fx-padding: 0 0 0.3em 0;
-    /*-fx-text-overrun: clip;*/
-}
-
-.form.stacked .control
-{
-    -fx-padding: 0 0 0.5em 1em;
-}
-
-.form.column .label
-{
-    -fx-alignment: center-right;
-    -fx-padding: 0 0.25em 0.5em 0;
-}
-
-.form.column .control
-{
-    -fx-padding: 0 0 0.5em 0;
-}
-
-.form.column .buttons
-{
-    -fx-padding: 1em 0 0.5em 0;
-}
-
-.form .error
-{
-    -fx-alignment: top-left;
-    -fx-padding: 0.5em 0 0 0;
-}
-
-.form .error .image-view
-{
-    -fx-image: url(/imgs/error-red16.png);
-}
-
-.form .error .message
-{
-    -fx-padding: 0 0 0.5em 0.5em;
-}
-
-.form .error .message > *
-{
-    -fx-fill: -qw-error-text-color;
-}
-
-/*
- Notifications area
- */
-
-/*
- A notification (Notification)
- */
-.notifications > *
-{
-    -fx-padding: 0.25em;
-    -fx-border-style: solid;
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.notification
-{
-    -fx-alignment: center-left;
-    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
-}
-
-.notification .icon
-{
-    -fx-padding: 0 0 0 0.25em;
-}
-
-.notification .content
-{
-    -fx-padding: 0.5em;
-    -fx-alignment: center;
-    -fx-fill-width: true;
-}
-
-.notification .controls .button
-{
-    -fx-padding: 0.3em;
-}
-
-.notification .controls .close
-{
-    -fx-graphic: url(/imgs/close16.png);
-}
-
-.notification .controls .stop
-{
-    -fx-graphic: url(/imgs/stop16.png);
-}
-
-.notification .controls .next
-{
-    -fx-graphic: url(/imgs/next16.png);
-}
-
-.notification .progress-bar
-{
-    -fx-padding: 0.5em 0 0.5em 0.5em;
-    -fx-pref-width: 30em;
-    -fx-max-width: 200em;
-    -fx-min-height: 2.5em;
-    -fx-max-height: 2.5em;
-    -fx-pref-height: 2.5em;
-}
-
-.notification.tips .icon
-{
-    -fx-image: url(/imgs/help24.png);
-}
-
-.notification .readability, .notification .wordcounts
-{
-    -fx-cursor: hand;
-}
-
-.notification.information .icon
-{
-    -fx-image: url(/imgs/information24.png);
-}
-
-.notification.download .icon
-{
-    -fx-image: url(/imgs/download24.png);
-}
-
-.notification.wordcounts .icon
-{
-    -fx-image: url(/imgs/wordcount24.png);
-}
-
-.notification.readability .icon
-{
-    -fx-image: url(/imgs/eye24.png);
-}
-
-.notification.readability .content, .notification.wordcounts .content
-{
-    -fx-cursor: hand;
-}
-
-/*
- Find projects notification (added by FindProjectsPopup)
- */
-.notification.findprojects .icon
-{
-    -fx-image: url(/imgs/find24.png);
-}
-
-/*
- File/Dir chooser (QuollFileField)
- */
-.filefind
-{
-    -fx-spacing: 0.2em;
-    -fx-max-width: 50em;
-}
-
-.filefind .button
-{
-    -fx-padding: 0.3em;
-    -fx-cursor: hand;
-}
-
-.filefind .button.find
-{
-    -fx-graphic: url(/imgs/find16.png);
-}
-
-.filefind .button.view
-{
-    -fx-graphic: url(/imgs/eye16.png);
-}
-
-.filefind .button.clear
-{
-    -fx-graphic: url(/imgs/clear16.png);
-}
-
-.qpopup.colorchooser .header .icon
-{
-    -fx-image: url(/imgs/transparency16.png);
-}
-
-.qpopup.colorchooser .scroll-pane
-{
-    -fx-pref-height: 13em;
-}
-
-.qpopup.colorchooser .swatches
-{
-    -fx-hgap: 0em;
-    -fx-vgap: 0em;
-    -fx-padding: 0 0 0.5em 0.5em;
-}
-
-.qpopup.colorchooser .preview
-{
-    /*-fx-pref-width: 20em;*/
-    -fx-max-width: 50em;
-    -fx-pref-height: 3em;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.qpopup.colorchooser :selected .colorswatch
-{
-    -fx-border-color: -qw-selected-border-color;
-    -fx-effect: -qw-selected-effect;
-}
-
-.qpopup.colorchooser :hover .colorswatch
-{
-    -fx-border-color: -qw-selected-border-color;
-    -fx-effect: -qw-selected-effect;
-}
-
-.qpopup.colorchooser .content .header
-{
-    -fx-padding: 0;
-}
-
-.qpopup.colorchooser .content .header .title
-{
-    -fx-padding: 0 0 0 0;
-}
-
-.qpopup.colorchooser .content .header .icon
-{
-    visibility: hidden;
-}
-
-.qpopup.colorchooser .colorswatch
-{
-    -fx-max-height: 3.5em;
-    -fx-pref-height: 3.5em;
-    -fx-min-height: 3.5em;
-    -fx-max-width: 3.5em;
-    -fx-pref-width: 3.5em;
-    -fx-min-width: 3.5em;
-    -fx-effect: -qw-no-effect-spacer;
-}
-
-.qpopup.colorchooser .form .label
-{
-    -fx-min-width: 4em;
-}
-
-.qpopup.colorchooser .items
-{
-    -fx-padding: 0;
-}
-
-.colorchooser .type
-{
-    -fx-alignment: center-left;
-    -fx-spacing: 0.5em;
-}
-
-.colorchooser .type .spinner
-{
-    -fx-max-width: 6em;
-}
-
-.colorchooser .text-field
-{
-    -fx-min-width: 7em;
-    -fx-pref-width: 7em;
-    -fx-max-width: 7em;
-}
-
-.qpopup.projectstatuses .header .icon
-{
-    -fx-image: url(/imgs/edit16.png);
-}
-
-.qpopup.projectstatuses .content .header .icon
-{
-    visibility: hidden;
-}
-
-.itemmanager .header, .itemmanager .header .title
-{
-    -fx-padding: 0;
-}
-
-.itemmanager .description
-{
-    -fx-padding: 0 0 0.5em 0;
-}
-
-.itemmanager .current .header .icon
-{
-    -fx-padding: 0em;
-    visiblity: hidden;
-}
-
-.itemmanager .current .list-view
-{
-    -fx-max-height: 10em;
-}
-
-.projectstatuses .buttons
-{
-    -fx-alignment: center;
-    -fx-padding: 0 0 0.5em 0;
-}
-/*
-.backups .scroll-pane
-{
-    -fx-min-height: 25em;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-border-color;
-}
-*/
-
-.qpopup.backups .header .icon,
-.qpopup.createbackup .header .icon,
-.qpopup.backupcreated .header .icon
+.qpopup.createbackup .header.title .icon,
+.qpopup.backupcreated .header.title .icon
 {
     -fx-image: url(/imgs/snapshot16.png);
-}
-
-.qpopup .hyperlink.view
-{
-    -fx-graphic: url(/imgs/find16.png);
-    -fx-graphic-text-gap: 0.5em;
-    -fx-padding: 0.5em 0.5em 0.5em 0em;
-}
-
-.backups .scroll-pane
-{
-    -fx-min-height: 25em;
-    -fx-pref-height: 25em;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-    -fx-fit-to-width: true;
-    -fx-background-color: transparent;
-}
-
-.backups .items
-{
-    -fx-fill-width: true;
-}
-
-.backups .item
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.backups .item .icon
-{
-    visibility: hidden;
-}
-
-.backups .item:hover
- {
-     -fx-background-color: -qw-hover-bg;
- }
-
-.backups .item .title
-{
-    -fx-font-size: 1.1em;
-}
-
-.backups .item .restore
-{
-     -fx-graphic: url(/imgs/restore16.png);
-}
-
-.backups .item .delete
-{
-     -fx-graphic: url(/imgs/delete16.png);
-}
-
-.backups .nobackups
-{
-    -fx-font-size: 1.2em;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-    -fx-padding: 0.5em;
-    -fx-text-alignment: center;
-    -fx-graphic: url(/imgs/warning20.png);
 }
 
 .qpopup.restore .header .icon
@@ -3128,7 +1320,7 @@ Text
     -fx-alignment: center-left;
     -fx-padding: 1em 0.5em 1em 0em;
 }
-
+*/
 /**
  * Change project display popup (ChangeProjectDisplayPopup)
  */
@@ -3174,46 +1366,6 @@ Text
     -fx-pref-height: 6em;
 }
 
-/*
- * Change project item preview display (ChangeProjectItemPreviewDisplayPopup)
- */
- /**
-  * Change project display popup (ChangeProjectDisplayPopup)
-  */
- .qpopup.projectitempreview .header .icon
- {
-     -fx-image: url(/imgs/edit16.png);
- }
-
- .qpopup.projectitempreview .content .header .icon
- {
-     visibility: hidden;
- }
-
- .qpopup.projectitempreview .header.example
- {
-     -fx-padding: 0.5em 0 0.5em 0;
-     -fx-content-display: text-only;
-     -fx-graphic-text-gap: 0;
-     -fx-label-padding: 0;
- }
-
- .qpopup.projectitempreview .header.example .title
- {
-     -fx-padding: 0;
- }
-
- .qpopup.projectitempreview .qtextarea.format, .qpopup.projectitempreview .qtextarea.format .text-area
- {
-     -fx-min-height: 6em;
-     -fx-pref-height: 6em;
- }
-
- .qpopup.projectitempreview .info
- {
-     -fx-padding: 0 0.5em 0.5em;
- }
-
 /**
  * What's new popup.  (WhatsNewPopup)
  */
@@ -3226,93 +1378,6 @@ Text
 {
     /* The height of the whats new content area can change, this ensures it's always high enough to view the content. */
     -fx-min-height: 20em;
-}
-
-/*
- * Import project popup (ImportPopup)
- */
-.qpopup.import .header .icon
-{
-    -fx-image: url(/imgs/project-import16.png);
-}
-
-.qpopup.import .content
-{
-    -fx-max-height: 30em;
-    -fx-pref-height: 30em;
-}
-
-.qpopup.import .content .header
-{
-    -fx-padding: 0;
-}
-
-.qpopup.import .content .header .title
-{
-    -fx-padding: 0;
-}
-
-.qpopup.import .content .header .icon
-{
-    visibility: hidden;
-}
-
-.qpopup.import .content .radio-button
-{
-    -fx-padding: 0.5em 0 0.5em 0;
-}
-
-.qpopup.import .content .select-project
-{
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.qpopup.import .content .select-project .projects
-{
-    -fx-fill-width: true;
-}
-
-.qpopup.import .content .select-project .projects .label
-{
-    -fx-font-size: 1.3em;
-    -fx-padding: 0.5em;
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-max-width: Infinity;
-    -fx-cursor: hand;
-}
-
-.qpopup.import .content .select-project .projects .label:hover
- {
-     -fx-background-color: -qw-hover-bg;
- }
-
- .qpopup.import .content .select-project .projects .label:selected
- {
-     -fx-background-color: -qw-armed-bg;
- }
-
-.qpopup.import .content .scroll-pane
-{
-    -fx-border-color: -qw-component-border-color;
-    -fx-border-width: 1px;
-}
-
-.qpopup.import .content .select-items .scroll-pane
-{
-    -fx-fit-to-width: false;
-    -fx-pref-height: 20em;
-}
-
-.qpopup.import .content .tree-cell.chapter .text
-{
-    -fx-graphic: url(/imgs/chapter16.png);
-}
-
-.qpopup.import .content ._string .check-box
-{
-    visibility: hidden;
 }
 
 /*
@@ -3348,29 +1413,6 @@ Text
   {
       -fx-background-color: -qw-hover-bg;
   }
-
-/*
- * Object type name change popup (ObjectTypeNameChangePopup)
- */
-.qpopup.objecttypenamechange .header .icon
-{
-    -fx-image: url(/imgs/edit16.png);
-}
-
-.qpopup.objecttypenamechange .items
-{
-    -fx-hgap: 0.5em;
-    -fx-vgap: 0.5em;
-    -fx-padding: 0.5em 0 0 0;
-}
-
-.qpopup.objecttypenamechange .items .chapter { -fx-image: url(/imgs/chapter16.png); }
-.qpopup.objecttypenamechange .items .outlineitem { -fx-image: url(/imgs/outlineitem16.png); }
-.qpopup.objecttypenamechange .items .scene { -fx-image: url(/imgs/scene16.png); }
-.qpopup.objecttypenamechange .items .note { -fx-image: url(/imgs/note16.png); }
-.qpopup.objecttypenamechange .items .project { -fx-image: url(/imgs/project16.png); }
-.qpopup.objecttypenamechange .items .warmup { -fx-image: url(/imgs/warmup16.png); }
-.qpopup.objecttypenamechange .items .editor { -fx-image: url(/imgs/editor16.png); }
 
 /*
  * Edit position example popup
@@ -3453,182 +1495,25 @@ Text
 }
 
 /*
- General sidebars.
+ * Tagged objects in sidebar
  */
-.sidebar > .header
-{
-    -fx-padding: 0em 0 0.5em 0.5em;
-}
+ /*
+ .sidebar.project .accordion.tag .tree .cell .label.chapter
+ {
+     -fx-graphic: url(/imgs/chapter16.png);
+ }
 
-.sidebar > .header .close.button
-{
-    -fx-graphic: url(/imgs/close16.png);
-}
+ .sidebar.project .accordion.tag .tree .cell .label.note
+ {
+     -fx-graphic: url(/imgs/note16.png);
+ }
 
-.sidebar > .header .help.button
-{
-    -fx-graphic: url(/imgs/help16.png);
-}
+ .sidebar.project .accordion.tag .tree .cell .label.editneedednote
+ {
+     -fx-graphic: url(/imgs/edit16.png);
 
-.sidebar > .header .other.button
-{
-    -fx-graphic: url(/imgs/sidebars16.png);
-}
-
-.sidebar > .header .title
-{
-    -fx-padding: 0 0 0 0.5em;
-    -fx-font-size: 1.5em;
-    -fx-max-width: Infinity;
-    -fx-text-gap: 0.5em;
-}
-
-.sidebar .accordion .header
-{
-    -fx-padding: 0 0 0.5em 0;
-    -fx-cursor: hand;
-}
-
-.sidebar .accordion .header .title
-{
-    -fx-font-size: 1.3em;
-    -fx-padding: 0 0 0 0.5em;
-}
-
-/*
- * Find sidebar (FindSideBar)
- */
-.sidebar.find
-{
-    -fx-pref-width: 20em;
-    -fx-min-width: 20em;
-}
-
-.viewer .sidebar.find .header .icon
-{
-    -fx-image: url(/imgs/find16.png);
-}
-
-.sidebar.find .findbox
-{
-    -fx-padding: 0 0.5em 1em 0.5em;
-}
-
-.sidebar.find .content .results
-{
-    -fx-padding: 0 0.5em 0.5em 0.5em;
-}
-
-.sidebar.find .results .header
-{
-    -fx-padding: 0;
-}
-
-.sidebar.find .results .accordion
-{
-    -fx-padding: 0 0 0.5em 0;
-}
-
-.sidebar.find .results .accordion.chapter .header .icon
-{
-    -fx-image: url(/imgs/chapter16.png);
-}
-
-.sidebar.find .results .accordion.scene .header .icon
-{
-    -fx-image: url(/imgs/scene16.png);
-}
-
-.sidebar.find .results .accordion.outlineitem .header .icon
-{
-    -fx-image: url(/imgs/outlineitem16.png);
-}
-
-.sidebar.find .results .accordion.note .header .icon
-{
-    -fx-image: url(/imgs/note16.png);
-}
-
-.sidebar.find .results .accordion .tree .cell
-{
-    -fx-cursor: hand;
-    -fx-padding: 0 0 0 0em;
-}
-
-.sidebar.find .results .snippet
-{
-    -fx-graphic: url(/imgs/bullet16.png);
-}
-
-.sidebar.find .results .note .tree .cell .label
-{
-    -fx-graphic: url(/imgs/bullet16.png);
-    -fx-padding: 0 0 0 -2em;
-}
-
-.sidebar.find VBox
-{
-    -fx-fill-width: true;
-}
-
-.sidebar.find .tree
-{
-    -fx-cell-indent: -0.4em;
-}
-
-.sidebar.find .results .asset .tree .cell,
-.sidebar.find .results .scene .tree .cell,
-.sidebar.find .results .outlineitem .tree .cell,
-.sidebar.find .results .note .tree .cell
-{
-    -fx-padding: 0 0 0.25em 0.4em;
-}
-
-/*
- * Text Properties sidebar (TextPropertiesSideBar)
- */
-.sidebar.editproperties
-{
-    -fx-pref-width: 20em;
-    -fx-min-width: 20em;
-}
-
-.sidebar.editproperties > .header .icon
-{
-    -fx-image: url(/imgs/edit-properties16.png);
-}
-
-.sidebar.editproperties .content
-{
-    -fx-padding: 0 0.5em 1em 1em;
-}
-
-.sidebar.editproperties .form .control
-{
-    -fx-padding: 0 0 1.5em 1em;
-    -fx-alignment: center-left;
-}
-/*
-.sidebar.editproperties .fontfamily .text
-{
-    -fx-font-size: 1em;
-}
+ }
 */
-.sidebar.editproperties .fontsize, .sidebar.editproperties .linespacing, .sidebar.editproperties .textborder
-{
-    -fx-alignment: center-left;
-    -fx-spacing: 0.5em;
-}
-
-.sidebar.editproperties .control .spinner
-{
-    -fx-pref-width: 5em;
-}
-
-.sidebar.editproperties .control .slider
-{
-    -fx-pref-width: 15em;
-}
 
 /*
  * Contacts sidebar (EditorsSideBar)
@@ -3642,74 +1527,6 @@ Text
 .viewer .sidebar.contacts > .header .icon
 {
     -fx-image: url(/imgs/editors16.png);
-}
-
-/*
- * Targets sidebar (TargetsSideBar)
- */
-.viewer .sidebar.targets .header .icon
-{
-    -fx-image: url(/imgs/goals16.png);
-}
-
-.sidebar.targets .accordion.mywriting .header .icon
-{
-    -fx-image: url(/imgs/edit16.png);
-}
-
-.sidebar.targets .accordion.chapter .header .icon
-{
-    -fx-image: url(/imgs/chapter16.png);
-}
-
-.sidebar.targets .accordion.readability .header .icon
-{
-    -fx-image: url(/imgs/eye16.png);
-}
-
-.sidebar.targets
-{
-    -fx-pref-width: 270px;
-    -fx-min-width: 270px;
-}
-
-.sidebar.targets .content
-{
-    -fx-padding: 0 0.5em 1em 0.5em;
-}
-
-.sidebar.targets .hyperlink.warning
-{
-    -fx-padding: 0.5em 0 0 0;
-}
-
-.sidebar.targets .spinner
-{
-    -fx-pref-width: 7em;
-    -fx-max-width: 7em;
-}
-
-.sidebar.targets .form .control .label
-{
-    -fx-padding: 0 0 0 0.5em;
-    -fx-alignment: center-left;
-}
-
-.sidebar.targets .form .control
-{
-    -fx-alignment: center-left;
-}
-
-.sidebar.targets .form .label
-{
-    -fx-alignment: center-right;
-}
-
-.sidebar.targets .hyperlink.chart
-{
-    -fx-padding: 0.5em 0.5em 0.5em 0em;
-    -fx-graphic: url(/imgs/chart16.png);
-    -fx-graphic-text-gap: 0.5em;
 }
 
 :dragging, :dragover
@@ -3770,174 +1587,9 @@ Text
     -fx-vbar-policy: as-needed;
 }
 
-.viewer.project .header.title .icon
+.project .windowed > .header.title .icon
 {
     -fx-image: url(/imgs/project24.png);
-}
-
-.viewer.project .sidebar .scroll-pane
-{
-    -fx-fit-to-width: false;
-    -fx-fit-to-height: true;
-}
-
-.sidebar.project
-{
-    -fx-pref-width: 16em;
-    -fx-min-width: 16em;
-    -fx-pref-width: 20em;
-}
-
-.sidebar.project .accordion:dragover
-{
-    -fx-background-color: -qw-dragover-bg;
-}
-
-.sidebar.project .accordion:dragging
-{
-    -fx-background-color: -qw-dragging-bg;
-    -fx-opacity: 0.3;
-}
-
-.sidebar.project .accordion .header
-{
-    -fx-padding: 0 0 0.2em 0.5em;
-}
-
-.sidebar.project .accordion.notes .header .icon
-{
-    -fx-image: url(/imgs/note16.png);
-}
-
-.sidebar.project .accordion.notes .tree .cell .label.note,
-.sidebar.project .accordion.notes .tree .cell .label.editneedednote
-{
-    -fx-graphic: url(/imgs/bullet16.png);
-}
-
-.sidebar.project .accordion.notes .tree .cell .label.chapter
-{
-    -fx-graphic: url(/imgs/chapter16.png);
-}
-
-.sidebar.project .accordion.chapter .header .icon
-{
-    -fx-image: url(/imgs/chapter16.png);
-}
-
-.sidebar.project .accordion.tag .header .icon
-{
-    -fx-image: url(/imgs/tag16.png);
-}
-
-.sidebar.project .accordion .tree .cell
-{
-    -fx-cursor: hand;
-}
-
-.sidebar.project .accordion .tree .cell .label:dragover
-{
-    -fx-background-color: -qw-hover-bg;
-}
-
-.sidebar.project .accordion .tree .cell .label:dragging
-{
-    -fx-background-color: -qw-hover-bg;
-    -fx-opacity: 0.5;
-}
-
-.sidebar.project .accordion.chapter .tree .cell .chapter:editposition
-{
-    -fx-graphic: url(/imgs/edit-in-progress16.png);
-}
-
-.sidebar.project .accordion.chapter .tree .cell .chapter:editcomplete
-{
-    -fx-graphic: url(/imgs/edit-complete16.png);
-}
-
-.sidebar.project .accordion.chapter .label.outlineitem
-{
-    -fx-graphic: url(/imgs/outlineitem16.png);
-}
-
-.sidebar.project .accordion.chapter .label.scene
-{
-    -fx-graphic: url(/imgs/scene16.png);
-}
-
-.sidebar.project .accordion.chapter .label.notes
-{
-    -fx-graphic: url(/imgs/note16.png);
-}
-
-.sidebar.project .accordion.chapter .label.note
-{
-    -fx-graphic: url(/imgs/bullet16.png);
-}
-
-.sidebar.project .accordion.chapter .label.editneedednote
-{
-    -fx-graphic: url(/imgs/edit16.png);
-}
-
-.viewer.project .sidebar.project .items
-{
-    -fx-padding: 0 0.5em 0 0;
-}
-
-.viewer.project .sidebar.project > .header
-{
-    visibility: hidden;
-}
-
-.viewer.project .sidebar.project .accordion .header .title
-{
-    -fx-font-size: 1.6em;
-    -fx-font-weight: normal;
-}
-
-.viewer.project .sidebar.project .accordion .header .controls
-{
-    visibility: hidden;
-}
-
-.viewer.project .sidebar .toolbar .tool-bar
-{
-    -fx-padding: 0.2em;
-}
-
-.viewer.project .sidebar .toolbar:bottom
-{
-    -fx-border-width: 1px 0 0 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.viewer.project .sidebar .toolbar:top
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.viewer.project .sidebar .toolbar .save { -fx-graphic: url(/imgs/save20.png); }
-.viewer.project .sidebar .toolbar .new { -fx-graphic: url(/imgs/add20.png); }
-.viewer.project .sidebar .toolbar .tag { -fx-graphic: url(/imgs/tag20.png); }
-.viewer.project .sidebar .toolbar .help { -fx-graphic: url(/imgs/help20.png); }
-.viewer.project .sidebar .toolbar .info { -fx-graphic: url(/imgs/information20.png); }
-.viewer.project .sidebar .toolbar .wordcount { -fx-graphic: url(/imgs/wordcount20.png); }
-.viewer.project .sidebar .toolbar .spellcheck:enabled { -fx-graphic: url(/imgs/spellchecker-turn-off20.png); }
-.viewer.project .sidebar .toolbar .spellcheck:disabled { -fx-graphic: url(/imgs/spellchecker-turn-on20.png); -fx-opacity: 1; }
-.viewer.project .sidebar .toolbar .delete { -fx-graphic: url(/imgs/delete20.png); }
-.viewer.project .sidebar .toolbar .tools { -fx-graphic: url(/imgs/tools20.png); }
-.viewer.project .sidebar .toolbar .selectbg { -fx-graphic: url(/imgs/selectbg20.png); }
-.viewer.project .sidebar .toolbar .add { -fx-graphic: url(/imgs/add20.png); }
-.viewer.project .sidebar .toolbar .config { -fx-graphic: url(/imgs/edit-properties20.png); }
-.viewer.project .sidebar .toolbar .edit { -fx-graphic: url(/imgs/edit20.png); }
-.viewer.project .sidebar .toolbar .appearsinchapters { -fx-graphic: url(/imgs/sendout20.png); }
-
-.viewer.project .sidebar .toolbar .button
-{
-    -fx-content-display: graphic-only;
 }
 
 .tab-pane:top .tab-content-area
@@ -4037,12 +1689,12 @@ Text
 {
     -fx-padding: 16px 0 0 -2px;
 }
-
+/*
 .project .sidebar .toolbar:bottom .menu-button .arrow-button
 {
     -fx-rotate: 180;
 }
-
+*/
 /*
  * Rename project popup.
  */
@@ -4270,85 +1922,6 @@ Text
     -fx-border-width: 1px 0 0 0;
 }
 
-/*
- * Word counts sidebar (WordCountsSideBar)
- */
- .sidebar.wordcounts .header .icon
- {
-     -fx-image: url(/imgs/wordcount16.png);
- }
-
- .sidebar.wordcounts .accordion
- {
-     -fx-padding: 0 0.5em 0.5em 0.5em;
- }
-
- .sidebar.wordcounts .accordion .header
- {
-     -fx-border-width: 0 0 1px 0;
-     -fx-border-color: -qw-component-border-color;
-     -fx-padding: 0 0 0.25em 0;
- }
-
- .viewer.project .sidebar.wordcounts .scroll-pane
- {
-     -fx-fit-to-width: true;
- }
-
- .sidebar.wordcounts .accordion .content
- {
-     -fx-padding: 0.5em 0 0.5em 0.5em;
- }
-
- .sidebar.wordcounts .accordion.selected .header .icon
- {
-     -fx-image: url(/imgs/edit16.png);
- }
-
- .sidebar.wordcounts .accordion.session .header .icon
- {
-     -fx-image: url(/imgs/clock16.png);
- }
-
-.sidebar.wordcounts .accordion.chapter .header .icon
-{
-    -fx-image: url(/imgs/chapter16.png);
-}
-
-.sidebar.wordcounts .accordion.allchapters .header .icon
-{
-    -fx-image: url(/imgs/book16.png);
-}
-
-.sidebar.wordcounts .subtitle
-{
-    -fx-font-style: italic;
-    -fx-padding: 0.25em;
-}
-
-.sidebar.wordcounts .value
-{
-    -fx-alignment: center-right;
-    -fx-pref-width: 7em;
-    -fx-padding: 0 0.5em 0.25em 0;
-    -fx-font-weight: bold;
-    -fx-font-style: italic;
-}
-
-.sidebar.wordcounts .hyperlink
-{
-    -fx-padding: 0.25em 0.5 0.25em 0.5em;
-}
-.sidebar.wordcounts .hyperlink.detail
-{
-    -fx-graphic: url(/imgs/chart16.png);
-}
-
-.sidebar.wordcounts .hyperlink.help
-{
-    -fx-graphic: url(/imgs/help16.png);
-}
-
 .qpopup.save .header .icon
 {
     -fx-image: url(/imgs/save16.png);
@@ -4369,7 +1942,7 @@ Text
     -fx-text-fill: -fx-text-base-color;
 }
 
-.compressedmenutitle
+.compressedmenutitle.label
 {
     -fx-padding: 0.5em 1em 0.5em 1.6em;
     -fx-font-style: italic;
@@ -4386,256 +1959,9 @@ Text
     -fx-background-color: transparent;
 }
 
-/*
- Full screen styles (FullScreenView)
- */
-.fullscreen > .header
+.compressedmenu .button
 {
-    -fx-border-width: 0 1px 1px 1px;
-    -fx-border-color: -qw-border-color;
-    -fx-padding: 0 0 0 0.5em;
-    -fx-background-color: -qw-bg-color;
-}
-
-.fullscreen > .header .title
-{
-    -fx-font-size: 2.5em;
-    -fx-padding: 0 0.5em 0 0.5em;
-    /*-fx-max-width: Infinity;*/
-    -fx-text-fill: -fx-text-base-color;
-}
-
-.fullscreen > .header .clock
-{
-    -fx-font-size: 2em;
-    -fx-padding: 0 0.5em 0 0;
-}
-
-.fullscreen > .header.chapter .icon
-{
-    -fx-image: url(/imgs/chapter24.png);
-}
-
-.fullscreen > .header.options .icon
-{
-    -fx-image: url(/imgs/options24.png);
-}
-
-.fullscreen > .header.achievements .icon
-{
-    -fx-image: url(/imgs/achievement24.png);
-}
-
-.fullscreen > .header.statistics .icon
-{
-    -fx-image: url(/imgs/chart24.png);
-}
-
-.fullscreen > .header.ideaboard .icon
-{
-    -fx-image: url(/imgs/idea24.png);
-}
-
-.fullscreen .information
-{
-    -fx-padding: 0.5em 0 0.5em 1em;
-    -fx-border-width: 1px 1px 0 1px;
-    -fx-border-color: -qw-border-color;
-    -fx-background-color: -qw-bg-color;
-}
-
-.fullscreen .information .label
-{
-    -fx-font-size: 1.5em;
-    -fx-padding: 0 1em 0 0;
-}
-
-.fullscreen .information .label.session
-{
-    -fx-graphic: url(/imgs/clock16.png);
-}
-
-.fullscreen .information .label.chapter
-{
-    -fx-graphic: url(/imgs/chapter16.png);
-}
-
-.fullscreen .sidebars
-{
-    -fx-background-color: -qw-bg-color;
-    -fx-border-color: -qw-border-color;
-    -fx-pref-width: 30em;
-}
-
-.fullscreen .sidebars .scroll-pane
-{
-    -fx-fit-to-width: false;
-    -fx-fit-to-height: false;
-    -fx-pref-width: 30em;
-}
-
-.fullscreen .sidebars:left
-{
-    -fx-border-width: 1px 1px 1px 0;
-}
-
-.fullscreen .panel
-{
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-border-color;
-}
-
-.panel.showinginfullscreen
-{
-    -fx-cursor: hand;
-}
-
-.panel.showinginfullscreen > * > *
-{
-    -fx-alignment: center;
-}
-
-.panel.showinginfullscreen .title
-{
-    -fx-padding: 1em;
-}
-
-.panel.showinginfullscreen .title > *
-{
-    -fx-padding: 0.75em 0 0 0;
-    -fx-alignment: top-left;
-}
-
-.panel.showinginfullscreen .title .icon
-{
-    -fx-image: url(/imgs/fullscreen24.png);
-}
-
-.panel.showinginfullscreen .title .text
-{
-    -fx-font-size: 2.5em;
-    -fx-padding: 0 0 0 0.5em;
-}
-
-.texteditor
-{
-    -fx-max-height: Infinity;
-    -fx-background-color: transparent;
-}
-
-.texteditor .text
-{
-    -fx-fill: black;
-    -fx-font-size: 1em;
-}
-
-.texteditor .selection
-{
-    -fx-fill: -qw-component-border-color;
-    /*-fx-fill: white;*/
-
-}
-
-.texteditor .margin, .margin-bg
-{
-    -fx-pref-width: 4.5em;
-    -fx-max-width: 4.5em;
-    -fx-min-width: 4.5em;
-    -fx-max-height: Infinity;
-    -fx-background-color: #dfdfdf;
-    /*
-     * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
-     * for the note ident.  So you can have a margin that is too small to display the item.
-     */
-    -qw-note-item-indent: 0.5em;
-    /*
-     * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
-     * for the note ident.  So you can have a margin that is too small to display the item.
-     */
-    -qw-structure-item-indent: 2.7em;
-}
-
-.texteditor .margin .outlineitem, .texteditor .margin .scene, .texteditor .margin .note, .texteditor .margin .editneedednote
-{
-    -fx-cursor: hand;
-}
-
-.texteditor .margin .editmarker
-{
-    -fx-background-color: green;
-    -fx-pref-width: 2px;
-}
-
-.paragraph-box
-{
-    -fx-padding: 0 0 0em 0;
-    -rtfx-first-line-indent: 0;
-}
-
-.paragraph-box .first-line-indent
-{
-    -fx-pref-height: 3em;
-    -fx-min-height: 3em;
-    -fx-pref-width: 3em;
-    -fx-min-width: 3em;
-    -fx-max-width: 3em;
-    -fx-background-color: blue;
-}
-.paragraph-text
-{
-    -fx-line-spacing: 0em;
-    -fx-text-alignment: left;
-
-}
-
-.qpopup.synonyms .header .icon
-{
-    -fx-image: url(/imgs/find16.png);
-}
-
-.qpopup.synonyms .scroll-pane
-{
-    -fx-pref-height: 5em;
-    /*-fx-pref-height: 5em;*/
-}
-
-.qpopup.synonyms .content .header
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-padding: 0.5em 0 0 0;
-}
-
-.qpopup.synonyms .content
-{
-    -fx-padding: 0 0.25em 0.5em 0.5em;
-}
-
-.qpopup.synonyms .content .header .title
-{
-    -fx-padding: 0;
-    -fx-font-size: 1.1em;
-    -fx-font-style: italic;
-}
-
-.qpopup.synonyms .content .words
-{
-    -fx-padding: 0.25em 0 0.5em 0.25em;
-}
-
-.qpopup.synonyms .content .header .icon
-{
-    visibility: false;
-}
-
-.qpopup.synonyms .link
-{
-    -fx-cursor: hand;
-}
-
-.qpopup.synonyms .link:hover
-{
-    -fx-underline: true;
+    -fx-content-display: graphic-only;
 }
 
 .viewer.project .tab-pane:top .tab-content-area
@@ -4648,719 +1974,103 @@ Text
  * com.quollwriter.ui.fx.ProblemFinder
  */
  /* TODO Fix this, causes issue with chapter right click menu */
-.panel.chapter .problemfinder
-{
-    -fx-border-width: 1px 0 0 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-padding: 0em 0.25em 1em 0.5em;
-    -fx-background-color: -qw-bg-color;
-}
 
-.panel.chapter .problemfinder .header
-{
-    -fx-padding: 0;
-}
-
-.panel.chapter .problemfinder .header .icon
-{
-    -fx-image: url(/imgs/eye16.png);
-}
-
-.panel.chapter .problemfinder .check-box
-{
-    -fx-padding: 0 0 0.5em 0.25em;
-}
-
-.panel.chapter .problemfinder .buttons
-{
-    -fx-padding: 0 0 0 0.25em;
-}
-
-.panel.chapter .problemfinder .header .controls .config { -fx-graphic: url(/imgs/config16.png); }
-.panel.chapter .problemfinder .header .controls .finish { -fx-graphic: url(/imgs/close16.png); }
-.panel.chapter .problemfinder .header .controls .help { -fx-graphic: url(/imgs/help16.png); }
-
-.panel.chapter .problemfinder .buttons .next
-{
-    -fx-graphic: url(/imgs/next16.png);
-    -fx-content-display: right;
-}
-
-.panel.chapter .problemfinder .buttons .previous
-{
-    -fx-graphic: url(/imgs/previous16.png);
-    -fx-content-display: right;
-}
-
-.panel.chapter .problemfinder .warning
-{
-    -fx-cursor: hand;
-    -fx-graphic: url(/imgs/warning16.png);
-    -fx-padding: 0 0.25em 0.5em 0.25em;
-    -fx-graphic-text-gap: 0;
-}
-
-.panel.chapter .problemfinder .noproblems
-{
-    -fx-graphic: url(/imgs/information16.png);
-    -fx-padding: 0 0 0.5em 0.5em;
-}
-
-.panel.chapter .problemfinder .issues
-{
-    -fx-fill-width: false;
-}
-
-.sidebar.problemfinder > .header .icon,
 .qpopup.problemfinder .header .icon
 {
     -fx-image: url(/imgs/eye16.png);
 }
 
-.sidebar.problemfinder .rule
-{
-    -fx-padding: 0 1em 0.5em 0.5em;
-    -fx-font-style: italic;
-}
-
-.sidebar.problemfinder .issue
-{
-    -fx-graphic: url(/imgs/bullet16.png);
-}
-
-.sidebar.problemfinder .chapter
-{
-    -fx-graphic: url(/imgs/chapter16.png);
-}
-
-.sidebar.problemfinder .nomatches, .sidebar.problemfinder .ignored
-{
-    -fx-padding: 0 1em 0.5em 0.5em;
-}
-
-.sidebar.problemfinder .nomatches .image-view, .sidebar.problemfinder .ignored .image-view
-{
-    -fx-image: url(/imgs/warning16.png);
-}
-
-.sidebar.problemfinder .searching
-{
-    -fx-padding: 0 1em 0.5em 0.5em;
-    -fx-font-style: italic;
-}
-
-.sidebar.problemfinder .searching .image-view
-{
-    -fx-image: url(/imgs/loading24.gif);
-}
-
-.sidebar.problemfinder .searching .text
-{
-    -fx-padding: 0 0 0 0.25em;
-}
-
-.sidebar.problemfinder .ignored
-{
-    -fx-cursor: hand;
-}
-
-.sidebar.problemfinder .tree
-{
-    -fx-cell-indent: 0em;
-}
-
-.sidebar.problemfinder .tree .cell
-{
-    -fx-cursor: hand;
-    -fx-padding: 0 0 0 0.5em;
-}
-
-.qpopup.problemfinderconfig .header .icon
-{
-    -fx-image: url(/imgs/eye16.png);
-}
-
-.qpopup.problemfinderconfig .scroll-pane
-{
-    -fx-pref-height: 35em;
-}
-
-.qpopup.problemfinderconfig .rule
-{
-    -fx-padding: 0.25em;
-    -fx-border-width: 1px 0 0 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.qpopup.problemfinderconfig .rule .details
-{
-    -fx-alignment: top-left;
-}
-
-.qpopup.problemfinderconfig .tab-pane .tool-bar.buttons
-{
-    -fx-padding: 0.25em;
-}
-
-.qpopup.problemfinderconfig .rule .summary
-{
-    -fx-max-width: 23em;
-    -fx-padding: 0.25em 0 0.25em 0;
-}
-
-.qpopup.problemfinderconfig .rule .description
-{
-    -fx-padding: 0 0 0 0.5em;
-}
-
-.qpopup.problemfinderconfig .tab-pane .buttons
-{
-    -fx-padding: 0 0 0.5em 0;
-    -fx-alignment: center-left;
-}
-
-.qpopup.problemfinderconfig .edit
-{
-    -fx-background: -qw-bg-color;
-    -fx-padding: 0.5em;
-}
-
-.qpopup.problemfinderconfig .edit .header, .qpopup.problemfinderconfig .edit .header .label
-{
-    -fx-padding: 0;
-}
-
-.qpopup.problemfinderconfig .edit .header .icon
-{
-    visibility: false;
-}
-
-.qpopup.problemfinderconfig .edit .buttons
-{
-    -fx-padding: 0.5em 0.5em 0.5em 1em;
-}
-
-.qpopup.problemfinderconfig .menu-button.add
-{
-    -fx-graphic: url(/imgs/add16.png);
-}
-
-.qpopup.problemfinderconfig .tab-pane:top .tab-content-area
-{
-    -fx-border-width: 0 1px 1px 1px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.qpopup.problemfinderconfig .list-view
-{
-    -fx-max-height: 8em;
-    -fx-pref-height: 8em;
-}
-
-.qpopup.problemfinderconfig .information
-{
-    -fx-font-style: italic;
-}
-
-.qpopup.problemfinderconfig HBox
-{
-    -fx-spacing: 0.5em;
-}
-
 /*
  * IdeaBoard (IdeaBoard)
  */
-.panel.ideaboard .header
-{
-    -fx-background-color: -qw-bg-color;
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-padding: 0.5em;
-}
 
-.panel.ideaboard .header .controls
-{
-    -fx-padding: 0;
-}
-
-.panel.ideaboard .header.ideaboard .icon
-{
-    -fx-image: url(/imgs/idea24.png);
-}
-
-.panel.ideaboard .scroll-pane
-{
-    -fx-fit-to-height: true;
-}
-
-.panel.ideaboard .categories
-{
-    -fx-hgap: 1em;
-    -fx-vgap: 1em;
-    -fx-padding: 1em;
-    -fx-alignment: top-center;
-    -qw-item-width: 25em;
-}
-
-.panel.ideaboard .categories .ideatype
-{
-    -fx-min-width: 30em;
-    -fx-max-width: 30em;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-border-color;
-    -fx-effect: -qw-drop-shadow;
-}
-
-.panel.ideaboard .categories .ideatype .header
-{
-    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
-    -fx-cursor: hand;
-    -fx-border-width: 0;
-}
-
-.panel.ideaboard .categories .ideatype .header .title
-{
-    -fx-font-size: 1.5em;
-}
-
-.panel.ideaboard .categories .ideatype .header .controls .add
-{
-    -fx-image: url(/imgs/add16.png);
-    -fx-graphic: url(/imgs/add16.png);
-}
-
-.panel.ideaboard .categories .ideatype
-{
-    -fx-background-color: -qw-bg-color;
-}
-
-.panel.ideaboard .categories .ideatype .help
-{
-    -fx-padding: 0.5em;
-    -fx-font-style: italic;
-}
-
-.panel.ideaboard .categories .ideatype .scene.header .icon
-{
-    -fx-image: url(/imgs/scene16.png);
-}
-
-.panel.ideaboard .categories .ideatype .chapter.header .icon
-{
-    -fx-image: url(/imgs/chapter16.png);
-}
-
-.panel.ideaboard .categories .ideatype .location.header .icon
-{
-    -fx-image: url(/imgs/location16.png);
-}
-
-.panel.ideaboard .categories .ideatype .character.header .icon
-{
-    -fx-image: url(/imgs/character16.png);
-}
-
-.panel.ideaboard .categories .ideatype .object.header .icon
-{
-    -fx-image: url(/imgs/object16.png);
-}
-
-.panel.ideaboard .idea
-{
-    /*-fx-padding: 0.25em 0.5em 0.5em 0.5em;*/
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.ideaboard .idea > .edit, .panel.ideaboard .ideatype .newidea
-{
-    -fx-border-color: -qw-component-border-color;
-    -fx-border-width: 1px 0 0 0;
-}
-
-.panel.ideaboard .idea .edit .qtextarea, .panel.ideaboard .ideatype .newidea .qtextarea
-{
-    -fx-border-width: 0;
-    -fx-padding: 0.25em;
-}
-
-.panel.ideaboard .idea .edit .buttons, .panel.ideaboard .ideatype .newidea .buttons
-{
-    -fx-border-width: 1px 0 0 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-padding: 0.25em;
-    -fx-alignment: center-right;
-}
-
-.panel.ideaboard .idea:last
-{
-    -fx-border-width: 0;
-}
-
-.panel.ideaboard .idea .view
-{
-    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
-}
-
-.panel.ideaboard .idea .shorttext
-{
-    -fx-cursor: hand;
-}
-
-.panel.ideaboard .idea .tool-bar
-{
-    -fx-padding: 0;
-    -fx-alignment: center-left ;
-    -fx-fill-height: true;
-}
-
-.starbar
-{
-    -fx-fill-height: false;
-    -fx-alignment: center-left;
-}
-
-.starbar .star
-{
-    -fx-padding: 0.25em;
-    -fx-cursor: hand;
-}
-
-.starbar .star .image-view
-{
-    -fx-image: url(/imgs/star-disabled16.png);
-}
-
-.starbar .star:tempselected .image-view,
-.starbar .star:selected .image-view
-{
-    -fx-image: url(/imgs/star16.png);
-}
-
-.panel.asset .scroll-pane
-{
-    -fx-fit-to-width: true;
-    -fx-fit-to-height: true;
-    -fx-pannable: true;
-}
-
-.panel.asset .split-pane-divider
+.date-picker, .date-picker:focused, .spinner, .spinner:focused
 {
     -fx-background-color: transparent;
-    -fx-pref-width: 1px;
-}
-
-.panel.asset .split-pane-divider:hover
-{
-    -fx-background-color: -qw-component-border-color;
-}
-
-.panel.asset .view,
-.panel.asset .edit .single,
-.panel.asset .edit .full
-{
-    -fx-padding: 0 0.5em 0.25em 0.5em;
-}
-
-.panel.asset .field .view > .label,
-.panel.asset .field .edit > .single .label,
-.panel.asset .field .edit > .full .label
-{
-    -fx-font-style: italic;
-}
-
-.panel.asset .column
-{
-    -fx-padding: 0.5em;
-}
-
-.panel.asset .field .view .control
-{
-    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
-}
-
-.panel.asset .edit .single .controls, .panel.asset .edit .full .controls
-{
-    -fx-padding: 0.25em 0 0.25em 0.5em;
-    -fx-spacing: 0;
-}
-
-.panel.asset .edit .single .buttons
-{
-    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
-    -fx-border-width: 0px 1px 1px 1px;
+    -fx-border-radius: 0px;
     -fx-border-color: -qw-component-border-color;
+    -fx-max-width: 15em;
 }
 
-.panel.asset .edit .single .control
+.date-picker .text-field,
+.date-picker .text-field:focused,
+.date-picker:focused .text-field,
+.spinner .text-field,
+.spinner .text-field:focused
 {
-    -fx-padding: 0em 0 0 0em;
-}
-
-.panel.asset .column
-{
-    -fx-min-width: 15em;
-    -fx-border-width: 1px 1px 0 1px;
-    -fx-border-color: transparent;
-}
-
-.panel.asset .column .fields
-{
-    -fx-padding: 0.5em 0 0 0;
-}
-
-.panel.asset .column .fields:hidelabels .field > .label
-{
-    visibility: false;
-}
-
-.panel.asset .column .header
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-padding: 0;
-}
-
-.panel.asset .column .header .icon
-{
-    visibility: hidden;
-}
-
-.panel.asset .column .header .title
-{
-    -fx-font-size: 1.5em;
-}
-
-.panel.asset .column:dragover
-{
-    -fx-background-color: -qw-hover-bg;
-    -fx-border-width: 1px 1px 0 1px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.asset .field
-{
-    -fx-padding: 0 0.5em 0 0;
-}
-
-.panel.asset .field
-{
-    -fx-border-width: 1px;
-    -fx-border-color: transparent;
-    -fx-padding: 0 0.5em 0 0;
-}
-
-.panel.asset .field:dragover
-{
-    -fx-border-color: -qw-component-border-color;
-    -fx-border-width: 1px;
-    -fx-cursor: move;
-    -fx-background-color: -qw-hover-bg;
-}
-
-.panel.asset .field .control .image
-{
-    -fx-border-color: -qw-component-border-color;
-    -fx-border-width: 1px;
-    -fx-cursor: hand;
-}
-
-/*
- * These styles hide the labels for the special fields (object name/object image/object description)
- * when certain layouts are used.
- */
-.panel.asset .objectdescription .edit .control
-{
-    -fx-min-height: 20em;
-}
-
-.panel.asset .fields .field .label
-{
+    -fx-background-insets: 0;
     -fx-border-width: 0;
-}
-
-.panel.asset .fields .field .label .title
-{
-    -fx-font-size: 1.1em;
-    -fx-font-style: italic;
-}
-
-.panel.asset .field .control
-{
-    -fx-snap-to-pixel: true;
-}
-
-.panel.asset .field .image:dragging
-{
-    -fx-opacity: 0.75;
-}
-
-.panel.asset .objectimage .edit .single .control .image
-{
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.asset .edit .control .image:noimage .image-view
-{
-    -fx-image: url(/data/default-find-image.png);
-}
-
-.panel.asset .header:scrolling
-{
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.asset .new.field
-{
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: transparent;
     -fx-padding: 0.5em;
 }
 
-.panel.asset .new.field .header
+.date-picker .arrow-button
 {
-    -fx-padding: 0;
-}
-.panel.asset .new.field .header .title
-{
-    -fx-font-size: 1.5em;
-}
-
-.panel.asset .new.field .header .icon
-{
-    -fx-image: url(/imgs/add16.png);
-}
-
-.panel.asset .new.field .buttons
-{
-    -fx-padding: 0.25em 0 0.25em 1em;
-}
-
-.panel.asset .new.field .form .buttons .button
-{
-    -fx-content-display: text-only;
-}
-
-.panel.asset .edit .controls .control .scroll-pane
-{
-    -fx-fit-to-width: true;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.panel.asset .view .control .scroll-pane
-{
-    -fx-fit-to-width: false;
-    -fx-fit-to-height: false;
-}
-
-.panel.asset .view .control .documents .file
-{
-    -fx-border-width: 0 0 1px 0;
-}
-
-.panel.asset .edit .controls .control .documents .label.add
-{
-    -fx-font-size: 1.2em;
-    -fx-font-style: normal;
-    -fx-alignment: center;
-    -fx-padding: 0.5em;
-    -fx-graphic: url(/imgs/add20.png);
+    -fx-padding: 0.75em;
+    -fx-background-radius: 0;
+    -fx-background-image: url(/imgs/date16.png);
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
     -fx-cursor: hand;
-    -fx-wrap-text: true;
+    -fx-border-width: 0 0 0 1px;
+    -fx-border-color: transparent;
 }
 
-.panel.asset .view .documents .label.add
-{
-    visibility: false;
-}
-
-.panel.asset .documents .files
-{
-    -fx-fill-width: true;
-}
-
-.panel.asset .documents .file
-{
-    -fx-cursor: hand;
-    -fx-padding: 0.5em;
-}
-
-.panel.asset .documents .menu-item .label
-{
-    -fx-content-display: text-only;
-    -fx-padding: 0.25em;
-}
-
-.panel.asset .documents .file:normal .label
-{
-    -fx-graphic: url(/imgs/document-normal.png);
-}
-
-
-.panel.asset .documents .file .label
-{
-    -fx-alignment: center-left;
-    -fx-wrap-text: true;
-}
-
-.panel.asset .documents .file .label .text
-{
-    -fx-font-style: normal;
-    -fx-wrap-text: true;
-}
-
-.panel.asset .documents .files .file:hover
+.date-picker .arrow-button:hover,
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover
 {
     -fx-background-color: -qw-hover-bg;
-}
-
-.panel.asset .edit .controls .control .documents .overlay
-{
-    -fx-alignment: top-center;
-    -fx-cursor: move;
-    -fx-fill-width: true;
-}
-
-.panel.asset .edit .controls .control .documents .overlay .label
-{
-    -fx-font-size: 1.5em;
-    -fx-text-alignment: center;
-    -fx-alignment: top-center;
-    -fx-border-width: 1px 0 1px 0;
+    -fx-border-width: 0 0 0 1px;
     -fx-border-color: -qw-component-border-color;
-    -fx-background-color: #ffffff;
-    -fx-opacity: 1;
-    -fx-padding: 1em;
-    -fx-graphic: url(/imgs/down24.png);
-    -fx-wrap-text: true;
 }
 
-.panel.asset .linkedto
+.spinner .decrement-arrow-button:hover
 {
-    -fx-padding: 0.25em;
+    -fx-border-width: 1px 0 0 1px;
 }
 
-.panel.asset .linkedto .tree.edit, .panel.asset .linkedto .tree.view
+.spinner .increment-arrow-button:hover
 {
-    -fx-cell-indent: 1.3em;
+    -fx-border-width: 0 0 1px 1px;
 }
 
-.panel.asset .linkedto .tree .cell
+.date-picker .arrow-button .arrow,
+.spinner .increment-arrow,
+.spinner .decrement-arrow
 {
-    -fx-padding: 0;
+    -fx-opacity: 0;
+    -fx-padding: 0.5em;
+    -fx-background-color: transparent;
 }
 
-.panel.asset .linkedto .tree .label .text
+.date-picker .text-input, .spinner .text-input
 {
-    -fx-font-style: normal;
+    -fx-pref-width: 14em;
 }
 
-.panel.asset .linkedto .tree .cell:leaf .label
+.spinner .increment-arrow-button, .spinner .decrement-arrow-button
 {
-    -fx-graphic: url(/imgs/bullet16.png);
+    -fx-padding: 0.75em;
+    -fx-background-radius: 0;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 0 1px;
+    -fx-border-color: transparent;
+}
+
+.spinner .increment-arrow-button
+{
+    -fx-background-image: url(/imgs/more12.png);
+}
+
+.spinner .decrement-arrow-button
+{
+    -fx-background-image: url(/imgs/less12.png);
+    -fx-border-width: 1px 0 0px 1px;
 }
 
 body
@@ -5426,31 +2136,9 @@ a
     -fx-max-width: 70em;
 }
 
-/**
- * DictionaryManager
- */
-.qpopup.dictionarymanager .header .icon
-{
-    -fx-image: url(/imgs/dictionary16.png);
-}
-
-.qpopup.dictionarymanager .content .header .icon
-{
-    visibility: hidden;
-}
-
-/**
- * NoteTypesManager
- */
-.qpopup.notetypesmanager .header .icon
-{
-    -fx-image: url(/imgs/note16.png);
-}
-
-.qpopup.notetypesmanager .content .header .icon
-{
-    visibility: hidden;
-}
+.qpopup.dictionarymanager .header .icon { -fx-image: url(/imgs/dictionary16.png); }
+.qpopup.tagsmanager .header.title .icon { -fx-image: url(/imgs/tag16.png); }
+.qpopup.notetypesmanager .header.title .icon { -fx-image: url(/imgs/note16.png); }
 
 .root.popupviewer .qpopup.question
 {
@@ -5491,7 +2179,7 @@ a
     -fx-image: url(/imgs/status-snooze16.png);
 }
 
-.qpopup.stop .header .icon
+.viewer .qpopup.stop .header .icon
 {
     -fx-image: url(/imgs/stop16.png);
 }
@@ -5524,53 +2212,6 @@ a
     -fx-image: url(/imgs/find16.png);
 }
 
-.sidebar.appearsinchapters
-{
-    -fx-min-width: 20em;
-}
-
-.sidebar.appearsinchapters .header
-{
-    -fx-padding: 0 0 0 0.5em;
-}
-
-.sidebar.appearsinchapters .description
-{
-    -fx-padding: 0 0.5em 0.5em 0.5em;
-}
-
-.sidebar.appearsinchapters .nomatches
-{
-    -fx-padding: 0 0.5em 0.5em 0.5em;
-    -fx-font-style: italic;
-}
-
-.sidebar.appearsinchapters .results .cell .label.chapter
-{
-    -fx-graphic: url(/imgs/chapter16.png);
-}
-
-.sidebar.appearsinchapters .results .accordion .tree .cell
-{
-    -fx-cursor: hand;
-    -fx-padding: 0 0 0 0em;
-}
-
-.sidebar.appearsinchapters .results .cell .snippet
-{
-    -fx-graphic: url(/imgs/bullet16.png);
-}
-
-.sidebar.appearsinchapters .content .results
-{
-    -fx-padding: 0 0.5em 0.5em 0.5em;
-}
-
-.sidebar.appearsinchapters .content .results .header
-{
-    visibility: hidden;
-}
-
 .sidebar.editproperties .fullscreen .background
 {
     -fx-min-height: 10em;
@@ -5594,76 +2235,59 @@ a
     -fx-background-color: -qw-hover-bg;
 }
 
-.qpopup.firstusewizard
+/**
+ * AchievementsPopup
+ */
+.qpopup.achievements .header.title .icon
 {
-    -fx-pref-width: 50em;
-    -fx-pref-height: 40em;
-    -fx-border-width: 0;
-    -fx-border-color: transparent;
+    -fx-image: url(/imgs/achievement16.png);
 }
 
-.qpopup.firstusewizard .header
+.filefind
 {
-    -fx-padding: 0 0.5em 0 0.5em;
+    -fx-spacing: 0.2em;
+    -fx-max-width: 50em;
 }
 
-.qpopup.firstusewizard .header.title .title
+.filefind .button
 {
-    -fx-font-size: 2em;
+    -fx-padding: 0.3em;
+    -fx-cursor: hand;
 }
 
-.qpopup.firstusewizard .header.title .icon
+.filefind .button.find
 {
-    -fx-image: url(/imgs/qw24.png);
+    -fx-graphic: url(/imgs/find16.png);
 }
 
-.qpopup.firstusewizard .content .form .control
+.filefind .button.view
 {
-    -fx-padding: 0.5em 0 0.5em 0.5em;
+    -fx-graphic: url(/imgs/eye16.png);
 }
 
-.qpopup.firstusewizard .content .label.loading
+.filefind .button.clear
 {
-    -fx-graphic: url(/imgs/loading24.gif);
+    -fx-graphic: url(/imgs/clear16.png);
 }
 
-.qpopup.firstUseWizard .content .download
+.sidebar.problemfinder .header .icon
 {
-    -fx-fit-width: true;
+    -fx-image: url(/imgs/eye16.png);
 }
 
-.qpopup.firstusewizard .content .download .progress
-{
-    -fx-padding: 0.25em;
-    -fx-alignment: center;
-    -fx-spacing: 0.25em;
-}
-
-.qpopup.firstusewizard .content .download .progress-bar
-{
-    -fx-max-width: Infinity;
-    -fx-border-width: 1px;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.qpopup.firstusewizard .content .scroll-pane
-{
-    -fx-padding: 0.5em 0 0.5em 0;
-    -fx-fit-to-height: true;
-    -fx-fit-to-width: false;
-}
-
-.qpopup.firstusewizard .content .tree .cell
-{
+.hyperlink {
+    -fx-fill: -qw-hyperlink-color;
+    -fx-text-fill: -qw-hyperlink-color;
+    -fx-graphic-text-gap: 0.25em;
     -fx-padding: 0;
+    -fx-underline: false;
+    -fx-text-wrap: true;
 }
-
-.qpopup.firstusewizard .content .tree .cell .chapter
-{
-    -fx-graphic: url(/imgs/chapter16.png);
-}
-
-.qpopup.firstusewizard .content .newproject .control
-{
-    -fx-padding: 0 0 0.5em 1em;
-}
+.hyperlink.help { -fx-graphic: url(/imgs/help16.png); }
+.hyperlink.warning { -fx-graphic: url(/imgs/warning16.png); }
+.hyperlink.find, .hyperlink.view { -fx-graphic: url(/imgs/find16.png); }
+.hyperlink.selectbg { -fx-graphic: url(/imgs/bg-select16.png); }
+.hyperlink.linkedto { -fx-graphic: url(/imgs/link16.png); }
+.hyperlink.edit { -fx-graphic: url(/imgs/edit16.png); }
+.hyperlink.view { -fx-padding: 0.5em 0.5em 0.5em 0em; }
+.hyperlink:hover { -fx-underline: true; }

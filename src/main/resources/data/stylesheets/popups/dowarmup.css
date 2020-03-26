@@ -1,0 +1,41 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.DoWarmupExercisePopup
+ */
+.dowarmup .header .icon { -fx-image: url(/imgs/warmups16.png); }
+.content .header .icon { visibility: false; }
+.chooseprompt .header, .chooseprompt .header .title,
+.ownprompt .header, .ownprompt .header .title,
+.config .header, .config .header .title {
+    -fx-padding: 0;
+}
+.chooseprompt, .ownprompt, .config { -fx-padding: 0 0 1em 0; }
+.chooseprompt .scroll-pane {
+    -fx-min-height: 9em;
+    -fx-padding: 0 0 0 0.5em;
+}
+.chooseprompt .buttons {
+    -fx-alignment: center-left;
+    -fx-padding: 1em 0 0 0.5em;
+}
+.chooseprompt .next { -fx-graphic: url(/imgs/next16.png); }
+.chooseprompt .previous {
+    -fx-graphic: url(/imgs/previous16.png);
+    -fx-min-width: 16px;
+    -fx-content-display: graphic-only;
+}
+.chooseprompt .weblinks {
+    -fx-graphic: url(/imgs/website-links16.png);
+    -fx-content-display: graphic-only;
+    -fx-min-width: 16px;
+}
+.ownprompt .text { -fx-padding: 0.5em 0 0 0.5em; }
+.ownprompt .text .text-area {
+    -fx-max-height: 5em;
+    -fx-pref-height: 5em;
+    -fx-min-height: 5em;
+}
+.config > * { -fx-padding: 0.5em 0 0 0.5em; }
+.config > HBox {
+    -fx-spacing: 0.5em;
+    -fx-alignment: baseline-left;
+}

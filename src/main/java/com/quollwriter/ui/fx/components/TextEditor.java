@@ -97,7 +97,9 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
             	if ( obj == this )  return true;
             	else if ( obj instanceof AbstractSegment && getClass().equals( obj.getClass() ) )
                 {
-                    return getText().equals( ((AbstractSegment) obj).getText() );
+
+                    boolean v = getText().equals( ((AbstractSegment) obj).getText() );
+                    return v;
                 }
 
                 return false;
@@ -550,12 +552,72 @@ TODO
 
         });
 
+        this.selectionProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv.getStart () != newv.getEnd ())
+            {
+
+                this.ignoreDocumentChange = true;
+
+                this.suspendUndos.suspendWhile (() ->
+                {
+
+                    this.getContent ().setStyleSpans (newv.getStart (),
+                                                      this.getContent ().getStyleSpans (newv.getStart (),
+                                                                                        newv.getEnd ()).mapStyles (ss ->
+                    {
+
+                        TextStyle _s = new TextStyle (ss);
+                        _s.setTextColor (Color.WHITE);
+                        //this.props.getTextColor ().invert ());
+
+                        return _s;
+
+                    }));
+
+                    this.ignoreDocumentChange = false;
+
+                });
+
+            } else {
+
+                if (oldv.getStart () != oldv.getEnd ())
+                {
+
+                    this.ignoreDocumentChange = true;
+
+                    this.suspendUndos.suspendWhile (() ->
+                    {
+
+                        this.getContent ().setStyleSpans (oldv.getStart (),
+                                                          this.getContent ().getStyleSpans (oldv.getStart (),
+                                                                                            oldv.getEnd ()).mapStyles (ss ->
+                        {
+
+                            TextStyle _s = new TextStyle (ss);
+                            _s.setTextColor (this.props.getTextColor ());
+                            return _s;
+
+                        }));
+
+                        this.ignoreDocumentChange = false;
+
+                    });
+                }
+
+            }
+
+        });
+
+        this.setUndoManager (org.fxmisc.richtext.util.UndoUtils.richTextSuspendableUndoManager (this, this.suspendUndos));
+        /*
         this.setUndoManager (UndoManagerFactory.unlimitedHistoryFactory ().createMultiChangeUM(this.multiRichChanges ().conditionOn (this.suspendUndos),
                                                                             TextChange::invert,
                                                                             UndoUtils.applyMultiRichTextChange(this),
                                                                             TextChange::mergeWith,
                                                                             TextChange::isIdentity));
-
+*/
         this.setAutoScrollOnDragDesired (true);
         this.setWrapText (true);
 
@@ -1142,6 +1204,23 @@ TODO
         if (!this.readyForUseProp.getValue ())
         {
 
+            this.readyForUseProp.addListener ((pr, oldv, newv) ->
+            {
+
+                if (newv)
+                {
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        this.setText (text);
+
+                    });
+
+                }
+
+            });
+/*
             // TODO Handle the case where the editor is removed from the scene.
             UIUtils.runLater (() ->
             {
@@ -1149,7 +1228,7 @@ TODO
                 this.setText (text);
 
             });
-
+*/
             return;
 
         }
@@ -1700,14 +1779,14 @@ TODO
                                    List<IndexRange> errs)
     {
 
-//        UIUtils.runLater (() ->
-//        {
+        UIUtils.runLater (() ->
+        {
 
             this.ignoreDocumentChange = true;
 
             this.suspendUndos.suspendWhile (() ->
             {
-                long s2 = System.currentTimeMillis ();
+
 
                 this.getContent ().setStyleSpans (start,
                                                   this.getContent ().getStyleSpans (start,
@@ -1740,7 +1819,7 @@ TODO
 
                 });
 
-        //});
+        });
 
     }
 
@@ -2274,7 +2353,7 @@ TODO
         public void setTextColor (Color i)
         {
 
-            this.textColor = Optional.of (i);
+            this.textColor = Optional.ofNullable (i);
 
         }
 
@@ -2685,9 +2764,18 @@ TODO
         private DictionaryProvider2 dictProv = null;
         private SynonymProvider synProv = null;
         private boolean formattingEnabled = false;
+        private String styleSheet = null;
 
         private Builder ()
         {
+
+        }
+
+        public Builder styleSheet (String s)
+        {
+
+            this.styleSheet = s;
+            return _this ();
 
         }
 
@@ -2749,6 +2837,16 @@ TODO
                                             props);
 */
             ed.getStyleClass ().add (StyleClassNames.TEXTEDITOR);
+
+            UIUtils.addStyleSheet (ed,
+                                   Constants.COMPONENT_STYLESHEET_TYPE,
+                                   StyleClassNames.FILEFIND);
+            if (this.styleSheet != null)
+            {
+
+                ed.getStylesheets ().add (this.styleSheet);
+
+            }
 
             if (this.styleName != null)
             {

@@ -42,7 +42,9 @@ public class ReportBugPopup extends PopupContent
             .maxChars (10000)
             .withViewer (viewer)
             //.autoGrabFocus (true)
+            .spellCheckEnabled (true)
             .styleClassName (StyleClassNames.DESCRIPTION)
+            .dictionaryProvider (UserProperties.getUITextDictionaryProvider ())
             .build ();
 
         javafx.scene.layout.VBox.setVgrow (this.desc,
@@ -72,7 +74,7 @@ public class ReportBugPopup extends PopupContent
                    this.email)
             .item (this.sendLogFiles)
             .item (this.sendScreenshot)
-            .withHandler (this.viewer)
+            .inViewer (this.viewer)
             .build ();
 
         f.setOnCancel (ev -> _this.getPopup ().close ());
@@ -202,7 +204,13 @@ public class ReportBugPopup extends PopupContent
             .withViewer (this.viewer)
             .build ();
 
-        p.requestFocus ();
+        p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                           ev ->
+        {
+
+            p.requestFocus ();
+
+        });
 
         return p;
 

@@ -3,9 +3,10 @@ package com.quollwriter.db;
 import java.io.*;
 import java.util.*;
 import java.sql.*;
-import javax.imageio.*;
-import java.awt.image.*;
+//import javax.imageio.*;
+//import java.awt.image.*;
 import javax.swing.*;
+import javafx.scene.image.*;
 
 import org.bouncycastle.bcpg.*;
 import org.bouncycastle.openpgp.*;
@@ -60,7 +61,6 @@ public class ProjectInfoObjectManager extends ObjectManager
                     password,
                     filePassword,
                     newSchemaVersion);
-
         // Load the object types.  Each type will register itself with the Environment.
         this.getObjects (UserConfigurableObjectType.class,
                          null,
@@ -513,7 +513,7 @@ public class ProjectInfoObjectManager extends ObjectManager
      * It will create each object and the minimum required fields.
      */
     public void initLegacyObjectTypes ()
-                                throws GeneralException
+                                throws Exception
     {
 
         // If we have no user config object types then create the ones we need.
@@ -522,6 +522,91 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         if (chapT != null)
         {
+
+            // Check to make sure that the legacy types have their icons setup.
+            UserConfigurableObjectType assT = Environment.getUserConfigurableObjectType (QCharacter.OBJECT_TYPE);
+
+            if (assT != null)
+            {
+
+                if (assT.icon16x16Property ().getValue () == null)
+                {
+
+                    assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_SMALL_ICON_IMAGE_NAME)));
+
+                }
+
+                if (assT.icon24x24Property ().getValue () == null)
+                {
+
+                    assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_LARGE_ICON_IMAGE_NAME)));
+
+                }
+
+            }
+
+            assT = Environment.getUserConfigurableObjectType (Location.OBJECT_TYPE);
+
+            if (assT != null)
+            {
+
+                if (assT.icon16x16Property ().getValue () == null)
+                {
+
+                    assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_SMALL_ICON_IMAGE_NAME)));
+
+                }
+
+                if (assT.icon24x24Property ().getValue () == null)
+                {
+
+                    assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_LARGE_ICON_IMAGE_NAME)));
+
+                }
+
+            }
+
+            assT = Environment.getUserConfigurableObjectType (QObject.OBJECT_TYPE);
+
+            if (assT != null)
+            {
+
+                if (assT.icon16x16Property ().getValue () == null)
+                {
+
+                    assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_SMALL_ICON_IMAGE_NAME)));
+
+                }
+
+                if (assT.icon24x24Property ().getValue () == null)
+                {
+
+                    assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_LARGE_ICON_IMAGE_NAME)));
+
+                }
+
+            }
+
+            assT = Environment.getUserConfigurableObjectType (ResearchItem.OBJECT_TYPE);
+
+            if (assT != null)
+            {
+
+                if (assT.icon16x16Property ().getValue () == null)
+                {
+
+                    assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_SMALL_ICON_IMAGE_NAME)));
+
+                }
+
+                if (assT.icon24x24Property ().getValue () == null)
+                {
+
+                    assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_LARGE_ICON_IMAGE_NAME)));
+
+                }
+
+            }
 
             // Already inited.
             return;
@@ -552,6 +637,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Description
         ObjectDescriptionUserConfigurableObjectTypeField descF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
+        descF.setUserConfigurableObjectType (chapterType);
+
         descF.setSearchable (true);
         /*
         descF.setFormName (Environment.getUIString (LanguageStrings.chapters,
@@ -564,6 +651,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Plan
         MultiTextUserConfigurableObjectTypeField planF = new MultiTextUserConfigurableObjectTypeField ();
 
+        planF.setUserConfigurableObjectType (chapterType);
         planF.setSearchable (true);
         planF.setDisplayAsBullets (true);
         /*
@@ -576,6 +664,7 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         MultiTextUserConfigurableObjectTypeField goalsF = new MultiTextUserConfigurableObjectTypeField ();
 
+        goalsF.setUserConfigurableObjectType (chapterType);
         goalsF.setSearchable (true);
         goalsF.setDisplayAsBullets (true);
         /*
@@ -586,7 +675,7 @@ public class ProjectInfoObjectManager extends ObjectManager
                             //Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
         goalsF.setLegacyFieldId (Chapter.GOALS_LEGACY_FIELD_ID);
 
-        chapterType.addNewColumn (Arrays.asList (descF, planF, goalsF));
+        chapterType.setConfigurableFields (Arrays.asList (descF, planF, goalsF));
 
         Environment.addUserConfigurableObjectType (chapterType);
 
@@ -598,6 +687,9 @@ public class ProjectInfoObjectManager extends ObjectManager
         characterType.setLayout (null);
         characterType.setAssetObjectType (true);
         characterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift C"));
+        characterType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_SMALL_ICON_IMAGE_NAME)));
+        characterType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_LARGE_ICON_IMAGE_NAME)));
+
         /*
         TODO
         characterType.setIcon24x24 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
@@ -610,6 +702,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
+        nameF.setUserConfigurableObjectType (characterType);
+
         /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
@@ -621,6 +715,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Aliases
         UserConfigurableObjectTypeField aliasesF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
 
+        aliasesF.setUserConfigurableObjectType (characterType);
         aliasesF.setNameField (true);
         aliasesF.setSearchable (true);
         /*
@@ -634,6 +729,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Description
         ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
+        cdescF.setUserConfigurableObjectType (characterType);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
         cdescF.setSearchable (true);
         /*
@@ -643,7 +739,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         */
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
 
-        characterType.addNewColumn (Arrays.asList (nameF, aliasesF, cdescF));
+        characterType.setConfigurableFields (Arrays.asList (nameF, aliasesF, cdescF));
 
         Environment.addUserConfigurableObjectType (characterType);
 
@@ -655,6 +751,9 @@ public class ProjectInfoObjectManager extends ObjectManager
         locType.setLayout (null);
         locType.setAssetObjectType (true);
         locType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift L"));
+        locType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_SMALL_ICON_IMAGE_NAME)));
+        locType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_LARGE_ICON_IMAGE_NAME)));
+
         /*
         TODO?
         locType.setIcon24x24 (Environment.getObjectIcon (Location.OBJECT_TYPE,
@@ -667,6 +766,8 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
+        nameF.setUserConfigurableObjectType (locType);
+
         /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
@@ -678,6 +779,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
+        cdescF.setUserConfigurableObjectType (locType);
         cdescF.setSearchable (true);
         /*
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
@@ -687,7 +789,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
-        locType.addNewColumn (Arrays.asList (nameF, cdescF));
+        locType.setConfigurableFields (Arrays.asList (nameF, cdescF));
 
         Environment.addUserConfigurableObjectType (locType);
 
@@ -699,6 +801,9 @@ public class ProjectInfoObjectManager extends ObjectManager
         qobjType.setLayout (null);
         qobjType.setAssetObjectType (true);
         qobjType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift I"));
+        qobjType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_SMALL_ICON_IMAGE_NAME)));
+        qobjType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_LARGE_ICON_IMAGE_NAME)));
+
         /*
         TODO
         qobjType.setIcon24x24 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
@@ -710,7 +815,7 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
-
+        nameF.setUserConfigurableObjectType (qobjType);
         /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
@@ -722,6 +827,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Type
         SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
 
+        typeF.setUserConfigurableObjectType (qobjType);
         typeF.setLegacyFieldId (QObject.TYPE_LEGACY_FIELD_ID);
         /*
         typeF.setFormName (Environment.getUIString (LanguageStrings.assets,
@@ -764,6 +870,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
+        cdescF.setUserConfigurableObjectType (qobjType);
         cdescF.setSearchable (true);
         /*
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
@@ -773,7 +880,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
-        qobjType.addNewColumn (Arrays.asList (nameF, typeF, cdescF));
+        qobjType.setConfigurableFields (Arrays.asList (nameF, typeF, cdescF));
 
         Environment.addUserConfigurableObjectType (qobjType);
 
@@ -785,6 +892,9 @@ public class ProjectInfoObjectManager extends ObjectManager
         riType.setLayout (null);
         riType.setAssetObjectType (true);
         riType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift R"));
+        riType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_SMALL_ICON_IMAGE_NAME)));
+        riType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_LARGE_ICON_IMAGE_NAME)));
+
         /*
         TODO
         riType.setIcon24x24 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
@@ -797,6 +907,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
 
+        nameF.setUserConfigurableObjectType (riType);
         /*
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
@@ -808,6 +919,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Web link
         WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
 
+        webF.setUserConfigurableObjectType (riType);
         webF.setLegacyFieldId (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID);
         /*
         webF.setFormName (Environment.getUIString (LanguageStrings.assets,
@@ -819,6 +931,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
 
+        cdescF.setUserConfigurableObjectType (riType);
         cdescF.setSearchable (true);
         /*
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
@@ -828,7 +941,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
 
-        riType.addNewColumn (Arrays.asList (nameF, webF, cdescF));
+        riType.setConfigurableFields (Arrays.asList (nameF, webF, cdescF));
 
         Environment.addUserConfigurableObjectType (riType);
 

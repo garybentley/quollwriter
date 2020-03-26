@@ -64,28 +64,20 @@ public class Header extends HBox
             this.title.setOnContextMenuRequested (ev ->
             {
 
+
                 ContextMenu m = new ContextMenu ();
+
                 Set<MenuItem> items = b.contextMenuItemSupplier.get ();
 
                 if (items != null)
                 {
 
                     m.getItems ().addAll (items);
-
-                    if (this.title.getContextMenu () != null)
-                    {
-
-                        this.title.getContextMenu ().hide ();
-
-                    }
-
                     ev.consume ();
 
                     m.setAutoHide (true);
 
 					m.show (_this, ev.getScreenX (), ev.getScreenY ());
-
-                    this.title.setContextMenu (m);
 
                 }
 

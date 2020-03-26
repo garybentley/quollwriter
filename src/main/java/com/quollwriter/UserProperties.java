@@ -22,6 +22,7 @@ import java.awt.event.*;
 import javafx.collections.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
+import javafx.scene.media.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -49,11 +50,11 @@ import static com.quollwriter.LanguageStrings.*;
 public class UserProperties
 {
 
-    public static final float DEFAULT_FULL_SCREEN_X_BORDER_WIDTH = (7f / 100f);
-    public static final float DEFAULT_FULL_SCREEN_Y_BORDER_WIDTH = (7f / 100f);
+    public static final double DEFAULT_FULL_SCREEN_X_BORDER_WIDTH = 0.3d; //(7f / 100f);
+    public static final double DEFAULT_FULL_SCREEN_Y_BORDER_WIDTH = 0.3d; //(7f / 100f);
     public static final double DEFAULT_FULL_SCREEN_OPACITY = 1d;
 
-    public static final double FULL_SCREEN_X_BORDER_WIDTH_ADJUST_INCR = 0.002d;
+    public static final double FULL_SCREEN_X_BORDER_WIDTH_ADJUST_INCR = 0.001d;
     public static final double FULL_SCREEN_Y_BORDER_WIDTH_ADJUST_INCR = 0.002d;
     public static final double FULL_SCREEN_MIN_X_BORDER_WIDTH = 0.05d;
     public static final double FULL_SCREEN_MAX_X_BORDER_WIDTH = 0.4d;
@@ -114,6 +115,13 @@ public class UserProperties
 
     private static SimpleObjectProperty<Path> userStyleSheetProp = null;
 
+    private static SimpleBooleanProperty playSoundOnKeyStrokeProp = null;
+    private static SimpleObjectProperty<Path> keyStrokeSoundPathProp = null;
+    //private static AudioClip keyStrokeSound = null;
+    private static javax.sound.sampled.Clip keyStrokeSound = null;
+    private static byte[] keyStrokeSoundBytes = null;
+    private static UserDictionaryProvider uiTextDictionaryProv = null;
+
     static
     {
 
@@ -127,7 +135,7 @@ public class UserProperties
     }
 
     public static void init (com.gentlyweb.properties.Properties props)
-                      throws IOException
+                      throws Exception
     {
 
         if (props == null)
@@ -143,6 +151,55 @@ public class UserProperties
                                                                                     Constants.DEFAULT_PROJECT_INFO_FORMAT);
         UserProperties.tabsLocationProp = UserProperties.createMappedProperty (Constants.TABS_LOCATION_PROPERTY_NAME);
         UserProperties.toolbarLocationProp = UserProperties.createMappedProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME);
+
+        UserProperties.playSoundOnKeyStrokeProp = new SimpleBooleanProperty (UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME));
+
+        UserProperties.playSoundOnKeyStrokeProp.addListener ((p, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
+                                newv);
+
+            Environment.fireUserProjectEvent (ProjectEvent.Type.typewritersound,
+                                              (newv ? ProjectEvent.Action.on : ProjectEvent.Action.off));
+
+        });
+
+        UserProperties.keyStrokeSoundPathProp = new SimpleObjectProperty<Path> ();
+
+        String sf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
+
+        try
+        {
+
+            UserProperties.setKeyStrokeSoundFilePath ((sf != null ? Paths.get (sf) : null));
+            //Utils.getResourceUrl (sf).toURI ()) : null));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to load key stroke sound from: " + sf,
+                                  e);
+
+        }
+
+        UserProperties.keyStrokeSoundPathProp.addListener ((p, oldv, newv) ->
+        {
+
+            if (newv == null)
+            {
+
+                UserProperties.remove (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
+
+                return;
+
+            }
+
+            UserProperties.set (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME,
+                                newv.toString ());
+
+            // TODO Add an event?
+
+        });
 
         UserProperties.userStyleSheetProp = new SimpleObjectProperty<> ();
 
@@ -457,9 +514,7 @@ public class UserProperties
 
         });
 
-        UserProperties.fullScreenXBorderWidthProp = new SimpleDoubleProperty (0);
-        Float d = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME);
-        UserProperties.fullScreenXBorderWidthProp.setValue (d != null ? d : DEFAULT_FULL_SCREEN_X_BORDER_WIDTH);
+        UserProperties.fullScreenXBorderWidthProp = new SimpleDoubleProperty (UserProperties.constrainFullScreenXBorderWidth (UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME)));
         UserProperties.fullScreenXBorderWidthProp.addListener ((pr, oldv, newv) ->
         {
 
@@ -468,9 +523,7 @@ public class UserProperties
 
         });
 
-        UserProperties.fullScreenYBorderWidthProp = new SimpleDoubleProperty (0);
-        d = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME);
-        UserProperties.fullScreenYBorderWidthProp.setValue (d != null ? d : DEFAULT_FULL_SCREEN_Y_BORDER_WIDTH);
+        UserProperties.fullScreenYBorderWidthProp = new SimpleDoubleProperty (UserProperties.constrainFullScreenYBorderWidth (UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME)));
         UserProperties.fullScreenYBorderWidthProp.addListener ((pr, oldv, newv) ->
         {
 
@@ -480,7 +533,8 @@ public class UserProperties
         });
 
         UserProperties.fullScreenOpacityProp = new SimpleDoubleProperty (0);
-        d = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME);
+        Float d = UserProperties.getAsFloat (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME);
+
         UserProperties.fullScreenOpacityProp.setValue (d != null ? d : DEFAULT_FULL_SCREEN_OPACITY);
         UserProperties.fullScreenOpacityProp.addListener ((pr, oldv, newv) ->
         {
@@ -533,6 +587,186 @@ public class UserProperties
                                 id);
 
         });
+
+        // TODO Make this configurable
+        UserProperties.uiTextDictionaryProv = new UserDictionaryProvider (Constants.ENGLISH);
+
+    }
+
+    public static UserDictionaryProvider getUITextDictionaryProvider ()
+    {
+
+        return UserProperties.uiTextDictionaryProv;
+
+    }
+
+    public static void setPlaySoundOnKeyStroke (boolean v)
+    {
+
+        UserProperties.playSoundOnKeyStrokeProp.setValue (v);
+
+    }
+
+    public static void setKeyStrokeSoundFilePath (Path up)
+    {
+
+        Path p = null;
+
+        if (up == null)
+        {
+
+            try
+            {
+
+                p = Paths.get (Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
+
+            } catch (Exception e) {
+
+                throw new IllegalArgumentException ("Unable to get path for: " + Constants.DEFAULT_KEY_STROKE_SOUND_FILE,
+                                                    e);
+
+            }
+
+        } else {
+
+            if (Files.exists (up))
+            {
+
+                p = up;
+
+            }
+
+        }
+
+        try
+        {
+
+            UserProperties.keyStrokeSoundBytes = Files.readAllBytes (p);
+            UserProperties.keyStrokeSoundPathProp.setValue (up);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set key stroke sound file: " +
+                                  p,
+                                  e);
+
+            UserProperties.keyStrokeSoundPathProp.setValue (null);
+
+        }
+
+    }
+
+    public static SimpleObjectProperty<Path> keyStrokeSoundPathProperty ()
+    {
+
+        return UserProperties.keyStrokeSoundPathProp;
+
+    }
+
+    public static SimpleBooleanProperty playSoundOnKeyStrokeProperty ()
+    {
+
+        return UserProperties.playSoundOnKeyStrokeProp;
+
+    }
+
+    public static boolean isPlaySoundOnKeyStroke ()
+    {
+
+        return UserProperties.playSoundOnKeyStrokeProp.getValue ();
+
+    }
+
+    public static void playKeyStrokeSound ()
+    {
+
+        if (UserProperties.keyStrokeSoundBytes != null)
+        {
+
+            Environment.schedule (() ->
+            {
+
+                try
+                {
+
+                    javax.sound.sampled.AudioInputStream audioInputStream = javax.sound.sampled.AudioSystem.getAudioInputStream (new BufferedInputStream (new ByteArrayInputStream (UserProperties.keyStrokeSoundBytes)));
+                    javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip ();
+                    clip.open (audioInputStream);
+                    clip.start ();
+                    audioInputStream.close ();
+
+                } catch (Exception e) {
+
+                    e.printStackTrace ();
+
+                }
+
+            },
+            -1,
+            -1);
+
+        }
+
+    }
+
+
+    private static double constrainFullScreenXBorderWidth (Float v)
+    {
+
+        if (v == null)
+        {
+
+            return DEFAULT_FULL_SCREEN_X_BORDER_WIDTH;
+
+        }
+
+        double d = v.doubleValue ();
+
+        if (d > FULL_SCREEN_MAX_X_BORDER_WIDTH)
+        {
+
+            d = FULL_SCREEN_MAX_X_BORDER_WIDTH;
+
+        }
+
+        if (d < FULL_SCREEN_MIN_X_BORDER_WIDTH)
+        {
+
+            d = FULL_SCREEN_MIN_X_BORDER_WIDTH;
+
+        }
+
+        return d;
+
+    }
+
+    private static double constrainFullScreenYBorderWidth (Float v)
+    {
+
+        if (v == null)
+        {
+
+            return DEFAULT_FULL_SCREEN_Y_BORDER_WIDTH;
+
+        }
+
+        double d = v.doubleValue ();
+
+        if (d > FULL_SCREEN_MAX_Y_BORDER_WIDTH)
+        {
+
+            d = FULL_SCREEN_MAX_Y_BORDER_WIDTH;
+
+        }
+
+        if (d < FULL_SCREEN_MIN_Y_BORDER_WIDTH)
+        {
+
+            d = FULL_SCREEN_MIN_Y_BORDER_WIDTH;
+
+        }
+
+        return d;
 
     }
 

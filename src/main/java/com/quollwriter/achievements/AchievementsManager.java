@@ -8,6 +8,7 @@ import java.io.*;
 import javafx.beans.property.*;
 import javafx.scene.media.*;
 import javafx.collections.*;
+import javafx.event.*;
 
 import org.jdom.*;
 
@@ -685,18 +686,28 @@ TODO Remove
                            throws Exception
     {
 
-        v.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                           ev ->
+        AchievementsManager _this = this;
+
+        EventHandler<Viewer.ViewerEvent> h = new EventHandler<> ()
         {
 
-            this.projAchievedRules.remove (v);
-            this.eventRules.remove (v);
-            this.checkers.remove (v);
-            v.removeProjectEventListener (this);
+            @Override
+            public void handle (Viewer.ViewerEvent ev)
+            {
 
-            System.out.println ("CLEANUP CALLED");
+                _this.projAchievedRules.remove (v);
+                _this.eventRules.remove (v);
+                _this.checkers.remove (v);
+                v.removeProjectEventListener (_this);
+                v.getViewer ().removeEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                                   this);
 
-        });
+            }
+
+        };
+
+        v.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                        h);
 
         // Get the list of project/chapter achieved achievements.
         Set<String> achieved = this.getAchievedIds (v.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
@@ -804,7 +815,8 @@ TODO Remove
 
         }
 
-        prop.addListener ((SetChangeListener<AchievementRule>) (ev ->
+        v.getBinder ().addSetChangeListener (prop,
+                                             ev ->
         {
 
             AchievementRule ar = ev.getElementAdded ();
@@ -842,7 +854,7 @@ TODO Remove
 
             }
 
-        }));
+        });
 
         v.addProjectEventListener (this);
 

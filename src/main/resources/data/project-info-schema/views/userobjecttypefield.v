@@ -14,8 +14,7 @@ SELECT o.dbkey dbkey,
        n.properties  properties,
        n.id           id,
        n.version      version,
-       n.latest       latest,
-       o.orderby      orderby
+       n.latest       latest
 FROM   namedobject_v       n,
        userobjecttypefield o
-WHERE  o.dbkey = n.dbkey 
+WHERE  o.dbkey = n.dbkey

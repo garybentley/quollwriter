@@ -119,7 +119,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.currentPanelProp.addListener ((pr, oldv, newv) ->
         {
 
-            if (newv.getContent () instanceof ChapterEditorPanelContent)
+            if ((newv != null)
+                &&
+                (newv.getContent () instanceof ChapterEditorPanelContent)
+               )
             {
 
                 ChapterEditorPanelContent pc = (ChapterEditorPanelContent) newv.getContent ();
@@ -254,6 +257,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                 qp.fireEvent (new Panel.PanelEvent (qp,
                                                     Panel.PanelEvent.SHOW_EVENT));
+
+            } else {
+
+                this.selectedTextProp.unbind ();
+
+                this.currentPanelProp.setValue (null);
 
             }
 
@@ -852,19 +861,25 @@ TODO
             filePassword = null;
 
         }
-long ss = System.currentTimeMillis ();
+
         this.dBMan = new ObjectManager ();
-System.out.println ("T1: " + (System.currentTimeMillis () - ss));
-ss = System.currentTimeMillis ();
 
         // TODO Use Path?
-        this.dBMan.init (p.getProjectDirectory ().resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
-                         username,
-                         password,
-                         filePassword,
-                         Environment.getSchemaVersion ());
-                         System.out.println ("T2: " + (System.currentTimeMillis () - ss));
-                         ss = System.currentTimeMillis ();
+        try
+        {
+
+            this.dBMan.init (p.getProjectDirectory ().resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
+                             username,
+                             password,
+                             filePassword,
+                             Environment.getSchemaVersion ());
+
+        } catch (Exception e) {
+
+            this.dBMan.closeConnectionPool ();
+            throw e;
+
+        }
 
         Environment.incrStartupProgress ();
 
@@ -884,8 +899,6 @@ ss = System.currentTimeMillis ();
             throw e;
 
         }
-        System.out.println ("T3: " + (System.currentTimeMillis () - ss));
-        ss = System.currentTimeMillis ();
 
         this.initProperties ();
 
@@ -902,16 +915,10 @@ ss = System.currentTimeMillis ();
         this.project.addPropertyChangedListener (this);
 
         Environment.incrStartupProgress ();
-        System.out.println ("T4: " + (System.currentTimeMillis () - ss));
-         ss = System.currentTimeMillis ();
 
         this.handleOpenProject ();
-        System.out.println ("T5: " + (System.currentTimeMillis () - ss));
-         ss = System.currentTimeMillis ();
 
         this.init (null);
-        System.out.println ("T5: " + (System.currentTimeMillis () - ss));
-         ss = System.currentTimeMillis ();
 
         Environment.incrStartupProgress ();
 
@@ -1065,7 +1072,7 @@ ss = System.currentTimeMillis ();
                     //BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
                         .text (getUILanguageStringProperty (Arrays.asList (LanguageStrings.targets, chaptersoverreadabilitymaximum,t),
                                                             rchaps.size ()))
-                        .withViewer (this)
+                        .inViewer (this)
                         .build ();
 
 					final Notification n = _this.addNotification (m,
@@ -2418,6 +2425,7 @@ TODO Remove
 
         ChapterCounts _cc = _this.getChapterCounts (c);
 
+
         _cc.setWordCount (cc.getWordCount ());
         _cc.setSentenceCount (cc.getSentenceCount ());
 
@@ -2469,6 +2477,22 @@ TODO Remove
 												 this.getCurrentChapterText (c));
 
 	}
+
+    public boolean isCurrentPanelChapterEditor ()
+    {
+
+        Panel p = this.getCurrentPanel ();
+
+        if (p.getContent () instanceof ChapterEditorPanelContent)
+        {
+
+            return true;
+
+        }
+
+        return false;
+
+    }
 
     public String getCurrentChapterText (Chapter c)
 	{
@@ -2739,7 +2763,6 @@ TODO Remove
         String openTabs = this.getOpenTabsProperty ();
 
         this.openPanelsFromObjectIdList (openTabs);
-
         String lastOpen = this.project.getProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME + suffix);
 
         if (lastOpen != null)
@@ -3332,7 +3355,7 @@ TODO REmove
             c.getChildren ().add (QuollTextView.builder ()
                 .text (getUILanguageStringProperty (Arrays.asList (closeproject,confirmpopup,text),
                                                     b))
-                .withViewer (this)
+                .inViewer (this)
                 .build ());
 
             if (hasChanges.get ())
@@ -3597,6 +3620,8 @@ TODO REmove
 
         // Close all the db connections.
         this.dBMan.closeConnectionPool ();
+
+        this.project = null;
 
         super.close (afterClose);
 
@@ -4201,7 +4226,6 @@ TODO REmove
      									   Options.Section.Id.problems,
      									   Options.Section.Id.betas,
                                            Options.Section.Id.website);
-
         a.showSection (section);
         this.addPanel (a);
         this.showPanel (a.getPanelId ());
@@ -4281,6 +4305,7 @@ TODO REmove
         {
 
             this.showOptions (null);
+
             return;
 
         }
@@ -5256,16 +5281,11 @@ TODO Remove?
 
             if (v.equals ("enabletypewritersound"))
             {
-/*
-TODO Use property.
-				boolean old = Environment.isPlaySoundOnKeyStroke ();
 
-				Environment.setPlaySoundOnKeyStroke (true);
+				UserProperties.setPlaySoundOnKeyStroke (true);
 
-				Environment.playKeyStrokeSound ();
+				UserProperties.playKeyStrokeSound ();
 
-				Environment.setPlaySoundOnKeyStroke (old);
-*/
                 return;
 
             }
