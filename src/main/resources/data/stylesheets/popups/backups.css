@@ -1,7 +1,9 @@
 /*
  * Used by: com.quollwriter.ui.fx.popups.BackupsManager
  */
+ /*
 .header.title .icon { -fx-image: url(/imgs/snapshot16.png); }
+*/
 .scroll-pane {
     -fx-min-height: 25em;
     -fx-pref-height: 25em;
@@ -15,11 +17,23 @@
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
 }
-.item .icon { visibility: hidden; }
+.item > .iconbox { visibility: hidden; }
 .item:hover { -fx-background-color: -qw-hover-bg; }
 .item .title { -fx-font-size: 1.1em; }
+/*
 .item .restore { -fx-graphic: url(/imgs/restore16.png); }
 .item .delete { -fx-graphic: url(/imgs/delete16.png); }
+*/
+.item .controls .button {
+    -fx-content-display: graphic-only;
+}
+.item .controls .iconbox,
+.item .controls .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
 .nobackups {
     -fx-font-size: 1.2em;
     -fx-border-width: 1px;

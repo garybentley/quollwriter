@@ -9,6 +9,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.input.*;
+import javafx.scene.image.*;
 
 import com.quollwriter.*;
 import com.quollwriter.text.*;
@@ -104,7 +105,6 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
 
         if (snippets != null)
         {
-System.out.println ("GOT RES: " + this.results);
 
             this.results = new ChapterFindResultsBox (snippets,
                                                       this.viewer);
@@ -141,7 +141,11 @@ System.out.println ("GOT RES: " + this.results);
         if (this.obj instanceof UserConfigurableObject)
         {
 
-            sb.getHeader ().getIcon ().imageProperty ().bind (((UserConfigurableObject) this.obj).getUserConfigurableObjectType ().icon16x16Property ());
+            UIUtils.setBackgroundImage (sb.getHeader ().getIcon (),
+                                        ((UserConfigurableObject) this.obj).getUserConfigurableObjectType ().icon16x16Property (),
+                                        this.getBinder ());
+
+            //sb.getHeader ().getIcon ().imageProperty ().bind (((UserConfigurableObject) this.obj).getUserConfigurableObjectType ().icon16x16Property ());
 
         } else {
 

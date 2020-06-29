@@ -984,10 +984,10 @@ TODO
 
         }
 */
-		UIUtils.runLater (onOpen);
+		UIUtils.forceRunLater (onOpen);
 
 		// Check to see if any chapters have overrun the target.
-		UIUtils.runLater (() ->
+		UIUtils.forceRunLater (() ->
 		{
 
 			try
@@ -1728,6 +1728,16 @@ TODO
         tab.textProperty ().bind (qp.titleProperty ());
         tab.getStyleClass ().add (qp.getStyleClassName ());
         tab.setContent (qp);
+
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        Pane p = new Pane ();
+        p.getStyleClass ().add (qp.getStyleClassName () + StyleClassNames.ICON_SUFFIX);
+        p.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (p);
+        h.managedProperty ().bind (h.visibleProperty ());
+
+        tab.setGraphic (h);
 
         final String panelId = qp.getPanelId ();
 
@@ -4447,6 +4457,7 @@ TODO REmove
 
             this.windowedContent = new WindowedContent (this,
                                                         this.getStyleClassName (),
+                                                        this.getStyleClassName (),
                                                         headerCons,
                                                         this.tabs);
 
@@ -4614,7 +4625,7 @@ TODO
 
     private void showInFullScreen (Tab t)
     {
-long s = System.currentTimeMillis ();
+
         if ((!this.isInFullScreenMode ())
             ||
             (t == null)
@@ -4647,7 +4658,12 @@ long s = System.currentTimeMillis ();
 
             ProjectChapterEditorPanelContent edPanel = (ProjectChapterEditorPanelContent) pc;
 
-            edPanel.bindTextPropertiesTo (this.getTextProperties ());
+            UIUtils.forceRunLater (() ->
+            {
+
+                edPanel.bindTextPropertiesTo (this.getTextProperties ());
+
+            });
 
             // TODO this.setUseTypewriterScrolling (false);
 
@@ -4671,7 +4687,7 @@ long s = System.currentTimeMillis ();
             ChapterEditorPanelContent _cep = cep;
             boolean _hasChanges = hasChanges;
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 _cep.setHasUnsavedChanges (_hasChanges);
@@ -4680,7 +4696,7 @@ long s = System.currentTimeMillis ();
             });
 
         }
-System.out.println ("TOOKX: " + (System.currentTimeMillis () - s));
+
     }
 
     private void restoreFromFullScreen (Tab t)
@@ -4729,7 +4745,7 @@ System.out.println ("TOOKX: " + (System.currentTimeMillis () - s));
             if (cep != null)
             {
 
-                UIUtils.runLater (() ->
+                UIUtils.forceRunLater (() ->
                 {
 
                     _cep.setHasUnsavedChanges (_hasChanges);

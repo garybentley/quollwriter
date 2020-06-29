@@ -89,7 +89,13 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
             .controls (items)
             .build ();
 
-        header.getIcon ().imageProperty ().bind (a.getUserConfigurableObjectType ().icon24x24Property ());
+        Pane pp = header.getIcon ();
+
+        UIUtils.setBackgroundImage (pp,
+                                    a.getUserConfigurableObjectType ().icon24x24Property (),
+                                    this.getBinder ());
+
+        //header.getIcon ().imageProperty ().bind (a.getUserConfigurableObjectType ().icon24x24Property ());
 
         VBox box = new VBox ();
 

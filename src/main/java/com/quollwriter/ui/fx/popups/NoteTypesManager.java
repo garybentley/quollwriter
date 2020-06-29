@@ -93,6 +93,7 @@ public class NoteTypesManager extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (notetypes,actions,manage,title)
             .styleClassName (StyleClassNames.NOTETYPESMANAGER)
+            .headerIconClassName (StyleClassNames.EDIT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

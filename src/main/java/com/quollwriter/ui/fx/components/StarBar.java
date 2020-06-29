@@ -6,6 +6,7 @@ import javafx.beans.property.*;
 import javafx.scene.input.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.*;
 import javafx.scene.image.*;
 
 import com.quollwriter.*;
@@ -49,18 +50,22 @@ public class StarBar extends HBox
 
     }
 
-    private Pane createButton (int     i,
+    private Node createButton (int     i,
                                Builder b)
     {
 
-        ImageView iv = new ImageView ();
-
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
         Pane but = new Pane ();
-        but.getStyleClass ().addAll (StyleClassNames.STAR, (i + 1) + "");
-        but.getChildren ().add (iv);
+        but.getStyleClass ().add (StyleClassNames.ICON);
+        but.getStyleClass ().addAll (StyleClassNames.STAR + StyleClassNames.ICON_SUFFIX, (i + 1) + "");
+
+        h.getChildren ().add (but);
+        h.managedProperty ().bind (h.visibleProperty ());
+
         UIUtils.setTooltip (but,
                             b.tooltip);
-        but.setUserData (i + 1);
+        h.setUserData (i + 1);
 
         but.addEventHandler (MouseEvent.MOUSE_ENTERED,
                              ev ->
@@ -97,7 +102,7 @@ public class StarBar extends HBox
 
         });
 
-        return but;
+        return h;
 
     }
 

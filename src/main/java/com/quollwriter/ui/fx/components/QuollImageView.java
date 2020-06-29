@@ -18,7 +18,7 @@ import com.quollwriter.ui.fx.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class QuollImageView extends Pane
+public class QuollImageView extends VBox
 {
 
     private ImageView iv = null;
@@ -34,11 +34,22 @@ public class QuollImageView extends Pane
         this.iv = new ImageView ();
         this.imagePathProp = new SimpleObjectProperty<> ();
         this.iv.setPreserveRatio (true);
+        this.iv.managedProperty ().bind (this.iv.visibleProperty ());
         this.managedProperty ().bind (this.visibleProperty ());
 
-        iv.relocate (0, 0);
+        //iv.relocate (0, 0);
         this.getChildren ().add (iv);
         this.getStyleClass ().add (StyleClassNames.IMAGE);
+
+        HBox h = new HBox ();
+        h.getStyleClass ().addAll (StyleClassNames.ICONBOX, StyleClassNames.NOIMAGE);
+        Pane pp = new Pane ();
+        pp.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (pp);
+        h.managedProperty ().bind (h.visibleProperty ());
+        //h.relocate (0, 0);
+
+        this.getChildren ().add (h);
 
         this.overlay = new VBox ();
         this.overlay.getStyleClass ().add (StyleClassNames.OVERLAY);
@@ -256,78 +267,6 @@ public class QuollImageView extends Pane
     {
 
         return this.imagePathProp.getValue ();
-
-    }
-
-    @Override
-    public void layoutChildren ()
-    {
-
-        super.layoutChildren ();
-
-        Insets ins = this.getInsets ();
-
-        if (this.overlay.isVisible ())
-        {
-
-            this.overlay.resizeRelocate (ins.getLeft (),
-                                         ins.getTop (),
-                                         Math.round (this.iv.getFitWidth ()),
-                                         this.computePrefHeight (-1));
-
-        }
-
-        this.iv.resizeRelocate (ins.getLeft (),
-                                ins.getTop (),
-                                Math.round (this.iv.getFitWidth ()),
-                                this.computePrefHeight (-1));
-
-    }
-
-    @Override
-    public double computePrefHeight (double w)
-    {
-
-        if (this.iv.getImage () == null)
-        {
-
-            return 0;
-
-        }
-
-        return Math.round (this.iv.getImage ().getHeight () * (this.iv.getFitWidth () / this.iv.getImage ().getWidth ())) + this.getInsets ().getTop () + this.getInsets ().getBottom ();
-
-    }
-
-    @Override
-    public double computePrefWidth (double h)
-    {
-
-        return Math.round (this.iv.getFitWidth ()) + this.getInsets ().getLeft () + this.getInsets ().getRight ();
-
-    }
-
-    @Override
-    public double computeMinHeight (double w)
-    {
-
-        return this.computePrefHeight (w);
-
-    }
-
-    @Override
-    public double computeMaxHeight (double w)
-    {
-
-        return this.computePrefHeight (w);
-
-    }
-
-    @Override
-    public double computeMinWidth (double h)
-    {
-
-        return 0;
 
     }
 

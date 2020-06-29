@@ -199,6 +199,7 @@ public class TagsManager extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (tags,actions,manage,title)
             .styleClassName (StyleClassNames.TAGSMANAGER)
+            .headerIconClassName (StyleClassNames.TAG)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

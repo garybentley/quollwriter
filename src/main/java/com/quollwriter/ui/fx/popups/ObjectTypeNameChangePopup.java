@@ -91,10 +91,21 @@ public class ObjectTypeNameChangePopup extends PopupContent
         for (String ot : objTypes)
         {
 
+            HBox h = new HBox ();
+            h.getStyleClass ().add (StyleClassNames.ICONBOX);
+            Pane p = new Pane ();
+            p.getStyleClass ().add (ot + "-" + StyleClassNames.ICON);
+            p.getStyleClass ().add (StyleClassNames.ICON);
+            h.getChildren ().add (p);
+
+            Label l = new Label ();
+            l.setGraphic (h);
+
             ImageView iv = new ImageView ();
             iv.getStyleClass ().add (ot);
 
-            gp.add (iv,
+            gp.add (l,
+            //iv,
                     0,
                     row);
 
@@ -290,6 +301,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
             .title (objectnames,changer, LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.OBJECTTYPENAMECHANGE)
             .styleSheet (StyleClassNames.OBJECTTYPENAMECHANGE)
+            .headerIconClassName (StyleClassNames.EDIT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

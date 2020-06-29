@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 import com.quollwriter.achievements.rules.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.data.*;
+import com.quollwriter.*;
 
 // TODO Use a Skin?
 
@@ -16,7 +18,8 @@ public class AchievementView extends HBox
 {
 
     public AchievementView (AchievementRule ar,
-                            boolean         achieved)
+                            boolean         achieved,
+                            IPropertyBinder binder)
     {
 
         this.getStyleClass ().add (StyleClassNames.ACHIEVEMENT);
@@ -29,17 +32,51 @@ public class AchievementView extends HBox
 
         Group g = new Group ();
 
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        Pane p = new Pane ();
+        p.getStyleClass ().add (ar.getIcon () + StyleClassNames.ICON_SUFFIX);
+        p.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (p);
+        h.managedProperty ().bind (h.visibleProperty ());
+
+        try
+        {
+
+            UserConfigurableObjectType t = Environment.getUserConfigurableObjectType (ar.getIcon ());
+
+            if (t != null)
+            {
+
+                UIUtils.setBackgroundImage (p,
+                                            t.icon24x24Property (),
+                                            binder);
+
+            }
+
+        } catch (Exception e) {
+
+            // Ignore?
+
+        }
+
+        g.getChildren ().add (h);
+/*
         ImageView image = new ImageView ();
         image.getStyleClass ().add (StyleClassNames.ICON);
         image.managedProperty ().bind (image.visibleProperty ());
-
+*/
+        Pane ach = new Pane ();
+        ach.getStyleClass ().add (StyleClassNames.ACHIEVED);
+        ach.managedProperty ().bind (ach.visibleProperty ());
+/*
         ImageView image2 = new ImageView ();
         image2.getStyleClass ().add (StyleClassNames.ACHIEVED);
         image2.managedProperty ().bind (image2.visibleProperty ());
-
+*/
         g.setBlendMode (BlendMode.SRC_OVER);
-        g.getChildren ().add (image);
-        g.getChildren ().add (image2);
+        //g.getChildren ().add (image);
+        g.getChildren ().add (ach);
 
         Label title = new Label ();
         title.getStyleClass ().add (StyleClassNames.TITLE);

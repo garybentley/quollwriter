@@ -76,7 +76,6 @@ public class WordCountTimerSelectPopup extends PopupContent
             .withClose (true)
             .content (this)
             .popupId (POPUP_ID)
-            .removeOnClose (true)
             .withViewer (this.viewer)
             .build ();
 

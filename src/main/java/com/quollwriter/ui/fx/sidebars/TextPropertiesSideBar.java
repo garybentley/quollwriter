@@ -197,15 +197,15 @@ System.out.println ("NEW: " + newv);
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,fontsize,text),
                  b);
 
-        ObservableList<StringProperty> aitems = FXCollections.observableList (new ArrayList ());
+        //ObservableList<StringProperty> aitems = FXCollections.observableList (new ArrayList ());
+
+        Set<StringProperty> aitems = new LinkedHashSet<> ();
 
         aitems.add (getUILanguageStringProperty (textalignments,left));
                     //QTextEditor.ALIGN_LEFT);
         aitems.add (getUILanguageStringProperty (textalignments,justified));
         //QTextEditor.ALIGN_JUSTIFIED);
         aitems.add (getUILanguageStringProperty (textalignments,right));
-
-        this.alignment = new ChoiceBox<StringProperty> (aitems);
 
         String al = this.props.getAlignment ();
 
@@ -224,6 +224,43 @@ System.out.println ("NEW: " + newv);
             selInd = 2;
 
         }
+
+        this.alignment = QuollChoiceBox.builder ()
+            .items (aitems)
+            .styleClassName ("alignment")
+            .selectedIndex (selInd)
+            .onSelected (ev ->
+            {
+
+                QuollChoiceBox cb = (QuollChoiceBox) ev.getSource ();
+
+                int v = cb.getSelectionModel ().getSelectedIndex ();
+
+                if (v == 0)
+                {
+
+                    this.props.setAlignment (QTextEditor.ALIGN_LEFT);
+
+                }
+
+                if (v == 1)
+                {
+
+                    this.props.setAlignment (QTextEditor.ALIGN_JUSTIFIED);
+
+                }
+
+                if (v == 2)
+                {
+
+                    this.props.setAlignment (QTextEditor.ALIGN_RIGHT);
+
+                }
+
+            })
+            .build ();
+/*
+        this.alignment = new ChoiceBox<StringProperty> (aitems);
 
         this.alignment.setValue (aitems.get (selInd));
 
@@ -275,7 +312,7 @@ System.out.println ("NEW: " + newv);
             }
 
         });
-
+*/
         // Alignment.
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,LanguageStrings.alignment,text),
                  this.alignment);
@@ -445,6 +482,7 @@ System.out.println ("NEW: " + newv);
             //.contextMenu ()?
             .styleClassName (StyleClassNames.EDITPROPERTIES)
             .styleSheet (StyleClassNames.EDITPROPERTIES)
+            .headerIconClassName (StyleClassNames.EDITPROPERTIES)
             .withScrollPane (true)
             .canClose (true)
             //.headerControls ()?

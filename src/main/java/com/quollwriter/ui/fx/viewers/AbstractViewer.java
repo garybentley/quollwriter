@@ -333,6 +333,17 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                     })
                     .build ());
 
+                items.add (QuollMenuItem.builder ()
+                    .label (mprefix,(Environment.isNightModeEnabled () ? disablenightmode : enablenightmode))
+                    .styleClassName ((Environment.isNightModeEnabled () ? StyleClassNames.SUN : StyleClassNames.MOON))
+                    .onAction (ev ->
+                    {
+
+                        _this.runCommand (AbstractViewer.CommandId.nightmode);
+
+                    })
+                    .build ());
+
                 items.add (new SeparatorMenuItem ());
 
                 items.add (QuollMenuItem.builder ()
@@ -610,6 +621,32 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         this.showPopup (p,
                         b.getMinX (),
                         b.getMaxY ());
+
+    }
+
+    public void showPopup (QuollPopup p,
+                           Node       n,
+                           double     offsetX,
+                           double     offsetY,
+                           Side       s)
+    {
+
+        if (n == null)
+        {
+
+            this.showPopup (p);
+            return;
+
+        }
+
+        Bounds b = n.localToScreen (n.getBoundsInLocal ());
+        b = this.popupPane.screenToLocal (b);
+
+        p.setVisible (false);
+        this.addPopup (p);
+        this.showPopup (p,
+                        b.getMinX () + offsetX,
+                        b.getMaxY () + offsetY);
 
     }
 
@@ -2459,7 +2496,7 @@ TODO Clean up?
 
                 })
                 .build ();
-            mi.setGraphic (new ImageView (this.mainSideBar.getHeader ().getIcon ().getImage ()));
+            // TODO mi.setGraphic (new ImageView (this.mainSideBar.getHeader ().getIcon ().getImage ()));
             //mi.setGraphic (this.mainSideBar.getHeader ().getIcon ());
 
             m.getItems ().add (mi);
@@ -2493,7 +2530,7 @@ TODO Clean up?
 
                 })
                 .build ();
-            mi.setGraphic (new ImageView (sb.getHeader ().getIcon ().getImage ()));
+            // TODO mi.setGraphic (new ImageView (sb.getHeader ().getIcon ().getImage ()));
 
             m.getItems ().add (mi);
 

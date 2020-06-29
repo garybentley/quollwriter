@@ -7,6 +7,7 @@ import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
+import javafx.scene.layout.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -31,6 +32,7 @@ public class QuollMenuItem extends MenuItem
         {
 
             this.getStyleClass ().add (b.styleName);
+            //this.setId (b.styleName);
 
         }
 /*
@@ -57,7 +59,26 @@ public class QuollMenuItem extends MenuItem
 
         }
 
-        this.setGraphic (new ImageView ());
+        //this.setGraphic (r);
+        /*
+        ImageView iv = new ImageView ();
+        iv.setFitHeight (100);
+        iv.setPreserveRatio (true);
+        iv.setSmooth (true);
+        iv.setCache (true);
+*/
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        Pane p = new Pane ();
+        p.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
+        p.getStyleClass ().add (StyleClassNames.ICON);
+        //p.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (p);
+        h.managedProperty ().bind (h.visibleProperty ());
+
+        this.setGraphic (h);
+
+        //this.setGraphic (new ImageView ());
 
     }
 

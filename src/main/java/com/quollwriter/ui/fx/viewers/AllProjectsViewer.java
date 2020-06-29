@@ -171,6 +171,7 @@ public class AllProjectsViewer extends AbstractViewer
 
             this.windowedContent = new WindowedContent (this,
                                                         this.getStyleClassName (),
+                                                        this.getStyleClassName (),
                                                         headerCons,
                                                         this.content);
             this.windowedContent.setTitle (this.titleProp);

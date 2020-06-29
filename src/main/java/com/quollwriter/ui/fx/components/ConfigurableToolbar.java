@@ -200,7 +200,7 @@ public class ConfigurableToolbar extends ToolBar
         MenuItem remove = new MenuItem ("Remove");
         cm.getItems ().addAll (conf, remove);
 
-        this.setContextMenu (cm);
+        // TODO this.setContextMenu (cm);
 
         if (b.visibleItems != null)
         {

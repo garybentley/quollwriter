@@ -290,7 +290,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
         if (this.readyForUseProp.getValue ())
         {
 
-            UIUtils.runLater (r);
+            UIUtils.forceRunLater (r);
 
         } else {
 
@@ -300,7 +300,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
                 if (newv)
                 {
 
-                    UIUtils.runLater (r);
+                    UIUtils.forceRunLater (r);
 
                 }
 
@@ -627,16 +627,18 @@ TODO
             if (newv != null)
             {
 
+                this.readyForUseProp.setValue (true);
+
                 this.getScene ().addPostLayoutPulseListener (() ->
                 {
 
-                    this.readyForUseProp.setValue (true);
+                    //this.readyForUseProp.setValue (true);
 
                 });
 
             } else {
 
-                this.readyForUseProp.setValue (false);
+                //this.readyForUseProp.setValue (false);
 
             }
 
@@ -728,9 +730,25 @@ TODO
     public void setPlaceholder (StringProperty p)
     {
 
+        // TODO, Fix this.
+        if(true)
+        {
+            return;
+        }
+
         this.placeholder = p;
+        QuollTextView te = QuollTextView.builder ()
+            .styleClassName (StyleClassNames.PLACEHOLDER)
+            .text (p)
+            .build ();
+        //this.setPlaceholder (te);
+        te.prefWidthProperty ().bind (this.widthProperty ());
 
+        TextFlow tf = new TextFlow (new Text (p.getValue ()));
+        tf.getStyleClass ().add (StyleClassNames.PLACEHOLDER);
+        tf.prefWidthProperty ().bind (this.widthProperty ());
 
+        this.setPlaceholder (tf);
 
         this.plainTextChanges ().subscribe (ev ->
         {

@@ -169,6 +169,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
             .title (project,sidebar,chapters,preview,edit,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.PROJECTITEMPREVIEW)
             .styleSheet (StyleClassNames.PROJECTITEMPREVIEW)
+            .headerIconClassName (StyleClassNames.EDIT)
             .popupId (POPUP_ID)
             .content (this)
             .withClose (true)

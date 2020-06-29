@@ -33,12 +33,12 @@
      -fx-alignment: top-left;
      -fx-padding: 0.5em 0 0 0;
  }
-
+/*
  .form .error .image-view
  {
      -fx-image: url(/imgs/error-red16.png);
  }
-
+*/
  .form .error .message
  {
      -fx-padding: 0 0 0.5em 0.5em;

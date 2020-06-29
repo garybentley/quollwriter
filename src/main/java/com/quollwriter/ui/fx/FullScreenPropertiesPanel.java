@@ -199,7 +199,8 @@ public class FullScreenPropertiesPanel extends VBox
                )
             {
 
-                UIUtils.runLater (() ->
+                javafx.application.Platform.runLater (() ->
+                //UIUtils.runLater (() ->
                 {
 
                     resizeRelocate.changed (UserProperties.fullScreenXBorderWidthProperty (),

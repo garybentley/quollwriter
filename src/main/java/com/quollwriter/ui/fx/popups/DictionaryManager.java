@@ -160,6 +160,7 @@ public class DictionaryManager extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (dictionary,manage,title)
             .styleClassName (StyleClassNames.DICTIONARYMANAGER)
+            .headerIconClassName (StyleClassNames.DICTIONARY)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

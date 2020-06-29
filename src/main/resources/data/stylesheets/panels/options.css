@@ -20,6 +20,7 @@
 }
 .accordion { -fx-padding: 0 0 0.5em 0; }
 .accordion :closed { -fx-padding: 0.5em 0 0 0.5em; }
+/*
 .looks .header .icon { -fx-image: url(/imgs/eye16.png); }
 .naming .header .icon, .start .header .icon { -fx-image: url(/imgs/settings16.png); }
 .accordion.project .header .icon { -fx-image: url(/imgs/project16.png); }
@@ -30,6 +31,7 @@
 .warmup .header .icon { -fx-image: url(/imgs/warmups16.png); }
 .achievements .header .icon { -fx-image: url(/imgs/achievement16.png); }
 .bug .header .icon { -fx-image: url(/imgs/bug16.png); }
+*/
 .editing .hyperlink {
     -fx-graphic: url(/imgs/view16.png);
     -fx-graphic-text-gap: 0.5em;

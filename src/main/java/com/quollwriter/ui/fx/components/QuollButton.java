@@ -1,10 +1,12 @@
 package com.quollwriter.ui.fx.components;
 
 import java.util.*;
+import java.util.stream.*;
 
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -14,6 +16,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 
 public class QuollButton extends Button
 {
+
+    private Pane icon = null;
 
     private QuollButton (Builder b)
     {
@@ -58,6 +62,28 @@ public class QuollButton extends Button
         }
 
         this.setSnapToPixel (true);
+
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        this.icon = new Pane ();
+        if (b.styleNames != null)
+        {
+
+            this.icon.getStyleClass ().add (b.styleNames.stream ().collect (Collectors.joining (" ", "", StyleClassNames.ICON_SUFFIX)));
+
+        }
+        this.icon.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (this.icon);
+        this.setGraphic (h);
+
+    }
+
+    public void setIconClassName (String c)
+    {
+
+        this.icon.getStyleClass ().clear ();
+        this.icon.getStyleClass ().add (StyleClassNames.ICON);
+        this.icon.getStyleClass ().add (c + StyleClassNames.ICON_SUFFIX);
 
     }
 

@@ -27,19 +27,36 @@
      -qw-structure-item-indent: 2.7em;
  }
 
+.root:night .texteditor .margin, .root:night .margin-bg
+{
+    -fx-background-color: #4d4d4d;
+    -fx-border-width: 0 1px 0 0;
+    -fx-border-color: #dfdfdf;
+}
+
  .texteditor .margin .outlineitem,
  .texteditor .margin .scene,
  .texteditor .margin .note,
- .texteditor .margin .editneedednote
+ .texteditor .margin .editneedednote,
+ .texteditor .margin .iconbox
  {
      -fx-cursor: hand;
  }
+
+.texteditor .margin .iconbox,
+.texteditor .margin .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
 
  .texteditor .margin .editmarker
  {
      -fx-pref-width: 2px;
  }
-
+/*
  .texteditor .margin .scene .image-view
  {
      -fx-image: url(/imgs/scene16.png);
@@ -58,4 +75,27 @@
  .texteditor .margin .note .image-view
  {
      -fx-image: url(/imgs/note16.png);
+ }
+*/
+ .virtualized-scroll-pane .scroll-bar:vertical *.increment-button .increment-arrow,
+ .virtualized-scroll-pane .scroll-bar:vertical *.decrement-button .decrement-arrow,
+ .virtualized-scroll-pane .scroll-bar:horizontal *.increment-button .increment-arrow,
+ .virtualized-scroll-pane .scroll-bar:horizontal *.decrement-button .decrement-arrow
+ {
+     -fx-shape: null;
+     -fx-padding: 0 0.15em;
+     -fx-background-color: transparent;
+     -fx-pref-height: 0;
+     -fx-pref-width: 0;
+ }
+
+ .virtualized-scroll-pane .scroll-bar:vertical
+ {
+     -fx-pref-width: 0.8em;
+ }
+
+ .virtualized-scroll-pane .scroll-bar .decrement-button,
+ .virtualized-scroll-pane .scroll-bar .increment-button
+ {
+     -fx-padding: 0;
  }

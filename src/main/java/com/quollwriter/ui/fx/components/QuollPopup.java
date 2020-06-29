@@ -111,6 +111,8 @@ public class QuollPopup extends StackPane implements IPropertyBinder
 
         Header h = Header.builder ()
             .title (b.title)
+            .styleClassName (b.styleName)
+            .iconClassName (b.headerIconStyleName)
             .controls (controls)
             .build ();
         h.managedProperty ().bind (h.visibleProperty ());
@@ -1542,6 +1544,7 @@ TODO
             this.hideOnEscape (true);
             this.removeOnClose (true);
             this.withClose (true);
+            this.headerIconClassName (StyleClassNames.ERROR);
             this.show ();
 
             QuollPopup qp = super.build ();
@@ -1723,6 +1726,7 @@ TODO
         private Node showAt = null;
         private Side showWhere = null;
         private String styleSheet = null;
+        private String headerIconStyleName = null;
 
         protected Builder ()
         {
@@ -1742,6 +1746,14 @@ TODO
         {
 
             return (X) this;
+
+        }
+
+        public X headerIconClassName (String s)
+        {
+
+            this.headerIconStyleName = s;
+            return _this ();
 
         }
 

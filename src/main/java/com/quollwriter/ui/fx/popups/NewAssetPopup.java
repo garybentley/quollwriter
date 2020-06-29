@@ -7,6 +7,7 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
+import javafx.scene.image.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -319,6 +320,7 @@ public class NewAssetPopup extends PopupContent<ProjectViewer>
             .title (getUILanguageStringProperty (Arrays.asList (assets,add,LanguageStrings.popup,title),
                                                  Environment.getObjectTypeName (this.asset)))
             .styleClassName (StyleClassNames.CREATEASSET)
+            .styleSheet (POPUP_ID)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -327,12 +329,18 @@ public class NewAssetPopup extends PopupContent<ProjectViewer>
             .removeOnClose (true)
             .build ();
 
-        p.getHeader ().getIcon ().imageProperty ().bind (this.asset.getUserConfigurableObjectType ().icon16x16Property ());
+        Pane pp = p.getHeader ().getIcon ();
+
+        //p.getHeader ().getIcon ().imageProperty ().bind (this.asset.getUserConfigurableObjectType ().icon16x16Property ());
 
         p.requestFocus ();
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
+
+            UIUtils.setBackgroundImage (pp,
+                                        this.asset.getUserConfigurableObjectType ().icon16x16Property (),
+                                        this.getBinder ());
 
             this.nameHandler.grabInputFocus ();
 

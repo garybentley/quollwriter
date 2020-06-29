@@ -90,6 +90,7 @@ public class ProblemFinder extends VBox
        this.getChildren ().add (Header.builder ()
             .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
             .controls (controls)
+            .iconClassName (StyleClassNames.PROBLEMFINDER)
             .build ());
 
        this.limitLabel = QuollLabel.builder ()

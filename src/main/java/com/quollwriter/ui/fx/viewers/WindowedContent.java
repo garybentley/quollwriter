@@ -23,6 +23,7 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
 
     public WindowedContent (AbstractViewer viewer,
                             String         styleClassName,
+                            String         headerIconClassName,
                             Set<Node>      headerCons,
                             Region         mainContent)
     {
@@ -65,6 +66,7 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
             //.controls (b.headerControlsSupplier.get ())
             .toolbar (ctb)
             .styleClassName (StyleClassNames.HEADER)
+            .iconClassName (headerIconClassName)
             .build ();
         this.header.getStyleClass ().add (StyleClassNames.TITLE);
         VBox.setVgrow (this.header,

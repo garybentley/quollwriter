@@ -17,16 +17,30 @@
     -fx-max-width: Infinity;
     -fx-text-fill: -fx-text-base-color;
 }
-.windowed > .header .controls .viewermenu { -fx-graphic: url(/imgs/options24.png); }
-.windowed > .header .controls .fullscreenenter { -fx-graphic: url(/imgs/fullscreen24.png); }
-.windowed > .header .controls .find { -fx-graphic: url(/imgs/find24.png); }
-.windowed > .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
-.windowed > .header .controls .bug { -fx-graphic: url(/imgs/bug24.png); }
-.windowed > .header .controls .add { -fx-graphic: url(/imgs/add24.png); }
-.windowed > .header .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
-.windowed > .header .controls .help { -fx-graphic: url(/imgs/help24.png); }
-.windowed > .header .controls .edit { -fx-graphic: url(/imgs/edit24.png); }
-.windowed > .header .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
+.windowed > .header .controls .button {
+    -fx-content-display: graphic-only;
+}
+.windowed > .header .controls .button .iconbox,
+.windowed > .header .controls .menu-button > .label .iconbox,
+.windowed > .header .controls .button .iconbox .icon,
+.windowed > .header .controls .menu-button > .label .iconbox .icon,
+.windowed > .header.title > .iconbox .icon,
+.windowed > .header.title > .iconbox {
+    -fx-alignment: center;
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-fill-height: false;
+}
+.windowed > .header .controls .button.ideaboard .iconbox .ideaboard-icon {
+    -fx-pref-width: 1.333em;
+}
+.windowed > .header .controls .button.help .iconbox .icon {
+    -fx-pref-width: 1.333em;
+}
+.windowed > .header .controls .menu-button.config .iconbox .icon {
+    -fx-pref-width: 1.333em;
+}
+
 .tab-pane { -fx-min-width: 300px; }
 .viewer .divider:hover { -fx-cursor: h-resize; }
  /*
@@ -34,8 +48,9 @@
   */
  .windowed > .notifications > *
  {
-     -fx-padding: 0.25em;
+     -fx-padding: 0.25em 0.25em 0.25em 0.5em;
      -fx-border-style: solid;
      -fx-border-width: 0 0 1px 0;
      -fx-border-color: -qw-component-border-color;
+     -fx-alignment: center-left;
  }

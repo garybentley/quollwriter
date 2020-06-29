@@ -63,9 +63,12 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
     private IPropertyBinder propertyBinder = null;
     private boolean ignoreChange = false;
 
-    private ProgressBar timerProgress = null;
+    private ControllableProgressBar timerProgress = null;
     private WordCountProgressTimer wctimer = null;
-    private boolean allowHeaderHide = false;
+    private boolean allowHeaderHide = true;
+
+    private QuollButton timerBut = null;
+    private IPropertyBinder headerBinder = null;
 
     public ProjectFullScreenContent (AbstractProjectViewer viewer,
                                      String                styleClassName,
@@ -74,6 +77,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         super (viewer);
         this.propertyBinder = viewer.getBinder ();
+        this.headerBinder = new PropertyBinder ();
 
         viewer.addActionMapping (() ->
         {
@@ -208,11 +212,11 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             })
             .build ());
 
-        QuollButton tbut = QuollButton.builder ()
+        this.timerBut = QuollButton.builder ()
             .tooltip (fullscreen,title,toolbar,buttons,timer,tooltip)
             .styleClassName (StyleClassNames.TIMER)
             .build ();
-        tbut.setOnAction (ev ->
+        this.timerBut.setOnAction (ev ->
         {
 
             // Switch off hiding the header.
@@ -223,6 +227,9 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             if (this.viewer.getPopupById (pid) != null)
             {
 
+                this.viewer.getPopupById (pid).show (this.timerBut,
+                                                     Side.BOTTOM);
+
                 return;
 
             }
@@ -232,7 +239,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             {
 
                 this.timerProgress.setVisible (true);
-                tbut.setVisible (false);
+                this.timerBut.setVisible (false);
 
                 if (this.wctimer != null)
                 {
@@ -241,10 +248,109 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
                 }
 
+                this.timerProgress.stateProperty ().setValue (ControllableProgressBar.State.playing);
+                this.timerProgress.setProgress (0.1d);
+
                 this.wctimer = new WordCountProgressTimer (this.viewer,
                                                            mins,
                                                            words,
-                                                           this.timerProgress);
+                                                           this.timerProgress.getProgressBar ());
+
+                 this.timerProgress.progressProperty ().addListener ((pr, oldv, newv) ->
+                 {
+
+                   if (newv.doubleValue () >= 1)
+                   {
+
+                        if (this.wctimer.getMinutesRemaining () <= 0)
+                        {
+
+                            this.viewer.showNotificationPopup (getUILanguageStringProperty (timer,complete,time,popup,title),
+                                                               getUILanguageStringProperty (Arrays.asList (timer,complete,time,popup,text),
+                                                                                            Environment.formatNumber (mins)),
+                                                               30);
+
+                        }
+
+                        if (this.wctimer.getWordsRemaining () <= 0)
+                        {
+
+                            this.viewer.showNotificationPopup (getUILanguageStringProperty (timer,complete,LanguageStrings.words,popup,title),
+                                                               getUILanguageStringProperty (Arrays.asList (timer,complete,LanguageStrings.words,popup,text),
+                                                                                            Environment.formatNumber (words)),
+                                                               30);
+
+                        }
+
+                   }
+
+                 });
+
+                this.timerProgress.getProgressBar ().addEventHandler (ContextMenuEvent.CONTEXT_MENU_REQUESTED,
+                                                                      evv ->
+                {
+
+                    this.allowHeaderHide = false;
+
+                    Environment.schedule (() ->
+                    {
+
+                        this.allowHeaderHide = true;
+
+                    },
+                    2000,
+                    -1);
+
+                });
+
+                this.timerProgress.stateProperty ().addListener ((pr, oldv, newv) ->
+                {
+
+                    if (newv == ControllableProgressBar.State.canceled)
+                    {
+
+                        this.wctimer.stopTimer ();
+                        this.timerBut.setVisible (true);
+                        this.timerProgress.setVisible (false);
+                        return;
+
+                    }
+
+                    if (newv == ControllableProgressBar.State.reset)
+                    {
+
+                        this.wctimer.stopTimer ();
+                        this.viewer.getPopupById (pid).show (this.timerBut,
+                                                             Side.BOTTOM);
+                        return;
+
+                    }
+
+                    if (newv == ControllableProgressBar.State.stopped)
+                    {
+
+                        this.wctimer.stopTimer ();
+                        return;
+
+                    }
+
+                    if (newv == ControllableProgressBar.State.paused)
+                    {
+
+                        this.wctimer.pauseTimer ();
+                        return;
+
+                    }
+
+                    if (newv == ControllableProgressBar.State.playing)
+                    {
+
+                        this.wctimer.unpauseTimer ();
+                        return;
+
+                    }
+
+                });
 
                 this.viewer.getPopupById (pid).close ();
 
@@ -256,15 +362,21 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
             });
             p.getPopup ().setPopupId (pid);
-            p.getPopup ().show (tbut,
-                      Side.BOTTOM);
+            p.getPopup ().show (this.timerBut,
+                                Side.BOTTOM);
 
         });
-        tbut.managedProperty ().bind (tbut.visibleProperty ());
+        this.timerBut.managedProperty ().bind (this.timerBut.visibleProperty ());
 
-        tb.getItems ().add (tbut);
+        tb.getItems ().add (this.timerBut);
 
-        this.timerProgress = new ProgressBar ();
+        this.timerProgress = ControllableProgressBar.builder ()
+            .allowStop (false)
+            .allowPause (true)
+            .allowReset (false)
+            .allowPlay (true)
+            .styleClassName (StyleClassNames.PROGRESS)
+            .build ();
         this.timerProgress.managedProperty ().bind (this.timerProgress.visibleProperty ());
         this.timerProgress.setVisible (false);
         tb.getItems ().add (this.timerProgress);
@@ -388,6 +500,78 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
                        Priority.NEVER);
 
         this.background = new BackgroundPane (viewer);
+
+        this.background.setOnMousePressed (ev ->
+        {
+
+            Object o = this.background.getProperties ().get ("context-menu");
+
+            if ((o != null)
+                &&
+                (o instanceof ContextMenu)
+               )
+            {
+
+                ContextMenu cm = (ContextMenu) o;
+
+                cm.hide ();
+
+            }
+
+            if (ev.getClickCount () == 2)
+            {
+
+                this.background.showBackgroundSelector ();
+
+            }
+
+        });
+
+        this.background.setOnContextMenuRequested (ev ->
+        {
+
+            if (ev.getTarget () != this.background)
+            {
+
+                return;
+
+            }
+
+            QuollContextMenu m = QuollContextMenu.builder ()
+                .build ();
+
+            m.getItems ().add (QuollMenuItem.builder ()
+                .label (fullscreen,popupmenu,items,editproperties)
+                .styleClassName (StyleClassNames.EDITPROPERTIES)
+                .onAction (eev ->
+                {
+
+                    this.viewer.runCommand (AbstractProjectViewer.CommandId.textproperties);
+
+                })
+                .build ());
+
+            m.getItems ().add (QuollMenuItem.builder ()
+                .label (fullscreen,popupmenu,items,selectbackground)
+                .styleClassName (StyleClassNames.SELECTBG)
+                .onAction (eev ->
+                {
+
+                    this.background.showBackgroundSelector ();
+
+                })
+                .build ());
+
+            this.background.getProperties ().put ("context-menu", m);
+
+            m.setAutoFix (true);
+            m.setAutoHide (true);
+            m.setHideOnEscape (true);
+            m.show (this,
+                    ev.getScreenX (),
+                    ev.getScreenY ());
+
+        });
 
         try
         {
@@ -516,44 +700,6 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         });
 
-        this.setOnContextMenuRequested (ev ->
-        {
-
-            QuollContextMenu m = QuollContextMenu.builder ()
-                .build ();
-
-            m.getItems ().add (QuollMenuItem.builder ()
-                .label (fullscreen,popupmenu,items,editproperties)
-                .styleClassName (StyleClassNames.EDITPROPERTIES)
-                .onAction (eev ->
-                {
-
-                    this.viewer.runCommand (AbstractProjectViewer.CommandId.textproperties);
-
-                })
-                .build ());
-
-            m.getItems ().add (QuollMenuItem.builder ()
-                .label (fullscreen,popupmenu,items,selectbackground)
-                .styleClassName (StyleClassNames.SELECTBG)
-                .onAction (eev ->
-                {
-
-                    this.background.showBackgroundSelector ();
-
-                })
-                .build ());
-
-            this.getProperties ().put ("context-menu", m);
-
-            m.setAutoFix (true);
-            m.setAutoHide (true);
-            m.setHideOnEscape (true);
-            m.show (this,
-                    ev.getScreenX (),
-                    ev.getScreenY ());
-
-        });
 /*
         this.addEventHandler (ScrollEvent.SCROLL,
                               ev ->
@@ -1057,7 +1203,7 @@ TODO
 
     private void updateUI ()
     {
-
+System.out.println ("UPDATE");
         this.clockLabel.setText (this.clockFormat.format (new Date ()));
         this.headerClockLabel.setText (this.clockFormat.format (new Date ()));
 
@@ -1103,51 +1249,60 @@ TODO
 
         chapWords.setVisible (false);
 
-        if (this.panel instanceof NamedObjectPanelContent)
+        Panel p = this.viewer.getCurrentPanel ();
+
+        if (p != null)
         {
 
-            NamedObjectPanelContent pc = (NamedObjectPanelContent) this.panel;
+            PanelContent _c = p.getContent ();
 
-            if (pc.getObject () instanceof Chapter)
+            if (_c instanceof NamedObjectPanelContent)
             {
 
-                Chapter c = (Chapter) pc.getObject ();
-                this.chapWords.setVisible (true);
+                NamedObjectPanelContent pc = (NamedObjectPanelContent) _c;//this.panel;
 
-                ChapterCounts cc = this.viewer.getChapterCounts (c);
-
-                int maxChapWC = this.viewer.getProjectTargets ().getMaxChapterCount ();
-
-                t = "";
-
-                if ((maxChapWC > 0)
-                    &&
-                    (cc.getWordCount () > maxChapWC)
-                   )
+                if (pc.getObject () instanceof Chapter)
                 {
 
-                    t = String.format (", %s",
-                                       Environment.formatNumber (cc.getWordCount () - maxChapWC));
+                    Chapter c = (Chapter) pc.getObject ();
+                    this.chapWords.setVisible (true);
+
+                    ChapterCounts cc = this.viewer.getChapterCounts (c);
+
+                    int maxChapWC = this.viewer.getProjectTargets ().getMaxChapterCount ();
+
+                    t = "";
+
+                    if ((maxChapWC > 0)
+                        &&
+                        (cc.getWordCount () > maxChapWC)
+                       )
+                    {
+
+                        t = String.format (", %s",
+                                           Environment.formatNumber (cc.getWordCount () - maxChapWC));
+
+                    }
+
+                    UIUtils.setTooltip (chapWords,
+                                        getUILanguageStringProperty (Utils.newList (prefix,chapterwordcount,tooltip)));
+                    //"{Chapter} word count");
+
+                    pl = LanguageStrings.words;
+
+                    if (cc.getWordCount () == 1)
+                    {
+
+                        pl = LanguageStrings.word;
+
+                    }
+
+                    this.chapWords.setText (String.format ("%s %s%s",
+                                                      Environment.formatNumber (cc.getWordCount ()),
+                                                      getUILanguageStringProperty (Utils.newList (prefix,pl)).getValue (),
+                                                      t));
 
                 }
-
-                UIUtils.setTooltip (chapWords,
-                                    getUILanguageStringProperty (Utils.newList (prefix,chapterwordcount,tooltip)));
-                //"{Chapter} word count");
-
-                pl = LanguageStrings.words;
-
-                if (cc.getWordCount () == 1)
-                {
-
-                    pl = LanguageStrings.word;
-
-                }
-
-                this.chapWords.setText (String.format ("%s %s%s",
-                                                  Environment.formatNumber (cc.getWordCount ()),
-                                                  getUILanguageStringProperty (Utils.newList (prefix,pl)).getValue (),
-                                                  t));
 
             }
 
@@ -1164,8 +1319,11 @@ TODO
         {
 
             this.wctimer.stop ();
+            this.timerProgress.setVisible (false);
 
         }
+
+        this.timerBut.setVisible (true);
 
         this.viewer.exitFullScreen ();
 
@@ -1308,20 +1466,33 @@ TODO ? psuedo class
 
             PanelContent pc = p.getContent ();
 
+            this.header.getIcon ().setBackground (null);
+            this.headerBinder.dispose ();
+
             if (pc instanceof AssetViewPanel)
             {
 
                 UserConfigurableObjectType type = ((AssetViewPanel) pc).getObject ().getUserConfigurableObjectType ();
 
-                this.header.getIcon ().imageProperty ().unbind ();
-                this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
+                //this.header.getIcon ().imageProperty ().unbind ();
+                //this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
+
+                UIUtils.setBackgroundImage (this.header.getIcon (),
+                                            type.icon24x24Property (),
+                                            this.headerBinder);
+                this.header.setIconClassName ("asset");
+
+
+            } else {
+
+                this.header.setIconClassName (p.getStyleClassName ());
 
             }
 
             this.header.titleProperty ().unbind ();
             this.header.titleProperty ().bind (p.titleProperty ());
-            this.header.getIcon ().imageProperty ().unbind ();
-            this.header.getStyleClass ().add (p.getStyleClassName ());
+            //this.header.getIcon ().imageProperty ().unbind ();
+            //this.header.getStyleClass ().add (p.getStyleClassName ());
 
         } else {
 

@@ -255,7 +255,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
             this.editor.showParagraphInViewport (p);
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 this.scrollToTextPosition (pos,
@@ -272,10 +272,10 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         Bounds eb = this.editor.localToScreen (this.editor.getBoundsInLocal ());
 
         double diff = b.getMinY () - eb.getMinY () - (eb.getHeight () / 2);
-
+System.out.println ("DIFF: " + diff);
         this.editor.scrollYBy (diff);
 
-        UIUtils.runLater (afterScroll);
+        UIUtils.forceRunLater (afterScroll);
 
     }
 
@@ -341,20 +341,37 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
                 Float f = s.getAsFloat (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME,
                                         0f);
+                Float vc = s.getAsFloat (Constants.LAST_EDITOR_SCROLL_OFFSET_PROPERTY_NAME, 0f);
+                Integer p = s.getAsInt (Constants.LAST_EDITOR_VISIBLE_PARAGRAPH_PROPERTY_NAME);
 
-                this.scrollPane.scrollYBy (f);
+                if (p != null)
+                {
+
+                    this.editor.showParagraphAtTop (p);
+
+                    UIUtils.forceRunLater (() ->
+                    {
+
+                        this.editor.scrollYBy (vc);
+
+                    });
+
+                }
 
                 Integer i = s.getAsInt (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
                                         0);
 
                 //this.editor.getCaretSelectionBind ().moveTo (i);
 
+                //this.editor.requestFollowCaret ();
+
             }
 
-            this.editor.requestFollowCaret ();
+            //this.editor.requestFollowCaret ();
 
             this.editor.setSpellCheckEnabled (this.viewer.isSpellCheckingEnabled ());
 
+            // TODO This needs to be done later otherwise will cause an error.
             //this.editor.requestFocus ();
 
         };
@@ -402,8 +419,27 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         State s = super.getState ();
 
+        int ai = this.editor.visibleParToAllParIndex (0);
+        Bounds vpb = this.editor.getVisibleParagraphBoundsOnScreen (0);
+        IndexRange ir = this.editor.getParagraphTextRange (ai);
+        this.editor.selectRange (ir.getStart (), ir.getEnd ());
+        Optional<Bounds> bb = this.editor.getSelectionBounds ();
+
+        if ((bb != null)
+            &&
+            (bb.orElse (null) != null)
+           )
+        {
+
+            s.set (Constants.LAST_EDITOR_VISIBLE_PARAGRAPH_PROPERTY_NAME,
+                   ai);
+            s.set (Constants.LAST_EDITOR_SCROLL_OFFSET_PROPERTY_NAME,
+                   vpb.getMinY () - bb.get ().getMinY ());
+
+        }
+
         s.set (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME,
-               this.scrollPane.estimatedScrollYProperty ().getValue ().floatValue ());
+               this.editor.estimatedScrollYProperty ().getValue ().floatValue ());
         s.set (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
                this.editor.getCaretSelectionBind ().getPosition ());
 

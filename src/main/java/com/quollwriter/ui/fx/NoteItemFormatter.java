@@ -59,11 +59,16 @@ public class NoteItemFormatter extends AbstractChapterItemFormatter<Note>
 
         }
 
+        QuollTextView t = QuollTextView.builder ()
+            .text (desc)
+            .styleClassName (StyleClassNames.DESCRIPTION)
+            .build ();
+            /*
         BasicHtmlTextFlow t = BasicHtmlTextFlow.builder ()
             .text (desc)
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();
-
+*/
         v.getChildren ().add (t);
 
         return v;

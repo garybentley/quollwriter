@@ -2,8 +2,10 @@
  * Styles for the select background popup, com.quollwriter.ui.fx.popups.SelectBGPopup
  */
 .header .button { -fx-content-display: graphic-only; }
+/*
 .header .controls .button.reset { -fx-graphic: url(/imgs/restore16.png); }
 .header .icon { -fx-image: url(/imgs/bg-select16.png); }
+*/
 .scroll-pane {
     -fx-pref-height: 31em;
     -fx-min-height: 31em;
@@ -24,6 +26,14 @@
     -fx-border-style: solid;
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
+}
+.accordion .header .button .iconbox,
+.accordion .header .button .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
 }
 .accordion .content {
     -fx-hgap: 0.0em;
@@ -49,9 +59,11 @@
     -fx-border-color: -qw-selected-border-color;
     -fx-effect: -qw-selected-effect;
 }
+/*
 .accordion .header .controls .add { -fx-graphic: url(/imgs/add16.png); }
 .accordion.images .header .icon { -fx-image: url(/imgs/scene16.png); }
 .accordion.colors .header .icon { -fx-image: url(/imgs/transparency16.png); }
+*/
 .bgimage{-fx-background-size: contain;}
 
 /*

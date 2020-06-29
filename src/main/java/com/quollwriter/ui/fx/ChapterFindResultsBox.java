@@ -29,6 +29,7 @@ public class ChapterFindResultsBox extends FindResultsBox<AbstractProjectViewer>
     private Map<Chapter, List<SentenceMatches>> snippets = null;
     private Set<TextEditor.Highlight> highlightIds = new HashSet<> ();
     private TextEditor highlightedEditor = null;
+    private Chapter highlightedChapter = null;
     private QuollTreeView<Object> tree = null;
     private AccordionItem acc = null;
     private EventHandler<MouseEvent> mouseList = null;
@@ -259,10 +260,16 @@ public class ChapterFindResultsBox extends FindResultsBox<AbstractProjectViewer>
             this.highlightedEditor.removeEventHandler (MouseEvent.MOUSE_RELEASED,
                                                        this.mouseList);
 
-            this.highlightIds.stream ()
-                .forEach (i -> this.highlightedEditor.removeHighlight (i));
+            if (this.viewer.getEditorForChapter (this.highlightedChapter) != null)
+            {
+
+                this.highlightIds.stream ()
+                    .forEach (i -> this.highlightedEditor.removeHighlight (i));
+
+            }
             this.highlightIds.clear ();
 
+            this.highlightedChapter = null;
             this.highlightedEditor = null;
 
         }
@@ -305,6 +312,7 @@ public class ChapterFindResultsBox extends FindResultsBox<AbstractProjectViewer>
 
                     }
 
+                    this.highlightedChapter = c;
                     this.highlightedEditor = p.getEditor ();
 
                     this.highlightedEditor.addEventHandler (KeyEvent.KEY_RELEASED,

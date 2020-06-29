@@ -68,7 +68,7 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
 
                 ev.consume ();
 
-                f.showError (getUILanguageStringProperty (LanguageStrings.project,actions,renamechapter,errors,novalue));
+                f.showError (getUILanguageStringProperty (project,actions,renamechapter,errors,novalue));
                 //"Please enter a new name.";
 
                 return;
@@ -89,6 +89,7 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
                     {
 
                         exists = true;
+                        break;
 
                     }
 

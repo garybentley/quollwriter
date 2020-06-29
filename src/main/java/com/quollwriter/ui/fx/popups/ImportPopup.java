@@ -29,6 +29,7 @@ import com.quollwriter.text.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -919,11 +920,11 @@ TODO Remove
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();
 
-        desc.textProperty ().bind (Bindings.createStringBinding (() ->
+        desc.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
-            return String.format (getUILanguageStringProperty (importproject,stages,selectitems,text).getValue (),
-                                  (this.addToProject.isSelected () ? getUILanguageStringProperty (importproject,stages,selectitems,textextra).getValue () : ""));
+            return getUILanguageStringProperty (Arrays.asList (importproject,stages,selectitems,LanguageStrings.text),
+                                                (this.addToProject.isSelected () ? getUILanguageStringProperty (importproject,stages,selectitems,textextra).getValue () : "")).getValue ();
 
         },
         this.addToProject.selectedProperty ()));

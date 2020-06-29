@@ -5,22 +5,43 @@
  {
      -fx-padding: 0em 0 0.5em 0.5em;
  }
-
+ .sidebar > .header > .iconbox,
+ .sidebar > .header > .iconbox .icon,
+ .sidebar > .header > .controls .iconbox,
+ .sidebar > .header > .controls .iconbox .icon {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+/*
  .sidebar > .header .close.button
  {
      -fx-graphic: url(/imgs/close16.png);
  }
-
+*/
+/*
  .sidebar > .header .help.button
  {
      -fx-graphic: url(/imgs/help16.png);
  }
-
+*/
+.sidebar > .header .button.help .iconbox .help-icon.icon {
+    -fx-pref-width: 0.666em;
+}
+.sidebar > .header .iconbox .chapterinfo-icon.icon,
+.sidebar .accordion .iconbox .chapterinfo-icon.icon {
+    -fx-pref-width: 0.666em;
+}
+.sidebar.wordcounts .hyperlink.detail .iconbox .detail-icon.icon {
+    -fx-shape: "M 15.998,16.016 V 0 C 11.639,0.27 7.701,1.938 4.521,4.537 Z M 19.914,4.158 V 18.804 L 9.646,29.16 C 11.974,30.898 14.802,32 17.843,32 25.703,32 32,25.711 32,17.941 32,10.883 26.766,5.164 19.914,4.158 Z m -6.174,15.24 -10.008,-10 c -4.977,5.754 -4.977,14.246 0,20 z";    
+}
+/*
  .sidebar > .header .other.button
  {
      -fx-graphic: url(/imgs/sidebars16.png);
  }
-
+*/
  .sidebar > .header .title
  {
      -fx-padding: 0 0 0 0.5em;

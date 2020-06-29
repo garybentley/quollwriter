@@ -35,6 +35,13 @@ public final class StyleClassNames
     public static final PseudoClass INVALID_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.INVALID);
     public static final PseudoClass NORMAL_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NORMAL);
 
+    public static final String SPLITCHAPTER = "splitchapter";
+    public static final String SUN = "sun";
+    public static final String MOON = "moon";
+    public static final String DICTIONARY = "dictionary";
+    public static final String ICONBOX = "iconbox";
+    public static final String PLAY = "play";
+    public static final String PAUSE = "pause";
     public static final String TIMER = "timer";
     public static final String WINDOWED = "windowed";
     public static final String TAGSMANAGER = "tagsmanager";
@@ -173,6 +180,8 @@ public final class StyleClassNames
     public static final String EDITPROPERTIES = "editproperties";
     public static final String EDITNEEDEDNOTE = "editneedednote";
     public static final String SPELLCHECK = "spellcheck";
+    public static final String SPELLCHECKON = "spellcheckon";
+    public static final String SPELLCHECKOFF = "spellcheckoff";
     public static final String TOOLS = "tools";
     public static final String ENABLED = "enabled";
     public static final String DISABLED = "disabled";
@@ -298,13 +307,14 @@ public final class StyleClassNames
     public static final String TITLE = "title";
     public static final String CONTROLS = "controls";
     public static final String ICON = "icon";
+    public static final String ICON_SUFFIX = "-" + ICON;
     public static final String ENCRYPTED = "encrypted";
     public static final String ADD = "add";
     public static final String IMPORT = "import";
     public static final String IMPORTFILE = "importfile";
     public static final String NORMAL = "normal";
     public static final String CHANGEDISPLAY = "changedisplay";
-    public static final String MANAGESTATUSES = "mangaestatuses";
+    public static final String MANAGESTATUSES = "managestatuses";
     public static final String WORDCOUNT = "wordcount";
     public static final String STATUS = "status";
     public static final String NAME = "name";

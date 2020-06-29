@@ -62,6 +62,8 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     private Subscription itemsPositionSubscription = null;
     private ObservableList<ChapterItem> newItems = FXCollections.observableList (new ArrayList<> ());
     private ProblemFinder problemFinder = null;
+    private Map<ChapterItem, TextEditor.Position> textPositions = new HashMap<> ();
+    private Map<ChapterItem, TextEditor.Position> endTextPositions = new HashMap<> ();
 
     public ProjectChapterEditorPanelContent (ProjectViewer viewer,
                                              Chapter       chapter)
@@ -147,25 +149,29 @@ TODO
 
             }
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 this.object.getScenes ().stream ()
                     .forEach (s ->
                     {
 
+                        this.createTextPosition (s);
+/*
                         s.setTextPosition2 (this.editor.createTextPosition (s.getPosition ()));
 
                         s.getOutlineItems ().stream ()
                             .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
-
+*/
                     });
 
                 this.object.getOutlineItems ().stream ()
-                    .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
+                    .forEach (o -> this.createTextPosition (o));
+                    //o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
 
                 this.object.getNotes ().stream ()
-                    .forEach (n -> n.setTextPosition2 (this.editor.createTextPosition (n.getPosition ())));
+                    .forEach (n -> this.createTextPosition (n));
+                    //.setTextPosition2 (this.editor.createTextPosition (n.getPosition ())));
 
                 this.recreateVisibleParagraphs ();
 /*
@@ -190,7 +196,27 @@ TODO
             if (ev.getType () == CollectionEvent.Type.add)
             {
 
-                ev.getSource ().setTextPosition2 (this.editor.createTextPosition (ev.getSource ().getPosition ()));
+                this.createTextPosition (ev.getSource ());
+                //ev.getSource ().setTextPosition2 (this.editor.createTextPosition (ev.getSource ().getPosition ()));
+
+            }
+
+            if (ev.getType () == CollectionEvent.Type.remove)
+            {
+
+                ChapterItem ci = ev.getSource ();
+                ci.positionProperty ().unbind ();
+                ci.endPositionProperty ().unbind ();
+                this.textPositions.remove (ci).dispose ();
+
+                TextEditor.Position p = this.endTextPositions.remove (ci);
+
+                if (p != null)
+                {
+
+                    p.dispose ();
+
+                }
 
             }
 
@@ -349,6 +375,37 @@ TODO
            }
 
         });
+
+    }
+
+    private void createTextPosition (ChapterItem ci)
+    {
+
+        TextEditor.Position p = this.editor.createTextPosition (ci.getPosition ());
+        ci.positionProperty ().unbind ();
+        ci.positionProperty ().bind (p.positionProperty ());
+        this.textPositions.put (ci,
+                                p);
+
+        if (ci.getEndPosition () > -1)
+        {
+
+            TextEditor.Position ep = this.editor.createTextPosition (ci.getEndPosition ());
+            ci.endPositionProperty ().unbind ();
+            ci.endPositionProperty ().bind (ep.positionProperty ());
+            this.endTextPositions.put (ci,
+                                       ep);
+
+        }
+
+        if (ci instanceof com.quollwriter.data.Scene)
+        {
+
+            com.quollwriter.data.Scene s = (com.quollwriter.data.Scene) ci;
+            s.getOutlineItems ().stream ()
+                .forEach (o -> this.createTextPosition (o));
+
+        }
 
     }
 
@@ -673,12 +730,19 @@ TODO
     public void recreateVisibleParagraphs ()
     {
 
+        int s = this.editor.getVisibleParagraphs ().size ();
+        
         IntStream.range (0,
-                         this.editor.getVisibleParagraphs ().size ())
+                         s)
             .forEach (i ->
             {
 
-                this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+                if (i < s)
+                {
+
+                    this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+
+                }
 
             });
 
@@ -1000,16 +1064,18 @@ TODO
                                 (pr, oldv, newv) ->
         {
 
-            sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
-            sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
+            sb.setIconClassName (this.viewer.isSpellCheckingEnabled () ? StyleClassNames.SPELLCHECKOFF : StyleClassNames.SPELLCHECKON);
+            //sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
+            //sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
 
             UIUtils.setTooltip (sb,
                                 getUILanguageStringProperty (Utils.newList (prefix,this.viewer.isSpellCheckingEnabled () ? spellcheckoff : spellcheckon,tooltip)));
 
         });
 
-        sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
-        sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
+        sb.setIconClassName (this.viewer.isSpellCheckingEnabled () ? StyleClassNames.SPELLCHECKOFF : StyleClassNames.SPELLCHECKON);
+        //sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
+        //sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
 
         its.add (sb);
 
@@ -1121,6 +1187,30 @@ TODO
 
             this.itemsSubscription.unsubscribe ();
             this.itemsPositionSubscription.unsubscribe ();
+            this.textPositions.keySet ().stream ()
+                .forEach (ci ->
+                {
+
+                    ci.positionProperty ().unbind ();
+                    this.textPositions.get (ci).dispose ();
+                });
+            this.endTextPositions.keySet ().stream ()
+                .forEach (ci ->
+                {
+
+                    ci.endPositionProperty ().unbind ();
+                    TextEditor.Position p = this.endTextPositions.get (ci);
+
+                    if (p != null)
+                    {
+
+                        p.dispose ();
+
+                    }
+
+                });
+            this.textPositions.clear ();
+            this.endTextPositions.clear ();
 
             this.editor.dispose ();
 
@@ -3056,7 +3146,7 @@ TODO?
             int paraNo = this.editor.getParagraphForOffset (item.getPosition ());
             this.editor.showParagraphAtTop (paraNo);
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 this.showPopupForItem (item,
@@ -3082,9 +3172,14 @@ TODO?
 
         this.hidePopups ();
 
-        this.viewer.showPopup (popup,
-                               this.getNodeForChapterItem (item),
-                               Side.BOTTOM);
+        UIUtils.forceRunLater (() ->
+        {
+
+            this.viewer.showPopup (popup,
+                                   this.getNodeForChapterItem (item),
+                                   Side.BOTTOM);
+
+        });
 
         this.popupsToCloseOnClick.add (popup);
 
@@ -3281,7 +3376,7 @@ TODO?
 
             qp = new ViewChapterItemPopup (this.viewer,
                                            items).getPopup ();
-System.out.println ("HEREX");
+
             this.showPopupForItem (top,
                                    qp);
 
@@ -3752,7 +3847,20 @@ TODO
     public void showSplitChapter ()
     {
 
-        // TODO
+        QuollPopup qp = this.viewer.getPopupById (SplitChapterPopup.getPopupIdForChapter (this.object));
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        qp = new SplitChapterPopup (this.viewer,
+                                    this.object).getPopup ();
+
+        this.viewer.showPopup (qp);
 
     }
 

@@ -58,10 +58,14 @@ public class AccordionItem extends VBox implements Stateful
             this.getStyleClass ().addAll (b.styleNames);
 
         }
+        List<String> lls = b.styleNames;
 
         this.header = Header.builder ()
             .controls (b.headerCons)
             .title (b.title)
+            // TODO, make this support multiple...
+            .styleClassName ((b.styleNames != null && b.styleNames.size () > 0 ? lls.get (0) : null))
+            .iconClassName (b.headerIconStyleName)
             .tooltip (project,sidebar,section,title,tooltip)
             // TODO REmove, use css .cursor (Cursor.HAND)
             .contextMenu (b.contextMenuItemSupplier)
@@ -233,6 +237,7 @@ public class AccordionItem extends VBox implements Stateful
         private String accId = null;
         private boolean open = true;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
+        private String headerIconStyleName = null;
 
         protected Builder ()
         {
@@ -252,6 +257,15 @@ public class AccordionItem extends VBox implements Stateful
         {
 
             return (X) this;
+
+        }
+
+        public X headerIconClassName (String s)
+        {
+
+            this.headerIconStyleName = s;
+
+            return _this ();
 
         }
 

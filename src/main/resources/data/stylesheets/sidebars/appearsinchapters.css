@@ -11,6 +11,14 @@
      -fx-padding: 0 0 0 0.5em;
  }
 
+.appearsinchapters .header .iconbox,
+.appearsinchapters .header .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
  .description
  {
      -fx-padding: 0 0.5em 0.5em 0.5em;

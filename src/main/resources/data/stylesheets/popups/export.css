@@ -17,3 +17,19 @@
 }
 .description { -fx-padding: 0 0 0.5em 0; }
 .content .tree .cell .label.chapter { -fx-graphic: url(/imgs/chapter16.png); }
+.content .tree {
+    -fx-cell-indent: 1.8em;
+}
+.content .wizard .header .iconbox {
+    visibility: hidden;
+}
+.content .tree .cell {
+    -fx-padding: 0;
+}
+.content .tree .cell .label.chapter .iconbox,
+.content .tree .cell .label.chapter .iconbox .icon {
+    -fx-pref-width: 1em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}

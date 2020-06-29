@@ -9,6 +9,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.input.*;
+import javafx.scene.image.*;
 import javafx.geometry.*;
 
 import com.quollwriter.*;
@@ -807,19 +808,24 @@ TODO: Not really needed?
 
                 h.getStyleClass ().add (type.getIconType ());
 
-                // TODO: Not a good hack...
-                if (type.getIconType ().startsWith ("asset:"))
+                UserConfigurableObjectType t = null;
+
+System.out.println ("HERE: " + type.getIconType ());
+                if (!type.getIconType ().equals (Chapter.OBJECT_TYPE))
                 {
 
                     try
                     {
 
-                        UserConfigurableObjectType t = Environment.getUserConfigurableObjectType (Long.parseLong (type.getIconType ().substring ("asset:".length ())));
-
-                        if (t != null)
+                        // TODO: Not a good hack...
+                        if (type.getIconType ().startsWith ("asset:"))
                         {
 
-                            h.getIcon ().imageProperty ().bind (t.icon16x16Property ());
+                            t = Environment.getUserConfigurableObjectType (Long.parseLong (type.getIconType ().substring ("asset:".length ())));
+
+                        } else {
+
+                            t = Environment.getUserConfigurableObjectType (type.getIconType ());
 
                         }
 
@@ -832,6 +838,23 @@ TODO: Not really needed?
                     }
 
                 }
+
+                if (t != null)
+                {
+
+                    UIUtils.setBackgroundImage (h.getIcon (),
+                                                t.icon16x16Property (),
+                                                board.getBinder ());
+
+                } else {
+
+                    h.setIconClassName (type.getIconType ());
+
+                }
+
+            } else {
+
+                h.setIconClassName (StyleClassNames.IDEA);
 
             }
 

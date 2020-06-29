@@ -122,11 +122,12 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java7:4.3.3'
 
     // RichtextFX
-    //implementation 'org.fxmisc.richtext:richtextfx:0.10.2'
+    implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
     //implementation 'org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT'
 
     // This is temporary for testing changes to a local version of richtextfx.  Ignore.
     // TEMP ADD RICHTEXTFX JARS AND DEPS
+    /*
      implementation fileTree('d:/reference/java/richtextfx/RichTextFX/richtextfx/build/libs/') {
         include 'richtextfx-1.0.0-SNAPSHOT.jar'
         include 'flowless-0.6.jar'
@@ -134,7 +135,7 @@ dependencies {
         include 'undofx-2.1.0.jar'
         include 'wellbehavedfx-0.3.3.jar'
     }
-
+*/
     // Flying Saucer (can be removed when no longer using Swing)
     implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
 
@@ -164,7 +165,9 @@ compileJava {
         '--add-exports',
         'javafx.web/com.sun.webkit=ALL-UNNAMED',
         '--module-path',
-        'D:/reference/java/javafx/javafx-sdk-12/lib',
+        //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib',
+        //'D:/reference/java/javafx/javafx-sdk-12/lib',
+        'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
         '-Xmaxerrs',
         '100'
     ]
@@ -178,7 +181,7 @@ jar {
 
 javadoc {
     doFirst {
-        options.addStringOption ('-module-path', 'D:/reference/java/javafx/javafx-sdk-12/lib')
+        options.addStringOption ('-module-path', 'D:/reference/java/javafx/javafx-sdk-14.0.1/lib')
         options.addStringOption ('-add-modules', 'javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach')
     }
 }
@@ -210,7 +213,9 @@ application {
         '--add-exports',
         'javafx.web/com.sun.webkit=ALL-UNNAMED',
         '--module-path',
-        'D:/reference/java/javafx/javafx-sdk-12/lib'
+        //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib'
+        //'D:/reference/java/javafx/javafx-sdk-12/lib'
+        'D:/reference/java/javafx/javafx-sdk-14.0.1/lib'
     ]
 
     // Define the main class for the application

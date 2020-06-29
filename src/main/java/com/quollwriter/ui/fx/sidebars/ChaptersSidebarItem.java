@@ -3,12 +3,14 @@ package com.quollwriter.ui.fx.sidebars;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
+import java.util.concurrent.*;
 
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
+import javafx.geometry.*;
 
 import org.reactfx.*;
 
@@ -317,6 +319,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                     if (_n.isEditNeeded ())
                     {
 
+                        l.setIconClassName (StyleClassNames.EDITNEEDEDNOTE);
                         l.getStyleClass ().add (StyleClassNames.EDITNEEDEDNOTE);
 
                     }
@@ -344,35 +347,150 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     Chapter c = (Chapter) n;
 
+                    l.setOnMouseExited (ev ->
+                    {
+
+                        ScheduledFuture pshow = (ScheduledFuture) l.getProperties ().get ("previewpopupshow");
+
+                        if (pshow != null)
+                        {
+
+                            pshow.cancel (true);
+
+                        }
+
+                        QuollPopup qp = (QuollPopup) l.getProperties ().get ("previewpopup");
+
+                        l.getProperties ().put ("previewpopuphide",
+                                                Environment.schedule (() ->
+                        {
+
+                            if (qp != null)
+                            {
+
+                                qp.close ();
+
+                            }
+
+                        },
+                        500,
+                        -1));
+
+                    });
+
                     l.setOnMouseEntered (ev ->
                     {
+
+                        ScheduledFuture phide = (ScheduledFuture) l.getProperties ().get ("previewpopuphide");
+
+                        if (phide != null)
+                        {
+
+                            phide.cancel (true);
+
+                        }
+
+                        ScheduledFuture pshow = (ScheduledFuture) l.getProperties ().get ("previewpopupshow");
+
+                        if (pshow != null)
+                        {
+
+                            pshow.cancel (true);
+
+                        }
 
                         if (UserProperties.getAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME,
                                                          null))
                         {
 
-                            String prevformat = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
-                                                                    Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
+                            l.getProperties ().put ("previewpopupshow",
+                                                    Environment.schedule (() ->
+                            {
 
-                            StringProperty sp = new SimpleStringProperty ();
-                            sp.setValue (UIUtils.getChapterInfoPreview (c,
-                                                                        new StringWithMarkup (prevformat),
-                                                                        pv));
+                                String prevformat = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
+                                                                        Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
 
+
+                                BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
+                                    .styleClassName (StyleClassNames.MESSAGE)
+                                    .text (UIUtils.getChapterInfoPreview (c,
+                                                                          new StringWithMarkup (prevformat),
+                                                                          pv))
+                                    .build ();
+
+                                QuollPopup popup = QuollPopup.builder ()
+                                    .styleClassName (StyleClassNames.INFORMATION)
+                                    .content (m)
+                                    .removeOnClose (true)
+                                    .build ();
+
+                                UIUtils.runLater (() ->
+                                {
+
+                                    l.getProperties ().put ("previewpopup",
+                                                            popup);
+
+                                    this.viewer.showPopup (popup,
+                                                    l,
+                                                    20,
+                                                    20,
+                                                    Side.RIGHT);
+
+                                });
+
+                            },
+                            750,
+                            -1));
+
+/*
                             UIUtils.setTooltip (l,
                                                 sp);
-
+*/
                         } else {
-
+/*
                             UIUtils.setTooltip (l,
                                                 null);
-
+*/
                         }
 
                     });
 
-                    l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, (!c.isEditComplete () && c.getEditPosition () > 0));
-                    l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, c.isEditComplete ());
+                    Runnable setIcon = () ->
+                    {
+
+                        l.setIconClassName (StyleClassNames.CHAPTER);
+
+                        if (c.getEditPosition () > 0)
+                        {
+
+                            l.setIconClassName (StyleClassNames.EDITPOSITION);
+
+                        }
+
+                        if (c.isEditComplete ())
+                        {
+
+                            l.setIconClassName (StyleClassNames.EDITCOMPLETE);
+
+                        }
+
+                    };
+
+                    if (!c.isEditComplete () && c.getEditPosition () > 0)
+                    {
+
+                        l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, true);
+
+                    }
+
+                    if (c.isEditComplete ())
+                    {
+
+                        l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, true);
+
+                    }
+
+                    UIUtils.runLater (setIcon);
 
                     this.addChangeListener (UserProperties.showEditPositionIconInChapterListProperty (),
                                             (pr, oldv, newv) ->
@@ -390,6 +508,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         }
 
+                        UIUtils.runLater (setIcon);
+
                     });
 
                     this.addChangeListener (c.editPositionProperty (),
@@ -404,6 +524,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                                 l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, newv.intValue () > 0);
 
+
                             }
 
                         } else {
@@ -411,6 +532,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                             l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
 
                         }
+
+                        UIUtils.runLater (setIcon);
 
                     });
 
@@ -430,6 +553,17 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         }
 
+                        if (newv)
+                        {
+
+                            UIUtils.runLater (setIcon);
+
+                        } else {
+
+                            l.setIconClassName (StyleClassNames.CHAPTER);
+
+                        }
+
                     });
 
                     this.addChangeListener (c.editCompleteProperty (),
@@ -446,6 +580,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                             l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, false);
 
                         }
+
+                        UIUtils.runLater (setIcon);
 
                     });
 
@@ -858,10 +994,15 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
     private void removeListenersForChapter (Chapter c)
     {
 
-        this.eventSourceSubscriptions.get (c).stream ()
-            .forEach (s -> s.unsubscribe ());
+        if (this.eventSourceSubscriptions.get (c) != null)
+        {
 
-        this.eventSourceSubscriptions.remove (c);
+            this.eventSourceSubscriptions.get (c).stream ()
+                .forEach (s -> s.unsubscribe ());
+
+            this.eventSourceSubscriptions.remove (c);
+
+        }
 
     }
 

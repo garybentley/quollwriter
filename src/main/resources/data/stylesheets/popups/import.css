@@ -1,7 +1,7 @@
 /*
  * Styles for com.quollwriter.ui.fx.popups.ImportPopup
  */
-.qpopup.import .header .icon { -fx-image: url(/imgs/project-import16.png); }
+/*.qpopup.import .header .icon { -fx-image: url(/imgs/project-import16.png); }*/
 .content {
     -fx-max-height: 30em;
     -fx-pref-height: 30em;
@@ -10,10 +10,12 @@
 .content .header .title { -fx-padding: 0; }
 .content .header .icon { visibility: hidden; }
 .content .radio-button { -fx-padding: 0.5em 0 0.5em 0; }
+/*
 .content .select-project {
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
 }
+*/
 .content .select-project .projects { -fx-fill-width: true; }
 .content .select-project .projects .label {
     -fx-font-size: 1.3em;
@@ -33,5 +35,21 @@
     -fx-fit-to-width: false;
     -fx-pref-height: 20em;
 }
-.content .tree-cell.chapter .text { -fx-graphic: url(/imgs/chapter16.png); }
+/*content .tree-cell.chapter .text { -fx-graphic: url(/imgs/chapter16.png); }*/
 .content ._string .check-box { visibility: hidden; }
+.content .wizard .header .iconbox {
+    visibility: hidden;
+}
+.content .tree .cell {
+    -fx-padding: 0;
+}
+.content .tree .cell .label.chapter .iconbox,
+.content .tree .cell .label.chapter .iconbox .icon {
+    -fx-pref-width: 1em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.content .tree {
+    -fx-cell-indent: 1.8em;
+}

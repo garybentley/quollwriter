@@ -25,9 +25,26 @@
     -fx-padding: 0 0 0 0.3em;
 }
 .header .controls .close {
-    -fx-graphic: url(/imgs/close16.png);
     -fx-content-display: graphic-only;
     -fx-padding: 0.2em;
+}
+.header .controls .close .iconbox,
+.header .controls .close .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+.header .iconbox .icon,
+.header .iconbox {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-alignment: center;
+     -fx-fill-height: false;
+}
+.header .controls .close .icon {
+    -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
 }
 .description { -fx-padding: 0 0 0.5em 0; }
 .buttons {
@@ -35,7 +52,8 @@
     -fx-padding: 1em 0.5em 0.5em 0.5em;
 }
 .button { -fx-content-display: text-only; }
-.toolbar.buttons .button { -fx-content-display: graphic-only; }
+.toolbar.buttons .button,
+.form .filefind .button { -fx-content-display: graphic-only; }
 .form .buttons {
     -fx-alignment: center-left;
     -fx-padding: 0.5em 0.5em 0.5em 1em;
@@ -48,6 +66,7 @@
     -fx-aligment: center;
     -fx-padding: 1em 0.5em 0.5em 0;
 }
+/*
 .add .header.title .icon { -fx-image: url(/imgs/add16.png); }
 .edit .header.title .icon { -fx-image: url(/imgs/edit16.png); }
 .delete .header.title .icon { -fx-image: url(/imgs/delete16.png); }
@@ -56,8 +75,14 @@
 .save .header.title .icon { -fx-image: url(/imgs/save16.png); }
 .rename .header.title .icon { -fx-image: url(/imgs/edit16.png); }
 .error .header.title .icon { -fx-image: url(/imgs/warning16.png); }
+*/
+.error .header > .iconbox .icon {
+    -fx-pref-width: 0.333em;
+}
 .form.textentry .items { -fx-padding: 0; }
 .form.textentry .items .control { -fx-padding: 0 0 0.5em 0; }
+/*
 .controls .import { -fx-graphic: url(/imgs/project-import24.png); }
 .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
 .controls .add { -fx-graphic: url(/imgs/add24.png); }
+*/

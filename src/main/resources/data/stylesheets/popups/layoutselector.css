@@ -1,7 +1,6 @@
 /*
  * Styles for the layout selector, it doesn't have its own class.
  */
-.header .icon { -fx-image: url(/imgs/edit16.png); }
 .item {
     -fx-padding: 0.25em;
     -fx-cursor: hand;

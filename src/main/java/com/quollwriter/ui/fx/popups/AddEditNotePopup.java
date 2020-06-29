@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.event.*;
+import javafx.collections.*;
 
 import javafx.beans.property.*;
 
@@ -100,6 +101,11 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
 
         if (!this.addMode)
         {
+
+            this.type.getSelectionModel ().select (UserProperties.getNoteTypes ().stream ()
+                .filter (i -> i.getValue ().equals (this.item.getType ()))
+                .findFirst ()
+                .orElse (null));
 
             if ((this.item.isEditNeeded ())
                 &&
@@ -203,8 +209,21 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
         if (!this.item.isEditNeeded ())
         {
 
+            Set<StringProperty> nt = new LinkedHashSet<> (UserProperties.getNoteTypes ());
+            StringProperty p = nt.stream ()
+                .filter (t -> t.getValue ().equals (Note.EDIT_NEEDED_NOTE_TYPE))
+                .findFirst ()
+                .orElse (null);
+
+            if (p != null)
+            {
+
+                nt.remove (p);
+
+            }
+
             this.type = QuollComboBox.builder ()
-                .items (UserProperties.getNoteTypes ())
+                .items (FXCollections.observableSet (nt))
                 .build ();
             UIUtils.setTooltip (this.type,
                                 getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.type,tooltip)));
@@ -269,7 +288,7 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
             Paragraph p = new Paragraph (text.getText (),
                                          0);
 
-            this.item.setSummary (p.getFirstSentence ().getText ());
+            this.item.setSummary (p.getFirstSentence ().getText ().trim ());
 
         } else
         {
@@ -339,7 +358,7 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
                 editor.insertText (this.item.getPosition (),
                                    "\n");
 
-                this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - 1));
+                //this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - 1));
 
             } catch (Exception e) {
 
@@ -393,7 +412,7 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
             return false;
 
         }
-
+/*
         if (this.item.isEditNeeded ())
         {
 
@@ -417,7 +436,7 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
             }
 
         }
-
+*/
         if (this.item.getChapter () != null)
         {
 

@@ -7,6 +7,8 @@ import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -24,6 +26,7 @@ public class AssetFindResultsBox extends FindResultsBox<AbstractProjectViewer>
     private QuollTreeView<NamedObject> tree = null;
     private AccordionItem acc = null;
     private UserConfigurableObjectType type = null;
+    private IPropertyBinder binder = null;
 
     public AssetFindResultsBox (UserConfigurableObjectType type,
                                 AbstractProjectViewer      viewer,
@@ -35,12 +38,15 @@ public class AssetFindResultsBox extends FindResultsBox<AbstractProjectViewer>
 
         this.objs = objs;
         this.type = type;
+        this.binder = new PropertyBinder ();
 
     }
 
     @Override
     public void dispose ()
     {
+
+        this.binder.dispose ();
 
     }
 
@@ -84,8 +90,11 @@ public class AssetFindResultsBox extends FindResultsBox<AbstractProjectViewer>
             .styleClassName (StyleClassNames.ASSET)
             .openContent (this.tree)
             .build ();
+        UIUtils.setBackgroundImage (this.acc.getHeader ().getIcon (),
+                                    this.type.icon16x16Property (),
+                                    this.binder);
 
-        this.acc.getHeader ().getIcon ().imageProperty ().bind (this.type.icon16x16Property ());
+        //this.acc.getHeader ().getIcon ().imageProperty ().bind (this.type.icon16x16Property ());
 
         return this.acc;
 

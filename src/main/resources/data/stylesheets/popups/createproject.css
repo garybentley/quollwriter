@@ -1,11 +1,6 @@
 /*
  * Styles for com.quollwriter.ui.fx.popups.NewProjectPopup
  */
- .createproject .header .icon
- {
-     -fx-image: url(/imgs/add16.png);
- }
-
  .createproject .passwords
  {
      -fx-spacing: 0.5em;

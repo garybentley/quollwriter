@@ -45,7 +45,8 @@ public class AchievementsPopup extends PopupContent
     {
 
         this.content.getChildren ().add (new AchievementView (ar,
-                                                              true));
+                                                              true,
+                                                              this.getBinder ()));
 
         this.show (10, 10);
 

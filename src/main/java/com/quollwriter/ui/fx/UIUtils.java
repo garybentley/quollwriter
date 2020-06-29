@@ -46,6 +46,7 @@ import com.quollwriter.data.ObjectReference;
 import com.quollwriter.data.Project;
 import com.quollwriter.data.ProjectInfo;
 import com.quollwriter.data.Chapter;
+import com.quollwriter.data.IPropertyBinder;
 import com.quollwriter.data.Tag;
 import com.quollwriter.data.NamedObject;
 import com.quollwriter.data.UserConfigurableObjectType;
@@ -156,6 +157,38 @@ public class UIUtils
     }
 
     /**
+     * Force the runnable to run later on the fx thread.
+     */
+    public static void forceRunLater (Runnable r)
+    {
+
+        if (r == null)
+        {
+
+            return;
+
+        }
+
+        Platform.runLater (() ->
+        {
+
+            try
+            {
+
+                r.run ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to run: " + r,
+                                      e);
+
+            }
+
+        });
+
+    }
+
+    /**
      * Run the passed in Runnable on the event thread, if already on the event thread then run immediately.
      *
      * @param r The runnable to run.
@@ -189,22 +222,7 @@ public class UIUtils
 
         }
 
-        Platform.runLater (() ->
-        {
-
-            try
-            {
-
-                r.run ();
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to run: " + r,
-                                      e);
-
-            }
-
-        });
+        UIUtils.forceRunLater (r);
 
     }
 
@@ -2010,7 +2028,7 @@ public class UIUtils
                                                 StringWithMarkup      format,
                                                 AbstractProjectViewer viewer)
     {
-
+long s = System.currentTimeMillis ();
         // If there is no key or null chapter then return.
         if ((c == null)
             ||
@@ -2037,7 +2055,8 @@ public class UIUtils
             //"Not yet edited.";
 
         }
-
+System.out.println ("TOOK1: " + (System.currentTimeMillis () - s));
+s = System.currentTimeMillis ();
         // TODO
         String text = format.getText ();
 
@@ -2079,6 +2098,8 @@ public class UIUtils
             descFirstLine = new TextIterator (desc).getFirstSentence ().getText ();
 
         }
+        System.out.println ("TOOK2: " + (System.currentTimeMillis () - s));
+        s = System.currentTimeMillis ();
 
         String chapText = viewer.getCurrentChapterText (c);
 
@@ -2178,6 +2199,8 @@ public class UIUtils
             ep = 0;
 
         }
+        System.out.println ("TOOK4: " + (System.currentTimeMillis () - s));
+        s = System.currentTimeMillis ();
 
         text = StringUtils.replaceString (text,
                                           Constants.EDIT_COMPLETE_TAG,
@@ -2187,6 +2210,8 @@ public class UIUtils
 
         if (text.contains (Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG))
         {
+            System.out.println ("TOOK5.11: " + (System.currentTimeMillis () - s));
+            s = System.currentTimeMillis ();
 
             text = StringUtils.replaceString (text,
                                               Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG,
@@ -2204,10 +2229,14 @@ public class UIUtils
                                               String.format (getUIString (project,sidebar,chapters,preview,spellingcount),
                                                             //"%s spelling errors",
                                                              Environment.formatNumber (viewer.getSpellingErrors (c).size ())));
+         System.out.println ("TOOK5.13: " + (System.currentTimeMillis () - s));
+         s = System.currentTimeMillis ();
 
         }
 
         ReadabilityIndices ri = viewer.getReadabilityIndices (c);
+        System.out.println ("TOOK5.2: " + (System.currentTimeMillis () - s));
+        s = System.currentTimeMillis ();
 
         if (ri == null)
         {
@@ -2218,6 +2247,8 @@ public class UIUtils
         }
 
         String na = getUIString (project,sidebar,chapters,preview,notapplicable);
+        System.out.println ("TOOK5: " + (System.currentTimeMillis () - s));
+        s = System.currentTimeMillis ();
 
         String GL = na; //"N/A";
         String RE = na; //"N/A";
@@ -4492,6 +4523,43 @@ TODO
             .message (new SimpleStringProperty ("This fantastic feature is coming soon!  I promise."))
             .closeButton ()
             .build ();
+
+    }
+
+    public static void setBackgroundImage (Region                r,
+                                           ObjectProperty<Image> p,
+                                           IPropertyBinder       b)
+    {
+
+        Background _b = new Background (new BackgroundImage (p.getValue (),
+                                                             BackgroundRepeat.NO_REPEAT,
+                                                             BackgroundRepeat.NO_REPEAT,
+                                                             null,
+                                                             new BackgroundSize (BackgroundSize.AUTO,
+                                                                                 BackgroundSize.AUTO,
+                                                                                 false,
+                                                                                 false,
+                                                                                 true,
+                                                                                 false)));
+        r.setBackground (_b);
+
+        b.addChangeListener (p,
+                             (pr, oldv, newv) ->
+        {
+
+            Background bb = new Background (new BackgroundImage (p.getValue (),
+                                                                 BackgroundRepeat.NO_REPEAT,
+                                                                 BackgroundRepeat.NO_REPEAT,
+                                                                 null,
+                                                                 new BackgroundSize (BackgroundSize.AUTO,
+                                                                                     BackgroundSize.AUTO,
+                                                                                     false,
+                                                                                     false,
+                                                                                     true,
+                                                                                     false)));
+            r.setBackground (bb);
+
+        });
 
     }
 

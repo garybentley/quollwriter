@@ -258,6 +258,10 @@ public class Constants
 
     public static final String SPELL_CHECKING_ENABLED_PROPERTY_NAME = "spellCheckingEnabled";
 
+    public static final String LAST_EDITOR_VISIBLE_PARAGRAPH_PROPERTY_NAME = "lastEditorVisibleParagraph";
+
+    public static final String LAST_EDITOR_SCROLL_OFFSET_PROPERTY_NAME = "lastEditorScrollOffset";
+
     public static final String LAST_EDITOR_CARET_POSITION_PROPERTY_NAME = "lastEditorCaretPosition";
 
     public static final String LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME = "lastEditorScrollPosition";

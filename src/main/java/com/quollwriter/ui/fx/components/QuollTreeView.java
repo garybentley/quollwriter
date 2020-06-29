@@ -886,10 +886,21 @@ xxx
             this.item = ti;
 
             this.managedProperty ().bind (this.visibleProperty ());
-            this.disclosureNode = new ImageView ();
+            //this.disclosureNode = new ImageView ();
             this.disclosureNodeWrapper = new StackPane ();
-            this.disclosureNodeWrapper.getChildren ().add (this.disclosureNode);
-            this.disclosureNode.getStyleClass ().add ("disclosure");
+            //this.disclosureNodeWrapper.getChildren ().add (this.disclosureNode);
+            //this.disclosureNode.getStyleClass ().add ("disclosure");
+
+            HBox h = new HBox ();
+            h.getStyleClass ().add (StyleClassNames.ICONBOX);
+            h.getStyleClass ().add ("disclosure");
+            this.disclosureNode = new Pane ();
+            this.disclosureNode.getStyleClass ().add ("tree-disclosure-icon");
+            this.disclosureNode.getStyleClass ().add (StyleClassNames.ICON);
+            h.getChildren ().add (this.disclosureNode);
+            h.managedProperty ().bind (h.visibleProperty ());
+            this.disclosureNodeWrapper.getChildren ().add (h);
+
             this.getStyleClass ().add (StyleClassNames.CELL);
             this.getChildren ().add (this.disclosureNodeWrapper);
 

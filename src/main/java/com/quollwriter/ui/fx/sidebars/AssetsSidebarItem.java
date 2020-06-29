@@ -7,6 +7,8 @@ import java.util.stream.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
 import javafx.collections.*;
 import javafx.beans.property.*;
 
@@ -305,7 +307,10 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         super.init (ss);
 
-        this.getAccordionItem ().getHeader ().getIcon ().imageProperty ().bind (this.objType.icon16x16Property ());
+        Pane p = this.getAccordionItem ().getHeader ().getIcon ();
+        UIUtils.setBackgroundImage (p,
+                                    this.objType.icon16x16Property (),
+                                    this.getBinder ());
 
         Number sortFieldKey = (ss != null ? ss.getAsInt ("sortFieldKey") : null);
 

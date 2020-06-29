@@ -132,6 +132,7 @@ public class SideBar extends BaseVBox implements Stateful
             .controls (hcontrols)
             .title (b.title != null ? b.title : null)
             .contextMenu (b.contextMenuItemSupplier)
+            .iconClassName (b.headerIconStyleName)
             .build ();
 
         this.header.managedProperty ().bind (this.header.visibleProperty ());
@@ -307,6 +308,7 @@ public class SideBar extends BaseVBox implements Stateful
         private boolean wrapInScrollPane = true;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
         private String styleSheet = null;
+        private String headerIconStyleName = null;
 
         private Builder ()
         {
@@ -326,6 +328,14 @@ public class SideBar extends BaseVBox implements Stateful
         {
 
             return this;
+
+        }
+
+        public Builder headerIconClassName (String s)
+        {
+
+            this.headerIconStyleName = s;
+            return _this ();
 
         }
 

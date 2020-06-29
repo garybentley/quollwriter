@@ -23,7 +23,7 @@
      -fx-font-size: 2em;
      -fx-padding: 0 0.5em 0 0;
  }
-
+/*
  .fullscreen > .header.chapter .icon
  {
      -fx-image: url(/imgs/chapter24.png);
@@ -43,12 +43,13 @@
  {
      -fx-image: url(/imgs/chart24.png);
  }
-
+*/
+/*
  .fullscreen > .header.ideaboard .icon
  {
      -fx-image: url(/imgs/idea24.png);
  }
-
+*/
  .fullscreen .information
  {
      -fx-padding: 0.5em 0 0.5em 1em;
@@ -90,7 +91,20 @@
      -fx-border-width: 1px;
      -fx-border-color: -qw-border-color;
  }
-
+ .fullscreen > .header .iconbox,
+ .fullscreen > .header .iconbox .icon {
+     -fx-pref-width: 2em;
+     -fx-pref-height: 2em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+ .fullscreen > .header .label.clock {
+     -fx-content-display: text-only;
+ }
+ .fullscreen > .header .button.ideaboard .iconbox .icon {
+     -fx-pref-width: 1.333em;
+ }
+/*
  .fullscreen > .header .fullscreenexit { -fx-graphic: url(/imgs/fullscreen-exit24.png); }
  .fullscreen > .header .find { -fx-graphic: url(/imgs/find24.png); }
  .fullscreen > .header .bug { -fx-graphic: url(/imgs/bug24.png); }
@@ -100,8 +114,12 @@
  .fullscreen > .header .distractionfreeexit { -fx-graphic: url(/imgs/distraction-free-exit24.png); }
  .fullscreen > .header .editproperties { -fx-graphic: url(/imgs/options24.png); }
  .fullscreen > .header .timer { -fx-graphic: url(/imgs/clock24.png); }
-
-.fullscreen > .header .progress { -fx-alignment: center; }
+ .fullscreen > .header .play { -fx-graphic: url(/imgs/play16.png); }
+ .fullscreen > .header .stop { -fx-graphic: url(/imgs/stop16.png); }
+ .fullscreen > .header .pause { -fx-graphic: url(/imgs/pause16.png); }
+ .fullscreen > .header .reset { -fx-graphic: url(/imgs/reset16.png); }
+*/
+.fullscreen > .header .progress { -fx-alignment: center; -fx-padding: 0.5em; }
 
 .fullscreen > .header .progress-bar {
     -fx-pref-height: 24px;

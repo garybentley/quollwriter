@@ -1,0 +1,12 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.NewAssetPopup
+ */
+.createasset .header .iconbox,
+.createasset .header .iconbox .icon
+{
+     -fx-pref-width: 2em;
+     -fx-pref-height: 2em;
+     -fx-alignment: center;
+     -fx-fill-height: false;
+     -fx-shape: null;
+ }

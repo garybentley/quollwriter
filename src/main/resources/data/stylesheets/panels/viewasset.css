@@ -1,11 +1,35 @@
 /*
  * Styles related to viewing an asset, com.quollwriter.ui.fx.panels.AssetViewPanel
  */
-.header.userconfigobjtype .controls .edit { -fx-graphic: url(/imgs/edit20.png); }
+/*.header.userconfigobjtype .controls .edit { -fx-graphic: url(/imgs/edit20.png); }*/
+/*
 .header.userconfigobjtype .controls .save { -fx-graphic: url(/imgs/save20.png); }
 .header.userconfigobjtype .controls .cancel { -fx-graphic: url(/imgs/cancel20.png); }
+*/
+.field .buttons .button .iconbox,
+.field .buttons .button .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.header.userconfigobjtype .controls .button .iconbox,
+.header.userconfigobjtype .controls .button .iconbox .icon {
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
 .header.userconfigobjtype .controls { -fx-padding: 0 0.5em 0 0;}
 .header.userconfigobjtype { -fx-padding: 0.25em 0 0.2em 0.5em; }
+.header.userconfigobjtype > .iconbox,
+.header.userconfigobjtype > .iconbox .icon {
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+    -fx-shape: null;
+}
 .scroll-pane {
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
@@ -108,7 +132,24 @@
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
 }
-.edit .control .image:noimage .image-view { -fx-image: url(/data/default-find-image.png); }
+/*.edit .control .image:noimage .image-view { -fx-image: url(/data/default-find-image.png); }*/
+.edit .control .image:noimage .noimage.iconbox,
+.view .control .image:noimage .noimage.iconbox {
+    -fx-padding: 2em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+    -fx-fill-width: true;
+    visibility: visible;
+}
+.edit .control .image:noimage .noimage.iconbox .icon,
+.view .control .image:noimage .noimage.iconbox .icon {
+    -fx-shape:"m 20.133,0 c -6.539,0 -11.86,5.32 -11.86,11.863 0,1.566 0.32,3.051 0.871,4.418 L 0,25.426 6.57,32 15.718,22.848 c 1.367,0.555 2.852,0.875 4.414,0.875 6.543,0 11.867,-5.32 11.867,-11.859 C 32,5.32 26.676,0 20.133,0 Z m 0,19.727 c -4.332,0 -7.863,-3.531 -7.863,-7.863 0,-4.336 3.531,-7.867 7.863,-7.867 4.34,0 7.871,3.531 7.871,7.867 0,4.331 -3.531,7.863 -7.871,7.863 z m -8.797,0.011 c -1.855,1.852 -4.414,4.418 -5.688,5.688 0.43,0.43 0.488,0.484 0.922,0.922 1.27,-1.273 3.832,-3.836 5.684,-5.688 -0.32,-0.289 -0.625,-0.594 -0.918,-0.922 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-height: 4em;
+    -fx-pref-width: 4em;
+    -fx-min-height: 4em;
+    -fx-min-width: 4em;
+}
 .header:scrolling {
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
@@ -137,9 +178,16 @@
     -fx-font-style: normal;
     -fx-alignment: center;
     -fx-padding: 0.5em;
-    -fx-graphic: url(/imgs/add20.png);
+    /*-fx-graphic: url(/imgs/add20.png);*/
     -fx-cursor: hand;
     -fx-wrap-text: true;
+}
+.edit .documents .label.add .iconbox,
+.edit .documents .label.add .iconbox .icon {
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
 }
 .view .documents .label.add { visibility: false; }
 .documents .files { -fx-fill-width: true; }

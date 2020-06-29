@@ -3,6 +3,8 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String play = "play";
+    public static final String pause = "pause";
     public static final String stylesheet = "stylesheet";
     public static final String errortooltip = "errortooltip";
     public static final String links = "links";
@@ -293,6 +295,8 @@ public class LanguageStrings
     public static final String playsound = "playsound";
     public static final String playsoundinfullscreen = "playsoundinfullscreen";
     public static final String enable = "enable";
+    public static final String enablenightmode = "enablenightmode";
+    public static final String disablenightmode = "disablenightmode";
     public static final String legacyfields = "legacyfields";
     public static final String aliases = "aliases";
     public static final String webpage = "webpage";

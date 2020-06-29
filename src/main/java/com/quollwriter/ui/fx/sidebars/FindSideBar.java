@@ -148,6 +148,7 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
             //.contextMenu ()?
             .styleClassName (StyleClassNames.FIND)
             .styleSheet (StyleClassNames.FIND)
+            .headerIconClassName (StyleClassNames.FIND)
             .withScrollPane (false)
             .canClose (true)
             //.headerControls ()?

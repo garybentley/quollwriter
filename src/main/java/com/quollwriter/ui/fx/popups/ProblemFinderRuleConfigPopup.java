@@ -187,6 +187,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
         edit.getChildren ().add (Header.builder ()
             .title (problemfinder,config,(add ? addrule : editrule),title)
+            .iconClassName (StyleClassNames.EDIT)
             .build ());
 
         QuollTextField summary = QuollTextField.builder ()
@@ -335,9 +336,17 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         });
 
         edit.getChildren ().add (form);
-        edit.setVisible (true);
+
         edit.toFront ();
         view.setVisible (false);
+
+        UIUtils.forceRunLater (() ->
+        {
+            _edit.setVisible (true);
+            System.out.println ("XXXH:");
+
+            this.requestLayout ();
+        });
 
     }
 
@@ -772,6 +781,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             .title (problemfinder,config,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.PROBLEMFINDERCONFIG)
             .styleSheet (StyleClassNames.PROBLEMFINDERCONFIG)
+            .headerIconClassName (StyleClassNames.PROBLEMFINDER)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

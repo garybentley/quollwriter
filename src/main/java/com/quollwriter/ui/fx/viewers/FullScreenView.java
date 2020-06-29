@@ -18,6 +18,7 @@ import javafx.scene.*;
 import javafx.scene.input.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.image.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -196,6 +197,11 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
             .toolbar (tb)
             .styleClassName (StyleClassNames.HEADER)
             .build ();
+        Pane pp = this.header.getIcon ();
+        ImageView iv = new ImageView ();
+        iv.getStyleClass ().add (StyleClassNames.IMAGE);
+        pp.getChildren ().add (iv);
+
         this.header.setVisible (false);
         this.header.managedProperty ().bind (this.header.visibleProperty ());
         this.header.titleProperty ().bind (viewer.getProject ().nameProperty ());
@@ -334,11 +340,11 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
 
             if (!newv)
             {
-System.out.println ("HERE1");
+
                 this.hideSideBar ();
 
             } else {
-System.out.println ("HERE2");
+
                 this.cancelHideSideBar ();
 
             }
@@ -367,7 +373,7 @@ System.out.println ("HERE2");
 
         });
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             double h = Screen.getPrimary ().getVisualBounds ().getHeight ();
@@ -394,7 +400,7 @@ System.out.println ("HERE2");
         this.info.setVisible (false);
         this.info.getChildren ().addAll (this.clockLabel, this.sessWords, this.chapWords);
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             this.info.relocate (10,
@@ -504,7 +510,7 @@ System.out.println ("HERE2");
         this.updater = this.viewer.schedule (() ->
         {
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 this.updateUI ();
@@ -874,7 +880,7 @@ System.out.println ("HERE2");
         p.applyCss ();
         p.requestLayout ();
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             double _x = x;
@@ -1185,22 +1191,42 @@ TODO ? psuedo class
 
     public void switchTo (PanelContent p)
     {
-
+System.out.println ("SWITCHTO CALLED: " + p.getPanel ());
         if (p instanceof AssetViewPanel)
         {
 
             UserConfigurableObjectType type = ((AssetViewPanel) p).getObject ().getUserConfigurableObjectType ();
 
-            this.header.getIcon ().imageProperty ().unbind ();
-            this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
+            Pane pp = this.header.getIcon ();
+            pp.lookup ("." + StyleClassNames.ICON).setVisible (false);
+            ImageView iv = (ImageView) pp.lookup ("." + StyleClassNames.IMAGE);
+            iv.setVisible (true);
+            iv.imageProperty ().unbind ();
+            iv.imageProperty ().bind (type.icon24x24Property ());
+
+            this.header.titleProperty ().unbind ();
+            this.header.titleProperty ().bind (p.getPanel ().titleProperty ());
+            this.header.getStyleClass ().remove (this.panel.getPanel ().getStyleClassName ());
+            this.header.getStyleClass ().add (p.getPanel ().getStyleClassName ());
+
+            //this.header.getIcon ().imageProperty ().unbind ();
+            //this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
 
         } else {
 
             if (this.panel != null)
             {
 
+                Pane pp = this.header.getIcon ();
+                Node n = pp.lookup ("." + StyleClassNames.ICON);
+                n.setVisible (true);
+                pp.lookup ("." + StyleClassNames.IMAGE).setVisible (false);
+
                 this.header.getStyleClass ().remove (this.panel.getPanel ().getStyleClassName ());
                 this.header.getStyleClass ().add (p.getPanel ().getStyleClassName ());
+                this.header.titleProperty ().unbind ();
+                this.header.titleProperty ().bind (p.getPanel ().titleProperty ());
+                this.header.setIconClassName (p.getPanel ().getStyleClassName ());
 
             }
 
@@ -1275,7 +1301,7 @@ TODO ? psuedo class
 
         int w = (int) Screen.getPrimary ().getVisualBounds ().getWidth ();
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             this.header.relocate (w * 0.1,

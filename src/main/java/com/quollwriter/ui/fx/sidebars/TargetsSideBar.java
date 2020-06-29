@@ -763,6 +763,7 @@ TODO
             //.contextMenu ()?
             .styleClassName (StyleClassNames.TARGETS)
             .styleSheet (StyleClassNames.TARGETS)
+            .headerIconClassName (StyleClassNames.TARGETS)
             .withScrollPane (true)
             .canClose (true)
             .headerControls (headerCons)

@@ -53,9 +53,18 @@ public class Notification extends HBox
         this.content = builder.content;
         this.viewer = builder.viewer;
 
-        ImageView image = new ImageView ();
-        image.getStyleClass ().add (StyleClassNames.ICON);
-        this.getChildren ().add (image);
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        Pane p = new Pane ();
+        p.getStyleClass ().add (builder.styleName + StyleClassNames.ICON_SUFFIX);
+        p.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (p);
+        h.managedProperty ().bind (h.visibleProperty ());
+
+        this.getChildren ().add (h);
+        //ImageView image = new ImageView ();
+        //image.getStyleClass ().add (StyleClassNames.ICON);
+        //this.getChildren ().add (image);
         builder.content.getStyleClass ().add (StyleClassNames.CONTENT);
         this.getChildren ().add (builder.content);
         HBox.setHgrow (builder.content,

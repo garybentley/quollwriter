@@ -241,7 +241,10 @@
             "importfileorproject" : "${actions.import} File/${objectnames.singular.project}",
             "importproject" : "${actions.import} ${objectnames.singular.project}",
             "sortprojects" : "Sort ${objectnames.plural.project} by",
-            "managestatuses" : "Manage Statuses"
+            "managestatuses" : "Manage Statuses",
+            "enablenightmode" : "Turn on Night Mode",
+            "disablenightmode" : "Turn off Night Mode"
+
         }
     },
     "objectnames" :
@@ -1500,7 +1503,11 @@
         {
             "items" :
             {
-                "stop" : "${actions.stop}"
+                "stop" : "Stop",
+                "play" : "Resume",
+                "reset" : "Reset",
+                "pause" : "Pause",
+                "cancel" : "Cancel"
             }
         }
     },
@@ -7495,7 +7502,9 @@
                 "contactsupport" : "${settingsmenu.items.contactsupport}",
                 "viewuserguide" : "${settingsmenu.items.viewuserguide}",
                 "keyboardshortcuts" : "${settingsmenu.items.keyboardshortcuts}",
-                "about" : "${settingsmenu.items.about}"
+                "about" : "${settingsmenu.items.about}",
+                "enablenightmode" : "${settingsmenu.items.enablenightmode}",
+                "disablenightmode" : "${settingsmenu.items.disablenightmode}"
             }
         },
         "title" :
@@ -8471,7 +8480,6 @@
             {
                 "title" : "Split ${objectnames.singular.chapter}",
                 "actionerror" : "Unable to split ${objectnames.singular.chapter}.",
-                "errorlabel" : "Please enter a ${objectnames.singular.chapter} name.",
                 "moretextindicator" : " ${general.moretextindicator} ",
                 ":comment.moretextindicator" : "The ellipsis here, in English, indicates that there is more text available.  i.e. there is more to come in this ...",
                 "labels" :
@@ -8480,6 +8488,11 @@
                     "startat" : "Start at",
                     "endat" : "End at",
                     "words" : "Words"
+                },
+                "errors" :
+                {
+                    "novalue" : "Please enter a ${objectnames.singular.chapter} name.",
+                    "valueexists" : "A ${objectnames.singular.chapter} with that name already exists."
                 }
             },
             "changestatus" :
@@ -8496,7 +8509,8 @@
                 },
                 "errors" :
                 {
-                    "novalue" : "Please enter a name."
+                    "novalue" : "Please enter a name.",
+                    "valueexists" : "A ${objectnames.singular.chapter} with that name already exists."
                 }
             },
             "renamechapter" :
@@ -8658,7 +8672,7 @@
                     "description" :
                     {
                         "text" : "Description",
-                        "tooltip" : "Enter the bug/problem description here.  The more information you can provide the better."
+                        "tooltip" : "<i>Enter the bug/problem description here.  The more information you can provide the better.</i>"
                     },
                     "email" :
                     {
@@ -8740,7 +8754,9 @@
                 "contactsupport" : "${settingsmenu.items.contactsupport}",
                 "viewuserguide" : "${settingsmenu.items.viewuserguide}",
                 "keyboardshortcuts" : "${settingsmenu.items.keyboardshortcuts}",
-                "about" : "${settingsmenu.items.about}"
+                "about" : "${settingsmenu.items.about}",
+                "enablenightmode" : "${settingsmenu.items.enablenightmode}",
+                "disablenightmode" : "${settingsmenu.items.disablenightmode}"
             }
         },
         "title" :

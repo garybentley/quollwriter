@@ -5,6 +5,7 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -56,6 +57,19 @@ public class QuollHyperlink extends Hyperlink
             this.setOnAction (b.onAction);
 
         }
+
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        Pane p = new Pane ();
+        if (b.styleName != null)
+        {
+
+            p.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
+
+        }
+        p.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (p);
+        this.setGraphic (h);
 
     }
 

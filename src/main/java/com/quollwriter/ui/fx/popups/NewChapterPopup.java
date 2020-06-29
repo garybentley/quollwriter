@@ -63,6 +63,17 @@ public class NewChapterPopup extends PopupContent<ProjectViewer>
 
                 }
 
+                Set<Chapter> cs = this.viewer.getProject ().getBook (0).getAllChaptersWithName (n);
+
+                if (cs.size () > 0)
+                {
+
+                    fev.getForm ().showError (getUILanguageStringProperty (project,actions,newchapter,errors,valueexists));
+
+                    return;
+
+                }
+
                 Chapter newChapter = null;
 
                 try
@@ -148,6 +159,7 @@ public class NewChapterPopup extends PopupContent<ProjectViewer>
         QuollPopup p = QuollPopup.builder ()
             .title (project,actions,newchapter,title)
             .styleClassName (StyleClassNames.CREATECHAPTER)
+            .styleSheet (POPUP_ID)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

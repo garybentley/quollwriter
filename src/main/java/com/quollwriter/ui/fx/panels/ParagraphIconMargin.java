@@ -359,10 +359,18 @@ public class ParagraphIconMargin extends Pane
         for (Note n : its)
         {
 
+            HBox riv = new HBox ();
+            riv.getStyleClass ().add (StyleClassNames.ICONBOX);
+            Pane p = new Pane ();
+            p.getStyleClass ().add ((n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE) + StyleClassNames.ICON_SUFFIX);
+            p.getStyleClass ().add (StyleClassNames.ICON);
+            riv.getChildren ().add (p);
+            riv.managedProperty ().bind (riv.visibleProperty ());
+/*
             ImageView iv = new ImageView ();
             Pane riv = new Pane ();
             riv.getChildren ().add (iv);
-            riv.getStyleClass ().add (n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE);
+*/
             this.getChildren ().add (riv);
 
             riv.setOnMouseClicked (ev ->
@@ -398,10 +406,19 @@ public class ParagraphIconMargin extends Pane
         for (ChapterItem ci : its)
         {
 
+            HBox riv = new HBox ();
+            riv.getStyleClass ().add (StyleClassNames.ICONBOX);
+            Pane p = new Pane ();
+            p.getStyleClass ().add (((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM) + StyleClassNames.ICON_SUFFIX);
+            p.getStyleClass ().add (StyleClassNames.ICON);
+            riv.getChildren ().add (p);
+            riv.managedProperty ().bind (riv.visibleProperty ());
+/*
             ImageView iv = new ImageView ();
             Pane riv = new Pane ();
             riv.getChildren ().add (iv);
             riv.getStyleClass ().add ((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
+*/
             this.getChildren ().add (riv);
 
             riv.setOnMouseClicked (ev ->
@@ -676,13 +693,14 @@ public class ParagraphIconMargin extends Pane
         if (cb == null)
         {
 
-            //return 0;
+            return 0;
 
         }
 
         double y = cb.getMinY ();
         double h = n.prefHeight (-1);
         double ny = y - thisb.getMinY () + (cb.getHeight () / 2) - (h / 2);
+        n.resize (n.prefWidth (-1), h);
         n.relocate (indent,
                     ny);
 
@@ -953,10 +971,7 @@ public class ParagraphIconMargin extends Pane
 
         this.layoutNotes (po,
                           thisb);
-                          if (true)
-                          {
-                              //return;
-                          }
+
         this.editMarker.setVisible (false);
 
         boolean edited = (this.chapter.isEditComplete ()

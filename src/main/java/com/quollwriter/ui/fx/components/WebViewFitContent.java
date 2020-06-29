@@ -20,6 +20,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -42,6 +43,7 @@ public class WebViewFitContent extends Region {
     final WebEngine webEngine = webview.getEngine();
     private double currHeight = 0;
     private Label label = new Label ();
+    private Hyperlink hyperlink = new Hyperlink ();
     private String content = "";
     private String divId = UUID.randomUUID ().toString ();
     private BiConsumer<String, MouseEvent> onLinkClicked = null;
@@ -167,6 +169,21 @@ System.out.println ("ADDING: " + r);
         });
 
         this.label.textFillProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setContent (this.content);
+
+        });
+
+        this.hyperlink.setVisible (false);
+        this.hyperlink.fontProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setContent (this.content);
+
+        });
+
+        this.hyperlink.textFillProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setContent (this.content);
@@ -345,6 +362,7 @@ System.out.println ("ADDING: " + r);
 
         this.getChildren ().add (this.webview);
         this.getChildren ().add (this.label);
+        this.getChildren ().add (this.hyperlink);
     }
 
     public void setContent (String content)
@@ -365,6 +383,8 @@ System.out.println ("ADDING: " + r);
                                  this.label.getFont ().getSize () + "",
                                  this.label.getFont ().getFamily (),
                                  this.getPaintAsCssString (this.label.getTextFill ())));
+        b.append (String.format ("a{color:%1$s;}",
+                                 this.getPaintAsCssString (this.hyperlink.getTextFill ())));
 /*
         b.append (".b{font-weight: bold;}.i{font-style: italic;}");
         b.append (".u{text-decoration: underline;}");

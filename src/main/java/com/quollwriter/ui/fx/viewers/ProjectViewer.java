@@ -988,17 +988,22 @@ public class ProjectViewer extends AbstractProjectViewer
                                  if (pc.isReadyForUse ())
                                  {
 
+                                     UIUtils.forceRunLater (() ->
+                                     {
+                                         System.out.println ("HERE1");
                                      pc.showItem (ci,
                                                   false);
-
+});
                                 } else {
 
                                     pc.readyForUseProperty ().addListener ((pr, oldv, nev) ->
                                     {
-
+UIUtils.forceRunLater (() ->
+{
+    System.out.println ("HERE2");
                                         pc.showItem (ci,
                                                      false);
-
+});
                                     });
 
                                 }
@@ -2080,6 +2085,7 @@ TODO
 
                 _textPos = Math.min (_textPos, l);
 
+                chapter.setEditComplete (false);
                 chapter.setEditPosition (_textPos);
 
                 this.saveObject (chapter,

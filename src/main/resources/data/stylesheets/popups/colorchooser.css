@@ -1,11 +1,6 @@
 /*
  * Used by: com.quollwriter.ui.fx.popups.ColorChooser
  */
- .qpopup.colorchooser .header .icon
- {
-     -fx-image: url(/imgs/transparency16.png);
- }
-
  .qpopup.colorchooser .scroll-pane
  {
      -fx-pref-height: 13em;
@@ -43,6 +38,10 @@
  {
      -fx-padding: 0;
  }
+
+.qpopup.colorchooser .content .header .iconbox {
+    visibility: false;
+}
 
  .qpopup.colorchooser .content .header .title
  {

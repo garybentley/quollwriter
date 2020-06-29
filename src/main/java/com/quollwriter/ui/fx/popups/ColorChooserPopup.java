@@ -63,6 +63,7 @@ public class ColorChooserPopup extends PopupContent
             .title (colorchooser,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.COLORCHOOSER)
             .styleSheet (StyleClassNames.COLORCHOOSER)
+            .headerIconClassName (StyleClassNames.COLORCHOOSER)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

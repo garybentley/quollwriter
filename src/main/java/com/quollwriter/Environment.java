@@ -1177,6 +1177,13 @@ TODO
 
     }
 
+    public static boolean isNightModeEnabled ()
+    {
+
+        return Environment.nightModeProp.get ();
+
+    }
+
     public static void printStackTrace ()
     {
 

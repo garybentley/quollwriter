@@ -78,6 +78,7 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
         Header h = Header.builder ()
             .title (achievementspanel,title)
             .controls (headerControls)
+            .iconClassName (StyleClassNames.ACHIEVEMENTS)
             .build ();
 
         QuollTextView desc = QuollTextView.builder ()
@@ -160,7 +161,8 @@ TODO?
             {
 
                 genItems.getChildren ().add (new AchievementView (r,
-                                                                  userAchievedIds.contains (r.getId ())));
+                                                                  userAchievedIds.contains (r.getId ()),
+                                                                  this.getBinder ()));
 
             });
 
@@ -178,6 +180,7 @@ TODO?
 
         AccordionItem gen = AccordionItem.builder ()
             .styleClassName (StyleClassNames.GENERAL)
+            .headerIconClassName (StyleClassNames.ACHIEVEMENTS)
             .title (titleProp)
             .openContent (genItems)
             .build ();
@@ -210,7 +213,8 @@ TODO?
             {
 
                 projItems.getChildren ().add (new AchievementView (r,
-                                                                   projAchievedIds.contains (r.getId ())));
+                                                                   projAchievedIds.contains (r.getId ()),
+                                                                   this.getBinder ()));
 
             }
 

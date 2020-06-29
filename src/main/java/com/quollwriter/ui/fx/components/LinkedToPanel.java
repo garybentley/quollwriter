@@ -80,8 +80,10 @@ TODO The add is really complex... need to find the parent and the right position
             if (n instanceof UserConfigurableObjectType)
             {
 
+                l.textProperty ().unbind ();
                 l.getStyleClass ().add (StyleClassNames.HEADER);
                 UserConfigurableObjectType type = (UserConfigurableObjectType) n;
+                l.textProperty ().bind (type.objectTypeNamePluralProperty ());
                 ImageView iv = new ImageView ();
                 iv.imageProperty ().bind (type.icon16x16Property ());
 

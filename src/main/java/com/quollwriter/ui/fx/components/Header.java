@@ -25,11 +25,11 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class Header extends HBox
 {
 
-    private ImageView image = null;
     private Label title = null;
     private ToolBar toolbar = null;
     private ObjectProperty<Label> titleLabelProp = null;
     private Tooltip origTooltip = null;
+    private Pane icon = null;
 
     private Header (Builder b)
     {
@@ -44,9 +44,13 @@ public class Header extends HBox
 
         }
 
-        this.image = new ImageView ();
-        this.image.getStyleClass ().add (StyleClassNames.ICON);
-        this.image.managedProperty ().bind (this.image.visibleProperty ());
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        this.icon = new Pane ();
+        this.icon.getStyleClass ().add ((b.iconStyleName != null ? b.iconStyleName : b.styleName) + StyleClassNames.ICON_SUFFIX);
+        this.icon.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (this.icon);
+        h.managedProperty ().bind (h.visibleProperty ());
 
         this.title = new Label ();
         this.title.getStyleClass ().add (StyleClassNames.TITLE);
@@ -55,7 +59,8 @@ public class Header extends HBox
         HBox.setHgrow (this.title,
                        Priority.ALWAYS);
 
-        this.getChildren ().addAll (this.image, this.title);
+        //this.getChildren ().addAll (this.image, this.title);
+        this.getChildren ().addAll (h, this.title);
         this.getStyleClass ().add (StyleClassNames.HEADER);
 
         if (b.contextMenuItemSupplier != null)
@@ -105,7 +110,18 @@ public class Header extends HBox
         if (b.toolbar == null)
         {
 
-            this.toolbar = new ToolBar ();
+            this.toolbar = new ToolBar ()
+            {
+
+                @Override
+                protected Boolean getInitialFocusTraversable ()
+                {
+
+                    return false;
+
+                }
+
+            };
             this.toolbar.managedProperty ().bind (this.toolbar.visibleProperty ());
 
             if (b.onlyShowToolbarOnMouseOver)
@@ -261,11 +277,28 @@ public class Header extends HBox
         return this.title;
 
     }
-
+/*
+TODO Clean up
     public ImageView getIcon ()
     {
 
         return this.image;
+
+    }
+    */
+    public Pane getIcon ()
+    {
+
+        return this.icon;
+
+    }
+
+    public void setIconClassName (String s)
+    {
+
+        this.icon.getStyleClass ().clear ();
+        this.icon.getStyleClass ().add (StyleClassNames.ICON);
+        this.icon.getStyleClass ().add (s + StyleClassNames.ICON_SUFFIX);
 
     }
 
@@ -316,6 +349,7 @@ public class Header extends HBox
         private ToolBar toolbar = null;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
         private boolean onlyShowToolbarOnMouseOver = false;
+        private String iconStyleName = null;
 
         private Builder ()
         {
@@ -388,6 +422,14 @@ TODO Remove
         {
 
             this.toolbar = t;
+            return this;
+
+        }
+
+        public Builder iconClassName (String s)
+        {
+
+            this.iconStyleName = s;
             return this;
 
         }

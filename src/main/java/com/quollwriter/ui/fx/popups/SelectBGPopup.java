@@ -571,7 +571,7 @@ public class SelectBGPopup extends PopupContent
         Set<Node> headerCons = new LinkedHashSet<> ();
 
         QuollButton b = QuollButton.builder ()
-            .styleClassName (StyleClassNames.RESET)
+            .styleClassName (StyleClassNames.RESTORE)
             .tooltip (getUILanguageStringProperty (selectbackground,types,reset,tooltip))
             .onAction (ev ->
             {

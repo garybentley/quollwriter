@@ -1,7 +1,7 @@
 /*
  * Styles for com.quollwriter.ui.fx.popups.ProblemFinderRuleConfigPopup
  */
-.header .icon { -fx-image: url(/imgs/eye16.png); }
+/*.header .icon { -fx-image: url(/imgs/eye16.png); }*/
 .scroll-pane {
     -fx-pref-height: 35em;
     -fx-border-width: 0 1px 1px 1px;
@@ -13,8 +13,21 @@
     -fx-border-color: -qw-component-border-color;
 }
 .rule .details { -fx-alignment: top-left; }
-.tab-pane .tool-bar.buttons { -fx-padding: 0.25em; }
-.tab-pane .tool-bar.buttons .button { -fx-content-display: graphic-only; }
+.tab-pane .view > .tool-bar.buttons { -fx-padding: 0.25em; }
+.tab-pane .tool-bar.buttons .button {
+    -fx-content-display: graphic-only;
+}
+.tab-pane .tool-bar.buttons .button .iconbox,
+.tab-pane .tool-bar.buttons .button .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-padding: 0;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.tab-pane .tool-bar.buttons .button .iconbox .information-icon.icon {
+    -fx-pref-width: 0.666em;
+}
 .rule .summary {
     -fx-max-width: 23em;
     -fx-padding: 0.25em 0 0.25em 0;
@@ -26,16 +39,15 @@
 }
 .view > .buttons {
     -fx-border-width: 0 1px 0 1px;
-    -fx-border-color: -qw-component-border-color;    
+    -fx-border-color: -qw-component-border-color;
 }
 .edit {
     -fx-background: -qw-bg-color;
     -fx-padding: 0.5em;
 }
-.edit .header, .edit .header .label { -fx-padding: 0; }
-.edit .header .icon { visibility: false; }
+.edit .header, .edit .header .label { -fx-padding: 0 0 0 0.25em; }
 .edit .buttons { -fx-padding: 0.5em 0.5em 0.5em 1em; }
-.menu-button.add { -fx-graphic: url(/imgs/add16.png); }
+/*.menu-button.add { -fx-graphic: url(/imgs/add16.png); }*/
 .tab-pane:top .tab-content-area {
     -fx-border-width: 0 1px 1px 1px;
     -fx-border-color: -qw-component-border-color;

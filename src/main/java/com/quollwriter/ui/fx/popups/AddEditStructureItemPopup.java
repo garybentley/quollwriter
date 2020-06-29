@@ -232,7 +232,7 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
                                                toAdd);
 
                             // Need to update the text position because it will have moved.
-                            this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - toAdd.length () + 1));
+                            //this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - toAdd.length () + 1));
 
                         }
 
@@ -248,7 +248,7 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
                     editor.insertText (this.item.getPosition (),
                                        "\n");
 
-                    this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - 1));
+                    //this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - 1));
 
                 }
 

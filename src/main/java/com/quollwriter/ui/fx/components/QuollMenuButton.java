@@ -6,6 +6,7 @@ import java.util.function.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -71,6 +72,14 @@ public class QuollMenuButton extends MenuButton
             }
 
         });
+
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        Pane p = new Pane ();
+        p.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
+        p.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (p);
+        this.setGraphic (h);
 
     }
 

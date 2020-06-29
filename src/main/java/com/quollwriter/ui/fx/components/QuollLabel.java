@@ -5,6 +5,7 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.event.*;
 
 import com.quollwriter.*;
@@ -14,6 +15,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 
 public class QuollLabel extends Label
 {
+
+    private Pane icon = null;
 
     private QuollLabel (Builder b)
     {
@@ -56,6 +59,57 @@ public class QuollLabel extends Label
         });
 
         this.managedProperty ().bind (this.visibleProperty ());
+
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        this.icon = new Pane ();
+
+        if (b.styleName != null)
+        {
+
+            this.icon.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
+
+        }
+        this.icon.getStyleClass ().add (StyleClassNames.ICON);
+        h.getChildren ().add (this.icon);
+        h.managedProperty ().bind (h.visibleProperty ());
+        this.setGraphic (h);
+
+    }
+
+    public void setIconClassName (String c)
+    {
+
+        String r = null;
+
+        for (String s : this.icon.getStyleClass ())
+        {
+
+            if (s.endsWith (StyleClassNames.ICON_SUFFIX))
+            {
+
+                r = s;
+                break;
+
+            }
+
+        }
+
+        if (r != null)
+        {
+
+            this.icon.getStyleClass ().remove (r);
+
+        }
+
+        if (!c.endsWith (StyleClassNames.ICON_SUFFIX))
+        {
+
+            c += StyleClassNames.ICON_SUFFIX;
+
+        }
+
+        this.icon.getStyleClass ().add (c);
 
     }
 

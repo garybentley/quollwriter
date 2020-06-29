@@ -248,6 +248,7 @@ public class Options extends VBox implements Stateful
             qp = QuollPopup.builder ()
                 .title (options,lookandsound,labels,interfacelayout,popup,title)
                 .styleClassName (StyleClassNames.LAYOUTSELECTOR)
+                .headerIconClassName (StyleClassNames.EDIT)
                 .popupId (LAYOUT_POPUP_ID)
                 .content (b)
                 .withClose (true)

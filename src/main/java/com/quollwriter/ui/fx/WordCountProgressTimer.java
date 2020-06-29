@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx;
 
+import java.util.*;
 import java.util.concurrent.*;
 
 import javafx.beans.property.*;
@@ -11,8 +12,14 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+
 public class WordCountProgressTimer
 {
+
+    private static final double MIN_VALUE = 0.0001d;
 
     private int                                    initWordCount = 0;
     private long startTime = 0;
@@ -22,12 +29,17 @@ public class WordCountProgressTimer
     private int wordsRemaining = 0;
     private int minsRemaining = 0;
     private AbstractProjectViewer viewer = null;
-
+    private int millisElapsed = 0;
     private int startCount = 0;
+
+    private int ticks = 0;
+    private int totalWords = 0;
+    private int startWords = 0;
 
     private IntegerProperty progressProp = null;
     private ScheduledFuture timer = null;
     private ProgressBar progress = null;
+    private boolean paused = false;
 
     public WordCountProgressTimer (AbstractProjectViewer pv,
                                    int                   mins,
@@ -53,6 +65,21 @@ public class WordCountProgressTimer
 
     }
 
+    public void unpauseTimer ()
+    {
+
+        this.paused = false;
+        this.startTimer ();
+
+    }
+
+    public void pauseTimer ()
+    {
+
+        this.paused = true;
+
+    }
+
     private void startTimer ()
     {
 
@@ -70,14 +97,39 @@ public class WordCountProgressTimer
         this.minsRemaining = this.minsCount;
 
         this.initWordCount = this.viewer.getAllChapterCounts ().getWordCount ();
+        this.startWords = this.viewer.getAllChapterCounts ().getWordCount ();
 
-        this.progress.setProgress (0);
-        this.progressProp.setValue (0);
+        this.progress.setProgress (MIN_VALUE);
+        this.progressProp.setValue (MIN_VALUE);
 
         this.timer = viewer.schedule (() ->
         {
 
+            if (this.paused)
+            {
+
+                return;
+
+            }
+
+            this.ticks++;
+            ChapterCounts cc = this.viewer.getAllChapterCounts ();
+
+            if (cc != null)
+            {
+
+                this.totalWords += cc.getWordCount () - this.startWords;
+
+            }
+
             this.updateTimer ();
+
+            if (cc != null)
+            {
+
+                this.startWords = cc.getWordCount ();
+
+            }
 
         },
         5 * Constants.SEC_IN_MILLIS,
@@ -85,8 +137,107 @@ public class WordCountProgressTimer
 
     }
 
+    public void stopTimer ()
+    {
+
+        this.timer.cancel (true);
+        this.progress.setProgress (0);
+        this.ticks = 0;
+
+    }
+
     private void updateTimer ()
     {
+
+        double minsPerc = 0;
+        double wordsPerc = 0;
+
+        StringBuilder b = new StringBuilder ();
+
+        if (this.minsCount > 0)
+        {
+
+            double elapsedMillis = this.ticks * 5 * Constants.SEC_IN_MILLIS;
+
+            double minsMillis = this.minsCount * 60 * Constants.SEC_IN_MILLIS;
+
+            minsPerc = (elapsedMillis / minsMillis);
+
+            int rem = (int) (minsMillis - elapsedMillis) / (60 * Constants.SEC_IN_MILLIS);
+
+            this.minsRemaining = rem;
+            StringProperty minsVal = null;
+
+            if (rem <= 1)
+            {
+
+                minsVal = getUILanguageStringProperty (LanguageStrings.timer,remaining,time,less1min);
+
+            } else {
+
+                minsVal = getUILanguageStringProperty (Arrays.asList (LanguageStrings.timer,remaining,time,over1min),
+                                                       Environment.formatNumber (rem));
+
+            }
+
+            b.append (minsVal.getValue ());
+
+        }
+
+        if (this.wordCount > 0)
+        {
+
+            wordsPerc = this.totalWords / this.wordCount;
+            this.wordsRemaining = this.wordCount - this.totalWords;
+
+            StringProperty wordsVal = getUILanguageStringProperty (Arrays.asList (LanguageStrings.timer,remaining,words),
+                                                                   Environment.formatNumber ((this.wordCount - this.totalWords)));
+
+            if (b.length () > 0)
+            {
+
+                b.append ("\n");
+
+            }
+
+            b.append (wordsVal.getValue ());
+
+        }
+
+        double perc = Math.max (minsPerc,
+                                wordsPerc);
+
+        if (perc < MIN_VALUE)
+        {
+
+            perc = MIN_VALUE;
+
+        }
+
+        this.progress.setProgress (perc);
+
+        UIUtils.setTooltip (this.progress,
+                            new SimpleStringProperty (b.toString ()));
+
+        //this.progressProp.setValue (this.percentComplete);
+
+        if (perc >= 1)
+        {
+
+            this.timer.cancel (true);
+
+            this.viewer.fireProjectEvent (ProjectEvent.Type.warmup,
+                                          ProjectEvent.Action.timereached);
+            this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                          ProjectEvent.Action.timereached);
+
+        }
+
+
+            if (true)
+            {
+                return;
+            }
 
         int mp = 0;
 
@@ -103,7 +254,7 @@ public class WordCountProgressTimer
             {
 
                 mp = (int) (((float) ms / (float) this.minsCount) * 100);
-System.out.println ("MP: " + mp);
+
             }
 
             this.minsRemaining = this.minsCount - ms;
@@ -136,7 +287,7 @@ System.out.println ("MP: " + mp);
             {
 
                 wp = (int) (((float) wc / (float) this.wordCount) * 100);
-System.out.println ("WP: " + wp);
+
             }
 
             this.wordsRemaining = this.wordCount - wc;
@@ -147,9 +298,17 @@ System.out.println ("WP: " + wp);
                             wp);
 
         this.percentComplete = max;
-System.out.println ("PERC: " + this.percentComplete);
-        System.out.println ("SETTING: " + ((double) this.percentComplete / 100d));
-        this.progress.setProgress ((double) this.percentComplete / 100d);
+
+        double v = (double) this.percentComplete / 100d;
+
+        if (v < MIN_VALUE)
+        {
+
+            v = MIN_VALUE;
+
+        }
+
+        this.progress.setProgress (v);
 
         this.progressProp.setValue (this.percentComplete);
 

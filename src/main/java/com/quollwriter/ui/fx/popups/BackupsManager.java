@@ -760,6 +760,7 @@ System.out.println ("REMOVING BACKUP: " + backupPath + ", " + this.proj.getBacku
             .title (backups,show, LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.BACKUPS)
             .styleSheet (StyleClassNames.BACKUPS)
+            .headerIconClassName (StyleClassNames.BACKUPS)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

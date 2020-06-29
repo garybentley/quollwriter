@@ -16,6 +16,9 @@ import javafx.stage.*;
 import javafx.application.*;
 import javafx.beans.property.*;
 
+import de.codecentric.centerdevice.javafxsvg.*;
+import de.codecentric.centerdevice.javafxsvg.dimension.*;
+
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
@@ -72,6 +75,19 @@ public class Startup_fx extends Application
 
         try
         {
+
+            SvgImageLoaderFactory.install (new PrimitiveDimensionProvider ()
+            {
+
+                @Override
+                public Dimension getDimension (org.w3c.dom.Document d)
+                {
+System.out.println ("CALLED: " + d);
+                    return new Dimension (64, 64);
+
+                }
+
+            });
 
             this.ss = Splashscreen.builder ().build ();
 
