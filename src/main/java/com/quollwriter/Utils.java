@@ -2260,6 +2260,31 @@ TODO REmove
 
     }
 
+    public static Path getAsPath (URI u)
+                           throws IOException
+    {
+
+        try
+        {
+
+            FileSystems.getFileSystem (u);
+
+        } catch (FileSystemNotFoundException e) {
+
+            Map<String, String> env = new HashMap<> ();
+            env.put ("create", "true");
+            FileSystems.newFileSystem (u, env);
+
+        } catch (IllegalArgumentException e) {
+
+            FileSystems.getDefault ();
+
+        }
+
+        return Paths.get (u);
+
+    }
+
     public static void createZipFile (Path                file,
                                       Map<String, Object> entries)
                                throws GeneralException

@@ -617,8 +617,8 @@ public class UserProperties
 
             try
             {
-
-                p = Paths.get (Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
+System.out.println ("URI: "+ Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
+                p = Utils.getAsPath (Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
 
             } catch (Exception e) {
 
