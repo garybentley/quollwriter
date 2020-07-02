@@ -83,6 +83,7 @@
 }
 .column .fields { -fx-padding: 0 0 0 0; }
 .column .fields:hidelabels .field > .label { visibility: false; }
+.column .fields .field .edit .linkedto .tree.edit .label.header .icon { visibility: true; }
 .column .header {
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
@@ -161,6 +162,7 @@
 }
 .new.field .header { -fx-padding: 0; }
 .new.field .header .title { -fx-font-size: 1.5em; }
+.new.field .header .icon { -fx-image: url(/imgs/add16.png); }
 .new.field .buttons { -fx-padding: 0.25em 0 0.25em 1em; }
 .new.field .form .buttons .button { -fx-content-display: text-only; }
 .edit .controls .control .scroll-pane {
@@ -259,20 +261,21 @@
 .linkedto .tree .cell { -fx-padding: 0; }
 .linkedto .tree .label .text,
 .edit .linkedto .tree .label { -fx-font-style: normal; }
-.edit .linkedto .tree .cell:leaf .label { -fx-content-display: text-only; }
+/*.edit .linkedto .tree .cell:leaf .label { -fx-content-display: text-only; }*/
+.panel.asset.new .field.objectname
+{
+    -fx-padding: 0;
+}
+.panel.asset.new .field.objectname .errors
+{
+    -fx-padding: 0 0 0 0.5em;
+}
 .linkedto .tree.edit .label.header .iconbox,
-.linkedto .tree.edit .label.header .icon,
-.linkedto .tree.view .label.header .iconbox,
-.linkedto .tree.view .label.header .icon
+.linkedto .tree.edit .label.header .icon
 {
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
     -fx-fill-height: false;
     -fx-alignment: center;
-    visibility: true;
-}
-.column .fields .field .edit .linkedto .tree.edit .label.header .icon,
-.column .fields .field .view .linkedto .tree.view .label.header .icon
-{
     visibility: true;
 }

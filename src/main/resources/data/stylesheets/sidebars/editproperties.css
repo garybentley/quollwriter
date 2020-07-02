@@ -17,6 +17,6 @@
     -fx-alignment: center-left;
     -fx-spacing: 0.5em;
 }
-.control .spinner { -fx-pref-width: 5em; }
-.control .slider { -fx-pref-width: 15em; }
+.control .spinner  { -fx-pref-width: 6em; -fx-min-width: 6em; }
+.control .slider { -fx-min-width: 15em; }
 .control .alignment.choice-box .label { -fx-padding: 0.25em 0.5em 0.25em 0.5em; }

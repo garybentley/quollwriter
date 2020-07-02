@@ -32,10 +32,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
     private SortableColumnsPanel layout = null;
     private Button headerSaveBut = null;
     private Button headerCancelBut = null;
-    private VBox error = null;
-    private UserConfigurableObjectFieldViewEditHandler nameFieldHandler = null;
-    private UserConfigurableObjectField nameField = null;
-    private ErrorBox nameErrorBox = null;
+    private FieldBox nameFieldBox = null;
 
     public NewAssetPanel (ProjectViewer pv,
                           Asset         a)
@@ -101,19 +98,13 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         ObjectNameUserConfigurableObjectTypeField nameTypeField = this.object.getUserConfigurableObjectType ().getPrimaryNameField ();
 
-        this.nameField = this.object.getField (nameTypeField);
+        this.nameFieldBox = new FieldBox (nameTypeField,
+                                          this.object,
+                                          null,
+                                          this.getBinder (),
+                                          this.viewer);
 
-        this.nameFieldHandler = nameTypeField.getViewEditHandler2 (this.object,
-                                                                   nameField,
-                                                                   this.getBinder (),
-                                                                   this.viewer);
-
-        VBox nbox = new VBox ();
-        nbox.getStyleClass ().addAll (StyleClassNames.OBJECTNAME, StyleClassNames.FIELD);
-
-        nbox.getChildren ().add (QuollLabel.builder ()
-            .label (nameTypeField.formNameProperty ())
-            .build ());
+        this.nameFieldBox.showEditFull ();
 
         Runnable doSave = () ->
         {
@@ -122,24 +113,6 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         };
 
-        this.nameErrorBox = ErrorBox.builder ()
-            .build ();
-
-        nbox.getChildren ().add (this.nameErrorBox);
-
-        Set<Form.Item> its = nameFieldHandler.getInputFormItems (null, doSave);
-
-        for (Form.Item it : its)
-        {
-
-            VBox _b = new VBox ();
-            _b.getStyleClass ().add (StyleClassNames.CONTROL);
-            _b.getChildren ().add (it.control);
-
-            nbox.getChildren ().add (_b);
-
-        }
-
         this.layout = new SortableColumnsPanel (a,
                                                 this.getBinder (),
                                                 this.viewer);
@@ -147,7 +120,9 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
                        Priority.ALWAYS);
         VBox.setVgrow (this.layout,
                        Priority.ALWAYS);
-        box.getChildren ().addAll (nbox, this.layout);
+        VBox.setVgrow (this.nameFieldBox,
+                       Priority.NEVER);
+        box.getChildren ().addAll (/*nbox,*/ this.nameFieldBox, this.layout);
 
         ScrollPane sp = new ScrollPane (box);
         VBox.setVgrow (sp,
@@ -195,6 +170,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
             .title (getUILanguageStringProperty (Arrays.asList (assets,add,LanguageStrings.panel,title),
                                                  this.object.getUserConfigurableObjectType ().objectTypeNameProperty ()))
             .content (this)
+            .styleSheet (StyleClassNames.NEWASSET)
             .styleClassName (StyleClassNames.ASSET)
             .panelId (this.object.getUserConfigurableObjectType ().getObjectReference ().asString ())
             .actionMappings (am)
@@ -241,10 +217,17 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
     private boolean save ()
     {
 
+        if (!this.nameFieldBox.save ())
+        {
+
+            return false;
+
+        }
+/*
         this.nameErrorBox.setVisible (false);
         this.lookup (".objectname .control").pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
         Set<StringProperty> nameErrs = this.nameFieldHandler.getInputFormItemErrors ();
-
+xxx
         if ((nameErrs != null)
             &&
             (nameErrs.size () > 0)
@@ -258,7 +241,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
             return false;
 
         }
-
+*/
         if (!this.layout.updateFields ())
         {
 
@@ -269,7 +252,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
         try
         {
 
-            this.nameFieldHandler.updateFieldFromInput ();
+            //this.nameFieldHandler.updateFieldFromInput ();
 
         } catch (Exception e) {
 

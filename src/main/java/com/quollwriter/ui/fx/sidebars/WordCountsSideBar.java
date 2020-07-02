@@ -37,10 +37,14 @@ public class WordCountsSideBar extends SideBarContent<AbstractProjectViewer>
     private Label chapterA4PageCount = null;
     private Label chapterWordCount = null;
 
+    private IPropertyBinder chapterCountsPropsBinder = null;
+
     public WordCountsSideBar (AbstractProjectViewer viewer)
     {
 
         super (viewer);
+
+        this.chapterCountsPropsBinder = new PropertyBinder ();
 
         AccordionItem selText = AccordionItem.builder ()
             .title (project,LanguageStrings.sidebar,wordcount,sectiontitles,selected)
@@ -158,6 +162,9 @@ TODO
 
         StringProperty pwcp = new SimpleStringProperty ();
 
+        this.getBinder ().addChangeListener (this.viewer.sessionWordCountProperty (), (pr, oldv, newv) -> {});
+        this.getBinder ().addChangeListener (Environment.sessionWordCountProperty (), (pr, oldv, newv) -> {});
+
         pwcp.bind (Bindings.createStringBinding (() ->
         {
 
@@ -232,16 +239,19 @@ TODO
         Label a4pages = QuollLabel.builder ()
             .styleClassName (StyleClassNames.VALUE)
             .build ();
+        a4pages.managedProperty ().bind (a4pages.visibleProperty ());
+        a4pages.setVisible (false);
 
         r = new HBox ();
 
         r.getChildren ().add (a4pages);
-
+/*
+TODO
         r.getChildren ().add (QuollLabel.builder ()
             .styleClassName (StyleClassNames.VALUELABEL)
             .label (project,LanguageStrings.sidebar,wordcount,labels,LanguageStrings.a4pages)
             .build ());
-
+*/
         content.getChildren ().add (r);
 
         // TODO Add sparkline
@@ -308,7 +318,14 @@ TODO
             ChapterCounts achc = this.viewer.getAllChapterCounts ();
             ReadabilityIndices ri = this.viewer.getAllReadabilityIndices ();
 
-            readB.visibleProperty ().bind (Bindings.createBooleanBinding (() ->
+            // Added to force the values to be reevaluated.
+            this.getBinder ().addChangeListener (achc.wordCountProperty (), (pr, oldv, newv) -> {});
+            this.getBinder ().addChangeListener (achc.standardPageCountProperty (), (pr, oldv, newv) -> {});
+            this.getBinder ().addChangeListener (ri.fleschKindcaidGradeLevelProperty (), (pr, oldv, newv) -> {});
+            this.getBinder ().addChangeListener (ri.fleschReadingEaseProperty (), (pr, oldv, newv) -> {});
+            this.getBinder ().addChangeListener (ri.gunningFogIndexProperty (), (pr, oldv, newv) -> {});
+
+            readB.visibleProperty ().bind (UILanguageStringsManager.createBooleanBinding (() ->
             {
 
                 if ((achc.getWordCount () > Constants.MIN_READABILITY_WORD_COUNT)
@@ -324,10 +341,9 @@ TODO
                 return false;
 
             },
-            achc.wordCountProperty (),
-            UILanguageStringsManager.uilangProperty ()));
+            achc.wordCountProperty ()));
 
-            wc.textProperty ().bind (Bindings.createStringBinding (() ->
+            wc.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
             {
 
                 return Environment.formatNumber (achc.getWordCount ());
@@ -335,7 +351,7 @@ TODO
             },
             achc.wordCountProperty ()));
 
-            a4pages.textProperty ().bind (Bindings.createStringBinding (() ->
+            a4pages.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
             {
 
                 return Environment.formatNumber (achc.getStandardPageCount ());
@@ -343,32 +359,29 @@ TODO
             },
             achc.standardPageCountProperty ()));
 
-            fk.textProperty ().bind (Bindings.createStringBinding (() ->
+            fk.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
             {
 
                 return Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ()));
 
             },
-            ri.fleschKindcaidGradeLevelProperty (),
-            UILanguageStringsManager.uilangProperty ()));
+            ri.fleschKindcaidGradeLevelProperty ()));
 
-            fr.textProperty ().bind (Bindings.createStringBinding (() ->
+            fr.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
             {
 
                 return Environment.formatNumber (Math.round (ri.getFleschReadingEase ()));
 
             },
-            ri.fleschReadingEaseProperty (),
-            UILanguageStringsManager.uilangProperty ()));
+            ri.fleschReadingEaseProperty ()));
 
-            gf.textProperty ().bind (Bindings.createStringBinding (() ->
+            gf.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
             {
 
                 return Environment.formatNumber (Math.round (ri.getGunningFogIndex ()));
 
             },
-            ri.gunningFogIndexProperty (),
-            UILanguageStringsManager.uilangProperty ()));
+            ri.gunningFogIndexProperty ()));
 
         };
 
@@ -401,16 +414,19 @@ TODO
         this.chapterA4PageCount = QuollLabel.builder ()
             .styleClassName (StyleClassNames.VALUE)
             .build ();
+        this.chapterA4PageCount.managedProperty ().bind (this.chapterA4PageCount.visibleProperty ());
+        this.chapterA4PageCount.setVisible (false);
 
         r = new HBox ();
 
         r.getChildren ().add (this.chapterA4PageCount);
-
+/*
+TODO
         r.getChildren ().add (QuollLabel.builder ()
             .styleClassName (StyleClassNames.VALUELABEL)
             .label (project,LanguageStrings.sidebar,wordcount,labels,a4pages)
             .build ());
-
+*/
         content.getChildren ().add (r);
 
         // TODO Add sparkline
@@ -499,6 +515,7 @@ TODO
             this.chapterFleschKincaid.textProperty ().unbind ();
             this.chapterFleschReading.textProperty ().unbind ();
             this.chapterGunningFog.textProperty ().unbind ();
+            this.chapterCountsPropsBinder.dispose ();
 
             Chapter ch = viewer.getChapterCurrentlyEdited ();
 
@@ -507,7 +524,15 @@ TODO
 
                 ChapterCounts cc = viewer.getChapterCounts (ch);
                 ChapterCounts achc = this.viewer.getAllChapterCounts ();
-                ReadabilityIndices ri = this.viewer.getReadabilityIndices (ch);
+                ReadabilityIndices ri = cc.getReadabilityIndices ();
+                //this.viewer.getReadabilityIndices (ch);
+
+                // These listeners are here to force an update to the fields due to lazy evaluation of the
+                // bindings.
+                this.chapterCountsPropsBinder.addChangeListener (ch.editPositionProperty (), (pr, oldv, newv) -> {});
+                this.chapterCountsPropsBinder.addChangeListener (cc.wordCountProperty (), (pr, oldv, newv) -> {});
+                this.chapterCountsPropsBinder.addChangeListener (cc.standardPageCountProperty (), (pr, oldv, newv) -> {});
+                this.chapterCountsPropsBinder.addChangeListener (cc.readabilityIndicesProperty (), (pr, oldv, newv) -> {});
 
                 readB.visibleProperty ().bind (Bindings.createBooleanBinding (() ->
                 {
@@ -548,7 +573,8 @@ TODO
                 ch.editPositionProperty (),
                 UILanguageStringsManager.uilangProperty ()));
 
-                this.chapterWordCount.textProperty ().bind (Bindings.createStringBinding (() ->
+                this.addChangeListener (cc.wordCountProperty (), (pr, oldv, newv) -> {});
+                this.chapterWordCount.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
                 {
 
                     return String.format (UILanguageStringsManager.getUIString (project,LanguageStrings.sidebar,wordcount,valuepercent),
@@ -557,8 +583,7 @@ TODO
 
                 },
                 cc.wordCountProperty (),
-                achc.wordCountProperty (),
-                UILanguageStringsManager.uilangProperty ()));
+                achc.wordCountProperty ()));
 
                 this.chapterA4PageCount.textProperty ().bind (Bindings.createStringBinding (() ->
                 {
@@ -569,7 +594,7 @@ TODO
                 cc.standardPageCountProperty (),
                 UILanguageStringsManager.uilangProperty ()));
 
-                this.chapterEditPosition.textProperty ().bind (Bindings.createStringBinding (() ->
+                this.chapterEditPosition.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
                 {
 
                     if (ch.getEditPosition () > -1)
@@ -592,35 +617,34 @@ TODO
 
                 },
                 cc.wordCountProperty (),
-                ch.editPositionProperty (),
-                UILanguageStringsManager.uilangProperty ()));
+                ch.editPositionProperty ()));
 
-                this.chapterFleschKincaid.textProperty ().bind (Bindings.createStringBinding (() ->
+                this.chapterFleschKincaid.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
                 {
 
                     return Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ()));
 
                 },
-                ri.fleschKindcaidGradeLevelProperty (),
-                UILanguageStringsManager.uilangProperty ()));
+                cc.readabilityIndicesProperty ()));
+                //ri.fleschKindcaidGradeLevelProperty ()));
 
-                this.chapterFleschReading.textProperty ().bind (Bindings.createStringBinding (() ->
+                this.chapterFleschReading.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
                 {
 
                     return Environment.formatNumber (Math.round (ri.getFleschReadingEase ()));
 
                 },
-                ri.fleschReadingEaseProperty (),
-                UILanguageStringsManager.uilangProperty ()));
+                cc.readabilityIndicesProperty ()));
+                //ri.fleschReadingEaseProperty ()));
 
-                this.chapterGunningFog.textProperty ().bind (Bindings.createStringBinding (() ->
+                this.chapterGunningFog.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
                 {
 
                     return Environment.formatNumber (Math.round (ri.getGunningFogIndex ()));
 
                 },
-                ri.gunningFogIndexProperty (),
-                UILanguageStringsManager.uilangProperty ()));
+                cc.readabilityIndicesProperty ()));
+                //ri.gunningFogIndexProperty ()));
 
             } else {
 
@@ -683,7 +707,7 @@ TODO
         content.getChildren ().add (readB);
         readB.managedProperty ().bind (readB.visibleProperty ());
 
-        readB.visibleProperty ().bind (Bindings.createBooleanBinding (() ->
+        readB.visibleProperty ().bind (UILanguageStringsManager.createBooleanBinding (() ->
         {
 
             String sel = this.viewer.getSelectedText ();
@@ -702,8 +726,7 @@ TODO
                     (this.viewer.isProjectLanguageEnglish ()));
 
         },
-        this.viewer.selectedTextProperty (),
-        UILanguageStringsManager.uilangProperty ()));
+        this.viewer.selectedTextProperty ()));
 
         this.selectedFleschKincaid = QuollLabel.builder ()
             .styleClassName (StyleClassNames.VALUE)

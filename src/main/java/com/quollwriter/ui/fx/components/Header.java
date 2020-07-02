@@ -51,6 +51,8 @@ public class Header extends HBox
         this.icon.getStyleClass ().add (StyleClassNames.ICON);
         h.getChildren ().add (this.icon);
         h.managedProperty ().bind (h.visibleProperty ());
+        HBox.setHgrow (h,
+                       Priority.NEVER);
 
         this.title = new Label ();
         this.title.getStyleClass ().add (StyleClassNames.TITLE);
@@ -246,6 +248,9 @@ public class Header extends HBox
             this.toolbar = b.toolbar;
 
         }
+
+        HBox.setHgrow (this.toolbar,
+                       Priority.NEVER);
 
         this.getChildren ().add (this.toolbar);
         this.toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);

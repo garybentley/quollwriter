@@ -92,6 +92,7 @@ public class ChaptersOverReadabilityTargetPopup extends PopupContent<AbstractPro
 
             gp.add (QuollHyperlink.builder ()
                 .label (c.nameProperty ())
+                .styleClassName (StyleClassNames.CHAPTER)
                 .tooltip (getUILanguageStringProperty (actions,clicktoview))
                 .onAction (ev ->
                 {

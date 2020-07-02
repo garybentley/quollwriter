@@ -720,8 +720,10 @@ REPLACE
  .next-icon,
  .previous-icon,
  .tree-disclosure-icon,
- .scroll-pane .increment-arrow,
- .scroll-pane .decrement-arrow {
+ .scroll-pane .scroll-bar .increment-arrow,
+ .scroll-pane .scroll-bar .decrement-arrow,
+ .spinner .increment-arrow-button .increment-arrow,
+ .spinner .decrement-arrow-button .decrement-arrow {
      -fx-shape: "M 0,32 V 0 l 24,16 z";
      -fx-background-color: -qw-icon-color;
      -fx-pref-width: 0.888em;
@@ -2357,6 +2359,16 @@ REPLACE
     -fx-background-color: -qw-component-border-color, -qw-bg-color, -qw-bg-color;
 }
 
+.tab-pane:bottom > .tab-header-area
+{
+    -fx-padding: 0 0.1em 0.5em 0.1em;
+}
+
+.tab-pane:top > .tab-header-area
+{
+    -fx-padding: 0.5em 0.1em 0 0.1em;
+}
+
 .tab-pane:bottom > .tab-header-area > .tab-header-background
 {
     /*-fx-background-color: -qw-component-border-color, -qw-bg-color, -qw-bg-color;*/
@@ -2735,7 +2747,7 @@ REPLACE
     -fx-background-color: transparent;
     -fx-border-radius: 0px;
     -fx-border-color: -qw-component-border-color;
-    -fx-max-width: 15em;
+    /*-fx-max-width: 15em;*/
 }
 
 .date-picker .text-field,
@@ -2768,46 +2780,54 @@ REPLACE
 .spinner .decrement-arrow-button:hover
 {
     -fx-background-color: -qw-hover-bg;
-    -fx-border-width: 0 0 0 1px;
     -fx-border-color: -qw-component-border-color;
 }
 
-.spinner .decrement-arrow-button:hover
+.spinner .decrement-arrow-button
 {
-    -fx-border-width: 1px 0 0 1px;
+    -fx-border-width: 0 1px 0 1px;
 }
 
-.spinner .increment-arrow-button:hover
+.spinner .increment-arrow-button
 {
-    -fx-border-width: 0 0 1px 1px;
+    -fx-border-width: 0 0 0 1px;
 }
 
 .date-picker .arrow-button .arrow,
-.spinner .increment-arrow,
-.spinner .decrement-arrow
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button
 {
-    -fx-opacity: 0;
+    -fx-opacity: 1;
     -fx-padding: 0.5em;
     -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
 }
 
 .date-picker .text-input, .spinner .text-input
 {
-    -fx-pref-width: 14em;
+    -fx-min-width: 3em;
 }
 
-.spinner .increment-arrow-button, .spinner .decrement-arrow-button
+.spinner .increment-arrow-button .increment-arrow, .spinner .decrement-arrow-button .decrement-arrow
 {
-    -fx-padding: 0.75em;
-    -fx-background-radius: 0;
-    -fx-background-repeat: no-repeat;
-    -fx-background-position: center;
-    -fx-background-color: transparent;
     -fx-cursor: hand;
-    -fx-border-width: 0 0 0 1px;
-    -fx-border-color: transparent;
+    -fx-pref-width: 0.5em;
+    -fx-pref-height: 0.888em;
 }
 
+.spinner .increment-arrow-button .increment-arrow
+{
+    -fx-rotate: 0;
+}
+
+.spinner .decrement-arrow-button .decrement-arrow
+{
+    -fx-rotate: -180;
+
+}
+
+/*
 .spinner .increment-arrow-button
 {
     -fx-background-image: url(/imgs/more12.png);
@@ -2818,7 +2838,7 @@ REPLACE
     -fx-background-image: url(/imgs/less12.png);
     -fx-border-width: 1px 0 0px 1px;
 }
-
+*/
 body
 {
     overflow-x: hidden;
@@ -2865,6 +2885,7 @@ a
 .panel.asset.new .objectname .label
 {
     -fx-font-size: 1.5em;
+    -fx-font-style: italic;
 }
 
 /*
@@ -3048,6 +3069,9 @@ a
 }
 .hyperlink .iconbox .view-icon.icon {
     -fx-pref-height: 0.888em;
+}
+.hyperlink .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1em;
 }
 
 .qtextview.placeholder .label

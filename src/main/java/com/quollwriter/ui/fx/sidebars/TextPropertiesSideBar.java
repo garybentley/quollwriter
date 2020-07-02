@@ -165,8 +165,13 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
         this.fontSizeSlider = new Slider (minFontSize, maxFontSize, this.props.getFontSize ());
         this.fontSizeSlider.setBlockIncrement (1);
         this.fontSizeSlider.setMajorTickUnit (1);
+        HBox.setHgrow (this.fontSizeSlider,
+                       Priority.ALWAYS);
         this.fontSize = new Spinner<> (new SpinnerValueFactory.IntegerSpinnerValueFactory (minFontSize, maxFontSize, this.props.getFontSize ()));
         this.fontSize.setEditable (true);
+        this.fontSize.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
+        HBox.setHgrow (this.fontSize,
+                       Priority.NEVER);
 
         this.fontSize.valueProperty ().addListener ((pr, oldv, newv) ->
         {
@@ -330,8 +335,13 @@ System.out.println ("NEW: " + newv);
         this.lineSpacingSlider.setMajorTickUnit (0.1f);
         this.lineSpacingSlider.setMinorTickCount (0);
         this.lineSpacingSlider.setSnapToTicks (true);
+        HBox.setHgrow (this.lineSpacingSlider,
+                       Priority.ALWAYS);
         this.lineSpacing = new Spinner<> (new SpinnerValueFactory.DoubleSpinnerValueFactory (minLS, maxLS, this.props.getLineSpacing (), stepBy));
         this.lineSpacing.setEditable (true);
+        this.lineSpacing.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
+        HBox.setHgrow (this.lineSpacing,
+                       Priority.NEVER);
 
         this.lineSpacing.valueProperty ().addListener ((pr, oldv, newv) ->
         {
@@ -367,8 +377,14 @@ System.out.println ("NEW: " + newv);
          this.textBorderSlider.setMajorTickUnit (1);
          this.textBorderSlider.setMinorTickCount (0);
          this.textBorderSlider.setSnapToTicks (true);
+         HBox.setHgrow (this.textBorderSlider,
+                        Priority.ALWAYS);
+
          this.textBorder = new Spinner<> (new SpinnerValueFactory.IntegerSpinnerValueFactory (min, max, this.props.getTextBorder (), stepByW));
          this.textBorder.setEditable (true);
+         this.textBorder.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
+         HBox.setHgrow (this.textBorder,
+                        Priority.NEVER);
 
          this.textBorder.valueProperty ().addListener ((pr, oldv, newv) ->
          {

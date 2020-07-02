@@ -2740,4 +2740,13 @@ TODO REmove
 
     }
 
+    public static int clamp (int v,
+                             int min,
+                             int max)
+    {
+
+        return Math.min (Math.max (v, min), max);
+
+    }
+
 }

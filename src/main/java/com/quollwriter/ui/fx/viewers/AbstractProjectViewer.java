@@ -68,8 +68,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     private ChapterCounts         startWordCounts = new ChapterCounts ();
     private ChapterCounts allChapterCounts = new ChapterCounts ();
+    //private ReadabilityIndices allReadabilityIndices = new ReadabilityIndices ();
     private Map<Chapter, ChapterCounts> chapterCounts = new WeakHashMap<> ();
     private Map<Chapter, ReadabilityIndices> noEditorReadabilityIndices = new WeakHashMap<> ();
+    private Map<Chapter, ScheduledFuture> spellingReadabilityUpdaters = new HashMap<> ();
 
     private TabPane tabs = null;
     private Map<String, Panel> panels = new HashMap<> ();
@@ -538,17 +540,17 @@ TODO
 
         Book b = this.project.getBooks ().get (0);
 
-        List<Chapter> chapters = b.getChapters ();
-
+        ObservableList<Chapter> chapters = b.getChapters ();
+/*
 		for (Chapter c : chapters)
 		{
 
 			this.initChapterCounts (c);
 
 		}
-
-        this.addListChangeListener (b.getChapters (),
-                                   ev ->
+*/
+        this.addListChangeListener (chapters,
+                                    ev ->
         {
 
             while (ev.next ())
@@ -575,6 +577,7 @@ TODO
                     {
 
                         this.chapterCounts.remove (c);
+                        this.spellingReadabilityUpdaters.remove (c);
 
                     }
 
@@ -587,7 +590,6 @@ TODO
         });
 
         // We have to do something special here for the initial counts.
-        // Each chapter has its counts inited in a separate thread.
         this.schedule (() ->
         {
 
@@ -608,14 +610,213 @@ TODO
         1,
         -1);
 
+        //this.scheduleSpellingReadabilityUpdate ();
+
+        // This updates the chapter word counts.
+        this.schedule (() ->
+        {
+
+    		for (Chapter c : chapters)
+    		{
+
+                ChapterCounts cc = this.chapterCounts.get (c);
+
+                if (cc == null)
+                {
+
+                    cc = new ChapterCounts ();
+
+                    this.chapterCounts.put (c,
+                                            cc);
+
+                }
+
+                final String t = this.getCurrentChapterText (c);
+
+                final ChapterCounts ncc = new ChapterCounts (t);
+                cc.setWordCount (ncc.getWordCount ());
+
+                cc.setSentenceCount (ncc.getSentenceCount ());
+                cc.setParagraphCount (ncc.getParagraphCount ());
+                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                           t));
+                this.scheduleSpellingReadabilityUpdate (c);
+
+            }
+
+            this.updateAllChapterCounts ();
+
+        },
+        1,
+        -1);
+
 	}
+
+    private void initChapterCounts (Chapter c)
+    {
+
+        final String t = this.getCurrentChapterText (c);
+
+        final ChapterCounts cc = new ChapterCounts (t);
+        cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                   t));
+
+        this.chapterCounts.put (c,
+                                cc);
+        this.scheduleSpellingReadabilityUpdate (c);
+
+    }
+
+    public void scheduleUpdateChapterCounts (Chapter c)
+    {
+
+        this.schedule (() ->
+        {
+
+            ChapterCounts cc = this.chapterCounts.get (c);
+
+            if (cc == null)
+            {
+
+                cc = new ChapterCounts ();
+
+                this.chapterCounts.put (c,
+                                        cc);
+
+            }
+
+            final String t = this.getCurrentChapterText (c);
+
+            final ChapterCounts ncc = new ChapterCounts (t);
+            cc.setWordCount (ncc.getWordCount ());
+
+            cc.setSentenceCount (ncc.getSentenceCount ());
+            cc.setParagraphCount (ncc.getParagraphCount ());
+            cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                       t));
+
+            this.updateAllChapterCounts ();
+            this.scheduleSpellingReadabilityUpdate (c);
+
+        },
+        100,
+        -1);
+
+    }
+
+    private void scheduleSpellingReadabilityUpdate (Chapter c)
+    {
+
+        // Is the update currently running?
+        if (this.spellingReadabilityUpdaters.containsKey (c))
+        {
+
+            return;
+
+        }
+
+        this.spellingReadabilityUpdaters.put (c, this.schedule (() ->
+        {
+
+            ChapterCounts cc = this.chapterCounts.get (c);
+
+            if (cc == null)
+            {
+
+                return;
+
+            }
+
+            long s = System.currentTimeMillis ();
+
+            cc.setSpellingErrorCount (this.getSpellingErrors (c).size ());
+            cc.setProblemFinderProblemsCount (this.getProblems (c).size ());
+
+            cc.setReadabilityIndices (this.getReadabilityIndices (this.getCurrentChapterText (c)));
+
+            ChapterEditorPanelContent ed = this.getEditorForChapter (c);
+
+            this.spellingReadabilityUpdaters.remove (c);
+
+            if (ed != null)
+            {
+
+                // This operation may take a while, so check to see if the text has changed since we started.
+                if (ed.getTextLastModifiedTime () > s)
+                {
+
+                    // Reschedule ourselves.
+                    this.scheduleSpellingReadabilityUpdate (c);
+
+                }
+
+            }
+
+        },
+        1,
+        -1));
+
+    }
+
+    private void scheduleSpellingReadabilityUpdate ()
+    {
+
+        // This updates the spelling error count and the problem finder problem count.
+        this.schedule (() ->
+        {
+
+            Book b = this.project.getBooks ().get (0);
+
+            ObservableList<Chapter> chapters = b.getChapters ();
+
+    		for (Chapter c : chapters)
+    		{
+
+                ChapterCounts cc = this.chapterCounts.get (c);
+
+                if (cc == null)
+                {
+
+                    continue;
+
+                }
+
+                cc.setSpellingErrorCount (this.getSpellingErrors (c).size ());
+                cc.setProblemFinderProblemsCount (this.getProblems (c).size ());
+
+                cc.setReadabilityIndices (this.getReadabilityIndices (this.getCurrentChapterText (c)));
+
+            }
+
+            //this.scheduleSpellingReadabilityUpdate ();
+
+        },
+        1 * Constants.SEC_IN_MILLIS,
+        -1);
+
+    }
 
     public void printChapter (Chapter c)
     {
 
         // TODO
+        /*
+        PDDocument doc = new PDDocument ();
+        PDPage page = new PDPage ();
+        doc.addPage (page);
+        */
         // See javafx.print javafx.print.PrinterJob
+/*
+        javafx.print.PrinterJob pj = javafx.print.PrinterJob.createPrinterJob ();
 
+        if (pj.showPrintDialog (this.getViewer ()))
+        {
+
+            pj.printPage (this.getEditorForChapter (c));
+            pj.endJob ();
+
+        }
+*/
     }
 
     private void initActionMappings ()
@@ -2238,12 +2439,16 @@ TODO Remove
         int pc = 0;
         int sc = 0;
 
+        ReadabilityIndices ri = new ReadabilityIndices ();
+
         for (ChapterCounts cc : this.chapterCounts.values ())
 		{
 
             wc += cc.getWordCount ();
             pc += cc.getStandardPageCount ();
             sc += cc.getSentenceCount ();
+
+            ri.add (cc.getReadabilityIndices ());
 
 		}
 
@@ -2252,6 +2457,8 @@ TODO Remove
         this.allChapterCounts.setStandardPageCount (pc);
 
         this.sessionWordCount = this.allChapterCounts.getWordCount () - this.startWordCounts.getWordCount ();
+
+        this.allChapterCounts.getReadabilityIndices ().updateFrom (ri);
 
         UIUtils.runLater (() ->
         {
@@ -2286,6 +2493,9 @@ TODO Remove
     public ReadabilityIndices getAllReadabilityIndices ()
     {
 
+        return this.allChapterCounts.getReadabilityIndices ();
+
+/*
         if (this.project == null)
         {
 
@@ -2302,12 +2512,25 @@ TODO Remove
         for (Chapter c : chapters)
         {
 
-            ri.add (this.getReadabilityIndices (c));
+            ChapterCounts cc = this.chapterCounts.get (c);
+
+            if (cc == null)
+            {
+
+                continue;
+
+            }
+
+            ri.add (cc.getReadabilityIndices ());
+
+            //ri.add (this.getReadabilityIndices (c));
 
         }
 
-        return ri;
+        this.allReadabilityIndices.updateFrom (ri);
 
+        return ri;
+*/
     }
 
     public ReadabilityIndices getReadabilityIndices (String  text)
@@ -2330,6 +2553,17 @@ TODO Remove
     public ReadabilityIndices getReadabilityIndices (Chapter c)
     {
 
+        ChapterCounts cc = this.chapterCounts.get (c);
+
+        if (cc == null)
+        {
+
+            return null;
+
+        }
+
+        return cc.getReadabilityIndices ();
+/*
         ChapterEditorPanelContent qep = this.getEditorForChapter (c);
 
         ReadabilityIndices ri = null;
@@ -2364,121 +2598,8 @@ TODO Remove
         }
 
         return ri;
-
-    }
-
-    public void initChapterCounts (final Chapter c)
-	{
-
-        ChapterCounts cc = new ChapterCounts ();
-
-        cc.wordCountProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            this.updateAllChapterCounts ();
-
-        });
-
-        cc.sentenceCountProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            this.updateAllChapterCounts ();
-
-        });
-
-        cc.standardPageCountProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            this.updateAllChapterCounts ();
-
-        });
-
-        this.chapterCounts.put (c,
-                                cc);
-
-        this.schedule (() ->
-        {
-
-            try
-            {
-
-                final String t = this.getCurrentChapterText (c);
-
-                final ChapterCounts ncc = new ChapterCounts (t);
-
-                cc.setWordCount (ncc.getWordCount ());
-
-                cc.setSentenceCount (ncc.getSentenceCount ());
-                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
-                                                                           t));
-
-                this.updateAllChapterCounts ();
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to get a4 page count for chapter: " +
-                                      c,
-                                      e);
-
-            }
-
-        },
-        1 * Constants.SEC_IN_MILLIS,
-        -1);
-
-/*
-        final AbstractProjectViewer _this = this;
-
-        final String t = this.getCurrentChapterText (c);
-
-        final ChapterCounts cc = new ChapterCounts (t);
-
-        ChapterCounts _cc = _this.getChapterCounts (c);
-
-
-        _cc.setWordCount (cc.getWordCount ());
-        _cc.setSentenceCount (cc.getSentenceCount ());
-
-        _this.updateAllChapterCounts ();
-
-        // Don't try and calculate the a4 page count before the window is ready otherwise
-        // strange errors result.  The initChapterCounts and scheduleA4PageCountUpdate will handle the initial counts.
-        this.unschedule (this.chapterCountsUpdater);
-
-        Runnable r = new Runnable ()
-        {
-
-            @Override
-            public void run ()
-            {
-
-                try
-                {
-
-                    _cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
-                                                                                t));
-
-                    _this.updateAllChapterCounts ();
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to get a4 page count for chapter: " +
-                                          c,
-                                          e);
-
-                }
-
-            }
-
-        };
-
-        this.chapterCountsUpdater = _this.schedule (r,
-                                                    // Start in 2 seconds
-                                                    0 * Constants.SEC_IN_MILLIS,
-                                                    // Do it once.
-                                                    0);
 */
-	}
+    }
 
 	public int getChapterA4PageCount (Chapter c)
 	{
@@ -2492,6 +2613,13 @@ TODO Remove
     {
 
         Panel p = this.getCurrentPanel ();
+
+        if (p == null)
+        {
+
+            return false;
+
+        }
 
         if (p.getContent () instanceof ChapterEditorPanelContent)
         {
@@ -3834,7 +3962,7 @@ TODO REmove
     public Set<Word> getSpellingErrors (Chapter c)
     {
 
-        Set<Word> ret = new LinkedHashSet ();
+        Set<Word> ret = new LinkedHashSet<> ();
 
         String ct = this.getCurrentChapterText (c);
 
@@ -3846,7 +3974,7 @@ TODO REmove
             if (dp != null)
             {
 
-                SpellChecker sc = null; // TODO dp.getSpellChecker ();
+                SpellChecker sc = dp.getSpellChecker ();
 
                 if (sc != null)
                 {

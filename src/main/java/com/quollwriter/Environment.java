@@ -27,8 +27,8 @@ import javafx.event.*;
 
 import org.jdom.*;
 
-import de.codecentric.centerdevice.javafxsvg.*;
-import de.codecentric.centerdevice.javafxsvg.dimension.*;
+//import de.codecentric.centerdevice.javafxsvg.*;
+//import de.codecentric.centerdevice.javafxsvg.dimension.*;
 
 import com.gentlyweb.xml.*;
 import com.gentlyweb.utils.*;
@@ -189,8 +189,8 @@ public class Environment
                              Runnable       onInitComplete)
                       throws Exception
     {
-long s = System.currentTimeMillis ();
-        SvgImageLoaderFactory.install (new PrimitiveDimensionProvider());
+
+        //SvgImageLoaderFactory.install (new PrimitiveDimensionProvider());
 
         Environment.startupProgressProp = startupProgressProp;
         Environment.startupCompleteProp = new SimpleBooleanProperty (false);

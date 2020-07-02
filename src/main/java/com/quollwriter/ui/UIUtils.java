@@ -10384,7 +10384,7 @@ TODO Moved to BackupsManager.
                                                                 @Override
                                                                 public void onStop ()
                                                                 {
-                                                                    
+
                                                                 }
 
                                                                 public void handleError (Exception e)

@@ -9,7 +9,6 @@ import javafx.scene.input.*;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
-import javafx.embed.swing.*;
 
 import org.fxmisc.flowless.*;
 import org.fxmisc.wellbehaved.event.*;
@@ -36,6 +35,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
     protected TextEditor editor = null;
     private VirtualizedScrollPane<TextEditor> scrollPane = null;
     protected javafx.beans.property.StringProperty selectedTextProp = null;
+    private long textLastModifiedTime = 0;
 
     public ChapterEditorPanelContent (E              viewer,
                                       Chapter        chapter,
@@ -45,6 +45,8 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         super (viewer,
                chapter);
+
+        this.textLastModifiedTime = System.currentTimeMillis ();
 
         this.selectedTextProp = new SimpleStringProperty ();
 
@@ -106,7 +108,11 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
             }
 
+            this.textLastModifiedTime = System.currentTimeMillis ();
+
             this.setHasUnsavedChanges (true);
+
+            this.viewer.scheduleUpdateChapterCounts (this.object);
 
         });
 
@@ -213,6 +219,13 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                                              }));
 
         this.setText (chapter.getText ());
+
+    }
+
+    public long getTextLastModifiedTime ()
+    {
+
+        return this.textLastModifiedTime;
 
     }
 

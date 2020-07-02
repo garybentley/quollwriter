@@ -362,24 +362,6 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
                   });
 
-         am.put (new KeyCodeCombination (KeyCode.D,
-                                         KeyCombination.SHORTCUT_DOWN),
-                 () ->
-                 {
-
-                    // Edit documents.
-
-                 });
-
-         am.put (new KeyCodeCombination (KeyCode.L,
-                                        KeyCombination.SHORTCUT_DOWN),
-                  () ->
-                  {
-
-                     // Edit linked to.
-
-                  });
-
         Panel panel = Panel.builder ()
             .title (this.object.nameProperty ())
             .content (this)

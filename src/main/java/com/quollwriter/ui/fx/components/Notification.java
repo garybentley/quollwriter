@@ -56,10 +56,14 @@ public class Notification extends HBox
         HBox h = new HBox ();
         h.getStyleClass ().add (StyleClassNames.ICONBOX);
         Pane p = new Pane ();
+        HBox.setHgrow (p,
+                       Priority.NEVER);
         p.getStyleClass ().add (builder.styleName + StyleClassNames.ICON_SUFFIX);
         p.getStyleClass ().add (StyleClassNames.ICON);
         h.getChildren ().add (p);
         h.managedProperty ().bind (h.visibleProperty ());
+        HBox.setHgrow (h,
+                       Priority.NEVER);
 
         this.getChildren ().add (h);
         //ImageView image = new ImageView ();
@@ -71,6 +75,9 @@ public class Notification extends HBox
                        Priority.ALWAYS);
 
        ToolBar toolbar = new ToolBar ();
+       HBox.setHgrow (toolbar,
+                      Priority.NEVER);
+
        this.getChildren ().add (toolbar);
        toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
 

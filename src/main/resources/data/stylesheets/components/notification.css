@@ -5,19 +5,24 @@
 .notification > .iconbox .icon {
     -fx-pref-width: 2em;
     -fx-pref-height: 2em;
+    -fx-min-width: 2em;
+    -fx-min-height: 2em;
     -fx-fill-height: false;
     -fx-alignment: center;
 }
 
 .notification > .iconbox .icon.readability-icon {
     -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
 }
 .notification > .iconbox .icon.tips-icon {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
 }
 .notification > .iconbox .icon.info-icon,
 .notification > .iconbox .icon.information-icon {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
 }
 
  .icon
@@ -47,7 +52,8 @@
  .controls .button > .iconbox .next-icon.icon {
      -fx-pref-width: 0.888em;
  }
- .controls .button > .iconbox .information-icon.icon {
+ .controls .button > .iconbox .information-icon.icon
+ {
      -fx-pref-width: 1.766em;
  }
 

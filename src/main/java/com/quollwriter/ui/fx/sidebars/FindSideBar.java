@@ -71,6 +71,16 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
 
         this.getChildren ().add (b);
 
+        String sel = this.viewer.getSelectedText ();
+
+        if (sel != null)
+        {
+
+            this.text.setText (sel);
+            this.search ();
+
+        }
+
     }
 
     private void handleKeyPress ()

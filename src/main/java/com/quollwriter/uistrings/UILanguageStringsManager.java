@@ -1341,6 +1341,20 @@ TODO
     }
 */
 
+public static BooleanBinding createBooleanBinding (Callable<Boolean> func,
+                                                   Observable...     deps)
+{
+
+    Set<Observable> _deps = new LinkedHashSet<> ();
+    _deps.add ((javafx.beans.Observable) UILanguageStringsManager.uilangProp);
+    _deps.add (Environment.objectTypeNameChangedProperty ());
+    _deps.addAll (Arrays.asList (deps));
+
+    return Bindings.createBooleanBinding (func,
+                                          _deps.toArray (new Observable[0]));
+
+}
+
     public static StringBinding createStringBinding (Callable<String> func,
                                                      Observable...    deps)
     {

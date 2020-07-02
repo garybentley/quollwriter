@@ -6,7 +6,6 @@ import java.util.stream.*;
 
 import javafx.collections.*;
 import javafx.scene.*;
-import javafx.embed.swing.*;
 import javafx.scene.image.*;
 import javafx.scene.control.*;
 import javafx.beans.property.*;

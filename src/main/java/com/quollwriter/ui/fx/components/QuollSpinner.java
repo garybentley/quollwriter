@@ -27,6 +27,7 @@ public class QuollSpinner extends Spinner<Integer>
 
         }
 
+        this.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
         this.setEditable (b.editable);
 
         this.setValueFactory (new SpinnerValueFactory.IntegerSpinnerValueFactory (b.min,

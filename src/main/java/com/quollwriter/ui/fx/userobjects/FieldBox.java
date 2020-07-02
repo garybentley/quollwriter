@@ -195,6 +195,13 @@ public class FieldBox extends VBox
     private Set<MenuItem> getViewContextMenuItems ()
     {
 
+        if (this.column == null)
+        {
+
+            return new HashSet<> ();
+
+        }
+
         Set<MenuItem> its = new LinkedHashSet<> ();
 
         its.add (QuollMenuItem.builder ()

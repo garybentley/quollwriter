@@ -8093,7 +8093,7 @@
             {
                 "title" : "Word Counts",
                 "valuepercent" : "%1$s / %2$s%%",
-                "helplink" : "Click to find out more about<br />the Readability indices",
+                "helplink" : "Click to find out more about the Readability indices",
                 "viewdetaillink" : "View Detail",
                 ":comment.valuepercent" : "This is used whenever a 'words with percentage' value is output, such as 1,000 / 10%.  %1$s is the number of words.  %2$s is the percentage.  The %% is needed to output a single %.",
                 ":scount.valuepercent" : 2,

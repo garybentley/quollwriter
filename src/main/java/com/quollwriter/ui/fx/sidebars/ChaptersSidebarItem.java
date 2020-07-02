@@ -423,7 +423,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                     .content (m)
                                     .removeOnClose (true)
                                     .build ();
-
+/*
                                 UIUtils.runLater (() ->
                                 {
 
@@ -437,15 +437,22 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                                     Side.RIGHT);
 
                                 });
-
+*/
                             },
                             750,
                             -1));
 
-/*
+                            String prevformat = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
+                                                                    Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
+
+                            StringProperty sp = new SimpleStringProperty ();
+                            sp.setValue (UIUtils.getChapterInfoPreview (c,
+                                                                        new StringWithMarkup (prevformat),
+                                                                        pv));
+
                             UIUtils.setTooltip (l,
                                                 sp);
-*/
+
                         } else {
 /*
                             UIUtils.setTooltip (l,

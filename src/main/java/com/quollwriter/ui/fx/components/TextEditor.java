@@ -562,7 +562,7 @@ TODO
 
                 this.suspendUndos.suspendWhile (() ->
                 {
-
+/*
                     this.getContent ().setStyleSpans (newv.getStart (),
                                                       this.getContent ().getStyleSpans (newv.getStart (),
                                                                                         newv.getEnd ()).mapStyles (ss ->
@@ -575,7 +575,7 @@ TODO
                         return _s;
 
                     }));
-
+*/
                     this.ignoreDocumentChange = false;
 
                 });
@@ -1893,6 +1893,7 @@ TODO
         });
         this.clearStyle (0, this.getText ().length ());
         this.setStyleSpans (0, newStyles);
+        this.requestLayout ();
 
     }
 
@@ -2054,7 +2055,7 @@ TODO
             this.suspendUndos.suspendWhile (() ->
             {
 
-                this.setLineHighlighterOn (newv);
+                //this.setLineHighlighterOn (newv);
                 this.ignoreDocumentChange = false;
 
             });
@@ -2085,7 +2086,7 @@ TODO
             {
 
                 this.updateTextStyle (style -> style.updateFontSize (props.getFontSize ()));
-                this.updateParagraphStyle (style -> style.updateFontSize (props.getFontSize ()));
+                //this.updateParagraphStyle (style -> style.updateFontSize (props.getFontSize ()));
 
                 this.ignoreDocumentChange = false;
 

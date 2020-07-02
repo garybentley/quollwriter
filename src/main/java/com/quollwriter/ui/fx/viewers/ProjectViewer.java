@@ -990,7 +990,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                                      UIUtils.forceRunLater (() ->
                                      {
-                                         System.out.println ("HERE1");
+
                                      pc.showItem (ci,
                                                   false);
 });
@@ -998,12 +998,14 @@ public class ProjectViewer extends AbstractProjectViewer
 
                                     pc.readyForUseProperty ().addListener ((pr, oldv, nev) ->
                                     {
-UIUtils.forceRunLater (() ->
-{
-    System.out.println ("HERE2");
-                                        pc.showItem (ci,
-                                                     false);
-});
+
+                                        UIUtils.forceRunLater (() ->
+                                        {
+
+                                            pc.showItem (ci,
+                                                         false);
+                                        });
+                                        
                                     });
 
                                 }

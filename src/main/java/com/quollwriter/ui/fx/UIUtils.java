@@ -2028,7 +2028,7 @@ public class UIUtils
                                                 StringWithMarkup      format,
                                                 AbstractProjectViewer viewer)
     {
-long s = System.currentTimeMillis ();
+
         // If there is no key or null chapter then return.
         if ((c == null)
             ||
@@ -2055,8 +2055,7 @@ long s = System.currentTimeMillis ();
             //"Not yet edited.";
 
         }
-System.out.println ("TOOK1: " + (System.currentTimeMillis () - s));
-s = System.currentTimeMillis ();
+
         // TODO
         String text = format.getText ();
 
@@ -2098,8 +2097,6 @@ s = System.currentTimeMillis ();
             descFirstLine = new TextIterator (desc).getFirstSentence ().getText ();
 
         }
-        System.out.println ("TOOK2: " + (System.currentTimeMillis () - s));
-        s = System.currentTimeMillis ();
 
         String chapText = viewer.getCurrentChapterText (c);
 
@@ -2151,7 +2148,7 @@ s = System.currentTimeMillis ();
         {
 
             // Get the current text instead.
-            cc = new ChapterCounts (c.getChapterText ());
+            //cc = new ChapterCounts (c.getChapterText ());
 
         }
 
@@ -2199,8 +2196,6 @@ s = System.currentTimeMillis ();
             ep = 0;
 
         }
-        System.out.println ("TOOK4: " + (System.currentTimeMillis () - s));
-        s = System.currentTimeMillis ();
 
         text = StringUtils.replaceString (text,
                                           Constants.EDIT_COMPLETE_TAG,
@@ -2210,14 +2205,12 @@ s = System.currentTimeMillis ();
 
         if (text.contains (Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG))
         {
-            System.out.println ("TOOK5.11: " + (System.currentTimeMillis () - s));
-            s = System.currentTimeMillis ();
 
             text = StringUtils.replaceString (text,
                                               Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG,
                                               String.format (getUIString (project,sidebar,chapters,preview,problemcount),
                                                             //"%s problems",
-                                                             Environment.formatNumber (viewer.getProblems (c).size ())));
+                                                             Environment.formatNumber (cc.getProblemFinderProblemsCount ())));
 
         }
 
@@ -2228,15 +2221,13 @@ s = System.currentTimeMillis ();
                                               Constants.SPELLING_ERROR_COUNT_TAG,
                                               String.format (getUIString (project,sidebar,chapters,preview,spellingcount),
                                                             //"%s spelling errors",
-                                                             Environment.formatNumber (viewer.getSpellingErrors (c).size ())));
-         System.out.println ("TOOK5.13: " + (System.currentTimeMillis () - s));
-         s = System.currentTimeMillis ();
+                                                             Environment.formatNumber (cc.getSpellingErrorCount ())));
+                                                             //viewer.getSpellingErrors (c).size ())));
 
         }
 
-        ReadabilityIndices ri = viewer.getReadabilityIndices (c);
-        System.out.println ("TOOK5.2: " + (System.currentTimeMillis () - s));
-        s = System.currentTimeMillis ();
+        ReadabilityIndices ri = cc.getReadabilityIndices ();
+        //viewer.getReadabilityIndices (c);
 
         if (ri == null)
         {
@@ -2247,8 +2238,6 @@ s = System.currentTimeMillis ();
         }
 
         String na = getUIString (project,sidebar,chapters,preview,notapplicable);
-        System.out.println ("TOOK5: " + (System.currentTimeMillis () - s));
-        s = System.currentTimeMillis ();
 
         String GL = na; //"N/A";
         String RE = na; //"N/A";

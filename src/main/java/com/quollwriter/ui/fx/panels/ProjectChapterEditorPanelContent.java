@@ -354,6 +354,45 @@ TODO
 
                                              }));
 
+        Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.S, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                 this.viewer.createNewScene (this.object,
+                                                                             this.editor.getCaretPosition ());
+
+                                             }));
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.O, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                  this.viewer.createNewOutlineItem (this.object,
+                                                                                    this.editor.getCaretPosition ());
+
+                                             }));
+        Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.E, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                   this.viewer.createNewEditNeededNote (this.object,
+                                                                                        this.editor.getCaretPosition ());
+
+                                             }));
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.N, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                   this.viewer.createNewNote (this.object,
+                                                                              this.editor.getCaretPosition ());
+
+                                             }));
+
         this.addChangeListener (this.viewer.projectSpellCheckLanguageProperty (),
                                 (v, oldv, newv) ->
         {
@@ -438,7 +477,7 @@ TODO
                  () ->
                  {
 
-                     this.runCommand (ProjectViewer.CommandId.showwordcounts);
+                     this.viewer.runCommand (ProjectViewer.CommandId.showwordcounts);
 
                  });
 
@@ -731,7 +770,7 @@ TODO
     {
 
         int s = this.editor.getVisibleParagraphs ().size ();
-        
+
         IntStream.range (0,
                          s)
             .forEach (i ->
@@ -1149,7 +1188,8 @@ TODO
 
                     })
                     .build ());
-
+/*
+TODO
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix,print,text)))
                     .styleClassName (StyleClassNames.PRINT)
@@ -1164,7 +1204,7 @@ TODO
 
                     })
                     .build ());
-
+*/
                 return items;
 
             })
@@ -2343,15 +2383,12 @@ TODO
                 .build ());
 
             if ((this.editor.getCaretPosition () > 0)
-            // TODO (this.editor.getCaret ().getDot () > 0)
                 ||
                 (this.editor.getSelection ().getStart () > 0)
-                // TODO (this.editor.getSelectionStart () > 0)
                )
             {
 
                 if (this.editor.getCaretPosition () < this.editor.getTextWithMarkup ().getText ().length ())
-               // TODO if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
                {
 
                    row1.add (QuollButton.builder ()
@@ -2546,15 +2583,12 @@ TODO
             Set<MenuItem> citems = new LinkedHashSet<> ();
 
             if ((this.editor.getCaretPosition () > 0)
-                // TODO (this.editor.getCaret ().getDot () > 0)
                 ||
                 (this.editor.getSelection ().getStart () > 0)
-                // TODO (this.editor.getSelectionStart () > 0)
                )
             {
 
                 if (this.editor.getCaretPosition () < this.editor.getTextWithMarkup ().getText ().length ())
-               // TODO if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
                {
 
                    citems.add (QuollMenuItem.builder ()
@@ -2716,6 +2750,8 @@ TODO?
 
             List<String> mprefix = Arrays.asList (project,editorpanel,popupmenu,_new,items);
 
+            int cpos = (pos > -1 ? pos : this.editor.getCaretPosition ());
+
             citems.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (mprefix, com.quollwriter.data.Scene.OBJECT_TYPE,text)))
                 .styleClassName (com.quollwriter.data.Scene.OBJECT_TYPE)
@@ -2725,7 +2761,7 @@ TODO?
                 {
 
                     this.viewer.createNewScene (this.object,
-                                                this.editor.getCaretPosition ());
+                                                cpos);
 
                 })
                 .build ());
@@ -2739,7 +2775,7 @@ TODO?
                 {
 
                     this.viewer.createNewOutlineItem (this.object,
-                                                      this.editor.getCaretPosition ());
+                                                      cpos);
 
                 })
                 .build ());
@@ -2752,7 +2788,7 @@ TODO?
                 {
 
                     this.viewer.createNewNote (this.object,
-                                               this.editor.getCaretPosition ());
+                                               cpos);
 
                 })
                 .build ());
@@ -2765,7 +2801,7 @@ TODO?
                 {
 
                     this.viewer.createNewEditNeededNote (this.object,
-                                                         this.editor.getCaretPosition ());
+                                                         cpos);
 
                 })
                 .build ());

@@ -232,6 +232,12 @@ public class ParagraphIconMargin extends Pane
 
                 Set<MenuItem> items = new LinkedHashSet<> ();
 
+                int pos = this.editor.getTextPositionForMousePosition (0,
+                                                                       ev.getY ());
+                pos = this.editor.getTextPositionForCurrentMousePosition ();
+
+                int cpos = (pos > -1 ? pos : this.editor.getCaretPosition ());
+
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE)))
                     .styleClassName (StyleClassNames.SCENE)
@@ -242,8 +248,7 @@ public class ParagraphIconMargin extends Pane
                     {
 
                         this.viewer.createNewScene (this.chapter,
-                                                    this.editor.getTextPositionForMousePosition (0,
-                                                                                                 ev.getY ()));
+                                                    cpos);
 
                     })
                     .build ());
@@ -258,8 +263,7 @@ public class ParagraphIconMargin extends Pane
                     {
 
                         this.viewer.createNewOutlineItem (this.chapter,
-                                                          this.editor.getTextPositionForMousePosition (0,
-                                                                                                       ev.getY ()));
+                                                          cpos);
 
                     })
                     .build ());
@@ -274,8 +278,7 @@ public class ParagraphIconMargin extends Pane
                     {
 
                         this.viewer.createNewNote (this.chapter,
-                                                   this.editor.getTextPositionForMousePosition (0,
-                                                                                                ev.getY ()));
+                                                   cpos);
 
                     })
                     .build ());
@@ -290,8 +293,7 @@ public class ParagraphIconMargin extends Pane
                     {
 
                         this.viewer.createNewEditNeededNote (this.chapter,
-                                                             this.editor.getTextPositionForMousePosition (0,
-                                                                                                          ev.getY ()));
+                                                             cpos);
 
                     })
                     .build ());

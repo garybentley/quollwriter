@@ -15,7 +15,6 @@ import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.scene.layout.*;
-import javafx.embed.swing.*;
 import javafx.scene.image.*;
 
 import com.gentlyweb.xml.*;

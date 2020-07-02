@@ -10,6 +10,8 @@ import com.quollwriter.*;
 
 import com.quollwriter.text.*;
 
+import com.quollwriter.ui.fx.UIUtils;
+
 public class ReadabilityIndices
 {
 
@@ -99,6 +101,18 @@ public class ReadabilityIndices
         */
     }
 
+    public void updateFrom (ReadabilityIndices ri)
+    {
+
+        this.wordCount = ri.getWordCount ();
+        this.sentenceCount = ri.sentenceCount;
+        this.syllableCount = ri.syllableCount;
+        this.threeSyllableWordCount = ri.threeSyllableWordCount;
+
+        this.update ();
+
+    }
+
     private void update ()
     {
 
@@ -117,9 +131,14 @@ public class ReadabilityIndices
 
         }
 
-        this.fkglProp.setValue (this.fkgl);
-        this.freProp.setValue (this.fre);
-        this.gfiProp.setValue (this.gfi);
+        UIUtils.runLater (() ->
+        {
+
+            this.fkglProp.setValue (this.fkgl);
+            this.freProp.setValue (this.fre);
+            this.gfiProp.setValue (this.gfi);
+
+        });
 
     }
 

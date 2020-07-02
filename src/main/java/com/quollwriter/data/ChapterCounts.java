@@ -15,16 +15,33 @@ public class ChapterCounts
     private IntegerProperty wordCountProp = null;
     private IntegerProperty sentenceCountProp = null;
     private IntegerProperty standardPageCountProp = null;
+    private IntegerProperty paragraphCountProp = null;
     private int     sentenceCount = 0;
     private int     standardPageCount = 0;
+    private int     paragraphCount = 0;
+    private int spellingErrorCount = 0;
     public Map<String, Integer> wordFrequency = null;
+    private ObjectProperty<ReadabilityIndices> readabilityIndicesProp = null;
+    private IntegerProperty spellingErrorCountProp = null;
+    private int problemFinderProblemsCount = 0;
+    private IntegerProperty problemFinderProblemsCountProp = null;
 
     public ChapterCounts ()
     {
 
-        this.wordCountProp = new SimpleIntegerProperty (this.wordCount);
-        this.sentenceCountProp = new SimpleIntegerProperty (this.sentenceCount);
-        this.standardPageCountProp = new SimpleIntegerProperty (this.standardPageCount);
+        this.wordCountProp = new SimpleIntegerProperty (0);
+        //this.wordCount);
+        this.sentenceCountProp = new SimpleIntegerProperty (0);
+        //this.sentenceCount);
+        this.standardPageCountProp = new SimpleIntegerProperty (0);
+        this.paragraphCountProp = new SimpleIntegerProperty (0);
+        //this.standardPageCount);
+        this.standardPageCountProp = new SimpleIntegerProperty (0);
+        this.readabilityIndicesProp = new SimpleObjectProperty<> (null);
+        this.spellingErrorCountProp = new SimpleIntegerProperty (0);
+        this.readabilityIndicesProp.setValue (new ReadabilityIndices ());
+        this.problemFinderProblemsCountProp = new SimpleIntegerProperty (0);
+        //this.paragraphCount);
 
     }
 
@@ -36,12 +53,94 @@ public class ChapterCounts
         {
 
             TextIterator ti = new TextIterator (t);
-
             this.setWordCount (ti.getWordCount ());
             this.setSentenceCount (ti.getSentenceCount ());
+            this.setParagraphCount (ti.getParagraphCount ());
             this.wordFrequency = ti.getWordFrequency ();
 
         }
+
+    }
+
+    public void setProblemFinderProblemsCount (int v)
+    {
+
+        this.problemFinderProblemsCount = v;
+
+        UIUtils.runLater (() ->
+        {
+
+            this.problemFinderProblemsCountProp.setValue (v);
+
+        });
+
+    }
+
+    public IntegerProperty problemFinderProblemsCountProperty ()
+    {
+
+        return this.problemFinderProblemsCountProp;
+
+    }
+
+    public int getProblemFinderProblemsCount ()
+    {
+
+        return this.problemFinderProblemsCount;
+
+    }
+
+    public void setSpellingErrorCount (int v)
+    {
+
+        this.spellingErrorCount = v;
+
+        UIUtils.runLater (() ->
+        {
+
+            this.spellingErrorCountProp.setValue (v);
+
+        });
+
+    }
+
+    public int getSpellingErrorCount ()
+    {
+
+        return this.spellingErrorCount;
+
+    }
+
+    public IntegerProperty spellingErrorCountProp ()
+    {
+
+        return this.spellingErrorCountProp;
+
+    }
+
+    public void setReadabilityIndices (ReadabilityIndices ri)
+    {
+
+        UIUtils.runLater (() ->
+        {
+
+            this.readabilityIndicesProp.setValue (ri);
+
+        });
+
+    }
+
+    public ReadabilityIndices getReadabilityIndices ()
+    {
+
+        return this.readabilityIndicesProp.getValue ();
+
+    }
+
+    public ObjectProperty<ReadabilityIndices> readabilityIndicesProperty ()
+    {
+
+        return this.readabilityIndicesProp;
 
     }
 
@@ -49,7 +148,6 @@ public class ChapterCounts
     {
 
         this.wordCount = c;
-
         UIUtils.runLater (() ->
         {
 
@@ -129,16 +227,44 @@ public class ChapterCounts
 
     }
 
+    public int getParagraphCount ()
+    {
+
+        return this.paragraphCount;
+
+    }
+
+    public IntegerProperty paragraphCountProperty ()
+    {
+
+        return this.paragraphCountProp;
+
+    }
+
+    public void setParagraphCount (int v)
+    {
+
+        this.paragraphCount = v;
+        UIUtils.runLater (() ->
+        {
+
+            this.paragraphCountProp.setValue (v);
+
+        });
+
+    }
+
     public void add (ChapterCounts c)
     {
 
         //this.chapter = null;
-        this.wordCount += c.wordCount;
-        this.setWordCount (this.wordCount);
-        this.sentenceCount += c.sentenceCount;
-        this.setSentenceCount (this.sentenceCount);
-        this.standardPageCount += c.standardPageCount;
-        this.setStandardPageCount (this.standardPageCount);
+        //this.wordCount += c.wordCount;
+        this.setWordCount (this.getWordCount () + c.getWordCount ());
+        //this.sentenceCount += c.sentenceCount;
+        this.setSentenceCount (this.getSentenceCount () + c.getSentenceCount ());
+        //this.standardPageCount += c.standardPageCount;
+        this.setStandardPageCount (this.getStandardPageCount () + c.getStandardPageCount ());
+        this.setSpellingErrorCount (this.getSpellingErrorCount () + c.getSpellingErrorCount ());
 
         if (this.wordFrequency == null)
         {

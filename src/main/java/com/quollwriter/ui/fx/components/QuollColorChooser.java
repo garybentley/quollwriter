@@ -379,9 +379,15 @@ public class QuollColorChooser extends VBox
 
             this.ignoreUpdates = true;
 
-            this.colorProp.setValue (Color.rgb (this.red.valueProp.getValue (),
-                                                this.green.valueProp.getValue (),
-                                                this.blue.valueProp.getValue ()));
+            this.colorProp.setValue (Color.rgb (Utils.clamp (this.red.valueProp.getValue (),
+                                                             0,
+                                                             255),
+                                                Utils.clamp (this.green.valueProp.getValue (),
+                                                             0,
+                                                             255),
+                                                Utils.clamp (this.blue.valueProp.getValue (),
+                                                             0,
+                                                             255)));
             this.hex.setText (UIUtils.colorToHex (this.colorProp.getValue ()));
 
         } finally {
@@ -414,9 +420,7 @@ public class QuollColorChooser extends VBox
                                       max,
                                       initialValue);
 
-            Spinner<Integer> spinner = new Spinner<> (min,
-                                                      max,
-                                                      initialValue);
+            Spinner<Integer> spinner = new Spinner<> (new SpinnerValueFactory.IntegerSpinnerValueFactory (min, max, initialValue));
 
             spinner.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
             spinner.setEditable (true);

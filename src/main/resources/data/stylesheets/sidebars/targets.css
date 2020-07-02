@@ -26,8 +26,9 @@ HBox {
     -fx-alignment: center-left;
 }
 .spinner {
-    -fx-pref-width: 7em;
-    -fx-max-width: 7em;
+    -fx-pref-width: 9em;
+    -fx-max-width: 9em;
+    -fx-min-width: 9em;
 }
 .form.column .control .label {
     -fx-padding: 0 0 0 0.5em;
@@ -39,4 +40,8 @@ HBox {
     -fx-padding: 0.5em 0.5em 0.5em 0em;
     /*-fx-graphic: url(/imgs/chart16.png);*/
     -fx-graphic-text-gap: 0.5em;
+}
+.scroll-pane
+{
+    -fx-fit-to-width: false;
 }

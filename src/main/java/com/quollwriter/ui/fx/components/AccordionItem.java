@@ -10,7 +10,7 @@ import javafx.scene.control.*;
 
 import javafx.util.*;
 import javafx.animation.*;
-import animatefx.animation.*;
+//import animatefx.animation.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;

@@ -65,6 +65,7 @@ public class ChaptersOverWordCountTargetPopup extends PopupContent<AbstractProje
 
             gp.add (QuollHyperlink.builder ()
                 .label (c.nameProperty ())
+                .styleClassName (StyleClassNames.CHAPTER)
                 .tooltip (getUILanguageStringProperty (actions,clicktoview))
                 .onAction (ev ->
                 {
