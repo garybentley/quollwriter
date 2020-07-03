@@ -44,7 +44,7 @@ public class ReportBugPopup extends PopupContent
             //.autoGrabFocus (true)
             .spellCheckEnabled (true)
             .styleClassName (StyleClassNames.DESCRIPTION)
-            .dictionaryProvider (UserProperties.getUITextDictionaryProvider ())
+            //.dictionaryProvider (UserProperties.getUITextDictionaryProvider ())
             .build ();
 
         javafx.scene.layout.VBox.setVgrow (this.desc,

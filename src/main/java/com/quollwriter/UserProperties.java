@@ -589,17 +589,17 @@ public class UserProperties
         });
 
         // TODO Make this configurable
-        UserProperties.uiTextDictionaryProv = new UserDictionaryProvider (Constants.ENGLISH);
+        //UserProperties.uiTextDictionaryProv = new UserDictionaryProvider (Constants.ENGLISH);
 
     }
-
+/*
     public static UserDictionaryProvider getUITextDictionaryProvider ()
     {
 
         return UserProperties.uiTextDictionaryProv;
 
     }
-
+*/
     public static void setPlaySoundOnKeyStroke (boolean v)
     {
 
@@ -617,7 +617,7 @@ public class UserProperties
 
             try
             {
-System.out.println ("URI: "+ Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
+
                 p = Utils.getAsPath (Utils.getResourceUrl (Constants.DEFAULT_KEY_STROKE_SOUND_FILE).toURI ());
 
             } catch (Exception e) {
