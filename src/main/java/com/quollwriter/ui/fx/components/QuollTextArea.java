@@ -65,6 +65,22 @@ public class QuollTextArea extends VBox
         VBox.setVgrow (this.text,
                        Priority.ALWAYS);
 
+         Nodes.addInputMap (this.text,
+                            InputMap.process (EventPattern.mousePressed (),
+                                              ev ->
+                                              {
+
+                                                 if (ev.isPopupTrigger ())
+                                                 {
+
+                                                     this.setContextMenu (b.viewer);
+
+                                                 }
+
+                                                 return InputHandler.Result.PROCEED;
+
+                                              }));
+
         Nodes.addInputMap (this.text,
                            InputMap.process (EventPattern.mouseReleased (),
                                               ev ->
@@ -73,48 +89,7 @@ public class QuollTextArea extends VBox
                                                   if (ev.isPopupTrigger ())
                                                   {
 
-                                                      ContextMenu cm = new ContextMenu ();
-                                                      Set<MenuItem> its = this.text.getSpellingSynonymItemsForContextMenu (b.viewer);
-
-                                                      cm.getItems ().addAll (its);
-
-                                                      MenuItem eit = this.text.getCompressedEditItemsForContextMenu ();
-                                                      MenuItem fit = this.text.getCompressedFormatItemsForContextMenu ();
-
-                                                      if ((eit != null)
-                                                          ||
-                                                          (fit != null)
-                                                         )
-                                                      {
-
-                                                          if (its.size () > 0)
-                                                          {
-
-                                                              //cm.getItems ().add (new SeparatorMenuItem ());
-
-                                                          }
-
-                                                      }
-
-                                                      if (eit != null)
-                                                      {
-
-                                                          cm.getItems ().add (eit);
-
-                                                      }
-
-                                                      if (fit != null)
-                                                      {
-
-                                                          cm.getItems ().add (fit);
-
-                                                      }
-                                              /*
-                                                      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
-
-                                                      cm.getItems ().addAll (this.getContextMenuItems (compress));
-                                              */
-                                                      this.text.setContextMenu (cm);
+                                                      this.setContextMenu (b.viewer);
 
                                                   }
 
@@ -196,6 +171,54 @@ public class QuollTextArea extends VBox
                        Priority.ALWAYS);
 
         this.getChildren ().addAll (n, this.maxlabel);
+
+    }
+
+    private void setContextMenu (AbstractViewer viewer)
+    {
+
+        ContextMenu cm = new ContextMenu ();
+        Set<MenuItem> its = this.text.getSpellingSynonymItemsForContextMenu (viewer);
+
+        cm.getItems ().addAll (its);
+
+        MenuItem eit = this.text.getCompressedEditItemsForContextMenu ();
+        MenuItem fit = this.text.getCompressedFormatItemsForContextMenu ();
+
+        if ((eit != null)
+            ||
+            (fit != null)
+           )
+        {
+
+            if (its.size () > 0)
+            {
+
+                //cm.getItems ().add (new SeparatorMenuItem ());
+
+            }
+
+        }
+
+        if (eit != null)
+        {
+
+            cm.getItems ().add (eit);
+
+        }
+
+        if (fit != null)
+        {
+
+            cm.getItems ().add (fit);
+
+        }
+/*
+        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+
+        cm.getItems ().addAll (this.getContextMenuItems (compress));
+*/
+        this.text.setContextMenu (cm);
 
     }
 

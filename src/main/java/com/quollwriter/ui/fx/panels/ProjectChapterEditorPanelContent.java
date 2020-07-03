@@ -317,16 +317,24 @@ TODO
 
                                              }));
 
-        Nodes.addInputMap (this.editor,
-                           InputMap.process (EventPattern.mousePressed (),
-                                             ev ->
-                                             {
+       Nodes.addInputMap (this.editor,
+                          InputMap.process (EventPattern.mousePressed (),
+                                            ev ->
+                                            {
 
-                                                 this.hidePopups ();
+                                               this.hidePopups ();
 
-                                                  return InputHandler.Result.PROCEED;
+                                               // TODO Handle right click on chapter items in margin.
+                                               if (ev.isPopupTrigger ())
+                                               {
 
-                                             }));
+                                                   this.setContextMenu ();
+
+                                               }
+
+                                               return InputHandler.Result.PROCEED;
+
+                                           }));
 
         Nodes.addInputMap (this.editor,
                            InputMap.process (EventPattern.mouseReleased (),
