@@ -231,6 +231,7 @@ run {
 }
 
 task copyToLib(type: Copy) {
+    delete "$buildDir/libs"
     into "$buildDir/libs"
     from configurations.runtimeClasspath
 }
