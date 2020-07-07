@@ -63,6 +63,20 @@
      -fx-font-size: 1.5em;
      -fx-padding: 0 1em 0 0;
  }
+
+.fullscreen .information .label .iconbox,
+.fullscreen .information .label .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.fullscreen .information .label .iconbox .icon.chapter-icon
+{
+    -fx-pref-width: 1em;
+}
+
 /*
  .fullscreen .information .label.session
  {
