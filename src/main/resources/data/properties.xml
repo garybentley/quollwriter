@@ -541,7 +541,7 @@ Removed so that the full screen properties will inherit from the standard editor
 
   <property id="autoSendErrorsToSupport" type="boolean">
     <description>Whether errors should be automatically sent to quoll writer support.</description>
-    <value>false</value>
+    <value>true</value>
   </property>
 
   <property id="showQuickObjectPreviewInProjectSidebar" type="boolean">
