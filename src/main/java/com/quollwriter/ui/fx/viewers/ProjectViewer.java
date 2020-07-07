@@ -110,7 +110,16 @@ public class ProjectViewer extends AbstractProjectViewer
 
             Chapter _c = c;
 
-            UIUtils.showDeleteObjectPopup (getUILanguageStringProperty (LanguageStrings.project,actions,deletechapter,deletetype),
+            String pid = "chapterdelete" + c.getObjectReference ().asString ();
+
+            if (this.getPopupById (pid) != null)
+            {
+
+                return;
+
+            }
+
+            QuollPopup qp = UIUtils.showDeleteObjectPopup (getUILanguageStringProperty (LanguageStrings.project,actions,deletechapter,deletetype),
                                            c.nameProperty (),
                                            StyleClassNames.DELETE,
                                            getUILanguageStringProperty (LanguageStrings.project,actions,deletechapter,warning),
@@ -122,6 +131,8 @@ public class ProjectViewer extends AbstractProjectViewer
                                            },
                                            null,
                                            this);
+
+            qp.setPopupId (pid);
 
         },
         CommandId.deletechapter));
