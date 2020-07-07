@@ -53,6 +53,7 @@ public class NoProjectsPanel extends PanelContent<AbstractViewer>
             .title (title)
             .content (this)
             .styleClassName (StyleClassNames.NOPROJECTS)
+            .styleSheet (StyleClassNames.NOPROJECTS)
             .panelId (PANEL_ID)
             // TODO .headerControls ()
             .toolbar (() ->

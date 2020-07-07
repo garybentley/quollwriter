@@ -1,0 +1,69 @@
+/*
+ * Used by: com.quollwriter.ui.fx.popups.AchievementsPopup
+ */
+.header .iconbox .iconbox,
+.header .iconbox .icon
+{
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 0.888em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.achievement
+{
+    -fx-border-width: 1px 0 0px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em 0 0 0;
+}
+
+.achievement:first
+{
+    -fx-border-width: 0;
+}
+
+.achievement .title
+{
+    -fx-font-size: 1.3em;
+    -fx-padding: -0.3em 0 0 0.75em;
+    -fx-alignment: top-left;
+}
+
+.achievement .description
+{
+    -fx-padding: 0.25em 0.5em 0.5em 1em;
+}
+
+.achievement .iconbox,
+.achievement .iconbox .icon {
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.achievement .iconbox .eye-icon.icon {
+    -fx-pref-height: 1.666em;
+}
+.achievement .iconbox .help-icon.icon {
+    -fx-pref-width: 1em;
+}
+.achievement .iconbox .warning-icon.icon {
+    -fx-pref-width: 0.375em;
+}
+.achievement .iconbox .move-icon.icon {
+    -fx-pref-height: 1.5em;
+}
+.achievement .iconbox .ideaboard-icon.icon,
+.achievement .iconbox .idea-icon.icon {
+    -fx-pref-width: 1.333em;
+}
+.achievement .iconbox .bold-icon.icon {
+    -fx-pref-width: 1.65em;
+}
+.achievement .iconbox .comment-icon.icon {
+    -fx-pref-width: 1.75em;
+}
+.achievement .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1.5em;
+}

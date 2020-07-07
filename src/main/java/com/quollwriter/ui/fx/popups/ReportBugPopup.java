@@ -42,7 +42,7 @@ public class ReportBugPopup extends PopupContent
             .maxChars (10000)
             .withViewer (viewer)
             //.autoGrabFocus (true)
-            .spellCheckEnabled (true)
+            // TODO .spellCheckEnabled (true)
             .styleClassName (StyleClassNames.DESCRIPTION)
             //.dictionaryProvider (UserProperties.getUITextDictionaryProvider ())
             .build ();
@@ -208,7 +208,12 @@ public class ReportBugPopup extends PopupContent
                            ev ->
         {
 
-            p.requestFocus ();
+            UIUtils.forceRunLater (() ->
+            {
+
+                this.desc.requestFocus ();
+                
+            });
 
         });
 

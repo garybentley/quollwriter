@@ -1005,7 +1005,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                             pc.showItem (ci,
                                                          false);
                                         });
-                                        
+
                                     });
 
                                 }

@@ -45,7 +45,6 @@
 
 .accordion.asset .header .iconbox .icon {
     -fx-pref-width: 1.333em;
-    -fx-shape: null;
 }
 
 .accordion .label.outlineitem .iconbox,
@@ -72,23 +71,13 @@
 }
 
 .accordion .header .controls { visibility: hidden; }
-/*.accordion.notes .header .icon { -fx-image: url(/imgs/note16.png); }*/
-/*.accordion.asset.character .header .icon { -fx-image: url(/imgs/character16.png); }*/
-.accordion.asset .cell .label { -fx-content-display: text-only; }
-/*
-.accordion.notes .tree .cell .label.note,
-.accordion.notes .tree .cell .label.editneedednote { -fx-graphic: url(/imgs/bullet16.png); }
-*/
-/*.accordion.notes .tree .cell .label.chapter { -fx-graphic: url(/imgs/chapter16.png); }*/
-/*.accordion.chapter .header .icon { -fx-image: url(/imgs/chapter16.png); }*/
-/*.accordion.tag .header .icon { -fx-image: url(/imgs/tag16.png); }*/
+/*.accordion.asset .cell .label { -fx-content-display: text-only; }*/
 .accordion .tree .cell { -fx-cursor: hand; }
 .accordion .tree .cell .label:dragover { -fx-background-color: -qw-hover-bg; }
 .accordion .tree .cell .label:dragging {
     -fx-background-color: -qw-hover-bg;
     -fx-opacity: 0.5;
 }
-/*.accordion.chapter .tree .cell .chapter:editposition { -fx-graphic: url(/imgs/edit-in-progress16.png); }*/
 .accordion.chapter .tree .cell > .label.chapter:editcomplete .iconbox,
 .accordion.chapter .tree .cell > .label.chapter:editcomplete .iconbox .editcomplete-icon,
 .accordion.chapter .tree .cell > .label.chapter:editposition .iconbox,
@@ -102,14 +91,6 @@
     -fx-alignment: center;
 }
 
-
-/*.accordion.chapter .label.outlineitem { -fx-graphic: url(/imgs/outlineitem16.png); }*/
-/*.accordion.chapter .label.scene { -fx-graphic: url(/imgs/scene16.png); }*/
-/*.accordion.chapter .label.notes { -fx-graphic: url(/imgs/note16.png); }*/
-/*
-.accordion.chapter .label.note { -fx-graphic: url(/imgs/bullet16.png); }
-.accordion.chapter .label.editneedednote { -fx-graphic: url(/imgs/edit16.png); }
-*/
 .items { -fx-padding: 0 0.5em 0 0; }
 .toolbar .tool-bar { -fx-padding: 0.2em; }
 .toolbar:bottom {
@@ -138,28 +119,5 @@
 .toolbar .button > .iconbox .spellcheckoff-icon.icon {
     -fx-pref-height: 1.3em;
 }
-/*.toolbar .save { -fx-graphic: url(/imgs/save20.png); }*/
-/*.toolbar .new { -fx-graphic: url(/imgs/add20.png); }*/
-/*.toolbar .tag { -fx-graphic: url(/imgs/tag20.png); }*/
 .toolbar .help { -fx-graphic: url(/imgs/help20.png); }
-/*.toolbar .info { -fx-graphic: url(/imgs/information20.png); }*/
-/*.toolbar .wordcount { -fx-graphic: url(/imgs/wordcount20.png); }*/
-/*
-.toolbar .spellcheck:enabled { -fx-graphic: url(/imgs/spellchecker-turn-off20.png); }
-.toolbar .spellcheck:disabled { -fx-graphic: url(/imgs/spellchecker-turn-on20.png); -fx-opacity: 1; }
-*/
-/*.toolbar .delete { -fx-graphic: url(/imgs/delete20.png); }*/
-/*
-.toolbar .tools { -fx-graphic: url(/imgs/tools20.png); }
-.toolbar .selectbg { -fx-graphic: url(/imgs/selectbg20.png); }
-.toolbar .add { -fx-graphic: url(/imgs/add20.png); }
-*/
-/*.toolbar .config { -fx-graphic: url(/imgs/edit-properties20.png); }*/
-/*.toolbar .edit { -fx-graphic: url(/imgs/edit20.png); }*/
-/*.toolbar .appearsinchapters { -fx-graphic: url(/imgs/sendout20.png); }*/
 .toolbar .button { -fx-content-display: graphic-only; }
-/*.accordion.tag .tree .cell .label.chapter { -fx-graphic: url(/imgs/chapter16.png); }*/
-/*
-.accordion.tag .tree .cell .label.note { -fx-graphic: url(/imgs/note16.png); }
-.accordion.tag .tree .cell .label.editneedednote { -fx-graphic: url(/imgs/edit16.png); }
-*/

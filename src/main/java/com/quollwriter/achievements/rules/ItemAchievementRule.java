@@ -8,7 +8,8 @@ import com.gentlyweb.utils.*;
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.data.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 public class ItemAchievementRule extends AbstractAchievementRule
 {
@@ -94,7 +95,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
         if (!act.equals (""))
         {
 
-            this.eventIds.add (this.objType + act.toLowerCase ());
+            this.eventIds.add (this.objType + "." + act.toLowerCase ());
 
         }
 
@@ -141,6 +142,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean achieved (AbstractProjectViewer viewer,
                              ProjectEvent          ev)
                              throws                Exception
@@ -150,6 +152,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean achieved (ProjectEvent          ev)
     {
 
@@ -157,6 +160,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean achieved (AbstractProjectViewer viewer)
                              throws                Exception
     {
@@ -189,6 +193,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public void init (Element root)
     {
 
@@ -196,6 +201,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public void fillState (Element root)
     {
 

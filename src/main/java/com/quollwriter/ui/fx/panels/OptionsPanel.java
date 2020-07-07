@@ -29,10 +29,11 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
     {
 
         super (viewer);
-long ss = System.currentTimeMillis ();
+
         Header h = Header.builder ()
             .title (getUILanguageStringProperty (LanguageStrings.options,title))
             .styleClassName (StyleClassNames.MAIN)
+            .iconClassName (StyleClassNames.OPTIONS)            
             .controls (headerControls)
             .build ();
 

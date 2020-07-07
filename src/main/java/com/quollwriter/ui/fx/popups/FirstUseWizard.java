@@ -176,6 +176,7 @@ public class FirstUseWizard extends PopupContent
             .onCancel (ev ->
             {
 
+                Environment.showAllProjectsViewer ();
                 this.close ();
 
             })
@@ -1888,6 +1889,7 @@ System.out.println ("HERE2");
             .title (firstusewizard,title)
             .styleClassName (StyleClassNames.FIRSTUSEWIZARD)
             .styleSheet (StyleClassNames.FIRSTUSEWIZARD)
+            .headerIconClassName (StyleClassNames.QW)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

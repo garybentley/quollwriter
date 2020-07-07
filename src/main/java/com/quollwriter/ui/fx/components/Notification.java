@@ -65,33 +65,13 @@ public class Notification extends HBox
         HBox.setHgrow (h,
                        Priority.NEVER);
 
-        this.getChildren ().add (h);
-        //ImageView image = new ImageView ();
-        //image.getStyleClass ().add (StyleClassNames.ICON);
-        //this.getChildren ().add (image);
         builder.content.getStyleClass ().add (StyleClassNames.CONTENT);
-        this.getChildren ().add (builder.content);
         HBox.setHgrow (builder.content,
                        Priority.ALWAYS);
 
-       ToolBar toolbar = new ToolBar ();
-       HBox.setHgrow (toolbar,
-                      Priority.NEVER);
-
-       this.getChildren ().add (toolbar);
-       toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
-
-        if (builder.controls != null)
-        {
-
-            for (Node n : builder.controls)
-            {
-
-                toolbar.getItems ().add (n);
-
-            }
-
-        }
+       QuollToolBar toolbar = QuollToolBar.builder ()
+            .controls (builder.controls)
+            .build ();
 
         this.close = QuollButton.builder ()
             .styleClassName (StyleClassNames.CLOSE)
@@ -105,6 +85,8 @@ public class Notification extends HBox
             .build ();
 
         toolbar.getItems ().add (this.close);
+
+        this.getChildren ().addAll (h, builder.content, toolbar);
 
     }
 

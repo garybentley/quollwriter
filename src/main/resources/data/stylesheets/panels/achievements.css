@@ -12,6 +12,10 @@
 .header > .iconbox .icon {
     -fx-pref-width: 1em;
 }
+.header .title
+{
+    -fx-font-size: 2em;
+}
 /*
 .header .title {
     -fx-max-width: Infinity;

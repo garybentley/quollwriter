@@ -42,7 +42,7 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
         final AchievementsManager man = Environment.getAchievementsManager ();
 
         // Compiler needs help here.
-        this.addSetChangeListener (man.userAchievedProperty (),
+        this.addSetChangeListener (man.userAchievedRules (),
                                    ev ->
         {
 
@@ -55,7 +55,7 @@ public class AchievementsPanel extends PanelContent<AbstractViewer>
 
             }
 
-            Node n = this.lookup ("#achievement-" + add);
+            Node n = this.lookup ("#achievement-" + add.getId ());
 
             if (n != null)
             {
@@ -167,7 +167,7 @@ TODO?
             });
 
         StringProperty titleProp = new SimpleStringProperty ();
-        titleProp.bind (Bindings.createStringBinding (() ->
+        titleProp.bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
             return String.format (getUIString (achievementspanel,sectiontitles,user),
@@ -175,8 +175,7 @@ TODO?
                                   Environment.formatNumber (userRules.size ()));
 
         },
-        man.userAchievedProperty (),
-        UILanguageStringsManager.uilangProperty ()));
+        man.userAchievedRules ()));
 
         AccordionItem gen = AccordionItem.builder ()
             .styleClassName (StyleClassNames.GENERAL)

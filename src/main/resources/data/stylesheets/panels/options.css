@@ -2,9 +2,19 @@
  * Styles related to the Options panel, com.quollwriter.ui.fx.panels.OptionsPanel
  */
 .options .header.main { -fx-padding: 0.3em; }
-.options .header.main .icon { -fx-image: url(/imgs/options24.png); }
+.header.main .iconbox,
+.header.main .iconbox .icon
+{
+    -fx-pref-width: 1.7em;
+    -fx-pref-height: 1.7em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.header.main .title
+{
+    -fx-font-size: 2em;
+}
 .controls .close {
-    -fx-graphic: url(/imgs/close16.png);
     -fx-content-display: graphic-only;
     -fx-padding: 0.2em;
 }

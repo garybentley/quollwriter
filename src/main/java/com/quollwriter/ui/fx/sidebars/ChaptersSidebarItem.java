@@ -279,7 +279,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         .styleClassName (StyleClassNames.NOTES)
                         .build ();
 
-                    StringBinding b = Bindings.createStringBinding (() ->
+                    StringBinding b = UILanguageStringsManager.createStringBinding (() ->
                     {
 
                         String v = "%1$s (%2$s)";
@@ -289,7 +289,6 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                               Environment.formatNumber (nl.chapter.getNotes ().size ()));
 
                     },
-                    UILanguageStringsManager.uilangProperty (),
                     Environment.objectTypeNameChangedProperty ());
 
                     l.textProperty ().bind (b);
@@ -1082,12 +1081,15 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         // Notes always go at the bottom.
                         this.tree.getTreeItemForObject (c).getChildren ().add (noteLabel);
+                        // createNotesItem will already have created the items for the notes.
+                        return;
 
                     }
 
                     // TODO Add in positioning.
                     pti = this.tree.getTreeItemForObject (this.noteTreeLabels.get (c));
                     ind = new ArrayList (c.getNotes ()).indexOf (ci);
+                    TreeItem<NamedObject> _pti = pti;
 
                 }
 

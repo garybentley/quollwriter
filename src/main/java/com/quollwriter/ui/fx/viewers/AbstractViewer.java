@@ -688,7 +688,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         p.applyCss ();
         p.requestLayout ();
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             double _x = x;

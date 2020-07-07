@@ -222,7 +222,7 @@ application {
     ]
 
     // Define the main class for the application
-    mainClassName 'com.quollwriter.Startup_fx'
+    mainClassName 'com.quollwriter.Startup'
 
 }
 

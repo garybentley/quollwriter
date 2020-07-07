@@ -240,6 +240,10 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>#D3D3D3</value>
   </property>
   -->
+  <property id="fullScreenBorderOpacity" type="float">
+    <description>Sets the opacity of the border around the visible area in full screen mode.</description>
+    <value>1</value>
+  </property>
   <property id="fullScreenShowChildBorder" type="boolean">
     <description>In full screen mode show the border around the child panel.</description>
     <value>true</value>

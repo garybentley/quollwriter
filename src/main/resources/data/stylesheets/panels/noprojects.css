@@ -1,0 +1,16 @@
+/*
+ * No projects panel, com.quollwriter.ui.fx.panels.NoProjectsPanel
+ */
+.noprojects .noprojects {
+    -fx-alignment: top-center;
+    -fx-cursor: hand;
+    -fx-padding: 5em 1em 1em 1em;
+}
+.noprojects .noprojects .label {
+    -fx-font-size: 2em;
+    -fx-alignment: center;
+}
+.noprojects
+{
+    /*-fx-background-color: transparent;*/
+}

@@ -67,6 +67,13 @@ public class ProjectEvent extends EventObject
 
         }
 
+        public String getType ()
+        {
+
+            return this.type;
+
+        }
+
     }
 
     public enum Action
@@ -127,6 +134,13 @@ public class ProjectEvent extends EventObject
         {
 
             this.action = a;
+
+        }
+
+        public String getAction ()
+        {
+
+            return this.action;
 
         }
 
@@ -215,7 +229,7 @@ public class ProjectEvent extends EventObject
     public String getEventId ()
     {
 
-        return this.type + (this.action != null ? "." + this.action : "");
+        return this.type.getType () + (this.action != null ? "." + this.action.getAction () : "");
 
     }
 

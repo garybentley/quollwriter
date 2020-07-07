@@ -57,7 +57,7 @@ public class QuollTextView extends VBox
         this.text = new WebViewFitContent ((link, ev) ->
         {
 
-            UIUtils.openURL (b.viewer != null ? b.viewer :Environment.getFocusedViewer (),
+            UIUtils.openURL (b.viewer != null ? b.viewer : Environment.getFocusedViewer (),
                              link,
                              ev);
 

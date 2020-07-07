@@ -419,7 +419,7 @@ System.out.println ("NEW: " + newv);
 
         });
 
-        fb.item (this.indentFirstLine);
+        // TODO fb.item (this.indentFirstLine);
 
         this.highlightWritingLine = QuollCheckBox.builder ()
             .label (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,highlightwritingline,text))
@@ -476,10 +476,10 @@ System.out.println ("NEW: " + newv);
                                              (pr, oldv, newv) ->
         {
 
-            ff.setVisible (viewer.isCurrentPanelChapterEditor ());
+            //ff.setVisible (viewer.isCurrentPanelChapterEditor ());
 
         });
-        ff.setVisible (viewer.isCurrentPanelChapterEditor ());
+        //ff.setVisible (viewer.isCurrentPanelChapterEditor ());
 
         c.getChildren ().addAll (this.fullScreenProps,
                                  ff);

@@ -9,6 +9,7 @@ import java.text.*;
 import javafx.scene.layout.*;
 import javafx.scene.input.*;
 import javafx.beans.property.*;
+import javafx.scene.*;
 
 import com.gentlyweb.utils.*;
 
@@ -44,22 +45,36 @@ public class AchievementsPopup extends PopupContent
     public void showAchievement (AchievementRule ar)
     {
 
-        this.content.getChildren ().add (new AchievementView (ar,
-                                                              true,
-                                                              this.getBinder ()));
+        Node arn = new AchievementView (ar,
+                                        true,
+                                        this.getBinder ());
+        if (this.content.getChildren ().size () == 0)
+        {
+
+            arn.pseudoClassStateChanged (StyleClassNames.FIRST_PSEUDO_CLASS, true);
+
+        }
+
+        this.content.getChildren ().add (arn);
 
         this.show (10, 10);
 
-        this.scheduleHide (100000000);
+        this.scheduleHide (10 * Constants.SEC_IN_MILLIS);
 
     }
 
     private void scheduleHide (int hideIn)
     {
 
-        this.hideTimer.cancel (false);
+        if (this.hideTimer != null)
+        {
 
-        this.viewer.schedule (() ->
+            this.hideTimer.cancel (false);
+            this.hideTimer = null;
+
+        }
+
+        this.hideTimer = this.viewer.schedule (() ->
         {
 
             UIUtils.runLater (() ->
@@ -83,6 +98,7 @@ public class AchievementsPopup extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (achievementreached, LanguageStrings.title)
             .styleClassName (StyleClassNames.ACHIEVEMENTS)
+            .styleSheet (StyleClassNames.ACHIEVEMENTS)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

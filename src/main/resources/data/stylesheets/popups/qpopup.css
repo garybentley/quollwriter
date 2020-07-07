@@ -46,6 +46,9 @@
 .header .controls .close .icon {
     -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
 }
+.header.title .iconbox .warning-icon.icon {
+    -fx-pref-width: 0.333em;
+}
 .description { -fx-padding: 0 0 0.5em 0; }
 .buttons {
     -fx-alignment: center;

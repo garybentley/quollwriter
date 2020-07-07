@@ -63,7 +63,7 @@
      -fx-font-size: 1.5em;
      -fx-padding: 0 1em 0 0;
  }
-
+/*
  .fullscreen .information .label.session
  {
      -fx-graphic: url(/imgs/clock16.png);
@@ -73,7 +73,7 @@
  {
      -fx-graphic: url(/imgs/chapter16.png);
  }
-
+*/
  .fullscreen .sidebars
  {
      -fx-background-color: -qw-bg-color;
@@ -101,9 +101,17 @@
  .fullscreen > .header .label.clock {
      -fx-content-display: text-only;
  }
- .fullscreen > .header .button.ideaboard .iconbox .icon {
+ .fullscreen > .header .button.ideaboard .iconbox .icon,
+ .fullscreen > .header .iconbox .ideaboard-icon.icon {
      -fx-pref-width: 1.333em;
  }
+ .fullscreen > .header .iconbox .achievements-icon.icon {
+     -fx-pref-width: 1.333em;
+ }
+ .fullscreen > .header .iconbox .chapter-icon.icon {
+     -fx-pref-width: 1.666em;
+ }
+
 /*
  .fullscreen > .header .fullscreenexit { -fx-graphic: url(/imgs/fullscreen-exit24.png); }
  .fullscreen > .header .find { -fx-graphic: url(/imgs/find24.png); }

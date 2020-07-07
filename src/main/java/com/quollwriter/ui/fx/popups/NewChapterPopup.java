@@ -168,12 +168,18 @@ public class NewChapterPopup extends PopupContent<ProjectViewer>
             .removeOnClose (true)
             .build ();
 
-        p.requestFocus ();
+        //p.requestFocus ();
 
-        UIUtils.runLater (() ->
+        p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                           ev ->
         {
 
-            this.nameField.requestFocus ();
+            UIUtils.forceRunLater (() ->
+            {
+
+                this.nameField.requestFocus ();
+
+            });
 
         });
 

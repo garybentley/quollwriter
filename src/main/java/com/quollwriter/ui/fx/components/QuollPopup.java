@@ -826,7 +826,7 @@ _this.moving = false;
 
             });
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 tf.requestFocus ();
@@ -1431,7 +1431,7 @@ TODO
                 content = QuollTextView.builder ()//BasicHtmlTextFlow.builder ()
                     .text (this.message)
                     .styleClassName (StyleClassNames.MESSAGE)
-                    //.withViewer (this.viewer)
+                    .inViewer (this.viewer)
                     .build ();
 
             } else {

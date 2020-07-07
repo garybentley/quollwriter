@@ -260,11 +260,16 @@ public class BackgroundObject
         Image im = new Image (s);
         this.bgImage = id;
         this.bg = new Background (new BackgroundImage (im,
+                                                       BackgroundRepeat.NO_REPEAT,
+                                                       BackgroundRepeat.NO_REPEAT,
+                                                       null,
+                                                       new BackgroundSize (100, 100, true, true, true, true)));
+/*
                                                        null,
                                                        null,
                                                        null,
                                                        null));
-
+*/
         this.bgProp.setValue (this.bg);
 
     }

@@ -82,6 +82,7 @@ public class WordAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean shouldPersistState ()
     {
 
@@ -89,6 +90,7 @@ public class WordAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean achieved (AbstractProjectViewer viewer,
                              ProjectEvent          ev)
                              throws                Exception
@@ -98,6 +100,7 @@ public class WordAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean achieved (AbstractProjectViewer viewer)
     {
 
@@ -154,11 +157,13 @@ public class WordAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public void init (Element root)
     {
 
     }
 
+    @Override
     public void fillState (Element root)
     {
 

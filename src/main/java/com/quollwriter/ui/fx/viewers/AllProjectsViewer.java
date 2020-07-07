@@ -28,7 +28,7 @@ import static com.quollwriter.LanguageStrings.*;
 public class AllProjectsViewer extends AbstractViewer
 {
 
-    public static final int DEFAULT_WINDOW_WIDTH = 500;
+    public static final int DEFAULT_WINDOW_WIDTH = 700;
     public static final int DEFAULT_WINDOW_HEIGHT = 500;
 
     public static final String VIEWER_STATE_ID = "allprojects.state";

@@ -134,13 +134,12 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
         StringProperty t = new SimpleStringProperty (this, "title");
 
-        t.bind (Bindings.createStringBinding (() ->
+        t.bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
             return String.format (getUIString (allprojects,title), Environment.formatNumber (Environment.getAllProjects ().size ()));
 
         },
-        UILanguageStringsManager.uilangProperty (),
         Environment.getAllProjects ()));
 
         Panel panel = Panel.builder ()
@@ -854,6 +853,7 @@ TODO Remove
 
             this.name = Header.builder ()
                 .title (this.project.nameProperty ())
+                .iconClassName (this.getStyleName ())
                 .build ();
 
             this.infoProp = new SimpleStringProperty ();

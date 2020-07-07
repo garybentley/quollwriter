@@ -1,7 +1,6 @@
 /*
  * Styles for com.quollwriter.ui.fx.popups.ChangeProjectDisplayPopup
  */
-.header.title .icon { -fx-image: url(/imgs/edit16.png); }
 .content .header .icon { visibility: hidden; }
 .header.example {
     -fx-padding: 0.5em 0 0.5em 0;
@@ -9,9 +8,55 @@
     -fx-graphic-text-gap: 0;
     -fx-label-padding: 0;
 }
-.header.example .title { -fx-padding: 0; -fx-font-size: 5em;}
+.project.normal.example .header .title
+{
+    -fx-padding: 0; -fx-font-size: 1.5em;
+    -fx-background-color: transparent;
+}
+.header.example .iconbox
+{
+    visibility: hidden;
+}
 .qtextarea.format, .qtextarea.format .text-area {
     -fx-min-height: 6em;
     -fx-pref-height: 6em;
 }
-.info { -fx-padding: 0 0.5em 0.5em; }
+.example .info { -fx-padding: 0 0.5em 0.5em;
+    -fx-font-size: 1em;
+    -fx-padding: 0em 0 0 2.1em;
+}
+.project.normal.example .header .iconbox,
+.project.normal.example .header .iconbox .icon
+{
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-min-width: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+    visibility: visible;
+}
+.project.normal.example .header .title:hover
+{
+    -fx-background-color: transparent;
+}
+
+.example.project
+{
+    -fx-padding: 0.5em;
+    -fx-border-width: 1px;
+    -fx-border-insets: 0px;
+    -fx-border-color: transparent;
+    -fx-pref-width: 25em;
+    -fx-min-width: 25em;
+    -fx-background-color: -qw-bg-color;
+    -fx-border-color: -qw-border-color;
+}
+
+.example.project:hover
+{
+    -fx-border-width: 1px;
+    -fx-border-insets: 0px;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: -qw-hover-bg;
+    -fx-cursor: hand;
+}

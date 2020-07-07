@@ -395,7 +395,9 @@ public class AddEditUserConfigurableObjectType extends PopupContent<AbstractView
 
         QuollPopup p = QuollPopup.builder ()
             .title (title)
-            .styleClassName (this.type.getKey () == null ? StyleClassNames.ADD : StyleClassNames.EDIT)
+            .styleClassName ("newuserconfigobjtype")
+            .styleSheet ("newuserconfigobjtype")
+            .headerIconClassName (this.type.getKey () == null ? StyleClassNames.ADD : StyleClassNames.EDIT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

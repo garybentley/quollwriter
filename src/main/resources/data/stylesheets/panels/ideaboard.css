@@ -84,7 +84,8 @@
 .categories .ideatype .header .iconbox .chapter-icon.icon {
     -fx-pref-width: 1em;
 }
-.categories .ideatype .header .iconbox .idea-icon.icon {
+.categories .ideatype .header .iconbox .idea-icon.icon,
+.categories .ideatype .header .iconbox .dialogue-icon.icon {
     -fx-pref-width: 0.888em;
 }
 /*
@@ -166,3 +167,8 @@
 .starbar .star:tempselected .image-view,
 .starbar .star:selected .image-view { -fx-image: url(/imgs/star16.png); }
 */
+
+.ideatype .edit .qtextarea .styled-text-area
+{
+    -fx-border-width: 0;
+}

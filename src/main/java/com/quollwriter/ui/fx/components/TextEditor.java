@@ -524,7 +524,7 @@ TODO
         // Build a custom undo manager that is suspendable, see: https://github.com/FXMisc/RichTextFX/issues/735
         this.suspendUndos = new SuspendableYes ();
 
-        this.setUseInitialStyleForInsertion (true);
+        this.setUseInitialStyleForInsertion (false);//true);
         this.props = new TextProperties ();
         this.bindTo (props);
 
@@ -551,6 +551,26 @@ TODO
             }
 
         });
+
+        if (props != null)
+        {
+
+            TextStyle ts = new TextStyle ();
+            ts.updateFontSize (props.getFontSize ())
+                .updateFontFamily (props.getFontFamily ())
+                .updateTextColor (props.getTextColor ());
+
+            this.setTextInsertionStyle (ts);
+
+            ParaStyle ps = new ParaStyle ();
+            ps.updateLineSpacing (props.getLineSpacing ())
+                .updateTextBorder (props.getTextBorder ())
+                .updateAlignment (props.getAlignment ())
+                .updateFontSize (props.getFontSize ());
+
+            this.setParagraphInsertionStyle (ps);
+
+        }
 
         this.selectionProperty ().addListener ((pr, oldv, newv) ->
         {
@@ -581,7 +601,7 @@ TODO
                 });
 
             } else {
-
+/*
                 if (oldv.getStart () != oldv.getEnd ())
                 {
 
@@ -603,12 +623,14 @@ TODO
 
                         this.ignoreDocumentChange = false;
 
-                    });
-                }
+                });
 
             }
+            */
 
-        });
+        }
+
+    });
 
         this.setUndoManager (org.fxmisc.richtext.util.UndoUtils.richTextSuspendableUndoManager (this, this.suspendUndos));
         /*
@@ -1888,12 +1910,13 @@ TODO
         StyleSpans<TextStyle> styles = this.getStyleSpans (0, this.getText ().length ());
         StyleSpans<TextStyle> newStyles = styles.mapStyles (style ->
         {
-            style = updater.apply (style);
-            return style;
+            TextStyle ts = new TextStyle (style);
+            ts = updater.apply (ts);
+            return ts;
         });
-        this.clearStyle (0, this.getText ().length ());
+        //this.clearStyle (0, this.getText ().length ());
         this.setStyleSpans (0, newStyles);
-        this.requestLayout ();
+        //this.requestLayout ();
 
     }
 
@@ -1907,8 +1930,9 @@ TODO
         StyleSpans<TextStyle> styles = this.getStyleSpans (startOffset, endOffset);
         StyleSpans<TextStyle> newStyles = styles.mapStyles (style ->
         {
-            style = updater.apply (style);
-            return style;
+            TextStyle ts = new TextStyle (style);
+            ts = updater.apply (ts);
+            return ts;
         });
         this.clearStyle (startOffset, endOffset);
         this.setStyleSpans (startOffset, newStyles);
@@ -1987,13 +2011,17 @@ TODO
         {
 
             Paragraph<ParaStyle, AbstractSegment, TextStyle> p = this.getParagraph(i);
-            this.setParagraphStyle (i, updater.apply (p.getParagraphStyle ()));
+            ParaStyle ps = new ParaStyle (p.getParagraphStyle ());
+            ps = updater.apply (ps);
+            this.setParagraphStyle (i, ps);
 
         }
 
+        this.setParagraphInsertionStyle (new ParaStyle (this.getParagraphs ().get (0).getParagraphStyle ()));
+
     }
 
-    private void updateParagraphStyleInSelection(Function<ParaStyle, ParaStyle> updater)
+    private void updateParagraphStyleInSelectionX(Function<ParaStyle, ParaStyle> updater)
     {
 /*
         IndexRange selection = this.getSelection ();
@@ -2046,7 +2074,6 @@ TODO
 
         //this.ps.setLineSpacing (props.getLineSpacing ());
         //this.ps.setAlignment (props.getAlignment ());
-
         this.props.highlightWritingLineProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -2055,7 +2082,7 @@ TODO
             this.suspendUndos.suspendWhile (() ->
             {
 
-                //this.setLineHighlighterOn (newv);
+                this.setLineHighlighterOn (newv);
                 this.ignoreDocumentChange = false;
 
             });
@@ -2086,7 +2113,7 @@ TODO
             {
 
                 this.updateTextStyle (style -> style.updateFontSize (props.getFontSize ()));
-                //this.updateParagraphStyle (style -> style.updateFontSize (props.getFontSize ()));
+                this.updateParagraphStyle (style -> style.updateFontSize (props.getFontSize ()));
 
                 this.ignoreDocumentChange = false;
 
@@ -2190,7 +2217,13 @@ TODO
 
         });
 
-        this.setLineHighlighterOn (props.isHighlightWritingLine ());
+        UIUtils.forceRunLater (() ->
+        {
+
+            //this.setLineHighlighterOn (props.isHighlightWritingLine ());
+
+        });
+
         this.setLineHighlighterFill (props.getWritingLineColor ());
 
     }
@@ -2633,6 +2666,35 @@ TODO
 
         }
 
+        public ParaStyle (ParaStyle ps)
+        {
+
+            this (ps.lineSpacing,
+                  ps.alignment,
+                  ps.textBorder);
+
+        }
+
+        public ParaStyle(
+                Optional<Float> lineSpacing,
+                Optional<String> alignment,
+                Optional<Integer> textBorder)
+        {
+
+            this.lineSpacing = lineSpacing;
+            this.alignment = alignment;
+            this.textBorder = textBorder;
+
+        }
+
+
+        public String toString ()
+        {
+
+            return this.toCss ();
+
+        }
+
         public String toCss() {
             StringBuilder sb = new StringBuilder();
 
@@ -2648,7 +2710,7 @@ TODO
                 }
 
                 sb.append (String.format ("-fx-text-alignment: %1$s;",
-                                          a));
+                                          a.toLowerCase ()));
             }
 
             if (this.lineSpacing.isPresent ())
@@ -2666,7 +2728,7 @@ TODO
 
                 float s = (this.lineSpacing.get () - 1) * this.fontSize;
 
-                sb.append (String.format ("-fx-padding: 0 %1$s %2$spt %1$s;",
+                sb.append (String.format ("-fx-padding: 0 %1$spx %2$spt %1$spx;",
                                           this.textBorder.get () + 3,
                                           s));
 

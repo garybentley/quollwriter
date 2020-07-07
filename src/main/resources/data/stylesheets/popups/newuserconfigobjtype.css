@@ -1,21 +1,22 @@
 /*
- * Styles for com.quollwriter.ui.fx.popups.NewAssetPopup
+ * Styles for com.quollwriter.ui.fx.popups.AddEditUserConfigurableObjectType
  */
-.header .iconbox,
-.header .iconbox .icon
-{
-     -fx-pref-width: 2em;
-     -fx-pref-height: 2em;
-     -fx-alignment: center;
-     -fx-fill-height: false;
-     -fx-shape: null;
- }
-
-.image.bigicon .iconbox:noimage,
-.image.bigicon .iconbox:noimage .icon
+.image.bigicon .iconbox.noimage,
+.image.bigicon .iconbox.noimage .icon
 {
     -fx-pref-width: 2em;
     -fx-pref-height: 2em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.image.smallicon .iconbox.noimage,
+.image.smallicon .iconbox.noimage .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
 }
 
 .image:noimage .noimage.iconbox .icon

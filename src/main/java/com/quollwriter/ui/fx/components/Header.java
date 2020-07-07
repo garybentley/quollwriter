@@ -112,6 +112,9 @@ public class Header extends HBox
         if (b.toolbar == null)
         {
 
+            this.toolbar = QuollToolBar.builder ()
+                .build ();
+                /*
             this.toolbar = new ToolBar ()
             {
 
@@ -125,7 +128,7 @@ public class Header extends HBox
 
             };
             this.toolbar.managedProperty ().bind (this.toolbar.visibleProperty ());
-
+*/
             if (b.onlyShowToolbarOnMouseOver)
             {
 

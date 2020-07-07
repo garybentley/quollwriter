@@ -95,6 +95,7 @@ public class ChangeProjectDisplayPopup extends PopupContent
 
         Header name = Header.builder ()
             .title (exp.nameProperty ())
+            .iconClassName (StyleClassNames.PROJECT)
             .build ();
 
         SimpleStringProperty infoProp = new SimpleStringProperty ();
@@ -173,6 +174,7 @@ public class ChangeProjectDisplayPopup extends PopupContent
             .title (allprojects,changedisplay,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.CHANGEPROJECTDISPLAY)
             .styleSheet (StyleClassNames.CHANGEPROJECTDISPLAY)
+            .headerIconClassName (StyleClassNames.EDIT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

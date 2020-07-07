@@ -85,42 +85,47 @@ public class RuleFactory
         // Load the user defined rules.
         Path dir = Environment.getUserPath (Constants.USER_PROBLEM_FINDER_RULES_DIR);
 
-        try (Stream<Path> ls = Files.walk (dir))
+        if (Files.exists (dir))
         {
 
-            ls.filter (f -> f.getFileName ().toString ().endsWith (".xml"))
-            .forEach (f ->
+            try (Stream<Path> ls = Files.walk (dir))
             {
 
-                try
+                ls.filter (f -> f.getFileName ().toString ().endsWith (".xml"))
+                .forEach (f ->
                 {
 
-                    RuleFactory.loadUserRule (f);
-
-                } catch (Exception e)
-                {
-
-                    // Delete the rule.
                     try
                     {
 
-                        Files.delete (f);
+                        RuleFactory.loadUserRule (f);
 
-                    } catch (Exception ee) {
+                    } catch (Exception e)
+                    {
 
-                        Environment.logError ("Unable to delete user rule file: " +
+                        // Delete the rule.
+                        try
+                        {
+
+                            Files.delete (f);
+
+                        } catch (Exception ee) {
+
+                            Environment.logError ("Unable to delete user rule file: " +
+                                                  f,
+                                                  ee);
+
+                        }
+
+                        Environment.logError ("Unable to load user rule: " +
                                               f,
-                                              ee);
+                                              e);
 
                     }
 
-                    Environment.logError ("Unable to load user rule: " +
-                                          f,
-                                          e);
+                });
 
-                }
-
-            });
+            }
 
         }
 

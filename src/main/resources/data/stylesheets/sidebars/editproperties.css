@@ -2,7 +2,7 @@
  * Styles for com.quollwriter.ui.fx.sidebars.TextPropertiesSideBar
  */
 .editproperties {
-    -fx-pref-width: 20em;
+    -fx-pref-width: 25em;
     -fx-min-width: 20em;
 }
 /*

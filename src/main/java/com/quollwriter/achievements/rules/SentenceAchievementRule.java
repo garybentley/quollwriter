@@ -7,7 +7,8 @@ import org.jdom.*;
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.data.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 public class SentenceAchievementRule extends AbstractAchievementRule
 {
@@ -55,6 +56,7 @@ public class SentenceAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean achieved (AbstractProjectViewer viewer,
                              ProjectEvent          ev)
                              throws                Exception
@@ -64,6 +66,7 @@ public class SentenceAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public boolean achieved (AbstractProjectViewer viewer)
     {
 
@@ -106,11 +109,13 @@ public class SentenceAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public void init (Element root)
     {
 
     }
 
+    @Override
     public void fillState (Element root)
     {
 

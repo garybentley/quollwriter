@@ -35,6 +35,7 @@ public final class StyleClassNames
     public static final PseudoClass INVALID_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.INVALID);
     public static final PseudoClass NORMAL_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NORMAL);
 
+    public static final String QW = "qw";
     public static final String NEWASSET = "newasset";
     public static final String SPLITCHAPTER = "splitchapter";
     public static final String SUN = "sun";

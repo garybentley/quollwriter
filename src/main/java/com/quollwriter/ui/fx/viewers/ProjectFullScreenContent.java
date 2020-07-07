@@ -1203,7 +1203,7 @@ TODO
 
     private void updateUI ()
     {
-System.out.println ("UPDATE");
+
         this.clockLabel.setText (this.clockFormat.format (new Date ()));
         this.headerClockLabel.setText (this.clockFormat.format (new Date ()));
 

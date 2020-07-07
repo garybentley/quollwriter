@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
 import java.io.*;
+import java.nio.file.*;
 
 import javafx.beans.property.*;
 import javafx.scene.media.*;
@@ -54,14 +55,15 @@ public class AchievementsManager implements ProjectEventListener
     // The key is the id attribute of the element.
     private Map<String, Element> ruleEls = new LinkedHashMap<> ();
 
-    private AudioClip achievementSound = null;
+    //private AudioClip achievementSound = null;
+    private javax.sound.sampled.Clip achievementSound = null;
 
     private Map<AchievementReachedListener, Object> listeners = null;
     private Object listenerFillObj = new Object ();
 
     private boolean soundRunning = false;
-    private SetProperty<AchievementRule> userAchievedProp = null;
-    private Set<AchievementRule> userAchievedRules = null;
+    //private SetProperty<AchievementRule> userAchievedProp = null;
+    private ObservableSet<AchievementRule> userAchievedRules = null;
 
     public AchievementsManager ()
                                 throws Exception
@@ -72,8 +74,8 @@ public class AchievementsManager implements ProjectEventListener
         // Load our list of user achieved achievements.
         Set<String> userAchievedIds = this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
 
-        this.userAchievedRules = new HashSet<> ();
-        this.userAchievedProp = new SimpleSetProperty<> (FXCollections.observableSet (this.userAchievedRules));
+        this.userAchievedRules = FXCollections.observableSet ();
+        //this.userAchievedProp = new SimpleSetProperty<> (FXCollections.observableSet (this.userAchievedRules));
 
         // Load the state for the user achievements.
         Map<String, Element> initEls = this.getInitElements (UserProperties.get (Constants.USER_ACHIEVEMENTS_STATE_PROPERTY_NAME));
@@ -192,17 +194,8 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
-        this.userAchievedProp.addListener ((SetChangeListener<AchievementRule>) (ev ->
+        this.userAchievedRules.addListener ((SetChangeListener<AchievementRule>) ev ->
         {
-
-            AchievementRule ar = ev.getElementAdded ();
-
-            if (ar == null)
-            {
-
-                return;
-
-            }
 
             try
             {
@@ -212,20 +205,39 @@ public class AchievementsManager implements ProjectEventListener
                                         .map (r -> r.getId ())
                                         .collect (Collectors.joining (",")));
 
-                Environment.getFocusedViewer ().showAchievement (ar);
-
-                this.playAchievementSound ();
-
             } catch (Exception e) {
 
-                // Log the error.
-                Environment.logError ("Unable to set user achievement as reached: " +
-                                      ar,
+                Environment.logError ("Unable to update user achievements achieved property",
                                       e);
+
+                return;
 
             }
 
-        }));
+            AchievementRule ar = ev.getElementAdded ();
+
+            if (ar != null)
+            {
+
+                try
+                {
+
+                    Environment.getFocusedViewer ().showAchievement (ar);
+
+                    this.playAchievementSound ();
+
+                } catch (Exception e) {
+
+                    // Log the error.
+                    Environment.logError ("Unable to set user achievement as reached: " +
+                                          ar,
+                                          e);
+
+                }
+
+            }
+
+        });
 
         Environment.addUserProjectEventListener (this);
 
@@ -284,10 +296,10 @@ TODO Remove
     }
 */
 
-    public SetProperty<AchievementRule> userAchievedProperty ()
+    public ObservableSet<AchievementRule> userAchievedRules ()
     {
 
-        return this.userAchievedProp;
+        return this.userAchievedRules;
 
     }
 
@@ -508,7 +520,7 @@ TODO Remove
                       throws Exception
     {
 
-        Set<AbstractViewer> viewers = new HashSet (this.eventRules.keySet ());
+        Set<AbstractViewer> viewers = new HashSet<> (this.eventRules.keySet ());
 
         for (AbstractViewer pv : viewers)
         {
@@ -776,7 +788,7 @@ TODO Remove
                     if (rules == null)
                     {
 
-                        rules = new LinkedHashSet ();
+                        rules = new LinkedHashSet<> ();
 
                         evRules.put (eid,
                                      rules);
@@ -900,7 +912,12 @@ TODO Remove
 
             Set<AchievementRule> rules = prop.getValue ();
 
-            rules.add (ar);
+            UIUtils.runLater (() ->
+            {
+
+                rules.add (ar);
+
+            });
 /*
 TODO Remove
             // Add to the list of project achievements.
@@ -1081,8 +1098,27 @@ xxx
             try
             {
 
+                Path p = Utils.getAsPath (Utils.getResourceUrl (Constants.DEFAULT_ACHIEVEMENT_SOUND_FILE).toURI ());
+
+                byte[] bytes = Files.readAllBytes (p);
+
+                try (javax.sound.sampled.AudioInputStream audioInputStream = javax.sound.sampled.AudioSystem.getAudioInputStream (new BufferedInputStream (new ByteArrayInputStream (bytes))))
+                {
+
+                    this.achievementSound = javax.sound.sampled.AudioSystem.getClip ();
+                    this.achievementSound.open (audioInputStream);
+                    //clip.start ();
+                    //audioInputStream.close ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get/play achievement sound: " + p,
+                                          e);
+
+                }
+
                 // TODO Make this configurable?
-                this.achievementSound = new AudioClip (Utils.getResourceUrl (Constants.DEFAULT_ACHIEVEMENT_SOUND_FILE).toExternalForm ());
+                //this.achievementSound = new AudioClip (Utils.getResourceUrl (Constants.DEFAULT_ACHIEVEMENT_SOUND_FILE).toExternalForm ());
 
 /*
 TODO Remove
@@ -1127,7 +1163,9 @@ TODO Remove
                 try
                 {
 
-                    this.achievementSound.play ();
+                    //this.achievementSound.play ();
+                    this.achievementSound.setFramePosition (0);
+                    this.achievementSound.start ();
 
                 } finally {
 
@@ -1138,7 +1176,7 @@ TODO Remove
             });
 
         },
-        1000,
+        500,
         -1);
 /*
 TODO Remove
@@ -1221,7 +1259,7 @@ TODO Remove
         if (rules != null)
         {
 
-            Set<AchievementRule> achieved = new HashSet ();
+            Set<AchievementRule> achieved = new HashSet<> ();
 
             for (AchievementRule ar : rules)
             {
@@ -1279,7 +1317,7 @@ TODO Remove
                 if (rs != null)
                 {
 
-                    Set<AchievementRule> achieved = new HashSet ();
+                    Set<AchievementRule> achieved = new HashSet<> ();
 
                     for (AchievementRule ar : rs)
                     {

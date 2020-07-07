@@ -1145,46 +1145,23 @@ TODO
             {
 
                 QuollPopup.messageBuilder ()
+                    .headerIconClassName (StyleClassNames.WARNING)
                     .message (getUILanguageStringProperty (Arrays.asList (fontunavailable,text),
                                                            f))
                     .withViewer (this)
+                    .closeButton ()
                     .build ();
-
-                //"The font <b>" + f + "</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a chapter tab then <a href='action:textproperties'>click here to change the text properties</a>.");
 
             }
 
         }
-
-        //this.handleWhatsNew ();
-
-        //this.handleShowTips ();
 
         this.setIgnoreProjectEvents (false);
 
         this.fireProjectEvent (ProjectEvent.Type.projectobject,
                                ProjectEvent.Action.open,
                                this.project);
-/*
-        // Register ourselves with the environment.
-        try
-        {
 
-            Environment.addOpenedProject (this);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to add opened project: " +
-                                  this.project,
-                                  e);
-
-            // TODO Show an error
-
-            return;
-
-        }
-*/
 		UIUtils.forceRunLater (onOpen);
 
 		// Check to see if any chapters have overrun the target.
@@ -1922,6 +1899,13 @@ TODO
     public Tab addPanel (final Panel qp)
                   throws GeneralException
     {
+
+        if (this.panels.containsKey (qp.getPanelId ()))
+        {
+
+            throw new GeneralException ("Already have a panel with id: " + qp.getPanelId ());
+
+        }
 
         final AbstractProjectViewer _this = this;
 
@@ -3024,12 +3008,22 @@ TODO Remove
 
             Panel tp = (Panel) t.getContent ();
 
-            if (tp.getPanelId ().equals (pid))
+            String tpid = tp.getPanelId ();
+
+            if (tp.getContent () instanceof ShowingInFullScreenPanel)
+            {
+
+                tpid = ((ShowingInFullScreenPanel) tp.getContent ()).getOriginalPanel ().getPanelId ();
+
+            }
+
+            if (tpid.equals (pid))
             {
 
                 this.tabs.getSelectionModel ().select (t);
                 pt = t;
                 p = tp;
+                break;
 
             }
 
@@ -3514,6 +3508,7 @@ TODO REmove
                 QuollPopup.questionBuilder ()
                     .popupId (popupId)
                     .styleClassName (StyleClassNames.PROJECT)
+                    .headerIconClassName (StyleClassNames.SAVE)
                     .title (closeproject,confirmpopup,title)
                     .message (c)
                     .withViewer (this)
@@ -5340,13 +5335,15 @@ TODO Remove?
 
                 Panel qp = this.getCurrentlyVisibleTab ();
 
+                this.showTextProperties ();
+/*
                 if (qp.getContent () instanceof ChapterEditorPanelContent)
                 {
 
-                    this.showTextProperties ();
+
 
                 }
-
+*/
                 return;
 
             }

@@ -844,12 +844,18 @@ public class ViewerSplitPane extends Pane implements Stateful
             }
 
             SideBar mb = this.viewer.getMainSideBar ();
-            VBox.setVgrow (mb,
-                           Priority.ALWAYS);
 
-            this.div1.setVisible (true);
-            this.mainSidebar.getChildren ().clear ();
-            this.mainSidebar.getChildren ().add (mb);
+            if (mb != null)
+            {
+
+                VBox.setVgrow (mb,
+                               Priority.ALWAYS);
+
+                this.div1.setVisible (true);
+                this.mainSidebar.getChildren ().clear ();
+                this.mainSidebar.getChildren ().add (mb);
+
+            }
 
         }
 

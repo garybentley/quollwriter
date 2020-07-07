@@ -1,7 +1,7 @@
 /*
  * Styles for com.quollwriter.ui.fx.popups.FirstUseWizard
  */
- .firstusewizard
+ .qpopup.firstusewizard
  {
      -fx-pref-width: 50em;
      -fx-pref-height: 40em;
@@ -19,10 +19,22 @@
      -fx-font-size: 2em;
  }
 
- .firstusewizard .header.title .icon
- {
-     -fx-image: url(/imgs/qw24.png);
- }
+.header .iconbox,
+.header .iconbox .icon
+{
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+}
+
+.wizard .header
+{
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.wizard .header .iconbox
+{
+    visibility: hidden;
+}
 
  .firstusewizard .content .form .control
  {
@@ -34,7 +46,7 @@
      -fx-graphic: url(/imgs/loading24.gif);
  }
 
- .firstUseWizard .content .download
+ .firstusewizard .content .download
  {
      -fx-fit-width: true;
  }
@@ -63,11 +75,6 @@
  .firstusewizard .content .tree .cell
  {
      -fx-padding: 0;
- }
-
- .firstusewizard .content .tree .cell .chapter
- {
-     -fx-graphic: url(/imgs/chapter16.png);
  }
 
  .firstusewizard .content .newproject .control

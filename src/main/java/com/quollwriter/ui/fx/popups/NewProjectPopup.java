@@ -30,10 +30,10 @@ public class NewProjectPopup extends PopupContent
 
         final NewProjectPopup _this = this;
 
-        NewProjectPanel projPanel = new NewProjectPanel (viewer,
-                                                         getUILanguageStringProperty (newproject, LanguageStrings.popup,text),
-                                                         true,
-                                                         true);
+        this.projPanel = new NewProjectPanel (viewer,
+                                              getUILanguageStringProperty (newproject, LanguageStrings.popup,text),
+                                              true,
+                                              true);
 
         projPanel.setOnCreate (ev -> _this.getPopup ().close ());
         projPanel.setOnCancel (ev -> _this.getPopup ().close ());
@@ -57,8 +57,13 @@ public class NewProjectPopup extends PopupContent
             .withViewer (this.viewer)
             .removeOnClose (true)
             .build ();
-            
-        p.requestFocus ();
+
+        UIUtils.forceRunLater (() ->
+        {
+
+            this.projPanel.requestFocus ();
+
+        });
 
         return p;
 

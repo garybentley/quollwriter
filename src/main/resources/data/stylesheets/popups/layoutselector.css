@@ -15,7 +15,6 @@
 .item .description { -fx-padding: 0 0 0 0.5em; }
 .item:selected .description > *, .item:selected:hover .description > * {
     -fx-fill: white;
-    -fx-font-smoothing-type: lcd;
 }
 .item:hover {
      -fx-background-color: -qw-hover-bg;

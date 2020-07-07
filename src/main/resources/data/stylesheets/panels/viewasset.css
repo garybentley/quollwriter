@@ -28,7 +28,7 @@
     -fx-pref-height: 2em;
     -fx-fill-height: false;
     -fx-alignment: center;
-    -fx-shape: null;
+    /*-fx-shape: null;*/
 }
 .scroll-pane {
     -fx-fit-to-width: true;

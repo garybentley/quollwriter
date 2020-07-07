@@ -325,4 +325,12 @@ public class NewProjectPanel extends VBox
 
     }
 
+    @Override
+    public void requestFocus ()
+    {
+
+        this.name.requestFocus ();
+
+    }
+
 }

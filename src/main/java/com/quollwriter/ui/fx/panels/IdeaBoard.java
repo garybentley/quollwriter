@@ -521,6 +521,7 @@ TODO: Not really needed?
                     IdeaBox ib = this.ideaBoxes.get (ev.getElementRemoved ());
                     ib.dispose ();
                     this.ideaBoxes.remove (ev.getElementRemoved ());
+                    this.view.getChildren ().remove (ib);
 
                 }
 
@@ -810,7 +811,6 @@ TODO: Not really needed?
 
                 UserConfigurableObjectType t = null;
 
-System.out.println ("HERE: " + type.getIconType ());
                 if (!type.getIconType ().equals (Chapter.OBJECT_TYPE))
                 {
 
@@ -871,6 +871,12 @@ System.out.println ("HERE: " + type.getIconType ());
                 .onSave (newText ->
                 {
 
+                    if (!newText.hasText ())
+                    {
+
+                        return false;
+
+                    }
 
                     Idea i = new Idea ();
                     i.setDescription (newText);
@@ -1263,6 +1269,8 @@ System.out.println ("HERE: " + type.getIconType ());
                                                                  getUILanguageStringProperty (ideaboard,ideas,delete,actionerror));
 
                             }
+
+                            viewer.getPopupById (pid).close ();
 
                         })
                         .build ();

@@ -299,6 +299,14 @@ public class QuollTextArea extends VBox
 
     }
 
+    @Override
+    public void requestFocus ()
+    {
+
+        this.text.requestFocus ();
+
+    }
+
     /**
      * Get a builder to create a new QuollPopup.
      *

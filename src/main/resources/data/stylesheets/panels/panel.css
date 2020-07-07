@@ -9,3 +9,11 @@
     -fx-font-size: 1.7em;
     -fx-padding: 0 0 0 0.3em;
 }
+.panel .header .controls .button .iconbox,
+.panel .header .controls .button .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}

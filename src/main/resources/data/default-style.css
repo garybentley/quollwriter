@@ -700,7 +700,8 @@ REPLACE
      -fx-shape: "M 5.996,4 C 18.129,4 28,13.871 28,26.008 h 4 C 32,11.664 20.336,0 5.996,0 Z m 0,8 c 7.719,0 14.002,6.285 14.002,14.008 H 24 C 24,16.078 15.924,8 5.996,8 Z m 0.027,8.004 c 3.309,0 6,2.691 6,6.004 h 4.002 C 16.025,20.492 11.537,16 6.023,16 Z M 8.0019999,28 a 4.0009999,4.0009999 0 0 1 -4.001,4.001 A 4.0009999,4.0009999 0 0 1 0,28 4.0009999,4.0009999 0 0 1 4.0009999,23.999 4.0009999,4.0009999 0 0 1 8.0019999,28";
      -fx-background-color: -qw-icon-color;
  }
- .convert-icon {
+ .convert-icon,
+ .sortmenu-icon {
      -fx-shape: "m 20,16.035 v 4 h 4.703 l -5.336,5.34 c -3.389,3.391 -9.309,3.391 -12.701,0 l -2.83,2.82 C 6.287,30.648 9.551,32 13.02,32 c 3.471,0 6.727,-1.352 9.176,-3.805 L 28,22.395 v 5.637 h 4 V 16.035 Z M 9.805,3.677 4,9.479 V 3.841 H 0 V 15.84 h 12 v -4 H 7.299 l 5.334,-5.334 c 3.389,-3.392 9.309,-3.392 12.703,0 l 2.828,-2.829 c -4.902,-4.906 -13.457,-4.899 -18.359,0 z";
      -fx-background-color: -qw-icon-color;
  }
@@ -823,7 +824,8 @@ REPLACE
     -fx-pref-width: 1.166em;
 }
 .ideaboard-icon,
-.idea-icon {
+.idea-icon,
+.dialogue-icon {
     -fx-shape:"M 6.0040002,27.992001 H 14 V 32 H 6.0040002 Z M 10,4.008 c 3.312,0 6,2.699 6,6.016 0,1.895 -0.863,3.637 -2.375,4.773 -2.256,1.707 -3.168,3.594 -3.482,5.18 H 9.857 C 9.545,18.391 8.63,16.504 6.373,14.797 4.865,13.66 3.998,11.918 3.998,10.024 3.998,6.707 6.689,4.008 10,4.008 M 10,0 C 4.477,0 0,4.488 0,10.023 0,13.305 1.545,16.172 3.969,18 c 1.115,0.844 2.035,1.93 2.035,3.43 v 2.555 H 14 V 21.43 C 14,19.93 14.918,18.844 16.031,18 18.457,16.172 20,13.305 20,10.023 20,4.488 15.523,0 10,0 Z";
     -fx-background-color: -qw-icon-color;
 }
@@ -870,6 +872,7 @@ REPLACE
 .managestatuses-icon,
 .editneedednote-icon,
 .mywriting-icon,
+.changedisplay-icon,
 .editneeded-icon {
     -fx-shape:"m 10.836,26.832 c 1.562,-1.562 1.562,-4.094 0,-5.656 -1.562,-1.562 -4.094,-1.562 -5.656,0 L 0,32 Z M 30.828,1.172 c -1.562,-1.562 -4.094,-1.562 -5.656,0 L 10.047,16.301 c 1.352,0.352 2.602,1.031 3.617,2.047 1.031,1.031 1.688,2.289 2.039,3.609 L 30.828,6.828 c 1.563,-1.562 1.563,-4.094 0,-5.656 z";
     -fx-background-color: -qw-icon-color;
@@ -1511,7 +1514,7 @@ REPLACE
 {
     -fx-image: url(/imgs/project24-dark.png);
 }
-
+/*
 .changeprojectdisplay .example.project .header .title
 {
     -fx-padding: -0.5em 0 0 0.3em;
@@ -1532,11 +1535,12 @@ REPLACE
 {
     -fx-image: url(/imgs/project20.png);
 }
-
+*/
 /*
  * A project box in the projects window.
  * Setting both max AND min width is needed to ensure the height is calculated.
  */
+ /*
 .changeprojectdisplay .example.project
 {
     -fx-padding: 0.5em;
@@ -1561,10 +1565,11 @@ REPLACE
 {
     -fx-border-color: -qw-border-color;
 }
-
+*/
 /*
  * The info about a project in the projects window.
  */
+ /*
 .changeprojectdisplay .example.project .info
 {
     -fx-font-size: 1.1em;
@@ -1572,7 +1577,7 @@ REPLACE
     -fx-text-fill: -fx-text-base-color;
 
 }
-
+*/
 .panel.importfile .title { -fx-graphic: url(/imgs/project-import24.png); }
 
 .panel.importfile .title
@@ -1601,23 +1606,10 @@ REPLACE
     -fx-padding: 0em;
     -fx-alignment: center;
     -fx-background-color: #C07016;
-    -fx-pref-width: 3em;
-    -fx-max-width: 3em;
     -fx-max-height: 7em;
-    -fx-pref-height: 7em;
+    -fx-max-width: 3em;
+    -fx-min-width: 3em;
     -fx-pref-width: 3em;
-
-/*
-    -fx-pref-width: 7em;
-    -fx-pref-height: 3em;
-
-    -fx-max-height: 3em;
-    -fx-max-width: 7em;
-
-    -fx-translate-x: -2em;
-    -fx-border-width: 0px 1px 0 1px;
-    -fx-border-color: -qw-border-color;
-*/
 }
 
 .layout .other
@@ -1626,6 +1618,9 @@ REPLACE
     -fx-alignment: center;
     -fx-background-color: #1732AE;
     -fx-max-height: 7em;
+    -fx-max-width: 3em;
+    -fx-min-width: 3em;
+    -fx-pref-width: 3em;
 }
 
 .layout .tabs
@@ -1643,11 +1638,14 @@ REPLACE
 
 .layout .project .text, .layout .other .text
 {
-    -fx-rotate: 45;
+
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-alignment: center;
-    -fx-translate-x: -2em;
+    -fx-rotate: 45;
+    -fx-pref-width: 7em;
+    -fx-min-width: 7em;
+    /*-fx-translate-x: -2em;*/
     /*-fx-min-width: 7em;*/
     /*
     -fx-pref-height: 7em;
@@ -1966,16 +1964,19 @@ REPLACE
 /**
  * Change project display popup (ChangeProjectDisplayPopup)
  */
+ /*
 .changeprojectdisplay .project.normal .header
 {
     -fx-padding: 0;
 }
+*/
 /*
 .changeprojectdisplay .header .icon
 {
     -fx-image: url(/imgs/edit16.png);
 }
 */
+/*
 .changeprojectdisplay .content .header .icon
 {
     visibility: hidden;
@@ -1988,7 +1989,8 @@ REPLACE
     -fx-graphic-text-gap: 0;
     -fx-label-padding: 0;
 }
-
+*/
+/*
 .changeprojectdisplay .header.example .title
 {
     -fx-padding: 0;
@@ -2007,7 +2009,7 @@ REPLACE
     -fx-min-height: 6em;
     -fx-pref-height: 6em;
 }
-
+*/
 /**
  * What's new popup.  (WhatsNewPopup)
  */
@@ -2902,11 +2904,11 @@ a
     -fx-padding: 0.25em 0 0 0.5em;
     -fx-max-width: 70em;
 }
-
+/*
 .qpopup.dictionarymanager .header .icon { -fx-image: url(/imgs/dictionary16.png); }
 .qpopup.tagsmanager .header.title .icon { -fx-image: url(/imgs/tag16.png); }
 .qpopup.notetypesmanager .header.title .icon { -fx-image: url(/imgs/note16.png); }
-
+*/
 .root.popupviewer .qpopup.question
 {
     /*-fx-padding: 0.5em 0.75em 0.5em 0.75em;*/
@@ -3005,11 +3007,12 @@ a
 /**
  * AchievementsPopup
  */
+ /*
 .qpopup.achievements .header.title .icon
 {
     -fx-image: url(/imgs/achievement16.png);
 }
-
+*/
 .filefind
 {
     -fx-spacing: 0.2em;

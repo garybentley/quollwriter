@@ -27,6 +27,7 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
     private static final String POPUP_ID = "renamechapter";
 
     private Chapter chapter = null;
+    private QuollTextField text = null;
 
     public RenameChapterPopup (AbstractProjectViewer viewer,
                                Chapter               chapter)
@@ -36,7 +37,7 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
 
         this.chapter = chapter;
 
-        QuollTextField text = QuollTextField.builder ()
+        this.text = QuollTextField.builder ()
             .text (this.chapter.getName ())
             .build ();
 
@@ -58,7 +59,7 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
         f.setOnConfirm (ev ->
         {
 
-            String v = text.getText ().trim ();
+            String v = this.text.getText ().trim ();
 
             if ((v == null)
                 ||
@@ -159,7 +160,20 @@ public class RenameChapterPopup extends PopupContent<AbstractProjectViewer>
             .withViewer (this.viewer)
             .removeOnClose (true)
             .build ();
-        p.requestFocus ();
+
+        p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                           ev ->
+        {
+
+            UIUtils.forceRunLater (() ->
+            {
+
+                this.text.selectAll ();
+                this.text.requestFocus ();
+
+            });
+
+        });
 
         Environment.fireUserProjectEvent (this.viewer,
                                           ProjectEvent.Type.chapter,
