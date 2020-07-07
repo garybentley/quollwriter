@@ -1097,20 +1097,6 @@ TODO
         // TODO Make an option.
         this.clockFormat = new SimpleDateFormat ("h:mm a");
 
-        this.updater = this.viewer.schedule (() ->
-        {
-
-            UIUtils.runLater (() ->
-            {
-
-                this.updateUI ();
-
-            });
-
-        },
-        500,
-        500);
-
     }
 
     private double getXBorderWidth ()
@@ -1754,6 +1740,27 @@ TODO Remove
             this.sidebarsPane.setPrefWidth (s.getAsInt (Constants.FULL_SCREEN_SIDEBAR_WIDTH_PROPERTY_NAME));
 
         }
+
+        if (this.updater != null)
+        {
+
+            this.updater.cancel (true);
+
+        }
+
+        this.updater = this.viewer.schedule (() ->
+        {
+
+            UIUtils.runLater (() ->
+            {
+
+                this.updateUI ();
+
+            });
+
+        },
+        500,
+        500);
 
     }
 
