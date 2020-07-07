@@ -826,10 +826,16 @@ _this.moving = false;
 
             });
 
-            UIUtils.forceRunLater (() ->
+            qp.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                                ev ->
             {
 
-                tf.requestFocus ();
+                UIUtils.forceRunLater (() ->
+                {
+
+                    tf.requestFocus ();
+
+                });
 
             });
 

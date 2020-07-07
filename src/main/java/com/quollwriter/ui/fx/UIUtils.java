@@ -1612,7 +1612,7 @@ public class UIUtils
                                                               objName,
                                                               extraMessage != null ? extraMessage : new SimpleStringProperty (""));
 
-        return QuollPopup.yesConfirmTextEntryBuilder ()
+        QuollPopup qp = QuollPopup.yesConfirmTextEntryBuilder ()
             .title (getUILanguageStringProperty (Arrays.asList (deleteitem,title),
                                                  deleteType))
             .description (message)
@@ -1624,6 +1624,9 @@ public class UIUtils
             .withViewer (viewer)
             .styleClassName (style)
             .build ();
+
+        return qp;
+
             /*
             TODO Remove
         ComponentUtils.createYesConfirmPopup (getUILanguageStringProperty (Arrays.asList (deleteitem,title),
