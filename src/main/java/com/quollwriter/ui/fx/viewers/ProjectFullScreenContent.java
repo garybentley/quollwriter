@@ -1194,6 +1194,7 @@ TODO
         this.headerClockLabel.setText (this.clockFormat.format (new Date ()));
 
         List<String> prefix = Arrays.asList (fullscreen,LanguageStrings.info);
+
         this.info.setVisible (UserProperties.getAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
 
         String t = "";
@@ -1755,6 +1756,9 @@ TODO Remove
             {
 
                 this.updateUI ();
+
+                this.info.relocate (10,
+                                    this.getHeight () - this.info.getLayoutBounds ().getHeight ());
 
             });
 
