@@ -553,7 +553,8 @@ public class Constants
     public static final String USER_PROMPTS_FILE = "own-prompts.xml";
 
     public static final String TRANSPARENT_PNG_NAME = "16x16-transparent.png";
-    public static final String WINDOW_ICON_PNG_NAME = "window-icon-v3.png";
+    //public static final String WINDOW_ICON_PNG_NAME = "window-icon-v3.png";
+    public static final String WINDOW_ICON_PNG_NAME = "window-icon-v4.png";
     public static final String LOGO_PNG_NAME = "q-app-logo.png"; //"logo-v2.png";
     public static final String LOADING_GIF_NAME = "loading24.gif";
     public static final String TYPING_GIF_NAME = "typing24.gif";
