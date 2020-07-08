@@ -4780,14 +4780,7 @@ TODO
         {
 
             ProjectChapterEditorPanelContent edPanel = (ProjectChapterEditorPanelContent) pc;
-
-            UIUtils.forceRunLater (() ->
-            {
-
-                edPanel.bindTextPropertiesTo (this.getTextProperties ());
-
-            });
-
+            edPanel.bindTextPropertiesTo (this.getTextProperties ());
             // TODO this.setUseTypewriterScrolling (false);
 
         }
@@ -4857,7 +4850,7 @@ TODO
 
                 ProjectChapterEditorPanelContent edPanel = (ProjectChapterEditorPanelContent) fp.getContent ();
 
-                edPanel.bindTextPropertiesTo (this.getTextProperties ());
+                edPanel.bindTextPropertiesTo (Environment.getProjectTextProperties ());
 
                 this.setUseTypewriterScrolling (false);
 
