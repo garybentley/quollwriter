@@ -39,6 +39,8 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
     private CheckBox highlightWritingLine = null;
 
     private FullScreenPropertiesPanel fullScreenProps = null;
+    private TextPropertiesPanel normalTextProps = null;
+    private TextPropertiesPanel fullScreenTextProps = null;
 
     public TextPropertiesSideBar (E              viewer,
                                   TextProperties props)
@@ -61,9 +63,22 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
 
             this.fullScreenProps.setVisible (newv);
 
+            this.normalTextProps.setVisible (!newv);
+            this.fullScreenTextProps.setVisible (newv);
+
         });
         this.fullScreenProps.setVisible (viewer.getViewer ().isFullScreen ());
 
+        this.normalTextProps = new TextPropertiesPanel (viewer,
+                                                        Environment.getProjectTextProperties ());
+        this.normalTextProps.setVisible (!viewer.getViewer ().isFullScreen ());
+        this.fullScreenTextProps = new TextPropertiesPanel (viewer,
+                                                            Environment.getFullScreenTextProperties ());
+        this.fullScreenTextProps.setVisible (viewer.getViewer ().isFullScreen ());
+        c.getChildren ().addAll (this.fullScreenProps,
+                                    this.normalTextProps,
+                                    this.fullScreenTextProps);
+/*
         Form.Builder fb = Form.builder ();
 
         this.font = new ComboBox<> ();
@@ -185,15 +200,7 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
         {
 
             this.fontSize.getValueFactory ().setValue (newv.intValue ());
-/*
-System.out.println ("NEW: " + newv);
-            if (!newv)
-            {
 
-                this.fontSize.getValueFactory ().setValue ((int) this.fontSizeSlider.getValue ());//newv.intValue ());
-
-            }
-*/
         });
 
         b.getChildren ().addAll (this.fontSizeSlider, this.fontSize);
@@ -264,60 +271,7 @@ System.out.println ("NEW: " + newv);
 
             })
             .build ();
-/*
-        this.alignment = new ChoiceBox<StringProperty> (aitems);
 
-        this.alignment.setValue (aitems.get (selInd));
-
-        this.alignment.setConverter (new StringConverter<StringProperty> ()
-        {
-
-            @Override
-            public StringProperty fromString (String s)
-            {
-
-                return null;
-
-            }
-
-            @Override
-            public String toString (StringProperty p)
-            {
-
-                return p.getValue ();
-
-            }
-
-        });
-
-        this.alignment.getSelectionModel ().selectedIndexProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            int v = newv.intValue ();
-
-            if (v == 0)
-            {
-
-                this.props.setAlignment (QTextEditor.ALIGN_LEFT);
-
-            }
-
-            if (v == 1)
-            {
-
-                this.props.setAlignment (QTextEditor.ALIGN_JUSTIFIED);
-
-            }
-
-            if (v == 2)
-            {
-
-                this.props.setAlignment (QTextEditor.ALIGN_RIGHT);
-
-            }
-
-        });
-*/
         // Alignment.
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,LanguageStrings.alignment,text),
                  this.alignment);
@@ -483,7 +437,7 @@ System.out.println ("NEW: " + newv);
 
         c.getChildren ().addAll (this.fullScreenProps,
                                  ff);
-
+*/
     }
 
     @Override
