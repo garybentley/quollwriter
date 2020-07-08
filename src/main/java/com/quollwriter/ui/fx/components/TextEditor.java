@@ -1636,7 +1636,7 @@ TODO
     public void setHighlightWritingLine (boolean v)
     {
 
-        this.setLineHighlighterOn (v);
+        // TODO this.setLineHighlighterOn (v);
 
     }
 
@@ -2220,10 +2220,12 @@ TODO
         UIUtils.forceRunLater (() ->
         {
 
-            //this.setLineHighlighterOn (props.isHighlightWritingLine ());
+            // TODO this.setLineHighlighterOn (props.isHighlightWritingLine ());
 
         });
 
+        // TODO, Remove
+        this.setLineHighlighterOn (false);
         this.setLineHighlighterFill (props.getWritingLineColor ());
 
     }
@@ -2702,7 +2704,7 @@ TODO
 
                 String a = this.alignment.get ();
 
-                if (a.equals (ALIGN_JUSTIFIED))
+                if (a.equalsIgnoreCase (ALIGN_JUSTIFIED))
                 {
 
                     a = "justify";
