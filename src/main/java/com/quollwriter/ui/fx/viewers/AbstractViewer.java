@@ -1588,6 +1588,12 @@ TODO Remove handled by the content.
     private void handleWhatsNew ()
     {
 
+        // TODO
+        if (true)
+        {
+                return;
+        }
+
         boolean showWhatsNew = false;
 
         String whatsNewVersion = UserProperties.get (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
