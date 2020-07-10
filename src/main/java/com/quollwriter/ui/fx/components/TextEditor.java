@@ -2987,6 +2987,14 @@ TODO
                     {
 
                         this.pos += c.getNetLength ();
+
+                        if (this.pos < 0)
+                        {
+
+                            this.pos = 0;
+
+                        }
+
                         this.posProp.setValue (this.pos);
 
                     }
