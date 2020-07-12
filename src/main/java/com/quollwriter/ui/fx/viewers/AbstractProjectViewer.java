@@ -1024,6 +1024,61 @@ TODO
 
     }
 
+    public void changeProjectDirectory (Path   to)
+                                 throws GeneralException
+    {
+
+        this.saveObject (this.project,
+                         true);
+
+        this.dBMan.closeConnectionPool ();
+
+        // Rename the dir.
+        try
+        {
+
+            Files.move (this.project.getProjectDirectory ().toPath (),
+                        to);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to move project directory from: " +
+                                        this.project.getProjectDirectory () +
+                                        " to: " +
+                                        to,
+                                        e);
+
+        }
+
+        this.project.setProjectDirectory (to.toFile ());
+
+        String username = UserProperties.get (Constants.DB_USERNAME_PROPERTY_NAME);
+        String password = UserProperties.get (Constants.DB_PASSWORD_PROPERTY_NAME);
+
+        try
+        {
+
+            // TODO Fix this!
+            this.dBMan.init (this.project.getProjectDirectory ().toPath ().resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
+                             username,
+                             password,
+                             this.project.getFilePassword (),
+                             Environment.getSchemaVersion ());
+
+        } catch (Exception e) {
+
+            this.dBMan.closeConnectionPool ();
+            throw e;
+
+        }
+
+        this.dBMan.setProject (this.project);
+
+        this.saveObject (this.project,
+                         true);
+
+    }
+
     public void openProject (ProjectInfo    p,
                              String         filePassword)
                       throws Exception
@@ -1085,7 +1140,6 @@ TODO
         Environment.incrStartupProgress ();
 
         // Get the project.
-
         try
         {
 

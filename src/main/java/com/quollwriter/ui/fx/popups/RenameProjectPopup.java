@@ -138,10 +138,11 @@ public class RenameProjectPopup extends PopupContent<AbstractProjectViewer>
         if (!newName.equals (oldName))
         {
 
+
             this.project.setName (newName);
 
             // Save the project.
-            this.viewer.saveProject ();
+            //this.viewer.saveProject ();
 
             // See how many books are in the project, if there is just one then change the name of it to be the same
             // as the project.
@@ -159,65 +160,33 @@ public class RenameProjectPopup extends PopupContent<AbstractProjectViewer>
 
             final Path newDir = this.project.getProjectDirectory ().getParentFile ().toPath ().resolve (Utils.sanitizeForFilename (newName));
 
-            // Close the viewer.
-            this.viewer.close (true,
-                               () ->
+            try
             {
 
-                // Rename the dir.
-                try
-                {
+                this.viewer.changeProjectDirectory (newDir);
 
-                    Files.move (this.project.getProjectDirectory ().toPath (),
-                                newDir);
+            } catch (Exception e) {
 
-                } catch (Exception e) {
+                Environment.logError ("Unable to rename project directory: " +
+                                      this.project.getProjectDirectory () +
+                                      " to: " +
+                                      newDir);
 
-                    Environment.logError ("Unable to rename project directory: " +
-                                          this.project.getProjectDirectory () +
-                                          " to: " +
-                                          newDir);
+                ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.project,actions,renameproject,actionerror));
 
-                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.project,actions,renameproject,actionerror));
-                                              //"Unable to rename {project} directory, please contact Quoll Writer support for assistance.");
+                return;
 
-                    return;
+            }
 
-                }
+            this.viewer.fireProjectEvent (ProjectEvent.Type.project,
+                                          ProjectEvent.Action.rename);
 
-                this.project.setProjectDirectory (newDir.toFile ());
-
-                // Open the project again.
-                try
-                {
-
-                    Environment.openProject (this.project);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to reopen project: " +
-                                          this.project,
-                                          e);
-
-                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.project,actions,renameproject,errors,cantreopenproject));
-                                              //"Unable to reopen project, please contact Quoll Writer support for assistance.");
-
-                    return;
-
-                }
-
-                AbstractProjectViewer apv = Environment.getProjectViewer (this.project);
-
-                if (apv != null)
-                {
-
-                    apv.fireProjectEventLater (ProjectEvent.Type.project,
-                                               ProjectEvent.Action.rename);
-
-                }
-
-            });
+            QuollPopup.messageBuilder ()
+                .headerIconClassName (StyleClassNames.EDIT)
+                .title (LanguageStrings.project,actions,renameproject,title)
+                .message (LanguageStrings.project,actions,renameproject,complete)
+                .closeButton ()
+                .build ();
 
         }
 
