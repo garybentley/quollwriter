@@ -35,7 +35,7 @@ public class NewProjectPopup extends PopupContent
                                               true,
                                               true);
 
-        projPanel.setOnCreate (ev -> _this.getPopup ().close ());
+        projPanel.setOnProjectCreated (proj -> _this.getPopup ().close ());
         projPanel.setOnCancel (ev -> _this.getPopup ().close ());
 
         this.getChildren ().add (projPanel);

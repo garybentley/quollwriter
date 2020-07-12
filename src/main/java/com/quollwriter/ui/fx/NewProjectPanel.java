@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.beans.property.*;
 import javafx.scene.input.*;
@@ -28,6 +29,7 @@ public class NewProjectPanel extends VBox
     private Project        project = null;
     private Form               form = null;
     private AbstractViewer viewer = null;
+    private Consumer<Project> onProjectCreated = null;
 
     public NewProjectPanel (AbstractViewer viewer,
                             StringProperty desc,
@@ -120,10 +122,11 @@ public class NewProjectPanel extends VBox
 
     }
 
-    public void setOnCreate (EventHandler<Form.FormEvent> ev)
+    public void setOnProjectCreated (Consumer<Project> f)
     {
 
-        this.form.setOnConfirm (ev);
+        this.onProjectCreated = f;
+        //this.form.setOnConfirm (ev);
 
     }
 
@@ -216,6 +219,20 @@ public class NewProjectPanel extends VBox
         }
 
         this.fireEvent (new ActionEvent ());
+
+        if (this.onProjectCreated != null)
+        {
+
+            Project _proj = proj;
+
+            UIUtils.runLater (() ->
+            {
+
+                this.onProjectCreated.accept (_proj);
+
+            });
+
+        }
 
         return true;
 
