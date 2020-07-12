@@ -784,7 +784,7 @@ TODO: Not really needed?
                 })
                 .build ();
 
-            h.getTitle ().addEventHandler (MouseEvent.MOUSE_RELEASED,
+            h.getTitle ().addEventHandler (MouseEvent.MOUSE_CLICKED,
                                            ev ->
             {
 
