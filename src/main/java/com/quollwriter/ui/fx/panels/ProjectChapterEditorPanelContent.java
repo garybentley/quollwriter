@@ -157,21 +157,14 @@ TODO
                     {
 
                         this.createTextPosition (s);
-/*
-                        s.setTextPosition2 (this.editor.createTextPosition (s.getPosition ()));
 
-                        s.getOutlineItems ().stream ()
-                            .forEach (o -> o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
-*/
                     });
 
                 this.object.getOutlineItems ().stream ()
                     .forEach (o -> this.createTextPosition (o));
-                    //o.setTextPosition2 (this.editor.createTextPosition (o.getPosition ())));
 
                 this.object.getNotes ().stream ()
                     .forEach (n -> this.createTextPosition (n));
-                    //.setTextPosition2 (this.editor.createTextPosition (n.getPosition ())));
 
                 this.recreateVisibleParagraphs ();
 /*
@@ -428,6 +421,27 @@ TODO
     private void createTextPosition (ChapterItem ci)
     {
 
+        String t = this.object.getChapterText ();
+
+        int l = 0;
+
+        if (t != null)
+        {
+
+            l = t.length ();
+
+        }
+
+        if ((ci.getPosition () >= l)
+             ||
+            (ci.getPosition () < 0)
+           )
+        {
+
+            ci.setPosition ((l > 0 ? l - 1 : 0));
+
+        }
+
         TextEditor.Position p = this.editor.createTextPosition (ci.getPosition ());
         ci.positionProperty ().unbind ();
         ci.positionProperty ().bind (p.positionProperty ());
@@ -436,6 +450,13 @@ TODO
 
         if (ci.getEndPosition () > -1)
         {
+
+            if (ci.getEndPosition () >= l)
+            {
+
+                ci.setEndPosition (l);
+
+            }
 
             TextEditor.Position ep = this.editor.createTextPosition (ci.getEndPosition ());
             ci.endPositionProperty ().unbind ();
