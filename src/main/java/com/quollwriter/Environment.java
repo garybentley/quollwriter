@@ -2410,6 +2410,13 @@ TODO NEeded?
                 Environment.allProjectsViewer.createViewer ();
                 Environment.allProjectsViewer.init (null);
 
+                UIUtils.forceRunLater (() ->
+                {
+
+                    Environment.allProjectsViewer.requestFocus ();
+
+                });
+
                 Environment.allProjectsViewer.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
                 (ev ->
                 {
@@ -2436,6 +2443,7 @@ TODO NEeded?
 
         Environment.allProjectsViewer.setVisible (true);
         Environment.allProjectsViewer.toFront ();
+        Environment.allProjectsViewer.requestFocus ();
 
         return Environment.allProjectsViewer;
 
