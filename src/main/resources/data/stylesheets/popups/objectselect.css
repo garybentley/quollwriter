@@ -1,0 +1,35 @@
+/*
+ * Used by the popup created in: com.quollwriter.ui.fx.ShowObjectSelectPopup
+ */
+.items .label .iconbox,
+.items .label .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.items .label
+{
+    -fx-font-size: 1.7em;
+    -fx-padding: 0.5em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+.items .label:hover
+{
+    -fx-background-color: -qw-hover-bg;
+}
+
+.items .label:last
+{
+    -fx-border-width: 0;
+}
+
+.items .label .tooltip
+{
+    -fx-font-size: 1em;
+}
