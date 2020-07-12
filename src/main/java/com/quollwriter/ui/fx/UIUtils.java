@@ -46,6 +46,7 @@ import com.quollwriter.data.ObjectReference;
 import com.quollwriter.data.Project;
 import com.quollwriter.data.ProjectInfo;
 import com.quollwriter.data.Chapter;
+import com.quollwriter.data.UserConfigurableObject;
 import com.quollwriter.data.IPropertyBinder;
 import com.quollwriter.data.Tag;
 import com.quollwriter.data.NamedObject;
@@ -421,6 +422,7 @@ public class UIUtils
                          .withViewer (viewer)
                          .title (getUILanguageStringProperty (selectitem,popup,title))
                          .styleClassName (StyleClassNames.OBJECTSELECT)
+                         .headerIconClassName (StyleClassNames.VIEW)
                          .popupId ("showobject")
                          .objects (objs)
                          .cellProvider ((obj, popupContent) ->
@@ -428,7 +430,23 @@ public class UIUtils
 
                             QuollLabel l = QuollLabel.builder ()
                                  .label (obj.nameProperty ())
+                                 .styleClassName (obj.getObjectType ())
                                  .build ();
+
+                            UIUtils.setTooltip (l,
+                                                getUILanguageStringProperty (LanguageStrings.actions,clicktoview));
+
+                             if (obj instanceof UserConfigurableObject)
+                             {
+
+                                 UserConfigurableObject uobj = (UserConfigurableObject) obj;
+
+                                 ImageView iv = new ImageView ();
+                                 iv.imageProperty ().bind (uobj.getUserConfigurableObjectType ().icon16x16Property ());
+
+                                 l.setGraphic (iv);
+
+                             }
 
                              l.setOnMouseClicked (eev ->
                              {
@@ -1393,6 +1411,7 @@ public class UIUtils
 
             QuollPopup.passwordEntryBuilder ()
                 .withViewer (parentViewer)
+                .headerIconClassName (StyleClassNames.ENCRYPTED)
                 .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
                 .description (getUILanguageStringProperty (Utils.newList (prefix,text),
                                                            proj.nameProperty ()))
