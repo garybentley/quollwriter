@@ -252,6 +252,8 @@ public class Header extends HBox
 
         }
 
+        this.toolbar.minWidthProperty ().unbind ();
+
         HBox.setHgrow (this.toolbar,
                        Priority.NEVER);
 
