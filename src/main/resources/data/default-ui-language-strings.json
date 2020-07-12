@@ -6635,7 +6635,7 @@
             "newtag" :
             {
                 "title" : "Add New ${objectnames.plural.tag}",
-                "text" : "Enter the new ${objectnames.plural.tag} below.  Separate the ${objectnames.plural.tag} with commas or semi-colons.<br /><br />The ${objectnames.plural.tag}s will be added to <b>%1$s</b>.",
+                "text" : "Enter the new ${objectnames.plural.tag} below.  Separate the ${objectnames.plural.tag} with commas or semi-colons.<br /><br />The ${objectnames.plural.tag} will be added to <b>%1$s</b>.",
                 ":comment.text" : "%1$s is the name of the object the ${objectnames.plural.tag} will be added to.",
                 ":scount.text" : 1,
                 "confirm" : "${actions.add}",
@@ -8544,7 +8544,8 @@
             {
                 "actionerror" : "Unable to rename ${objectnames.singular.project}.",
                 "title" : "Rename ${objectnames.singular.project}",
-                "text" : "Enter the new ${objectnames.singular.project} name below.  The ${objectnames.singular.project} will then be closed and re-opened.",
+                "text" : "Enter the new ${objectnames.singular.project} name below.",
+                "complete" : "The ${objectnames.singular.project} has been renamed.",
                 "confirm" : "${actions.rename}",
                 "errors" :
                 {
