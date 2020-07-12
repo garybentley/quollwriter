@@ -126,14 +126,13 @@ public class FindProjectsPopup extends PopupContent
                                 details.setText (getUILanguageStringProperty (Arrays.asList (allprojects,actions,findprojects,LanguageStrings.notification,text),
                                                                               p.toString ()));
 
+                                _this.handleDir (p);
+
+                                _this.notification.removeNotification ();
+
                             });
 
-                            // TODO
-                            //_this.handleDir (p);
-
                         });
-
-                        _this.notification.removeNotification ();
 
                     }
 
@@ -141,7 +140,13 @@ public class FindProjectsPopup extends PopupContent
 
                     _this.task.cancel (true);
                     _this.viewer.unschedule (_this.task);
-                    _this.notification.removeNotification ();
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        _this.notification.removeNotification ();
+
+                    });
 
                     Environment.logError ("Unable to walk dir: " + find.getFile (),
                                           e);
@@ -283,20 +288,27 @@ public class FindProjectsPopup extends PopupContent
 				if (pi != null)
 				{
 
-					try
-					{
+                    ProjectInfo _pi = pi;
 
-						Environment.updateProjectInfo (pi);
+                    UIUtils.runLater (() ->
+                    {
 
-                        Environment.addProjectInfo (pi);
+    					try
+    					{
 
-					} catch (Exception e) {
+    						Environment.updateProjectInfo (_pi);
 
-						Environment.logError ("Unable to add project info for project: " +
-											  pi,
-											  e);
+                            Environment.addProjectInfo (_pi);
 
-					}
+    					} catch (Exception e) {
+
+    						Environment.logError ("Unable to add project info for project: " +
+    											  _pi,
+    											  e);
+
+    					}
+
+                    });
 
 				}
 
