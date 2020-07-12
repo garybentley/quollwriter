@@ -81,10 +81,15 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
 
         this.editItem.getSelectionModel ().setSelectionMode (this.typeField.isAllowMulti () ? SelectionMode.MULTIPLE : SelectionMode.SINGLE);
 
-        for (String v : this.getFieldValue ())
+        if (this.getFieldValue () != null)
         {
 
-            this.editItem.getSelectionModel ().select (v);
+            for (String v : this.getFieldValue ())
+            {
+
+                this.editItem.getSelectionModel ().select (v);
+
+            }
 
         }
 
