@@ -71,7 +71,7 @@
 }
 
 .accordion .header .controls { visibility: hidden; }
-/*.accordion.asset .cell .label { -fx-content-display: text-only; }*/
+.accordion.asset .cell .label { -fx-content-display: text-only; }
 .accordion .tree .cell { -fx-cursor: hand; }
 .accordion .tree .cell .label:dragover { -fx-background-color: -qw-hover-bg; }
 .accordion .tree .cell .label:dragging {

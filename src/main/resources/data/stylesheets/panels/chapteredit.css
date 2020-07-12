@@ -48,6 +48,8 @@
 {
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-min-height: 1.333em;
     -fx-fill-height: false;
     -fx-alignment: center;
 }
