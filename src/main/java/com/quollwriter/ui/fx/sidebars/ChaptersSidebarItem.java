@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
@@ -335,6 +336,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     }
 
+                    l.requestFocus ();
+
                     this.viewer.viewObject (n);
 
                 });
@@ -345,6 +348,57 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                 {
 
                     Chapter c = (Chapter) n;
+
+                    //l.setFocusTraversable (true);
+
+                    l.setOnKeyReleased (ev ->
+                    {
+
+                        // TODO!
+                        if ((ev.isShortcutDown ())
+                            &&
+                            (ev.getCode () == KeyCode.KP_UP)
+                           )
+                        {
+
+                            this.ignoreChaptersEvents = true;
+                            Book b = c.getBook ();
+
+                            int ind = b.getChapters ().indexOf (c);
+
+                            ind--;
+
+                            if (ind < 0)
+                            {
+
+                                ind = 0;
+
+                            }
+
+                            b.moveChapter (c,
+                                           ind);
+                            this.ignoreChaptersEvents = false;
+
+                            try
+                            {
+
+                                this.viewer.updateChapterIndexes (b);
+
+                            } catch (Exception e)
+                            {
+
+                                Environment.logError ("Unable to update chapter indexes for book: " +
+                                                      b,
+                                                      e);
+
+                            }
+
+                            this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                                          ProjectEvent.Action.move);
+
+                        }
+
+                    });
 
                     l.setOnMouseExited (ev ->
                     {
@@ -380,66 +434,9 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                     l.setOnMouseEntered (ev ->
                     {
 
-                        ScheduledFuture phide = (ScheduledFuture) l.getProperties ().get ("previewpopuphide");
-
-                        if (phide != null)
-                        {
-
-                            phide.cancel (true);
-
-                        }
-
-                        ScheduledFuture pshow = (ScheduledFuture) l.getProperties ().get ("previewpopupshow");
-
-                        if (pshow != null)
-                        {
-
-                            pshow.cancel (true);
-
-                        }
-
                         if (UserProperties.getAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME,
                                                          null))
                         {
-
-                            l.getProperties ().put ("previewpopupshow",
-                                                    Environment.schedule (() ->
-                            {
-
-                                String prevformat = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
-                                                                        Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
-
-
-                                BasicHtmlTextFlow m = BasicHtmlTextFlow.builder ()
-                                    .styleClassName (StyleClassNames.MESSAGE)
-                                    .text (UIUtils.getChapterInfoPreview (c,
-                                                                          new StringWithMarkup (prevformat),
-                                                                          pv))
-                                    .build ();
-
-                                QuollPopup popup = QuollPopup.builder ()
-                                    .styleClassName (StyleClassNames.INFORMATION)
-                                    .content (m)
-                                    .removeOnClose (true)
-                                    .build ();
-/*
-                                UIUtils.runLater (() ->
-                                {
-
-                                    l.getProperties ().put ("previewpopup",
-                                                            popup);
-
-                                    this.viewer.showPopup (popup,
-                                                    l,
-                                                    20,
-                                                    20,
-                                                    Side.RIGHT);
-
-                                });
-*/
-                            },
-                            750,
-                            -1));
 
                             String prevformat = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
                                                                     Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
@@ -453,10 +450,10 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                                 sp);
 
                         } else {
-/*
+
                             UIUtils.setTooltip (l,
                                                 null);
-*/
+
                         }
 
                     });
