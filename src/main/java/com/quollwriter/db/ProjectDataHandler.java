@@ -214,7 +214,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                 }
 
                 Set<NamedObject> items = c.getAllNamedChildObjects ();
-
+/*
                 for (NamedObject ni : items)
                 {
 
@@ -288,6 +288,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                     }
 
                 }
+                */
 
             }
 
