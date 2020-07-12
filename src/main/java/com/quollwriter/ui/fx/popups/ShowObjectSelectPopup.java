@@ -46,6 +46,14 @@ public class ShowObjectSelectPopup<T> extends PopupContent
             .map (obj -> b.cellProvider.apply (obj, this))
             .collect (Collectors.toList ()));
 
+        if (vb.getChildren ().size () > 0)
+        {
+
+            vb.getChildren ().get (0).pseudoClassStateChanged (StyleClassNames.FIRST_PSEUDO_CLASS, true);
+            vb.getChildren ().get (vb.getChildren ().size () - 1).pseudoClassStateChanged (StyleClassNames.LAST_PSEUDO_CLASS, true);
+
+        }
+
         this.getChildren ().add (new ScrollPane (vb));
 
     }
@@ -57,6 +65,8 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         QuollPopup p = QuollPopup.builder ()
             .title (builder.title)
             .styleClassName (builder.styleName)
+            .styleSheet (StyleClassNames.OBJECTSELECT)
+            .headerIconClassName (builder.headerIconClassName)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -93,6 +103,7 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         private String popupId = null;
         private AbstractViewer viewer = null;
         private Set<T> objs = null;
+        private String headerIconClassName = null;
 
         private Builder ()
         {
@@ -135,6 +146,14 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         {
 
             this.popupId = id;
+            return this;
+
+        }
+
+        public Builder<T> headerIconClassName (String c)
+        {
+
+            this.headerIconClassName = c;
             return this;
 
         }
