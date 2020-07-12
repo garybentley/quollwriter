@@ -319,6 +319,14 @@ public abstract class ChapterItem extends NamedObject
 
         //this.position = p;
         //this.positionProp.unbind ();
+
+        if (p < 0)
+        {
+
+            p = 0;
+
+        }
+
         this.positionProp.setValue (p);
 /*
         this.textPos = null;
