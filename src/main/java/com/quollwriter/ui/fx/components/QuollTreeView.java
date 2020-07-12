@@ -954,6 +954,13 @@ xxx
             this.disclosureNodeWrapper.setOnMouseClicked (ev ->
             {
 
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
+
+                    return;
+
+                }
+
                 ti.setExpanded (!ti.isExpanded ());
 
                 this.requestLayout ();

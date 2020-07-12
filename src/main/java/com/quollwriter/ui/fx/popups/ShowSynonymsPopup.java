@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import javafx.beans.property.*;
+import javafx.scene.input.*;
 
 import com.gentlyweb.utils.*;
 
@@ -135,6 +136,13 @@ public class ShowSynonymsPopup extends PopupContent<AbstractViewer>
                 l.setText (w);
                 l.setOnMouseClicked (ev ->
                 {
+
+                    if (ev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
 
                     this.editor.removeHighlight (this.highlight);
 

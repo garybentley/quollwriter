@@ -106,7 +106,7 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
                 }
 
-                if (ev.isPopupTrigger ())
+                if (ev.getButton () != MouseButton.PRIMARY)
                 {
 
                     return;

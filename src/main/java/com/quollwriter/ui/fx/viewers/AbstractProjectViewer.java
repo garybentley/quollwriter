@@ -1267,6 +1267,13 @@ TODO
                       m.setOnMouseClicked (ev ->
                       {
 
+                          if (ev.getButton () != MouseButton.PRIMARY)
+                          {
+
+                              return;
+
+                          }
+
                           n.removeNotification ();
 
                           Set<Chapter> chaps = this.getChaptersOverWordTarget ();
@@ -1313,6 +1320,13 @@ TODO
 
                       m.setOnMouseClicked (ev ->
                       {
+
+                          if (ev.getButton () != MouseButton.PRIMARY)
+                          {
+
+                              return;
+
+                          }
 
                           n.removeNotification ();
 

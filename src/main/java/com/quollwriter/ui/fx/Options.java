@@ -17,6 +17,7 @@ import javafx.scene.paint.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
+import javafx.scene.input.*;
 
 import com.gentlyweb.utils.*;
 
@@ -232,6 +233,13 @@ public class Options extends VBox implements Stateful
         l.setOnMouseClicked (ev ->
         {
 
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
+
             QuollPopup qp = this.viewer.getPopupById (LAYOUT_POPUP_ID);
 
             if (qp != null)
@@ -298,6 +306,13 @@ public class Options extends VBox implements Stateful
 
                 hb.setOnMouseClicked (eev ->
                 {
+
+                    if (eev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
 
                     UIUtils.setSelected (b,
                                          lt);
@@ -1091,6 +1106,13 @@ public class Options extends VBox implements Stateful
 
         editPosColorSwatch.setOnMouseClicked (ev ->
         {
+
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
 
             String pid = "edit-position-color-chooser";
 

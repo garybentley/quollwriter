@@ -6,6 +6,7 @@ import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
@@ -34,6 +35,13 @@ public class NoProjectsPanel extends PanelContent<AbstractViewer>
         b.getChildren ().add (l);
         b.setOnMouseClicked (ev ->
         {
+
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
 
             viewer.runCommand (AbstractViewer.CommandId.newproject);
 

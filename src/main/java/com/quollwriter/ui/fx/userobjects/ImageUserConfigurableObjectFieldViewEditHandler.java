@@ -278,7 +278,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
         icon.setOnMouseClicked (ev ->
         {
 
-            if (ev.isPopupTrigger ())
+            if (ev.getButton () != MouseButton.PRIMARY)
             {
 
                 return;

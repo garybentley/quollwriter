@@ -788,10 +788,9 @@ TODO: Not really needed?
                                            ev ->
             {
 
-                if (ev.isPopupTrigger ())
+                if (ev.getButton () != MouseButton.PRIMARY)
                 {
 
-                    ev.consume ();
                     return;
 
                 }
@@ -1295,10 +1294,9 @@ TODO: Not really needed?
                                        ev ->
             {
 
-                if (ev.isPopupTrigger ())
+                if (ev.getButton () != MouseButton.PRIMARY)
                 {
 
-                    ev.consume ();
                     return;
 
                 }

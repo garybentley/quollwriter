@@ -8,6 +8,7 @@ import javafx.geometry.*;
 import javafx.scene.layout.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.IPropertyBinder;
@@ -52,6 +53,13 @@ public class FullScreenPropertiesPanel extends VBox
 
         this.bgsel.setOnMouseClicked (ev ->
         {
+
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
 
             this.bgsel.showBackgroundSelector ();
 

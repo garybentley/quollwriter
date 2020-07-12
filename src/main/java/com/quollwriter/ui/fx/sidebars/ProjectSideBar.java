@@ -99,7 +99,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
             }
 
-            if (ev.isPopupTrigger ())
+            if (ev.getButton () != MouseButton.PRIMARY)
             {
 
                 return;

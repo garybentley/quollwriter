@@ -292,6 +292,13 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
         panel.setOnMouseClicked (ev ->
         {
 
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
+
             if (ev.getClickCount () == 2)
             {
 
@@ -1206,11 +1213,38 @@ TODO
                     this.contextMenu = cm;
 
             });
+/*
+            UIUtils.addUnifiedMousePressHandler (this,
+                                                 ev ->
+            {
 
+                try
+				{
+
+					_this.parent.handleOpenProject (_this.project,
+													null);
+
+				} catch (Exception e) {
+
+				   Environment.logError ("Unable to open project: " +
+					   				     _this.project,
+										 e);
+
+                  List<String> prefix = Arrays.asList (LanguageStrings.project,actions,openproject,openerrors);
+
+                  ComponentUtils.showErrorMessage (_this.parent.viewer,
+                                                   getUILanguageStringProperty (Utils.newList (prefix,general),
+                                                                                _this.project.getName (),
+                                                                                getUIString (Utils.newList (prefix,unspecified))));
+
+				}
+
+            });
+*/
             this.setOnMouseClicked (ev ->
             {
 
-                if (ev.isPopupTrigger ())
+                if (ev.getButton () != MouseButton.PRIMARY)
                 {
 
                     return;
@@ -1239,6 +1273,7 @@ TODO
 				}
 
 			});
+
 			/*
 			this.add (new JLayer<JComponent> (this.content, new LayerUI<JComponent> ()
 			{

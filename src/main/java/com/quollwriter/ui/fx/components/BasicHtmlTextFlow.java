@@ -8,6 +8,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.text.*;
 import javafx.scene.image.*;
+import javafx.scene.input.*;
 
 import org.jsoup.*;
 
@@ -282,6 +283,13 @@ public class BasicHtmlTextFlow extends TextFlow
                     //_t.setWrapText (true);
                     t.setOnMouseClicked (ev ->
                     {
+
+                        if (ev.getButton () != MouseButton.PRIMARY)
+                        {
+
+                            return;
+
+                        }
 
                         String url = el.attributes ().get ("href");
 

@@ -7,6 +7,7 @@ import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 
 import javafx.util.*;
 import javafx.animation.*;
@@ -75,7 +76,7 @@ public class AccordionItem extends VBox implements Stateful
         this.header.titleLabelProperty ().getValue ().setOnMouseClicked (ev ->
         {
 
-            if (ev.isPopupTrigger ())
+            if (ev.getButton () != MouseButton.PRIMARY)
             {
 
                 return;

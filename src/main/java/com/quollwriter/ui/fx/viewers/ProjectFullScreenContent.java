@@ -684,7 +684,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
                               ev ->
         {
 
-            if (ev.isPopupTrigger ())
+            if (ev.getButton () != MouseButton.PRIMARY)
             {
 
                 return;

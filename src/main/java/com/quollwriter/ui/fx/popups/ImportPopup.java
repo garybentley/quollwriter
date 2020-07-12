@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
+import javafx.scene.input.*;
 
 import com.gentlyweb.xml.*;
 
@@ -1246,6 +1247,13 @@ TODO Add tool tip?
 
                 l.setOnMouseClicked (ev ->
                 {
+
+                    if (ev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
 
                     UIUtils.toggleSelected (this.projectList,
                                             l);

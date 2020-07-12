@@ -451,6 +451,13 @@ public class UIUtils
                              l.setOnMouseClicked (eev ->
                              {
 
+                                 if (eev.getButton () != MouseButton.PRIMARY)
+                                 {
+
+                                     return;
+
+                                 }
+
                                  pv.viewObject (obj);
 
                                  popupContent.close ();
@@ -2492,6 +2499,13 @@ public class UIUtils
                 l.setOnMouseClicked (ev ->
                 {
 
+                    if (ev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
+
                     UILanguageStringsManager.editUILanguageStrings (obj,
                                                                     obj.getQuollWriterVersion ());
 
@@ -2637,6 +2651,13 @@ public class UIUtils
 
                 l.setOnMouseClicked (ev ->
                 {
+
+                    if (ev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
 
                     WebsiteLanguageStringsManager.editWebsiteLanguageStrings (obj);
 
@@ -3594,6 +3615,13 @@ TODO
 
         swatch.setOnMouseClicked (ev ->
         {
+
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
 
             QuollPopup qp = viewer.getPopupById (popupId);
 
@@ -4571,6 +4599,42 @@ TODO
                                                                                      true,
                                                                                      false)));
             r.setBackground (bb);
+
+        });
+
+    }
+
+    public static void addUnifiedMousePressHandler (Node                     l,
+                                                    EventHandler<MouseEvent> handler)
+    {
+
+        l.addEventHandler (MouseEvent.MOUSE_PRESSED,
+                           ev ->
+        {
+
+            if (ev.isPopupTrigger ())
+            {
+
+                return;
+
+            }
+
+            handler.handle (ev);
+
+        });
+
+        l.addEventHandler (MouseEvent.MOUSE_RELEASED,
+                           ev ->
+        {
+
+            if (ev.isPopupTrigger ())
+            {
+
+                return;
+
+            }
+
+            handler.handle (ev);
 
         });
 

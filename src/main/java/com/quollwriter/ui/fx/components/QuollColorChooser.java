@@ -10,6 +10,7 @@ import javafx.scene.paint.*;
 import javafx.scene.layout.*;
 import javafx.scene.*;
 import javafx.event.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -227,7 +228,7 @@ public class QuollColorChooser extends VBox
         swatch.setOnMouseClicked (ev ->
         {
 
-            if (ev.isPopupTrigger ())
+            if (ev.getButton () != MouseButton.PRIMARY)
             {
 
                 return;

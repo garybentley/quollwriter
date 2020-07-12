@@ -329,7 +329,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                 l.setOnMouseClicked (ev ->
                 {
 
-                    if (ev.isPopupTrigger ())
+                    if (ev.getButton () != MouseButton.PRIMARY)
                     {
 
                         return;

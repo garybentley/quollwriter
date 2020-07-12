@@ -1216,6 +1216,13 @@ _this.moving = false;
                 l.setOnMouseClicked (ev ->
                 {
 
+                    if (ev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
+
                     this.onClick.accept (n);
 
                 });

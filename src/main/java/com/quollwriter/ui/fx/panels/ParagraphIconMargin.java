@@ -378,13 +378,15 @@ public class ParagraphIconMargin extends Pane
             riv.setOnMouseClicked (ev ->
             {
 
-                if (!ev.isPopupTrigger ())
+                if (ev.getButton () != MouseButton.PRIMARY)
                 {
 
-                    this.showItem.accept (n,
-                                          riv);
+                    return;
 
                 }
+
+                this.showItem.accept (n,
+                                      riv);
 
                 ev.consume ();
 
@@ -425,6 +427,13 @@ public class ParagraphIconMargin extends Pane
 
             riv.setOnMouseClicked (ev ->
             {
+
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
+
+                    return;
+
+                }
 
                 this.showItem.accept (ci,
                                       riv);

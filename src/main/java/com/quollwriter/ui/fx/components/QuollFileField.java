@@ -9,6 +9,7 @@ import javafx.stage.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -92,6 +93,13 @@ public class QuollFileField extends HBox
 
         this.text.setOnMouseClicked (ev ->
         {
+
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
 
             ev.consume ();
 

@@ -120,6 +120,13 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         header.setOnMouseClicked (ev ->
         {
 
+            if (ev.getButton () != MouseButton.PRIMARY)
+            {
+
+                return;
+
+            }
+
             if (ev.getClickCount () == 2)
             {
 

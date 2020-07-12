@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
 import javafx.scene.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -93,6 +94,13 @@ TODO The add is really complex... need to find the parent and the right position
 
             l.setOnMouseClicked (ev ->
             {
+
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
+
+                    return;
+
+                }
 
                 if ((this.editTree.isVisible ())
                     ||

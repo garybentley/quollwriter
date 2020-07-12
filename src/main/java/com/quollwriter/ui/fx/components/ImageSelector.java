@@ -190,7 +190,7 @@ public class ImageSelector extends QuollImageView
         this.setOnMouseClicked (ev ->
         {
 
-            if (ev.isPopupTrigger ())
+            if (ev.getButton () != MouseButton.PRIMARY)
             {
 
                 return;

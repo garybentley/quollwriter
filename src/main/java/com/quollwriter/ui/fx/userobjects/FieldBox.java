@@ -65,7 +65,7 @@ public class FieldBox extends VBox
         this.label.setOnMouseClicked (ev ->
         {
 
-            if (ev.isPopupTrigger ())
+            if (ev.getButton () != MouseButton.PRIMARY)
             {
 
                 return;

@@ -425,6 +425,13 @@ public class QuollTextView extends VBox
             te.setOnMouseClicked (ev ->
             {
 
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
+
+                    return;
+
+                }
+
                 try
                 {
 
