@@ -705,14 +705,13 @@ public class UIUtils
         }
 
         try {
-          URI uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery(), url.getRef ());
+          //URI uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery(), url.getRef ());
 
           Environment.openURL (url);
           //Desktop.getDesktop ().browse (uri);
 
-        } catch (MalformedURLException e) {
-            // Handle?
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
+
             // Handle?
         }
 
