@@ -291,6 +291,8 @@ public class ObjectTypeNameChangePopup extends PopupContent
 
         }
 
+        this.close ();
+
     }
 
     @Override
