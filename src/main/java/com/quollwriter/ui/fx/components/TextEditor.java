@@ -977,7 +977,10 @@ TODO
                                     {
 
                                         // See if there are any synonyms.
-                                        if (this.getSynonymProvider ().hasSynonym (word))
+                                        if ((this.getSynonymProvider () != null)
+                                            &&
+                                            (this.getSynonymProvider ().hasSynonym (word))
+                                           )
                                         {
 
                                             items.add (QuollMenuItem.builder ()
@@ -1703,10 +1706,34 @@ TODO
     public Bounds getBoundsForPosition (int pos)
     {
 
-        if ((pos + 1) >= this.getText ().length ())
+        if (pos > this.getText ().length ())
         {
 
-            return null;
+            pos = this.getText ().length () - 1;
+
+        }
+
+        if (pos < 0)
+        {
+
+            pos = 0;
+
+        }
+
+        if (pos == this.getText ().length ())
+        {
+
+            return this.getParagraphBoundsOnScreen (this.getParagraphForOffset (pos)).orElse (null);
+
+        }
+
+        if ((pos == 0)
+            &&
+            (this.getText ().length () == 0)
+           )
+        {
+
+            return this.getParagraphBoundsOnScreen (0).orElse (null);
 
         }
 
@@ -1715,7 +1742,27 @@ TODO
         if (cb == null)
         {
 
-            cb = this.getParagraphBoundsOnScreen (this.getParagraphForOffset (pos)).orElse (null);
+            int para = this.getParagraphForOffset (pos);
+
+            IndexRange r = this.getParagraphTextRange (para);
+
+            if (r.getStart () < r.getEnd ())
+            {
+
+                cb = this.getCharacterBoundsOnScreen (r.getEnd () - 1, r.getEnd ()).orElse (null);
+
+            } else {
+
+                cb = this.getParagraphBoundsOnScreen (para).orElse (null);
+
+                cb = new BoundingBox (cb.getMinX (),
+                                      cb.getMinY (),
+                                      cb.getMinZ (),
+                                      cb.getWidth (),
+                                      cb.getHeight () - (this.props.getLineSpacing () * this.props.getFontSize ()),
+                                      cb.getDepth ());
+
+            }
 
         }
 
@@ -2728,7 +2775,7 @@ TODO
             if (this.textBorder.isPresent ())
             {
 
-                float s = (this.lineSpacing.get () - 1) * this.fontSize;
+                float s = (this.lineSpacing.get ()) * this.fontSize;
 
                 sb.append (String.format ("-fx-padding: 0 %1$spx %2$spt %1$spx;",
                                           this.textBorder.get () + 3,
@@ -2813,9 +2860,13 @@ TODO
     public Position createTextPosition (int pos)
     {
 
+        int l = this.getText ().length ();
+
         if ((pos < 0)
+/*
             ||
-            (pos > this.getText ().length () - 1)
+            (pos)
+*/
            )
         {
 
@@ -2983,10 +3034,15 @@ TODO
                 for (PlainTextChange c : changes)
                 {
 
-                    if (c.getPosition () <= this.pos)
+                    if (c.getNetLength () < 0)
                     {
 
-                        this.pos += c.getNetLength ();
+                        if (c.getPosition () < this.pos)
+                        {
+
+                            this.pos += c.getNetLength ();
+
+                        }
 
                         if (this.pos < 0)
                         {
@@ -2996,6 +3052,24 @@ TODO
                         }
 
                         this.posProp.setValue (this.pos);
+
+                    } else {
+
+                        if (c.getPosition () <= this.pos)
+                        {
+
+                            this.pos += c.getNetLength ();
+
+                            if (this.pos < 0)
+                            {
+
+                                this.pos = 0;
+
+                            }
+
+                            this.posProp.setValue (this.pos);
+
+                        }
 
                     }
 
