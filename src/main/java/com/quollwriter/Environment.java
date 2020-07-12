@@ -142,6 +142,8 @@ public class Environment
 
     private static ObservableSet<URL> styleSheets = FXCollections.observableSet (new LinkedHashSet<> ());
 
+    private static HostServices hostServices = null;
+
     static
     {
 
@@ -1153,6 +1155,30 @@ TODO
                             UserProperties.userStyleSheetProperty ().getValue ());
 
         UIUtils.runLater (onInitComplete);
+
+    }
+
+    public static void setHostServices (HostServices h)
+    {
+
+        Environment.hostServices = h;
+
+    }
+
+    public static void openURL (URL u)
+    {
+
+        try
+        {
+
+            Environment.hostServices.showDocument (u.toExternalForm ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to open url: " + u,
+                                  e);
+
+        }
 
     }
 

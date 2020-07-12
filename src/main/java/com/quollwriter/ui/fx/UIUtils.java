@@ -696,7 +696,9 @@ public class UIUtils
         if (url.getProtocol ().equals ("file"))
         {
 
-            Desktop.getDesktop ().browse (url.toURI ());
+            Environment.openURL (url);
+
+            //Desktop.getDesktop ().browse (url.toURI ());
 
             return;
 
@@ -705,7 +707,8 @@ public class UIUtils
         try {
           URI uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery(), url.getRef ());
 
-          Desktop.getDesktop ().browse (uri);
+          Environment.openURL (url);
+          //Desktop.getDesktop ().browse (uri);
 
         } catch (MalformedURLException e) {
             // Handle?

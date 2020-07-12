@@ -102,7 +102,7 @@ System.out.println ("CALLED: " + d);
 
         } catch (Exception e) {
 
-            e.printStackTrace ();
+            //e.printStackTrace ();
 
         }
 
@@ -118,6 +118,8 @@ System.out.println ("CALLED: " + d);
 
                     try
                     {
+
+                        Environment.setHostServices (this.getHostServices ());
 
                         Environment.incrStartupProgress ();
 
