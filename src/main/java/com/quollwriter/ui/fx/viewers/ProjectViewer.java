@@ -950,7 +950,10 @@ public class ProjectViewer extends AbstractProjectViewer
     {
 
         NamedObjectPanelContent p = this.getPanelForObject (a);
-
+if (p == null)
+{
+new Exception ().printStackTrace ();
+}
         if (p instanceof AssetViewPanel)
         {
 
@@ -1204,6 +1207,8 @@ public class ProjectViewer extends AbstractProjectViewer
             avp = new AssetViewPanel (this,
                                       a);
 
+            this.addPanel (avp);
+
             if (doAfterView != null)
             {
 
@@ -1221,8 +1226,6 @@ public class ProjectViewer extends AbstractProjectViewer
                 }
 
             }
-
-            this.addPanel (avp);
 
         } catch (Exception e)
         {

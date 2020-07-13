@@ -1802,7 +1802,7 @@ TODO
 
 			if ((pqp != null)
 				&&
-				(pqp.getObject () == n)
+				(pqp.getObject ().equals (n))
 			   )
 			{
 
