@@ -99,17 +99,17 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
             l.setOnMouseClicked (ev ->
             {
 
-                if (_l.getProperties ().get ("context-menu") != null)
-                {
-
-                    ((ContextMenu) _l.getProperties ().get ("context-menu")).hide ();
-
-                }
-
                 if (ev.getButton () != MouseButton.PRIMARY)
                 {
 
                     return;
+
+                }
+
+                if (_l.getProperties ().get ("context-menu") != null)
+                {
+
+                    ((ContextMenu) _l.getProperties ().get ("context-menu")).hide ();
 
                 }
 
@@ -136,6 +136,13 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
             l.setOnContextMenuRequested (ev ->
             {
+
+                if (_l.getProperties ().get ("context-menu") != null)
+                {
+
+                    ((ContextMenu) _l.getProperties ().get ("context-menu")).hide ();
+
+                }
 
                 if (ev.getSource () != _l)
                 {

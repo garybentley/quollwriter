@@ -71,6 +71,12 @@ public class Header extends HBox
             this.title.setOnContextMenuRequested (ev ->
             {
 
+                if (this.getProperties ().get ("context-menu") != null)
+                {
+
+                    ((ContextMenu) this.getProperties ().get ("context-menu")).hide ();
+
+                }
 
                 ContextMenu m = new ContextMenu ();
 
@@ -82,9 +88,14 @@ public class Header extends HBox
                     m.getItems ().addAll (items);
                     ev.consume ();
 
+                    m.setAutoFix (true);
+                    m.setAutoHide (true);
+                    m.setHideOnEscape (true);
                     m.setAutoHide (true);
 
 					m.show (_this, ev.getScreenX (), ev.getScreenY ());
+
+                    this.getProperties ().put ("context-menu", m);
 
                 }
 

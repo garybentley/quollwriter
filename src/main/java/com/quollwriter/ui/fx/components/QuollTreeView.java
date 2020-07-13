@@ -932,6 +932,13 @@ xxx
                                          ev ->
                 {
 
+                    if (ev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
+
                     cbti.setSelected (!cbti.isSelected ());
 
                     this.requestLayout ();
