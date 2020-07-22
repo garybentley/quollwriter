@@ -8,7 +8,7 @@ import java.io.*;
 import java.nio.file.*;
 
 import java.awt.image.*;
-import java.awt.Desktop;
+//import java.awt.Desktop;
 
 import javafx.application.*;
 import javafx.beans.property.*;
@@ -803,7 +803,8 @@ public class UIUtils
         try
         {
 
-            Desktop.getDesktop ().open (f.toFile ());
+            //Desktop.getDesktop ().open (f.toFile ());
+            Desktop.open (f.toFile ());
 
         } catch (Exception e)
         {
