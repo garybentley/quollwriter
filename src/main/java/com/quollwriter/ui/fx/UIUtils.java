@@ -802,8 +802,7 @@ public class UIUtils
 
         try
         {
-
-            //Desktop.getDesktop ().open (f.toFile ());
+            
             Desktop.open (f.toFile ());
 
         } catch (Exception e)

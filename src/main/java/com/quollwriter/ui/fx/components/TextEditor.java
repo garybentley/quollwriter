@@ -1767,9 +1767,22 @@ TODO
 
             } else {
 
-                Bounds cb = this.getCharacterBoundsOnScreen (pos - 1, pos).orElse (null);
+                IndexRange ir = this.getParagraphTextRange (para);
 
-                return cb;
+                if (pos == ir.getStart ())
+                {
+
+                    Bounds cb = this.getCharacterBoundsOnScreen (pos, pos + 1).orElse (null);
+
+                    return cb;
+
+                } else {
+
+                    Bounds cb = this.getCharacterBoundsOnScreen (pos - 1, pos).orElse (null);
+
+                    return cb;
+
+                }
 
             }
 
