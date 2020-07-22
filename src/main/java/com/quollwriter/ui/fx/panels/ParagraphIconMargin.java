@@ -777,7 +777,6 @@ public class ParagraphIconMargin extends Pane
         double thisw = this.getLayoutBounds ().getWidth ();
 
         Map<Double, Set<Node>> mapped = this.mapNodesToPosition (this.strucNodes);
-
         for (Double y : mapped.keySet ())
         {
 
