@@ -1085,7 +1085,6 @@ public class UIUtils
             }
 
             b = p.localToParent (b);
-            System.out.println ("BBB: " + b);
             p = p.getParent ();
 
         }
