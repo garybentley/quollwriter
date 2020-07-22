@@ -158,6 +158,9 @@ TODO
 
                         this.createTextPosition (s);
 
+                        s.getOutlineItems ().stream ()
+                            .forEach (o -> this.createTextPosition (o));
+
                     });
 
                 this.object.getOutlineItems ().stream ()
@@ -166,7 +169,13 @@ TODO
                 this.object.getNotes ().stream ()
                     .forEach (n -> this.createTextPosition (n));
 
-                this.recreateVisibleParagraphs ();
+                UIUtils.forceRunLater (() ->
+                {
+
+                    // Don't need this.
+                    //this.recreateVisibleParagraphs ();
+
+                });
 /*
                 IntStream.range (0,
                                  this.editor.getVisibleParagraphs ().size ())
@@ -432,13 +441,13 @@ TODO
 
         }
 
-        if ((ci.getPosition () >= l)
+        if ((ci.getPosition () > l)
              ||
             (ci.getPosition () < 0)
            )
         {
 
-            ci.setPosition ((l > 0 ? l - 1 : 0));
+            ci.setPosition ((l > 0 ? l : 0));
 
         }
 
@@ -451,7 +460,7 @@ TODO
         if (ci.getEndPosition () > -1)
         {
 
-            if (ci.getEndPosition () >= l)
+            if (ci.getEndPosition () > l)
             {
 
                 ci.setEndPosition (l);
@@ -3308,7 +3317,12 @@ TODO?
 
         });
 
-        this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+        UIUtils.forceRunLater (() ->
+        {
+
+            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+
+        });
 
         QuollPopup qp = p.getPopup ();
 
@@ -3367,7 +3381,12 @@ TODO?
 
         });
 
-        this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+        UIUtils.forceRunLater (() ->
+        {
+
+            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+
+        });
 
         QuollPopup qp = p.getPopup ();
 
