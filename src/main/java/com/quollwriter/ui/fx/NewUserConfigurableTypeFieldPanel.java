@@ -256,7 +256,6 @@ public class NewUserConfigurableTypeFieldPanel extends VBox
                 _field.setOrder (type.getConfigurableFields ().size ());
 
                 this.field = _field;
-System.out.println ("TYPE: " + this.field.getClass ().getName ());
                 this.fireEvent (new Event (FIELD_CREATED_EVENT));
 
             });
