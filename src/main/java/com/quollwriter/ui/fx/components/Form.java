@@ -155,7 +155,7 @@ public class Form extends VBox
                     UIUtils.addDoOnReturnPressed (tf,
                                                   () ->
                     {
-System.out.println ("FIRING");
+
                         this.fireEvent (new FormEvent (this,
                                                        FormEvent.CONFIRM_EVENT));
 
