@@ -375,6 +375,12 @@ public class ParagraphIconMargin extends Pane
 */
             this.getChildren ().add (riv);
 
+            riv.setOnMouseDragged (ev ->
+            {
+
+                riv.requestFocus ();
+
+            });
             riv.setOnMouseClicked (ev ->
             {
 
@@ -710,7 +716,6 @@ public class ParagraphIconMargin extends Pane
 
         // Need to redetermine the bounds here otherwise the height will be wrong, for reasons...
         thisb = this.localToScreen (this.getBoundsInLocal ());
-
         double y = cb.getMinY ();
         double h = n.prefHeight (-1);
         double ny = y - thisb.getMinY () + (cb.getHeight () / 2) - (h / 2);
@@ -727,6 +732,7 @@ public class ParagraphIconMargin extends Pane
     {
 
         List<ChapterItem> newis = this.getNewItems.apply (paraRange);
+
         ChapterItem newi = null;
 
         if (newis.size () > 0)
