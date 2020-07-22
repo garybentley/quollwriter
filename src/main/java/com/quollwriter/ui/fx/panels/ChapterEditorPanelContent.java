@@ -285,7 +285,6 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         Bounds eb = this.editor.localToScreen (this.editor.getBoundsInLocal ());
 
         double diff = b.getMinY () - eb.getMinY () - (eb.getHeight () / 2);
-System.out.println ("DIFF: " + diff);
         this.editor.scrollYBy (diff);
 
         UIUtils.forceRunLater (afterScroll);
