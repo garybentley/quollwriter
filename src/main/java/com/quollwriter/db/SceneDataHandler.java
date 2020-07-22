@@ -208,8 +208,10 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
 
         } else {
 
+            Set<OutlineItem> its = new LinkedHashSet<> (s.getOutlineItems ());
+
             // Remove the scene from the item.
-            for (OutlineItem i : s.getOutlineItems ())
+            for (OutlineItem i : its)
             {
 
                 i.setScene (null);
@@ -218,7 +220,6 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
                                                conn);
 
             }
-
 
         }
 
