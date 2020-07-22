@@ -245,9 +245,10 @@ public class AddEditStructureItemPopup extends PopupContent<ProjectViewer>
                 {
 
                     // Add a newline to the end of the chapter.
+                    /*
                     editor.insertText (this.item.getPosition (),
                                        "\n");
-
+*/
                     //this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - 1));
 
                 }
