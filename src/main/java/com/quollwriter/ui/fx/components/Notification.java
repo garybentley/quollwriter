@@ -138,7 +138,7 @@ public class Notification extends HBox
 
         }
 
-        this.timerId = this.viewer.schedule (UIUtils.createRunLater (() -> { System.out.println ("HERE"); _this.removeNotification ();}),
+        this.timerId = this.viewer.schedule (UIUtils.createRunLater (() -> { _this.removeNotification ();),
                                              this.duration * Constants.SEC_IN_MILLIS,
                                              -1);
 
