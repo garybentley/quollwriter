@@ -158,7 +158,7 @@ public class FieldBox extends VBox
         this.getChildren ().add (this.view);
         VBox.setVgrow (this.view,
                        Priority.ALWAYS);
-        this.view.setOnMouseClicked (ev ->
+        this.view.setOnMousePressed (ev ->
         {
 
             if (this.view.getProperties ().get ("context-menu") != null)
