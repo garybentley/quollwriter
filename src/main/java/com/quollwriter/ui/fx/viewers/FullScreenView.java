@@ -1191,7 +1191,7 @@ TODO ? psuedo class
 
     public void switchTo (PanelContent p)
     {
-System.out.println ("SWITCHTO CALLED: " + p.getPanel ());
+
         if (p instanceof AssetViewPanel)
         {
 

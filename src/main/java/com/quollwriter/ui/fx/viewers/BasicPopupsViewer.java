@@ -54,7 +54,7 @@ public class BasicPopupsViewer extends Stage
         qp.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
                             ev ->
         {
-System.out.println ("HERE");
+
             this.hide ();
 
         });

@@ -1606,7 +1606,7 @@ TODO
 
                                 }
 
-                                this.getPopupById (pid2).close ();
+                                //this.getPopupById (pid2).close ();
 
                             })
                             .withViewer (this)
@@ -1616,6 +1616,8 @@ TODO
                         this.showPopup (qp2,
                                         showAt,
                                         Side.BOTTOM);
+
+                        this.getPopupById (pid).close ();        
 
                         return;
 
