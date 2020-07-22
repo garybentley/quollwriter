@@ -634,7 +634,7 @@ TODO Remove
 
         try
         {
-System.out.println ("REMOVING BACKUP: " + backupPath + ", " + this.proj.getBackupPaths ());
+
             this.proj.removeBackupPath (backupPath);
 
             Files.delete (backupPath);

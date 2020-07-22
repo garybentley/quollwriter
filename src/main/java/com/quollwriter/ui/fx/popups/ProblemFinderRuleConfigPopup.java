@@ -343,7 +343,6 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         UIUtils.forceRunLater (() ->
         {
             _edit.setVisible (true);
-            System.out.println ("XXXH:");
 
             this.requestLayout ();
         });

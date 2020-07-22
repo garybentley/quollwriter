@@ -1008,7 +1008,6 @@ System.out.println ("HERE2");
                 UILanguageStrings uistrings = UILanguageStringsManager.getCurrentUILanguageStrings ();
 
                 spellcheckLang.getSelectionModel ().select (uistrings.getLanguageName ());
-                System.out.println ("LANG: " + uistrings.getLanguageName ());
                 if (spellcheckLang.getSelectionModel ().getSelectedItem () == null)
                 {
 
