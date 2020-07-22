@@ -83,7 +83,7 @@ public class LayoutColumn extends VBox
 
         this.getChildren ().addAll (this.title, this.fieldsBox);
 
-        this.setOnMouseClicked (ev ->
+        this.setOnMousePressed (ev ->
         {
 
             if (this.getProperties ().get ("context-menu") != null)
