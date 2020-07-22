@@ -1709,7 +1709,7 @@ TODO
         if (pos > this.getText ().length ())
         {
 
-            pos = this.getText ().length () - 1;
+            pos = this.getText ().length ();
 
         }
 
@@ -1720,10 +1720,81 @@ TODO
 
         }
 
+        int para = this.getParagraphForOffset (pos);
+/*
+        int vpara = this.allParToVisibleParIndex (para).orElse (-1);
+
+        if (vpara < 0)
+        {
+
+            return null;
+
+        }
+*/
+        Paragraph p = this.getParagraph (para);
+
+        String t = p.getText ();
+
+        if (t.length () == 0)
+        {
+
+            Bounds cb = this.getParagraphBoundsOnScreen (para).orElse (null);
+
+            if (cb == null)
+            {
+
+                return null;
+
+            }
+
+            cb = new BoundingBox (cb.getMinX (),
+                                  cb.getMinY (),
+                                  cb.getMinZ (),
+                                  cb.getWidth (),
+                                  cb.getHeight () - (this.props.getLineSpacing () * this.props.getFontSize ()),
+                                  cb.getDepth ());
+
+            return cb;
+
+        } else {
+
+            if (pos == 0)
+            {
+
+                Bounds cb = this.getCharacterBoundsOnScreen (pos, pos + 1).orElse (null);
+
+                return cb;
+
+            } else {
+
+                Bounds cb = this.getCharacterBoundsOnScreen (pos - 1, pos).orElse (null);
+
+                return cb;
+
+            }
+
+        }
+/*
         if (pos == this.getText ().length ())
         {
 
-            return this.getParagraphBoundsOnScreen (this.getParagraphForOffset (pos)).orElse (null);
+            Bounds cb = this.getParagraphBoundsOnScreen (this.getParagraphForOffset (pos)).orElse (null);
+
+            if (cb == null)
+            {
+
+                return null;
+
+            }
+
+            cb = new BoundingBox (cb.getMinX (),
+                                  cb.getMinY (),
+                                  cb.getMinZ (),
+                                  cb.getWidth (),
+                                  cb.getHeight () - (this.props.getLineSpacing () * this.props.getFontSize ()),
+                                  cb.getDepth ());
+System.out.println ("HERE! " + cb);
+            return cb;
 
         }
 
@@ -1742,18 +1813,16 @@ TODO
         if (cb == null)
         {
 
-            int para = this.getParagraphForOffset (pos);
-
+            //int para = this.getParagraphForOffset (pos);
+System.out.println ("PARA: " + para + ", " + pos);
             IndexRange r = this.getParagraphTextRange (para);
 
-            if (r.getStart () < r.getEnd ())
+            //Paragraph p = this.getParagraph (para);
+
+            if (p.getText ().length () == 0)
             {
 
-                cb = this.getCharacterBoundsOnScreen (r.getEnd () - 1, r.getEnd ()).orElse (null);
-
-            } else {
-
-                cb = this.getParagraphBoundsOnScreen (para).orElse (null);
+                cb = this.getParagraphBoundsOnScreen (this.getParagraphForOffset (pos)).orElse (null);
 
                 cb = new BoundingBox (cb.getMinX (),
                                       cb.getMinY (),
@@ -1761,13 +1830,43 @@ TODO
                                       cb.getWidth (),
                                       cb.getHeight () - (this.props.getLineSpacing () * this.props.getFontSize ()),
                                       cb.getDepth ());
+    System.out.println ("HERE2! " + cb);
+                return cb;
+
 
             }
 
+            if (r.getStart () < r.getEnd ())
+            {
+
+                cb = this.getCharacterBoundsOnScreen (r.getEnd () - 1, r.getEnd ()).orElse (null);
+System.out.println ("HEREX: " + r.getEnd () + ", " + cb);
+            } else {
+
+                cb = this.getParagraphBoundsOnScreen (para).orElse (null);
+System.out.println ("HEREY: " + cb);
+                if (cb == null)
+                {
+
+                    return null;
+
+                }
+
+                cb = new BoundingBox (cb.getMinX (),
+                                      cb.getMinY (),
+                                      cb.getMinZ (),
+                                      cb.getWidth (),
+                                      cb.getHeight () - (this.props.getLineSpacing () * this.props.getFontSize ()),
+                                      cb.getDepth ());
+System.out.println ("HEREZ: " + cb);
+            }
+
+        } else {
+            System.out.println ("HEREXX: " + cb);
         }
 
         return cb;
-
+*/
     }
 
     public IndexRange getParagraphTextRange (int paraNo)
