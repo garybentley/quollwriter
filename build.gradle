@@ -81,7 +81,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     // Docx4J
-    implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.1.0'
+    implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.1.8'
     //implementation 'org.docx4j:docx4j:6.1.2'
 
     // JAXB (needed by Docx4J)
