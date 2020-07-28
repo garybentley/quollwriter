@@ -82,12 +82,6 @@ dependencies {
 
     // Docx4J
     implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.1.8'
-    //implementation 'org.docx4j:docx4j:6.1.2'
-
-    // JAXB (needed by Docx4J)
-    //implementation 'javax.xml.bind:jaxb-api:2.3.1'
-    //implementation 'javax.activation:activation:1.1'
-    //implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
 
     // Bouncy castle crypto
     implementation 'org.bouncycastle:bcprov-jdk15on:1.62'
