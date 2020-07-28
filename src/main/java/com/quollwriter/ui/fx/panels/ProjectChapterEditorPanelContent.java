@@ -327,7 +327,11 @@ TODO
                                                this.hidePopups ();
 
                                                // TODO Handle right click on chapter items in margin.
-                                               if (ev.isPopupTrigger ())
+                                               if ((ev.isPopupTrigger ())
+                                                   &&
+                                                   // TODO NEED BETTER WAY
+                                                   (!(ev.getTarget () instanceof ParagraphIconMargin))
+                                                  )
                                                {
 
                                                    this.setContextMenu ();
@@ -344,7 +348,11 @@ TODO
                                               {
 
                                                   // TODO Handle right click on chapter items in margin.
-                                                  if (ev.isPopupTrigger ())
+                                                  if ((ev.isPopupTrigger ())
+                                                      &&
+                                                      // TODO NEED BETTER WAY
+                                                      (!(ev.getTarget () instanceof ParagraphIconMargin))
+                                                     )
                                                   {
 
                                                       this.setContextMenu ();
@@ -793,6 +801,13 @@ TODO
 
         }
 */
+        if (this.editor.getProperties ().get ("context-menu") != null)
+        {
+
+            ((ContextMenu) this.editor.getProperties ().get ("context-menu")).hide ();
+
+        }
+
         ContextMenu cm = new ContextMenu ();
         cm.getItems ().addAll (items);
 
@@ -801,6 +816,11 @@ TODO
         cm.getItems ().addAll (this.getContextMenuItems (compress));
 
         this.editor.setContextMenu (cm);
+
+        this.editor.getProperties ().put ("context-menu", cm);
+        cm.setAutoFix (true);
+        cm.setAutoHide (true);
+        cm.setHideOnEscape (true);
 
     }
 
