@@ -214,96 +214,71 @@ public class ParagraphIconMargin extends Pane
 
         final ParagraphIconMargin _this = this;
 
+        this.addEventHandler (MouseEvent.MOUSE_DRAGGED,
+                              ev ->
+        {
+
+            ev.consume ();
+
+        });
+
+        this.addEventHandler (MouseEvent.MOUSE_RELEASED,
+                              ev ->
+        {
+
+            ev.consume ();
+
+            this.editor.hideContextMenu ();
+
+            if (ev.isPopupTrigger ())
+            {
+
+                this.clearContextMenu ();
+
+                this.setContextMenu (ev);
+
+            }
+
+        });
+
+        this.setOnContextMenuRequested (ev ->
+        {
+
+            ev.consume ();
+
+        });
+
+        this.addEventHandler (MouseEvent.MOUSE_CLICKED,
+                              ev ->
+        {
+
+            ev.consume ();
+
+            this.editor.hideContextMenu ();
+
+            if (ev.getClickCount () == 2)
+            {
+
+                this.setContextMenu (ev);
+
+            }
+
+        });
+
         this.addEventHandler (MouseEvent.MOUSE_PRESSED,
                               ev ->
         {
 
             ev.consume ();
 
-            if ((ev.isPopupTrigger ())
-                ||
-                (ev.getClickCount () == 2)
-               )
+            this.editor.hideContextMenu ();
+
+            if (ev.isPopupTrigger ())
             {
 
-                List<String> prefix = Arrays.asList (iconcolumn,doubleclickmenu,items);
+                this.clearContextMenu ();
+                this.setContextMenu (ev);
 
-                ContextMenu cm = new ContextMenu ();
-
-                Set<MenuItem> items = new LinkedHashSet<> ();
-
-                int pos = this.editor.getTextPositionForMousePosition (0,
-                                                                       ev.getY ());
-                pos = this.editor.getTextPositionForCurrentMousePosition ();
-
-                int cpos = (pos > -1 ? pos : this.editor.getCaretPosition ());
-
-                items.add (QuollMenuItem.builder ()
-                    .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE)))
-                    .styleClassName (StyleClassNames.SCENE)
-                    .accelerator (new KeyCharacterCombination ("S",
-                                                               KeyCombination.SHORTCUT_DOWN,
-                                                               KeyCombination.SHIFT_DOWN))
-                    .onAction (eev ->
-                    {
-
-                        this.viewer.createNewScene (this.chapter,
-                                                    cpos);
-
-                    })
-                    .build ());
-
-                items.add (QuollMenuItem.builder ()
-                    .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.OutlineItem.OBJECT_TYPE)))
-                    .styleClassName (StyleClassNames.OUTLINEITEM)
-                    .accelerator (new KeyCharacterCombination ("O",
-                                                               KeyCombination.SHORTCUT_DOWN,
-                                                               KeyCombination.SHIFT_DOWN))
-                    .onAction (eev ->
-                    {
-
-                        this.viewer.createNewOutlineItem (this.chapter,
-                                                          cpos);
-
-                    })
-                    .build ());
-
-                items.add (QuollMenuItem.builder ()
-                    .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Note.OBJECT_TYPE)))
-                    .styleClassName (StyleClassNames.NOTE)
-                    .accelerator (new KeyCharacterCombination ("N",
-                                                               KeyCombination.SHORTCUT_DOWN,
-                                                               KeyCombination.SHIFT_DOWN))
-                    .onAction (eev ->
-                    {
-
-                        this.viewer.createNewNote (this.chapter,
-                                                   cpos);
-
-                    })
-                    .build ());
-
-                items.add (QuollMenuItem.builder ()
-                    .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.editneedednote)))
-                    .accelerator (new KeyCharacterCombination ("E",
-                                                               KeyCombination.SHORTCUT_DOWN,
-                                                               KeyCombination.SHIFT_DOWN))
-                    .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
-                    .onAction (eev ->
-                    {
-
-                        this.viewer.createNewEditNeededNote (this.chapter,
-                                                             cpos);
-
-                    })
-                    .build ());
-
-                cm.getItems ().addAll (items);
-
-                cm.setAutoHide (true);
-
-                cm.show (this, ev.getScreenX (), ev.getScreenY ());
-                ev.consume ();
 /*
                 ContextMenu _cm = _this.contextMenus.get ("iconcolumn");
 
@@ -320,6 +295,102 @@ public class ParagraphIconMargin extends Pane
             }
 
         });
+
+    }
+
+    private void setContextMenu (MouseEvent ev)
+    {
+
+        List<String> prefix = Arrays.asList (iconcolumn,doubleclickmenu,items);
+
+        ContextMenu cm = new ContextMenu ();
+
+        Set<MenuItem> items = new LinkedHashSet<> ();
+
+        int pos = this.editor.getTextPositionForMousePosition (0,
+                                                               ev.getY ());
+        pos = this.editor.getTextPositionForCurrentMousePosition ();
+
+        int cpos = (pos > -1 ? pos : this.editor.getCaretPosition ());
+
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE)))
+            .styleClassName (StyleClassNames.SCENE)
+            .accelerator (new KeyCharacterCombination ("S",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .onAction (eev ->
+            {
+
+                this.viewer.createNewScene (this.chapter,
+                                            cpos);
+
+            })
+            .build ());
+
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.OutlineItem.OBJECT_TYPE)))
+            .styleClassName (StyleClassNames.OUTLINEITEM)
+            .accelerator (new KeyCharacterCombination ("O",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .onAction (eev ->
+            {
+
+                this.viewer.createNewOutlineItem (this.chapter,
+                                                  cpos);
+
+            })
+            .build ());
+
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Note.OBJECT_TYPE)))
+            .styleClassName (StyleClassNames.NOTE)
+            .accelerator (new KeyCharacterCombination ("N",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .onAction (eev ->
+            {
+
+                this.viewer.createNewNote (this.chapter,
+                                           cpos);
+
+            })
+            .build ());
+
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.editneedednote)))
+            .accelerator (new KeyCharacterCombination ("E",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+            .onAction (eev ->
+            {
+
+                this.viewer.createNewEditNeededNote (this.chapter,
+                                                     cpos);
+
+            })
+            .build ());
+
+        cm.getItems ().addAll (items);
+
+        this.getProperties ().put ("context-menu", cm);
+        cm.setAutoFix (true);
+        cm.setAutoHide (true);
+        cm.show (this.viewer.getViewer (), ev.getScreenX (), ev.getScreenY ());
+
+    }
+
+    private void clearContextMenu ()
+    {
+
+        if (this.getProperties ().get ("context-menu") != null)
+        {
+
+            ((ContextMenu) this.getProperties ().get ("context-menu")).hide ();
+
+        }
 
     }
 
