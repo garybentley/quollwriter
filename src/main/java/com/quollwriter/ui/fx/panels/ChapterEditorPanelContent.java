@@ -229,6 +229,13 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
     }
 
+    public void hideContextMenu ()
+    {
+
+        this.editor.hideContextMenu ();
+
+    }
+
     public abstract Map<KeyCombination, Runnable> getActionMappings ();
 
     public void setText (StringWithMarkup t)
