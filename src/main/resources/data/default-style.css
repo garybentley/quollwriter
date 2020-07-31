@@ -720,6 +720,27 @@ REPLACE
      -fx-shape: "M 0,0 H 32 V 32 H 0 Z";
      -fx-background-color: -qw-icon-color;
  }
+ .movetop-icon,
+ .movebottom-icon
+ {
+     -fx-shape: "M 0 0 L 0 4.5722656 L 11.988281 4.5722656 L 24 4.5722656 L 24 0 L 0 0 z M 11.988281 4.5722656 L 4 13.714844 L 8 13.714844 L 8 32 L 16 32 L 16 13.714844 L 20 13.714844 L 11.988281 4.5722656 z ";
+     -fx-background-color: -qw-icon-color;
+ }
+ .movebottom-icon
+ {
+     -fx-rotate: 180;
+ }
+ .movedown-icon,
+ .moveup-icon
+ {
+     -fx-shape: "M 12.011719,32 20,21.333333 H 16 V 0 H 8 V 21.333333 H 4 Z";
+     -fx-background-color: -qw-icon-color;
+     -fx-pref-width: 0.666em;
+ }
+ .moveup-icon
+ {
+     -fx-rotate: 180;
+ }
  .denied-icon {
      -fx-shape: "M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z m 0,4 c 2.59,0 4.973,0.844 6.934,2.242 L 6.238,22.93 C 4.84,20.969 4,18.586 4,16 4,9.383 9.383,4 16,4 Z m 0,24 C 13.41,28 11.027,27.156 9.066,25.758 L 25.762,9.07 C 27.16,11.031 28,13.414 28,16 28,22.617 22.617,28 16,28 Z";
      -fx-background-color: -qw-icon-color;
@@ -962,10 +983,14 @@ REPLACE
     -fx-background-color: -qw-icon-color;
     -fx-pref-width: 0.333em;
 }
-.move-icon {
+.move-icon,
+.movevert-icon {
     -fx-shape: "M 4,10 C 4,8.895 4.898,8 6,8 h 14 v 4 L 27.992,6 20,0 V 4 H 6 C 2.691,4 0,6.688 0,10 v 2 h 4 z m 24,2 v 2 c 0,1.102 -0.898,2 -2,2 H 11.996 L 12,12 4,18 12,24 11.996,20 H 26 c 3.309,0 6,-2.695 6,-6 v -2 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-height: 1em;
+}
+.movevert-icon {
+    -fx-rotate: 90;
 }
 .close-icon,
 .clear-icon,
