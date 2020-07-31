@@ -12,6 +12,7 @@ import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import javafx.geometry.*;
+import javafx.scene.layout.*;
 
 import org.reactfx.*;
 
@@ -239,13 +240,16 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
             })
             .canExport (n -> true)
-            .canImport (n ->
+            .canImport ((nOver, nImport) ->
             {
 
-                if (n instanceof Chapter)
+                if ((nOver instanceof Chapter)
+                    &&
+                    (nImport instanceof Chapter)
+                   )
                 {
 
-                    Chapter c = (Chapter) n;
+                    Chapter c = (Chapter) nOver;
                     // TODO Support adding chapters from other projects via drag-n-drop.
                     if (c.getBook ().equals (this.viewer.getProject ().getBooks ().get (0)))
                     {
@@ -822,6 +826,183 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     }
 
+                    its.add (UIUtils.createMoveMenu (move ->
+                                                     {
+
+                                                         Book b = c.getBook ();
+
+                                                         if (move.equals (StyleClassNames.MOVETOP))
+                                                         {
+
+                                                             this.ignoreChaptersEvents = true;
+                                                             try
+                                                             {
+
+                                                                 TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
+
+                                                                 int ind = oitem.getParent ().getChildren ().indexOf (oitem);
+
+                                                                 TreeItem<NamedObject> parent = oitem.getParent ();
+
+                                                                 parent.getChildren ().remove (oitem);
+
+                                                                 parent.getChildren ().add (0,
+                                                                                            oitem);
+
+                                                                 b.moveChapter (c,
+                                                                                0);
+
+                                                             } finally {
+
+                                                                 this.ignoreChaptersEvents = false;
+
+                                                             }
+
+                                                             this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                                                                           ProjectEvent.Action.move);
+
+                                                             return;
+
+                                                         }
+
+                                                         if (move.equals (StyleClassNames.MOVEBOTTOM))
+                                                         {
+
+                                                             this.ignoreChaptersEvents = true;
+                                                             try
+                                                             {
+
+                                                                 TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
+
+                                                                 TreeItem<NamedObject> parent = oitem.getParent ();
+
+                                                                 parent.getChildren ().remove (oitem);
+
+                                                                 parent.getChildren ().add (parent.getChildren ().size (),
+                                                                                            oitem);
+
+                                                                 b.moveChapter (c,
+                                                                                b.getChapters ().size () - 1);
+
+                                                             } finally {
+
+                                                                 this.ignoreChaptersEvents = false;
+
+                                                             }
+
+                                                             this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                                                                           ProjectEvent.Action.move);
+
+                                                             return;
+
+                                                         }
+
+                                                         int ind = b.getChapters ().indexOf (c);
+
+                                                         if (move.equals (StyleClassNames.MOVEUP))
+                                                         {
+
+                                                             ind--;
+                                                             if (ind < 0)
+                                                             {
+
+                                                                 ind = 0;
+
+                                                             }
+
+                                                             this.ignoreChaptersEvents = true;
+                                                             try
+                                                             {
+
+                                                                 TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
+
+                                                                 TreeItem<NamedObject> parent = oitem.getParent ();
+
+                                                                 parent.getChildren ().remove (oitem);
+
+                                                                 parent.getChildren ().add (ind,
+                                                                                            oitem);
+
+                                                                 b.moveChapter (c,
+                                                                                ind);
+
+                                                             } finally {
+
+                                                                 this.ignoreChaptersEvents = false;
+
+                                                             }
+
+                                                             this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                                                                           ProjectEvent.Action.move);
+
+                                                             return;
+
+                                                         }
+
+                                                         if (move.equals (StyleClassNames.MOVEDOWN))
+                                                         {
+
+                                                             if (ind == b.getChapters ().size () - 1)
+                                                             {
+
+                                                                 return;
+
+                                                             }
+
+                                                             ind++;
+                                                             if (ind > b.getChapters ().size () - 1)
+                                                             {
+
+                                                                 ind = b.getChapters ().size () - 1;
+
+                                                             }
+
+                                                             this.ignoreChaptersEvents = true;
+                                                             try
+                                                             {
+
+                                                                 TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
+
+                                                                 TreeItem<NamedObject> parent = oitem.getParent ();
+
+                                                                 parent.getChildren ().remove (oitem);
+
+                                                                 parent.getChildren ().add (ind,
+                                                                                            oitem);
+
+                                                                 b.moveChapter (c,
+                                                                                ind);
+
+                                                             } finally {
+
+                                                                 this.ignoreChaptersEvents = false;
+
+                                                             }
+
+                                                             this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                                                                           ProjectEvent.Action.move);
+
+                                                             return;
+
+                                                         }
+
+                                                     },
+                                                     getUILanguageStringProperty (Utils.newList (prefix,move)),
+                                                     prefix));
+
+/*
+                    its.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,move)))
+                        .styleClassName (StyleClassNames.MOVE)
+                        .onAction (ev ->
+                        {
+
+                            this.viewer.runCommand (ProjectViewer.CommandId.deletechapter,
+                                                    c);
+
+                        })
+                        .build ());
+*/
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
                         .styleClassName (StyleClassNames.DELETE)

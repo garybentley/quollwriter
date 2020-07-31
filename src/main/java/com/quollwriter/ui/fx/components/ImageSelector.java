@@ -107,7 +107,8 @@ public class ImageSelector extends QuollImageView
                         try
                         {
 
-                            Desktop.getDesktop ().open (_this.getImagePath ().toFile ());
+                            UIUtils.showFile (_this.viewer,
+                                              _this.getImagePath ());
 
                         } catch (Exception e) {
 
