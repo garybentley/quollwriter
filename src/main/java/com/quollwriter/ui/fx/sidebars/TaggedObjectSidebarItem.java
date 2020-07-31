@@ -130,7 +130,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
             })
             .project (this.viewer.getProject ())
-            .canImport (obj ->
+            .canImport ((objOver, objImport) ->
             {
 
                 // TODO
