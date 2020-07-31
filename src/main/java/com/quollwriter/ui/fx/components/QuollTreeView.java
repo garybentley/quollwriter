@@ -207,6 +207,13 @@ public class QuollTreeView<T> extends Pane
 
     }
 
+    public ObjectProperty<T> selectedObjectProperty ()
+    {
+
+        return this.selectedObjectProp;
+
+    }
+
     public void select (T o)
     {
 
