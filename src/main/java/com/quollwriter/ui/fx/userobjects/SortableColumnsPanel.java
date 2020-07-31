@@ -493,6 +493,7 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
             }
 
+            ev.setDropCompleted (true);
             ev.consume ();
 
         });

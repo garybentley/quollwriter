@@ -233,6 +233,13 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
             });
 
+            l.setOnDragDone (ev ->
+            {
+
+                ev.consume ();
+
+            });
+
             l.setOnDragDropped (ev ->
             {
 
@@ -271,13 +278,14 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
                     {
 
                         b.onDragDropped.accept (on);
-
-                        ev.setDropCompleted (true);
                         ev.consume ();
 
                     }
 
                 }
+
+                ev.setDropCompleted (true);
+                ev.consume ();
 
             });
 
