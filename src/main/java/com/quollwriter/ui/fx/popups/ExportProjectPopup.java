@@ -335,7 +335,8 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
         try
         {
 
-            java.awt.Desktop.getDesktop ().open (dir.toFile ());
+            UIUtils.showFile (viewer,
+                              dir);
 
         } catch (Exception e)
         {
