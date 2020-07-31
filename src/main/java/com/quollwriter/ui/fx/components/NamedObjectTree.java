@@ -272,6 +272,9 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
                         b.onDragDropped.accept (on);
 
+                        ev.setDropCompleted (true);
+                        ev.consume ();
+
                     }
 
                 }
@@ -295,7 +298,8 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
                     if (b.canImport != null)
                     {
 
-                        if (!b.canImport.apply (on))
+                        if (!b.canImport.apply (n,
+                                                on))
                         {
 
                             return;
@@ -342,7 +346,7 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
         private String styleName = null;
         private TreeItem<NamedObject> root = null;
         private Function<TreeItem<NamedObject>, Node> cellProvider = null;
-        private Function<NamedObject, Boolean> canImport = null;
+        private BiFunction<NamedObject, NamedObject, Boolean> canImport = null;
         private Function<NamedObject, Boolean> canExport = null;
         private Function<NamedObject, Set<MenuItem>> contextMenuItemSupplier = null;
         private Project project = null;
@@ -405,7 +409,11 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
         }
 
-        public Builder canImport (Function<NamedObject, Boolean> im)
+        /*
+         * First arg to function is the object of the item that we are over.
+         * The second arg to the function is the object we wish to import to the item that we are over.
+         */
+        public Builder canImport (BiFunction<NamedObject, NamedObject, Boolean> im)
         {
 
             this.canImport = im;
