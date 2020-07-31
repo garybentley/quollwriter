@@ -103,6 +103,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         String nightmode = "nightmode";
         String newuserobject = "newuserobject";
         String managenotetypes = "managenotetypes";
+        String moveup = "moveup";
+        String movedown = "movedown";
 
     }
 
@@ -947,6 +949,10 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                             KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN);
         this.addKeyMapping (CommandId.decrementfontsize,
                             KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN);
+        this.addKeyMapping (CommandId.moveup,
+                            KeyCode.UP, KeyCombination.SHORTCUT_DOWN);
+        this.addKeyMapping (CommandId.movedown,
+                            KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN);
 
     }
 
@@ -954,6 +960,22 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     {
 
         final AbstractViewer _this = this;
+
+        this.addActionMapping (() ->
+        {
+
+            this.fireEvent (new KeyboardNavigationEvent (KeyboardNavigationEvent.MOVE_UP_EVENT));
+
+        },
+        CommandId.moveup);
+
+        this.addActionMapping (() ->
+        {
+
+            this.fireEvent (new KeyboardNavigationEvent (KeyboardNavigationEvent.MOVE_DOWN_EVENT));
+
+        },
+        CommandId.movedown);
 
         this.addActionMapping (() ->
         {
@@ -3503,6 +3525,21 @@ TODO Not needed, is a function of the sidebar itself...
 
         this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
                                     ProjectEvent.Action.enter);
+
+    }
+
+    public static class KeyboardNavigationEvent extends Event
+    {
+
+        public static final EventType<KeyboardNavigationEvent> MOVE_UP_EVENT = new EventType<> ("kbnav.moveup");
+        public static final EventType<KeyboardNavigationEvent> MOVE_DOWN_EVENT = new EventType<> ("kbnav.movedown");
+
+        public KeyboardNavigationEvent (EventType<KeyboardNavigationEvent> type)
+        {
+
+            super (type);
+
+        }
 
     }
 
