@@ -147,13 +147,13 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                 // Update the save state?
 
             })
-            .canImport (obj ->
+            .canImport ((objOver, objImport) ->
             {
 
-                if (obj instanceof UserConfigurableObject)
+                if (objImport instanceof UserConfigurableObject)
                 {
 
-                    UserConfigurableObject uobj = (UserConfigurableObject) obj;
+                    UserConfigurableObject uobj = (UserConfigurableObject) objImport;
 
                     if (uobj.getUserConfigurableObjectType ().equals (objType))
                     {
