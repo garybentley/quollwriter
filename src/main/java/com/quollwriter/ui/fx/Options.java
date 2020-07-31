@@ -2446,8 +2446,11 @@ TODO Remove NO longer needed.
                        uiFont)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefontsize),
                        thb)
+                       /*
+                       TODO Removed for now...
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,stylesheet,text),
                        styleSheet)
+                       */
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
                        this.createLayoutSelector ())
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
