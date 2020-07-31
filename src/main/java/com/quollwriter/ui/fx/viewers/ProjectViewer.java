@@ -8,6 +8,7 @@ import javafx.collections.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.geometry.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
@@ -59,6 +60,8 @@ public class ProjectViewer extends AbstractProjectViewer
         String exportproject = "exportproject";
         String deleteproject = "deleteproject";
         String renameproject = "renameproject";
+        String moveup = "moveup";
+        String movedown = "movedown";
 
     }
 
@@ -255,6 +258,18 @@ public class ProjectViewer extends AbstractProjectViewer
 
         },
         CommandId.newchapter));
+
+        this.addActionMapping (() ->
+        {
+
+        },
+        CommandId.moveup);
+
+        this.addActionMapping (() ->
+        {
+
+        },
+        CommandId.movedown);
 
         this.addActionMapping (() ->
         {
@@ -536,6 +551,13 @@ public class ProjectViewer extends AbstractProjectViewer
             }
 
         });
+
+        this.addKeyMapping (CommandId.newchapter,
+                            KeyCode.H, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN);
+        this.addKeyMapping (CommandId.moveup,
+                            KeyCode.UP, KeyCombination.SHORTCUT_DOWN);
+        this.addKeyMapping (CommandId.movedown,
+                            KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN);
 
     }
 
@@ -1617,7 +1639,7 @@ TODO
                                         showAt,
                                         Side.BOTTOM);
 
-                        this.getPopupById (pid).close ();        
+                        this.getPopupById (pid).close ();
 
                         return;
 
