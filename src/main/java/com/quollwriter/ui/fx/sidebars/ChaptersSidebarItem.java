@@ -58,6 +58,50 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
         pv.getProject ().getBooks ().get (0).getChapters ().stream ()
             .forEach (c -> this.addListenersForChapter (c));
 
+        pv.addEventHandler (AbstractViewer.KeyboardNavigationEvent.MOVE_UP_EVENT,
+                            ev ->
+        {
+
+            NamedObject n = this.tree.selectedObjectProperty ().getValue ();
+
+            if ((n == null)
+                ||
+                (!(n instanceof Chapter))
+               )
+            {
+
+                return;
+
+            }
+
+            this.moveChapterUp ((Chapter) n);
+
+            ev.consume ();
+
+        });
+
+        pv.addEventHandler (AbstractViewer.KeyboardNavigationEvent.MOVE_DOWN_EVENT,
+                            ev ->
+        {
+
+            NamedObject n = this.tree.selectedObjectProperty ().getValue ();
+
+            if ((n == null)
+                ||
+                (!(n instanceof Chapter))
+               )
+            {
+
+                return;
+
+            }
+
+            this.moveChapterDown ((Chapter) n);
+
+            ev.consume ();
+
+        });
+
         this.addListChangeListener (pv.getProject ().getBooks ().get (0).getChapters (),
                                     ev ->
         {
@@ -354,55 +398,6 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                     Chapter c = (Chapter) n;
 
                     //l.setFocusTraversable (true);
-
-                    l.setOnKeyReleased (ev ->
-                    {
-
-                        // TODO!
-                        if ((ev.isShortcutDown ())
-                            &&
-                            (ev.getCode () == KeyCode.KP_UP)
-                           )
-                        {
-
-                            this.ignoreChaptersEvents = true;
-                            Book b = c.getBook ();
-
-                            int ind = b.getChapters ().indexOf (c);
-
-                            ind--;
-
-                            if (ind < 0)
-                            {
-
-                                ind = 0;
-
-                            }
-
-                            b.moveChapter (c,
-                                           ind);
-                            this.ignoreChaptersEvents = false;
-
-                            try
-                            {
-
-                                this.viewer.updateChapterIndexes (b);
-
-                            } catch (Exception e)
-                            {
-
-                                Environment.logError ("Unable to update chapter indexes for book: " +
-                                                      b,
-                                                      e);
-
-                            }
-
-                            this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
-                                                          ProjectEvent.Action.move);
-
-                        }
-
-                    });
 
                     l.setOnMouseExited (ev ->
                     {
@@ -902,39 +897,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                                          if (move.equals (StyleClassNames.MOVEUP))
                                                          {
 
-                                                             ind--;
-                                                             if (ind < 0)
-                                                             {
-
-                                                                 ind = 0;
-
-                                                             }
-
-                                                             this.ignoreChaptersEvents = true;
-                                                             try
-                                                             {
-
-                                                                 TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
-
-                                                                 TreeItem<NamedObject> parent = oitem.getParent ();
-
-                                                                 parent.getChildren ().remove (oitem);
-
-                                                                 parent.getChildren ().add (ind,
-                                                                                            oitem);
-
-                                                                 b.moveChapter (c,
-                                                                                ind);
-
-                                                             } finally {
-
-                                                                 this.ignoreChaptersEvents = false;
-
-                                                             }
-
-                                                             this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
-                                                                                           ProjectEvent.Action.move);
-
+                                                             this.moveChapterUp (c);
                                                              return;
 
                                                          }
@@ -942,45 +905,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                                          if (move.equals (StyleClassNames.MOVEDOWN))
                                                          {
 
-                                                             if (ind == b.getChapters ().size () - 1)
-                                                             {
-
-                                                                 return;
-
-                                                             }
-
-                                                             ind++;
-                                                             if (ind > b.getChapters ().size () - 1)
-                                                             {
-
-                                                                 ind = b.getChapters ().size () - 1;
-
-                                                             }
-
-                                                             this.ignoreChaptersEvents = true;
-                                                             try
-                                                             {
-
-                                                                 TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
-
-                                                                 TreeItem<NamedObject> parent = oitem.getParent ();
-
-                                                                 parent.getChildren ().remove (oitem);
-
-                                                                 parent.getChildren ().add (ind,
-                                                                                            oitem);
-
-                                                                 b.moveChapter (c,
-                                                                                ind);
-
-                                                             } finally {
-
-                                                                 this.ignoreChaptersEvents = false;
-
-                                                             }
-
-                                                             this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
-                                                                                           ProjectEvent.Action.move);
+                                                             this.moveChapterDown (c);
 
                                                              return;
 
@@ -1133,6 +1058,102 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
             .build ();
 
         this.selectItem ();
+
+    }
+
+    private void moveChapterDown (Chapter c)
+    {
+
+        Book b = c.getBook ();
+
+        int ind = b.getChapters ().indexOf (c);
+
+        if (ind == b.getChapters ().size () - 1)
+        {
+
+            return;
+
+        }
+
+        ind++;
+        if (ind > b.getChapters ().size () - 1)
+        {
+
+            ind = b.getChapters ().size () - 1;
+
+        }
+
+        this.ignoreChaptersEvents = true;
+        try
+        {
+
+            TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
+
+            TreeItem<NamedObject> parent = oitem.getParent ();
+
+            parent.getChildren ().remove (oitem);
+
+            parent.getChildren ().add (ind,
+                                       oitem);
+
+            b.moveChapter (c,
+                           ind);
+
+        } finally {
+
+            this.ignoreChaptersEvents = false;
+
+        }
+
+        this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                      ProjectEvent.Action.move);
+
+    }
+
+    private void moveChapterUp (Chapter c)
+    {
+
+        int ind = c.getBook ().getChapters ().indexOf (c);
+
+        if (ind == 0)
+        {
+
+            return;
+
+        }
+
+        ind--;
+        if (ind < 0)
+        {
+
+            ind = 0;
+
+        }
+
+        this.ignoreChaptersEvents = true;
+        try
+        {
+
+            TreeItem<NamedObject> oitem = this.tree.getTreeItemForObject (c);
+
+            TreeItem<NamedObject> parent = oitem.getParent ();
+
+            parent.getChildren ().remove (oitem);
+
+            parent.getChildren ().add (ind,
+                                       oitem);
+
+            c.getBook ().moveChapter (c,
+                                      ind);
+
+        } finally {
+
+            this.ignoreChaptersEvents = false;
+
+        }
+
+        this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
+                                      ProjectEvent.Action.move);
 
     }
 
