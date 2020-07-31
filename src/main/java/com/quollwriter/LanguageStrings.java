@@ -3,6 +3,10 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String top = "top";
+    public static final String bottom = "bottom";
+    public static final String up = "up";
+    public static final String down = "down";
     public static final String play = "play";
     public static final String pause = "pause";
     public static final String stylesheet = "stylesheet";
