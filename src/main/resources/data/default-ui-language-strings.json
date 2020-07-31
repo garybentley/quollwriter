@@ -8317,7 +8317,12 @@
                         "newbelow" : "Add New ${objectnames.singular.chapter} Below",
                         "new" : "Add New ${objectnames.singular.chapter}",
                         "rename" : "Rename ${objectnames.singular.chapter}",
-                        "close" : "Close ${objectnames.singular.chapter}"
+                        "close" : "Close ${objectnames.singular.chapter}",
+                        "move" : "Move ${objectnames.singular.chapter}",
+                        "top" : "Move to top",
+                        "bottom" : "Move to bottom",
+                        "up" : "Move up",
+                        "down" : "Move down"
                     },
                     "outlineitems" :
                     {
