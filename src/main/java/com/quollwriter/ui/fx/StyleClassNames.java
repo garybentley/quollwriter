@@ -35,6 +35,12 @@ public final class StyleClassNames
     public static final PseudoClass INVALID_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.INVALID);
     public static final PseudoClass NORMAL_PSUEDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NORMAL);
 
+    public static final String MOVE = "move";
+    public static final String MOVEVERT = "movevert";
+    public static final String MOVETOP = "movetop";
+    public static final String MOVEBOTTOM = "movebottom";
+    public static final String MOVEUP = "moveup";
+    public static final String MOVEDOWN = "movedown";
     public static final String QW = "qw";
     public static final String NEWASSET = "newasset";
     public static final String SPLITCHAPTER = "splitchapter";
