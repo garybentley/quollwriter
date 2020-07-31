@@ -802,7 +802,7 @@ public class UIUtils
 
         try
         {
-            
+
             Desktop.open (f.toFile ());
 
         } catch (Exception e)
@@ -3058,6 +3058,66 @@ TODO Remove
         //"Tags");
 
         return tagMenu;
+
+    }
+
+    public static Menu createMoveMenu (Consumer<String>      onMove,
+                                       StringProperty        label,
+                                       List<String>          prefix)
+    {
+
+        Set<MenuItem> items = new LinkedHashSet<> ();
+        items.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.MOVETOP)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,top)))
+                    .onAction (ev ->
+                    {
+
+                        onMove.accept (StyleClassNames.MOVETOP);
+
+                    })
+                    .build ());
+
+        items.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.MOVEUP)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,up)))
+                    .onAction (ev ->
+                    {
+
+                        onMove.accept (StyleClassNames.MOVEUP);
+
+                    })
+                    .build ());
+
+        items.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.MOVEDOWN)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,down)))
+                    .onAction (ev ->
+                    {
+
+                        onMove.accept (StyleClassNames.MOVEDOWN);
+
+                    })
+                    .build ());
+
+        items.add (QuollMenuItem.builder ()
+                    .styleClassName (StyleClassNames.MOVEBOTTOM)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,bottom)))
+                    .onAction (ev ->
+                    {
+
+                        onMove.accept (StyleClassNames.MOVEBOTTOM);
+
+                    })
+                    .build ());
+
+        Menu m = QuollMenu.builder ()
+            .label (label)
+            .styleClassName (StyleClassNames.MOVEVERT)
+            .items (items)
+            .build ();
+
+        return m;
 
     }
 
