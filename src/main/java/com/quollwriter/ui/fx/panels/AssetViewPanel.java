@@ -378,8 +378,6 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
             .actionMappings (am)
             .build ();
 
-        this.showView ();
-
         return panel;
 
     }
