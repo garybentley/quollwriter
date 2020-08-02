@@ -36,6 +36,8 @@ public class QuollImageView extends VBox
         this.iv.setPreserveRatio (true);
         this.iv.managedProperty ().bind (this.iv.visibleProperty ());
         this.managedProperty ().bind (this.visibleProperty ());
+        this.setMinWidth (100);
+        this.setMinHeight (100);
 
         //iv.relocate (0, 0);
         this.getChildren ().add (iv);
