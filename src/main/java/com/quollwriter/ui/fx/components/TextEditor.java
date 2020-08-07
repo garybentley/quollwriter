@@ -2848,6 +2848,24 @@ System.out.println ("HEREZ: " + cb);
 
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash (
+                    lineSpacing, alignment, textBorder, fontSize);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if(other instanceof ParaStyle) {
+                ParaStyle that = (ParaStyle) other;
+                return Objects.equals(this.lineSpacing,  that.lineSpacing) &&
+                       Objects.equals(this.alignment,    that.alignment) &&
+                       Objects.equals(this.textBorder,   that.textBorder) &&
+                       Objects.equals(this.fontSize,     that.fontSize);
+            }
+
+            return false;
+        }
 
         public String toString ()
         {
