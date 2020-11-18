@@ -86,7 +86,7 @@ public class TextViewEditBox extends StackPane
 
         QuollButton saveB = QuollButton.builder ()
             .tooltip (b.saveButtonTooltip)
-            .styleClassName (StyleClassNames.SAVE)
+            .iconName (StyleClassNames.SAVE)
             .buttonType (ButtonBar.ButtonData.APPLY)
             .onAction (ev ->
             {
@@ -98,7 +98,7 @@ public class TextViewEditBox extends StackPane
 
         QuollButton cancelB = QuollButton.builder ()
             .tooltip (b.cancelButtonTooltip)
-            .styleClassName (StyleClassNames.CANCEL)
+            .iconName (StyleClassNames.CANCEL)
             .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
             .onAction (b.onCancel)
             .build ();

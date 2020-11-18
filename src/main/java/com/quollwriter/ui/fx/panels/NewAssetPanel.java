@@ -47,7 +47,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         this.headerSaveBut = QuollButton.builder ()
             .tooltip (assets,add,LanguageStrings.panel,buttons,save,tooltip)
-            .styleClassName (StyleClassNames.SAVE)
+            .iconName (StyleClassNames.SAVE)
             .onAction (ev ->
             {
 
@@ -58,7 +58,7 @@ public class NewAssetPanel extends NamedObjectPanelContent<ProjectViewer, Asset>
 
         this.headerCancelBut = QuollButton.builder ()
             .tooltip (assets,add,LanguageStrings.panel,buttons,cancel,tooltip)
-            .styleClassName (StyleClassNames.CANCEL)
+            .iconName (StyleClassNames.CANCEL)
             .onAction (ev ->
             {
 

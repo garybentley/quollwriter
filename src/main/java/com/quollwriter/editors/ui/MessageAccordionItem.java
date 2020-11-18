@@ -1,116 +1,48 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.*;
-import java.awt.dnd.*;
-
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.Set;
-import java.util.LinkedHashSet;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.tree.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import java.util.*;
+import javafx.scene.*;
+import javafx.beans.property.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.*;
-import com.quollwriter.events.*;
 import com.quollwriter.editors.messages.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.actionHandlers.*;
-import com.quollwriter.ui.components.ActionAdapter;
-import com.quollwriter.ui.components.Header;
-import com.quollwriter.ui.components.ImagePanel;
-import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
+public class MessageAccordionItem<E extends EditorMessage> extends VBox
 {
 
     protected AbstractViewer viewer = null;
-    protected Box content = null;
-    protected Set<MessageBox> messageBoxes = new LinkedHashSet ();
     protected Date date = null;
+    protected AccordionItem accItem = null;
+    private StringProperty titleProp = new SimpleStringProperty ();
 
     public MessageAccordionItem (AbstractViewer viewer,
                                  Date           d,
                                  Set<E>         messages)
     {
 
-        super ("");
-
-        this.date = d;
-
         if (messages == null)
         {
 
-            messages = new LinkedHashSet ();
+            throw new IllegalArgumentException ("Messages is null.");
 
         }
 
-        int c = messages.size ();
-              /*
-        String dateName = null;
+        this.managedProperty ().bind (this.visibleProperty ());
+        this.date = d;
 
-        if (Utils.isToday (d))
-        {
-
-            dateName = "Today";
-
-        }
-
-        if (Utils.isYesterday (d))
-        {
-
-            dateName = "Yesterday";
-
-        }
-
-        if (dateName == null)
-        {
-
-            dateName = Environment.formatDate (d);
-
-        }
-
-        this.setTitle (String.format ("%s (%s)",
-                                      dateName,
-                                      c));
-                                      */
-        this.setIconType (null);
+        //this.getStyleClass ().add (StyleClassNames.CHATMESSAGES);
 
         this.viewer = viewer;
-
-        final MessageAccordionItem _this = this;
-
-        this.content = new Box (BoxLayout.Y_AXIS);
-
-        Header h = this.getHeader ();
-
-        // TODO: Make a configurable value.
-        h.setTitleColor (UIUtils.getColor ("#aaaaaa"));
-        h.setFontSize (14);
-
-        // TODO: Tidy this up.
-
-        h.setBorder (new CompoundBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getColor ("#dddddd")),
-                                                             new EmptyBorder (0, 0, 3, 0)),
-                                         h.getBorder ()));
-
-        this.content.setBorder (UIUtils.createPadding (5, 0, 10, 0));
 
         for (E m : messages)
         {
@@ -119,8 +51,6 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
 
         }
 
-        this.content.add (Box.createVerticalGlue ());
-
         this.updateHeaderTitle ();
 
     }
@@ -128,12 +58,12 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
     public void updateHeaderTitle ()
     {
 
-        String dateName = null;
+        StringProperty dateName = null;
 
         if (Utils.isToday (this.date))
         {
 
-            dateName = getUIString (times,today);
+            dateName = getUILanguageStringProperty (times,today);
             //"Today";
 
         }
@@ -141,7 +71,7 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
         if (Utils.isYesterday (this.date))
         {
 
-            dateName = getUIString (times,yesterday);
+            dateName = getUILanguageStringProperty (times,yesterday);
             //"Yesterday";
 
         }
@@ -149,34 +79,55 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
         if (dateName == null)
         {
 
-            dateName = Environment.formatDate (this.date);
+            dateName = UILanguageStringsManager.createStringPropertyWithBinding (() ->
+            {
+
+                return Environment.formatDate (this.date);
+
+            });
 
         }
 
-        int c = this.getContent ().getComponentCount () - 1;
+        int c = this.getChildren ().size ();
 
-        this.setTitle (String.format (getUIString (editors,editor,view,chatmessages,title),
-                                    //"%s (%s)",
-                                      dateName,
-                                      c));
+        this.titleProp.unbind ();
+        this.titleProp.bind (getUILanguageStringProperty (Arrays.asList (editors,editor,view,chatmessages,title),
+                                                          dateName,
+                                                          c));
 
     }
 
-    private JLabel createLabel (String m)
+    public AccordionItem getAccordionItem ()
     {
 
-        JLabel l = UIUtils.createInformationLabel (m);
+        if (this.accItem == null)
+        {
 
-        l.setForeground (UIUtils.getColor ("#aaaaaa"));
+            this.accItem = this.createAccordionItem ();
 
-        return l;
+        }
+
+        return this.accItem;
+
+    }
+
+    public AccordionItem createAccordionItem ()
+    {
+
+        AccordionItem acc = AccordionItem.builder ()
+            .openContent (this)
+            .title (this.titleProp)
+            .styleClassName (StyleClassNames.CHATMESSAGES)
+            .build ();
+
+        return acc;
 
     }
 
     public void addMessage (E m)
     {
 
-        JComponent mb = this.getMessageBox (m);
+        Node mb = this.getMessageBox (m);
 
         if (mb == null)
         {
@@ -185,18 +136,13 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
 
         }
 
-        this.content.add (mb);
-
-        int c = this.messageBoxes.size ();
+        this.getChildren ().add (mb);
 
         this.updateHeaderTitle ();
 
-        this.validate ();
-        this.repaint ();
-
     }
 
-    public JComponent getMessageBox (E m)
+    public Node getMessageBox (E m)
     {
 
         MessageBox mb = null;
@@ -216,33 +162,7 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
             return null;
 
         }
-
-        if (mb != null)
-        {
-
-            try
-            {
-
-                mb.init ();
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to init message box for message: " +
-                                      m,
-                                      e);
-
-                return null;
-
-            }
-
-        } else {
-
-            return null;
-
-        }
-
-        this.messageBoxes.add (mb);
-
+/*
         Box b = new Box (BoxLayout.Y_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -269,28 +189,8 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
         mb.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         b.add (mb);
-
-        b.setBorder (new EmptyBorder (0, 0, 3, 0));
-
-        details.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getColor ("#dddddd")),
-                                                             new EmptyBorder (5, 0, 5, 0)));
-
-
-        return b;
-
-    }
-
-    public JComponent getContent ()
-    {
-
-        return this.content;
-
-    }
-
-    public void init ()
-    {
-
-        super.init ();
+*/
+        return mb;
 
     }
 

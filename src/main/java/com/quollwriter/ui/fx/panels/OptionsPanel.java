@@ -33,7 +33,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
         Header h = Header.builder ()
             .title (getUILanguageStringProperty (LanguageStrings.options,title))
             .styleClassName (StyleClassNames.MAIN)
-            .iconClassName (StyleClassNames.OPTIONS)            
+            .iconClassName (StyleClassNames.OPTIONS)
             .controls (headerControls)
             .build ();
 
@@ -50,13 +50,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 
         bb.getChildren ().add (this.options);
 
-        this.scrollPane = new ScrollPane (bb);
-        this.scrollPane.vvalueProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            h.pseudoClassStateChanged (StyleClassNames.SCROLLING_PSEUDO_CLASS, newv.doubleValue () > 0);
-
-        });
+        this.scrollPane = new QScrollPane (bb);
         VBox.setVgrow (this.scrollPane,
                        Priority.ALWAYS);
 

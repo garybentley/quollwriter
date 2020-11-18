@@ -190,8 +190,6 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
             UIUtils.runLater (() ->
             {
 
-
-
                 if (this.text.getScene () == null)
                 {
 

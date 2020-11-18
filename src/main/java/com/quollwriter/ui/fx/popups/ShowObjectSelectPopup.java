@@ -11,6 +11,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.beans.property.*;
+import javafx.geometry.*;
 
 import com.gentlyweb.utils.*;
 
@@ -54,7 +55,24 @@ public class ShowObjectSelectPopup<T> extends PopupContent
 
         }
 
-        this.getChildren ().add (new ScrollPane (vb));
+        VBox content = new VBox ();
+        this.getChildren ().add (content);
+
+        if (b.above != null)
+        {
+
+            content.getChildren ().add (b.above);
+
+        }
+
+        content.getChildren ().add (new ScrollPane (vb));
+
+        if (b.below != null)
+        {
+
+            content.getChildren ().add (b.below);
+
+        }
 
     }
 
@@ -73,6 +91,8 @@ public class ShowObjectSelectPopup<T> extends PopupContent
             .popupId (builder.popupId)
             .removeOnClose (true)
             .withViewer (this.viewer)
+            .showAt (builder.showAt,
+                     builder.showWhere)
             .build ();
 
         p.requestFocus ();
@@ -104,6 +124,10 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         private AbstractViewer viewer = null;
         private Set<T> objs = null;
         private String headerIconClassName = null;
+        private Node above = null;
+        private Node below = null;
+        private Node showAt = null;
+        private Side showWhere = null;
 
         private Builder ()
         {
@@ -123,6 +147,32 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         {
 
             return this;
+
+        }
+
+        public Builder<T> showAt (Node n,
+                                  Side where)
+        {
+
+            this.showAt = n;
+            this.showWhere = where;
+            return _this ();
+
+        }
+
+        public Builder<T> showAboveObjects (Node n)
+        {
+
+            this.above = n;
+            return _this ();
+
+        }
+
+        public Builder<T> showBelowObjects (Node n)
+        {
+
+            this.below = n;
+            return _this ();
 
         }
 

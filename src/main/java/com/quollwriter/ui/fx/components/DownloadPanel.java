@@ -55,7 +55,7 @@ public class DownloadPanel extends VBox
             this.onStop = b.onStop;
 
             this.stop = QuollButton.builder ()
-                .styleClassName (StyleClassNames.STOP)
+                .iconName (StyleClassNames.STOP)
                 .onAction (ev ->
                 {
 

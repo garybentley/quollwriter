@@ -1,49 +1,34 @@
 package com.quollwriter.editors.ui;
 
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.Arrays;
+import java.util.*;
 
 import java.io.*;
 import java.nio.file.*;
 
-import java.awt.Point;
-import java.awt.event.*;
-import java.awt.Component;
-import java.awt.Dimension;
-import javax.swing.*;
-import javax.swing.border.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import javafx.beans.property.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.forms.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.data.*;
-import com.quollwriter.ui.components.ImagePanel;
-import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.text.*;
 import com.quollwriter.events.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.components.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implements EditorChangedListener
+public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
 {
 
-    private Box responseBox = null;
+    private VBox responseBox = null;
     private ProjectSentReceivedViewer sentViewer = null;
-    private JLabel previousLabel = null;
+    private Label previousLabel = null;
 
     public NewProjectMessageBox (NewProjectMessage mess,
                                  AbstractViewer    viewer)
@@ -52,16 +37,128 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
         super (mess,
                viewer);
 
-    }
+        final NewProjectMessageBox _this = this;
 
-    @Override
-    public void editorChanged (EditorChangedEvent ev)
-    {
+        StringProperty text = getUILanguageStringProperty (editors,messages,newproject,sent,title);
+        //"Sent {project}";
 
-        if (ev.getEditor () == this.message.getEditor ())
+        if (!this.message.isSentByMe ())
         {
 
-            this.updateForEditor ();
+           text = getUILanguageStringProperty (editors,messages,newproject,received,title);
+           //"Received an invitation to edit a {project}";
+
+       }
+
+       this.getStyleClass ().add (StyleClassNames.NEWPROJECTMESSAGE);
+
+       this.getChildren ().add (Header.builder ()
+        .title (text)
+        .styleClassName (StyleClassNames.HEADER)
+        .iconClassName (StyleClassNames.PROJECT)
+        .build ());
+
+       this.binder.addChangeListener (this.message.dealtWithProperty (),
+                                      (pr, oldv, newv) ->
+       {
+
+           this.update ();
+
+       });
+
+       this.binder.addChangeListener (this.message.getEditor ().editorStatusProperty (),
+                                      (pr, oldv, newv) ->
+       {
+
+           this.update ();
+
+       });
+
+       Node details = EditorsUIUtils.getProjectMessageDetails (this.message,
+                                                               this.viewer,
+                                                               this);
+
+       details.getStyleClass ().add (StyleClassNames.MESSAGEDETAILS);
+       this.getChildren ().add (details);
+
+       this.responseBox = new VBox ();
+       this.responseBox.getStyleClass ().add (StyleClassNames.RESPONSE);
+       this.responseBox.managedProperty ().bind (this.responseBox.visibleProperty ());
+       this.responseBox.setVisible (false);
+/*
+       if (!this.message.isSentByMe ())
+       {
+
+           // Not sent by me.
+           if ((!this.message.isDealtWith ())
+               &&
+               (!this.message.getEditor ().isPrevious ())
+              )
+           {
+
+               Button update = QuollButton.builder ()
+                .label (editors,messages,updateproject,received,undealtwith,buttons,LanguageStrings.update)
+                .onAction (ev ->
+                {
+
+                    EditorsUIUtils.showProjectUpdate (this.message,
+                                                      this.viewer,
+                                                      null);
+
+                })
+                .build ();
+
+               this.responseBox.getChildren ().add (update);
+               this.responseBox.setVisible (true);
+
+           }
+
+       }
+*/
+       this.previousLabel = QuollLabel.builder ()
+        .styleClassName (StyleClassNames.PREVIOUS)
+        .build ();
+
+        if ((!this.message.isDealtWith ())
+            &&
+            (!this.message.isSentByMe ())
+            &&
+            (!this.message.getEditor ().isPrevious ())
+           )
+        {
+
+            this.responseBox.setVisible (true);
+
+            this.responseBox.getChildren ().add (Header.builder ()
+                .title (editors,messages,newproject,received,undealtwith,LanguageStrings.text)
+                .build ());
+
+            QuollButtonBar buts = QuollButtonBar.builder ()
+                .button (QuollButton.builder ()
+                    .label (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.accept,LanguageStrings.text)
+                    .buttonType (ButtonBar.ButtonData.YES)
+                    .onAction (ev ->
+                    {
+
+                        this.handleNewProjectResponse (true);
+
+                    })
+                    .tooltip (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.accept,title)
+                    .build ())
+                .button (QuollButton.builder ()
+                    .label (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.reject,LanguageStrings.text)
+                    .buttonType (ButtonBar.ButtonData.NO)
+                    .onAction (ev ->
+                    {
+
+                        this.handleNewProjectResponse (false);
+
+                    })
+                    .tooltip (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.reject,title)
+                    .build ())
+                .build ();
+
+            this.responseBox.getChildren ().add (buts);
 
         }
 
@@ -90,7 +187,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
 
     }
 
-    private void updateForEditor ()
+    private void update ()
     {
 
         this.previousLabel.setVisible (false);
@@ -101,669 +198,399 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
            )
         {
 
-            this.previousLabel.setText (String.format (getUIString (editors,messages,newproject,received,undealtwith,previouseditor),
+            this.previousLabel.textProperty ().unbind ();
+            this.previousLabel.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,messages,newproject,received,undealtwith,previouseditor),
                                                         //"<b>%s</b> is a previous {contact}.  This message can no longer be acted upon.",
-                                                       this.message.getEditor ().getShortName ()));
-
+                                                                                  this.message.getEditor ().getMainName ()));
             this.previousLabel.setVisible (true);
-
             this.responseBox.setVisible (false);
 
         }
 
     }
 
-    public void doUpdate ()
+    private void handleNewProjectAccept ()
     {
 
-        this.responseBox.setVisible (!this.message.isDealtWith ());
+        List<String> prefix = Arrays.asList (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,popup);
 
-    }
+        VBox content = new VBox ();
 
-    public void doInit ()
-    {
+        QuollPopup qp = QuollPopup.builder ()
+            .headerIconClassName (StyleClassNames.PROJECT)
+            .styleClassName (StyleClassNames.ACCEPT)
+            .title (Utils.newList (prefix,title))
+            .content (content)
+            .inViewer (this.viewer)
+            .build ();
 
-        EditorsEnvironment.addEditorChangedListener (this);
+        content.getChildren ().add (Header.builder ()
+            .title (Utils.newList (prefix,labels,where))
+            .build ());
+/*
+TODO Is this needed?
+        Path defDir = Environment.getDefaultSaveProjectDirPath ();
 
-        final NewProjectMessageBox _this = this;
-
-        String t = null;
-        //"Sent {project}";
-
-        if (!this.message.isSentByMe ())
+        try
         {
 
-            t = getUIString (editors,messages,newproject,received,title);
-            //"Received an invitation to edit a {project}";
+            Files.createDirectories (defDir);
 
-        } else {
+        } catch (Exception e) {
 
-            t = getUIString (editors,messages,newproject,sent,title);
+            Environment.logError ("Unable to create directories for: " + defDir,
+                                  e);
+
+            // TODO Hanlde this error.
 
         }
+*/
 
-        JComponent h = UIUtils.createBoldSubHeader (t,
-                                                    Constants.PROJECT_ICON_NAME);
+        Path defDir = Environment.getDefaultSaveProjectDirPath ();
+        Path nf = defDir.resolve ("editor-projects/").resolve (this.message.getEditor ().getEmail ());
 
-        this.add (h);
+        QuollFileField saveDir = QuollFileField.builder ()
+            .styleClassName (StyleClassNames.SAVE)
+            .initialFile (defDir)
+            .limitTo (QuollFileField.Type.directory)
+            .chooserTitle (Utils.newList (prefix,finder,tooltip))
+            .withViewer (viewer)
+            .build ();
 
-        JComponent bp = EditorsUIUtils.getProjectMessageDetails (this.message,
-                                                                 this.viewer,
-                                                                 this);
+        QuollCheckBox encrypt = QuollCheckBox.builder ()
+            .selected (false)
+            .label (Utils.newList (prefix,labels,LanguageStrings.encrypt))
+            .build ();
 
-        bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));
+        QuollPasswordField passwords = QuollPasswordField.builder ()
+            .passwordLabel (getUILanguageStringProperty (Utils.newList (prefix,labels,password)))
+            .confirmLabel (getUILanguageStringProperty (Utils.newList (prefix,labels,confirmpassword)))
+            .build ();
 
-        this.add (bp);
-
-        this.responseBox = new Box (BoxLayout.Y_AXIS);
-
-        this.responseBox.setVisible (false);
-
-        this.add (this.responseBox);
-
-        this.previousLabel = UIUtils.createInformationLabel ("");
-
-        this.add (this.previousLabel);
-
-        this.updateForEditor ();
-
-        if ((!this.message.isDealtWith ())
-            &&
-            (!this.message.isSentByMe ())
-            &&
-            (!this.message.getEditor ().isPrevious ())
-           )
+        passwords.managedProperty ().bind (passwords.visibleProperty ());
+        passwords.setVisible (false);
+        encrypt.selectedProperty ().addListener ((v, oldv, newv) ->
         {
 
-            this.responseBox.setVisible (true);
+            passwords.setVisible (newv);
 
-            JComponent l = UIUtils.createBoldSubHeader (getUIString (editors,messages,newproject,received,undealtwith,text),
-                                                        //"Select your response below",
-                                                        null);
+        });
 
-            this.responseBox.add (l);
+        QuollTextArea mess = QuollTextArea.builder ()
+            .placeholder (getUILanguageStringProperty (Utils.newList (prefix,labels,sendmessage,tooltip),
+                                                            //"You can optionally return a message to %s using this box.",
+                                                       this.message.getEditor ().getMainName ()))
+            .maxChars (5000)
+            .build ();
 
-            JButton accept = UIUtils.createButton (getUIString (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.accept,text),
-                                                  //"Accept",
-                                                   new ActionListener ()
+        Form form = Form.builder ()
+            //.description (desc)
+            .layoutType (Form.LayoutType.column)
+            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,project)),
+                   QuollLabel.builder ()
+                    .label (this.message.forProjectNameProperty ())
+                    .build ())
+            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,save)),
+                   saveDir)
+            .item (encrypt)
+            .item (passwords)
+            .item (Header.builder ()
+                .title (Utils.newList (prefix,labels,sendmessage,text))
+                .styleClassName (StyleClassNames.SUBTITLE)
+                .build ())
+            .item (mess)
+            .confirmButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,LanguageStrings.save)))
+            .cancelButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,LanguageStrings.cancel)))
+            .build ();
+
+        form.setOnCancel (ev ->
+        {
+
+            qp.close ();
+
+        });
+
+        form.setOnConfirm (ev ->
+        {
+
+            form.hideError ();
+
+            List<String> prefix2 = Arrays.asList (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,popup);
+
+            // See if the project already exists.
+            Path pf = saveDir.getFile ().resolve (Utils.sanitizeForFilename (this.message.getForProjectName ()));
+
+            if (Files.notExists (pf))
             {
 
-                @Override
-                public void actionPerformed (ActionEvent ev)
+                form.showError (getUILanguageStringProperty (Utils.newList (prefix2,errors,valueexists),
+                                                            //"A {project} called: %s already exists.",
+                                                             this.message.forProjectNameProperty (),
+                                                             pf));
+
+                return;
+
+            }
+
+            String pwd = passwords.getPassword1 ();
+
+            if (encrypt.isSelected ())
+            {
+
+                // Make sure a password has been provided.
+                String pwd2 = passwords.getPassword2 ();
+
+                if (pwd.equals (""))
                 {
 
-                    // Show a message box.
-                    _this.showResponseMessagePopup (true);
+                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,nopassword)));
+                                           //"Please provide a password for securing the {project}.");
+                    return;
 
                 }
 
-            });
-
-            accept.setToolTipText (getUIString (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.accept,title));
-            //"Click to accept the invitation");
-
-            JButton reject = UIUtils.createButton (getUIString (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.reject,text),
-                                                    //"Reject",
-                                                   new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
+                if (pwd2.equals (""))
                 {
 
-                    _this.showResponseMessagePopup (false);
+                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,confirmpassword)));
+                                           //"Please confirm your password.");
+                    return;
 
                 }
 
-            });
+                if (!pwd.equals (pwd2))
+                {
 
-            reject.setToolTipText (getUIString (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.reject,title));
-            //"Click to reject the invitation");
+                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,nomatch)));
+                                           //"The passwords do not match.");
+                    return;
 
-            JButton[] buts = new JButton[] { accept, reject };
+                }
 
-            JComponent bb = UIUtils.createButtonBar2 (buts,
-                                                      Component.LEFT_ALIGNMENT);
+            }
 
-            bb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            final String responseMessage = (mess.getText ().trim ().length () == 0 ? null : mess.getText ().trim ());
 
-            this.responseBox.add (bb);
+            this.message.setResponseMessage (responseMessage);
 
-        }
-
-    }
-
-    private void showResponseMessagePopup (final boolean accepted)
-    {
-
-        this.handleNewProjectResponse (this.viewer,
-                                       this.message,
-                                       accepted);
-
-    }
-
-    public void handleNewProjectResponse (      AbstractViewer    viewer,
-                                          final NewProjectMessage mess,
-                                          final boolean           accepted)
-    {
-
-        if (viewer == null)
-        {
-
-            viewer = null; // TODO Environment.getFocusedViewer ();
-
-        }
-
-        if (accepted)
-        {
-
-            java.util.List<String> prefix = Arrays.asList (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,popup);
-
-            final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
-                                                            //"Accept the invitation",
-                                                           Environment.getIcon (Constants.PROJECT_ICON_NAME,
-                                                                                Constants.ICON_POPUP),
-                                                           null);
-
-            String rows = "p, 6px, p, 6px, p, 6px, p";
-
-            int row = 1;
-
-            Box content = new Box (BoxLayout.Y_AXIS);
-
-            content.add (UIUtils.createBoldSubHeader (getUIString (prefix,labels,where),
-                                                      //"Where should the {project} be saved?",
-                                                      null));
-
-            content.add (Box.createVerticalStrut (5));
-
-            Path defDir = Environment.getDefaultSaveProjectDirPath ();
+            // Create the project.
+            Project p = null;
 
             try
             {
 
-                Files.createDirectories (defDir);
+                p = this.message.createProject ();
 
             } catch (Exception e) {
 
-                Environment.logError ("Unable to create directories for: " + defDir,
+                Environment.logError ("Unable to create project from message: " +
+                                      this.message,
                                       e);
 
-                // TODO Hanlde this error.
+                form.showError (getUILanguageStringProperty (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,actionerror));
+                                          //"Unable to save {project}, please contact Quoll Writer support for assistance.");
+
+                return;
 
             }
 
-            Path nf = defDir.resolve ("editor-projects/").resolve (mess.getEditor ().getEmail ());
+            final Project fproj = p;
 
-            // TODO REMOVE? File nf = new File (defDir, "editor-projects/" + mess.getEditor ().getEmail ());
-
-            final FileFinder saveField = new FileFinder ();
-
-            saveField.setFile (nf.toFile ());
-
-            saveField.setApproveButtonText (getUIString (prefix,finder,button));
-            //"Select");
-            saveField.setFinderSelectionMode (JFileChooser.DIRECTORIES_ONLY);
-            saveField.setFinderTitle (getUIString (prefix,finder,title));
-            //"Select a directory to save to");
-
-            saveField.setFindButtonToolTip (getUIString (prefix,finder,tooltip));
-            //"Click to find a directory");
-            saveField.setClearOnCancel (true);
-            saveField.init ();
-
-            final String projName = mess.getForProjectName ();
-
-            final JCheckBox encryptField = UIUtils.createCheckBox (getUIString (prefix,labels,encrypt));
-            //"Encrypt this {project}?  You will be prompted for a password.");
-
-            Set<FormItem> items = new LinkedHashSet<> ();
-
-            items.add (new AnyFormItem (getUIString (prefix,labels,project),
-                                        //"{Project}",
-                                        UIUtils.createLabel (projName)));
-
-            items.add (new AnyFormItem (getUIString (prefix,labels,save),
-                                        //"Save In",
-                                        saveField));
-
-            items.add (new AnyFormItem (null,
-                                        encryptField));
-
-            FormLayout pfl = new FormLayout ("right:p, 6px, 100px, 20px, p, 6px, fill:100px",
-                                             "p, 6px");
-            pfl.setHonorsVisibility (true);
-            PanelBuilder pbuilder = new PanelBuilder (pfl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            final JPasswordField passwordField = new JPasswordField ();
-
-            pbuilder.addLabel (getUIString (prefix,labels,password),
-                            //"Password",
-                               cc.xy (1,
-                                      1));
-
-            pbuilder.add (passwordField,
-                          cc.xy (3,
-                                 1));
-
-            final JPasswordField passwordField2 = new JPasswordField ();
-
-            pbuilder.addLabel (getUIString (prefix,labels,confirmpassword),
-                                //"Confirm",
-                               cc.xy (5,
-                                      1));
-
-            pbuilder.add (passwordField2,
-                          cc.xy (7,
-                                 1));
-
-            final JPanel ppanel = pbuilder.getPanel ();
-            ppanel.setVisible (false);
-            ppanel.setOpaque (false);
-
-            items.add (new AnyFormItem (null,
-                                        ppanel));
-
-            encryptField.addActionListener (new ActionListener ()
+            // Put it in the user's directory.
+            try
             {
 
-                public void actionPerformed (ActionEvent ev)
+                p.setFilePassword (pwd);
+
+                // We create the project but then close the connection pool since the user
+                // may not want to open the project yet.
+                Environment.createProject (saveDir.getFile (),
+                                           p).closeConnectionPool ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to save editor project to: " +
+                                      saveDir.getFile () +
+                                      ", message: " +
+                                      this.message,
+                                      e);
+
+                form.showError (getUILanguageStringProperty (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,actionerror));
+                                          //"Unable to save {project}, please contact Quoll Writer support for assistance.");
+
+                return;
+
+            }
+
+            this.message.setDealtWith (true);
+
+            Runnable onComplete = () ->
+            {
+
+                String popupId = "open-editor-proj" + fproj.getId ();
+
+                if (this.viewer.getPopupById (popupId) != null)
                 {
 
-                    ppanel.setVisible (encryptField.isSelected ());
-
-                    qp.resize ();
+                    return;
 
                 }
 
-            });
+                qp.close ();
 
-            final JLabel error = UIUtils.createErrorLabel ("");
-            error.setVisible (false);
-            error.setBorder (UIUtils.createPadding (0, 0, 5, 0));
+                this.message.setAccepted (true);
+                this.message.setDealtWith (true);
+                this.message.setResponseMessage (responseMessage);
 
-            Form f = UIUtils.createForm (items);
-
-            content.add (error);
-            content.add (f);
-
-            content.add (Box.createVerticalStrut (10));
-            content.add (UIUtils.createBoldSubHeader (getUIString (prefix,labels,sendmessage,text),
-                                                    //"Send a message back",
-                                                      null));
-
-            final TextArea res = new TextArea (String.format (getUIString (prefix,labels,sendmessage,tooltip),
-                                                                //"You can optionally return a message to %s using this box.",
-                                                              mess.getEditor ().getMainName ()),
-                                               5,
-                                               5000);
-
-            content.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-            content.add (res);
-
-            ActionListener doSave = new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
+                try
                 {
 
-                    error.setVisible (false);
+                    // Update the original message.
+                    EditorsEnvironment.updateMessage (this.message);
 
-                    java.util.List<String> prefix = Arrays.asList (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,popup);
+                } catch (Exception e) {
 
-                    // See if the project already exists.
-                    File pf = new File (saveField.getSelectedFile (), Utils.sanitizeForFilename (projName));
+                    Environment.logError ("Unable to update message: " +
+                                          this.message,
+                                          e);
 
-                    if (pf.exists ())
+                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,actionerror));
+                                              //"Unable to update message, please contact Quoll Writer support for assistance.");
+
+                    // Should really carry on... maybe...
+
+                }
+
+                QuollPopup.questionBuilder ()
+                    .styleClassName (StyleClassNames.OPEN)
+                    .popupId (popupId)
+                    .title (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,title)
+                    .message (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,text)
+                    .confirmButtonLabel (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,confirm)
+                    .cancelButtonLabel (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,cancel)
+                    .onConfirm (eev ->
                     {
 
-                        error.setText (String.format (getUIString (prefix,errors,valueexists),
-                                                    //"A {project} called: %s already exists.",
-                                                      projName,
-                                                      pf.getPath ()));
+                        this.viewer.getPopupById (popupId).close ();
 
-                        error.setVisible (true);
-
-                        qp.resize ();
-
-                        return;
-
-                    }
-
-                    String pwd = null;
-
-                    if (encryptField.isSelected ())
-                    {
-
-                        // Make sure a password has been provided.
-                        pwd = new String (passwordField.getPassword ()).trim ();
-
-                        String pwd2 = new String (passwordField2.getPassword ()).trim ();
-
-                        if (pwd.equals (""))
+                        try
                         {
 
-                            error.setText (getUIString (prefix,errors,nopassword));
-                            //"Please provide a password for securing the {project}."));
+                            Environment.openProject (fproj,
+                                                     () ->
+                                                     {
 
-                            error.setVisible (true);
+                                                        // Show the first chapter.
+                                                        AbstractProjectViewer pv = Environment.getProjectViewer (fproj);
 
-                            qp.resize ();
+                                                        if (pv != null)
+                                                        {
 
-                            return;
+                                                            pv.viewObject (pv.getProject ().getBook (0).getChapters ().get (0));
+
+                                                        }
+
+                                                     });
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to open project: " +
+                                                  fproj,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (getUILanguageStringProperty (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,actionerror));
+                                                      //"Unable to open {project}: " + fproj.getName () + " please contact Quoll Support for assistance.");
 
                         }
 
-                        if (pwd2.equals (""))
-                        {
 
-                            error.setText (getUIString (prefix,errors,confirmpassword));
-                            //"Please confirm your password.");
 
-                            error.setVisible (true);
-
-                            qp.resize ();
-
-                            return;
-
-                        }
-
-                        if (!pwd.equals (pwd2))
-                        {
-
-                            error.setText (getUIString (prefix,errors,nomatch));
-                            //"The passwords do not match.");
-
-                            error.setVisible (true);
-
-                            qp.resize ();
-
-                            return;
-
-                        }
-
-                    }
-
-                    final String responseMessage = (res.getText ().trim ().length () == 0 ? null : res.getText ().trim ());
-
-                    mess.setResponseMessage (responseMessage);
-
-                    // Create the project.
-                    Project p = null;
-
-                    try
-                    {
-
-                        p = mess.createProject ();
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to create project from message: " +
-                                              mess,
-                                              e);
-
-                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,actionerror));
-                                                  //"Unable to save {project}, please contact Quoll Writer support for assistance.");
-
-                        return;
-
-                    }
-
-                    final Project fproj = p;
-
-                    // Put it in the user's directory.
-                    try
-                    {
-
-                        p.setFilePassword (pwd);
-
-                        // We create the project but then close the connection pool since the user
-                        // may not want to open the project yet.
-                        Environment.createProject (saveField.getSelectedFile ().toPath (),
-                                                   p).closeConnectionPool ();
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to save editor project to: " +
-                                              saveField.getSelectedFile () +
-                                              ", message: " +
-                                              mess,
-                                              e);
-
-                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,actionerror));
-                                                  //"Unable to save {project}, please contact Quoll Writer support for assistance.");
-
-                        return;
-
-                    }
-
-                    mess.setDealtWith (true);
-
-                    ActionListener onComplete = new ActionListener ()
-                    {
-
-                       public void actionPerformed (ActionEvent ev)
-                       {
-
-                            qp.removeFromParent ();
-
-                            mess.setAccepted (accepted);
-                            mess.setDealtWith (true);
-                            mess.setResponseMessage (responseMessage);
-
-                            try
-                            {
-
-                                // Update the original message.
-                                EditorsEnvironment.updateMessage (mess);
-
-                            } catch (Exception e) {
-
-                                Environment.logError ("Unable to update message: " +
-                                                      mess,
-                                                      e);
-
-                                UIUtils.showErrorMessage (null, // TODO Environment.getFocusedViewer (),
-                                                          getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,actionerror));
-                                                          //"Unable to update message, please contact Quoll Writer support for assistance.");
-
-                                // Should really carry on... maybe...
-
-                            }
-
-                            // Ask if they want to open the project now.
-                            UIUtils.createQuestionPopup (null, // TODO Environment.getFocusedViewer (),
-                                                         getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,title),
-                                                         //"Open the {project}?",
-                                                         Constants.OPEN_PROJECT_ICON_NAME,
-                                                         getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,text),
-                                                         //"Open the {project} now?",
-                                                         getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,confirm),
-                                                         //"Yes, open it",
-                                                         getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,cancel),
-                                                         //"Not now",
-                                                         new ActionListener ()
-                                                         {
-
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                                try
-                                                                {
-/*
-TODO
-                                                                    Environment.openProject (fproj,
-                                                                                            new ActionListener ()
-                                                                                             {
-
-                                                                                                public void actionPerformed (ActionEvent ev)
-                                                                                                {
-
-                                                                                                    // Show the first chapter.
-                                                                                                    AbstractProjectViewer pv = Environment.getProjectViewer (fproj);
-
-                                                                                                    if (pv != null)
-                                                                                                    {
-
-                                                                                                        pv.viewObject (pv.getProject ().getBook (0).getChapters ().get (0));
-
-                                                                                                    }
-
-                                                                                                }
-
-                                                                                             });
-*/
-                                                                } catch (Exception e) {
-
-                                                                    Environment.logError ("Unable to open project: " +
-                                                                                          fproj,
-                                                                                          e);
-
-                                                                    UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                                                              getUIString (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,actionerror));
-                                                                                              //"Unable to open {project}: " + fproj.getName () + " please contact Quoll Support for assistance.");
-
-                                                                }
-
-                                                            }
-
-                                                         },
-                                                         null,
-                                                         null,
-                                                         null);
-
-                       }
-
-                    };
-
-                    NewProjectResponseMessage res = new NewProjectResponseMessage (mess.getForProjectId (),
-                                                                                   true,
-                                                                                   responseMessage,
-                                                                                   mess.getEditor (),
-                                                                                   EditorsEnvironment.getUserAccount ());
-
-                    if (mess.getEditor ().isPending ())
-                    {
-
-                        EditorsEnvironment.acceptInvite (mess.getEditor (),
-                                                         res,
-                                                         onComplete);
-
-                    } else {
-
-                        EditorsEnvironment.sendMessageToEditor (res,
-                                                                onComplete,
-                                                                null,
-                                                                null);
-
-                    }
-
-               }
+                    })
+                    .build ();
 
             };
 
-            JButton save = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.save),
-                                                //"Save {project}",
-                                                 doSave);
+            NewProjectResponseMessage res = new NewProjectResponseMessage (this.message.getForProjectId (),
+                                                                           true,
+                                                                           responseMessage,
+                                                                           this.message.getEditor (),
+                                                                           EditorsEnvironment.getUserAccount ());
 
-            UIUtils.addDoActionOnReturnPressed (res,
-                                                doSave);
-
-            JButton cancel = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.cancel),
-                                                    //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                                   new ActionListener ()
+            if (this.message.getEditor ().isPending ())
             {
 
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
+                EditorsEnvironment.acceptInvite (this.message.getEditor (),
+                                                 res,
+                                                 onComplete);
 
-                     qp.removeFromParent ();
+            } else {
 
-                }
+                EditorsEnvironment.sendMessageToEditor (res,
+                                                        onComplete,
+                                                        null,
+                                                        null);
 
-            });
+            }
 
-            JButton[] buts = new JButton[] { save, cancel };
+        });
 
-            JComponent bs = UIUtils.createButtonBar2 (buts,
-                                                      Component.LEFT_ALIGNMENT);
-            bs.setAlignmentX (Component.LEFT_ALIGNMENT);
+        qp.show ();
 
-            content.add (Box.createVerticalStrut (10));
-            content.add (bs);
-            content.setBorder (new EmptyBorder (10, 10, 10, 10));
+    }
 
-            qp.setContent (content);
+    public void handleNewProjectResponse (boolean accepted)
+    {
 
-            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                                     content.getPreferredSize ().height));
+        if (accepted)
+        {
 
-            Point showAt = UIUtils.getCenterShowPosition (viewer,
-                                                          qp);
-
-            viewer.showPopupAt (qp,
-                                showAt,
-                                false);
-
-            qp.setDraggable (viewer);
+            this.handleNewProjectAccept ();
 
         } else {
 
             // Ask for a response?
             final String responseMessage = null;
 
-            mess.setDealtWith (true);
+            this.message.setDealtWith (true);
 
-            ActionListener onComplete = new ActionListener ()
+            Runnable onComplete = () ->
             {
 
-               public void actionPerformed (ActionEvent ev)
-               {
+                this.message.setAccepted (accepted);
+                this.message.setDealtWith (true);
+                this.message.setResponseMessage (responseMessage);
 
-                    mess.setAccepted (accepted);
-                    mess.setDealtWith (true);
-                    mess.setResponseMessage (responseMessage);
+                try
+                {
 
-                    try
-                    {
+                    // Update the original message.
+                    EditorsEnvironment.updateMessage (this.message);
 
-                        // Update the original message.
-                        EditorsEnvironment.updateMessage (mess);
+                } catch (Exception e) {
 
-                    } catch (Exception e) {
+                    Environment.logError ("Unable to update message: " +
+                                          this.message,
+                                          e);
 
-                        Environment.logError ("Unable to update message: " +
-                                              mess,
-                                              e);
+                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (editors,messages,update,actionerror));
+                                              //"Unable to update message, please contact Quoll Writer support for assistance.");
 
-                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                  getUIString (editors,messages,update,actionerror));
-                                                  //"Unable to update message, please contact Quoll Writer support for assistance.");
+                    // Should really carry on... maybe...
 
-                        // Should really carry on... maybe...
-
-                    }
-
-               }
+                }
 
             };
 
-            NewProjectResponseMessage res = new NewProjectResponseMessage (mess.getForProjectId (),
+            NewProjectResponseMessage res = new NewProjectResponseMessage (this.message.getForProjectId (),
                                                                            false,
                                                                            responseMessage,
-                                                                           mess.getEditor (),
+                                                                           this.message.getEditor (),
                                                                            EditorsEnvironment.getUserAccount ());
 
-            if (mess.getEditor ().isPending ())
+            if (this.message.getEditor ().isPending ())
             {
 
-                EditorsEnvironment.rejectInvite (mess.getEditor (),
+                EditorsEnvironment.rejectInvite (this.message.getEditor (),
                                                  res,
                                                  onComplete);
 

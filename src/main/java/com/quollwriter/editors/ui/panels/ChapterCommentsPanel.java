@@ -1,62 +1,44 @@
 package com.quollwriter.editors.ui.panels;
 
-import java.awt.*;
-import java.awt.im.*;
-import java.awt.event.*;
-
 import java.io.*;
 
 import java.text.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.undo.*;
-import java.awt.datatransfer.*;
+import javafx.geometry.*;
+import javafx.scene.control.*;
+import javafx.scene.*;
+import javafx.scene.input.*;
 
 //import org.incava.util.diff.*;
 
 import com.gentlyweb.properties.*;
 
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
-
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.editors.ui.*;
-import com.quollwriter.ui.panels.*;
+import com.quollwriter.ui.fx.panels.*;
+import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.data.*;
+import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.text.*;
 import com.quollwriter.text.rules.*;
 
-import com.quollwriter.ui.actionHandlers.*;
-import com.quollwriter.ui.components.ActionAdapter;
-import com.quollwriter.ui.components.Header;
-import com.quollwriter.ui.components.ImagePanel;
-import com.quollwriter.ui.components.QTextEditor;
-import com.quollwriter.ui.components.ScrollablePanel;
-import com.quollwriter.ui.components.BlockPainter;
-import com.quollwriter.ui.renderers.*;
-
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements ChapterItemViewer
+public class ChapterCommentsPanel extends ChapterEditorWithMarginPanelContent<ProjectSentReceivedViewer> implements ToolBarSupported
 {
 
-     private IconColumn<ProjectSentReceivedViewer> iconColumn = null;
-     protected ProjectSentReceivedViewer   projectViewer = null;
-     private int                     lastCaret = -1;
-     private ChapterItemTransferHandler chItemTransferHandler = null;
-     private BlockPainter highlight = null;
-     private boolean chapterItemEditVisible = false;
+     //private IconColumn<ProjectSentReceivedViewer> iconColumn = null;
+     //protected ProjectSentReceivedViewer   projectViewer = null;
+     //private int                     lastCaret = -1;
+     //private ChapterItemTransferHandler chItemTransferHandler = null;
+     //private BlockPainter highlight = null;
+     //private boolean chapterItemEditVisible = false;
 
      public ChapterCommentsPanel (ProjectSentReceivedViewer pv,
                                   Chapter                   c)
@@ -66,13 +48,13 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
         super (pv,
                c);
 
-        this.projectViewer = pv;
+        //this.projectViewer = pv;
 
         final ChapterCommentsPanel _this = this;
 
-        this.editor.setEditable (false);
-        this.editor.setCanCopy (false);
-
+        //this.editor.setEditable (false);
+        //this.editor.setCanCopy (false);
+/*
         this.iconColumn = new IconColumn<ProjectSentReceivedViewer> (this,
                                                                      c,
                                                                      this.projectViewer.getIconProvider (),
@@ -92,14 +74,35 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
                                                                "none");
 
         this.highlight = new BlockPainter (UIUtils.getHighlightColor ());
+*/
+    }
+
+    @Override
+    public Map<KeyCombination, Runnable> getActionMappings ()
+    {
+
+        return new HashMap<> ();
 
     }
 
     @Override
-    public void scrollCaretIntoView ()
+    public Set<Node> getToolBarItems ()
     {
 
-        // Do nothing.
+        Set<Node> its = new LinkedHashSet<> ();
+
+        its.add (QuollButton.builder ()
+            .tooltip (editors,projectsent,commentspanel,toolbar,textproperties,tooltip)
+            .iconName (StyleClassNames.EDITPROPERTIES)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectSentReceivedViewer.CommandId.textproperties);
+
+            })
+            .build ());
+
+        return its;
 
     }
 
@@ -184,285 +187,177 @@ System.out.println ("DIFF: " + diffs);
 
     }
     */
+
     @Override
-     public void setState (final Map<String, String> s,
-                          boolean                   hasFocus)
-     {
-
-        if (hasFocus)
-        {
-
-            this.editor.grabFocus ();
-
-        }
-
-     }
-
-    public void setChapterItemEditVisible (boolean v)
+    public Set<MenuItem> getMarginContextMenuItems (int cpos)
     {
 
-         this.chapterItemEditVisible = v;
-
-    }
-
-    public boolean isChapterItemEditVisible ()
-    {
-
-         return this.chapterItemEditVisible;
-
-    }
-
-    public int getTextPositionForMousePosition (Point p)
-    {
-
-       Point pp = p;
-
-       if (this.iconColumn.getMousePosition () != null)
-       {
-
-          pp = new Point (0,
-                          p.y);
-
-       }
-
-       return this.editor.viewToModel (pp);
-
-    }
-
-    public ActionListener getActionListenerForTextPosition (final String actionName,
-                                                            final Point  p)
-    {
-
-         final ChapterCommentsPanel _this = this;
-
-         final int pos = this.getTextPositionForMousePosition (p);
-
-         return new ActionAdapter ()
-         {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-               _this.performAction (ev,
-                                    actionName,
-                                    pos);
-
-            }
-
-         };
-
-    }
-
-    public ChapterItemTransferHandler getChapterItemTransferHandler ()
-    {
-
-        return this.chItemTransferHandler;
-
-    }
-
-   public int getIconColumnXOffset (ChapterItem i)
-   {
-
-      int xOffset = 22;
-
-      if (i instanceof OutlineItem)
-      {
-
-          xOffset = 22;
-
-      }
-
-      return xOffset;
-
-   }
-
-    public JComponent getEditorWrapper (QTextEditor q)
-    {
-
-        Box b = new Box /*com.quollwriter.ui.components.ScrollableBox*/ (BoxLayout.X_AXIS);
-        b.add (this.iconColumn);
-        b.add (q);
-        q.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
-
-        q.setMinimumSize (new Dimension (200, 200));
-        q.setAlignmentY (Component.TOP_ALIGNMENT);
-        q.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        this.iconColumn.setAlignmentY (Component.TOP_ALIGNMENT);
-        this.iconColumn.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.iconColumn.setMinimumSize (new Dimension (32, 200));
-        this.iconColumn.setPreferredSize (new Dimension (32, 200));
-        this.iconColumn.setMaximumSize (new Dimension (32, Integer.MAX_VALUE));
-
-        JPanel p = new ScrollablePanel (new BorderLayout ());
-        p.add (b);
-
-        return p;
+        return new HashSet<> ();
 
     }
 
     @Override
-    public void doFillToolsPopupMenu (ActionEvent ev,
-                                      JPopupMenu  p)
+    public Set<MenuItem> getContextMenuItems (boolean    compress)
     {
 
-    }
+        Set<MenuItem> ret = new LinkedHashSet<> ();
 
-   @Override
-   public void fillToolBar (JToolBar acts,
-                            final boolean  fullScreen)
-   {
-
-      final AbstractEditorPanel _this = this;
-
-      this.doFillToolBar (acts);
-
-      acts.add (this.createToolbarButton (Constants.EDIT_PROPERTIES_ICON_NAME,
-                                          getUIString (editors,projectsent,commentspanel,toolbar,textproperties,tooltip),
-                                          //"Click to edit the text properties",
-                                          EDIT_TEXT_PROPERTIES_ACTION_NAME));
-
-   }
-
-    public void doFillToolBar (JToolBar acts)
-    {
-
-        final ChapterCommentsPanel _this = this;
-
-        ActionAdapter aa = new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.performAction (ev);
-
-            }
-
-        };
-
-    }
-
-    private void performAction (ActionEvent ev,
-                                String      c,
-                                int         pos)
-    {
-
-        if (c == null)
-        {
-
-            return;
-
-        }
-
-    }
-
-    private void performAction (ActionEvent ev,
-                                int         pos)
-    {
-
-        String c = ev.getActionCommand ();
-
-        this.performAction (ev,
-                            c,
-                            pos);
-
-    }
-
-    public void fillPopupMenu (final MouseEvent ev,
-                               final JPopupMenu popup)
-    {
-
-      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
-
-      this.doFillPopupMenu (ev,
-                            popup,
-                            compress);
-
-    }
-
-    public void doFillPopupMenu (final MouseEvent ev,
-                                 final JPopupMenu popup,
-                                       boolean    compress)
-    {
-
-        final ChapterCommentsPanel _this = this;
-
-        final QTextEditor         editor = this.editor;
-
-        JMenuItem mi = null;
-
-        // Get the mouse position, don't get it later since the mouse could have moved.
-        Point mP = this.editor.getMousePosition ();
-
-        if (mP == null)
-        {
-
-            mP = this.iconColumn.getMousePosition ();
-
-        }
-
-        final Point mouseP = mP;
-
-        int pos = this.getTextPositionForMousePosition (ev.getPoint ());
-
-        // This is needed to move to the correct character, the call above seems to get the character
-        // before what was clicked on.
-        // pos++;
+        int pos = this.editor.getTextPositionForCurrentMousePosition ();
 
         if (compress)
         {
 
-            List<JComponent> buts = new ArrayList ();
+            List<Node> row1 = new ArrayList<> ();
 
-            buts.add (this.createButton (Constants.FIND_ICON_NAME,
-                                         Constants.ICON_MENU,
-                                         getUIString (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,find,tooltip),
-                                         //"Find",
-                                         Constants.SHOW_FIND_ACTION));
+            row1.add (QuollButton.builder ()
+                .iconName (StyleClassNames.EDITPROPERTIES)
+                .tooltip (getUILanguageStringProperty (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,textproperties,tooltip))
+                .onAction (ev ->
+                {
 
-            popup.add (UIUtils.createPopupMenuButtonBar (getUIString (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,compresstext),
-                                                        //Environment.replaceObjectNames ("{Chapter}"),
-                                                         popup,
-                                                         buts));
+                    this.viewer.runCommand (ProjectSentReceivedViewer.CommandId.textproperties);
+
+                })
+                .build ());
+
+            row1.add (QuollButton.builder ()
+                .iconName (StyleClassNames.FIND)
+                .tooltip (getUILanguageStringProperty (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,find,tooltip))
+                .onAction (ev ->
+                {
+
+                    this.viewer.showFind ();
+
+                })
+                .build ());
+
+            CustomMenuItem n = UIUtils.createCompressedMenuItem (getUILanguageStringProperty (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,compresstext),
+                                                                 row1);
+
+            ret.add (n);
 
         } else {
 
-            mi = this.createMenuItem (getUIString (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,find,text),
-                                        //"Find",
-                                      Constants.FIND_ICON_NAME,
-                                      Constants.SHOW_FIND_ACTION,
-                                      KeyStroke.getKeyStroke (KeyEvent.VK_F,
-                                                              ActionEvent.CTRL_MASK));
-            mi.setMnemonic (KeyEvent.VK_F);
-            popup.add (mi);
+            ret.add (QuollMenuItem.builder ()
+                .iconName (StyleClassNames.EDITPROPERTIES)
+                .label (getUILanguageStringProperty (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,textproperties,text))
+                .onAction (ev ->
+                {
+
+                    this.viewer.runCommand (ProjectSentReceivedViewer.CommandId.textproperties);
+
+                })
+                .build ());
+
+            ret.add (QuollMenuItem.builder ()
+                .iconName (StyleClassNames.FIND)
+                .label (getUILanguageStringProperty (editors,projectsent,commentspanel,popupmenu,Chapter.OBJECT_TYPE,items,find,text))
+                .onAction (ev ->
+                {
+
+                    this.viewer.showFind ();
+
+                })
+                .build ());
 
         }
 
+        return ret;
+
     }
 
-    public IconColumn getIconColumn ()
+    @Override
+    public void showItem (ChapterItem item,
+                          boolean     showAllForLine)
     {
 
-        return this.iconColumn;
+        Note n = (Note) item;
+
+        Note top = n;
+        Set<Note> items = null;
+
+        if (showAllForLine)
+        {
+
+            items = this.getNotesForPosition (item.getPosition ());
+
+            if (items.size () == 0)
+            {
+
+                return;
+
+            }
+
+            top = items.iterator ().next ();
+
+        } else {
+
+            items = new LinkedHashSet<> ();
+            items.add (n);
+
+        }
+
+        QuollPopup qp = this.viewer.getPopupById (ViewCommentPopup.getPopupIdForComment (top));
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        qp = new ViewCommentPopup (this.viewer,
+                                   items).getPopup ();
+
+        this.showPopupForItem (top,
+                               qp);
 
     }
 
-    public QTextEditor getEditor ()
+    public Set<Note> getNotesForPosition (int p)
     {
 
-        return this.editor;
+        Bounds cb = this.editor.getBoundsForPosition (p);
+
+        if (cb == null)
+        {
+
+            return new HashSet<> ();
+
+        }
+
+        int paraNo = this.editor.getParagraphForOffset (p);
+
+        double y = cb.getMinY ();
+
+        Set<Note> ret = new TreeSet<> (new ChapterItemSorter ());
+
+        ret.addAll (this.object.getNotes ().stream ()
+            // Only interested in those that have the same y value.  i.e. on the same line.
+            .filter (i ->
+            {
+
+                // See if we are in the same paragraph.
+                if (this.editor.getParagraphForOffset (i.getPosition ()) != paraNo)
+                {
+
+                    return false;
+
+                }
+
+                Bounds b = this.editor.getBoundsForPosition (i.getPosition ());
+
+                return (b != null) && b.getMinY () == y;
+
+            })
+            .collect (Collectors.toSet ()));
+
+        return ret;
 
     }
 
-    public void scrollToItem (ChapterItem i)
-                       throws GeneralException
-    {
-
-        this.scrollToPosition (i.getPosition ());
-
-    }
-
+/*
     public void showNote (Note n)
                    throws GeneralException
     {
@@ -472,7 +367,8 @@ System.out.println ("DIFF: " + diffs);
         this.iconColumn.showItem (n);
 
     }
-
+*/
+/*
    public void removeItemHighlightTextFromEditor (ChapterItem it)
    {
 
@@ -490,115 +386,5 @@ System.out.println ("DIFF: " + diffs);
                                 false);
 
    }
-
-    public void scrollToNote (Note n)
-                       throws GeneralException
-    {
-
-        this.scrollToPosition (n.getPosition ());
-
-    }
-
-    public List<Component> getTopLevelComponents ()
-    {
-
-        List<Component> l = new ArrayList ();
-        l.add (this.iconColumn);
-        l.add (this.editor);
-
-        return l;
-
-    }
-
-    public void refresh (NamedObject n)
-    {
-
-        // No need to do anything.
-
-    }
-
-    public void reinitIconColumn ()
-                                  throws GeneralException
-    {
-
-        try
-        {
-
-            this.iconColumn.init ();
-
-        } catch (Exception e) {
-
-            throw new GeneralException ("Unable to init icon column",
-                                        e);
-
-        }
-
-    }
-
-    @Override
-    public void init ()
-               throws GeneralException
-    {
-
-         super.init ();
-
-         final ChapterCommentsPanel _this = this;
-
-         this.reinitIconColumn ();
-
-         this.setReadyForUse (true);
-
-    }
-
-    @Override
-    public void close ()
-    {
-
-        super.close ();
-
-    }
-
-    public void restoreBackgroundColor ()
-    {
-
-        super.restoreBackgroundColor ();
-
-        //this.iconColumn.setBackground (IconColumn.defaultBGColor);
-
-    }
-
-   public void setBackgroundColor (Color c)
-   {
-
-       super.setBackgroundColor (c);
-/*
-       if (c.equals (Color.white))
-       {
-
-           this.iconColumn.setBackground (IconColumn.defaultBGColor);
-
-       } else
-       {
-
-           this.iconColumn.setBackground (c);
-
-       }
 */
-   }
-
-   public void removeItem (ChapterItem c)
-   {
-
-       throw new UnsupportedOperationException ("Not supported for project comments viewing.");
-
-   }
-
-   public void addItem (ChapterItem c)
-                 throws GeneralException
-   {
-
-      throw new UnsupportedOperationException ("Not supported for project comments viewing.");
-
-   }
-
 }

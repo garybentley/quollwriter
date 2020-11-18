@@ -1,28 +1,28 @@
 package com.quollwriter.editors.ui;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.image.*;
+import java.util.*;
 
-import java.awt.event.*;
-import java.awt.Component;
-import javax.swing.*;
-import javax.swing.border.*;
+import javafx.beans.property.*;
+import javafx.scene.layout.*;
+import javafx.scene.image.*;
+import javafx.embed.swing.*;
 
 import com.quollwriter.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.data.editors.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.ImagePanel;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.editors.messages.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 {
 
-    private Box responseBox = null;
+    private VBox responseBox = null;
 
     public EditorInfoMessageBox (EditorInfoMessage mess,
                                  AbstractViewer    viewer)
@@ -31,77 +31,43 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
         super (mess,
                viewer);
 
-    }
-
-    public boolean isAutoDealtWith ()
-    {
-
-        return false;
-
-    }
-
-    public void doUpdate ()
-    {
-
-        if (this.message.isDealtWith ())
+        mess.dealtWithProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            if (this.responseBox != null)
-            {
+            this.responseBox.setVisible (!newv);
 
-                this.responseBox.setVisible (false);
+        });
 
-            }
+        this.getStyleClass ().add (StyleClassNames.EDITORINFO);
 
-        }
+        List<String> prefix = Arrays.asList (editors,messages,contactinfo);
 
-    }
-
-    public void doInit ()
-    {
-
-        final EditorInfoMessageBox _this = this;
-
-        java.util.List<String> prefix = Arrays.asList (editors,messages,contactinfo);
-
-        String text = getUIString (prefix,sent,title);
+        StringProperty text = getUILanguageStringProperty (prefix,sent,title);
         //"Sent name/avatar";
 
         if (!this.message.isSentByMe ())
         {
 
-            text = getUIString (prefix,received,title);
+            text = getUILanguageStringProperty (prefix,received,title);
             //"Received name/avatar update";
 
         }
 
-        JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    Constants.INFO_ICON_NAME);
+        QuollLabel h = QuollLabel.builder ()
+            .label (text)
+            .styleClassName (StyleClassNames.TITLE)
+            .build ();
 
-        this.add (h);
+        this.getChildren ().add (h);
 
-        Box editorInfo = new Box (BoxLayout.X_AXIS);
-        editorInfo.setAlignmentX (Component.LEFT_ALIGNMENT);
-        editorInfo.setBorder (UIUtils.createPadding (5, 10, 5, 5));
+        HBox edInfo = new HBox ();
 
-        this.add (editorInfo);
+        this.getChildren ().add (edInfo);
 
         if (this.message.getAvatar () != null)
         {
 
-            JLabel avatar = new JLabel ();
-
-            avatar.setAlignmentY (Component.TOP_ALIGNMENT);
-            avatar.setVerticalAlignment (SwingConstants.TOP);
-
-            editorInfo.add (avatar);
-            avatar.setOpaque (false);
-
-            avatar.setIcon (new ImageIcon (UIUtils.getScaledImage (this.message.getAvatar (),
-                                                                   50)));
-
-            avatar.setBorder (new CompoundBorder (UIUtils.createPadding (0, 0, 0, 5),
-                                                  UIUtils.createLineBorder ()));
+            edInfo.getChildren ().add (new ImageView (this.message.getAvatar ()));
 
         }
 
@@ -110,18 +76,16 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
         if (n == null)
         {
 
-            n = this.message.getEditor ().getShortName ();
+            n = this.message.getEditor ().getMainName ();
 
         }
 
-        JLabel name = new JLabel (n);
-        editorInfo.add (name);
+        QuollLabel name = QuollLabel.builder ()
+            .label (new SimpleStringProperty (n))
+            .styleClassName (StyleClassNames.NAME)
+            .build ();
 
-        name.setBorder (null);
-        name.setAlignmentY (Component.TOP_ALIGNMENT);
-        name.setVerticalAlignment (JLabel.TOP);
-        name.setAlignmentX (Component.LEFT_ALIGNMENT);
-        name.setFont (name.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (java.awt.Font.PLAIN));
+        edInfo.getChildren ().add (name);
 
         if ((!this.message.isDealtWith ())
             &&
@@ -129,28 +93,22 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
            )
         {
 
-            this.responseBox = new Box (BoxLayout.Y_AXIS);
+            this.responseBox = new VBox ();
 
-            this.responseBox.setBorder (UIUtils.createPadding (0, 5, 0, 5));
+            this.getChildren ().add (this.responseBox);
 
-            this.add (this.responseBox);
-
-            JButton update = UIUtils.createButton (getUIString (prefix,received,buttons,LanguageStrings.update));
-            //"Update");
-
-            update.addActionListener (new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
+            QuollButton update = QuollButton.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (prefix,received,buttons,LanguageStrings.update)))
+                .onAction (ev ->
                 {
 
-                    EditorEditor ed = _this.message.getEditor ();
+                    EditorEditor ed = this.message.getEditor ();
 
                     try
                     {
 
                         // Just update the info.
-                        String newName = _this.message.getName ();
+                        String newName = this.message.getName ();
 
                         if (newName != null)
                         {
@@ -159,7 +117,7 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 
                         }
 
-                        java.awt.image.BufferedImage newImage = _this.message.getAvatar ();
+                        Image newImage = this.message.getAvatar ();
 
                         if (newImage != null)
                         {
@@ -170,9 +128,9 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 
                         EditorsEnvironment.updateEditor (ed);
 
-                        _this.message.setDealtWith (true);
+                        this.message.setDealtWith (true);
 
-                        EditorsEnvironment.updateMessage (_this.message);
+                        EditorsEnvironment.updateMessage (this.message);
 
                     } catch (Exception e) {
 
@@ -180,63 +138,61 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
                                               ed,
                                               e);
 
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  getUIString (editors,editor,edit,actionerror));
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         getUILanguageStringProperty (editors,editor,edit,actionerror));
                                                   //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                         return;
 
                     }
 
-                }
+                })
+                .build ();
 
-            });
-
-            JButton ignore = UIUtils.createButton (getUIString (prefix,received,buttons,LanguageStrings.ignore));
-            //"Ignore");
-
-            ignore.addActionListener (new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
+            QuollButton ignore = QuollButton.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (prefix,received,buttons,LanguageStrings.ignore)))
+                .onAction (ev ->
                 {
 
                     try
                     {
 
-                        _this.message.setDealtWith (true);
+                        this.message.setDealtWith (true);
 
-                        EditorsEnvironment.updateMessage (_this.message);
+                        EditorsEnvironment.updateMessage (this.message);
 
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to update message: " +
-                                              _this.message,
+                                              this.message,
                                               e);
 
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  getUIString (editors,editor,edit,actionerror));
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         getUILanguageStringProperty (editors,editor,edit,actionerror));
                                                   //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
                         return;
 
                     }
 
-                }
+                })
+                .build ();
 
-            });
+            QuollButtonBar bb = QuollButtonBar.builder ()
+                .button (update)
+                .button (ignore)
+                .build ();
 
-            JButton[] buts = new JButton[] { update, ignore };
-
-            JPanel bb = UIUtils.createButtonBar2 (buts,
-                                                  Component.LEFT_ALIGNMENT);
-            bb.setOpaque (false);
-            bb.setAlignmentX (Component.LEFT_ALIGNMENT);
-            bb.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-
-            this.responseBox.add (bb);
+            this.responseBox.getChildren ().add (bb);
 
         }
+
+    }
+
+    public boolean isAutoDealtWith ()
+    {
+
+        return false;
 
     }
 

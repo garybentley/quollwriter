@@ -23,6 +23,8 @@ public class Form extends VBox
     private ErrorBox errorBox = null;
     private AbstractViewer errorHandler = null;
     private QuollButtonBar buttonBar = null;
+    private QuollLabel loading = null;
+    private QuollTextView desc = null;
 
     public enum LayoutType
     {
@@ -51,7 +53,7 @@ public class Form extends VBox
         VBox.setVgrow (this,
                        Priority.ALWAYS);
         this.getStyleClass ().add (StyleClassNames.FORM);
-        this.getStyleClass ().add (b.layoutType == LayoutType.column ? StyleClassNames.COLUMN : StyleClassNames.STACKED);
+        this.pseudoClassStateChanged (b.layoutType == LayoutType.column ? StyleClassNames.COLUMN_PSEUDO_CLASS : StyleClassNames.STACKED_PSEUDO_CLASS, true);
 
         if (b.styleName != null)
         {
@@ -63,7 +65,7 @@ public class Form extends VBox
         if (b.description != null)
         {
 
-            QuollTextView desc = QuollTextView.builder ()
+            this.desc = QuollTextView.builder ()
                 .styleClassName (StyleClassNames.DESCRIPTION)
                 .text (b.description)
                 .inViewer (b.viewer)
@@ -76,7 +78,7 @@ public class Form extends VBox
                 .withHandler (b.viewer)
                 .build ();
 */
-            this.getChildren ().add (desc);
+            this.getChildren ().add (this.desc);
 
         }
 
@@ -85,6 +87,14 @@ public class Form extends VBox
             .build ();
         this.errorHandler = b.viewer;
         this.getChildren ().add (this.errorBox);
+
+        this.loading = QuollLabel.builder ()
+            .styleClassName (StyleClassNames.LOADING)
+            .build ();
+        this.loading.managedProperty ().bind (this.loading.visibleProperty ());
+        this.loading.setVisible (false);
+
+        this.getChildren ().add (this.loading);
 
         int r = 0;
 
@@ -172,8 +182,29 @@ public class Form extends VBox
                                                   () ->
                     {
 
-                        this.fireEvent (new FormEvent (this,
-                                                       FormEvent.CONFIRM_EVENT));
+                        this.fireConfirmEvent ();
+
+                    });
+
+                }
+
+                if (c instanceof QuollPasswordField)
+                {
+
+                    QuollPasswordField pf = (QuollPasswordField) c;
+                    UIUtils.addDoOnReturnPressed (pf.getPasswordField1 (),
+                                                  () ->
+                    {
+
+                        this.fireConfirmEvent ();
+
+                    });
+
+                    UIUtils.addDoOnReturnPressed (pf.getPasswordField2 (),
+                                                  () ->
+                    {
+
+                        this.fireConfirmEvent ();
 
                     });
 
@@ -187,8 +218,7 @@ public class Form extends VBox
                                                   () ->
                     {
 
-                        this.fireEvent (new FormEvent (this,
-                                                       FormEvent.CONFIRM_EVENT));
+                        this.fireConfirmEvent ();
 
                     });
 
@@ -270,6 +300,37 @@ public class Form extends VBox
             gp.getChildren ().add (this.buttonBar);
 
         }
+
+    }
+
+    public void fireConfirmEvent ()
+    {
+
+        this.fireEvent (new FormEvent (this,
+                                       FormEvent.CONFIRM_EVENT));
+
+    }
+
+    public void setDescription (StringProperty l)
+    {
+
+        this.desc.setText (l);
+
+    }
+
+    public void showLoading (StringProperty l)
+    {
+
+        this.loading.textProperty ().unbind ();
+        this.loading.textProperty ().bind (l);
+        this.loading.setVisible (true);
+
+    }
+
+    public void hideLoading ()
+    {
+
+        this.loading.setVisible (false);
 
     }
 
@@ -437,7 +498,7 @@ public class Form extends VBox
         }
 
         public Builder button (StringProperty            label,
-                               String                    styleName,
+                               String                    iconName,
                                ButtonBar.ButtonData      type,
                                EventHandler<ActionEvent> onAction)
         {
@@ -446,7 +507,7 @@ public class Form extends VBox
                 .label (label)
                 .buttonType (type)
                 .onAction (onAction)
-                .styleClassName (styleName)
+                .iconName (iconName)
                 .build ());
 
         }
@@ -484,6 +545,44 @@ public class Form extends VBox
         }
 
         public Builder item (StringProperty label,
+                             StringProperty view)
+        {
+
+            Label v = null;
+
+            if (view != null)
+            {
+
+                v = new Label ();
+                v.textProperty ().bind (view);
+
+            }
+
+            return this.item (label,
+                              v);
+
+        }
+
+        public Builder sectionTitle (List<String> label)
+        {
+
+            return this.sectionTitle (getUILanguageStringProperty (label));
+
+        }
+
+        public Builder sectionTitle (StringProperty label)
+        {
+
+            QuollLabel l = QuollLabel.builder ()
+                .label (label)
+                .styleClassName (StyleClassNames.SECTIONTITLE)
+                .build ();
+
+            return this.item (new Form.Item (l));
+
+        }
+
+        public Builder item (StringProperty label,
                              Node           control)
         {
 
@@ -515,7 +614,7 @@ public class Form extends VBox
             Button b = QuollButton.builder ()
                 .label (label)
                 .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
-                .styleClassName (StyleClassNames.CANCEL)
+                .iconName (StyleClassNames.CANCEL)
                 .build ();
 
             this.cancel = b;
@@ -551,7 +650,7 @@ public class Form extends VBox
             Button b = QuollButton.builder ()
                 .label (label)
                 .buttonType (ButtonBar.ButtonData.OK_DONE)
-                .styleClassName (StyleClassNames.CONFIRM)
+                .iconName (StyleClassNames.CONFIRM)
                 .build ();
 
             this.confirm = b;
@@ -592,7 +691,7 @@ public class Form extends VBox
 
             }
 
-            this.description = getUILanguageStringProperty (ids);
+            this.description = getUILanguageStringProperty (_ids);
 
             return this;
 
@@ -653,6 +752,14 @@ public class Form extends VBox
                 .build ();
 
             this.control = c;
+
+        }
+
+        public Item (Label l)
+        {
+
+            this (l,
+                  null);
 
         }
 

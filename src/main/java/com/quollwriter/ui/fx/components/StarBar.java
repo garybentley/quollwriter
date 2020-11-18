@@ -54,14 +54,11 @@ public class StarBar extends HBox
                                Builder b)
     {
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane but = new Pane ();
-        but.getStyleClass ().add (StyleClassNames.ICON);
-        but.getStyleClass ().addAll (StyleClassNames.STAR + StyleClassNames.ICON_SUFFIX, (i + 1) + "");
-
-        h.getChildren ().add (but);
-        h.managedProperty ().bind (h.visibleProperty ());
+        IconBox h = IconBox.builder ()
+            .iconName (StyleClassNames.STAR)
+            .build ();
+        Pane but = h.getPane ();
+        but.getStyleClass ().add ((i + 1) + "");
 
         UIUtils.setTooltip (but,
                             b.tooltip);

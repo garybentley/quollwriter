@@ -16,10 +16,10 @@ import com.quollwriter.ui.fx.viewers.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implements ChapterItemFormatter
+public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V extends AbstractProjectViewer> implements ChapterItemFormatter<E>
 {
 
-    protected ProjectViewer viewer = null;
+    protected V viewer = null;
     protected E item = null;
     private IPropertyBinder binder = null;
     private LinkedToPanel linkedToPanel = null;
@@ -30,7 +30,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
     private QuollButton saveBut = null;
     private QuollButton cancelBut = null;
 
-    public AbstractChapterItemFormatter (ProjectViewer   viewer,
+    public AbstractChapterItemFormatter (V               viewer,
                                          IPropertyBinder binder,
                                          E               item,
                                          Runnable        onNewPopupShown)
@@ -74,15 +74,17 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
         lv.getChildren ().add (new ScrollPane (this.linkedToPanel));
 
         this.editBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .tooltip (getUILanguageStringProperty (Arrays.asList (edititem,tooltip),
                                                   Environment.getObjectTypeName (this.item)))
             .onAction (ev ->
             {
 
+                this.editItem (this.item);
+                /*
                 this.viewer.runCommand (ProjectViewer.CommandId.editobject,
                                         this.item);
-
+*/
                 UIUtils.runLater (this.popupShown);
 
             })
@@ -90,7 +92,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
         this.editBut.managedProperty ().bind (this.editBut.visibleProperty ());
 
         this.linkBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.LINK)
+            .iconName (StyleClassNames.LINK)
             .tooltip (getUILanguageStringProperty (Arrays.asList (linkitem,tooltip),
                                                   Environment.getObjectTypeName (this.item)))
             .onAction (ev ->
@@ -111,15 +113,18 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
         this.linkBut.managedProperty ().bind (this.linkBut.visibleProperty ());
 
         this.deleteBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.DELETE)
+            .iconName (StyleClassNames.DELETE)
             .tooltip (getUILanguageStringProperty (Arrays.asList (deleteitem,tooltip),
                                                   Environment.getObjectTypeName (this.item)))
             .onAction (ev ->
             {
 
+                this.deleteItem (this.item);
+
+/*
                 this.viewer.showDeleteChapterItemPopup (this.item,
                                                         this.viewer.getEditorForChapter (this.item.getChapter ()).getNodeForChapterItem (this.item));
-
+*/
                 UIUtils.runLater (this.popupShown);
 
             })
@@ -127,7 +132,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
         this.deleteBut.managedProperty ().bind (this.deleteBut.visibleProperty ());
 
         this.saveBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.SAVE)
+            .iconName (StyleClassNames.SAVE)
             .tooltip (chapteritems,links,save,buttons,confirm,tooltip)
             .onAction (ev ->
             {
@@ -137,15 +142,18 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
                 try
                 {
 
+                    this.saveItem (this.item);
+                    /*
                     this.viewer.saveObject (this.item,
                                             true);
+                                            */
                     this.saveBut.setVisible (false);
                     this.cancelBut.setVisible (false);
                     this.editBut.setVisible (true);
                     this.linkBut.setVisible (true);
                     this.deleteBut.setVisible (true);
                     this.linkedToPanel.showView ();
-                    lv.setVisible (this.item.getLinks ().size () > 0);                    
+                    lv.setVisible (this.item.getLinks ().size () > 0);
 
                 } catch (Exception e) {
 
@@ -164,7 +172,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem> implem
         this.saveBut.setVisible (false);
 
         this.cancelBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.CANCEL)
+            .iconName (StyleClassNames.CANCEL)
             .tooltip (chapteritems,links,save,buttons,confirm,tooltip)
             .onAction (ev ->
             {

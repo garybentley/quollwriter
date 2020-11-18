@@ -2427,7 +2427,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             if (v.equals ("showinviteeditor"))
             {
 
-                EditorsUIUtils.showInviteEditor (this);
+                // TODO EditorsUIUtils.showInviteEditor (this);
 
                 return;
 

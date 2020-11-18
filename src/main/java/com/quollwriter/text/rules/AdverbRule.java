@@ -341,7 +341,7 @@ public class AdverbRule extends AbstractSentenceRule
 
         bb.getChildren ().add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (problemfinder,config,rules,adverb,buttons,removespeechverbs,tooltip))
-            .styleClassName (StyleClassNames.DELETE)
+            .iconName (StyleClassNames.DELETE)
             .onAction (ev ->
             {
 

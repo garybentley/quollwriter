@@ -48,6 +48,7 @@ public class AccordionItem extends VBox implements Stateful
 
         }
 
+        this.setFillWidth (true);
         this.contentVisibleProp = new SimpleBooleanProperty ();
         this.accId = b.accId;
 
@@ -181,7 +182,13 @@ public class AccordionItem extends VBox implements Stateful
 
         this.open = this.openContent.isVisible ();
         this.contentVisibleProp.setValue (this.open);
-        this.requestLayout ();
+
+        UIUtils.forceRunLater (() ->
+        {
+
+            this.requestLayout ();
+
+        });
 
     }
 

@@ -1,0 +1,54 @@
+.avatar
+{
+    -fx-pref-width: 10em;
+    -fx-pref-height: 10em;
+    -fx-max-height: 10em;
+    -fx-max-width: 10em;
+    -fx-alignment: center;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+.control .button
+{
+    -fx-content-display: graphic-only;
+    -fx-padding: 0.2em;
+    -fx-cursor: hand;
+}
+
+.control > HBox
+{
+    -fx-spacing: 0.25em;
+}
+
+.control .button .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.control .button .iconbox .icon
+{
+    -fx-pref-width: 1.142em;
+    -fx-pref-height: 1.333em;
+}
+
+.form .items .control .button
+ {
+     -fx-border-color: transparent;
+     -fx-border-width: 1px;
+     -fx-background-color: transparent;
+     -fx-cursor: hand;
+     -fx-border-radius: 3px;
+     -fx-padding: 0.25em;
+ }
+
+ .form .items .control .button:hover,
+ .form .items .control .button:focused
+  {
+      -fx-border-color: -qw-border-color;
+      -fx-background-color: -qw-hover-bg;
+  }

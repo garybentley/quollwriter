@@ -365,7 +365,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         this.sentEdit.setVisible (false);
 
         QuollMenuButton addRule = QuollMenuButton.builder ()
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .tooltip (getUILanguageStringProperty (problemfinder,config,addrule,sentence,buttons,add,tooltip))
             .items (() ->
             {
@@ -477,7 +477,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         this.paraEdit.setVisible (false);
 
         QuollMenuButton addRule = QuollMenuButton.builder ()
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .tooltip (getUILanguageStringProperty (problemfinder,config,addrule,paragraph,buttons,add,tooltip))
             .items (() ->
             {
@@ -587,7 +587,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         this.wordsEdit.setVisible (false);
 
         Button addWordRule = QuollButton.builder ()
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .tooltip (getUILanguageStringProperty (problemfinder,config,addrule,words,buttons,add,tooltip))
             .onAction (ev ->
             {
@@ -844,7 +844,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
             buts.getItems ().add (QuollButton.builder ()
                 .tooltip (problemfinder,config,rulebox,buttons,find,tooltip)
-                .styleClassName (StyleClassNames.FIND)
+                .iconName (StyleClassNames.FIND)
                 .onAction (ev ->
                 {
 
@@ -855,7 +855,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
             buts.getItems ().add (QuollButton.builder ()
                 .tooltip (problemfinder,config,rulebox,buttons,edit,tooltip)
-                .styleClassName (StyleClassNames.EDIT)
+                .iconName (StyleClassNames.EDIT)
                 .onAction (ev ->
                 {
 
@@ -866,7 +866,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
             buts.getItems ().add (QuollButton.builder ()
                 .tooltip (problemfinder,config,rulebox,buttons,LanguageStrings.info,tooltip)
-                .styleClassName (StyleClassNames.INFORMATION)
+                .iconName (StyleClassNames.INFORMATION)
                 .onAction (ev ->
                 {
 
@@ -877,7 +877,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
             buts.getItems ().add (QuollButton.builder ()
                 .tooltip (problemfinder,config,rulebox,buttons,delete,tooltip)
-                .styleClassName (StyleClassNames.DELETE)
+                .iconName (StyleClassNames.DELETE)
                 .onAction (ev ->
                 {
 

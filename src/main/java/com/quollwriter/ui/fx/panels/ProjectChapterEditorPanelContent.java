@@ -44,7 +44,7 @@ import com.quollwriter.text.Word;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<ProjectViewer> implements ToolBarSupported
+public class ProjectChapterEditorPanelContent extends ChapterEditorWithMarginPanelContent<ProjectViewer> implements ToolBarSupported
 {
 
     private ScheduledFuture autoSaveTask = null;
@@ -56,14 +56,14 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     //private QTextEditor editor = null;
     private boolean isScrolling = false;
     //private Insets origEditorMargin = null;
-    private Map<String, ContextMenu> contextMenus = new HashMap<> ();
-    private List<QuollPopup> popupsToCloseOnClick = new ArrayList<> ();
-    private Subscription itemsSubscription = null;
-    private Subscription itemsPositionSubscription = null;
-    private ObservableList<ChapterItem> newItems = FXCollections.observableList (new ArrayList<> ());
+    //private Map<String, ContextMenu> contextMenus = new HashMap<> ();
+    //private List<QuollPopup> popupsToCloseOnClick = new ArrayList<> ();
+    //private Subscription itemsSubscription = null;
+    //private Subscription itemsPositionSubscription = null;
+    //private ObservableList<ChapterItem> newItems = FXCollections.observableList (new ArrayList<> ());
     private ProblemFinder problemFinder = null;
-    private Map<ChapterItem, TextEditor.Position> textPositions = new HashMap<> ();
-    private Map<ChapterItem, TextEditor.Position> endTextPositions = new HashMap<> ();
+    //private Map<ChapterItem, TextEditor.Position> textPositions = new HashMap<> ();
+    //private Map<ChapterItem, TextEditor.Position> endTextPositions = new HashMap<> ();
 
     public ProjectChapterEditorPanelContent (ProjectViewer viewer,
                                              Chapter       chapter)
@@ -71,8 +71,7 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorPanelContent<
     {
 
         super (viewer,
-               chapter,
-               viewer.getTextProperties ());
+               chapter);
 
         this.editor.setEditable (true);
 
@@ -124,20 +123,6 @@ TODO
                                         InputEvent.CTRL_DOWN_MASK),
                 EDIT_TEXT_PROPERTIES_ACTION_NAME);
 */
-
-        Pane marginbg = new Pane ();
-        marginbg.getStyleClass ().add ("margin-bg");
-        marginbg.prefHeightProperty ().bind (this.getBackgroundPane ().heightProperty ());
-
-        this.getBackgroundPane ().getChildren ().add (marginbg);
-
-        this.addChangeListener (UserProperties.showEditMarkerInChapterProperty (),
-                                (pr, oldv, newv) ->
-        {
-
-            this.recreateVisibleParagraphs ();
-
-        });
 
         this.editor.readyForUseProperty ().addListener ((pr, oldv, newv) ->
         {
@@ -191,177 +176,6 @@ TODO
             });
 
         });
-
-        this.itemsSubscription = this.object.chapterItemsEvents ().subscribe (ev ->
-        {
-
-            if (ev.getType () == CollectionEvent.Type.add)
-            {
-
-                this.createTextPosition (ev.getSource ());
-                //ev.getSource ().setTextPosition2 (this.editor.createTextPosition (ev.getSource ().getPosition ()));
-
-            }
-
-            if (ev.getType () == CollectionEvent.Type.remove)
-            {
-
-                ChapterItem ci = ev.getSource ();
-                ci.positionProperty ().unbind ();
-                ci.endPositionProperty ().unbind ();
-                this.textPositions.remove (ci).dispose ();
-
-                TextEditor.Position p = this.endTextPositions.remove (ci);
-
-                if (p != null)
-                {
-
-                    p.dispose ();
-
-                }
-
-            }
-
-            this.updateParagraphForItem (ev.getSource ());
-
-        });
-
-        this.itemsPositionSubscription = this.object.chapterItemsPositionEvents ().subscribe (ev ->
-        {
-
-            int oldParaNo = this.editor.getParagraphForOffset (ev.getOld ().intValue ());
-            int newParaNo = this.editor.getParagraphForOffset (ev.getNew ().intValue ());
-
-            if (oldParaNo != newParaNo)
-            {
-
-                if (oldParaNo > -1)
-                {
-
-                    this.editor.recreateParagraphGraphic (oldParaNo);
-
-                }
-
-                if (newParaNo > -1)
-                {
-
-                    this.editor.recreateParagraphGraphic (newParaNo);
-
-                }
-
-            }
-
-        });
-
-        Runnable r = () ->
-        {
-
-            this.editor.setParagraphGraphicFactory (paraNo ->
-            {
-
-                if (paraNo == -1)
-                {
-
-                    return new Pane ();
-
-                }
-
-                ParagraphIconMargin margin = new ParagraphIconMargin (this.viewer,
-                                                       this,
-                                                       paraNo,
-                                                       this.object,
-                                                       (item, node) ->
-                                                       {
-
-                                                           this.showItem (item,
-                                                                          true);
-
-                                                       },
-                                                       range ->
-                                                       {
-
-                                                           return this.getNewItemsForRange (range);
-
-                                                       });
-                margin.getStyleClass ().add (StyleClassNames.MARGIN);
-
-                return margin;
-
-            });
-
-        };
-
-        if (this.viewer.getViewer ().isShowing ())
-        {
-
-            r.run ();
-
-        } else {
-
-            this.viewer.getViewer ().addEventHandler (javafx.stage.WindowEvent.WINDOW_SHOWN,
-                                                      ev ->
-            {
-
-                r.run ();
-
-            });
-
-        }
-
-        Nodes.addInputMap (this.editor,
-                           InputMap.process (EventPattern.keyPressed (),
-                                             ev ->
-                                             {
-
-                                                 this.hidePopups ();
-
-                                                 return InputHandler.Result.PROCEED;
-
-                                             }));
-
-       Nodes.addInputMap (this.editor,
-                          InputMap.process (EventPattern.mousePressed (),
-                                            ev ->
-                                            {
-
-                                               this.hidePopups ();
-
-                                               // TODO Handle right click on chapter items in margin.
-                                               if ((ev.isPopupTrigger ())
-                                                   &&
-                                                   // TODO NEED BETTER WAY
-                                                   (!(ev.getTarget () instanceof ParagraphIconMargin))
-                                                  )
-                                               {
-
-                                                   this.setContextMenu ();
-
-                                               }
-
-                                               return InputHandler.Result.PROCEED;
-
-                                           }));
-
-        Nodes.addInputMap (this.editor,
-                           InputMap.process (EventPattern.mouseReleased (),
-                                              ev ->
-                                              {
-
-                                                  // TODO Handle right click on chapter items in margin.
-                                                  if ((ev.isPopupTrigger ())
-                                                      &&
-                                                      // TODO NEED BETTER WAY
-                                                      (!(ev.getTarget () instanceof ParagraphIconMargin))
-                                                     )
-                                                  {
-
-                                                      this.setContextMenu ();
-
-                                                  }
-
-                                                  return InputHandler.Result.PROCEED;
-
-                                              }));
 
         Nodes.addInputMap (this.editor,
                            InputMap.consume (EventPattern.keyPressed (KeyCode.P, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN),
@@ -435,53 +249,81 @@ TODO
 
     }
 
-    private void createTextPosition (ChapterItem ci)
+    @Override
+    public Set<MenuItem> getMarginContextMenuItems (int cpos)
     {
 
-        String t = this.object.getChapterText ();
+        List<String> prefix = Arrays.asList (iconcolumn,doubleclickmenu,items);
 
-        int l = 0;
+        Set<MenuItem> items = new LinkedHashSet<> ();
 
-        if (t != null)
-        {
-
-            l = t.length ();
-
-        }
-
-        if ((ci.getPosition () > l)
-             ||
-            (ci.getPosition () < 0)
-           )
-        {
-
-            ci.setPosition ((l > 0 ? l : 0));
-
-        }
-
-        TextEditor.Position p = this.editor.createTextPosition (ci.getPosition ());
-        ci.positionProperty ().unbind ();
-        ci.positionProperty ().bind (p.positionProperty ());
-        this.textPositions.put (ci,
-                                p);
-
-        if (ci.getEndPosition () > -1)
-        {
-
-            if (ci.getEndPosition () > l)
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE)))
+            .iconName (StyleClassNames.SCENE)
+            .accelerator (new KeyCharacterCombination ("S",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .onAction (eev ->
             {
 
-                ci.setEndPosition (l);
+                this.viewer.createNewScene (this.object,
+                                            cpos);
 
-            }
+            })
+            .build ());
 
-            TextEditor.Position ep = this.editor.createTextPosition (ci.getEndPosition ());
-            ci.endPositionProperty ().unbind ();
-            ci.endPositionProperty ().bind (ep.positionProperty ());
-            this.endTextPositions.put (ci,
-                                       ep);
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.OutlineItem.OBJECT_TYPE)))
+            .iconName (StyleClassNames.OUTLINEITEM)
+            .accelerator (new KeyCharacterCombination ("O",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .onAction (eev ->
+            {
 
-        }
+                this.viewer.createNewOutlineItem (this.object,
+                                                  cpos);
+
+            })
+            .build ());
+
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Note.OBJECT_TYPE)))
+            .iconName (StyleClassNames.NOTE)
+            .accelerator (new KeyCharacterCombination ("N",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .onAction (eev ->
+            {
+
+                this.viewer.createNewNote (this.object,
+                                           cpos);
+
+            })
+            .build ());
+
+        items.add (QuollMenuItem.builder ()
+            .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.editneedednote)))
+            .accelerator (new KeyCharacterCombination ("E",
+                                                       KeyCombination.SHORTCUT_DOWN,
+                                                       KeyCombination.SHIFT_DOWN))
+            .iconName (StyleClassNames.EDITNEEDEDNOTE)
+            .onAction (eev ->
+            {
+
+                this.viewer.createNewEditNeededNote (this.object,
+                                                     cpos);
+
+            })
+            .build ());
+
+         return items;
+
+    }
+
+    @Override
+    public void createTextPosition (ChapterItem ci)
+    {
 
         if (ci instanceof com.quollwriter.data.Scene)
         {
@@ -491,6 +333,8 @@ TODO
                 .forEach (o -> this.createTextPosition (o));
 
         }
+
+        super.createTextPosition (ci);
 
     }
 
@@ -544,283 +388,6 @@ TODO
         b.getChildren ().add (this.problemFinder);
 
         return b;
-
-    }
-
-    private List<ChapterItem> getNewItemsForRange (IndexRange range)
-    {
-
-        List<ChapterItem> items = new ArrayList<> ();
-
-        for (ChapterItem i : this.newItems)
-        {
-
-            if ((i.getPosition () >= range.getStart ())
-                &&
-                (i.getPosition () <= range.getEnd ())
-               )
-            {
-
-                items.add (i);
-
-            }
-
-        }
-
-        return items;
-
-    }
-
-    private void setContextMenu ()
-    {
-
-        Set<MenuItem> items = this.editor.getSpellingSynonymItemsForContextMenu (this.viewer);//new LinkedHashSet<> ();
-/*
-        Point2D p = this.editor.getMousePosition ();
-
-        // TODO? this.lastMousePosition = p;
-
-        if (p != null)
-        {
-
-            TextIterator iter = new TextIterator (this.editor.getText ());
-
-            final Word w = iter.getWordAt (this.editor.getTextPositionForMousePosition (p.getX (),
-                                                                                        p.getY ()));
-
-            if (w != null)
-            {
-
-                final String word = w.getText ();
-
-                final int loc = w.getAllTextStartOffset ();
-
-                List<String> l = this.editor.getSpellCheckSuggestions (w);
-
-                if (l != null)
-                {
-
-                    List<String> prefix = Arrays.asList (dictionary,spellcheck,popupmenu,LanguageStrings.items);
-
-                    if (l.size () == 0)
-                    {
-
-                        MenuItem mi = QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,nosuggestions)))
-                            .styleClassName (StyleClassNames.NOSUGGESTIONS)
-                            .onAction (ev ->
-                            {
-
-                                this.editor.addWordToDictionary (word);
-
-                                this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
-                                                              ProjectEvent.Action.addword,
-                                                              word);
-
-                            })
-                            .build ();
-                        mi.setDisable (true);
-                        items.add (mi);
-
-                    } else
-                    {
-
-                        if (l.size () > 15)
-                        {
-
-                            l = l.subList (0, 15);
-
-                        }
-
-                        Consumer<String> replace = (repWord ->
-                        {
-
-                            int cp = this.editor.getCaretPosition ();
-
-                            this.editor.replaceText (loc,
-                                                     loc + word.length (),
-                                                     repWord);
-
-                            this.editor.moveTo (cp - 1);
-
-                            this.viewer.fireProjectEvent (ProjectEvent.Type.spellcheck,
-                                                          ProjectEvent.Action.replace,
-                                                          repWord);
-
-                        });
-
-                        List<String> more = null;
-
-                        if (l.size () > 5)
-                        {
-
-                            more = l.subList (5, l.size ());
-                            l = l.subList (0, 5);
-
-                        }
-
-                        items.addAll (l.stream ()
-                            .map (repWord ->
-                            {
-
-                                return QuollMenuItem.builder ()
-                                    .label (new SimpleStringProperty (repWord))
-                                    .onAction (ev -> replace.accept (repWord))
-                                    .build ();
-
-                            })
-                            .collect (Collectors.toList ()));
-
-                        if (more != null)
-                        {
-
-                            items.add (QuollMenu.builder ()
-                                .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.more)))
-                                .styleClassName (StyleClassNames.MORE)
-                                .items (new LinkedHashSet<> (more.stream ()
-                                    .map (repWord ->
-                                    {
-
-                                        return QuollMenuItem.builder ()
-                                            .label (new SimpleStringProperty (repWord))
-                                            .onAction (ev -> replace.accept (repWord))
-                                            .build ();
-
-                                    })
-                                    .collect (Collectors.toList ())))
-                                .build ());
-
-                        }
-
-                    }
-
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,add)))
-                        .styleClassName (StyleClassNames.ADDWORD)
-                        .onAction (ev ->
-                        {
-
-                            this.editor.addWordToDictionary (word);
-
-                            this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
-                                                          ProjectEvent.Action.addword,
-                                                          word);
-
-                        })
-                        .build ());
-
-                    items.add (new SeparatorMenuItem ());
-
-                } else
-                {
-
-                    if (this.viewer.synonymLookupsSupported ())
-                    {
-
-                        // TODO Check this...
-                        if (this.viewer.isLanguageFunctionAvailable ())
-                        {
-
-                            if ((word != null) &&
-                                (word.length () > 0))
-                            {
-
-                                //String mt = "No synonyms found for: " + word;
-
-                                try
-                                {
-
-                                    // See if there are any synonyms.
-                                    if (this.editor.getSynonymProvider ().hasSynonym (word))
-                                    {
-
-                                        items.add (QuollMenuItem.builder ()
-                                            .styleClassName (StyleClassNames.FIND)
-                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,find),
-                                                                                 word))
-                                            .onAction (ev ->
-                                            {
-
-                                                QuollPopup qp = this.viewer.getPopupById (ShowSynonymsPopup.getPopupIdForChapter (this.object));
-
-                                                if (qp != null)
-                                                {
-
-                                                    qp.toFront ();
-                                                    return;
-
-                                                }
-
-                                                qp = new ShowSynonymsPopup (this.viewer,
-                                                                            w,
-                                                                            this.object).getPopup ();
-
-                                                Bounds b = this.viewer.screenToLocal (this.editor.getBoundsForPosition (loc));
-
-                                                this.viewer.showPopup (qp,
-                                                                       b,
-                                                                       Side.TOP);
-                                                                       //b.getMinX (),
-                                                                       //b.getMinY () - b.getHeight ());
-
-                                            })
-                                            .build ());
-
-                                    } else {
-
-                                        MenuItem mi = QuollMenuItem.builder ()
-                                            .styleClassName (StyleClassNames.NOSYNONYMS)
-                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,nosynonyms),
-                                                                                 word))
-                                            .build ();
-                                        mi.setDisable (true);
-                                        items.add (mi);
-
-                                    }
-
-                                    items.add (new SeparatorMenuItem ());
-
-                                } catch (Exception e) {
-
-                                    Environment.logError ("Unable to determine whether word: " +
-                                                          word +
-                                                          " has synonyms.",
-                                                          e);
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-*/
-        if (this.editor.getProperties ().get ("context-menu") != null)
-        {
-
-            ((ContextMenu) this.editor.getProperties ().get ("context-menu")).hide ();
-
-        }
-
-        ContextMenu cm = new ContextMenu ();
-        cm.getItems ().addAll (items);
-
-        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
-
-        cm.getItems ().addAll (this.getContextMenuItems (compress));
-
-        this.editor.setContextMenu (cm);
-
-        this.editor.getProperties ().put ("context-menu", cm);
-        cm.setAutoFix (true);
-        cm.setAutoHide (true);
-        cm.setHideOnEscape (true);
 
     }
 
@@ -1023,7 +590,7 @@ TODO
 
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,save,tooltip))
-            .styleClassName (StyleClassNames.SAVE)
+            .iconName (StyleClassNames.SAVE)
             .onAction (ev ->
             {
 
@@ -1034,7 +601,7 @@ TODO
 
         its.add (QuollMenuButton.builder ()
             .tooltip (Utils.newList (prefix,_new,tooltip))
-            .styleClassName (StyleClassNames.NEW)
+            .iconName (StyleClassNames.NEW)
             .items (() ->
             {
 
@@ -1050,7 +617,7 @@ TODO
 
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix, com.quollwriter.data.Scene.OBJECT_TYPE,text)))
-                    .styleClassName (com.quollwriter.data.Scene.OBJECT_TYPE)
+                    .iconName (com.quollwriter.data.Scene.OBJECT_TYPE)
                     //.tooltip (new SimpleStringProperty (pref + "S"))
                     .accelerator (Environment.getNewObjectTypeKeyCombination (com.quollwriter.data.Scene.OBJECT_TYPE))
                     .onAction (eev ->
@@ -1064,7 +631,7 @@ TODO
 
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix, OutlineItem.OBJECT_TYPE,text)))
-                    .styleClassName (OutlineItem.OBJECT_TYPE)
+                    .iconName (OutlineItem.OBJECT_TYPE)
                     //.tooltip (new SimpleStringProperty (pref + "O"))
                     .accelerator (Environment.getNewObjectTypeKeyCombination (OutlineItem.OBJECT_TYPE))
                     .onAction (eev ->
@@ -1078,7 +645,7 @@ TODO
 
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.OBJECT_TYPE,text)))
-                    .styleClassName (Note.OBJECT_TYPE)
+                    .iconName (Note.OBJECT_TYPE)
                     .accelerator (Environment.getNewObjectTypeKeyCombination (Note.OBJECT_TYPE))
                     .onAction (eev ->
                     {
@@ -1091,7 +658,7 @@ TODO
 
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.EDIT_NEEDED_OBJECT_TYPE,text)))
-                    .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+                    .iconName (StyleClassNames.EDITNEEDEDNOTE)
                     .accelerator (Environment.getNewObjectTypeKeyCombination (Note.EDIT_NEEDED_OBJECT_TYPE))
                     .onAction (eev ->
                     {
@@ -1104,7 +671,7 @@ TODO
 
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix, Chapter.OBJECT_TYPE,text)))
-                    .styleClassName (Chapter.OBJECT_TYPE)
+                    .iconName (Chapter.OBJECT_TYPE)
                     .accelerator (Environment.getNewObjectTypeKeyCombination (Chapter.OBJECT_TYPE))
                     .onAction (eev ->
                     {
@@ -1125,7 +692,7 @@ TODO
 
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,showchapterinfo,tooltip))
-            .styleClassName (StyleClassNames.INFO)
+            .iconName (StyleClassNames.INFO)
             .onAction (ev ->
             {
 
@@ -1137,7 +704,7 @@ TODO
 
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,wordcount,tooltip))
-            .styleClassName (StyleClassNames.WORDCOUNT)
+            .iconName (StyleClassNames.WORDCOUNT)
             .onAction (ev ->
             {
 
@@ -1148,7 +715,7 @@ TODO
 
         QuollButton sb = QuollButton.builder ()
             .tooltip (Utils.newList (prefix,this.viewer.isSpellCheckingEnabled () ? spellcheckoff : spellcheckon,tooltip))
-            .styleClassName (StyleClassNames.SPELLCHECK)
+            .iconName (StyleClassNames.SPELLCHECK)
             .onAction (ev ->
             {
 
@@ -1161,7 +728,7 @@ TODO
                                 (pr, oldv, newv) ->
         {
 
-            sb.setIconClassName (this.viewer.isSpellCheckingEnabled () ? StyleClassNames.SPELLCHECKOFF : StyleClassNames.SPELLCHECKON);
+            sb.setIconName (this.viewer.isSpellCheckingEnabled () ? StyleClassNames.SPELLCHECKOFF : StyleClassNames.SPELLCHECKON);
             //sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
             //sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
 
@@ -1170,7 +737,7 @@ TODO
 
         });
 
-        sb.setIconClassName (this.viewer.isSpellCheckingEnabled () ? StyleClassNames.SPELLCHECKOFF : StyleClassNames.SPELLCHECKON);
+        sb.setIconName (this.viewer.isSpellCheckingEnabled () ? StyleClassNames.SPELLCHECKOFF : StyleClassNames.SPELLCHECKON);
         //sb.pseudoClassStateChanged (StyleClassNames.ENABLED_PSEUDO_CLASS, this.viewer.isSpellCheckingEnabled ());
         //sb.pseudoClassStateChanged (StyleClassNames.DISABLED_PSEUDO_CLASS, !this.viewer.isSpellCheckingEnabled ());
 
@@ -1182,7 +749,7 @@ TODO
 
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,delete,tooltip))
-            .styleClassName (StyleClassNames.DELETE)
+            .iconName (StyleClassNames.DELETE)
             .onAction (ev ->
             {
 
@@ -1194,7 +761,7 @@ TODO
 
         its.add (QuollMenuButton.builder ()
             .tooltip (Utils.newList (prefix,tools,tooltip))
-            .styleClassName (StyleClassNames.TOOLS)
+            .iconName (StyleClassNames.TOOLS)
             .items (() ->
             {
 
@@ -1207,7 +774,7 @@ TODO
 
                     items.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (mprefix,problemfinder,text)))
-                        .styleClassName (StyleClassNames.PROBLEMFINDER)
+                        .iconName (StyleClassNames.PROBLEMFINDER)
                         .accelerator (new KeyCharacterCombination ("P",
                                                                    KeyCombination.SHORTCUT_DOWN,
                                                                    KeyCombination.SHIFT_DOWN))
@@ -1223,7 +790,7 @@ TODO
 
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix,textproperties,text)))
-                    .styleClassName (StyleClassNames.EDITPROPERTIES)
+                    .iconName (StyleClassNames.EDITPROPERTIES)
                     .accelerator (new KeyCharacterCombination ("E",
                                                                KeyCombination.SHORTCUT_DOWN))
                     .onAction (ev ->
@@ -1236,7 +803,7 @@ TODO
 
                 items.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (mprefix,find,text)))
-                    .styleClassName (StyleClassNames.FIND)
+                    .iconName (StyleClassNames.FIND)
                     .accelerator (new KeyCharacterCombination ("F",
                                                                KeyCombination.SHORTCUT_DOWN))
                     .onAction (ev ->
@@ -2396,12 +1963,13 @@ TODO
     }
 */
 
+    @Override
     public Set<MenuItem> getContextMenuItems (boolean    compress)
     {
 
-        final ProjectChapterEditorPanelContent _this = this;
+        Set<MenuItem> ret = this.editor.getSpellingSynonymItemsForContextMenu (this.viewer);//new LinkedHashSet<> ();
 
-        Set<MenuItem> ret = new LinkedHashSet<> ();
+        final ProjectChapterEditorPanelContent _this = this;
 
         // Get the mouse position, don't get it later since the mouse could have moved.
         Point2D mP = this.editor.getMousePosition ();
@@ -2430,7 +1998,7 @@ TODO
 
             List<Node> row1 = new ArrayList<> ();
             row1.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.SAVE)
+                .iconName (StyleClassNames.SAVE)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,save,tooltip)))
                 .onAction (ev ->
                 {
@@ -2450,7 +2018,7 @@ TODO
                {
 
                    row1.add (QuollButton.builder ()
-                       .styleClassName (StyleClassNames.SPLIT)
+                       .iconName (StyleClassNames.SPLIT)
                        .tooltip (getUILanguageStringProperty (Utils.newList (prefix,splitchapter,tooltip)))
                        .onAction (ev ->
                        {
@@ -2465,7 +2033,7 @@ TODO
             }
 
             row1.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.PROBLEMFINDER)
+                .iconName (StyleClassNames.PROBLEMFINDER)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,problemfinder,tooltip)))
                 .onAction (ev ->
                 {
@@ -2476,7 +2044,7 @@ TODO
                 .build ());
 
             row1.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.EDITPROPERTIES)
+                .iconName (StyleClassNames.EDITPROPERTIES)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,textproperties,tooltip)))
                 .onAction (ev ->
                 {
@@ -2487,7 +2055,7 @@ TODO
                 .build ());
 
             row1.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.FIND)
+                .iconName (StyleClassNames.FIND)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,find,tooltip)))
                 .onAction (ev ->
                 {
@@ -2500,7 +2068,7 @@ TODO
             List<Node> row2 = new ArrayList<> ();
 
             row2.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.SETEDITPOSITION)
+                .iconName (StyleClassNames.SETEDITPOSITION)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,tooltip)))
                 .onAction (ev ->
                 {
@@ -2517,7 +2085,7 @@ TODO
             {
 
                 row2.add (QuollButton.builder ()
-                    .styleClassName (StyleClassNames.GOTOEDITPOSITION)
+                    .iconName (StyleClassNames.GOTOEDITPOSITION)
                     .tooltip (getUILanguageStringProperty (Utils.newList (prefix,gotoeditposition,tooltip)))
                     .onAction (ev ->
                     {
@@ -2529,7 +2097,7 @@ TODO
                     .build ());
 
                 row2.add (QuollButton.builder ()
-                    .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
+                    .iconName (StyleClassNames.REMOVEEDITPOSITION)
                     .tooltip (getUILanguageStringProperty (Utils.newList (prefix,removeeditposition,tooltip)))
                     .onAction (ev ->
                     {
@@ -2547,7 +2115,7 @@ TODO
             {
 
                 row2.add (QuollButton.builder ()
-                    .styleClassName (StyleClassNames.EDITCOMPLETE)
+                    .iconName (StyleClassNames.EDITCOMPLETE)
                     .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,tooltip)))
                     .onAction (ev ->
                     {
@@ -2570,7 +2138,7 @@ TODO
             } else {
 
                 row2.add (QuollButton.builder ()
-                    .styleClassName (StyleClassNames.EDITNEEDED)
+                    .iconName (StyleClassNames.EDITNEEDED)
                     .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,tooltip)))
                     .onAction (ev ->
                     {
@@ -2626,7 +2194,7 @@ TODO
 
             // Save.
             ret.add (QuollMenuItem.builder ()
-                .styleClassName (StyleClassNames.SAVE)
+                .iconName (StyleClassNames.SAVE)
                 .label (getUILanguageStringProperty (Utils.newList (prefix,save,text)))
                 .accelerator (new KeyCodeCombination (KeyCode.S,
                                                       KeyCombination.SHORTCUT_DOWN))
@@ -2650,7 +2218,7 @@ TODO
                {
 
                    citems.add (QuollMenuItem.builder ()
-                       .styleClassName (StyleClassNames.SPLIT)
+                       .iconName (StyleClassNames.SPLIT)
                        .label (getUILanguageStringProperty (Utils.newList (prefix,splitchapter,text)))
                        .onAction (ev ->
                        {
@@ -2665,7 +2233,7 @@ TODO
             }
 
             citems.add (QuollMenuItem.builder ()
-                .styleClassName (StyleClassNames.SETEDITPOSITION)
+                .iconName (StyleClassNames.SETEDITPOSITION)
                 .label (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,text)))
                 .onAction (ev ->
                 {
@@ -2689,7 +2257,7 @@ TODO
             {
 
                 citems.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.GOTOEDITPOSITION)
+                    .iconName (StyleClassNames.GOTOEDITPOSITION)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,gotoeditposition,text)))
                     .onAction (ev ->
                     {
@@ -2701,7 +2269,7 @@ TODO
                     .build ());
 
                 citems.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
+                    .iconName (StyleClassNames.REMOVEEDITPOSITION)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,removeeditposition,text)))
                     .onAction (ev ->
                     {
@@ -2726,7 +2294,7 @@ TODO
             {
 
                 citems.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.EDITCOMPLETE)
+                    .iconName (StyleClassNames.EDITCOMPLETE)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,text)))
                     .onAction (ev ->
                     {
@@ -2738,10 +2306,9 @@ TODO
                     .build ());
 
             } else {
-/*
-TODO?
+
                 citems.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.EDITNEEDED)
+                    .iconName (StyleClassNames.EDITNEEDED)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,text)))
                     .onAction (ev ->
                     {
@@ -2751,11 +2318,11 @@ TODO?
 
                     })
                     .build ());
-*/
+
             }
 
             citems.add (QuollMenuItem.builder ()
-                .styleClassName (StyleClassNames.PROBLEMFINDER)
+                .iconName (StyleClassNames.PROBLEMFINDER)
                 .label (getUILanguageStringProperty (Utils.newList (prefix,problemfinder,text)))
                 .accelerator (new KeyCodeCombination (KeyCode.P,
                                                       KeyCombination.SHORTCUT_DOWN,
@@ -2771,7 +2338,7 @@ TODO?
             // Add the new items.
             // TODO
             citems.add (QuollMenuItem.builder ()
-                .styleClassName (StyleClassNames.EDITPROPERTIES)
+                .iconName (StyleClassNames.EDITPROPERTIES)
                 .label (getUILanguageStringProperty (Utils.newList (prefix,textproperties,text)))
                 .accelerator (new KeyCodeCombination (KeyCode.E,
                                                       KeyCombination.SHORTCUT_DOWN))
@@ -2784,7 +2351,7 @@ TODO?
                 .build ());
 
             citems.add (QuollMenuItem.builder ()
-                .styleClassName (StyleClassNames.FIND)
+                .iconName (StyleClassNames.FIND)
                 .label (getUILanguageStringProperty (Utils.newList (prefix,find,text)))
                 .accelerator (new KeyCodeCombination (KeyCode.F,
                                                       KeyCombination.SHORTCUT_DOWN))
@@ -2812,7 +2379,7 @@ TODO?
 
             citems.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (mprefix, com.quollwriter.data.Scene.OBJECT_TYPE,text)))
-                .styleClassName (com.quollwriter.data.Scene.OBJECT_TYPE)
+                .iconName (com.quollwriter.data.Scene.OBJECT_TYPE)
                 //.tooltip (new SimpleStringProperty (pref + "S"))
                 .accelerator (Environment.getNewObjectTypeKeyCombination (com.quollwriter.data.Scene.OBJECT_TYPE))
                 .onAction (eev ->
@@ -2826,7 +2393,7 @@ TODO?
 
             citems.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (mprefix, OutlineItem.OBJECT_TYPE,text)))
-                .styleClassName (OutlineItem.OBJECT_TYPE)
+                .iconName (OutlineItem.OBJECT_TYPE)
                 //.tooltip (new SimpleStringProperty (pref + "O"))
                 .accelerator (Environment.getNewObjectTypeKeyCombination (OutlineItem.OBJECT_TYPE))
                 .onAction (eev ->
@@ -2840,7 +2407,7 @@ TODO?
 
             citems.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.OBJECT_TYPE,text)))
-                .styleClassName (Note.OBJECT_TYPE)
+                .iconName (Note.OBJECT_TYPE)
                 .accelerator (Environment.getNewObjectTypeKeyCombination (Note.OBJECT_TYPE))
                 .onAction (eev ->
                 {
@@ -2853,7 +2420,7 @@ TODO?
 
             citems.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (mprefix, Note.EDIT_NEEDED_OBJECT_TYPE,text)))
-                .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+                .iconName (StyleClassNames.EDITNEEDEDNOTE)
                 .accelerator (Environment.getNewObjectTypeKeyCombination (Note.EDIT_NEEDED_OBJECT_TYPE))
                 .onAction (eev ->
                 {
@@ -2866,7 +2433,7 @@ TODO?
 
             citems.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (mprefix, Chapter.OBJECT_TYPE,text)))
-                .styleClassName (Chapter.OBJECT_TYPE)
+                .iconName (Chapter.OBJECT_TYPE)
                 .accelerator (Environment.getNewObjectTypeKeyCombination (Chapter.OBJECT_TYPE))
                 .onAction (eev ->
                 {
@@ -2900,7 +2467,7 @@ TODO?
                 // Add the bold/italic/underline.
                 ret.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (fprefix,bold,text)))
-                    .styleClassName (StyleClassNames.BOLD)
+                    .iconName (StyleClassNames.BOLD)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.BOLD_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -2912,7 +2479,7 @@ TODO?
 
                 ret.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (fprefix,italic,text)))
-                    .styleClassName (StyleClassNames.ITALIC)
+                    .iconName (StyleClassNames.ITALIC)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.ITALIC_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -2924,7 +2491,7 @@ TODO?
 
                 ret.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (fprefix,underline,text)))
-                    .styleClassName (StyleClassNames.UNDERLINE)
+                    .iconName (StyleClassNames.UNDERLINE)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.UNDERLINE_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -2945,7 +2512,7 @@ TODO?
 
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,cut,text)))
-                    .styleClassName (StyleClassNames.CUT)
+                    .iconName (StyleClassNames.CUT)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.CUT_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -2957,7 +2524,7 @@ TODO?
 
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,copy,text)))
-                    .styleClassName (StyleClassNames.COPY)
+                    .iconName (StyleClassNames.COPY)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.COPY_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -2975,7 +2542,7 @@ TODO?
 
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,paste,text)))
-                    .styleClassName (StyleClassNames.PASTE)
+                    .iconName (StyleClassNames.PASTE)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.PASTE_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -2993,7 +2560,7 @@ TODO?
 
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,undo,text)))
-                    .styleClassName (StyleClassNames.UNDO)
+                    .iconName (StyleClassNames.UNDO)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.UNDO_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -3011,7 +2578,7 @@ TODO?
 
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,redo,text)))
-                    .styleClassName (StyleClassNames.REDO)
+                    .iconName (StyleClassNames.REDO)
                     .accelerator (Environment.getActionKeyCombination (QTextEditor.REDO_ACTION_NAME))
                     .onAction (ev ->
                     {
@@ -3228,65 +2795,6 @@ TODO?
 
     }
 
-    private void showPopupForItem (ChapterItem item,
-                                   QuollPopup  popup)
-    {
-
-        Bounds b = this.editor.getBoundsForPosition (item.getPosition ());
-
-        if (b == null)
-        {
-
-            int paraNo = this.editor.getParagraphForOffset (item.getPosition ());
-            this.editor.showParagraphAtTop (paraNo);
-
-            UIUtils.forceRunLater (() ->
-            {
-
-                this.showPopupForItem (item,
-                                       popup);
-
-            });
-
-            return;
-
-        }
-
-        b = this.editor.getBoundsForPosition (item.getPosition ());
-        Bounds eb = this.editor.localToScreen (this.editor.getBoundsInLocal ());
-
-        if (!eb.contains (b))
-        {
-
-            double diff = b.getMinY () - eb.getMinY () - (eb.getHeight () / 2);
-
-            this.editor.scrollYBy (diff);
-
-        }
-
-        this.hidePopups ();
-
-        UIUtils.forceRunLater (() ->
-        {
-
-            this.viewer.showPopup (popup,
-                                   this.getNodeForChapterItem (item),
-                                   Side.BOTTOM);
-
-        });
-
-        this.popupsToCloseOnClick.add (popup);
-
-        popup.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
-                               ev ->
-        {
-
-            this.popupsToCloseOnClick.remove (popup);
-
-        });
-
-    }
-
     public void showAddNewScene (int pos)
     {
 
@@ -3346,27 +2854,13 @@ TODO?
 
         QuollPopup qp = p.getPopup ();
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             this.showPopupForItem (item,
                                    qp);
 
         });
-
-    }
-
-    private ParagraphIconMargin getParagraphIconMargin (int pos)
-    {
-
-        return (ParagraphIconMargin) this.editor.getParagraphGraphic (this.editor.getParagraphForOffset (pos));
-
-    }
-
-    private ParagraphIconMargin getParagraphIconMargin (ChapterItem item)
-    {
-
-        return this.getParagraphIconMargin (item.getPosition ());
 
     }
 
@@ -3410,7 +2904,7 @@ TODO?
 
         QuollPopup qp = p.getPopup ();
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             this.showPopupForItem (item,
@@ -3430,6 +2924,7 @@ TODO?
 
     }
 
+    @Override
     public void showItem (ChapterItem item,
                           boolean     showAllForLine)
     {
@@ -3935,18 +3430,6 @@ TODO
 
     }
 */
-    private void hideAllContextMenus ()
-    {
-
-        UIUtils.runLater (() ->
-        {
-
-            this.contextMenus.values ().stream ()
-                .forEach (cm -> cm.hide ());
-
-        });
-
-    }
 
     public void showSplitChapter ()
     {
@@ -3977,18 +3460,6 @@ TODO
 
     }
 
-    public void hidePopups ()
-    {
-
-        Set<QuollPopup> popups = new HashSet<> (this.popupsToCloseOnClick);
-
-        popups.stream ()
-           .forEach (p -> p.close ());
-
-        this.popupsToCloseOnClick.clear ();
-
-    }
-
     private MenuItem getCompressedNewItemsForContextMenu (int    pos,
                                                           String name,
                                                           String desc)
@@ -4000,7 +3471,7 @@ TODO
 
         buts.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE,tooltip)))
-            .styleClassName (StyleClassNames.SCENE)
+            .iconName (StyleClassNames.SCENE)
             .onAction (ev ->
             {
 
@@ -4012,7 +3483,7 @@ TODO
 
         buts.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,OutlineItem.OBJECT_TYPE,tooltip)))
-            .styleClassName (StyleClassNames.OUTLINEITEM)
+            .iconName (StyleClassNames.OUTLINEITEM)
             .onAction (ev ->
             {
 
@@ -4024,7 +3495,7 @@ TODO
 
         buts.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,Note.OBJECT_TYPE,tooltip)))
-            .styleClassName (StyleClassNames.NOTE)
+            .iconName (StyleClassNames.NOTE)
             .onAction (ev ->
             {
 
@@ -4036,7 +3507,7 @@ TODO
 
         buts.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,Note.EDIT_NEEDED_OBJECT_TYPE,tooltip)))
-            .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
+            .iconName (StyleClassNames.EDITNEEDEDNOTE)
             .onAction (ev ->
             {
 
@@ -4048,7 +3519,7 @@ TODO
 
         buts.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,Chapter.OBJECT_TYPE,tooltip)))
-            .styleClassName (StyleClassNames.CHAPTER)
+            .iconName (StyleClassNames.CHAPTER)
             .onAction (ev ->
             {
 

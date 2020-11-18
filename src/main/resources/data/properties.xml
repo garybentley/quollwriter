@@ -54,6 +54,11 @@
     <value>#84a328</value>
   </property>
 
+  <property id="editorCommentChapterHighlightColor" type="string">
+    <description>The color of the highlight for editor comments text.</description>
+    <value>#84a328</value>
+  </property>
+
   <property id="problemFinderIssueHighlightColor" type="string">
     <description>The color of the highlight for an issue found by the problem finder.</description>
     <value>#ff0000</value>

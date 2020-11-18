@@ -32,13 +32,7 @@ public class AchievementView extends HBox
 
         Group g = new Group ();
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane p = new Pane ();
-        p.getStyleClass ().add (ar.getIcon () + StyleClassNames.ICON_SUFFIX);
-        p.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (p);
-        h.managedProperty ().bind (h.visibleProperty ());
+        IconBox h = null;
 
         try
         {
@@ -48,9 +42,16 @@ public class AchievementView extends HBox
             if (t != null)
             {
 
-                UIUtils.setBackgroundImage (p,
-                                            t.icon24x24Property (),
-                                            binder);
+                h = IconBox.builder ()
+                    .binder (binder)
+                    .image (t.icon24x24Property ())
+                    .build ();
+
+            } else {
+
+                h = IconBox.builder ()
+                    .iconName (ar.getIcon ())
+                    .build ();
 
             }
 

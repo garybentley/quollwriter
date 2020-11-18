@@ -29,7 +29,7 @@ public class Header extends HBox
     private ToolBar toolbar = null;
     private ObjectProperty<Label> titleLabelProp = null;
     private Tooltip origTooltip = null;
-    private Pane icon = null;
+    private IconBox icon = null;
 
     private Header (Builder b)
     {
@@ -44,14 +44,10 @@ public class Header extends HBox
 
         }
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        this.icon = new Pane ();
-        this.icon.getStyleClass ().add ((b.iconStyleName != null ? b.iconStyleName : b.styleName) + StyleClassNames.ICON_SUFFIX);
-        this.icon.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (this.icon);
-        h.managedProperty ().bind (h.visibleProperty ());
-        HBox.setHgrow (h,
+        this.icon = IconBox.builder ()
+            .iconName (b.iconStyleName != null ? b.iconStyleName : b.styleName)
+            .build ();
+        HBox.setHgrow (this.icon,
                        Priority.NEVER);
 
         this.title = new Label ();
@@ -62,7 +58,7 @@ public class Header extends HBox
                        Priority.ALWAYS);
 
         //this.getChildren ().addAll (this.image, this.title);
-        this.getChildren ().addAll (h, this.title);
+        this.getChildren ().addAll (this.icon, this.title);
         this.getStyleClass ().add (StyleClassNames.HEADER);
 
         if (b.contextMenuItemSupplier != null)
@@ -307,7 +303,7 @@ TODO Clean up
 
     }
     */
-    public Pane getIcon ()
+    public IconBox getIcon ()
     {
 
         return this.icon;
@@ -317,9 +313,7 @@ TODO Clean up
     public void setIconClassName (String s)
     {
 
-        this.icon.getStyleClass ().clear ();
-        this.icon.getStyleClass ().add (StyleClassNames.ICON);
-        this.icon.getStyleClass ().add (s + StyleClassNames.ICON_SUFFIX);
+        this.icon.setIconName (s);
 
     }
 

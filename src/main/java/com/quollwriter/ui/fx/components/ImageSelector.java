@@ -75,7 +75,7 @@ public class ImageSelector extends QuollImageView
 
                 cm.getItems ().add (QuollMenuItem.builder ()
                     .label (imageselector,popupmenu,items,remove)
-                    .styleClassName (StyleClassNames.DELETE)
+                    .iconName (StyleClassNames.DELETE)
                     .onAction (eev ->
                     {
 
@@ -100,7 +100,7 @@ public class ImageSelector extends QuollImageView
 
                 cm.getItems ().add (QuollMenuItem.builder ()
                     .label (imageselector,popupmenu,items,view)
-                    .styleClassName (StyleClassNames.VIEW)
+                    .iconName (StyleClassNames.VIEW)
                     .onAction (eev ->
                     {
 
@@ -127,7 +127,7 @@ public class ImageSelector extends QuollImageView
 
                 cm.getItems ().add (QuollMenuItem.builder ()
                     .label (imageselector,popupmenu,items,showfolder)
-                    .styleClassName (StyleClassNames.FOLDER)
+                    .iconName (StyleClassNames.FOLDER)
                     .onAction (eev ->
                     {
 
@@ -158,7 +158,7 @@ public class ImageSelector extends QuollImageView
 
                     cm.getItems ().add (QuollMenuItem.builder ()
                         .label (imageselector,popupmenu,items,restore)
-                        .styleClassName (StyleClassNames.RESTORE)
+                        .iconName (StyleClassNames.RESTORE)
                         .onAction (eev ->
                         {
 

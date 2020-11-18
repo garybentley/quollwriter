@@ -625,7 +625,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
-                        .styleClassName (StyleClassNames.VIEW)
+                        .iconName (StyleClassNames.VIEW)
                         .onAction (ev ->
                         {
 
@@ -636,7 +636,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
+                        .iconName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
 
@@ -657,7 +657,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -678,7 +678,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
+                        .iconName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
 
@@ -690,7 +690,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
-                        .styleClassName (StyleClassNames.INFO)
+                        .iconName (StyleClassNames.INFO)
                         .onAction (ev ->
                         {
 
@@ -705,7 +705,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         its.add (QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete)))
-                            .styleClassName (StyleClassNames.EDITCOMPLETE)
+                            .iconName (StyleClassNames.EDITCOMPLETE)
                             .onAction (ev ->
                             {
 
@@ -719,7 +719,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         its.add (QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded)))
-                            .styleClassName (StyleClassNames.EDITNEEDED)
+                            .iconName (StyleClassNames.EDITNEEDED)
                             .onAction (ev ->
                             {
 
@@ -739,7 +739,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         its.add (QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,gotoeditposition)))
-                            .styleClassName (StyleClassNames.GOTOEDITPOSITION)
+                            .iconName (StyleClassNames.GOTOEDITPOSITION)
                             .onAction (ev ->
                             {
 
@@ -759,7 +759,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         its.add (QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,removeeditposition)))
-                            .styleClassName (StyleClassNames.REMOVEEDITPOSITION)
+                            .iconName (StyleClassNames.REMOVEEDITPOSITION)
                             .onAction (ev ->
                             {
 
@@ -782,7 +782,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,newbelow)))
-                        .styleClassName (StyleClassNames.ADD)
+                        .iconName (StyleClassNames.ADD)
                         .onAction (ev ->
                         {
 
@@ -794,7 +794,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,rename)))
-                        .styleClassName (StyleClassNames.RENAME)
+                        .iconName (StyleClassNames.RENAME)
                         .onAction (ev ->
                         {
 
@@ -809,7 +809,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         its.add (QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,close)))
-                            .styleClassName (StyleClassNames.CLOSE)
+                            .iconName (StyleClassNames.CLOSE)
                             .onAction (ev ->
                             {
 
@@ -930,7 +930,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 */
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -951,7 +951,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
-                        .styleClassName (StyleClassNames.VIEW)
+                        .iconName (StyleClassNames.VIEW)
                         .onAction (ev ->
                         {
 
@@ -963,7 +963,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
+                        .iconName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
 
@@ -985,7 +985,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -1006,7 +1006,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
-                        .styleClassName (StyleClassNames.VIEW)
+                        .iconName (StyleClassNames.VIEW)
                         .onAction (ev ->
                         {
 
@@ -1018,7 +1018,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
+                        .iconName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
 
@@ -1040,7 +1040,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -1567,7 +1567,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings._new)))
-                .styleClassName (StyleClassNames.ADD)
+                .iconName (StyleClassNames.ADD)
                 .onAction (ev ->
                 {
 

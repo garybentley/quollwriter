@@ -12,6 +12,8 @@ plugins {
 
     // Apply the application plugin to add support for building an application
     id 'application'
+
+    //id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 version '3.0.0b2'
@@ -21,7 +23,13 @@ sourceSets {
     main {
     }
 }
-
+/*
+javafx {
+    version = '12'
+    modules = [ 'javafx.swing', 'javafx.controls', 'javafx.media', 'javafx.web' ]
+    configuration = 'compileOnly'
+}
+*/
 repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
@@ -116,12 +124,12 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java7:4.3.3'
 
     // RichtextFX
-    implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
+    //implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
     //implementation 'org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT'
 
     // This is temporary for testing changes to a local version of richtextfx.  Ignore.
     // TEMP ADD RICHTEXTFX JARS AND DEPS
-    /*
+
      implementation fileTree('d:/reference/java/richtextfx/RichTextFX/richtextfx/build/libs/') {
         include 'richtextfx-1.0.0-SNAPSHOT.jar'
         include 'flowless-0.6.jar'
@@ -129,7 +137,7 @@ dependencies {
         include 'undofx-2.1.0.jar'
         include 'wellbehavedfx-0.3.3.jar'
     }
-*/
+
     // Flying Saucer (can be removed when no longer using Swing)
     implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
 
@@ -166,7 +174,7 @@ compileJava {
         'D:/reference/java/javafx/javafx-sdk-12/lib',
         //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
         '-Xmaxerrs',
-        '100'
+        '2000'
     ]
 }
 
@@ -186,6 +194,10 @@ javadoc {
 application {
     applicationDefaultJvmArgs =
     [
+        '--module-path',
+        //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib'
+        'D:/reference/java/javafx/javafx-sdk-12/lib',
+        //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
         '--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
         '--add-exports',
         'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
@@ -208,11 +220,8 @@ application {
         '--add-exports',
         'javafx.web/com.sun.javafx.webkit=ALL-UNNAMED',
         '--add-exports',
-        'javafx.web/com.sun.webkit=ALL-UNNAMED',
-        '--module-path',
-        //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib'
-        'D:/reference/java/javafx/javafx-sdk-12/lib'
-        //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib'
+        'javafx.web/com.sun.webkit=ALL-UNNAMED'
+        //'-agentpath:C:\\Program Files\\jprofiler11\\bin\\windows-x64\\jprofilerti.dll,nowait'
     ]
 
     // Define the main class for the application

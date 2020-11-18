@@ -1686,6 +1686,30 @@ TODO
 
     }
 
+    public Set<Note> getNotesForVersion (ProjectVersion pv)
+                                  throws GeneralException
+    {
+
+        NoteDataHandler ndh = (NoteDataHandler) this.dBMan.getHandler (Note.class);
+
+        return ndh.getNotesForVersion (pv,
+                                       null);
+
+    }
+
+    public Set<Note> getDealtWithNotes (ProjectVersion pv,
+                                        boolean        isDealtWith)
+                                 throws GeneralException
+    {
+
+        NoteDataHandler ndh = (NoteDataHandler) this.dBMan.getHandler (Note.class);
+
+        return ndh.getDealtWith (pv,
+                                 isDealtWith,
+                                 null);
+
+    }
+
     public void updateChapterIndexes (Book b)
                                throws GeneralException
     {
@@ -1753,6 +1777,7 @@ TODO Needed?
     public ChapterEditorPanelContent getEditorForChapter (Chapter c)
     {
 
+        // TODO Make full screen aware?
         NamedObjectPanelContent p = this.getPanelForObject (c);
 
         if (p instanceof ChapterEditorPanelContent)
@@ -1982,13 +2007,9 @@ TODO
         tab.getStyleClass ().add (qp.getStyleClassName ());
         tab.setContent (qp);
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane p = new Pane ();
-        p.getStyleClass ().add (qp.getStyleClassName () + StyleClassNames.ICON_SUFFIX);
-        p.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (p);
-        h.managedProperty ().bind (h.visibleProperty ());
+        IconBox h = IconBox.builder ()
+            .iconName (qp.getStyleClassName ())
+            .build ();
 
         tab.setGraphic (h);
 
@@ -2275,8 +2296,6 @@ TODO Remove?
     {
 
         // Get the state.
-        Map m = new LinkedHashMap ();
-
         String panelId = qp.getPanelId ();
 
         try
@@ -2934,7 +2953,7 @@ TODO Remove
      *   * Set the last opened tab (after opening it).
      */
     protected void restoreTabs ()
-                         throws GeneralException
+                         //throws GeneralException
     {
 
         ProjectVersion pv = this.project.getProjectVersion ();
@@ -2980,7 +2999,7 @@ TODO Remove
      * @param ids The object ids, comma separated.
      */
     public void openPanelsFromObjectIdList (String ids)
-                                     throws GeneralException
+                                    // throws GeneralException
     {
 
         if ((ids == null)
@@ -3065,8 +3084,6 @@ TODO Remove
 
     public boolean showPanel (String pid)
     {
-
-        AtomicBoolean b = new AtomicBoolean (false);
 
         Tab pt = null;
         Panel p = null;
@@ -4152,7 +4169,6 @@ TODO REmove
                throws GeneralException
     {
 
-
         if (this.project == null)
         {
 
@@ -4248,6 +4264,7 @@ TODO REmove
                             KeyCode.F1);
         this.addKeyMapping (CommandId.find,
                             KeyCode.F, KeyCombination.SHORTCUT_DOWN);
+
         this.setTitle (this.titleProp);
         this.windowedContent.setTitle (this.titleProp);
 
@@ -5548,6 +5565,45 @@ TODO Remove?
         }
 
         return null;
+
+    }
+
+    protected void closeAllTabs ()
+    {
+
+        // Regardless of whether it should be saved call the close method
+        // for the panel to allow it to close itself nicely.
+        // Close after state so we can keep track of what is open.
+
+        // Duplicate the values so we don't get a modification error for this.panels.
+        Set<Panel> qpps = new LinkedHashSet<> (this.panels.values ());
+
+        for (Panel qp : qpps)
+        {
+
+            this.closePanel (qp,
+                             null);
+
+        }
+
+    }
+
+    public boolean isEditing (Chapter c)
+    {
+
+        return this.getEditorForChapter (c) != null;
+
+    }
+
+    public Set<Chapter> snapshotChapters (Set<Chapter>   chapters,
+                                          ProjectVersion pv)
+                                   throws Exception
+    {
+
+        ChapterDataHandler ch = (ChapterDataHandler) this.dBMan.getHandler (Chapter.class);
+
+        return ch.snapshot (chapters,
+                            pv);
 
     }
 

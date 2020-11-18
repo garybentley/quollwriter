@@ -1,71 +1,65 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.AWTEvent;
-import java.awt.event.*;
 import java.awt.image.*;
-import javax.swing.plaf.LayerUI;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-
+import java.util.*;
 import java.io.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javafx.beans.property.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.image.*;
+import javafx.embed.swing.*;
 
-import com.quollwriter.ui.*;
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.events.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.*;
-import com.quollwriter.editors.ui.sidebars.*;
+//import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.editors.messages.*;
-import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class EditorInfoBox extends Box implements EditorChangedListener, EditorMessageListener
+public class EditorInfoBox extends VBox
 {
 
     private EditorEditor editor = null;
     private AbstractViewer viewer = null;
-    private JLabel avatar = null;
-    private JLabel mainName = null;
-    private JLabel onlineStatus = null;
-    private JLabel other = null;
-    private Box details = null;
-    private Box editorInfo = null;
-    private JButton projectMessages = null;
-    private JButton importantMessages = null;
-    private JButton comments = null;
-    private JButton chat = null;
+    private Pane avatar = null;
+    private HBox avatarBox = null;
+    private QuollLabel mainName = null;
+    private Pane onlineStatus = null;
+    private QuollLabel other = null;
+    private VBox details = null;
+    private HBox editorInfo = null;
+    private QuollButton projectMessages = null;
+    private QuollButton importantMessages = null;
+    private QuollButton comments = null;
+    private QuollButton chat = null;
     private boolean showProjectInfo = false;
     private ProjectEditor projEditor = null;
-    private MessageBox pendingMessageBox = null;
     private Project proj = null;
     private boolean editorProject = false;
 
     public EditorInfoBox (EditorEditor   ed,
                           AbstractViewer viewer,
-                          boolean        showProjectInfo)
-                   throws GeneralException
+                          boolean        showProjectInfo,
+                          IPropertyBinder binder)
+                   //throws GeneralException
     {
-
-        super (BoxLayout.Y_AXIS);
 
         final EditorInfoBox _this = this;
 
         this.editor = ed;
 
+        this.setFillWidth (true);
+        this.getStyleClass ().add (StyleClassNames.CONTACT);
         this.showProjectInfo = showProjectInfo;
 
         if ((this.showProjectInfo)
@@ -74,7 +68,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
            )
         {
 
-           throw new IllegalArgumentException ("To show project information then a project viewer must be provided.");
+           throw new IllegalArgumentException ("To show project information a project viewer must be provided.");
 
         }
 
@@ -87,16 +81,21 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         }
 
-        // Load the messages.
-        EditorsEnvironment.loadMessagesForEditor (this.editor);
+        this.loadMessagesForEditor ();
 
         // We add ourselves as a listener for editor change events however we don't ever
         // remove ourselves since, as a standard component, we don't have a fixed lifecycle.
-        EditorsEnvironment.addEditorChangedListener (this);
+        //EditorsEnvironment.addEditorChangedListener (this);
 
-        EditorsEnvironment.addEditorMessageListener (this);
+        //EditorsEnvironment.addEditorMessageListener (this);
 
-        this.setAlignmentX (Component.LEFT_ALIGNMENT);
+        binder.addSetChangeListener (this.editor.getMessages (),
+                                     ev ->
+        {
+
+            this.updateButtons ();
+
+        });
 
         this.viewer = viewer;
 
@@ -107,307 +106,575 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         }
 
-        this.editorInfo = new Box (BoxLayout.X_AXIS);
-        this.editorInfo.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        JLayer infoWrapper = new JLayer<JComponent> (this.editorInfo, new LayerUI<JComponent> ()
+        binder.addChangeListener (ed.editorStatusProperty (),
+                                  (pr, oldv, newv) ->
         {
 
-            @Override
-            public void installUI(JComponent c) {
-                super.installUI(c);
-                // enable mouse motion events for the layer's subcomponents
-                ((JLayer) c).setLayerEventMask(AWTEvent.MOUSE_EVENT_MASK);
-            }
+            this.updateForEditorStatus ();
 
-            @Override
-            public void uninstallUI(JComponent c) {
-                super.uninstallUI(c);
-                // reset the layer event mask
-                ((JLayer) c).setLayerEventMask(0);
-            }
+        });
 
-            @Override
-            public void processMouseEvent (MouseEvent                   ev,
-                                           JLayer<? extends JComponent> l)
+        this.editorInfo = new HBox ();
+        HBox.setHgrow (this.editorInfo,
+                       Priority.ALWAYS);
+
+        this.setOnMousePressed (ev ->
+        {
+
+            if (this.getProperties ().get ("context-menu") != null)
             {
 
-                // TODO: Check for multi-platform compatibility.
-                if (ev.getID () != MouseEvent.MOUSE_RELEASED)
-                {
+                ((ContextMenu) this.getProperties ().get ("context-menu")).hide ();
 
-                    return;
+            }
 
-                }
+            if (ev.isPopupTrigger ())
+            {
 
-                if (ev.getSource () instanceof JButton)
-                {
+                return;
 
-                    return;
+            }
 
-                }
+            // Show the editor.
+            try
+            {
 
-                if (_this.editor.getEditorStatus () == EditorEditor.EditorStatus.pending)
-                {
+                this.viewer.sendMessageToEditor (this.editor);
 
-                    return;
+            } catch (Exception e) {
 
-                }
+                Environment.logError ("Unable to show editor: " +
+                                      this.editor,
+                                      e);
 
-                if (ev.getClickCount () != 1)
-                {
-
-                    return;
-
-                }
-
-                if (ev.isPopupTrigger ())
-                {
-
-                    return;
-
-                }
-
-                // Show the editor.
-                try
-                {
-
-                    _this.viewer.sendMessageToEditor (_this.editor);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to show editor: " +
-                                          _this.editor,
-                                          e);
-
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              getUIString (editors,LanguageStrings.editor,view,actionerror));
-                                              //"Unable to show {editor}.");
-
-                }
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (editors,LanguageStrings.editor,view,actionerror));
+                                          //"Unable to show {editor}.");
 
             }
 
         });
 
-        infoWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.avatarBox = IconBox.builder ()
+            .styleClassName ("avatar-box")
+            .image (this.editor.mainAvatarProperty ())
+            .onNoImage (b ->
+            {
 
-        this.add (infoWrapper);
+                b.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, true);
 
-        this.setOpaque (false);
+            })
+            .onImagePresent (b ->
+            {
 
-        this.avatar = new JLabel ();
+                b.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, false);
 
-        this.avatar.setAlignmentY (Component.TOP_ALIGNMENT);
+            })
+            .build ();
 
-        this.editorInfo.add (this.avatar);
-        this.avatar.setOpaque (false);
+/*
+        this.avatar = new ImageView ();
+        this.avatar.setPreserveRatio (true);
+        this.avatar.setSmooth (true);
+        this.avatar.getStyleClass ().add (StyleClassNames.AVATAR);
+*/
+        //this.updateAvatar ();
+/*
+        VBox p = new VBox ();
+        p.getStyleClass ().add ("avatar-box");
+        p.getChildren ().add (this.avatar);
 
-        this.avatar.setBorder (new CompoundBorder (UIUtils.createPadding (0, 0, 0, 5),
-                                                   UIUtils.createLineBorder ()));
+        p.widthProperty ().addListener ((pr, oldv, newv) ->
+        {
 
+            this.avatar.setFitWidth (Math.round (newv.doubleValue ()) - p.getInsets ().getLeft () - p.getInsets ().getRight ());
+
+            UIUtils.runLater (() ->
+            {
+
+                this.requestLayout ();
+
+            });
+
+        });
+*/
+/*
+        binder.addChangeListener (ed.mainAvatarProperty (),
+                                  (pr, oldv, newv) ->
+        {
+
+            this.updateAvatar ();
+
+        });
+*/
         final boolean pending = ed.isPending ();
 
-        this.details = new Box (BoxLayout.Y_AXIS);
-        details.setAlignmentY (Component.TOP_ALIGNMENT);
+        this.details = new VBox ();
 
-        JLabel l = new JLabel ("");
-        l.setBorder (null);
-        l.setVerticalAlignment (JLabel.TOP);
-        l.setAlignmentX (Component.LEFT_ALIGNMENT);
-        l.setFont (l.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (java.awt.Font.PLAIN));
+        StringProperty nameProp = new SimpleStringProperty ();
 
-        //l.setFont (l.getFont ().deriveFont ((float) 16).deriveFont (Font.PLAIN));
-        l.setAlignmentY (Component.TOP_ALIGNMENT);
-        l.setVerticalAlignment (SwingConstants.TOP);
-        this.details.add (l);
-        this.mainName = l;
+        this.mainName = QuollLabel.builder ()
+            .label (nameProp)
+            .styleClassName (StyleClassNames.NAME)
+            .build ();
 
-        l = UIUtils.createInformationLabel (null);
-        this.onlineStatus = l;
+        nameProp.setValue (ed.getMainName ());
 
-        UIUtils.setPadding (l, 0, 3, 0, 5);
-        //this.details.add (this.onlineStatus);
+        binder.addChangeListener (ed.mainNameProperty (),
+                                  (pr, oldv, newv) ->
+        {
 
-        l.setVisible (false);
-        //l.setAlignmentY (Component.TOP_ALIGNMENT);
-        //l.setVerticalAlignment (SwingConstants.TOP);
-        UIUtils.setPadding (l, 0, 3, 0, 5);
+            nameProp.setValue (ed.getMainName ());
 
-        l = UIUtils.createInformationLabel (null);
-        l.setVisible (false);
-        UIUtils.setPadding (l, 3, 3, 0, 5);
-        this.details.add (l);
+        });
 
-        this.other = l;
+        this.other = QuollLabel.builder ()
+            .styleClassName (StyleClassNames.OTHER)
+            .build ();
 
-        this.projectMessages = UIUtils.createButton (Project.OBJECT_TYPE,
-                                                     Constants.ICON_MENU,
-                                                     "",
-                                                     new ActionListener ()
-                                                     {
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        this.onlineStatus = new Pane ();
+        this.onlineStatus.getStyleClass ().addAll (StyleClassNames.ONLINESTATUS, StyleClassNames.ICON);
+        h.getChildren ().add (this.onlineStatus);
+        h.managedProperty ().bind (h.visibleProperty ());
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+        binder.addChangeListener (ed.onlineStatusProperty (),
+                                  (pr, oldv, newv) ->
+        {
 
-                                                            try
-                                                            {
+            this.updateForOnlineStatus ();
 
-                                                                EditorsUIUtils.showProjectMessagesForEditor (_this.editor,
-                                                                                                             (AbstractProjectViewer) _this.viewer,
-                                                                                                             _this.projectMessages);
+        });
 
-                                                            } catch (Exception e) {
+        this.editorInfo.getChildren ().addAll (this.avatarBox, this.details);
+        this.updateForEditorStatus ();
+        this.updateForOnlineStatus ();
 
-                                                                Environment.logError ("Unable to show project messages for editor: " +
-                                                                                      _this.editor,
-                                                                                      e);
+        // Create the buttons.
+        this.projectMessages = QuollButton.builder ()
+            .iconName (Project.OBJECT_TYPE)
+            .onAction (ev ->
+            {
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          getUIString (editors,messages,show,project,actionerror));
-                                                                                          //"Unable to show {project} messages for {editor}.");
+                try
+                {
 
-                                                            }
+                    EditorsUIUtils.showProjectMessagesForEditor (this.editor,
+                                                                 (AbstractProjectViewer) this.viewer,
+                                                                 this.projectMessages);
 
-                                                        }
+                } catch (Exception e) {
 
-                                                     });
+                    Environment.logError ("Unable to show project messages for editor: " +
+                                          this.editor,
+                                          e);
 
-        this.projectMessages.setIconTextGap (2);
-        this.projectMessages.setFont (this.projectMessages.getFont ().deriveFont (Font.BOLD,
-                                                                                  14));
+                    ComponentUtils.showErrorMessage (viewer,
+                                                     getUILanguageStringProperty (editors,messages,show,project,actionerror));
+                                              //"Unable to show {project} messages for {editor}.");
 
-        this.importantMessages = UIUtils.createButton (Constants.ERROR_ICON_NAME,
-                                                       Constants.ICON_MENU,
-                                                       "",
-                                                       new ActionListener ()
-                                                       {
+                }
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+            })
+            .build ();
 
-                                                            try
-                                                            {
+        this.importantMessages = QuollButton.builder ()
+            .iconName (StyleClassNames.IMPORTANT)
+            .onAction (ev ->
+            {
 
-                                                                EditorsUIUtils.showImportantMessagesForEditor (_this.editor,
-                                                                                                               _this.viewer,
-                                                                                                               _this.importantMessages);
+                try
+                {
 
-                                                            } catch (Exception e) {
+                    EditorsUIUtils.showImportantMessagesForEditor (this.editor,
+                                                                   this.viewer,
+                                                                   this.importantMessages);
 
-                                                                Environment.logError ("Unable to show important messages for editor: " +
-                                                                                      _this.editor,
-                                                                                      e);
+                } catch (Exception e) {
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          getUIString (editors,messages,show,important,actionerror));
-                                                                                          //"Unable to show important messages for {editor}.");
+                    Environment.logError ("Unable to show important messages for editor: " +
+                                          this.editor,
+                                          e);
 
-                                                            }
+                    ComponentUtils.showErrorMessage (this.viewer,
+                                                     getUILanguageStringProperty (editors,messages,show,important,actionerror));
+                                              //"Unable to show important messages for {editor}.");
 
-                                                        }
+                }
 
-                                                     });
+            })
+            .build ();
 
-        this.importantMessages.setIconTextGap (2);
-        this.importantMessages.setFont (this.importantMessages.getFont ().deriveFont (Font.BOLD,
-                                                                                      14));
+        this.comments = QuollButton.builder ()
+            .iconName (StyleClassNames.COMMENT)
+            .onAction (ev ->
+            {
 
-        this.comments = UIUtils.createButton (Constants.COMMENT_ICON_NAME,
-                                              Constants.ICON_MENU,
-                                              "",
-                                              new ActionListener ()
-                                              {
+                try
+                {
 
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
+                    EditorsUIUtils.showAllCommentsForEditor (this.editor,
+                                                             (AbstractProjectViewer) this.viewer,
+                                                             this.comments);
 
-                                                    try
-                                                    {
+                } catch (Exception e) {
 
-                                                        EditorsUIUtils.showAllCommentsForEditor (_this.editor,
-                                                                                                 (AbstractProjectViewer) _this.viewer,
-                                                                                                 _this.comments);
+                    Environment.logError ("Unable to show comments for editor: " +
+                                          this.editor,
+                                          e);
 
-                                                    } catch (Exception e) {
+                    ComponentUtils.showErrorMessage (this.viewer,
+                                                     getUILanguageStringProperty (editors,LanguageStrings.editor,view,actionerror));
+                                              //"Unable to show {comments} for {editor}.");
 
-                                                        Environment.logError ("Unable to show comments for editor: " +
-                                                                              _this.editor,
-                                                                              e);
+                }
 
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  getUIString (editors,LanguageStrings.editor,view,actionerror));
-                                                                                  //"Unable to show {comments} for {editor}.");
+            })
+            .build ();
 
-                                                    }
+        this.chat = QuollButton.builder ()
+            .iconName (StyleClassNames.MESSAGE)
+            .onAction (ev ->
+            {
 
-                                                }
+                try
+                {
 
-                                             });
+                    this.viewer.sendMessageToEditor (this.editor);
 
-        this.comments.setIconTextGap (2);
-        this.comments.setFont (this.comments.getFont ().deriveFont (Font.BOLD,
-                                                                    14));
+                } catch (Exception e) {
 
-        this.chat = UIUtils.createButton (Constants.MESSAGE_ICON_NAME,
-                                          Constants.ICON_MENU,
-                                          "",
-                                          new ActionListener ()
-                                          {
+                    Environment.logError ("Unable to show editor: " +
+                                          this.editor,
+                                          e);
 
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
+                    ComponentUtils.showErrorMessage (this.viewer,
+                                                     getUILanguageStringProperty (editors,LanguageStrings.editor,view,actionerror));
+                                              //"Unable to show {editor}.");
 
-                                                    try
-                                                    {
+                }
 
-                                                        _this.viewer.sendMessageToEditor (_this.editor);
+            })
+            .build ();
 
-                                                    } catch (Exception e) {
+        QuollToolBar tb = QuollToolBar.builder ()
+            .styleClassName (StyleClassNames.STATUSBAR)
+            .controls (Arrays.asList (h,
+                                      this.importantMessages,
+                                      this.comments,
+                                      this.projectMessages,
+                                      this.chat))
+            .build ();
 
-                                                        Environment.logError ("Unable to show editor: " +
-                                                                              _this.editor,
-                                                                              e);
+        this.details.getChildren ().addAll (this.mainName, this.other, tb);
 
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  getUIString (editors,LanguageStrings.editor,view,actionerror));
-                                                                                  //"Unable to show {editor}.");
+        this.getChildren ().add (this.editorInfo);
 
-                                                    }
+        this.updateButtons ();
 
-                                                }
+    }
+/*
+    private void updateAvatar ()
+    {
 
-                                             });
+        if (this.editor.getMainAvatar () != null)
+        {
 
-        this.chat.setIconTextGap (2);
-        this.chat.setFont (this.projectMessages.getFont ().deriveFont (Font.BOLD,
-                                                                       14));
+            this.avatar.setBackground (new Background (new BackgroundImage (this.editor.getMainAvatar (), //SwingFXUtils.toFXImage (this.editor.getMainAvatar (), null),
+                                                                   BackgroundRepeat.NO_REPEAT,
+                                                                   BackgroundRepeat.NO_REPEAT,
+                                                                   BackgroundPosition.CENTER,
+                                                                   new BackgroundSize (100, 100, true, true, true, false))));
 
-        Box statusBox = new Box (BoxLayout.X_AXIS);
+            this.avatarBox.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, false);
 
-        statusBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.details.add (statusBox);
+        } else {
 
-        java.util.List buts = new java.util.ArrayList ();
-        buts.add (this.onlineStatus);
-        buts.add (this.importantMessages);
-        buts.add (this.comments);
-        buts.add (this.projectMessages);
-        buts.add (this.chat);
+            this.avatar.setBackground (null);
+            this.avatarBox.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, true);
 
-        statusBox.add (UIUtils.createButtonBar (buts));
-        statusBox.add (Box.createHorizontalGlue ());
+        }
 
-        this.editorInfo.add (this.details);
+    }
+*/
+    private void updateButtons ()
+    {
+
+        Set<EditorMessage> mess = this.getImportantMessages ();
+
+        this.importantMessages.setVisible (false);
+        int ms = mess.size ();
+
+        if (ms > 0)
+        {
+
+            this.projectMessages.pseudoClassStateChanged (StyleClassNames.UNDEALTWITH_PSEUDO_CLASS, true);
+
+            UIUtils.setTooltip (this.importantMessages,
+                                getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,importantmessages,tooltip),
+                                                                  //"%s new/important message%s requiring your attention, click to view them",
+                                                             Environment.formatNumber (ms)));
+                                                                  //(ms == 1 ? "" : "s"),
+                                                                  //(ms == 1 ? "s" : "")));
+
+            this.importantMessages.setText (String.format ("%s",
+                                                           Environment.formatNumber (ms)));
+
+            this.importantMessages.setVisible (true);
+
+        }
+
+        this.projectMessages.setVisible (false);
+        if ((this.showProjectInfo)
+            &&
+            ((this.projEditor != null)
+             ||
+             (this.editorProject)
+            )
+           )
+        {
+
+            int undealtWithCount = 0;
+
+            // Get undealt with messages that are not chat.
+            // If there is just one then show it, otherwise show a link that will display a popup of them.
+            Set<EditorMessage> projMess = this.getProjectMessages ();
+
+            for (EditorMessage em : projMess)
+            {
+
+                if (!em.isDealtWith ())
+                {
+
+                    undealtWithCount++;
+
+                }
+
+            }
+
+            int ps = projMess.size ();
+
+            this.projectMessages.pseudoClassStateChanged (StyleClassNames.UNDEALTWITH_PSEUDO_CLASS, (undealtWithCount > 0));
+
+            if (undealtWithCount > 0)
+            {
+
+                UIUtils.setTooltip (this.projectMessages,
+                                    getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,projecteditor,undealtwithmessagecount,tooltip),
+                                                                //"%s {project} message%s requiring your attention, click to view them",
+                                                                 Environment.formatNumber (undealtWithCount)));
+                                                                    //(undealtWithCount == 1 ? "" : "s"),
+                                                                    //(undealtWithCount == 1 ? "s" : "")));
+
+            } else {
+
+                UIUtils.setTooltip (this.projectMessages,
+                                    getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,projecteditor,undealtwithmessagecount,tooltip),
+                                                                //"%s {project} message%s, click to view them",
+                                                                Environment.formatNumber (ps)));
+                                                                    //(projMess.size () == 1 ? "" : "s"),
+                                                                    //(projMess.size () == 1 ? "s" : "")));
+
+            }
+
+            this.projectMessages.setText (String.format ("%s",
+                                                         Environment.formatNumber (ps)));
+
+            this.projectMessages.setVisible (true);
+
+        }
+
+        this.comments.setVisible (false);
+
+        if (this.showProjectInfo)
+        {
+
+            AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
+
+            int commCount = 0;
+
+            if (!this.editor.isPending ())
+            {
+
+                this.comments.setVisible (true);
+
+                // Get undealt with messages that are not chat.
+                // If there is just one then show it, otherwise show a link that will display a popup of them.
+                Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (pv.getProject (),
+                                                                                                       ProjectCommentsMessage.MESSAGE_TYPE));
+
+                if (comments.size () > 0)
+                {
+
+                    int sets = comments.size ();
+                    int undealtWithCount = 0;
+
+                    for (EditorMessage m : comments)
+                    {
+
+                        if (!m.isDealtWith ())
+                        {
+
+                            undealtWithCount++;
+
+
+                        }
+
+                        ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
+
+                        commCount += pcm.getComments ().size ();
+
+                    }
+
+                    this.projectMessages.pseudoClassStateChanged (StyleClassNames.UNDEALTWITH_PSEUDO_CLASS, (undealtWithCount > 0));
+
+                    UIUtils.setTooltip (this.comments,
+                                        getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,projectcomments,(this.projEditor != null ? received : sent),tooltip),
+                                                                                                //"%s {comment%s} %s %s",
+                                                                     Environment.formatNumber (commCount),
+                                                                                                 //(commCount == 1 ? "" : "s"),
+                                                                                                 //(this.projEditor != null ? "from" : "sent to"),
+                                                                     this.editor.mainNameProperty ()));
+
+                } else {
+
+                    if (this.projEditor != null)
+                    {
+
+                        UIUtils.setTooltip (this.comments,
+                                            getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,noprojectcomments,received,tooltip),
+                                                                                                    //"%s has not sent you any {comments} yet.",
+                                                                         this.editor.mainNameProperty ()));
+
+                    } else {
+
+                        UIUtils.setTooltip (this.comments,
+                                            getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,noprojectcomments,sent,tooltip),
+                                                                                                    //"You have not sent any {comments} to %s yet.",
+                                                                         this.editor.mainNameProperty ()));
+
+                    }
+
+                }
+
+                this.comments.setText (Environment.formatNumber (commCount));
+
+                this.comments.setDisable (commCount == 0);
+
+            }
+
+        }
+
+        this.chat.setVisible (false);
+
+        Set<EditorMessage> chatMessages = this.getChatMessages ();
+
+        int chatMessagesSize = chatMessages.size ();
+
+        if (chatMessagesSize > 0)
+        {
+
+            this.chat.pseudoClassStateChanged (StyleClassNames.UNDEALTWITH_PSEUDO_CLASS, true);
+
+            UIUtils.setTooltip (this.chat,
+                                getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,unreadchatmessages,tooltip),
+                                                                                     //"%s unread chat message%s",
+                                                             Environment.formatNumber (chatMessagesSize)));
+
+            this.chat.setText (Environment.formatNumber (chatMessagesSize));
+
+            this.chat.setVisible (true);
+
+        }
 
     }
 
-    public void setShowProjectInfo (boolean v)
+    private void updateForOnlineStatus ()
     {
 
-        this.showProjectInfo = v;
+        this.onlineStatus.getStyleClass ().clear ();
+        this.onlineStatus.getStyleClass ().add (StyleClassNames.ICON);
+        this.onlineStatus.getStyleClass ().add (StyleClassNames.ONLINESTATUS);
 
-        this.update ();
+        if (this.editor.getOnlineStatus () != null)
+        {
+
+            //this.onlineStatus.getStyleClass ().addAll (this.editor.getOnlineStatus ().getType () + "-icon");
+            UIUtils.setTooltip (this.onlineStatus,
+                                this.editor.getOnlineStatus ().nameProperty ());
+
+        } else {
+
+            //this.onlineStatus.getStyleClass ().add (EditorEditor.OnlineStatus.offline.getType () + "-icon");
+            UIUtils.setTooltip (this.onlineStatus,
+                                EditorEditor.OnlineStatus.offline.nameProperty ());
+
+        }
+
+        this.onlineStatus.getStyleClass ().add (EditorEditor.OnlineStatus.online.getType () + "-icon");
+
+    }
+
+    private void updateForEditorStatus ()
+    {
+
+        this.other.setVisible (false);
+        UIUtils.setTooltip (this.editorInfo,
+                            null);
+
+        if ((this.showProjectInfo)
+            &&
+            (this.projEditor != null)
+           )
+        {
+
+            this.other.setVisible (true);
+            this.other.textProperty ().unbind ();
+            this.other.textProperty ().bind (this.projEditor.statusMessageProperty ());
+
+        }
+
+        if (!this.editor.isPending ())
+        {
+
+            if (!this.editor.isPrevious ())
+            {
+
+                UIUtils.setTooltip (this.editorInfo,
+                                    getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,info,tooltip,currenteditor),
+                                                               //"Click to send a message to %s, right click to see the menu",
+                                                                     this.editor.getMainName ()));
+
+            } else {
+
+                UIUtils.setTooltip (this.editorInfo,
+                                    getUILanguageStringProperty (editors,LanguageStrings.editor,view,info,tooltip,previouseditor));
+
+            }
+
+        } else {
+
+            if (!this.editor.isInvitedByMe ())
+            {
+
+                this.other.textProperty ().unbind ();
+                this.other.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,LanguageStrings.other,pendingeditor,invitereceived),
+                                                   //"Received: %s",
+                                                                              Environment.formatDate (this.editor.getDateCreated ())));
+
+            } else {
+
+                this.other.textProperty ().unbind ();
+                this.other.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,LanguageStrings.other,pendingeditor,invitesent),
+                                                   //"Invited: %s",
+                                                                              Environment.formatDate (this.editor.getDateCreated ())));
+
+            }
+
+            this.other.setVisible (true);
+
+        }
 
     }
 
@@ -550,44 +817,38 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         final String projId = _projId;
 
-        Set<EditorMessage> mess = this.editor.getMessages (new EditorMessageFilter ()
-                                                           {
+        Set<EditorMessage> mess = this.editor.getMessages (m ->
+        {
 
-                                                                @Override
-                                                                public boolean accept (EditorMessage m)
-                                                                {
+            if (!EditorsUIUtils.getImportantMessageFilter ().accept (m))
+            {
 
-                                                                    if (!EditorsUIUtils.getImportantMessageFilter ().accept (m))
-                                                                    {
+                return false;
 
-                                                                        return false;
+            }
 
-                                                                    }
+            if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+            {
 
-                                                                    if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                                                                    {
+                return false;
 
-                                                                        return false;
+            }
 
-                                                                    }
+            if (_this.showProjectInfo)
+            {
 
-                                                                    if (_this.showProjectInfo)
-                                                                    {
+                if (projId.equals (m.getForProjectId ()))
+                {
 
-                                                                        if (projId.equals (m.getForProjectId ()))
-                                                                        {
+                    return false;
 
-                                                                            return false;
+                }
 
-                                                                        }
+            }
 
-                                                                    }
+            return true;
 
-                                                                    return true;
-
-                                                                 }
-
-                                                            });
+        });
 
         return mess;
 
@@ -606,30 +867,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
     }
 
-    public void handleMessage (EditorMessageEvent ev)
-    {
-
-        if (ev.getEditor () == this.editor)
-        {
-
-            this.update ();
-
-        }
-
-    }
-
-    public void editorChanged (EditorChangedEvent ev)
-    {
-
-        if (ev.getEditor () == this.editor)
-        {
-
-            this.update ();
-
-        }
-
-    }
-
+/*
     private void update ()
     {
 
@@ -682,14 +920,6 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             this.onlineStatus.setText ("");
             this.onlineStatus.setVisible (true);
             this.onlineStatus.setMaximumSize (this.onlineStatus.getPreferredSize ());
-
-        }
-
-        if (this.pendingMessageBox != null)
-        {
-
-            this.pendingMessageBox.setVisible (false);
-            this.remove (this.pendingMessageBox);
 
         }
 
@@ -758,14 +988,14 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             this.importantMessages.setVisible (true);
 
         }
-       /*
-        if (this.editor.isPending ())
-        {
 
-            this.importantMessages.setVisible (false);
+        //if (this.editor.isPending ())
+        //{
 
-        }
-         */
+        //    this.importantMessages.setVisible (false);
+
+        //}
+
 
         if (this.editor.isPrevious ())
         {
@@ -794,6 +1024,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             {
 
                 this.other.setVisible (true);
+                xxx do this
                 this.other.setText (Environment.replaceObjectNames (this.projEditor.getStatusMessage ()));
 
             }
@@ -969,22 +1200,12 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         this.repaint ();
 
     }
+*/
 
-    public EditorInfoBox init ()
-    {
-
-        this.update ();
-
-        return this;
-
-    }
-
-    public void addDeleteAllMessagesMenuItem (JPopupMenu menu)
+    public void addDeleteAllMessagesMenuItem (ContextMenu menu)
     {
 
         final EditorInfoBox _this = this;
-
-        JMenuItem mi = null;
 
         if (Environment.isDebugModeEnabled ())
         {
@@ -995,109 +1216,75 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                )
             {
 
-                menu.add (UIUtils.createMenuItem ("Remove {project} editor [Debug option]",
-                                                  Constants.DELETE_ICON_NAME,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (new SimpleStringProperty ("Remove {project} editor [Debug option]"))
+                    .iconName (StyleClassNames.DELETE)
+                    .onAction (ev ->
+                    {
 
-                                                    @Override
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
+                        QuollPopup.yesConfirmTextEntryBuilder ()
+                            .inViewer (this.viewer)
+                            .title (new SimpleStringProperty ("Remove {project} editor?"))
+                            .description (new SimpleStringProperty (String.format ("To remove <b>%s</b> as a {project} editor please enter <b>Yes</b> in the box below.  Note: this will also remove all {project} related message types for this {project} (project-new, project-new-response, project-update, project-edit-stop, project-comments)",
+                                                                                   this.editor.getMainName ())))
+                            .confirmButtonLabel (new SimpleStringProperty ("Yes, delete them"))
+                            .cancelButtonLabel (new SimpleStringProperty ("No, keep them"))
+                            .onConfirm (eev ->
+                            {
 
-                                                        UIUtils.createTextInputPopup (_this.viewer,
-                                                                                      "Remove {project} editor?",
-                                                                                      Constants.DELETE_ICON_NAME,
-                                                                                      String.format ("To remove <b>%s</b> as a {project} editor please enter <b>Yes</b> in the box below.  Note: this will also remove all {project} related message types for this {project} (project-new, project-new-response, project-update, project-edit-stop, project-comments)",
-                                                                                                     _this.editor.getMainName ()),
-                                                                                      "Yes, delete them",
-                                                                                      Constants.CANCEL_BUTTON_LABEL_ID,
-                                                                                      null,
-                                                                                      UIUtils.getYesValueValidator (),
-                                                                                      new ActionListener ()
-                                                                                      {
+                                this.loadMessagesForEditor ();
 
-                                                                                            @Override
-                                                                                            public void actionPerformed (ActionEvent ev)
-                                                                                            {
+                                final Set<EditorMessage> messages = _this.editor.getMessages (new DefaultEditorMessageFilter (_this.proj,
+                                                            NewProjectMessage.MESSAGE_TYPE,
+                                                            NewProjectResponseMessage.MESSAGE_TYPE,
+                                                            UpdateProjectMessage.MESSAGE_TYPE,
+                                                            ProjectEditStopMessage.MESSAGE_TYPE,
+                                                            ProjectCommentsMessage.MESSAGE_TYPE));
 
-                                                                                                if (!_this.editor.messagesLoaded ())
-                                                                                                {
+                                try
+                                {
 
-                                                                                                    try
-                                                                                                    {
+                                    EditorsEnvironment.deleteMessages (messages);
 
-                                                                                                        EditorsEnvironment.loadMessagesForEditor (_this.editor);
+                                    EditorsEnvironment.removeProjectEditor (_this.proj.getProjectEditor (_this.editor));
 
-                                                                                                    } catch (Exception e) {
+                                } catch (Exception e) {
 
-                                                                                                        Environment.logError ("Unable to load messages for editor: " +
-                                                                                                                              _this.editor,
-                                                                                                                              e);
+                                    Environment.logError ("Unable to delete messages for editor: " +
+                                                          _this.editor,
+                                                          e);
 
-                                                                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                                                                  "Unable to load messages for editor.");
+                                    ComponentUtils.showErrorMessage (_this.viewer,
+                                                                     new SimpleStringProperty ("Unable to delete messages for editor."));
 
-                                                                                                        return;
+                                    return;
 
-                                                                                                    }
+                                }
 
-                                                                                                }
+                                QuollPopup.messageBuilder ()
+                                    .inViewer (_this.viewer)
+                                    .title (new SimpleStringProperty ("{Project} editor removed"))
+                                    .message (new SimpleStringProperty ("All associated {project} messages have been deleted."))
+                                    .closeButton ()
+                                    .build ();
 
-                                                                                                final Set<EditorMessage> messages = _this.editor.getMessages (new DefaultEditorMessageFilter (_this.proj,
-                                                                                                                            NewProjectMessage.MESSAGE_TYPE,
-                                                                                                                            NewProjectResponseMessage.MESSAGE_TYPE,
-                                                                                                                            UpdateProjectMessage.MESSAGE_TYPE,
-                                                                                                                            ProjectEditStopMessage.MESSAGE_TYPE,
-                                                                                                                            ProjectCommentsMessage.MESSAGE_TYPE));
+                            })
+                            .build ();
 
-                                                                                                try
-                                                                                                {
-
-                                                                                                    EditorsEnvironment.deleteMessages (messages);
-
-                                                                                                    EditorsEnvironment.removeProjectEditor (_this.proj.getProjectEditor (_this.editor));
-
-                                                                                                } catch (Exception e) {
-
-                                                                                                    Environment.logError ("Unable to delete messages for editor: " +
-                                                                                                                          _this.editor,
-                                                                                                                          e);
-
-                                                                                                    UIUtils.showErrorMessage (_this.viewer,
-                                                                                                                              "Unable to delete messages for editor.");
-
-                                                                                                    return;
-
-                                                                                                }
-
-                                                                                                UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                                                                                                     "{Project} editor removed",
-                                                                                                                     "All associated {project} messages have been deleted.");
-
-                                                                                  }
-
-                                                                              },
-                                                                              null,
-                                                                              null);
-
-                                            }
-
-                                         }));
+                    })
+                    .build ());
 
             }
 
-            menu.add (UIUtils.createMenuItem ("Delete all messages for types [Debug option]",
-                                              Constants.DELETE_ICON_NAME,
-            new ActionListener ()
-            {
-
-                @Override
-                public void actionPerformed (ActionEvent ev)
+            menu.getItems ().add (QuollMenuItem.builder ()
+                .label (new SimpleStringProperty ("Delete all messages for types [Debug option]"))
+                .iconName (StyleClassNames.DELETE)
+                .onAction (ev ->
                 {
 
-                    Box b = new Box (BoxLayout.Y_AXIS);
+                    VBox b = new VBox ();
 
-                    Set<String> types = new LinkedHashSet ();
+                    Set<String> types = new LinkedHashSet<> ();
 
                     types.add (NewProjectMessage.MESSAGE_TYPE);
                     types.add (UpdateProjectMessage.MESSAGE_TYPE);
@@ -1110,114 +1297,120 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                     types.add (EditorInfoMessage.MESSAGE_TYPE);
                     types.add (EditorRemovedMessage.MESSAGE_TYPE);
 
-                    final Map<String, JCheckBox> cbs = new HashMap ();
+                    final Map<String, CheckBox> cbs = new HashMap<> ();
 
                     for (String t : types)
                     {
 
-                        JCheckBox cb = UIUtils.createCheckBox (t);
+                        CheckBox cb = QuollCheckBox.builder ()
+                            .label (new SimpleStringProperty (t))
+                            .build ();
 
                         cbs.put (t,
                                  cb);
 
-                        b.add (cb);
+                        b.getChildren ().add (cb);
 
                     }
 
-                    UIUtils.showMessage (_this.viewer,
-                                         "Delete types of message",
-                                         b,
-                                         "Delete",
-                                         new ActionListener ()
-                                         {
+                    QuollPopup.questionBuilder ()
+                        .inViewer (_this.viewer)
+                        .title (new SimpleStringProperty ("Delete types of message"))
+                        .content (b)
+                        .confirmButtonLabel (new SimpleStringProperty ("Yes, delete them"))
+                        .onConfirm (eev ->
+                        {
 
-                                            @Override
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
+                            _this.loadMessagesForEditor ();
 
-                                                if (!_this.editor.messagesLoaded ())
-                                                {
+                            Set<String> selTypes = new LinkedHashSet ();
 
-                                                    try
-                                                    {
+                            for (String t : cbs.keySet ())
+                            {
 
-                                                        EditorsEnvironment.loadMessagesForEditor (_this.editor);
+                                if (cbs.get (t).isSelected ())
+                                {
 
-                                                    } catch (Exception e) {
+                                    selTypes.add (t);
 
-                                                        Environment.logError ("Unable to load messages for editor: " +
-                                                                              _this.editor,
-                                                                              e);
+                                }
 
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  "Unable to load messages for editor.");
+                            }
 
-                                                        return;
+                            Set<EditorMessage> toDel = _this.editor.getMessages (null,
+                                                                                 selTypes.toArray (new String[selTypes.size ()]));
 
-                                                    }
+                            try
+                            {
 
-                                                }
+                                EditorsEnvironment.deleteMessages (toDel);
 
-                                                Set<String> selTypes = new LinkedHashSet ();
+                            } catch (Exception e) {
 
-                                                for (String t : cbs.keySet ())
-                                                {
+                                Environment.logError ("Unable to delete messages for editor: " +
+                                                      _this.editor,
+                                                      e);
 
-                                                    if (cbs.get (t).isSelected ())
-                                                    {
+                                ComponentUtils.showErrorMessage (_this.viewer,
+                                                                 new SimpleStringProperty ("Unable to delete messages for editor."));
 
-                                                        selTypes.add (t);
+                                return;
 
-                                                    }
+                            }
 
-                                                }
+                            for (EditorMessage m : toDel)
+                            {
 
-                                                Set<EditorMessage> toDel = _this.editor.getMessages (null,
-                                                                                                     selTypes.toArray (new String[selTypes.size ()]));
+                                _this.editor.removeMessage (m);
 
-                                                try
-                                                {
+                            }
 
-                                                    EditorsEnvironment.deleteMessages (toDel);
+                            QuollPopup.messageBuilder ()
+                                .inViewer (_this.viewer)
+                                .title (new SimpleStringProperty ("Selected message types deleted"))
+                                .message (new SimpleStringProperty ("All message for selected types have been deleted."));
 
-                                                } catch (Exception e) {
+                        });
 
-                                                    Environment.logError ("Unable to delete messages for editor: " +
-                                                                          _this.editor,
-                                                                          e);
-
-                                                    UIUtils.showErrorMessage (_this.viewer,
-                                                                              "Unable to delete messages for editor.");
-
-                                                    return;
-
-                                                }
-
-                                                for (EditorMessage m : toDel)
-                                                {
-
-                                                    _this.editor.removeMessage (m);
-
-                                                }
-
-                                                UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                                                     "Selected message types deleted",
-                                                                     "All message for selected types have been deleted.");
-
-                                            }
-
-                                         },
-                                         null);
-
-                }
-
-            }));
+                })
+                .build ());
 
         }
 
     }
 
-    public void addSendMessageMenuItem (JPopupMenu menu)
+    private void loadMessagesForEditor ()
+    {
+
+        if (this.editor.messagesLoaded ())
+        {
+
+            return;
+
+        }
+
+        try
+        {
+
+            EditorsEnvironment.loadMessagesForEditor (this.editor);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to load messages for editor: " +
+                                  this.editor,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (editors,LanguageStrings.editor,view,actionerror));
+                                      //"Unable to load messages for editor.");
+
+            return;
+
+        }
+
+    }
+
+    public void addSendMessageMenuItem (ContextMenu menu)
     {
 
         final EditorInfoBox _this = this;
@@ -1234,127 +1427,114 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         if (!pending)
         {
 
-            menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendmessage),
-                                              //"Send message",
-                                                Constants.MESSAGE_ICON_NAME,
-                                                new ActionListener ()
-                                                {
-
-                                                   public void actionPerformed (ActionEvent ev)
-                                                   {
-
-                                                       try
-                                                       {
-
-                                                           _this.viewer.sendMessageToEditor (_this.editor);
-
-                                                       } catch (Exception e) {
-
-                                                           Environment.logError ("Unable to show editor: " +
-                                                                                 _this.editor,
-                                                                                 e);
-
-                                                           UIUtils.showErrorMessage (_this,
-                                                                                     getUIString (editors,LanguageStrings.editor,view,actionerror));
-                                                                                     //"Unable to show {editor}.");
-
-                                                       }
-
-                                                   }
-
-                                                }));
-
-        }
-
-    }
-
-    public void addShowImportantMessagesMenuItem (JPopupMenu menu)
-    {
-
-        if (this.editor.isPrevious ())
-        {
-
-            return;
-
-        }
-
-        final EditorInfoBox _this = this;
-
-        final boolean pending = this.editor.isPending ();
-
-        if (!pending)
-        {
-
-            final Set<EditorMessage> messages = this.editor.getMessages (new EditorMessageFilter ()
-            {
-
-                public boolean accept (EditorMessage m)
+            menu.getItems ().add (QuollMenuItem.builder ()
+                .label (editors,LanguageStrings.editor,view,popupmenu,items,sendmessage)
+                .iconName (StyleClassNames.MESSAGE)
+                .onAction (ev ->
                 {
 
-                    if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (m))
+                    try
                     {
 
-                        return false;
+                        this.viewer.sendMessageToEditor (this.editor);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to show editor: " +
+                                              this.editor,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         getUILanguageStringProperty (editors,LanguageStrings.editor,view,actionerror));
+                                                  //"Unable to show {editor}.");
 
                     }
 
-                    if (m.isDealtWith ())
-                    {
+                })
+                .build ());
 
-                        return false;
+        }
 
-                    }
+    }
 
-                    if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                    {
+    public void addShowImportantMessagesMenuItem (ContextMenu menu)
+    {
 
-                        return false;
+        if (this.editor.isPrevious ())
+        {
 
-                    }
+            return;
 
-                    return true;
+        }
+
+        final EditorInfoBox _this = this;
+
+        final boolean pending = this.editor.isPending ();
+
+        if (!pending)
+        {
+
+            final Set<EditorMessage> messages = this.editor.getMessages (m ->
+            {
+
+                if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (m))
+                {
+
+                    return false;
 
                 }
+
+                if (m.isDealtWith ())
+                {
+
+                    return false;
+
+                }
+
+                if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                {
+
+                    return false;
+
+                }
+
+                return true;
 
             });
 
             if (messages.size () > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,importantmessages),
-                                                                 //"View new/important messages (%s)",
-                                                                 Environment.formatNumber (messages.size ())),
-                                                  Constants.ERROR_ICON_NAME,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,popupmenu,items,importantmessages),
+                                                         Environment.formatNumber (messages.size ())))
+                    .iconName (StyleClassNames.IMPORTANT)
+                    .onAction (ev ->
+                    {
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+                        try
+                        {
 
-                                                            try
-                                                            {
+                          EditorsUIUtils.showImportantMessagesForEditor (this.editor,
+                                                                         this.viewer,
+                                                                         null);
 
-                                                              EditorsUIUtils.showImportantMessagesForEditor (_this.editor,
-                                                                                                             _this.viewer,
-                                                                                                             null);
+                        } catch (Exception e) {
 
-                                                            } catch (Exception e) {
+                            Environment.logError ("Unable to show project messages for editor: " +
+                                                  this.editor,
+                                                  e);
 
-                                                                Environment.logError ("Unable to show project messages for editor: " +
-                                                                                      _this.editor,
-                                                                                      e);
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (editors,LanguageStrings.messages,show,important,actionerror));
+                                                      //"Unable to {project} messages for editor.");
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          getUIString (editors,LanguageStrings.messages,show,important,actionerror));
-                                                                                          //"Unable to {project} messages for editor.");
+                            return;
 
-                                                                return;
+                        }
 
-                                                            }
-
-                                                        }
-
-                                                  }));
+                    })
+                    .build ());
 
             }
 
@@ -1362,7 +1542,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
     }
 
-    public void addProjectSentAndUpdatesMenuItem (JPopupMenu menu)
+    public void addProjectSentAndUpdatesMenuItem (ContextMenu menu)
     {
 
         final EditorInfoBox _this = this;
@@ -1388,40 +1568,36 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (messages.size () > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,projectupdates),
-                                                                //"View updates you have sent/received for this {project} (%s)",
-                                                                 Environment.formatNumber (messages.size ())),
-                                                  Project.OBJECT_TYPE,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,popupmenu,items,projectupdates),
+                                                         Environment.formatNumber (messages.size ())))
+                    .iconName (Project.OBJECT_TYPE)
+                    .onAction (ev ->
+                    {
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+                        try
+                        {
 
-                                                            try
-                                                            {
+                            EditorsUIUtils.showProjectMessagesForEditor (this.editor,
+                                                                         (AbstractProjectViewer) this.viewer,
+                                                                         null);
 
-                                                                EditorsUIUtils.showProjectMessagesForEditor (_this.editor,
-                                                                                                             (AbstractProjectViewer) _this.viewer,
-                                                                                                             null);
+                        } catch (Exception e) {
 
-                                                            } catch (Exception e) {
+                            Environment.logError ("Unable to show project messages for editor: " +
+                                                  this.editor,
+                                                  e);
 
-                                                                Environment.logError ("Unable to show project messages for editor: " +
-                                                                                      _this.editor,
-                                                                                      e);
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (editors,LanguageStrings.messages,show,project,actionerror));
+                                                      //"Unable to {project} messages for editor.")
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          getUIString (editors,LanguageStrings.messages,show,project,actionerror));
-                                                                                          //"Unable to {project} messages for editor.")
+                            return;
 
-                                                                return;
+                        }
 
-                                                            }
-
-                                                        }
-
-                                                  }));
+                    })
+                    .build ());
 
             }
 
@@ -1429,10 +1605,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
     }
 
-    public void addProjectsInvolvedWithMenuItem (JPopupMenu menu)
+    public void addProjectsInvolvedWithMenuItem (ContextMenu menu)
     {
-
-        final EditorInfoBox _this = this;
 
         final boolean pending = this.editor.isPending ();
 
@@ -1457,117 +1631,104 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (projCount > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,projectsuserediting),
-                                                                //"View {projects} I'm editing for %s (%s)",
-                                                                 this.editor.getShortName (),
-                                                                 Environment.formatNumber (projCount)),
-                                                  Project.OBJECT_TYPE,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,popupmenu,items,projectsuserediting),
+                                                         this.editor.mainNameProperty (),
+                                                         Environment.formatNumber (projCount)))
+                    .iconName (Project.OBJECT_TYPE)
+                    .onAction (ev ->
+                    {
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+                        try
+                        {
 
-                                                            try
-                                                            {
+                            EditorsUIUtils.showProjectsUserIsEditingForEditor (this.editor,
+                                                                               this.viewer);
 
-                                                                EditorsUIUtils.showProjectsUserIsEditingForEditor (_this.editor,
-                                                                                                                   _this.viewer);
+                        } catch (Exception e) {
 
-                                                            } catch (Exception e) {
+                            Environment.logError ("Unable to show projects user is editing for editor: " +
+                                                  this.editor,
+                                                  e);
 
-                                                                Environment.logError ("Unable to show projects user is editing for editor: " +
-                                                                                      _this.editor,
-                                                                                      e);
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (editors,LanguageStrings.editor,showprojectscontactisediting,actionerror));
+                                                      //String.format ("Unable to show {projects} you are editing for %s.",
+                                                        //             _this.editor.getShortName ()));
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          getUIString (editors,LanguageStrings.editor,showprojectscontactisediting,actionerror));
-                                                                                          //String.format ("Unable to show {projects} you are editing for %s.",
-                                                                                            //             _this.editor.getShortName ()));
+                            return;
 
-                                                                return;
+                        }
 
-                                                            }
-
-                                                        }
-
-                                                  }));
+                    })
+                    .build ());
 
             }
 
-            final Set<EditorMessage> messages = this.editor.getMessages (new EditorMessageFilter ()
+            final Set<EditorMessage> messages = this.editor.getMessages (m ->
             {
 
-                public boolean accept (EditorMessage m)
+                if (m.isSentByMe ())
                 {
 
-                    if (m.isSentByMe ())
-                    {
-
-                        return false;
-
-                    }
-
-                    if (!m.getMessageType ().equals (NewProjectResponseMessage.MESSAGE_TYPE))
-                    {
-
-                        return false;
-
-                    }
-
-                    NewProjectResponseMessage nprm = (NewProjectResponseMessage) m;
-
-                    if (!nprm.isAccepted ())
-                    {
-
-                        return false;
-
-                    }
-
-                    return true;
+                    return false;
 
                 }
+
+                if (!m.getMessageType ().equals (NewProjectResponseMessage.MESSAGE_TYPE))
+                {
+
+                    return false;
+
+                }
+
+                NewProjectResponseMessage nprm = (NewProjectResponseMessage) m;
+
+                if (!nprm.isAccepted ())
+                {
+
+                    return false;
+
+                }
+
+                return true;
 
             });
 
             if (messages.size () > 0)
             {
 
-                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,projectscontactediting),
-                                                                 //"View {projects} %s is editing for me (%s)",
-                                                                 this.editor.getShortName (),
-                                                                 Environment.formatNumber (messages.size ())),
-                                                  Project.OBJECT_TYPE,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,view,popupmenu,items,projectscontactediting),
+                                                         this.editor.mainNameProperty (),
+                                                         Environment.formatNumber (messages.size ())))
+                    .iconName (Project.OBJECT_TYPE)
+                    .onAction (ev ->
+                    {
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+                        try
+                        {
 
-                                                            try
-                                                            {
+                            EditorsUIUtils.showProjectsEditorIsEditingForUser (this.editor,
+                                                                               this.viewer);
 
-                                                                EditorsUIUtils.showProjectsEditorIsEditingForUser (_this.editor,
-                                                                                                                   _this.viewer);
+                        } catch (Exception e) {
 
-                                                            } catch (Exception e) {
+                            Environment.logError ("Unable to show projects for editor: " +
+                                                  this.editor,
+                                                  e);
 
-                                                                Environment.logError ("Unable to show projects for editor: " +
-                                                                                      _this.editor,
-                                                                                      e);
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (editors,LanguageStrings.editor,showprojectscontactisediting,actionerror));
+                                                      //String.format ("Unable to show {projects} %s is editing for you.",
+                                                        //             _this.editor.getShortName ()));
 
-                                                                UIUtils.showErrorMessage (_this.viewer,
-                                                                                          getUIString (editors,LanguageStrings.editor,showprojectscontactisediting,actionerror));
-                                                                                          //String.format ("Unable to show {projects} %s is editing for you.",
-                                                                                            //             _this.editor.getShortName ()));
+                            return;
 
-                                                                return;
+                        }
 
-                                                            }
-
-                                                        }
-
-                                                  }));
+                    })
+                    .build ());
 
             }
 
@@ -1575,7 +1736,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
     }
 
-    public void addShowCommentsMenuItem (JPopupMenu menu)
+    public void addShowCommentsMenuItem (ContextMenu menu)
     {
 
         final EditorInfoBox _this = this;
@@ -1596,17 +1757,12 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         boolean isEditorProject = this.proj.isEditorProject ();
 
-        final Set<EditorMessage> messages = this.editor.getMessages (new EditorMessageFilter ()
+        final Set<EditorMessage> messages = this.editor.getMessages (m ->
         {
 
-            public boolean accept (EditorMessage m)
-            {
-
-                return ((m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
-                        &&
-                        (_this.proj.getId ().equals (m.getForProjectId ())));
-
-            }
+            return ((m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
+                    &&
+                    (_this.proj.getId ().equals (m.getForProjectId ())));
 
         });
 
@@ -1618,40 +1774,35 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
            )
         {
 
-            menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,commentssent),
-                                                //String.format ("View all {comments} sent",
-                                                //             suffix),
-                                              Constants.COMMENT_ICON_NAME,
-                                              new ActionListener ()
-                                              {
+            menu.getItems ().add (QuollMenuItem.builder ()
+                .label (editors,LanguageStrings.editor,view,popupmenu,items,commentssent)
+                .iconName (StyleClassNames.COMMENT)
+                .onAction (ev ->
+                {
 
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
+                    try
+                    {
 
-                                                    try
-                                                    {
+                        EditorsUIUtils.showAllCommentsForEditor (this.editor,
+                                                                 (AbstractProjectViewer) this.viewer,
+                                                                 null);
 
-                                                        EditorsUIUtils.showAllCommentsForEditor (_this.editor,
-                                                                                                 (AbstractProjectViewer) _this.viewer,
-                                                                                                 null);
+                    } catch (Exception e) {
 
-                                                    } catch (Exception e) {
+                        Environment.logError ("Unable to show comments from editor: " +
+                                              this.editor,
+                                              e);
 
-                                                        Environment.logError ("Unable to show comments from editor: " +
-                                                                              _this.editor,
-                                                                              e);
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         getUILanguageStringProperty (editors,viewcommentserror));
+                                                  //"Unable to show {comments} from editor.");
 
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  getUIString (editors,viewcommentserror));
-                                                                                  //"Unable to show {comments} from editor.");
+                        return;
 
-                                                        return;
+                    }
 
-                                                    }
-
-                                                  }
-
-                                              }));
+                })
+                .build ());
 
         } else {
 
@@ -1662,64 +1813,54 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                 final ProjectCommentsMessage message = (ProjectCommentsMessage) messages.iterator ().next ();
 
-                menu.add (UIUtils.createMenuItem (String.format (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,(this.projEditor != null ? lastcommentsreceived : lastcommentssent)),
-                                                                //"View last {comments} %s (%s)",
-                                                                 message.getComments ().size ()),
-                                                                 //suffix),
-                                                  Constants.FIND_ICON_NAME,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (editors,LanguageStrings.editor,view,popupmenu,items,(this.projEditor != null ? lastcommentsreceived : lastcommentssent),
+                                                         Environment.formatNumber (message.getComments ().size ())))
+                    .iconName (StyleClassNames.FIND)
+                    .onAction (ev ->
+                    {
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+                        EditorsUIUtils.showProjectComments (message,
+                                                            (AbstractProjectViewer) this.viewer,
+                                                            null);
 
-                                                            EditorsUIUtils.showProjectComments (message,
-                                                                                                (AbstractProjectViewer) _this.viewer,
-                                                                                                null);
-
-                                                        }
-
-                                                  }));
+                    })
+                    .build ());
 
             }
 
             if (messages.size () > 1)
             {
 
-                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,(this.projEditor != null ? commentsreceived : commentssent)),
-                                                                //"View all {comments} %s",
-                                                                 //suffix),
-                                                  Constants.COMMENT_ICON_NAME,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (editors,LanguageStrings.editor,view,popupmenu,items,(this.projEditor != null ? commentsreceived : commentssent))
+                    .iconName (StyleClassNames.COMMENT)
+                    .onAction (ev ->
+                    {
 
-                                                      public void actionPerformed (ActionEvent ev)
-                                                      {
+                        try
+                        {
 
-                                                        try
-                                                        {
+                            EditorsUIUtils.showAllCommentsForEditor (this.editor,
+                                                                     (AbstractProjectViewer) this.viewer,
+                                                                     null);
 
-                                                            EditorsUIUtils.showAllCommentsForEditor (_this.editor,
-                                                                                                     (AbstractProjectViewer) _this.viewer,
-                                                                                                     null);
+                        } catch (Exception e) {
 
-                                                        } catch (Exception e) {
+                            Environment.logError ("Unable to show comments from editor: " +
+                                                  this.editor,
+                                                  e);
 
-                                                            Environment.logError ("Unable to show comments from editor: " +
-                                                                                  _this.editor,
-                                                                                  e);
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (editors,viewcommentserror));
+                                                      //"Unable to show {comments} from editor.");
 
-                                                            UIUtils.showErrorMessage (_this.viewer,
-                                                                                      getUIString (editors,viewcommentserror));
-                                                                                      //"Unable to show {comments} from editor.");
+                            return;
 
-                                                            return;
+                        }
 
-                                                        }
-
-                                                      }
-
-                                                  }));
+                    })
+                    .build ());
 
             }
 
@@ -1727,10 +1868,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
     }
 
-    public void addSendOrUpdateProjectMenuItem (JPopupMenu menu)
+    public void addSendOrUpdateProjectMenuItem (ContextMenu menu)
     {
-
-        final EditorInfoBox _this = this;
 
         if (this.editor.isPrevious ())
         {
@@ -1756,29 +1895,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
            )
         {
 
-            if (!this.editor.messagesLoaded ())
-            {
-
-                try
-                {
-
-                    EditorsEnvironment.loadMessagesForEditor (_this.editor);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to load messages for editor: " +
-                                          _this.editor,
-                                          e);
-
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              getUIString (editors,LanguageStrings.editor,view,actionerror));
-                                              //"Unable to load messages for editor.");
-
-                    return;
-
-                }
-
-            }
+            this.loadMessagesForEditor ();
 
             // Find out what was the last project message sent.
             Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.proj,
@@ -1846,22 +1963,18 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (addSend)
             {
 
-                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendproject),
-                                                //"Send {project}/{chapters}",
-                                                  Constants.SEND_ICON_NAME,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .iconName (StyleClassNames.SEND)
+                    .label (editors,LanguageStrings.editor,view,popupmenu,items,sendproject)
+                    .onAction (ev ->
+                    {
 
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
+                        EditorsUIUtils.showSendProject ((AbstractProjectViewer) this.viewer,
+                                                        this.editor,
+                                                        null);
 
-                                                        EditorsUIUtils.showSendProject ((AbstractProjectViewer) _this.viewer,
-                                                                                        _this.editor,
-                                                                                        null);
-
-                                                    }
-
-                                                  }));
+                    })
+                    .build ());
 
                 return;
 
@@ -1870,41 +1983,33 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (addUpdate)
             {
 
-                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendupdateproject),
-                                                //"Update {project}/{chapters}",
-                                                  Constants.SEND_ICON_NAME,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (editors,LanguageStrings.editor,view,popupmenu,items,sendupdateproject)
+                    .iconName (StyleClassNames.SEND)
+                    .onAction (ev ->
+                    {
 
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
+                        EditorsUIUtils.showUpdateProject ((AbstractProjectViewer) this.viewer,
+                                                          this.editor,
+                                                          null);
 
-                                                        EditorsUIUtils.showUpdateProject ((AbstractProjectViewer) _this.viewer,
-                                                                                          _this.editor,
-                                                                                          null);
-
-                                                    }
-
-                                                  }));
+                    })
+                    .build ());
 
             } else {
 
-                menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,sendproject),
-                                                 //"Send {project}/{chapters}",
-                                                  Constants.SEND_ICON_NAME,
-                                                  new ActionListener ()
-                                                  {
+                menu.getItems ().add (QuollMenuItem.builder ()
+                    .label (editors,LanguageStrings.editor,view,popupmenu,items,sendproject)
+                    .iconName (StyleClassNames.SEND)
+                    .onAction (ev ->
+                    {
 
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
+                        EditorsUIUtils.showSendProject ((AbstractProjectViewer) this.viewer,
+                                                        this.editor,
+                                                        null);
 
-                                                        EditorsUIUtils.showSendProject ((AbstractProjectViewer) _this.viewer,
-                                                                                        _this.editor,
-                                                                                        null);
-
-                                                    }
-
-                                                  }));
+                    })
+                    .build ());
 
             }
 
@@ -1912,53 +2017,31 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
     }
 
-    public void addUpdateEditorInfoMenuItem (JPopupMenu menu)
+    public void addUpdateEditorInfoMenuItem (ContextMenu menu)
     {
-
-        final EditorInfoBox _this = this;
 
         final boolean pending = this.editor.isPending ();
 
         if (!pending)
         {
 
-            menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,updatecontactinfo),
-                                            //"Update the {contact} information",
-                                              Constants.EDIT_ICON_NAME,
-                                              new ActionListener ()
-                                              {
+            menu.getItems ().add (QuollMenuItem.builder ()
+                .label (editors,LanguageStrings.editor,view,popupmenu,items,updatecontactinfo)
+                .iconName (StyleClassNames.EDIT)
+                .onAction (ev ->
+                {
 
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
+                    EditorsUIUtils.updateEditorInfo (this.viewer,
+                                                     this.editor);
 
-                                                    EditorsUIUtils.updateEditorInfo (_this.viewer,
-                                                                                     _this.editor);
-
-                                                }
-
-                                              },
-                                              null,
-                                              null));
+                })
+                .build ());
 
         }
 
     }
 
-    /**
-     * Add a mouse listener to the content, because the JLayer intercepts the mouse events we need to channel the
-     * listener add to the actual content component.
-     *
-     * TODO: Make this nicer somehow, and add removeMouseListener.
-     */
-    @Override
-    public void addMouseListener (MouseListener m)
-    {
-
-        this.editorInfo.addMouseListener (m);
-
-    }
-
-    public void addRemoveEditorMenuItem (JPopupMenu menu)
+    public void addRemoveEditorMenuItem (ContextMenu menu)
     {
 
         final EditorInfoBox _this = this;
@@ -1970,48 +2053,35 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         }
 
-        menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,removecontact),
-                                        //"Remove {contact}",
-                                            Constants.DELETE_ICON_NAME,
-                                            new ActionListener ()
-                                            {
+        menu.getItems ().add (QuollMenuItem.builder ()
+            .label (editors,LanguageStrings.editor,view,popupmenu,items,removecontact)
+            .iconName (StyleClassNames.DELETE)
+            .onAction (ev ->
+            {
 
-                                               public void actionPerformed (ActionEvent ev)
-                                               {
+                EditorsUIUtils.showRemoveEditor (this.viewer,
+                                                 this.editor,
+                                                 null);
 
-                                                   EditorsUIUtils.showRemoveEditor (_this.viewer,
-                                                                                    _this.editor,
-                                                                                    null);
-
-                                               }
-
-                                           }));
-
+            })
+            .build ());
     }
 
-    public void addShowAllMessagesMenuItem (final JPopupMenu menu)
+    public void addShowAllMessagesMenuItem (final ContextMenu menu)
     {
 
-        final EditorInfoBox _this = this;
+        menu.getItems ().add (QuollMenuItem.builder ()
+            .label (editors,LanguageStrings.editor,view,popupmenu,items,allmessages)
+            .iconName (StyleClassNames.FIND)
+            .onAction (ev ->
+            {
 
-        final boolean pending = this.editor.isPending ();
+                EditorsUIUtils.showAllMessagesForEditor (this.editor,
+                                                         this.viewer,
+                                                         null);
 
-        menu.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,allmessages),
-                                        //"View ALL messages sent/received",
-                                          Constants.FIND_ICON_NAME,
-                                          new ActionListener ()
-                                          {
-
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-
-                                                   EditorsUIUtils.showAllMessagesForEditor (_this.editor,
-                                                                                            _this.viewer,
-                                                                                            null);
-
-                                              }
-
-                                          }));
+            })
+            .build ());
 
     }
 
@@ -2050,60 +2120,50 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         final EditorInfoBox _this = this;
 
-        this.editorInfo.addMouseListener (new MouseEventHandler ()
+        this.setOnContextMenuRequested (ev ->
         {
 
-            @Override
-            public void fillPopup (JPopupMenu m,
-                                   MouseEvent ev)
+            ContextMenu cm = new ContextMenu ();
+
+            this.addSendMessageMenuItem (cm);
+            this.addSendOrUpdateProjectMenuItem (cm);
+            this.addShowImportantMessagesMenuItem (cm);
+
+            if (this.editor.isPending ())
             {
 
-                _this.addSendMessageMenuItem (m);
+                cm.getItems ().add (QuollMenuItem.builder ()
+                    .label (editors,LanguageStrings.editor,view,popupmenu,items,resendinvite)
+                    .iconName (StyleClassNames.NOTIFY)
+                    .onAction (eev ->
+                    {
 
-                _this.addSendOrUpdateProjectMenuItem (m);
+                        EditorsEnvironment.sendInvite (this.editor.getEmail (),
+                                                       this.viewer);
 
-                _this.addShowImportantMessagesMenuItem (m);
-
-                //_this.addShowCommentsMenuItem (m);
-
-                //_this.addProjectsInvolvedWithMenuItem (m);
-
-                //_this.addProjectSentAndUpdatesMenuItem (m);
-
-/*
-                infBox.addSearchMessagesMenuItem (m,
-                                                  _this);
-  */
-
-                if (_this.editor.isPending ())
-                {
-
-                    m.add (UIUtils.createMenuItem (getUIString (editors,LanguageStrings.editor,view,popupmenu,items,resendinvite),
-                                                    //"Resend Invite",
-                                                   Constants.NOTIFY_ICON_NAME,
-                                                   new ActionListener ()
-                                                   {
-
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            EditorsEnvironment.sendInvite (_this.editor.getEmail ());
-
-                                                        }
-
-                                                    }));
-
-                }
-
-                _this.addShowAllMessagesMenuItem (m);
-
-                _this.addUpdateEditorInfoMenuItem (m);
-
-                _this.addRemoveEditorMenuItem (m);
-
-                _this.addDeleteAllMessagesMenuItem (m);
+                    })
+                    .build ());
 
             }
+
+            this.addShowAllMessagesMenuItem (cm);
+
+            this.addUpdateEditorInfoMenuItem (cm);
+
+            this.addRemoveEditorMenuItem (cm);
+
+            this.addDeleteAllMessagesMenuItem (cm);
+
+            ev.consume ();
+
+            this.getProperties ().put ("context-menu", cm);
+
+            cm.setAutoFix (true);
+            cm.setAutoHide (true);
+            cm.setHideOnEscape (true);
+            cm.show (this,
+                    ev.getScreenX (),
+                    ev.getScreenY ());
 
         });
 
@@ -2112,23 +2172,27 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     public void addBasicPopupListener ()
     {
 
-        final EditorInfoBox _this = this;
-
-        this.editorInfo.addMouseListener (new MouseEventHandler ()
+        this.setOnContextMenuRequested (ev ->
         {
 
-            @Override
-            public void fillPopup (JPopupMenu m,
-                                   MouseEvent ev)
-            {
+            ContextMenu cm = new ContextMenu ();
 
-                _this.addDeleteAllMessagesMenuItem (m);
+            this.addDeleteAllMessagesMenuItem (cm);
 
-                _this.addSendMessageMenuItem (m);
+            this.addSendMessageMenuItem (cm);
 
-                _this.addUpdateEditorInfoMenuItem (m);
+            this.addUpdateEditorInfoMenuItem (cm);
 
-            }
+            ev.consume ();
+
+            this.editorInfo.getProperties ().put ("context-menu", cm);
+
+            cm.setAutoFix (true);
+            cm.setAutoHide (true);
+            cm.setHideOnEscape (true);
+            cm.show (this.editorInfo,
+                    ev.getScreenX (),
+                    ev.getScreenY ());
 
         });
 

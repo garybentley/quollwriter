@@ -914,120 +914,98 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                      headers,
                                      t,
                                      // On success
-                                     new ActionListener ()
+                                     (content, resCode) ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
+                                         pp.removeFromParent ();
+
+                                         Map m = (Map) JSONDecoder.decode (content);
+
+                                         String res = (String) m.get ("result");
+
+                                         String sid = (String) m.get ("submitterid");
+
+                                         UserProperties.set (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME,
+                                                             sid);
+
+                                         //_this.userStrings.setSubmitterId (sid);
+                                         _this.userStrings.setStringsVersion (((Number) m.get ("version")).intValue ());
+
+                                         try
                                          {
 
-                                             pp.removeFromParent ();
+                                             _this.saveToFile ();
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                         } catch (Exception e) {
 
-                                             String res = (String) m.get ("result");
+                                             Environment.logError ("Unable to save strings file: " +
+                                                                   _this.userStrings,
+                                                                   e);
 
-                                             String sid = (String) m.get ("submitterid");
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
 
-                                             UserProperties.set (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME,
-                                                                 sid);
-
-                                             //_this.userStrings.setSubmitterId (sid);
-                                             _this.userStrings.setStringsVersion (((Number) m.get ("version")).intValue ());
-
-                                             try
-                                             {
-
-                                                 _this.saveToFile ();
-
-                                             } catch (Exception e) {
-
-                                                 Environment.logError ("Unable to save strings file: " +
-                                                                       _this.userStrings,
-                                                                       e);
-
-                                                 UIUtils.showErrorMessage (_this,
-                                                                           "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
-
-                                                 return;
-
-                                             }
-
-                                             if (_this.userStrings.getStringsVersion () == 1)
-                                             {
-
-                                                 UIUtils.showMessage ((PopupsSupported) _this,
-                                                                      "Strings submitted",
-                                                                      String.format ("Your strings have been submitted to Quoll Writer support for review.<br /><br />A confirmation email has been sent to <b>%s</b>.  Please click on the link in that email to confirm your email address.<br /><br />Thank you for taking the time and the effort to create the strings, it is much appreciated!",
-                                                                                     _this.userStrings.getEmail ()));
-
-                                             } else {
-
-                                                 UIUtils.showMessage ((PopupsSupported) _this,
-                                                                      "Strings submitted",
-                                                                      String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to Quoll Writer users.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
-                                                                                     Environment.formatNumber (_this.userStrings.getStringsVersion ())));
-
-                                             }
-
-                                             qp.resize ();
-                                             qp.removeFromParent ();
+                                             return;
 
                                          }
+
+                                         if (_this.userStrings.getStringsVersion () == 1)
+                                         {
+
+                                             UIUtils.showMessage ((PopupsSupported) _this,
+                                                                  "Strings submitted",
+                                                                  String.format ("Your strings have been submitted to Quoll Writer support for review.<br /><br />A confirmation email has been sent to <b>%s</b>.  Please click on the link in that email to confirm your email address.<br /><br />Thank you for taking the time and the effort to create the strings, it is much appreciated!",
+                                                                                 _this.userStrings.getEmail ()));
+
+                                         } else {
+
+                                             UIUtils.showMessage ((PopupsSupported) _this,
+                                                                  "Strings submitted",
+                                                                  String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to Quoll Writer users.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
+                                                                                 Environment.formatNumber (_this.userStrings.getStringsVersion ())));
+
+                                         }
+
+                                         qp.resize ();
+                                         qp.removeFromParent ();
 
                                      },
                                      // On error
-                                     new ActionListener ()
+                                     (errContent, resCode) ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
+                                         pp.removeFromParent ();
 
-                                             pp.removeFromParent ();
+                                         Map m = (Map) JSONDecoder.decode (errContent);
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                         String res = (String) m.get ("reason");
 
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
+                                         // Get the errors.
+                                         UIUtils.showErrorMessage (_this,
+                                                                   "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
 
                                      },
-                                     new ActionListener ()
+                                     exp ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
+/*
+TODO Improve
+                                         pp.removeFromParent ();
 
-                                             pp.removeFromParent ();
+                                         Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                         String res = (String) m.get ("reason");
 
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
-
+                                         // Get the errors.
+                                         UIUtils.showErrorMessage (_this,
+                                                                   "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+*/
                                      },
                                      // Updater
-                                     new UpdateEventListener<UploadProgressEvent> ()
+                                     eev ->
                                      {
 
-                                         @Override
-                                         public void valueUpdated (UploadProgressEvent ev)
-                                         {
-
-                                             pp.update (ev.getPercent ());
-
-                                         }
+                                         pp.update (eev.getPercent ());
 
                                      });
 
@@ -1438,90 +1416,75 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                      headers,
                                      "bogus",
                                      // On success
-                                     new ActionListener ()
+                                     (content, resCode) ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
+                                         String r = (String) JSONDecoder.decode (content);
+
+                                         // Delete our local versions.
+                                         try
                                          {
 
-                                             String r = (String) JSONDecoder.decode ((String) ev.getSource ());
+                                             UILanguageStringsManager.deleteUserUILanguageStrings (_this.userStrings,
+                                                                                      delAll.isSelected ());
 
-                                             // Delete our local versions.
-                                             try
+                                         } catch (Exception e) {
+
+                                             Environment.logError ("Unable to delete user strings: " + _this.userStrings,
+                                                                   e);
+
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to delete the strings.");
+
+                                              qp.removeFromParent ();
+
+                                              return;
+
+                                         }
+
+                                         LanguageStringsEditor.super.close (true,
+                                                                            new ActionListener ()
+                                         {
+
+                                             @Override
+                                             public void actionPerformed (ActionEvent ev)
                                              {
 
-                                                 UILanguageStringsManager.deleteUserUILanguageStrings (_this.userStrings,
-                                                                                          delAll.isSelected ());
-
-                                             } catch (Exception e) {
-
-                                                 Environment.logError ("Unable to delete user strings: " + _this.userStrings,
-                                                                       e);
-
-                                                 UIUtils.showErrorMessage (_this,
-                                                                           "Unable to delete the strings.");
-
-                                                  qp.removeFromParent ();
-
-                                                  return;
+                                                 UIUtils.showMessage ((Component) null,
+                                                                      "Strings deleted",
+                                                                      "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
 
                                              }
 
-                                             LanguageStringsEditor.super.close (true,
-                                                                                new ActionListener ()
-                                             {
-
-                                                 @Override
-                                                 public void actionPerformed (ActionEvent ev)
-                                                 {
-
-                                                     UIUtils.showMessage ((Component) null,
-                                                                          "Strings deleted",
-                                                                          "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
-
-                                                 }
-
-                                             });
-
-                                         }
+                                         });
 
                                      },
                                      // On error
-                                     new ActionListener ()
+                                     (errContent, resCode) ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
+                                         Map m = (Map) JSONDecoder.decode (errContent);
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                         String res = (String) m.get ("reason");
 
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
+                                         // Get the errors.
+                                         UIUtils.showErrorMessage (_this,
+                                                                   "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
 
                                      },
-                                     new ActionListener ()
+                                     eex ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
+/*
+TODO Improve
+                                         Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                         String res = (String) m.get ("reason");
 
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to delete the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
+                                         // Get the errors.
+                                         UIUtils.showErrorMessage (_this,
+                                                                   "Unable to delete the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+*/
 
                                      },
                                      null);

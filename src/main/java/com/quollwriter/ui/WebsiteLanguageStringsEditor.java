@@ -206,123 +206,96 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                               headers,
                               outputFile,
                               // On success
-                              new ActionListener ()
+                              (res, retCode) ->
                               {
 
-                                  @Override
-                                  public void actionPerformed (ActionEvent ev)
+                                  pp.removeFromParent ();
+
+                                  try
                                   {
 
-                                      pp.removeFromParent ();
+                                      Files.deleteIfExists (outputFile);
 
-                                      try
-                                      {
+                                  } catch (Exception e) {
 
-                                          Files.deleteIfExists (outputFile);
+                                      Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                            e);
 
-                                      } catch (Exception e) {
+                                  }
 
-                                          Environment.logError ("Unable to delete temp file: " + outputFile,
-                                                                e);
+                                  Map m = (Map) JSONDecoder.decode (res);
 
-                                      }
+                                  res = (String) m.get ("result");
 
-                                      Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                  String sid = (String) m.get ("testid");
 
-                                      String res = (String) m.get ("result");
+                                  try
+                                  {
 
-                                      String sid = (String) m.get ("testid");
+                                      _this.saveToFile ();
 
-                                      try
-                                      {
+                                  } catch (Exception e) {
 
-                                          _this.saveToFile ();
+                                      Environment.logError ("Unable to save strings file: " +
+                                                            _this.userStrings,
+                                                            e);
 
-                                      } catch (Exception e) {
+                                  }
 
-                                          Environment.logError ("Unable to save strings file: " +
-                                                                _this.userStrings,
-                                                                e);
+                                  String url = Environment.getQuollWriterWebsite () + "/" + sid + "/";
 
-                                      }
+                                  UIUtils.showMessage ((PopupsSupported) _this,
+                                                       "Strings uploaded",
+                                                       String.format ("Your strings have been uploaded and are ready to be tested.  A browser will now be opened for the {QW} website.<br /><br />You can also <a href='%s'>click here</a> to try out your translation.",
+                                                                      url));
 
-                                      String url = Environment.getQuollWriterWebsite () + "/" + sid + "/";
-
-                                      UIUtils.showMessage ((PopupsSupported) _this,
-                                                           "Strings uploaded",
-                                                           String.format ("Your strings have been uploaded and are ready to be tested.  A browser will now be opened for the {QW} website.<br /><br />You can also <a href='%s'>click here</a> to try out your translation.",
-                                                                          url));
-
-                                      UIUtils.openURL (_this,
-                                                       url);
-
-                                 }
+                                  UIUtils.openURL (_this,
+                                                   url);
 
                              },
                              // On error
-                             new ActionListener ()
+                             (res, retCode) ->
                              {
 
-                                  @Override
-                                  public void actionPerformed (ActionEvent ev)
+                                  pp.removeFromParent ();
+
+                                  try
                                   {
 
-                                      pp.removeFromParent ();
+                                      Files.deleteIfExists (outputFile);
 
-                                      try
-                                      {
+                                  } catch (Exception e) {
 
-                                          Files.deleteIfExists (outputFile);
-
-                                      } catch (Exception e) {
-
-                                          Environment.logError ("Unable to delete temp file: " + outputFile,
-                                                                e);
-
-                                      }
-
-                                      Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-
-                                      String res = (String) m.get ("reason");
-
-                                      // Get the errors.
-                                      UIUtils.showErrorMessage (_this,
-                                                                "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+                                      Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                            e);
 
                                   }
+
+                                  Map m = (Map) JSONDecoder.decode (res);
+
+                                  res = (String) m.get ("reason");
+
+                                  // Get the errors.
+                                  UIUtils.showErrorMessage (_this,
+                                                            "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
 
                               },
-                              new ActionListener ()
+                              // On failure
+                              (exp) ->
                               {
 
-                                  @Override
-                                  public void actionPerformed (ActionEvent ev)
-                                  {
+                                  pp.removeFromParent ();
 
-                                      pp.removeFromParent ();
-
-                                      Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-
-                                      String res = (String) m.get ("reason");
-
-                                      // Get the errors.
-                                      UIUtils.showErrorMessage (_this,
-                                                                "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                  }
+                                  // Get the errors.
+                                  UIUtils.showErrorMessage (_this,
+                                                            "Unable to submit the strings, reason:<ul class='error'><li>" + exp.getMessage () + "</li></ul>");
 
                               },
                               // Updater
-                              new UpdateEventListener<UploadProgressEvent> ()
+                              (eev) ->
                               {
 
-                                  @Override
-                                  public void valueUpdated (UploadProgressEvent ev)
-                                  {
-
-                                      pp.update (ev.getPercent ());
-
-                                  }
+                                 pp.update (eev.getPercent ());
 
                               });
 
@@ -1130,153 +1103,125 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                          headers,
                                          outputFile,
                                          // On success
-                                         new ActionListener ()
+                                         (res, retCode) ->
                                          {
 
-                                             @Override
-                                             public void actionPerformed (ActionEvent ev)
+                                             pp.removeFromParent ();
+
+                                             try
                                              {
 
-                                                 pp.removeFromParent ();
+                                                 Files.deleteIfExists (outputFile);
 
-                                                 try
-                                                 {
+                                             } catch (Exception e) {
 
-                                                     Files.deleteIfExists (outputFile);
-
-                                                 } catch (Exception e) {
-
-                                                     Environment.logError ("Unable to delete temp file: " + outputFile,
-                                                                           e);
-
-                                                 }
-
-                                                 Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-
-                                                 String res = (String) m.get ("result");
-
-                                                 String sid = (String) m.get ("submitterid");
-
-                                                 UserProperties.set (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME,
-                                                                     sid);
-
-                                                 //_this.userStrings.setSubmitterId (sid);
-                                                 _this.userStrings.setStringsVersion (((Number) m.get ("version")).intValue ());
-
-                                                 try
-                                                 {
-
-                                                     _this.saveToFile ();
-
-                                                 } catch (Exception e) {
-
-                                                     Environment.logError ("Unable to save strings file: " +
-                                                                           _this.userStrings,
-                                                                           e);
-
-                                                     UIUtils.showErrorMessage (_this,
-                                                                               "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
-
-                                                     UIUtils.doLater (onFailure);
-
-                                                     return;
-
-                                                 }
-
-                                                 if (_this.userStrings.getStringsVersion () == 1)
-                                                 {
-
-                                                     UIUtils.showMessage ((PopupsSupported) _this,
-                                                                          "Strings submitted",
-                                                                          String.format ("Your strings have been submitted to Quoll Writer support for review.<br /><br />A confirmation email has been sent to <b>%s</b>.  Please click on the link in that email to confirm your email address.<br /><br />Thank you for taking the time and the effort to create the strings, it is much appreciated!",
-                                                                                         _this.userStrings.getEmail ()));
-
-                                                 } else {
-
-                                                     UIUtils.showMessage ((PopupsSupported) _this,
-                                                                          "Strings submitted",
-                                                                          String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to visitors of the Quoll Writer website.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
-                                                                                         Environment.formatNumber (_this.userStrings.getStringsVersion ())));
-
-                                                 }
-
-                                                 qp.resize ();
-                                                 qp.removeFromParent ();
-
-                                                 UIUtils.doLater (onSuccess);
+                                                 Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                                       e);
 
                                              }
+
+                                             Map m = (Map) JSONDecoder.decode (res);
+
+                                             res = (String) m.get ("result");
+
+                                             String sid = (String) m.get ("submitterid");
+
+                                             UserProperties.set (Constants.WEBSITE_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME,
+                                                                 sid);
+
+                                             //_this.userStrings.setSubmitterId (sid);
+                                             _this.userStrings.setStringsVersion (((Number) m.get ("version")).intValue ());
+
+                                             try
+                                             {
+
+                                                 _this.saveToFile ();
+
+                                             } catch (Exception e) {
+
+                                                 Environment.logError ("Unable to save strings file: " +
+                                                                       _this.userStrings,
+                                                                       e);
+
+                                                 UIUtils.showErrorMessage (_this,
+                                                                           "Your strings have been submitted to Quoll Writer support for review.  However the associated local file, where the strings are kept on your machine, could not be updated.");
+
+                                                 UIUtils.doLater (onFailure);
+
+                                                 return;
+
+                                             }
+
+                                             if (_this.userStrings.getStringsVersion () == 1)
+                                             {
+
+                                                 UIUtils.showMessage ((PopupsSupported) _this,
+                                                                      "Strings submitted",
+                                                                      String.format ("Your strings have been submitted to Quoll Writer support for review.<br /><br />A confirmation email has been sent to <b>%s</b>.  Please click on the link in that email to confirm your email address.<br /><br />Thank you for taking the time and the effort to create the strings, it is much appreciated!",
+                                                                                     _this.userStrings.getEmail ()));
+
+                                             } else {
+
+                                                 UIUtils.showMessage ((PopupsSupported) _this,
+                                                                      "Strings submitted",
+                                                                      String.format ("Thank you!  Your strings have been updated to version <b>%s</b> and will be made available to visitors of the Quoll Writer website.<br /><br />Thank you for taking the time and effort to update the strings, it is much appreciated!",
+                                                                                     Environment.formatNumber (_this.userStrings.getStringsVersion ())));
+
+                                             }
+
+                                             qp.resize ();
+                                             qp.removeFromParent ();
+
+                                             UIUtils.doLater (onSuccess);
 
                                          },
                                          // On error
-                                         new ActionListener ()
+                                         (res, retCode) ->
                                          {
 
-                                             @Override
-                                             public void actionPerformed (ActionEvent ev)
+                                             pp.removeFromParent ();
+
+                                             try
                                              {
 
-                                                 pp.removeFromParent ();
+                                                 Files.deleteIfExists (outputFile);
 
-                                                 try
-                                                 {
+                                             } catch (Exception e) {
 
-                                                     Files.deleteIfExists (outputFile);
-
-                                                 } catch (Exception e) {
-
-                                                     Environment.logError ("Unable to delete temp file: " + outputFile,
-                                                                           e);
-
-                                                 }
-
-                                                 Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-
-                                                 String res = (String) m.get ("reason");
-
-                                                 // Get the errors.
-                                                 UIUtils.showErrorMessage (_this,
-                                                                           "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                                 UIUtils.doLater (onFailure);
+                                                 Environment.logError ("Unable to delete temp file: " + outputFile,
+                                                                       e);
 
                                              }
+
+                                             Map m = (Map) JSONDecoder.decode (res);
+
+                                             res = (String) m.get ("reason");
+
+                                             // Get the errors.
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+
+                                             UIUtils.doLater (onFailure);
 
                                          },
                                          // On failure
-                                         new ActionListener ()
+                                         (exp) ->
                                          {
 
-                                             @Override
-                                             public void actionPerformed (ActionEvent ev)
-                                             {
+                                             pp.removeFromParent ();
 
-                                                 pp.removeFromParent ();
+                                             // Get the errors.
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + exp.getMessage () + "</li></ul>");
 
-                                                 Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-
-                                                 String res = (String) m.get ("reason");
-
-                                                 // Get the errors.
-                                                 UIUtils.showErrorMessage (_this,
-                                                                           "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                                 UIUtils.doLater (onFailure);
-
-                                             }
+                                             UIUtils.doLater (onFailure);
 
                                          },
                                          // Updater
-                                         new UpdateEventListener<UploadProgressEvent> ()
+                                         (eev) ->
                                          {
 
-                                             @Override
-                                             public void valueUpdated (UploadProgressEvent ev)
-                                             {
-
-                                                 pp.update (ev.getPercent ());
-
-                                             }
+                                             pp.update (eev.getPercent ());
 
                                          });
 
@@ -1654,89 +1599,72 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                      headers,
                                      "bogus",
                                      // On success
-                                     new ActionListener ()
+                                     (res, retCode) ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
+                                         String r = (String) JSONDecoder.decode (res);
+
+                                         // Delete our local versions.
+                                         try
                                          {
 
-                                             String r = (String) JSONDecoder.decode ((String) ev.getSource ());
+                                             WebsiteLanguageStringsManager.deleteWebsiteLanguageStrings (_this.userStrings);
 
-                                             // Delete our local versions.
-                                             try
+                                         } catch (Exception e) {
+
+                                             Environment.logError ("Unable to delete user strings: " + _this.userStrings,
+                                                                   e);
+
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to delete the strings.");
+
+                                              qp.removeFromParent ();
+
+                                              return;
+
+                                         }
+
+                                         WebsiteLanguageStringsEditor.super.close (true,
+                                                                                   new ActionListener ()
+                                         {
+
+                                             @Override
+                                             public void actionPerformed (ActionEvent ev)
                                              {
 
-                                                 WebsiteLanguageStringsManager.deleteWebsiteLanguageStrings (_this.userStrings);
-
-                                             } catch (Exception e) {
-
-                                                 Environment.logError ("Unable to delete user strings: " + _this.userStrings,
-                                                                       e);
-
-                                                 UIUtils.showErrorMessage (_this,
-                                                                           "Unable to delete the strings.");
-
-                                                  qp.removeFromParent ();
-
-                                                  return;
+                                                 UIUtils.showMessage ((Component) null,
+                                                                      "Strings deleted",
+                                                                      "Your strings have been deleted.  Please note: your images have <b>not</b> been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
 
                                              }
 
-                                             WebsiteLanguageStringsEditor.super.close (true,
-                                                                                       new ActionListener ()
-                                             {
-
-                                                 @Override
-                                                 public void actionPerformed (ActionEvent ev)
-                                                 {
-
-                                                     UIUtils.showMessage ((Component) null,
-                                                                          "Strings deleted",
-                                                                          "Your strings have been deleted.  Please note: your images have <b>not</b> been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
-
-                                                 }
-
-                                             });
-
-                                         }
+                                         });
 
                                      },
                                      // On error
-                                     new ActionListener ()
+                                     (res, retCode) ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
+                                         Map m = (Map) JSONDecoder.decode (res);
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                         res = (String) m.get ("reason");
 
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
+                                         // Get the errors.
+                                         UIUtils.showErrorMessage (_this,
+                                                                   "Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
 
                                      },
-                                     new ActionListener ()
+                                     // On failure
+                                     (exp) ->
                                      {
 
-                                         @Override
-                                         public void actionPerformed (ActionEvent ev)
-                                         {
+                                         //Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
 
-                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+                                         //String res = (String) m.get ("reason");
 
-                                             String res = (String) m.get ("reason");
-
-                                             // Get the errors.
-                                             UIUtils.showErrorMessage (_this,
-                                                                       "Unable to delete the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
-
-                                         }
+                                         // Get the errors.
+                                         UIUtils.showErrorMessage (_this,
+                                                                   "Unable to delete the strings, reason:<ul class='error'><li>" + exp.getMessage () + "</li></ul>");
 
                                      },
                                      null);

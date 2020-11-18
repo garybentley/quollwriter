@@ -1665,7 +1665,8 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
         if (objType.equals (ProjectEditor.OBJECT_TYPE))
         {
-
+/*
+TODO REmove
             return new ProjectEditorsAccordionItem (this.viewer)
             {
 
@@ -1686,7 +1687,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 }
 
             };
-
+*/
         }
 
         if (objType.startsWith (TaggedObjectAccordionItem.ID_PREFIX))

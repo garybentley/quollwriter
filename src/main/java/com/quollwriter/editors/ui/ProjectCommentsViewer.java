@@ -1,42 +1,18 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.*;
-import java.awt.dnd.*;
-import java.awt.event.*;
-
 import java.net.*;
 
 import java.security.*;
 
 import java.text.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Iterator;
-import java.util.Vector;
-import java.util.Arrays;
+import java.util.*;
+import java.util.function.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.tree.*;
-
-import com.gentlyweb.properties.*;
+import javafx.scene.*;
+import javafx.beans.property.*;
 
 import com.gentlyweb.utils.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.*;
 
@@ -50,26 +26,18 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.text.*;
 import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.editors.ui.panels.*;
-import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.sidebars.*;
-import com.quollwriter.ui.actionHandlers.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.QPopup;
-import com.quollwriter.ui.components.Header;
-import com.quollwriter.ui.components.ActionAdapter;
-import com.quollwriter.ui.events.*;
-import com.quollwriter.ui.renderers.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectCommentsMessage>
 {
-
-    public static final String OPEN_PROJECT_HEADER_CONTROL_ID = "openProject";
 
     public ProjectCommentsViewer (Project                proj,
                                   ProjectCommentsMessage message)
@@ -126,152 +94,129 @@ public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectComm
     */
 
     @Override
-    public Set<String> getTitleHeaderControlIds ()
+    public Supplier<Set<Node>> getTitleHeaderControlsSupplier ()
 	{
 
-        Set<String> ids = new LinkedHashSet<> ();
-
-        ids.add (OPEN_PROJECT_HEADER_CONTROL_ID);
-
-        ids.addAll (super.getTitleHeaderControlIds ());
-
-        return ids;
-
-    }
-
-    @Override
-    public JComponent getTitleHeaderControl (String id)
-    {
-
-        if (id == null)
+        return () ->
         {
 
-            return null;
+            Set<Node> controls = new LinkedHashSet<> ();
 
-        }
+            controls.add (QuollButton.builder ()
+                .tooltip (editors,projectcomments,title,toolbar,buttons,openproject,tooltip)
+                .iconName (StyleClassNames.OPEN)
+                .onAction (ev ->
+                {
 
-        java.util.List<String> prefix = Arrays.asList (editors,projectcomments,title,toolbar,buttons);
+                    ProjectInfo proj = null;
 
-        final ProjectCommentsViewer _this = this;
+                    try
+                    {
 
-        JComponent c = null;
+                        proj = Environment.getProjectById (this.message.getForProjectId (),
+                                                           this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE);
 
-        if (id.equals (OPEN_PROJECT_HEADER_CONTROL_ID))
-        {
+                    } catch (Exception e) {
 
-            return UIUtils.createButton (Constants.OPEN_PROJECT_ICON_NAME,
-                                         Constants.ICON_TITLE_ACTION,
-                                         getUIString (prefix,openproject,tooltip),
-                                              //"Click to open the find",
-                                              new ActionAdapter ()
-                                              {
+                        Environment.logError ("Unable to get project for: " +
+                                              this.message.getForProjectId (),
+                                              e);
 
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
+                        ComponentUtils.showErrorMessage (this,
+                                                         getUILanguageStringProperty (editors,LanguageStrings.project,actions,openproject,openerrors,general));
+                                                  //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
-                                                      ProjectInfo proj = null;
+                        return;
 
-                                                      try
-                                                      {
+                    }
 
-                                                          proj = Environment.getProjectById (_this.message.getForProjectId (),
-                                                                                             _this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE);
+                    try
+                    {
 
-                                                      } catch (Exception e) {
+                        Environment.openProject (proj);
 
-                                                          Environment.logError ("Unable to get project for: " +
-                                                                                _this.message.getForProjectId (),
-                                                                                e);
+                    } catch (Exception e) {
 
-                                                          UIUtils.showErrorMessage (_this,
-                                                                                    getUIString (editors,project,actions,openproject,openerrors,general));
-                                                                                    //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                        Environment.logError ("Unable to get project for: " +
+                                              this.message.getForProjectId (),
+                                              e);
 
-                                                          return;
+                        ComponentUtils.showErrorMessage (this,
+                                                         getUILanguageStringProperty (editors,LanguageStrings.project,actions,openproject,openerrors,general));
+                                                  //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
 
-                                                      }
+                        return;
 
-                                                      try
-                                                      {
+                    }
 
-                                                          Environment.openProject (proj);
+                })
+                .build ());
 
-                                                      } catch (Exception e) {
+            controls.addAll (super.getTitleHeaderControlsSupplier ().get ());
 
-                                                          Environment.logError ("Unable to get project for: " +
-                                                                                _this.message.getForProjectId (),
-                                                                                e);
+            return controls;
 
-                                                          UIUtils.showErrorMessage (_this,
-                                                                                    getUIString (editors,project,actions,openproject,openerrors,general));
-                                                                                    //"Unable to show {comments}, please contact Quoll Writer support for assistance.");
+        };
 
-                                                          return;
-
-                                                      }
-
-                                                  }
-
-                                              });
-
-        }
-
-        return super.getTitleHeaderControl (id);
-
-    }
+	}
 
     @Override
-    public ProjectSentReceivedSideBar getSideBar ()
+    public SideBar getMainSideBar ()
     {
 
         return new ProjectCommentsSideBar (this,
-                                           this.message);
+                                           this.message).getSideBar ();
 
     }
 
     @Override
-    public void init ()
-               throws Exception
+    public void init (State s)
+               throws GeneralException
     {
 
-        super.init ();
+        super.init (s);
 
         // Show the first comment in the first chapter.
-        this.viewObject (this.proj.getBook (0).getChapters ().get (0).getNotes ().iterator ().next ());
+        this.viewObject (this.project.getBook (0).getChapters ().get (0).getNotes ().iterator ().next ());
 
     }
 
     @Override
-    public String getViewerIcon ()
+    public String getStyleClassName ()
     {
 
-        return Constants.COMMENT_ICON_NAME;
+        return StyleClassNames.COMMENTS;
 
     }
 
     @Override
-    public String getViewerTitle ()
+    public StringProperty titleProperty ()
     {
 
-        String verName = this.getProject ().getProjectVersion ().getName ();
-
-        if (verName != null)
+        return UILanguageStringsManager.createStringPropertyWithBinding (() ->
         {
 
-            verName = String.format (getUIString (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitleversionwrapper),
-                                    //" (%s)",
-                                     verName);
+            String verName = this.getProject ().getProjectVersion ().getName ();
 
-        } else {
+            if (verName != null)
+            {
 
-            verName = "";
+                verName = getUILanguageStringProperty (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitleversionwrapper,
+                                        //" (%s)",
+                                                       verName).getValue ();
 
-        }
+            } else {
 
-        return String.format (getUIString (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitle),
-                            //"{Comments} on%s: %s",
-                              verName,
-                              this.proj.getName ());
+                verName = "";
+
+            }
+
+            return getUILanguageStringProperty (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitle,
+                                //"{Comments} on%s: %s",
+                                                verName,
+                                                this.project.getName ()).getValue ();
+
+        });
 
     }
 

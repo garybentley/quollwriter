@@ -6621,7 +6621,8 @@ TODO
 
             public void actionPerformed (ActionEvent ev)
             {
-
+/*
+TODO Remove
                 EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.ID);
 
                 if (sb == null)
@@ -6649,7 +6650,7 @@ TODO
                                               //"Unable to show Editor");
 
                 }
-
+*/
             }
 
         });
@@ -6670,7 +6671,8 @@ TODO
 
             public void actionPerformed (ActionEvent ev)
             {
-
+/*
+TODO Remove
                 EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.ID);
 
                 if (sb == null)
@@ -6698,7 +6700,7 @@ TODO
                                               //"Unable to show Editor");
 
                 }
-
+*/
             }
 
         });
@@ -6718,7 +6720,7 @@ TODO
             try
             {
 
-                EditorsUIUtils.showRegister (this);
+                // TODO Remove EditorsUIUtils.showRegister (this);
 
             } catch (Exception e) {
 
@@ -6736,8 +6738,9 @@ TODO
             return true;
 
         }
-
-        AbstractSideBar sb = this.sideBars.get (EditorsSideBar.ID);
+/*
+TODO remove
+        AbstractSideBar sb = this.sideBars.get (EditorsSideBar.SIDEBAR_ID);
 
         if (sb == null)
         {
@@ -6748,8 +6751,8 @@ TODO
 
         }
 
-        this.showSideBar (EditorsSideBar.ID);
-
+        this.showSideBar (EditorsSideBar.SIDEBAR_ID);
+*/
         return true;
 
     }
@@ -6905,7 +6908,8 @@ TODO
 
     public boolean isEditorsSideBarVisible ()
     {
-
+/*
+TODO REmove
         EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.ID);
 
         if (sb != null)
@@ -6914,7 +6918,7 @@ TODO
             return sb.isShowing ();
 
         }
-
+*/
         return false;
 
     }

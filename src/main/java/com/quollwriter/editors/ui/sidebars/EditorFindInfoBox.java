@@ -30,7 +30,8 @@ public class EditorFindInfoBox extends Box
 
         if (ed.getAvatar () != null)
         {
-
+/*
+TODO Remove
             BufferedImage bi = UIUtils.getScaledImage (ed.getAvatar (),
                                                        50,
                                                        50);
@@ -47,7 +48,7 @@ public class EditorFindInfoBox extends Box
                                            1,
                                            UIUtils.getBorderColor ()));
             this.add (Box.createHorizontalStrut (5));
-
+*/
         }
 
         Box details = new Box (BoxLayout.Y_AXIS);

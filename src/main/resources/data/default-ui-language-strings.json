@@ -3659,11 +3659,11 @@
                 },
                 "labels" :
                 {
-                    "project" : "<i>${objectnames.singular.project}</i>",
-                    "sent" : "<i>Sent</i>",
-                    "received" : "<i>Received</i>",
-                    "version" : "<i>Version</i>",
-                    "notes" : "<i>Notes</i>",
+                    "project" : "${objectnames.singular.project}",
+                    "sent" : "Sent",
+                    "received" : "Received",
+                    "version" : "Version",
+                    "notes" : "Notes",
                     "clicktoviewproject" : "Click to view the ${objectnames.singular.project}",
                     "clicktoviewcomments" : "Click to view the ${objectnames.plural.comment}"
                 }
@@ -3804,8 +3804,8 @@
                 },
                 "labels" :
                 {
-                    "project" : "<i>${objectnames.singular.project}</i>",
-                    "message" : "<i>Message</i>",
+                    "project" : "${objectnames.singular.project}",
+                    "message" : "Message",
                     "extra" : "Additionally they provided the following name/avatar."
                 }
             },
@@ -3834,8 +3834,8 @@
                 },
                 "labels" :
                 {
-                    "project" : "<i>${objectnames.singular.project}</i>",
-                    "message" : "<i>Message</i>"
+                    "project" : "${objectnames.singular.project}",
+                    "message" : "Message"
                 }
             },
             "updateproject" :
@@ -3867,16 +3867,16 @@
                 ":comment" : "These items are shared by {newproject} and {updateproject} and are used to display information about the project being sent/received.",
                 "labels" :
                 {
-                    "project" : "<i>${objectnames.singular.project}</i>",
+                    "project" : "${objectnames.singular.project}",
                     "open" : "Click to open the ${objectnames.singular.project}",
-                    "sent" : "<i>Sent</i>",
-                    "received" : "<i>Received</i>",
-                    "version" : "<i>Version</i>",
+                    "sent" : "Sent",
+                    "received" : "Received",
+                    "version" : "Version",
                     "detail" : "%1$s words, %2$s ${objectnames.plural.chapter}",
                     ":comment.detail" : "%1$s is the number of words in the project, %2$s is the number of chapters.",
                     ":scount.detail" : 2,
-                    "dueby" : "<i>Due by</i>",
-                    "notspecified" : "<i>Not specified</i>",
+                    "dueby" : "Due by",
+                    "notspecified" : "Not specified",
                     ":comment.notspecified" : "This value is used when no due by date is provided.",
                     "notes" : "Notes"
                 },

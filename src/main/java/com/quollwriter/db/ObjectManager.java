@@ -717,7 +717,10 @@ TODO REmove
                          throws GeneralException
     {
 
-        if (d == null)
+        if ((d == null)
+            ||
+            (!this.supportsLinks ())
+           )
         {
 
             return new ArrayList<> ();
@@ -1370,6 +1373,13 @@ TODO REmove
                              Connection       conn)
                       throws GeneralException
     {
+
+        if (!this.supportsLinks ())
+        {
+
+            return;
+
+        }
 
         boolean closeConn = false;
 

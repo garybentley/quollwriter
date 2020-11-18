@@ -107,6 +107,7 @@ public class UserProperties
     private static SimpleObjectProperty<Color> problemFinderIssueHighlightColorProp = null;
     private static SimpleObjectProperty<Color> synonymHighlightColorProp = null;
     private static SimpleObjectProperty<Color> findHighlightColorProp = null;
+    private static SimpleObjectProperty<Color> editorCommentChapterHighlightColorProp = null;
 
     private static SimpleDoubleProperty fullScreenXBorderWidthProp = null;
     private static SimpleDoubleProperty fullScreenYBorderWidthProp = null;
@@ -242,6 +243,20 @@ public class UserProperties
         {
 
             UserProperties.set (Constants.EDIT_NEEDED_NOTE_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+        });
+
+        UserProperties.editorCommentChapterHighlightColorProp = new SimpleObjectProperty<> ();
+
+        col = UserProperties.get (Constants.EDITOR_COMMENT_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME);
+
+        UserProperties.editorCommentChapterHighlightColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.editorCommentChapterHighlightColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.EDITOR_COMMENT_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME,
                                 UIUtils.colorToHex (newv));
 
         });
@@ -1666,6 +1681,13 @@ public class UserProperties
     {
 
         return UserProperties.editNeededNoteChapterHighlightColorProp.getValue ();
+
+    }
+
+    public static Color getEditorCommentChapterHighlightColor ()
+    {
+
+        return UserProperties.editorCommentChapterHighlightColorProp.getValue ();
 
     }
 

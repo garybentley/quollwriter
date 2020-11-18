@@ -43,7 +43,7 @@ public class IdeaBoard extends PanelContent<ProjectViewer> //implements ToolBarS
 
         controls.add (QuollButton.builder ()
             .tooltip (ideaboard,headercontrols,items,_new,tooltip)
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .onAction (ev ->
             {
 
@@ -104,7 +104,7 @@ System.out.println ("HERE");
 
             its.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (ideaboard,popupmenu,items,_new))
-                .styleClassName (StyleClassNames.ADD)
+                .iconName (StyleClassNames.ADD)
                 .onAction (eev ->
                 {
 
@@ -115,7 +115,7 @@ System.out.println ("HERE");
 
             its.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (ideaboard,popupmenu,items,selectbackground))
-                .styleClassName (StyleClassNames.SELECTBG)
+                .iconName (StyleClassNames.SELECTBG)
                 .onAction (eev ->
                 {
 
@@ -531,7 +531,7 @@ TODO: Not really needed?
 
             headerCons.add (QuollButton.builder ()
                 .tooltip (ideaboard,ideatypes,LanguageStrings.view,headercontrols,items,newidea,tooltip)
-                .styleClassName (StyleClassNames.ADD)
+                .iconName (StyleClassNames.ADD)
                 .onAction (ev ->
                 {
 
@@ -550,7 +550,7 @@ TODO: Not really needed?
                     Set<MenuItem> its = new LinkedHashSet<> ();
                     its.add (QuollMenuItem.builder ()
                         .label (ideaboard,ideatypes,LanguageStrings.view,popupmenu,items,newidea)
-                        .styleClassName (StyleClassNames.ADD)
+                        .iconName (StyleClassNames.ADD)
                         .onAction (ev ->
                         {
 
@@ -639,7 +639,7 @@ TODO: Not really needed?
 
                     its.add (QuollMenuItem.builder ()
                         .label (ideaboard,ideatypes,LanguageStrings.view,popupmenu,items, (this.view.isVisible () ? hide : show))
-                        .styleClassName (this.view.isVisible () ? StyleClassNames.HIDE : StyleClassNames.SHOW)
+                        .iconName (this.view.isVisible () ? StyleClassNames.HIDE : StyleClassNames.SHOW)
                         .onAction (ev ->
                         {
 
@@ -650,7 +650,7 @@ TODO: Not really needed?
 
                     its.add (QuollMenuItem.builder ()
                         .label (ideaboard,ideatypes,LanguageStrings.view,popupmenu,items,LanguageStrings.edit)
-                        .styleClassName (StyleClassNames.EDIT)
+                        .iconName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
 
@@ -732,7 +732,7 @@ TODO: Not really needed?
 
                     its.add (QuollMenuItem.builder ()
                         .label (ideaboard,ideatypes,LanguageStrings.view,popupmenu,items,delete)
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -1165,7 +1165,7 @@ TODO: Not really needed?
             tbb.setVisible (showFull);
 
             tb.getItems ().add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.EDIT)
+                .iconName (StyleClassNames.EDIT)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,buttons,LanguageStrings.edit,tooltip)))
                 .onAction (ev ->
                 {
@@ -1179,7 +1179,7 @@ TODO: Not really needed?
                 .build ());
 
             tb.getItems ().add (QuollMenuButton.builder ()
-                .styleClassName (StyleClassNames.CONVERT)
+                .iconName (StyleClassNames.CONVERT)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,buttons,convert,tooltip)))
                 .items (() ->
                 {
@@ -1187,7 +1187,7 @@ TODO: Not really needed?
                     Set<MenuItem> items = new LinkedHashSet<> ();
 
                     items.add (QuollMenuItem.builder ()
-                        .styleClassName (Chapter.OBJECT_TYPE)
+                        .iconName (Chapter.OBJECT_TYPE)
                         .label (getUILanguageStringProperty (objectnames,singular,Chapter.OBJECT_TYPE))
                         .onAction (eev ->
                         {
@@ -1225,7 +1225,7 @@ TODO: Not really needed?
                 .build ());
 
             tb.getItems ().add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.DELETE)
+                .iconName (StyleClassNames.DELETE)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,buttons,delete,tooltip)))
                 .onAction (ev ->
                 {
@@ -1278,7 +1278,7 @@ TODO: Not really needed?
                 .build ());
 
             tb.getItems ().add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.UP)
+                .iconName (StyleClassNames.UP)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,buttons,hide,tooltip)))
                 .onAction (ev ->
                 {

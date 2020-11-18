@@ -2,12 +2,15 @@ package com.quollwriter.editors;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 import java.util.concurrent.atomic.*;
 
 import javax.net.ssl.*;
 
 import java.awt.event.*;
 import javax.swing.*;
+
+import javafx.beans.property.*;
 
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
@@ -30,14 +33,17 @@ import com.gentlyweb.logging.Logger;
 //import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.QPopup;
+//import com.quollwriter.ui.*;
+//import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.ui.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.components.ComponentUtils;
 import com.quollwriter.editors.messages.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class EditorsMessageHandler implements ChatMessageListener
 {
@@ -713,9 +719,9 @@ public class EditorsMessageHandler implements ChatMessageListener
 
     }
 
-    private void doLogin (final String                loginReason,
-                          final ActionListener        onLogin,
-                          final ActionListener        onCancel)
+    private void doLogin (final StringProperty  loginReason,
+                          final Runnable        onLogin,
+                          final Runnable        onCancel)
     {
 
         final EditorsMessageHandler _this = this;
@@ -737,7 +743,7 @@ public class EditorsMessageHandler implements ChatMessageListener
 
     }
 
-    public void logout (final ActionListener onLogout)
+    public void logout (final Runnable onLogout)
     {
 
         if (this.isMessageSendInProgress ())
@@ -756,94 +762,430 @@ public class EditorsMessageHandler implements ChatMessageListener
 
         final EditorsMessageHandler _this = this;
 
-        new Thread (new Runnable ()
+        Environment.scheduleImmediately (() ->
         {
 
-            public void run ()
+            if (_this.conn != null)
             {
 
-                if (_this.conn != null)
+                try
                 {
 
-                    try
-                    {
+                    _this.conn.disconnect ();
 
-                        _this.conn.disconnect ();
+                    _this.conn = null;
 
-                        _this.conn = null;
+                } catch (Exception e) { }
 
-                    } catch (Exception e) { }
+                if (onLogout != null)
+                {
 
-                    if (onLogout != null)
-                    {
-
-                        onLogout.actionPerformed (new ActionEvent ("logout", 1, "logout"));
-
-                    }
+                    Environment.scheduleImmediately (onLogout);
 
                 }
 
             }
 
-        }).start ();
+        });
 
     }
 
-    public void changePassword (final String         newPassword,
-                                final ActionListener onComplete,
-                                final ActionListener onError)
+    public void changePassword (final String              newPassword,
+                                final Runnable onComplete,
+                                final Runnable onCancel,
+                                final Consumer<Exception> onError)
     {
 
         final EditorsMessageHandler _this = this;
 
-        this.doLogin (getUIString (editors,login,reasons,changepassword),
+        this.doLogin (getUILanguageStringProperty (editors,login,reasons,changepassword),
                       //"To change your password you must first login to the Editors service.",
-                      new ActionListener ()
+                      () ->
                       {
 
-                          public void actionPerformed (ActionEvent ev)
+                          try
                           {
 
-                              try
-                              {
+                            AccountManager.getInstance (_this.conn).changePassword (newPassword);
 
-                                AccountManager.getInstance (_this.conn).changePassword (newPassword);
+                            if (onComplete != null)
+                            {
 
-                                if (onComplete != null)
+                                Environment.scheduleImmediately (onComplete);
+
+                            }
+
+                          } catch (Exception e) {
+
+                            Environment.logError ("Unable to change password",
+                                                  e);
+
+                            if (onError != null)
+                            {
+
+                                Environment.scheduleImmediately (() ->
                                 {
 
-                                    onComplete.actionPerformed (new ActionEvent ("complete", 1, ""));
+                                    onError.accept (e);
 
-                                }
+                                });
 
-                              } catch (Exception e) {
+                                return;
 
-                                Environment.logError ("Unable to change password",
-                                                      e);
+                            }
 
-                                if (onError != null)
+                            ComponentUtils.showErrorMessage (getUILanguageStringProperty (editors,user,changepassword,actionerror));
+                                                      //"Unable to change password, please contact Quoll Writer support for assistance.");
+
+                          }
+
+                      },
+                      onCancel);
+
+    }
+
+    public void login (final Runnable            onLogin,
+                       final Consumer<Exception> onError)
+    {
+
+        final EditorsMessageHandler _this = this;
+
+        this.logoutRequested = false;
+
+        if (this.loggedIn)
+        {
+
+            if (onLogin != null)
+            {
+
+                Environment.scheduleImmediately (onLogin);
+
+            }
+
+            return;
+
+        }
+
+        Environment.scheduleImmediately (() ->
+        {
+
+            try
+            {
+
+                EditorAccount acc = EditorsEnvironment.getUserAccount ();
+
+                int port = 5222;
+
+                try
+                {
+
+                    port = Integer.parseInt (EditorsEnvironment.getEditorsProperty (Constants.EDITORS_SERVICE_PORT_PROPERTY_NAME));
+
+                } catch (Exception e) {
+
+                    // ???
+
+                }
+
+                XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder ()
+                                                            .setUsernameAndPassword (acc.getMessagingUsername (),
+                                                                                     acc.getPassword ())
+                                                            .setServiceName (JidCreate.domainBareFrom (acc.getServiceName ()))
+                                                            .setConnectTimeout (10 * 1000)
+                                                            .setCompressionEnabled (true)
+                                                            //.setDebuggerEnabled (true)
+                                                            .setPort (port)
+                                                            .build ();
+
+                _this.conn = new XMPPTCPConnection (config);
+
+                _this.conn.setUseStreamManagement (true);
+                _this.conn.setReplyTimeout (30 * 3000);
+
+                try
+                {
+
+                    _this.conn.connect ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to connect to Editors service",
+                                          e);
+
+                    if (onError != null)
+                    {
+
+                        Environment.scheduleImmediately (() ->
+                        {
+
+                            onError.accept (e);
+
+                        });
+
+                    } else {
+
+                        EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,other));
+                        //"Unable to connect to the Editors service, please contact Quoll Writer support for assistance.");
+
+                    }
+
+                    return;
+
+                }
+
+                _this.userJID = _this.conn.getUser ();
+
+                final Roster roster = Roster.getInstanceFor (_this.conn);
+
+                roster.setSubscriptionMode (Roster.SubscriptionMode.manual);
+
+                ChatManager chatMan = ChatManager.getInstanceFor (_this.conn);
+
+                chatMan.addChatListener (new ChatManagerListener ()
+                {
+
+                    public void chatCreated (Chat chat, boolean createdLocally)
+                    {
+
+                        if (!createdLocally)
+                        {
+
+                            chat.addMessageListener (_this);
+
+                        }
+
+                    }
+
+                });
+
+                // Add a check for subscriptions.
+                _this.conn.addAsyncStanzaListener (new StanzaListener ()
+                {
+
+                    public void processStanza (Stanza p)
+                    {
+
+                        if (p instanceof Presence)
+                        {
+
+                            Presence pp = (Presence) p;
+
+                            final Presence pre = (Presence) p;
+
+                            final String username = EditorsMessageHandler.getUsernameFromJID (pre.getFrom ());
+
+                            final EditorEditor ed = EditorsEnvironment.getEditorByMessagingUsername (username);
+
+                            if (pre.getType () == Presence.Type.unsubscribe)
+                            {
+
+                                // Send unsubscribe.
+                                _this.sendPresence (Presence.Type.unsubscribed,
+                                                    pre.getFrom ());
+
+                                return;
+
+
+                            }
+
+                            if (pre.getType () == Presence.Type.subscribed)
+                            {
+
+                            }
+
+                            if (pre.getType () == Presence.Type.subscribe)
+                            {
+
+                                if ((ed == null)
+                                    ||
+                                    (ed.getEditorStatus () == EditorEditor.EditorStatus.rejected)
+                                   )
                                 {
 
-                                    onError.actionPerformed (new ActionEvent (e, 1, "error"));
+                                    // No idea who this is, just return unsubscribed.
+                                    _this.sendPresence (Presence.Type.unsubscribed,
+                                                        pre.getFrom ());
 
                                     return;
 
                                 }
 
-                                UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                          getUIString (editors,user,changepassword,actionerror));
-                                                          //"Unable to change password, please contact Quoll Writer support for assistance.");
-
-                              }
+                                _this.sendSubscribedToEditor (ed);
 
 
-                          }
+                            }
 
-                      },
-                      onError);
+                        }
+
+                    }
+
+                },
+                new StanzaFilter ()
+                {
+
+                    public boolean accept (Stanza p)
+                    {
+
+                        if (p instanceof Presence)
+                        {
+
+                            return true;
+
+                        }
+                    /*
+                        if (super.accept (p))
+                        {
+
+                            Presence pp = (Presence) p;
+
+                            return true;
+
+                        }
+                      */
+                        return false;
+
+                    }
+
+                });
+
+                // Enable automatic reconnection.
+                ReconnectionManager.getInstanceFor (_this.conn).enableAutomaticReconnection ();
+
+                try
+                {
+
+                    _this.conn.login ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("User: " +
+                                          acc.getEmail () +
+                                          " is unable to login to editors service.",
+                                          e);
+
+                    EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,invalidcredentials));
+                    //"Unable to login.  Please check your email and password.");
+
+                    if (onError != null)
+                    {
+
+                        Environment.scheduleImmediately (() ->
+                        {
+
+                            onError.accept (e);
+
+                        });
+
+                    }
+
+                    return;
+
+                }
+
+                for (EditorEditor ed : EditorsEnvironment.getEditors ())
+                {
+
+                    Presence p = roster.getPresence (_this.getJID (ed));
+
+                    EditorEditor.OnlineStatus status = _this.getOnlineStatus (p);
+
+                    ed.setOnlineStatus (status);
+
+                    EditorsEnvironment.fireEditorChangedEvent (new EditorChangedEvent (ed,
+                                                                                       EditorChangedEvent.EDITOR_CHANGED));
+
+                }
+
+                roster.addRosterListener (new RosterListener ()
+                {
+
+                    public void entriesAdded (Collection<Jid> addrs)
+                    {
+
+                    }
+
+                    public void entriesDeleted (Collection<Jid> addrs)
+                    {
+
+                    }
+
+                    public void entriesUpdated (Collection<Jid> addrs)
+                    {
+
+                    }
+
+                    public void presenceChanged (Presence p)
+                    {
+
+                        try
+                        {
+
+                            // Get the editor associated with the presence.
+                            Jid jid = p.getFrom ();
+
+                            String username = EditorsMessageHandler.getUsernameFromJID (jid);
+
+                            EditorEditor ed = EditorsEnvironment.getEditorByMessagingUsername (username);
+
+                            if (ed != null)
+                            {
+
+                                ed.setOnlineStatus (_this.getOnlineStatus (p));
+
+                                EditorsEnvironment.fireEditorChangedEvent (new EditorChangedEvent (ed,
+                                                                                                   EditorChangedEvent.EDITOR_CHANGED));
+
+                            }
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to update editor",
+                                                  e);
+
+                        }
+
+                    }
+
+                });
+
+                _this.loggedIn = true;
+
+                if (onLogin != null)
+                {
+
+                    Environment.scheduleImmediately (onLogin);
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to login",
+                                      e);
+
+                if (onError != null)
+                {
+
+                    Environment.scheduleImmediately (() ->
+                    {
+
+                        onError.accept (e);
+
+                    });
+
+                } else {
+
+                    EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,other));
+                    //"Unable to login to the Editors service, please contact Quoll Writer support for assistance.");
+
+                }
+
+            }
+
+        });
 
     }
-
+/*
+TODO Remove
     public void login (final ActionListener onLogin,
                        final ActionListener onError)
     {
@@ -899,7 +1241,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                                                                 //.setDebuggerEnabled (true)
                                                                 .setPort (port)
                                                                 .build ();
-System.out.println ("JID: " + JidCreate.domainBareFrom (acc.getServiceName ()));
+
                     _this.conn = new XMPPTCPConnection (config);
 
                     _this.conn.setUseStreamManagement (true);
@@ -1030,16 +1372,16 @@ System.out.println ("JID: " + JidCreate.domainBareFrom (acc.getServiceName ()));
                                 return true;
 
                             }
-                        /*
-                            if (super.accept (p))
-                            {
 
-                                Presence pp = (Presence) p;
+                            //if (super.accept (p))
+                            //{
 
-                                return true;
+                            //    Presence pp = (Presence) p;
 
-                            }
-                          */
+                            //    return true;
+
+                            //}
+
                             return false;
 
                         }
@@ -1174,7 +1516,7 @@ System.out.println ("JID: " + JidCreate.domainBareFrom (acc.getServiceName ()));
         }).start ();
 
     }
-
+*/
     private static String getUsernameFromJID (String jid)
     {
 
@@ -1277,28 +1619,23 @@ TODO OLD Remove?
 
         final EditorsMessageHandler _this = this;
 
-        new Thread (new Runnable ()
+        new Thread (() ->
         {
 
-            public void run ()
+            try
             {
 
-                try
-                {
+                BareJid jid = _this.getJID (ed);
 
-                    BareJid jid = _this.getJID (ed);
+                _this.sendPresence (Presence.Type.unsubscribe,
+                                    jid);
+                _this.sendPresence (Presence.Type.unsubscribed,
+                                    jid);
 
-                    _this.sendPresence (Presence.Type.unsubscribe,
-                                        jid);
-                    _this.sendPresence (Presence.Type.unsubscribed,
-                                        jid);
+            } catch (Exception e) {
 
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to unsubscribe from editor: " + ed,
-                                          e);
-
-                }
+                Environment.logError ("Unable to unsubscribe from editor: " + ed,
+                                      e);
 
             }
 
@@ -1311,39 +1648,30 @@ TODO OLD Remove?
 
         final EditorsMessageHandler _this = this;
 
-        new Thread (new Runnable ()
+        new Thread (() ->
         {
 
-            public void run ()
+            try
             {
 
-                try
-                {
+                BareJid jid = _this.getJID (ed);
 
-                    BareJid jid = _this.getJID (ed);
+                Roster.getInstanceFor (_this.conn).createEntry (jid,
+                                                                null,
+                                                                null);
 
-                    Roster.getInstanceFor (_this.conn).createEntry (jid,
-                                                                    null,
-                                                                    null);
-
-                    _this.sendPresence (Presence.Type.subscribe,
-                                        jid);
+                _this.sendPresence (Presence.Type.subscribe,
+                                    jid);
 
 
-                    //_this.sendMyPublicKeyToEditor (ed);
+                //_this.sendMyPublicKeyToEditor (ed);
 
-                } catch (Exception e) {
+            } catch (Exception e) {
 
-                /*
-                    AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                ComponentUtils.showErrorMessage (new SimpleStringProperty ("Unable to subscribe to editor: " + ed.getEmail ()));
 
-                    UIUtils.showErrorMessage (viewer,
-                                              "Unable to subscribe to editor: " + ed.getEmail ());
-*/
-                    Environment.logError ("Unable to subscribe to editor: " + ed,
-                                          e);
-
-                }
+                Environment.logError ("Unable to subscribe to editor: " + ed,
+                                      e);
 
             }
 
@@ -1351,11 +1679,11 @@ TODO OLD Remove?
 
     }
 
-    public void sendMessage (final String                loginReason,
-                             final EditorMessage         mess,
-                             final EditorEditor          to,
-                             final ActionListener        onSend,
-                             final ActionListener        onLoginCancel)
+    public void sendMessage (final StringProperty loginReason,
+                             final EditorMessage  mess,
+                             final EditorEditor   to,
+                             final Runnable       onSend,
+                             final Runnable       onLoginCancel)
     {
 
         this.sendMessage (loginReason,
@@ -1367,12 +1695,12 @@ TODO OLD Remove?
 
     }
 
-    public void sendMessage (final String                loginReason,
+    public void sendMessage (final StringProperty        loginReason,
                              final EditorMessage         mess,
                              final EditorEditor          to,
-                             final ActionListener        onSend,
-                             final ActionListener        onLoginCancel,
-                             final ActionListener        onError)
+                             final Runnable              onSend,
+                             final Runnable              onLoginCancel,
+                             final Consumer<Exception>   onError)
     {
 
         final EditorsMessageHandler _this = this;
@@ -1387,8 +1715,12 @@ TODO OLD Remove?
             if (onError != null)
             {
 
-                UIUtils.doLater (onError,
-                                 new Exception ("Trying to send message to: " + to));
+                Environment.scheduleImmediately (() ->
+                {
+
+                    onError.accept (new Exception ("Trying to send message to: " + to));
+
+                });
 
             }
 
@@ -1397,140 +1729,127 @@ TODO OLD Remove?
         }
 
         this.doLogin (loginReason,
-                      new ActionListener ()
+                      () ->
                       {
 
-                        public void actionPerformed (ActionEvent ev)
+                        // TODO: Next release change this to be more in context.
+                        //EditorsEnvironment.showMessageSendWarningIfEditorOfflineMessage (to);
+
+                        if (_this.messageSendInProgressCount.intValue () < 0)
                         {
 
-                            // TODO: Next release change this to be more in context.
-                            //EditorsEnvironment.showMessageSendWarningIfEditorOfflineMessage (to);
+                            _this.messageSendInProgressCount.set (0);
 
-                            if (_this.messageSendInProgressCount.intValue () < 0)
+                        }
+
+                        _this.messageSendInProgressCount.incrementAndGet ();
+
+                        Environment.scheduleImmediately (() ->
+                        {
+
+                            try
                             {
 
-                                _this.messageSendInProgressCount.set (0);
+                                _this.logMessage (">>> Sending",
+                                                  mess);
 
-                            }
+                                mess.setEditor (to);
+                                mess.setSentByMe (true);
+                                mess.setWhen (new Date ());
+                                mess.setDealtWith (true);
 
-                            _this.messageSendInProgressCount.incrementAndGet ();
+                                Map data = mess.toMap ();
 
-                            Thread t = new Thread (new Runnable ()
-                            {
+                                String dmess = JSONEncoder.encode (data);
 
-                                public void run ()
+                                byte[] bmess = dmess.getBytes ();
+
+                                if (mess.isEncrypted ())
                                 {
 
-                                    try
+                                    if (to.getTheirPublicKey () == null)
                                     {
 
-                                        _this.logMessage (">>> Sending",
-                                                          mess);
-
-                                        mess.setEditor (to);
-                                        mess.setSentByMe (true);
-                                        mess.setWhen (new Date ());
-                                        mess.setDealtWith (true);
-
-                                        Map data = mess.toMap ();
-
-                                        String dmess = JSONEncoder.encode (data);
-
-                                        byte[] bmess = dmess.getBytes ();
-
-                                        if (mess.isEncrypted ())
-                                        {
-
-                                            if (to.getTheirPublicKey () == null)
-                                            {
-
-                                                throw new GeneralException ("Invalid state, no public key available for editor: " +
-                                                                            to +
-                                                                            ", unable to send message: " +
-                                                                            mess);
-
-                                            }
-
-                                            bmess = EditorsUtils.encrypt (dmess,
-                                                                          EditorsEnvironment.getUserAccount ().getPrivateKey (),
-                                                                          to.getTheirPublicKey ());
-
-                                            mess.setOriginalMessage (new String (bmess, "utf-8"));
-
-                                        } else {
-
-                                            mess.setOriginalMessage (dmess);
-
-                                        }
-
-                                        Chat c = ChatManager.getInstanceFor (_this.conn).createChat (_this.getJID (to),
-                                                                                                     _this);
-
-                                        Message m = new Message ();
-                                        m.setBody (new String (bmess, "utf-8"));
-                                        m.setType (Message.Type.normal);
-
-                                        c.sendMessage (m);
-
-                                        // Save the message away.
-                                        EditorsEnvironment.addMessage (mess);
-
-                                        if (onSend != null)
-                                        {
-
-                                            UIUtils.doLater (onSend);
-
-                                        }
-
-                                    } catch (Exception e) {
-
-                                        if (onError != null)
-                                        {
-
-                                            UIUtils.doLater (onError,
-                                                             new Exception ("Unable to send message to " + to,
-                                                                            e));
-
-                                        } else {
-
-                                            AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
-
-                                            UIUtils.showErrorMessage (viewer,
-                                                                      String.format (getUIString (editors,messages,send,actionerror),
-                                                                                     to.getName ()));
-                                                //"Unable to send message to <b>" + to.getName () + "</b>.  Please contact Quoll Writer support for assistance.");
-
-                                            Environment.logError ("Unable to send message to: " +
-                                                                  to,
-                                                                  e);
-
-                                        }
-
-                                    } finally {
-
-                                        _this.messageSendInProgressCount.decrementAndGet ();
-
-                                        if ((_this.messageSendInProgressCount.intValue () <= 0)
-                                            &&
-                                            (_this.logoutRequested)
-                                           )
-                                        {
-
-                                            _this.logout (null);
-
-                                        }
+                                        throw new GeneralException ("Invalid state, no public key available for editor: " +
+                                                                    to +
+                                                                    ", unable to send message: " +
+                                                                    mess);
 
                                     }
 
+                                    bmess = EditorsUtils.encrypt (dmess,
+                                                                  EditorsEnvironment.getUserAccount ().getPrivateKey (),
+                                                                  to.getTheirPublicKey ());
+
+                                    mess.setOriginalMessage (new String (bmess, "utf-8"));
+
+                                } else {
+
+                                    mess.setOriginalMessage (dmess);
+
                                 }
 
-                            });
+                                Chat c = ChatManager.getInstanceFor (_this.conn).createChat (_this.getJID (to),
+                                                                                             _this);
 
-                            t.setDaemon (false);
+                                Message m = new Message ();
+                                m.setBody (new String (bmess, "utf-8"));
+                                m.setType (Message.Type.normal);
 
-                            t.start ();
+                                c.sendMessage (m);
 
-                        }
+                                // Save the message away.
+                                EditorsEnvironment.addMessage (mess);
+
+                                if (onSend != null)
+                                {
+
+                                    Environment.scheduleImmediately (onSend);
+
+                                }
+
+                            } catch (Exception e) {
+
+                                if (onError != null)
+                                {
+
+                                    Environment.scheduleImmediately (() ->
+                                    {
+
+                                        onError.accept (new Exception ("Unable to send message to " + to,
+                                                                       e));
+
+                                    });
+
+                                } else {
+
+                                    ComponentUtils.showErrorMessage (getUILanguageStringProperty (Arrays.asList (editors,messages,send,actionerror),
+                                                                                                  to.getName ()));
+                                        //"Unable to send message to <b>" + to.getName () + "</b>.  Please contact Quoll Writer support for assistance.");
+
+                                    Environment.logError ("Unable to send message to: " +
+                                                          to,
+                                                          e);
+
+                                }
+
+                            } finally {
+
+                                _this.messageSendInProgressCount.decrementAndGet ();
+
+                                if ((_this.messageSendInProgressCount.intValue () <= 0)
+                                    &&
+                                    (_this.logoutRequested)
+                                   )
+                                {
+
+                                    _this.logout (null);
+
+                                }
+
+                            }
+
+                        });
 
                       },
                       onLoginCancel);

@@ -3,11 +3,12 @@ package com.quollwriter.editors;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.function.*;
 import java.text.*;
-import java.awt.event.*;
 import java.awt.image.*;
 import javax.imageio.*;
-import javax.swing.*;
+
+import javafx.beans.property.*;
 
 import org.jdom.*;
 
@@ -23,7 +24,8 @@ import com.quollwriter.editors.messages.*;
 import com.quollwriter.data.editors.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+
 
 public class EditorsWebServiceHandler
 {
@@ -312,6 +314,107 @@ public class EditorsWebServiceHandler
 
     }
 
+    public void login (final Runnable            onLogin,
+                       final Consumer<Exception> onError)
+    {
+
+        final EditorAccount acc = EditorsEnvironment.getUserAccount ();
+
+        if (acc.getWebServiceSessionId () != null)
+        {
+
+            if (onLogin != null)
+            {
+
+                Environment.schedule (onLogin,
+                                      -1,
+                                      -1);
+
+            }
+
+            return;
+
+        }
+
+        Map data = new HashMap ();
+        data.put ("email",
+                  acc.getEmail ());
+        data.put ("password",
+                  acc.getPassword ());
+
+        final EditorsWebServiceHandler _this = this;
+
+        this.callService (Service.sessions,
+                          null,
+                          data,
+                          "POST",
+                          null,
+                          new EditorsWebServiceAction ()
+                          {
+
+                              public void processResult (EditorsWebServiceResult res)
+                              {
+
+                                    String sessionId = res.getReturnObjectAsString ();
+
+                                    acc.setWebServiceSessionId (sessionId);
+
+                                    if (sessionId == null)
+                                    {
+
+                                        // Oops?
+                                        Environment.logError ("No session id returned from sessions service");
+
+                                        EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,other));
+                                        //"Sorry an unexpected error has occurred with<br />the Editors service, please try again later.");
+
+                                        return;
+
+                                    }
+
+                                    if (onLogin != null)
+                                    {
+
+                                        Environment.schedule (onLogin,
+                                                              -1,
+                                                              -1);
+
+                                    }
+
+                              }
+
+                          },
+                          new EditorsWebServiceAction ()
+                          {
+
+                              public void processResult (EditorsWebServiceResult res)
+                              {
+
+                                  Environment.logError ("Unable to login to editors service (qw website): " + res);
+
+                                  if (onError != null)
+                                  {
+
+                                     Environment.scheduleImmediately (() ->
+                                     {
+
+                                         onError.accept (new Exception ("Unable to login."));
+
+                                     });
+
+                                  } else {
+
+                                    EditorsUIUtils.showLoginError (res);
+
+                                  }
+
+                              }
+
+                          });
+
+    }
+/*
+TODO Remove
     public void login (final ActionListener onLogin,
                        final ActionListener onError)
     {
@@ -402,7 +505,7 @@ public class EditorsWebServiceHandler
                           });
 
     }
-
+*/
     private void callService (final Service                 service,
                               final String                  id,
                               final Object                  data,
@@ -558,7 +661,7 @@ public class EditorsWebServiceHandler
                                 final Set<String>                   genres,
                                 final String                        expectations,
                                 final EditorProject.WordCountLength wordCountLength,
-                                final ActionListener                onComplete)
+                                final Runnable                      onComplete)
                          throws Exception
     {
 
@@ -578,73 +681,68 @@ public class EditorsWebServiceHandler
                                               expectations,
                                               wordCountLength);
 
-        this.doLogin ("Before creating a {project} you must login to the Editors service.",
-                      new ActionListener ()
+        this.doLogin (new SimpleStringProperty ("Before creating a {project} you must login to the Editors service."),
+                      () ->
                       {
 
-                            public void actionPerformed (ActionEvent ev)
+                            if (EditorsEnvironment.getUserAccount ().getAuthor () == null)
                             {
 
-                                if (EditorsEnvironment.getUserAccount ().getAuthor () == null)
-                                {
+                                throw new IllegalStateException ("Unable to create project, no author available.");
 
-                                    throw new IllegalStateException ("Unable to create project, no author available.");
+                            }
 
-                                }
+                            _this.callService (Service.projects,
+                                               null,
+                                               data,
+                                               "POST",
+                                               new EditorsWebServiceAction ()
+                                               {
 
-                                _this.callService (Service.projects,
-                                                   null,
-                                                   data,
-                                                   "POST",
-                                                   new EditorsWebServiceAction ()
-                                                   {
+                                                    public void processResult (EditorsWebServiceResult res)
+                                                    {
 
-                                                        public void processResult (EditorsWebServiceResult res)
+                                                        ep.setId (res.getReturnObjectAsString ());
+
+                                                        _this.fillProject (ep,
+                                                                           name,
+                                                                           desc,
+                                                                           genres,
+                                                                           expectations,
+                                                                           wordCountLength);
+
+                                                        try
                                                         {
-
-                                                            ep.setId (res.getReturnObjectAsString ());
-
-                                                            _this.fillProject (ep,
-                                                                               name,
-                                                                               desc,
-                                                                               genres,
-                                                                               expectations,
-                                                                               wordCountLength);
-
-                                                            try
-                                                            {
 /*
-                                                                _this.saveProjectToLocal (ep,
-                                                                                          viewer);
+                                                            _this.saveProjectToLocal (ep,
+                                                                                      viewer);
 */
-                                                            } catch (Exception e) {
+                                                        } catch (Exception e) {
 
-                                                                Environment.logError ("Unable to save project to local",
-                                                                                      e);
-
-                                                            }
-
-                                                            //viewer.getProject ().setEditorProject (ep);
-
-                                                            if (onComplete != null)
-                                                            {
-
-                                                                onComplete.actionPerformed (new ActionEvent ("done", 1, "done"));
-
-                                                            }
+                                                            Environment.logError ("Unable to save project to local",
+                                                                                  e);
 
                                                         }
 
-                                                   },
-                                                   new EditorsWebServiceAction ()
-                                                   {
+                                                        //viewer.getProject ().setEditorProject (ep);
 
-                                                        public void processResult (EditorsWebServiceResult res)
-                                                        {}
+                                                        if (onComplete != null)
+                                                        {
 
-                                                   });
+                                                            Environment.scheduleImmediately (onComplete);
 
-                            }
+                                                        }
+
+                                                    }
+
+                                               },
+                                               new EditorsWebServiceAction ()
+                                               {
+
+                                                    public void processResult (EditorsWebServiceResult res)
+                                                    {}
+
+                                               });
 
                           },
                           null);
@@ -1643,36 +1741,30 @@ public class EditorsWebServiceHandler
 
         final EditorsWebServiceHandler _this = this;
 
-        this.doLogin (getUIString (editors,login,reasons,changepassword),
+        this.doLogin (getUILanguageStringProperty (editors,login,reasons,changepassword),
                       //"To update your password you must first login to the Editors service.",
-                      new ActionListener ()
+                      () ->
                       {
 
-                          @Override
-                          public void actionPerformed (ActionEvent ev)
-                          {
+                            Map data = new HashMap ();
+                            data.put (FieldNames.password,
+                                      newPassword);
 
-                                Map data = new HashMap ();
-                                data.put (FieldNames.password,
-                                          newPassword);
-
-                                _this.callService (Service.accounts,
-                                                   null,
-                                                   data,
-                                                   "PUT",
-                                                   onComplete,
-                                                   onError);
-
-                          }
+                            _this.callService (Service.accounts,
+                                               null,
+                                               data,
+                                               "PUT",
+                                               onComplete,
+                                               onError);
 
                       },
                       null);
 
     }
 
-    private void doLogin (final String                loginReason,
-                          final ActionListener        onLogin,
-                          final ActionListener        onCancel)
+    private void doLogin (final StringProperty loginReason,
+                          final Runnable       onLogin,
+                          final Runnable       onCancel)
     {
 
         final EditorsWebServiceHandler _this = this;
@@ -1750,26 +1842,21 @@ public class EditorsWebServiceHandler
         this.doLogin (null,
                       // This method is ONLY called when the user is already logged in thus the message is never displayed.
                       //"To get the invite for <b>" + from + "</b> you must first login to the Editors service.",
-                      new ActionListener ()
+                      () ->
                       {
 
-                          public void actionPerformed (ActionEvent ev)
-                          {
+                            Map data = null;
 
-                                Map data = null;
+                            data = new HashMap ();
+                            data.put (FieldNames.received,
+                                      true);
 
-                                data = new HashMap ();
-                                data.put (FieldNames.received,
-                                          true);
-
-                                _this.callService (Service.invites,
-                                                   from,
-                                                   data,
-                                                   "GET",
-                                                   onComplete,
-                                                   onError);
-
-                          }
+                            _this.callService (Service.invites,
+                                               from,
+                                               data,
+                                               "GET",
+                                               onComplete,
+                                               onError);
 
                       },
                       null);
@@ -1809,7 +1896,7 @@ public class EditorsWebServiceHandler
 
     }
 */
-    public void getPendingInvites (final String                  loginReason,
+    public void getPendingInvites (final StringProperty          loginReason,
                                    final EditorsWebServiceAction onComplete,
                                    final EditorsWebServiceAction onError)
     {
@@ -1817,28 +1904,23 @@ public class EditorsWebServiceHandler
         final EditorsWebServiceHandler _this = this;
 
         this.doLogin (loginReason,
-                      new ActionListener ()
+                      () ->
                       {
 
-                          public void actionPerformed (ActionEvent ev)
-                          {
+                            Map data = new HashMap ();
+                            data.put (FieldNames.status,
+                                      "pending");
+                            data.put (FieldNames.beforeAccountCreation,
+                                      true);
+                            data.put (FieldNames.received,
+                                      true);
 
-                                Map data = new HashMap ();
-                                data.put (FieldNames.status,
-                                          "pending");
-                                data.put (FieldNames.beforeAccountCreation,
-                                          true);
-                                data.put (FieldNames.received,
-                                          true);
-
-                                _this.callService (Service.invites,
-                                                   null,
-                                                   data,
-                                                   "GET",
-                                                   onComplete,
-                                                   onError);
-
-                          }
+                            _this.callService (Service.invites,
+                                               null,
+                                               data,
+                                               "GET",
+                                               onComplete,
+                                               onError);
 
                       },
                       null);
@@ -1853,22 +1935,17 @@ public class EditorsWebServiceHandler
         // Can only do this when logged in.
         final EditorsWebServiceHandler _this = this;
 
-        this.doLogin (getUIString (editors,login,reasons,deleteinvite),
+        this.doLogin (getUILanguageStringProperty (editors,login,reasons,deleteinvite),
                       //"To delete an invite you must first login to the Editors service.",
-                      new ActionListener ()
+                      () ->
                       {
 
-                        public void actionPerformed (ActionEvent ev)
-                        {
-
-                              _this.callService (Service.invites,
-                                                 ed.getEmail (),
-                                                 null,
-                                                 "DELETE",
-                                                 onComplete,
-                                                 onError);
-
-                        }
+                          _this.callService (Service.invites,
+                                             ed.getEmail (),
+                                             null,
+                                             "DELETE",
+                                             onComplete,
+                                             onError);
 
                      },
                      null);
@@ -1884,26 +1961,21 @@ public class EditorsWebServiceHandler
         // Can only do this when logged in.
         final EditorsWebServiceHandler _this = this;
 
-        this.doLogin (getUIString (editors,login,reasons,updateinvite),
+        this.doLogin (getUILanguageStringProperty (editors,login,reasons,updateinvite),
                       //"To update an invite you must first login to the Editors service.",
-                      new ActionListener ()
+                      () ->
                       {
 
-                        public void actionPerformed (ActionEvent ev)
-                        {
+                          Map data = new HashMap ();
+                          data.put (FieldNames.status,
+                                    newStatus.getType ());
 
-                              Map data = new HashMap ();
-                              data.put (FieldNames.status,
-                                        newStatus.getType ());
-
-                              _this.callService (Service.invites,
-                                                 toEmail,
-                                                 data,
-                                                 "PUT",
-                                                 onComplete,
-                                                 onError);
-
-                        }
+                          _this.callService (Service.invites,
+                                             toEmail,
+                                             data,
+                                             "PUT",
+                                             onComplete,
+                                             onError);
 
                      },
                      null);
@@ -1917,26 +1989,21 @@ public class EditorsWebServiceHandler
 
         final EditorsWebServiceHandler _this = this;
 
-        this.doLogin (getUIString (editors,login,reasons,sendinvite),
+        this.doLogin (getUILanguageStringProperty (editors,login,reasons,sendinvite),
                       //"To send an invite to <b>" + toEmail + "</b> you must first login to the Editors service.",
-                      new ActionListener ()
+                      () ->
                       {
 
-                           public void actionPerformed (ActionEvent ev)
-                           {
+                           Map data = new HashMap ();
+                           data.put (FieldNames.email,
+                                     toEmail);
 
-                               Map data = new HashMap ();
-                               data.put (FieldNames.email,
-                                         toEmail);
-
-                               _this.callService (Service.invites,
-                                                  null,
-                                                  data,
-                                                  "POST",
-                                                  onComplete,
-                                                  onError);
-
-                           }
+                           _this.callService (Service.invites,
+                                              null,
+                                              data,
+                                              "POST",
+                                              onComplete,
+                                              onError);
 
                       },
                       null);
@@ -1956,22 +2023,17 @@ public class EditorsWebServiceHandler
 
         final EditorsWebServiceHandler _this = this;
 
-        this.doLogin (getUIString (editors,login,reasons,deleteaccount),
+        this.doLogin (getUILanguageStringProperty (editors,login,reasons,deleteaccount),
                       //"To delete your account you must first login to the Editors service.",
-                      new ActionListener ()
+                      () ->
                       {
 
-                           public void actionPerformed (ActionEvent ev)
-                           {
-
-                               _this.callService (Service.accounts,
-                                                  null,
-                                                  null,
-                                                  "DELETE",
-                                                  onComplete,
-                                                  onError);
-
-                           }
+                           _this.callService (Service.accounts,
+                                              null,
+                                              null,
+                                              "DELETE",
+                                              onComplete,
+                                              onError);
 
                       },
                       null);

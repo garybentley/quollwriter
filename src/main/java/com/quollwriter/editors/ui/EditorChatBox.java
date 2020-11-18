@@ -1,214 +1,69 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Color;
-import java.awt.event.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-
-import javax.swing.*;
-import javax.swing.border.*;
+import javafx.scene.layout.*;
+import javafx.scene.control.*;
 
 import com.quollwriter.data.editors.*;
-import com.quollwriter.ui.*;
 import com.quollwriter.events.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.*;
 import com.quollwriter.editors.messages.*;
-import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class EditorChatBox extends Box implements EditorInteractionListener
+public class EditorChatBox extends VBox implements EditorInteractionListener
 {
 
     private EditorEditor editor = null;
-    private TextArea message = null;
     private AbstractViewer viewer = null;
     private boolean typingStartedSent = false;
-    private JLabel notification = null;
+    private Label notification = null;
+    private QuollTextArea message = null;
+    private ScheduledFuture typingStop = null;
+    private ScheduledFuture typingStart = null;
 
     public EditorChatBox (EditorEditor   ed,
                           AbstractViewer viewer)
     {
 
-        super (BoxLayout.Y_AXIS);
+        EditorChatBox _this = this;
 
         this.editor = ed;
         this.viewer = viewer;
+        this.getStyleClass ().add (StyleClassNames.CHATBOX);
 
-    }
+        EditorsEnvironment.addEditorInteractionListener (this);
 
-    public EditorChatBox init ()
-    {
+        this.message = QuollTextArea.builder ()
+            .placeholder (getUILanguageStringProperty (editors,LanguageStrings.editor,sendchat,box,tooltip))
+            .build ();
 
-        this.message = UIUtils.createTextArea (getUIString (editors,LanguageStrings.editor,sendchat,box,tooltip),
-                                                //"Enter your message here...\n\nTo send press Ctrl+Enter or use the button below.",
-                                               5,
-                                               -1);
-
-        this.message.setBorder (null);
-
-        final EditorChatBox _this = this;
-
-        this.add (this.message);
-
-        this.notification = UIUtils.createLoadingLabel (getUIString (editors,LanguageStrings.editor,sendchat,sending));
-        //"Sending message...");
-
-        final ActionListener sendMessageAction = new ActionListener ()
+        this.message.setOnTextKeyReleased (ev ->
         {
 
-            public void actionPerformed (ActionEvent ev)
+            if (this.typingStop != null)
             {
 
-                String text = _this.message.getText ().trim ();
-
-                if (text.length () == 0)
-                {
-
-                    return;
-
-                }
-
-                _this.showSending ();
-
-                _this.notification.setVisible (true);
-
-                _this.validate ();
-                _this.repaint ();
-
-                // Add the message to the today list.
-                final Date when = new Date ();
-
-                final Date w = Utils.zeroTimeFields (when);
-
-                final EditorChatMessage m = new EditorChatMessage (text,
-                                                                   true,
-                                                                   _this.editor,
-                                                                   when);
-
-                m.setDealtWith (true);
-
-                EditorsEnvironment.sendMessageToEditor (m,
-                                                        new ActionListener ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.hideNotification ();
-
-                        _this.message.setText ("");
-                        _this.message.grabFocus ();
-
-                        _this.validate ();
-                        _this.repaint ();
-
-                    }
-
-                },
-                new ActionListener ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.hideNotification ();
-
-                        _this.validate ();
-                        _this.repaint ();
-
-                    }
-
-                },
-                null);
+                this.typingStop.cancel (true);
 
             }
 
-        };
-
-        JButton save = UIUtils.createButton ("send-message",
-                                             Constants.ICON_MENU,
-                                             getUIString (editors,LanguageStrings.editor,sendchat,box,buttons,send,tooltip),
-                                             //"Click to send the message",
-                                             sendMessageAction);
-
-        JButton cancel = UIUtils.createButton (Constants.CANCEL_ICON_NAME,
-                                               Constants.ICON_MENU,
-                                               getUIString (editors,LanguageStrings.editor,sendchat,box,buttons,LanguageStrings.cancel,tooltip),
-                                               //"Click to cancel",
-                                               new ActionAdapter ()
-                                               {
-
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
-
-                                                     _this.message.setText ("");
-
-                                                  }
-
-                                               });
-
-        List<JButton> buts = new ArrayList ();
-
-        buts.add (save);
-        buts.add (cancel);
-
-        JToolBar tb = UIUtils.createButtonBar (buts);
-
-        tb.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        Box buttons = new Box (BoxLayout.X_AXIS);
-        buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
-        buttons.add (Box.createHorizontalStrut (3));
-        buttons.add (this.notification);
-        buttons.add (Box.createHorizontalGlue ());
-        buttons.add (tb);
-
-        buttons.setBorder (new CompoundBorder (new MatteBorder (1,
-                                                                0,
-                                                                0,
-                                                                0,
-                                                                UIUtils.getColor ("#dddddd")),
-                                               new EmptyBorder (2,
-                                                                2,
-                                                                2,
-                                                                2)));
-
-
-        this.add (buttons);
-
-        final Timer typingStop = new Timer (1500,
-                                            new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
+            if (this.typingStart != null)
             {
 
-                _this.typingStartedSent = false;
-
-                // Send stopped message.
-                _this.sendStoppedTyping ();
+                this.typingStart.cancel (true);
 
             }
 
-        });
-
-        typingStop.setRepeats (false);
-
-        final Timer typingStart = new Timer (750,
-                                             new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
+            this.typingStart = Environment.schedule (() ->
             {
-
-                typingStop.stop ();
 
                 if (!_this.typingStartedSent)
                 {
@@ -220,57 +75,118 @@ public class EditorChatBox extends Box implements EditorInteractionListener
 
                 }
 
-                typingStop.restart ();
+            },
+            50,
+            -1);
 
-            }
-
-        });
-
-        typingStart.setCoalesce (true);
-        typingStart.setRepeats (false);
-
-        this.message.addKeyListener (new KeyAdapter ()
-        {
-
-            private boolean typed = false;
-
-            public void keyPressed (KeyEvent ev)
+            this.typingStop = Environment.schedule (() ->
             {
 
-                typingStop.stop ();
-                typingStart.start ();
+                _this.typingStartedSent = false;
 
-                if ((ev.getKeyCode () == KeyEvent.VK_ENTER) &&
-                    ((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK))
-                {
+                // Send stopped message.
+                _this.sendStoppedTyping ();
 
-                    _this.sendStoppedTyping ();
-
-                    sendMessageAction.actionPerformed (new ActionEvent (message, 1, "sending"));
-
-                }
-
-                if ((ev.getKeyCode () == KeyEvent.VK_BACK_SPACE) &&
-                    ((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK))
-                {
-
-                    _this.message.setText ("");
-
-                }
-
-            }
+            },
+            750,
+            -1);
 
         });
 
-        this.message.setBorder (null);
+        this.notification = QuollLabel.builder ()
+            .styleClassName (StyleClassNames.LOADING)
+            .label (editors,LanguageStrings.editor,sendchat,sending)
+            .build ();
+        HBox.setHgrow (this.notification,
+                       Priority.ALWAYS);
 
-        this.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                            this.getPreferredSize ().height));
-        this.setMinimumSize (this.getPreferredSize ());
+        Runnable sendMessage = () ->
+        {
 
-        EditorsEnvironment.addEditorInteractionListener (this);
+            String text = _this.message.getText ().trim ();
 
-        return this;
+            if (text.length () == 0)
+            {
+
+                return;
+
+            }
+
+            this.notification.textProperty ().unbind ();
+            this.notification.textProperty ().bind (getUILanguageStringProperty (editors,LanguageStrings.editor,sendchat,sending));
+            this.notification.setVisible (true);
+            HBox.setHgrow (this.notification,
+                           Priority.ALWAYS);
+
+            // Add the message to the today list.
+            final Date when = new Date ();
+
+            final Date w = Utils.zeroTimeFields (when);
+
+            final EditorChatMessage m = new EditorChatMessage (text,
+                                                               true,
+                                                               _this.editor,
+                                                               when);
+
+            m.setDealtWith (true);
+
+            this.sendStoppedTyping ();
+
+            EditorsEnvironment.sendMessageToEditor (m,
+                                                    () ->
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    _this.notification.setVisible (false);
+
+                    _this.message.setText ("");
+                    _this.message.requestFocus ();
+
+                });
+
+            },
+            () ->
+            {
+
+                _this.notification.setVisible (false);
+
+            },
+            null);
+
+        };
+
+        UIUtils.addDoOnReturnPressed (this.message,
+                                      sendMessage);
+
+        Button save = QuollButton.builder ()
+            .iconName (StyleClassNames.SEND)
+            .tooltip (editors,LanguageStrings.editor,sendchat,box,buttons,send,tooltip)
+            .onAction (ev ->
+            {
+
+                UIUtils.runLater (sendMessage);
+
+            })
+            .build ();
+
+        Button cancel = QuollButton.builder ()
+            .iconName (StyleClassNames.CANCEL)
+            .tooltip (editors,LanguageStrings.editor,sendchat,box,buttons,LanguageStrings.cancel,tooltip)
+            .onAction (ev ->
+            {
+
+                this.message.setText ("");
+
+            })
+            .build ();
+
+        HBox buts = new HBox ();
+        buts.getStyleClass ().addAll (StyleClassNames.BUTTONS, "controls", "tool-bar");
+        buts.getChildren ().addAll (this.notification, save, cancel);
+
+        this.getChildren ().addAll (this.message, buts);
 
     }
 
@@ -295,34 +211,28 @@ public class EditorChatBox extends Box implements EditorInteractionListener
         if (ev.getAction () == InteractionMessage.Action.normal)
         {
 
-            this.hideNotification ();
+            this.notification.setVisible (false);
 
         }
 
     }
 
-    public void grabFocus ()
+    public void requestFocus ()
     {
 
-        this.message.grabFocus ();
-
-    }
-
-    private void hideNotification ()
-    {
-
-        this.notification.setVisible (false);
+        this.message.requestFocus ();
 
     }
 
     private void showTyping ()
     {
 
-        this.notification.setText (String.format (getUIString (editors,LanguageStrings.editor,sendchat,contactistyping),
-                                                  this.editor.getShortName ()));
+        this.notification.textProperty ().unbind ();
+        this.notification.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,sendchat,contactistyping),
+                                                                             this.editor.mainNameProperty ()));
                                                  //this.editor.getShortName () + " is typing...");
-        this.notification.setIcon (Environment.getTypingIcon ());
-
+        this.notification.getStyleClass ().clear ();
+        this.notification.getStyleClass ().addAll (StyleClassNames.NOTIFICATION, StyleClassNames.TYPING);
         this.notification.setVisible (true);
 
     }
@@ -330,10 +240,10 @@ public class EditorChatBox extends Box implements EditorInteractionListener
     private void showSending ()
     {
 
-        this.notification.setText (getUIString (editors,LanguageStrings.editor,sendchat,sending));
-        //"Sending message...");
-        this.notification.setIcon (Environment.getLoadingIcon ());
-
+        this.notification.textProperty ().unbind ();
+        this.notification.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.editor,sendchat,sending)));
+        this.notification.getStyleClass ().clear ();
+        this.notification.getStyleClass ().addAll (StyleClassNames.NOTIFICATION, StyleClassNames.SENDING);
         this.notification.setVisible (true);
 
     }

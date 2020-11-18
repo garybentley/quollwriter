@@ -91,7 +91,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
         List<String> prefix = Arrays.asList (fullscreen,title,toolbar,buttons);
 
         Button but = QuollButton.builder ()
-            .styleClassName (StyleClassNames.DISTRACTIONFREEENTER)
+            .iconName (StyleClassNames.DISTRACTIONFREEENTER)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,distractionfreemodeenter,tooltip)))
             .onAction (ev ->
             {
@@ -131,7 +131,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
         {
 
             tb.getItems ().add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.CONTACTS)
+                .iconName (StyleClassNames.CONTACTS)
                 .tooltip (EditorsEnvironment.hasRegistered () ?
                             getUILanguageStringProperty (Utils.newList (prefix,showcontacts,tooltip))
                             :
@@ -161,7 +161,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
         }
 
         tb.getItems ().add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.FIND)
+            .iconName (StyleClassNames.FIND)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,find,tooltip)))
             .onAction (ev ->
             {
@@ -173,7 +173,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
 
         tb.getItems ().add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,fullscreenexit,tooltip)))
-            .styleClassName (StyleClassNames.FULLSCREENEXIT)
+            .iconName (StyleClassNames.FULLSCREENEXIT)
             .onAction (ev ->
             {
 
@@ -184,7 +184,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
 
         tb.getItems ().add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,editproperties,tooltip)))
-            .styleClassName (StyleClassNames.EDITPROPERTIES)
+            .iconName (StyleClassNames.EDITPROPERTIES)
             .onAction (ev ->
             {
 
@@ -242,7 +242,7 @@ public class FullScreenView extends Stage implements PopupsViewer, URLActionHand
 
             m.getItems ().add (QuollMenuItem.builder ()
                 .label (fullscreen,popupmenu,items,editproperties)
-                .styleClassName (StyleClassNames.EDITPROPERTIES)
+                .iconName (StyleClassNames.EDITPROPERTIES)
                 .onAction (eev ->
                 {
 

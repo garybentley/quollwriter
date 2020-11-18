@@ -2,7 +2,11 @@ package com.quollwriter.data.editors;
 
 import java.io.*;
 import java.util.*;
-import java.awt.image.*;
+
+import javafx.collections.*;
+import javafx.beans.property.*;
+import javafx.beans.binding.*;
+import javafx.scene.image.*;
 
 import org.jdom.*;
 
@@ -16,7 +20,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.editors.messages.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class EditorEditor extends AbstractEditorObject
 {
@@ -46,21 +50,26 @@ public class EditorEditor extends AbstractEditorObject
 
         }
 
-        public String getName ()
+        public StringProperty nameProperty ()
         {
-
-            java.util.List<String> prefix = Arrays.asList (editors,statuses);
 
             switch (this)
             {
-                case online : return getUIString (prefix, LanguageStrings.online);//"Online";
-                case offline : return getUIString (prefix, LanguageStrings.offline);//"Offline";
-                case busy : return getUIString (prefix, LanguageStrings.busy);//"Busy";
-                case away : return getUIString (prefix, LanguageStrings.away);//"Away";
-                case snooze : return getUIString (prefix, LanguageStrings.snooze);//"Snooze";
-                default : return "Unknown";
+                case online : return getUILanguageStringProperty (editors,statuses, LanguageStrings.online);//"Online";
+                case offline : return getUILanguageStringProperty (editors,statuses, LanguageStrings.offline);//"Offline";
+                case busy : return getUILanguageStringProperty (editors,statuses, LanguageStrings.busy);//"Busy";
+                case away : return getUILanguageStringProperty (editors,statuses, LanguageStrings.away);//"Away";
+                case snooze : return getUILanguageStringProperty (editors,statuses, LanguageStrings.snooze);//"Snooze";
+                default : return new SimpleStringProperty ("Unknown");
 
             }
+
+        }
+
+        public String getName ()
+        {
+
+            return this.nameProperty ().getValue ();
 
         }
 
@@ -105,43 +114,71 @@ public class EditorEditor extends AbstractEditorObject
 
     }
 
-    private String email = null;
+    private StringProperty emailProp = new SimpleStringProperty ();
     private String about = null;
     private Set<EditorProject.WordCountLength> wcLengths = null;
     private Set<String> genres = null;
-    private OnlineStatus status = null;
-    private EditorStatus editorStatus = EditorStatus.pending;
-    private Set<EditorMessage> messages = null;
-    private BufferedImage avatar = null;
+    private ObjectProperty<OnlineStatus> statusProp = new SimpleObjectProperty ();
+    private ObjectProperty<EditorStatus> editorStatusProp = new SimpleObjectProperty (EditorStatus.pending);
+    private ObservableSet<EditorMessage> messages = FXCollections.observableSet (new LinkedHashSet<> ());
+    private Image avatar = null;
     private String avatarImageFileType = null;
     private boolean invitedByMe = false;
     private PGPPublicKey theirPublicKey = null;
     private boolean messagesLoaded = false;
-    private String myNameForEditor = null;
-    private BufferedImage myAvatarForEditor = null;
+    private StringProperty myNameForEditorProp = new SimpleStringProperty ();
+    private Image myAvatarForEditor = null;
     private String serviceName = null;
     private String messagingUsername = null;
+    private StringProperty mainNameProp = new SimpleStringProperty ();
+    private ObjectProperty<Image> mainAvatarProp = new SimpleObjectProperty ();
 
     public EditorEditor ()
     {
 
         super (OBJECT_TYPE);
+        this.mainNameProp.bind (Bindings.createStringBinding (() ->
+        {
+
+            if (this.myNameForEditorProp.getValue () != null)
+            {
+
+                return this.myNameForEditorProp.getValue ();
+
+            }
+
+            if (this.getName () != null)
+            {
+
+                return this.getName ();
+
+            }
+
+            return this.emailProp.getValue ();
+
+        },
+        this.nameProperty (),
+        this.emailProperty (),
+        this.myNameForEditorProperty ()));
+
+        this.nameProperty ().addListener ((pr, oldv, newv) -> {});
+        this.emailProp.addListener ((pr, oldv, newv) -> {});
+        this.myNameForEditorProp.addListener ((pr, oldv, newv) -> {});
 
     }
 
     public EditorEditor (String        name,
-                         String        shortName,
-                         BufferedImage avatar,
+                         Image         avatar,
                          OnlineStatus  status,
                          EditorStatus  editorStatus)
     {
 
-        super (OBJECT_TYPE,
-               name);
+        this ();
+        this.setName (name);
 
         this.avatar = avatar;
-        this.status = status;
-        this.editorStatus = editorStatus;
+        this.setOnlineStatus (status);
+        this.setEditorStatus (editorStatus);
 
     }
 
@@ -208,13 +245,13 @@ public class EditorEditor extends AbstractEditorObject
 
         this.addToStringProperties (props,
                                     "email",
-                                    this.email);
+                                    this.emailProp.getValue ());
         this.addToStringProperties (props,
                                     "onlineStatus",
-                                    (this.status != null ? this.status.getType () : "unknown"));
+                                    (this.statusProp.getValue () != null ? this.statusProp.getValue ().getType () : "unknown"));
         this.addToStringProperties (props,
                                     "editorStatus",
-                                    this.editorStatus.getType ());
+                                    this.editorStatusProp.getValue ().getType ());
         this.addToStringProperties (props,
                                     "serviceName",
                                     this.serviceName);
@@ -232,10 +269,17 @@ public class EditorEditor extends AbstractEditorObject
                                     (this.messages != null ? this.messages.size () : 0));
         this.addToStringProperties (props,
                                     "myNameForEditor",
-                                    this.myNameForEditor);
+                                    this.myNameForEditorProp.getValue ());
         this.addToStringProperties (props,
                                     "hasMyAvatarForEditor",
                                     (this.myAvatarForEditor != null));
+
+    }
+
+    public ObjectProperty<EditorStatus> editorStatusProperty ()
+    {
+
+        return this.editorStatusProp;
 
     }
 
@@ -267,17 +311,24 @@ public class EditorEditor extends AbstractEditorObject
 
     }
 
+    public StringProperty myNameForEditorProperty ()
+    {
+
+        return this.myNameForEditorProp;
+
+    }
+
     public String getMyNameForEditor ()
     {
 
-        return this.myNameForEditor;
+        return this.myNameForEditorProp.getValue ();
 
     }
 
     public void setMyNameForEditor (String n)
     {
 
-        this.myNameForEditor = n;
+        this.myNameForEditorProp.setValue (n);
 
     }
     /*
@@ -288,6 +339,14 @@ public class EditorEditor extends AbstractEditorObject
 
     }
     */
+
+    public Image getMainAvatar ()
+    {
+
+        return this.mainAvatarProp.getValue ();
+
+    }
+    /*
     public BufferedImage getMainAvatar ()
     {
 
@@ -301,27 +360,18 @@ public class EditorEditor extends AbstractEditorObject
         return this.avatar;
 
     }
-
+*/
     public String getMainName ()
     {
 
-        if (this.myNameForEditor != null)
-        {
+        return this.mainNameProp.getValue ();
 
-            return this.myNameForEditor;
+    }
 
-        }
+    public StringProperty mainNameProperty ()
+    {
 
-        String n = super.getName ();
-
-        if (n != null)
-        {
-
-            return n;
-
-        }
-
-        return this.email;
+        return this.mainNameProp;
 
     }
 
@@ -356,14 +406,21 @@ public class EditorEditor extends AbstractEditorObject
     public String getEmail ()
     {
 
-        return this.email;
+        return this.emailProp.getValue ();
 
     }
 
     public void setEmail (String em)
     {
 
-        this.email = em;
+        this.emailProp.setValue (em);
+
+    }
+
+    public StringProperty emailProperty ()
+    {
+
+        return this.emailProp;
 
     }
 
@@ -381,31 +438,17 @@ public class EditorEditor extends AbstractEditorObject
 
     }
 
-    public String getShortName ()
-    {
-
-        if (this.getMyNameForEditor () != null)
-        {
-
-            return this.getMyNameForEditor ();
-
-        }
-
-        return this.getMainName ();
-
-    }
-
     public void setEditorStatus (EditorStatus s)
     {
 
-        this.editorStatus = s;
+        this.editorStatusProp.setValue (s);
 
     }
 
     public EditorStatus getEditorStatus ()
     {
 
-        return this.editorStatus;
+        return this.editorStatusProp.getValue ();
 
     }
 
@@ -449,14 +492,21 @@ public class EditorEditor extends AbstractEditorObject
     public void setOnlineStatus (OnlineStatus status)
     {
 
-        this.status = status;
+        this.statusProp.setValue (status);
 
     }
 
     public OnlineStatus getOnlineStatus ()
     {
 
-        return this.status;
+        return this.statusProp.getValue ();
+
+    }
+
+    public ObjectProperty<OnlineStatus> onlineStatusProperty ()
+    {
+
+        return this.statusProp;
 
     }
 
@@ -484,7 +534,14 @@ public class EditorEditor extends AbstractEditorObject
     public void setMessages (Set<EditorMessage> messages)
     {
 
-        this.messages = messages;
+        this.messages.clear ();
+
+        if (messages != null)
+        {
+
+            this.messages.addAll (messages);
+
+        }
 
         this.messagesLoaded = (messages != null);
 
@@ -639,7 +696,7 @@ public class EditorEditor extends AbstractEditorObject
 
     }
 
-    public Set<EditorMessage> getMessages ()
+    public ObservableSet<EditorMessage> getMessages ()
     {
 
         return this.messages;
@@ -733,102 +790,116 @@ public class EditorEditor extends AbstractEditorObject
     public boolean isPending ()
     {
 
-        if (this.editorStatus == null)
+        if (this.editorStatusProp.getValue () == null)
         {
 
             return false;
 
         }
 
-        return this.editorStatus == EditorStatus.pending;
+        return this.editorStatusProp.getValue () == EditorStatus.pending;
 
     }
 
     public boolean isPrevious ()
     {
 
-        if (this.editorStatus == null)
+        if (this.editorStatusProp.getValue () == null)
         {
 
             return false;
 
         }
 
-        return this.editorStatus == EditorStatus.previous;
+        return this.editorStatusProp.getValue () == EditorStatus.previous;
 
     }
 
     public boolean isRejected ()
     {
 
-        if (this.editorStatus == null)
+        if (this.editorStatusProp.getValue () == null)
         {
 
             return false;
 
         }
 
-        return this.editorStatus == EditorStatus.rejected;
+        return this.editorStatusProp.getValue () == EditorStatus.rejected;
 
     }
 
     public boolean isCurrent ()
     {
 
-        if (this.editorStatus == null)
+        if (this.editorStatusProp.getValue () == null)
         {
 
             return false;
 
         }
 
-        return this.editorStatus == EditorStatus.current;
+        return this.editorStatusProp.getValue () == EditorStatus.current;
 
     }
 
     public boolean isOffline ()
     {
 
-        if (this.status == null)
+        if (this.statusProp.getValue () == null)
         {
 
             return true;
 
         }
 
-        return this.status == OnlineStatus.offline;
+        return this.statusProp.getValue () == OnlineStatus.offline;
 
     }
 
-    public BufferedImage getDisplayAvatar ()
-    {
-
-        return (this.myAvatarForEditor != null ? this.myAvatarForEditor : this.avatar);
-
-    }
-
-    public void setAvatar (BufferedImage im)
+    public void setAvatar (Image im)
     {
 
         this.avatar = im;
 
+        if (this.myAvatarForEditor == null)
+        {
+
+            this.mainAvatarProp.setValue (this.avatar);
+
+        }
+
     }
 
-    public BufferedImage getAvatar ()
+    public ObjectProperty<Image> mainAvatarProperty ()
+    {
+
+        return this.mainAvatarProp;
+
+    }
+
+    public Image getAvatar ()
     {
 
         return this.avatar;
 
     }
 
-    public void setMyAvatarForEditor (BufferedImage im)
+    public void setMyAvatarForEditor (Image im)
     {
 
         this.myAvatarForEditor = im;
 
+        if (this.myAvatarForEditor != null)
+        {
+
+            this.mainAvatarProp.setValue (this.myAvatarForEditor);
+
+        }
+
     }
 
-    public BufferedImage getMyAvatarForEditor ()
+    public Image getMyAvatarForEditor ()
     {
 
         return this.myAvatarForEditor;

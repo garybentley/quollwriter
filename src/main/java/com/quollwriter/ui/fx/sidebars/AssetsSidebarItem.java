@@ -71,7 +71,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                 its.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
-                    .styleClassName (StyleClassNames.VIEW)
+                    .iconName (StyleClassNames.VIEW)
                     .onAction (ev ->
                     {
 
@@ -82,7 +82,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                 its.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
-                    .styleClassName (StyleClassNames.EDIT)
+                    .iconName (StyleClassNames.EDIT)
                     .onAction (ev ->
                     {
 
@@ -94,7 +94,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                 its.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,rename),
                                                          n.getUserConfigurableObjectType ().nameProperty ()))
-                    .styleClassName (StyleClassNames.RENAME)
+                    .iconName (StyleClassNames.RENAME)
                     .onAction (ev ->
                     {
 
@@ -129,7 +129,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                  its.add (QuollMenuItem.builder ()
                      .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
-                     .styleClassName (StyleClassNames.DELETE)
+                     .iconName (StyleClassNames.DELETE)
                      .onAction (ev ->
                      {
 
@@ -454,7 +454,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                 .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings._new),
                                                           //"Add a new %s",
                                                      this.objType.objectTypeNameProperty ()))
-                .styleClassName (StyleClassNames.ADD)
+                .iconName (StyleClassNames.ADD)
                 .onAction (ev ->
                 {
 
@@ -466,7 +466,7 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,edit),
                                                      this.objType.objectTypeNameProperty ()))
-                .styleClassName (StyleClassNames.EDIT)
+                .iconName (StyleClassNames.EDIT)
                 .onAction (ev ->
                 {
 

@@ -1,40 +1,27 @@
 package com.quollwriter.editors.ui;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
-
-import java.awt.event.*;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.tree.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import java.util.*;
+import javafx.scene.*;
+import javafx.beans.property.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
 import com.quollwriter.text.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.data.editors.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 //@MessageBoxFor(Message=ProjectCommentsMessage.class)
 public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage>
 {
 
-    private JComponent commentsTree = null;
     private AbstractProjectViewer commentsViewer = null;
 
     public ProjectCommentsMessageBox (ProjectCommentsMessage mess,
@@ -43,24 +30,6 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
 
         super (mess,
                viewer);
-
-    }
-
-    public boolean isAutoDealtWith ()
-    {
-
-        return false;
-
-    }
-
-    public void doUpdate ()
-    {
-
-    }
-
-    public void doInit ()
-                 throws GeneralException
-    {
 
         final ProjectCommentsMessageBox _this = this;
 
@@ -80,16 +49,12 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
 
         }
 
-        final String text = String.format (getUIString (editors,messages,projectcomments,(this.message.isSentByMe () ? sent : received),title),
-        //"%s {Comment%s} %s", // %s
-                                           this.message.getComments ().size ());
-                                           //(this.message.getComments ().size () > 1 ? "s" : ""),
-                                           //(this.message.isSentByMe () ? "sent" : "received"));
-
-        JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    Constants.COMMENT_ICON_NAME);
-
-        this.add (h);
+        this.getChildren ().add (Header.builder ()
+            .title (getUILanguageStringProperty (Arrays.asList (editors,messages,projectcomments,(this.message.isSentByMe () ? sent : received),title),
+                                                 this.message.getComments ().size ()))
+            .styleClassName (StyleClassNames.SUBTITLE)
+            .iconClassName (StyleClassNames.COMMENT)
+            .build ());
 
         // Show
         //   * Sent/Received
@@ -102,24 +67,6 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
 
         String verName = pv.getName ();
 
-        String rows = "p, 6px, p";
-
-        if (verName != null)
-        {
-
-            rows += ", 6px, p";
-
-        }
-
-        if (genComm != null)
-        {
-
-            rows += ", 6px, top:p";
-
-        }
-
-        rows += ", 6px, p";
-
         EditorEditor ed = this.message.getEditor ();
 
         // We are wimping out here
@@ -127,110 +74,78 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
 
         String projVerId = this.message.getProjectVersion ().getId ();
 
-        FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
-                                        rows);
-
-        fl.setHonorsVisibility (true);
-        PanelBuilder builder = new PanelBuilder (fl);
-
-        CellConstraints cc = new CellConstraints ();
-
-        int row = 1;
-
-        builder.addLabel ("<html>" + getUIString (editors,messages,projectcomments,labels,project) + "</html>",
-                          cc.xy (1,
-                                 row));
+        Form.Builder fb = Form.builder ()
+            .layoutType (Form.LayoutType.column);
 
         if (proj != null)
         {
 
-            JLabel openProj = UIUtils.createClickableLabel (message.getForProjectName (),
-                                                            null,
-                                                            new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    ProjectInfo proj = null;
-
-                    try
-                    {
-
-                        proj = Environment.getProjectById (_this.message.getForProjectId (),
-                                                           (_this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE));
-
-                    } catch (Exception e) {
-
-                        Environment.logError ("Unable to get project info for project with id: " +
-                                              _this.message.getForProjectId (),
-                                              e);
-
-                    }
-
-                    if (proj != null)
-                    {
-
-                        try
+            fb.item (getUILanguageStringProperty (editors,messages,projectcomments,labels,project),
+                     QuollHyperlink.builder ()
+                        .label (message.forProjectNameProperty ())
+                        .styleClassName (StyleClassNames.VIEWPROJECT)
+                        .tooltip (editors,messages,projectcomments,labels,clicktoviewproject)
+                        .onAction (ev ->
                         {
 
-                            Environment.openProject (proj);
+                            ProjectInfo _proj = null;
 
-                        } catch (Exception e) {
+                            try
+                            {
 
-                            Environment.logError ("Unable to open project: " +
-                                                  proj,
-                                                  e);
+                                _proj = Environment.getProjectById (_this.message.getForProjectId (),
+                                                                    (_this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE));
 
-                        }
+                            } catch (Exception e) {
 
-                    }
+                                Environment.logError ("Unable to get project info for project with id: " +
+                                                      _this.message.getForProjectId (),
+                                                      e);
 
-                }
+                            }
 
-            });
+                            if (_proj != null)
+                            {
 
-            openProj.setToolTipText (getUIString (editors,messages,projectcomments,labels,clicktoviewproject));
-            //Environment.replaceObjectNames ("Click to open the {project}"));
+                                try
+                                {
 
-            builder.add (openProj,
-                         cc.xy (3,
-                                row));
+                                    Environment.openProject (_proj);
+
+                                } catch (Exception e) {
+
+                                    Environment.logError ("Unable to open project: " +
+                                                          _proj,
+                                                          e);
+
+                                }
+
+                            }
+
+                        })
+                        .build ());
 
         } else {
 
-            builder.addLabel (String.format ("<html>%s</html>",
-                                             message.getForProjectName ()),
-                              cc.xy (3,
-                                     row));
+            fb.item (getUILanguageStringProperty (editors,messages,projectcomments,labels,project),
+                     QuollLabel.builder ()
+                        .label (message.forProjectNameProperty ())
+                        .build ());
 
         }
 
-        row += 2;
-
-        builder.addLabel ("<html>" + getUIString (editors,messages,projectcomments,labels,(this.message.isSentByMe () ? sent : received)) + "</html>",
-                            //(this.message.isSentByMe () ? "Sent" : "Received")),
-                          cc.xy (1,
-                                 row));
-
-        builder.addLabel (Environment.formatDateTime (this.message.getWhen ()),
-                          cc.xy (3,
-                                 row));
-
-        row += 2;
+        fb.item (getUILanguageStringProperty (editors,messages,projectcomments,labels,(this.message.isSentByMe () ? sent : received)),
+                 QuollLabel.builder ()
+                    .label (new SimpleStringProperty (Environment.formatDateTime (this.message.getWhen ())))
+                    .build ());
 
         if (verName != null)
         {
 
-            builder.addLabel ("<html>" + getUIString (editors,messages,projectcomments,labels,version) + "</html>",
-                              cc.xy (1,
-                                     row));
-
-            builder.addLabel (projVerName,
-                              cc.xy (3,
-                                     row));
-
-            row += 2;
+            fb.item (getUILanguageStringProperty (editors,messages,projectcomments,labels,version),
+                     QuollLabel.builder ()
+                        .label (this.message.getProjectVersion ().nameProperty ())
+                        .build ());
 
         }
 
@@ -246,204 +161,76 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
 
             }
 
-            JComponent mess = UIUtils.createHelpTextPane (genComm,
-                                                          _this.viewer);
-
-            mess.setBorder (null);
-
-            builder.addLabel ("<html>" + getUIString (editors,messages,projectcomments,labels,notes) + "</html>",
-                              cc.xy (1,
-                                     row));
-
-            builder.add (mess,
-                         cc.xy (3,
-                                row));
-
-            row += 2;
+            fb.item (getUILanguageStringProperty (editors,messages,projectcomments,labels,notes),
+                     QuollTextView.builder ()
+                        .inViewer (this.viewer)
+                        .text (new SimpleStringProperty (genComm))
+                        .build ());
 
         }
 
         if (proj != null)
         {
 
-            JLabel viewComments = UIUtils.createClickableLabel (getUIString (editors,messages,projectcomments,labels,clicktoviewcomments),
-            //"Click to view the {comments}",
-                                                                Environment.getIcon (Constants.VIEW_ICON_NAME,
-                                                                                     Constants.ICON_CLICKABLE_LABEL),
-                                                                new ActionListener ()
-            {
+            fb.item (QuollHyperlink.builder ()
+                        .label (editors,messages,projectcomments,labels,clicktoviewcomments)
+                        .styleClassName (StyleClassNames.VIEW)
+                        .onAction (ev ->
+                        {
 
-                public void actionPerformed (ActionEvent ev)
-                {
+                            this.message.setDealtWith (true);
 
-                    _this.message.setDealtWith (true);
+                            try
+                            {
 
-                    try
-                    {
+                                EditorsEnvironment.updateMessage (this.message);
 
-                        EditorsEnvironment.updateMessage (_this.message);
+                            } catch (Exception e) {
 
-                    } catch (Exception e) {
+                                Environment.logError ("Unable to update message: " +
+                                                      this.message,
+                                                      e);
 
-                        Environment.logError ("Unable to update message: " +
-                                              _this.message,
-                                              e);
+                            }
 
-                    }
+                            if (this.commentsViewer != null)
+                            {
 
-                    if (_this.commentsViewer != null)
-                    {
+                                this.commentsViewer.show ();
 
-                        _this.commentsViewer.setExtendedState (JFrame.NORMAL);
-                        _this.commentsViewer.toFront ();
+                                return;
 
-                        return;
+                            }
 
-                    }
-
-                    EditorsUIUtils.showProjectComments (_this.message,
-                                                        _this.viewer,
-                                                        new ActionListener ()
-                                                        {
-
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                                _this.commentsViewer = (AbstractProjectViewer) ev.getSource ();
-
-                                                                _this.commentsViewer.addWindowListener (new WindowAdapter ()
+                            EditorsUIUtils.showProjectComments (this.message,
+                                                                this.viewer,
+                                                                (commViewer) ->
                                                                 {
 
-                                                                    public void windowClosed (WindowEvent ev)
+                                                                    _this.commentsViewer = commViewer;
+                                                                    _this.commentsViewer.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                                                                                          eev ->
                                                                     {
 
                                                                         _this.commentsViewer = null;
 
-                                                                    }
+                                                                    });
 
                                                                 });
 
-                                                            }
-
-                                                        });
-
-/*
-                    if (_this.message.isSentByMe ())
-                    {
-
-                        // Show a popup with the comments in it.
-
-                        Project p = _this.projectViewer.getProject ();
-
-                        // Need to now "fill out" the chapters and notes to have the correct values.
-                        // We use the ids to get the keys.
-                        for (Chapter c : _this.message.getChapters ())
-                        {
-
-                            NamedObject ch = (NamedObject) p.getObjectById (Chapter.class,
-                                                                            c.getId ());
-
-                            if (ch != null)
-                            {
-
-                                c.setName (ch.getName ());
-
-                            }
-
-                        }
-
-                        JTree tree = EditorsUIUtils.createViewTree (_this.message.getChapters (),
-                                                                    _this.projectViewer);
-
-                        UIUtils.expandAllNodesWithChildren (tree);
-
-                        Dimension pref = tree.getPreferredSize ();
-
-                        if (pref.height > 300)
-                        {
-
-                            pref.height = 300;
-
-                        } else {
-
-                            pref.height += 5;
-
-                        }
-
-                        final JScrollPane sp = UIUtils.createScrollPane (tree);
-
-                        sp.setPreferredSize (pref);
-                        sp.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-
-                        UIUtils.createClosablePopup (text,
-                                                     Environment.getIcon (Constants.COMMENT_ICON_NAME,
-                                                                          Constants.ICON_POPUP),
-                                                     null,
-                                                     sp,
-                                                     _this.viewer,
-                                                     null);
-
-                    } else {
-
-                        if (_this.commentsViewer != null)
-                        {
-
-                            _this.commentsViewer.setExtendedState (JFrame.NORMAL);
-                            _this.commentsViewer.toFront ();
-
-                            return;
-
-                        }
-
-                        EditorsUIUtils.showProjectComments (_this.message,
-                                                            _this.viewer,
-                                                            new ActionListener ()
-                                                            {
-
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-
-                                                                    _this.commentsViewer = (AbstractProjectViewer) ev.getSource ();
-
-                                                                    _this.commentsViewer.addWindowListener (new WindowAdapter ()
-                                                                    {
-
-                                                                        public void windowClosed (WindowEvent ev)
-                                                                        {
-
-                                                                            _this.commentsViewer = null;
-
-                                                                        }
-
-                                                                    });
-
-                                                                }
-
-                                                            });
-
-                    }
-                    */
-                }
-
-            });
-
-            viewComments.setBorder (UIUtils.createPadding (0, 10, 0, 0));
-
-            builder.add (viewComments,
-                         cc.xywh (1,
-                                  row,
-                                  3,
-                                  1));
+                        })
+                        .build ());
 
         }
 
-        JPanel bp = builder.getPanel ();
-        bp.setOpaque (false);
-        bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        this.getChildren ().add (fb.build ());
 
-        bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));
+    }
 
-        this.add (bp);
+    public boolean isAutoDealtWith ()
+    {
+
+        return false;
 
     }
 

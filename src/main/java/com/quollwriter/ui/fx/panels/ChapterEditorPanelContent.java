@@ -262,6 +262,13 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 */
     }
 
+    public IndexRange getSelection ()
+    {
+
+        return this.editor.getSelection ();
+
+    }
+
     public void scrollToTextPosition (int      pos,
                                       Runnable afterScroll)
     {

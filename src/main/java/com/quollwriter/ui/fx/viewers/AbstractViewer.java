@@ -52,7 +52,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         reportbug,
         dowarmup,
         fullscreen,
-        find
+        find,
+        close
     };
 
     // Using an interface to reduce typing :)
@@ -120,7 +121,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     private Map<String, SideBar> sideBars = new HashMap<> ();
     private Stack<SideBar>  activeSideBars = new Stack<> ();
-    private SideBar       currentOtherSideBar = null;
     private ObjectProperty<SideBar> currentOtherSideBarProp = null;
     private SideBar       mainSideBar = null;
     private BooleanProperty inFullScreenModeProp = null;
@@ -287,7 +287,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
 
         QuollMenuButton context = QuollMenuButton.builder ()
-            .styleClassName (StyleClassNames.VIEWERMENU)
+            .iconName (StyleClassNames.VIEWERMENU)
             .tooltip (prefix,projectmenu,tooltip)
             .items (() ->
             {
@@ -315,7 +315,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,options)
-                    .styleClassName (StyleClassNames.OPTIONS)
+                    .iconName (StyleClassNames.OPTIONS)
                     .onAction (ev ->
                     {
 
@@ -326,7 +326,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,achievements)
-                    .styleClassName (StyleClassNames.ACHIEVEMENTS)
+                    .iconName (StyleClassNames.ACHIEVEMENTS)
                     .onAction (ev ->
                     {
 
@@ -337,7 +337,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,(Environment.isNightModeEnabled () ? disablenightmode : enablenightmode))
-                    .styleClassName ((Environment.isNightModeEnabled () ? StyleClassNames.SUN : StyleClassNames.MOON))
+                    .iconName ((Environment.isNightModeEnabled () ? StyleClassNames.SUN : StyleClassNames.MOON))
                     .onAction (ev ->
                     {
 
@@ -350,7 +350,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,whatsnew)
-                    .styleClassName (StyleClassNames.WHATSNEW)
+                    .iconName (StyleClassNames.WHATSNEW)
                     .onAction (ev ->
                     {
 
@@ -369,7 +369,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                 // Report Bug/Problem
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,reportbug)
-                    .styleClassName (StyleClassNames.REPORTBUG)
+                    .iconName (StyleClassNames.REPORTBUG)
                     .onAction (ev ->
                     {
 
@@ -381,7 +381,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                 // Contact Support
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,contactsupport)
-                    .styleClassName (StyleClassNames.CONTACTSUPPORT)
+                    .iconName (StyleClassNames.CONTACTSUPPORT)
                     .onAction (ev ->
                     {
 
@@ -393,7 +393,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                 // View the User Guide
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,viewuserguide)
-                    .styleClassName (StyleClassNames.VIEWUSERGUIDE)
+                    .iconName (StyleClassNames.VIEWUSERGUIDE)
                     .onAction (ev ->
                     {
 
@@ -406,7 +406,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                 // Keyboard shortcuts
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,keyboardshortcuts)
-                    .styleClassName (StyleClassNames.KEYBOARDSHORTCUTS)
+                    .iconName (StyleClassNames.KEYBOARDSHORTCUTS)
                     .onAction (ev ->
                     {
 
@@ -419,7 +419,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                 // About Quoll Writer
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,about)
-                    .styleClassName (StyleClassNames.ABOUT)
+                    .iconName (StyleClassNames.ABOUT)
                     .onAction (ev ->
                     {
 
@@ -434,7 +434,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                     // Debug Console
                     items.add (QuollMenuItem.builder ()
                         .label ("Debug Console")
-                        .styleClassName (StyleClassNames.DEBUGCONSOLE)
+                        .iconName (StyleClassNames.DEBUGCONSOLE)
                         .onAction (ev ->
                         {
 
@@ -1187,24 +1187,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                                  MouseEvent ev)
     {
 
-        StringTokenizer t = new StringTokenizer (v,
-                                                 ",;");
-
-        if (t.countTokens () > 1)
-        {
-
-            while (t.hasMoreTokens ())
-            {
-
-                this.handleURLAction (t.nextToken ().trim (),
-                                      ev);
-
-            }
-
-            return;
-
-        }
-
         try
         {
 
@@ -1753,13 +1735,13 @@ TODO Remove handled by the content.
                 textc.getChildren ().add (text);
 
                 QuollButton next = QuollButton.builder ()
-                    .styleClassName (StyleClassNames.NEXT)
+                    .iconName (StyleClassNames.NEXT)
                     .tooltip (tipspanel,LanguageStrings.next,tooltip)
                     .buttonType (ButtonBar.ButtonData.NEXT_FORWARD)
                     .build ();
 
                 QuollButton off = QuollButton.builder ()
-                    .styleClassName (StyleClassNames.STOP)
+                    .iconName (StyleClassNames.STOP)
                     .tooltip (tipspanel,stop,tooltip)
                     .buttonType (ButtonBar.ButtonData.FINISH)
                     .build ();
@@ -2142,7 +2124,7 @@ TODO
 
             return QuollButton.builder ()
                 .tooltip (prefix,bug,tooltip)
-                .styleClassName (StyleClassNames.BUG)
+                .iconName (StyleClassNames.BUG)
                 .onAction (ev ->
                 {
 
@@ -2158,7 +2140,7 @@ TODO
 
             return QuollButton.builder ()
                 .tooltip (prefix,find,tooltip)
-                .styleClassName (StyleClassNames.FIND)
+                .iconName (StyleClassNames.FIND)
                 .onAction (ev ->
                 {
 
@@ -2174,7 +2156,7 @@ TODO
 
             return QuollButton.builder ()
                 .tooltip (prefix,fullscreen,tooltip)
-                .styleClassName (StyleClassNames.FULLSCREENENTER)
+                .iconName (StyleClassNames.FULLSCREENENTER)
                 .onAction (ev ->
                 {
 
@@ -2190,7 +2172,7 @@ TODO
 
             return QuollButton.builder ()
                 .tooltip (prefix,warmup,tooltip)
-                .styleClassName (StyleClassNames.WARMUP)
+                .iconName (StyleClassNames.WARMUP)
                 .onAction (ev ->
                 {
 
@@ -2226,7 +2208,7 @@ TODO
                 //String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
                 return QuollButton.builder ()
                     .tooltip (prefix,type,tooltip)
-                    .styleClassName (StyleClassNames.CONTACTS)
+                    .iconName (StyleClassNames.CONTACTS)
                     .onAction (ev ->
                     {
 
@@ -2284,9 +2266,9 @@ TODO
     public boolean isSideBarVisible (String id)
     {
 
-        if ((this.currentOtherSideBar != null)
+        if ((this.currentOtherSideBarProp.getValue () != null)
             &&
-            (this.currentOtherSideBar.getSideBarId ().equals (id))
+            (this.currentOtherSideBarProp.getValue ().getSideBarId ().equals (id))
            )
         {
 
@@ -2362,10 +2344,10 @@ TODO
     public String getCurrentOtherSideBarId ()
     {
 
-        if (this.currentOtherSideBar != null)
+        if (this.currentOtherSideBarProp.getValue () != null)
         {
 
-            return this.currentOtherSideBar.getSideBarId ();
+            return this.currentOtherSideBarProp.getValue ().getSideBarId ();
 
         }
 
@@ -2377,21 +2359,21 @@ TODO
                              Runnable doAfterView)
     {
 
-        if ((this.currentOtherSideBar != null)
+        if ((this.currentOtherSideBarProp.getValue () != null)
             &&
-            (this.currentOtherSideBar.getSideBarId ().equals (id))
+            (this.currentOtherSideBarProp.getValue ().getSideBarId ().equals (id))
            )
         {
 
-            this.currentOtherSideBar.setVisible (true);
-            this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
-                                                                          this.currentOtherSideBar,
-                                                                          SideBar.SideBarEvent.SHOW_EVENT));
+            this.currentOtherSideBarProp.getValue ().setVisible (true);
+            this.currentOtherSideBarProp.getValue ().fireEvent (new SideBar.SideBarEvent (this,
+                                                                                          this.currentOtherSideBarProp.getValue (),
+                                                                                          SideBar.SideBarEvent.SHOW_EVENT));
 
             if (this.fullScreenContent != null)
             {
 
-                this.fullScreenContent.showSideBar (this.currentOtherSideBar);
+                this.fullScreenContent.showSideBar (this.currentOtherSideBarProp.getValue ());
 
             }
 
@@ -2410,13 +2392,13 @@ TODO
 
         }
 
-        if (this.currentOtherSideBar != null)
+        if (this.currentOtherSideBarProp.getValue () != null)
         {
 
-            this.currentOtherSideBar.setVisible (false);
-            this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
-                                                                          this.currentOtherSideBar,
-                                                                          SideBar.SideBarEvent.HIDE_EVENT));
+            this.currentOtherSideBarProp.getValue ().setVisible (false);
+            this.currentOtherSideBarProp.getValue ().fireEvent (new SideBar.SideBarEvent (this,
+                                                                                          this.currentOtherSideBarProp.getValue (),
+                                                                                          SideBar.SideBarEvent.HIDE_EVENT));
 
         }
 
@@ -2428,22 +2410,22 @@ TODO
             if (this.isUILayoutShowSingleSidebar ())
             {
 
-                this.currentOtherSideBar = null;
+                this.currentOtherSideBarProp.setValue (null);
 
             }
 
         } else {
 
-            this.currentOtherSideBar = b;
-            this.currentOtherSideBar.setVisible (true);
+            this.currentOtherSideBarProp.setValue (b);
+            this.currentOtherSideBarProp.getValue ().setVisible (true);
 
             this.activeSideBars.remove (b);
 
             this.activeSideBars.push (b);
 
-            this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
-                                                                          this.currentOtherSideBar,
-                                                                          SideBar.SideBarEvent.SHOW_EVENT));
+            this.currentOtherSideBarProp.getValue ().fireEvent (new SideBar.SideBarEvent (this,
+                                                                                          this.currentOtherSideBarProp.getValue (),
+                                                                                          SideBar.SideBarEvent.SHOW_EVENT));
 
         }
 
@@ -2472,7 +2454,7 @@ TODO
     public SideBar getCurrentOtherSideBar ()
     {
 
-        return this.currentOtherSideBar;
+        return this.currentOtherSideBarProp.getValue ();
 
     }
 
@@ -2516,7 +2498,7 @@ TODO Clean up?
 
             QuollMenuItem mi = QuollMenuItem.builder ()
                 .label (this.mainSideBar.activeTitleProperty ())
-                .styleClassName (this.mainSideBar.getStyleClassName ())
+                .iconName (this.mainSideBar.getStyleClassName ())
                 .onAction (ev ->
                 {
 
@@ -2536,9 +2518,9 @@ TODO Clean up?
         for (SideBar sb : this.activeSideBars)
         {
 
-            if ((this.currentOtherSideBar != null)
+            if ((this.currentOtherSideBarProp.getValue () != null)
                 &&
-                (this.currentOtherSideBar == sb)
+                (this.currentOtherSideBarProp.getValue () == sb)
                )
             {
 
@@ -2550,7 +2532,7 @@ TODO Clean up?
 
             QuollMenuItem mi = QuollMenuItem.builder ()
                 .label (sb.activeTitleProperty ())
-                .styleClassName (sb.getStyleClassName ())
+                .iconName (sb.getStyleClassName ())
                 .onAction (ev ->
                 {
 
@@ -2618,22 +2600,20 @@ TODO Clean up?
     public void closeSideBar ()
     {
 
-        if (this.currentOtherSideBar != null)
+        if (this.currentOtherSideBarProp.getValue () != null)
         {
 
-            this.currentOtherSideBar.fireEvent (new SideBar.SideBarEvent (this,
-                                                                          this.currentOtherSideBar,
-                                                                          SideBar.SideBarEvent.HIDE_EVENT));
+            this.currentOtherSideBarProp.getValue ().fireEvent (new SideBar.SideBarEvent (this,
+                                                                                          this.currentOtherSideBarProp.getValue (),
+                                                                                          SideBar.SideBarEvent.HIDE_EVENT));
 
-            this.currentOtherSideBar.setVisible (false);
+            this.currentOtherSideBarProp.getValue ().setVisible (false);
 
         }
 
-        this.currentOtherSideBar = null;
-
         this.currentOtherSideBarProp.setValue (null);
 
-        this.currentContent.showSideBar (this.currentOtherSideBar);
+        this.currentContent.showSideBar (this.currentOtherSideBarProp.getValue ());
 
         this.updateLayout ();
 
@@ -2667,10 +2647,10 @@ TODO Clean up?
 
         this.activeSideBars.remove (sb);
 
-        if (this.currentOtherSideBar == sb)
+        if (this.currentOtherSideBarProp.getValue () == sb)
         {
 
-            this.currentOtherSideBar = null;
+            this.currentOtherSideBarProp.setValue (null);
 
         }
 
@@ -2761,32 +2741,26 @@ TODO
 
     }
 
-/*
- TODO Still needed?
-    @Override
-    public boolean isEditorsVisible ()
-    {
-
-        return this.isEditorsSideBarVisible ();
-
-    }
-
     public boolean isEditorsSideBarVisible ()
     {
 
-        EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.ID);
-
-        if (sb != null)
+        if (this.currentOtherSideBarProp.getValue () == null)
         {
 
-            return sb.isShowing ();
+            return false;
+
+        }
+
+        if (this.currentOtherSideBarProp.getValue ().getSideBarId ().equals (EditorsSideBar.SIDEBAR_ID))
+        {
+
+            return true;
 
         }
 
         return false;
 
     }
-*/
 
   public void sendMessageToEditor (final EditorEditor ed)
                             throws GeneralException
@@ -2810,7 +2784,7 @@ TODO
                                     e);
 
               ComponentUtils.showErrorMessage (_this,
-                                                getUILanguageStringProperty (editors,vieweditorerror));
+                                                getUILanguageStringProperty (editors,editor,view,actionerror));
                                                 //"Unable to show Editor");
 
           }
@@ -2823,14 +2797,6 @@ TODO
                        throws GeneralException
   {
 
-      // TODO
-      UIUtils.showFeatureComingSoonPopup ();
-
-      if (true)
-      {
-          return true;
-      }
-
       // See if the user has an account or has already registered, if so show the sidebar
       // otherwise show the register.
       if (!EditorsEnvironment.hasRegistered ())
@@ -2839,7 +2805,7 @@ TODO
           try
           {
 
-              // TODO EditorsUIUtils.showRegister (this);
+              EditorsUIUtils.showRegister (this);
 
           } catch (Exception e) {
 
@@ -3120,7 +3086,7 @@ TODO Not needed, is a function of the sidebar itself...
         List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
 
         QuollMenuButton context = QuollMenuButton.builder ()
-            .styleClassName (StyleClassNames.VIEWERMENU)
+            .iconName (StyleClassNames.VIEWERMENU)
             .tooltip (prefix,projectmenu,tooltip)
             .items (() ->
             {
@@ -3147,7 +3113,7 @@ TODO Not needed, is a function of the sidebar itself...
 
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,options)
-                    .styleClassName (StyleClassNames.OPTIONS)
+                    .iconName (StyleClassNames.OPTIONS)
                     .onAction (ev ->
                     {
 
@@ -3158,7 +3124,7 @@ TODO Not needed, is a function of the sidebar itself...
 
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,achievements)
-                    .styleClassName (StyleClassNames.ACHIEVEMENTS)
+                    .iconName (StyleClassNames.ACHIEVEMENTS)
                     .onAction (ev ->
                     {
 
@@ -3171,7 +3137,7 @@ TODO Not needed, is a function of the sidebar itself...
 
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,whatsnew)
-                    .styleClassName (StyleClassNames.WHATSNEW)
+                    .iconName (StyleClassNames.WHATSNEW)
                     .onAction (ev ->
                     {
 
@@ -3190,7 +3156,7 @@ TODO Not needed, is a function of the sidebar itself...
                 // Report Bug/Problem
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,reportbug)
-                    .styleClassName (StyleClassNames.REPORTBUG)
+                    .iconName (StyleClassNames.REPORTBUG)
                     .onAction (ev ->
                     {
 
@@ -3202,7 +3168,7 @@ TODO Not needed, is a function of the sidebar itself...
                 // Contact Support
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,contactsupport)
-                    .styleClassName (StyleClassNames.CONTACTSUPPORT)
+                    .iconName (StyleClassNames.CONTACTSUPPORT)
                     .onAction (ev ->
                     {
 
@@ -3214,7 +3180,7 @@ TODO Not needed, is a function of the sidebar itself...
                 // View the User Guide
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,viewuserguide)
-                    .styleClassName (StyleClassNames.VIEWUSERGUIDE)
+                    .iconName (StyleClassNames.VIEWUSERGUIDE)
                     .onAction (ev ->
                     {
 
@@ -3227,7 +3193,7 @@ TODO Not needed, is a function of the sidebar itself...
                 // Keyboard shortcuts
                 helpMenu.getItems ().add (QuollMenuItem.builder ()
                     .label (mprefix,keyboardshortcuts)
-                    .styleClassName (StyleClassNames.KEYBOARDSHORTCUTS)
+                    .iconName (StyleClassNames.KEYBOARDSHORTCUTS)
                     .onAction (ev ->
                     {
 
@@ -3240,7 +3206,7 @@ TODO Not needed, is a function of the sidebar itself...
                 // About Quoll Writer
                 items.add (QuollMenuItem.builder ()
                     .label (mprefix,about)
-                    .styleClassName (StyleClassNames.ABOUT)
+                    .iconName (StyleClassNames.ABOUT)
                     .onAction (ev ->
                     {
 
@@ -3255,7 +3221,7 @@ TODO Not needed, is a function of the sidebar itself...
                     // Debug Console
                     items.add (QuollMenuItem.builder ()
                         .label ("Debug Console")
-                        .styleClassName (StyleClassNames.DEBUGCONSOLE)
+                        .iconName (StyleClassNames.DEBUGCONSOLE)
                         .onAction (ev ->
                         {
 

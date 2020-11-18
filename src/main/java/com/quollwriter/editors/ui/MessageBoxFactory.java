@@ -4,7 +4,7 @@ import java.util.*;
 import java.lang.reflect.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.editors.messages.*;
 
 /**
@@ -14,21 +14,21 @@ import com.quollwriter.editors.messages.*;
  */
 public class MessageBoxFactory
 {
-    
+
     private static final Map<String, Class> boxTypes = new HashMap ();
-        
+
     static
     {
-        
+
         Map m = MessageBoxFactory.boxTypes;
-        
+
         // See the discussion of how this is handled in MessageFactory, the same arguments
         // can (and should) be made here.
-        
+
         // This is a little more complex however since there are times when a user may want to
         // use their own representation of messages.
         // TODO: Make more flexible in a future release, especially to allow custom representations.
-        
+
         // TODO: Move this setup to a config file that dynamically loads the classes.
         m.put (EditorChatMessage.MESSAGE_TYPE,
                ChatMessageBox.class);
@@ -50,9 +50,9 @@ public class MessageBoxFactory
                UpdateProjectMessageBox.class);
         m.put (EditorRemovedMessage.MESSAGE_TYPE,
                EditorRemovedMessageBox.class);
-        
-    }    
-   
+
+    }
+
     /**
      * Create a new message box for the message.  May be null if the message isn't supported.
      * The message box WON'T be inited before return.
@@ -66,67 +66,67 @@ public class MessageBoxFactory
                                                     AbstractViewer viewer)
                                              throws Exception
     {
-        
+
         if (mess == null)
         {
-            
+
             throw new IllegalArgumentException ("No message specified.");
-            
+
         }
-        
+
         Class c = MessageBoxFactory.boxTypes.get (mess.getMessageType ());
-        
+
         if (c == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         // Get the constructor.
         Constructor cons = null;
-        
+
         try
         {
-            
+
             cons = c.getConstructor (mess.getClass (),
                                      AbstractViewer.class);
-            
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get constructor for message type: " +
                                         mess.getMessageType (),
                                         e);
-            
+
         }
-        
+
         if (cons == null)
         {
-            
+
             throw new IllegalArgumentException ("Class: " +
                                                 c.getName () +
                                                 " does not have the correct constructor");
-            
+
         }
-        
+
         MessageBox mb = null;
-        
+
         try
         {
-            
+
             mb = (MessageBox) cons.newInstance (mess,
                                                 viewer);
-            
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to create new instance of: " +
                                         c.getName (),
                                         e);
-            
+
         }
-        
+
         return mb;
-        
+
     }
-    
+
 }

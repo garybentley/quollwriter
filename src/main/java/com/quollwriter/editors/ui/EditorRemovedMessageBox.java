@@ -1,36 +1,28 @@
 package com.quollwriter.editors.ui;
 
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.*;
 
-import java.awt.event.*;
-import java.awt.Component;
-import java.awt.Dimension;
-import javax.swing.*;
-import javax.swing.border.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import javafx.beans.property.*;
+import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.scene.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
-import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 {
 
-    private Box responseBox = null;
+    private VBox responseBox = null;
 
     public EditorRemovedMessageBox (EditorRemovedMessage mess,
                                     AbstractViewer       viewer)
@@ -39,115 +31,61 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
         super (mess,
                viewer);
 
-    }
-
-    public boolean isAutoDealtWith ()
-    {
-
-        return false;
-
-    }
-
-    public void doUpdate ()
-    {
-
-        if (this.message.isDealtWith ())
+        this.binder.addChangeListener (mess.dealtWithProperty (),
+                                       (pr, oldv, newv) ->
         {
 
-            if (this.responseBox != null)
+            if (this.message.isDealtWith ())
             {
 
-                this.responseBox.setVisible (false);
+                if (this.responseBox != null)
+                {
+
+                    this.responseBox.setVisible (false);
+
+                }
 
             }
 
-        }
+        });
 
-    }
+        StringProperty title = getUILanguageStringProperty (editors,messages,contactremoved,(this.message.isSentByMe () ? sent : received),LanguageStrings.title);
+        StringProperty text = getUILanguageStringProperty (Arrays.asList (editors,messages,contactremoved,(this.message.isSentByMe () ? sent : received),LanguageStrings.text),
+                                                           this.message.getEditor ().mainNameProperty ());
 
-    public void doInit ()
-    {
+        this.getChildren ().add (Header.builder ()
+            .title (title)
+            .iconClassName (StyleClassNames.DELETE)
+            .styleClassName (StyleClassNames.SUBTITLE)
+            .build ());
 
-        final EditorRemovedMessageBox _this = this;
-
-        String title = null;
-        String text = null;
-
-        if (this.message.isSentByMe ())
-        {
-
-            title = getUIString (editors,messages,contactremoved,sent,LanguageStrings.title);
-            text = String.format (getUIString (editors,messages,contactremoved,sent,LanguageStrings.text),
-                                  //"You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
-                                  this.message.getEditor ().getShortName ());
-
-        } else {
-
-            title = getUIString (editors,messages,contactremoved,received,LanguageStrings.title);
-            text = String.format (getUIString (editors,messages,contactremoved,received,LanguageStrings.text),
-                                  //"You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
-                                  this.message.getEditor ().getShortName ());
-
-        }
-
-        JComponent h = UIUtils.createBoldSubHeader (title,
-                                                    //String.format ("Removed %sas {a contact}",
-                                                    //               (this.message.isSentByMe () ? "" : "you ")),
-                                                    Constants.DELETE_ICON_NAME);
-
-        this.add (h);
-
-        JTextPane desc = UIUtils.createHelpTextPane (text,
-                                                     this.viewer);
-
-        this.add (Box.createVerticalStrut (5));
-
-        Box descb = new Box (BoxLayout.Y_AXIS);
-        descb.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-        descb.add (desc);
-        descb.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.add (descb);
-
-        desc.setBorder (null);
-        desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                     desc.getPreferredSize ().height));
+        this.getChildren ().add (QuollTextView.builder ()
+            .styleClassName (StyleClassNames.DESCRIPTION)
+            .text (text)
+            .inViewer (this.viewer)
+            .build ());
 
         if (!this.message.isDealtWith ())
         {
 
             // Show the response.
-            this.responseBox = new Box (BoxLayout.Y_AXIS);
+            this.responseBox = new VBox ();
 
-            this.add (this.responseBox);
+            this.getChildren ().add (this.responseBox);
 
-            JTextPane rdesc = UIUtils.createHelpTextPane (String.format (getUIString (editors,messages,contactremoved,received,undealtwith,LanguageStrings.text),
-                                                                        //"Clicking on the button below will remove <b>%s</b> from your list of current {contacts}.  You can still get access to them in the options menu of the {Contacts} sidebar via the <b>View the previous {contacts}</b> item.",
-                                                                         this.message.getEditor ().getShortName ()),
-                                                         this.viewer);
-
-            this.responseBox.add (Box.createVerticalStrut (5));
-
-            Box rdescb = new Box (BoxLayout.Y_AXIS);
-            rdescb.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-            rdescb.add (rdesc);
-            rdescb.setAlignmentX (Component.LEFT_ALIGNMENT);
-            this.responseBox.add (rdescb);
-
-            rdesc.setBorder (null);
-            rdesc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                          rdesc.getPreferredSize ().height));
+            this.responseBox.getChildren ().add (QuollTextView.builder ()
+                .text (getUILanguageStringProperty (Arrays.asList (editors,messages,contactremoved,received,undealtwith,LanguageStrings.text),
+                                                                            //"Clicking on the button below will remove <b>%s</b> from your list of current {contacts}.  You can still get access to them in the options menu of the {Contacts} sidebar via the <b>View the previous {contacts}</b> item.",
+                                                                   this.message.getEditor ().mainNameProperty ()))
+                .inViewer (this.viewer)
+                .styleClassName (StyleClassNames.DESCRIPTION)
+                .build ());
 
             final EditorEditor ed = this.message.getEditor ();
 
-            this.responseBox.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-
-            JButton ok = UIUtils.createButton (getUIString (editors,messages,contactremoved,received,undealtwith,buttons,confirm));
-            //"Ok, got it");
-
-            ok.addActionListener (new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
+            this.getChildren ().add (QuollButton.builder ()
+                .label (editors,messages,contactremoved,received,undealtwith,buttons,confirm)
+                .onAction (ev ->
                 {
 
                     try
@@ -164,15 +102,15 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 
                         EditorsEnvironment.updateEditor (ed);
 
-                        _this.responseBox.setVisible (false);
+                        this.responseBox.setVisible (false);
 
-                        _this.message.setDealtWith (true);
+                        this.message.setDealtWith (true);
 
-                        EditorsEnvironment.updateMessage (_this.message);
+                        EditorsEnvironment.updateMessage (this.message);
 
                         // Offer to remove any projects we are editing for them.
-                        EditorsUIUtils.showDeleteProjectsForEditor (_this.viewer,
-                                                                    _this.message.getEditor (),
+                        EditorsUIUtils.showDeleteProjectsForEditor (this.viewer,
+                                                                    this.message.getEditor (),
                                                                     null);
 
                     } catch (Exception e) {
@@ -181,29 +119,25 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                                               ed,
                                               e);
 
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  getUIString (editors,messages,update,actionerror));
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         getUILanguageStringProperty (editors,messages,update,actionerror));
                                                   //"Unable to update {contact}, please contact Quoll Writer support for assistance.");
 
                         return;
 
                     }
 
-                }
-
-            });
-
-            JButton[] buts = new JButton[] { ok };
-
-            JPanel bb = UIUtils.createButtonBar2 (buts,
-                                                  Component.LEFT_ALIGNMENT);
-            bb.setOpaque (false);
-            bb.setAlignmentX (Component.LEFT_ALIGNMENT);
-            bb.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-
-            this.responseBox.add (bb);
+                })
+                .build ());
 
         }
+
+    }
+
+    public boolean isAutoDealtWith ()
+    {
+
+        return false;
 
     }
 

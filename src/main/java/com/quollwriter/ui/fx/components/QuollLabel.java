@@ -16,7 +16,7 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class QuollLabel extends Label
 {
 
-    private Pane icon = null;
+    private IconBox icon = null;
 
     private QuollLabel (Builder b)
     {
@@ -60,56 +60,26 @@ public class QuollLabel extends Label
 
         this.managedProperty ().bind (this.visibleProperty ());
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        this.icon = new Pane ();
+        this.icon = IconBox.builder ()
+            .iconName (b.styleName)
+            .build ();
 
-        if (b.styleName != null)
-        {
+        this.setGraphic (this.icon);
 
-            this.icon.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
+    }
 
-        }
-        this.icon.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (this.icon);
-        h.managedProperty ().bind (h.visibleProperty ());
-        this.setGraphic (h);
+    public void setText (StringProperty t)
+    {
+
+        this.textProperty ().unbind ();
+        this.textProperty ().bind (t);
 
     }
 
     public void setIconClassName (String c)
     {
 
-        String r = null;
-
-        for (String s : this.icon.getStyleClass ())
-        {
-
-            if (s.endsWith (StyleClassNames.ICON_SUFFIX))
-            {
-
-                r = s;
-                break;
-
-            }
-
-        }
-
-        if (r != null)
-        {
-
-            this.icon.getStyleClass ().remove (r);
-
-        }
-
-        if (!c.endsWith (StyleClassNames.ICON_SUFFIX))
-        {
-
-            c += StyleClassNames.ICON_SUFFIX;
-
-        }
-
-        this.icon.getStyleClass ().add (c);
+        this.icon.setIconName (c);
 
     }
 

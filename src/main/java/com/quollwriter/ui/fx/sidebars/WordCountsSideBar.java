@@ -798,7 +798,7 @@ TODO
         Set<Node> headerCons = new LinkedHashSet<> ();
         headerCons.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (project,LanguageStrings.sidebar,wordcount,headercontrols,items,statistics,tooltip))
-            .styleClassName (StyleClassNames.STATISTICS)
+            .iconName (StyleClassNames.STATISTICS)
             .build ());
 
         return SideBar.builder ()

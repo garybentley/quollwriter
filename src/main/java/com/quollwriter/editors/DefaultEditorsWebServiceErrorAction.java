@@ -12,6 +12,9 @@ import com.quollwriter.data.editors.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
 
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+import static com.quollwriter.LanguageStrings.*;
+
 public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAction
 {
 
@@ -46,7 +49,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
 
                 AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
 
-                EditorsUIUtils.showLoginError (getUIString (editors,login,errors,maxloginattempts));
+                EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,maxloginattempts));
                 //"You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.");
 
             }
@@ -56,8 +59,8 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
     }
 
     protected void handleUnauthorizedResponse (EditorsWebServiceResult res,
-                                               ActionListener          onLogin,
-                                               ActionListener          onCancel)
+                                               Runnable                onLogin,
+                                               Runnable                onCancel)
     {
 
         AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
@@ -75,7 +78,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
             EditorsEnvironment.clearUserPassword ();
 
             // Need to login again, probably the password has been changed.
-            EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials),
+            EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,invalidcredentials),
                                            //"Your login details do not appear to be correct.",
                                            onLogin,
                                            onCancel);
@@ -88,7 +91,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
         {
 
             // Need to activate the account first.
-            EditorsUIUtils.showLoginError (getUIString (editors,login,errors,inactiveaccount));
+            EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,inactiveaccount));
             //"You must activate your account (check your email) first.");
 
             return;
@@ -108,7 +111,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
             {
 
                 // How did we wind up here?
-                EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials),
+                EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,invalidcredentials),
                                                //"Your login details do not appear to be correct.",
                                                onLogin,
                                                onCancel);
@@ -129,7 +132,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
         EditorsEnvironment.clearUserPassword ();
 
         // Something unexpected happened, just show the login again.
-        EditorsUIUtils.showLoginError (getUIString (editors,login,errors,invalidcredentials),
+        EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,invalidcredentials),
                                        //"Your login details do not appear to be correct.",
                                        onLogin,
                                        onCancel);
@@ -151,18 +154,13 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
         {
 
             this.handleUnauthorizedResponse (res,
-                                             new ActionListener ()
+                                             () ->
                                              {
 
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
+                                                EditorAccount acc = EditorsEnvironment.getUserAccount ();
 
-                                                    EditorAccount acc = EditorsEnvironment.getUserAccount ();
-
-                                                    // Recall.
-                                                    res.getCall ().sessionId (acc.getWebServiceSessionId ()).call ();
-
-                                                }
+                                                // Recall.
+                                                res.getCall ().sessionId (acc.getWebServiceSessionId ()).call ();
 
                                              },
                                              null);

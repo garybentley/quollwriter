@@ -8,9 +8,10 @@ import javafx.scene.layout.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.data.IPropertyBinder;
+import com.quollwriter.data.Scene;
 import com.quollwriter.ui.fx.viewers.*;
 
-public class SceneItemFormatter extends AbstractChapterItemFormatter<com.quollwriter.data.Scene>
+public class SceneItemFormatter extends AbstractProjectItemFormatter<Scene>
 {
 
     public SceneItemFormatter (ProjectViewer              viewer,

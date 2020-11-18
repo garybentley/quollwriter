@@ -152,7 +152,7 @@ public class NotesSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,view)))
-                        .styleClassName (StyleClassNames.VIEW)
+                        .iconName (StyleClassNames.VIEW)
                         .onAction (ev ->
                         {
 
@@ -163,7 +163,7 @@ public class NotesSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,edit)))
-                        .styleClassName (StyleClassNames.EDIT)
+                        .iconName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
 
@@ -184,7 +184,7 @@ public class NotesSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (nprefix,delete)))
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -541,7 +541,7 @@ TODO
 
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,manage)))
-                .styleClassName (StyleClassNames.ADD)
+                .iconName (StyleClassNames.ADD)
                 .onAction (ev ->
                 {
 

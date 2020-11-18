@@ -204,6 +204,8 @@ public class Constants
 
     public static final String EDIT_NEEDED_NOTE_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME = "editNeededNoteChapterHighlightColor";
 
+    public static final String EDITOR_COMMENT_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME = "editorCommentChapterHighlightColor";
+
     public static final String EDIT_MARKER_COLOR_PROPERTY_NAME = "editMarkerColor";
 
     public static final String COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME = "compressChapterContextMenu";

@@ -60,6 +60,7 @@ public class ProjectCommentsMessage extends EditorMessage implements PropertyCha
         this.projVer = pv;
 
         this.setEditor (editor);
+
         this.setForProjectName (project.getName ());
         this.setForProjectId (project.getId ());
         this.comments = comments;

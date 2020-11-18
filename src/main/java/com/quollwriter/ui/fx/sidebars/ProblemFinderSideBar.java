@@ -203,7 +203,7 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
 
         Set<Node> cons = new LinkedHashSet<> ();
         cons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.REFRESH)
+            .iconName (StyleClassNames.REFRESH)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,headercontrols,items,findall,tooltip)))
             .onAction (ev ->
             {
@@ -214,7 +214,7 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
             .build ());
 
         cons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,headercontrols,items,edit,tooltip)))
             .onAction (ev ->
             {
@@ -230,7 +230,7 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
             .build ());
 
         cons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.CONFIG)
+            .iconName (StyleClassNames.CONFIG)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,headercontrols,items,config,tooltip)))
             .onAction (ev ->
             {

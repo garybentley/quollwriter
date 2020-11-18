@@ -76,7 +76,7 @@ public class DoWarmupExercisePopup extends PopupContent
 
         QuollButtonBar bb = QuollButtonBar.builder ()
             .button (QuollButton.builder ()
-                        .styleClassName (StyleClassNames.WEBLINKS)
+                        .iconName (StyleClassNames.WEBLINKS)
                         .buttonType (ButtonBar.ButtonData.OTHER)
                         .tooltip (getUILanguageStringProperty (dowarmup,weblinks,tooltip))
                         .onAction (ev ->
@@ -88,7 +88,7 @@ public class DoWarmupExercisePopup extends PopupContent
                         })
                         .build ())
             .button (QuollButton.builder ()
-                        .styleClassName (StyleClassNames.PREVIOUS)
+                        .iconName (StyleClassNames.PREVIOUS)
                         .buttonType (ButtonBar.ButtonData.BACK_PREVIOUS)
                         .tooltip (getUILanguageStringProperty (dowarmup,previousprompt,tooltip))
                         .onAction (ev ->
@@ -128,7 +128,7 @@ public class DoWarmupExercisePopup extends PopupContent
                         })
                         .build ())
             .button (QuollButton.builder ()
-                        .styleClassName (StyleClassNames.NEXT)
+                        .iconName (StyleClassNames.NEXT)
                         .buttonType (ButtonBar.ButtonData.NEXT_FORWARD)
                         .label (getUILanguageStringProperty (dowarmup,nextprompt,text))
                         .tooltip (getUILanguageStringProperty (dowarmup,nextprompt,tooltip))

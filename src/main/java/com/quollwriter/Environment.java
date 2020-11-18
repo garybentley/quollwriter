@@ -2091,6 +2091,15 @@ TODO NEeded?
 
     }
 
+    public static ScheduledFuture scheduleImmediately (Runnable r)
+    {
+
+        return Environment.schedule (r,
+                                     0,
+                                     -1);
+
+    }
+
     /**
      * Schedule the runnable to run after delay and repeat (use -1 or 0 for no repeat).
      *
@@ -2147,8 +2156,8 @@ TODO NEeded?
                 }
 
             },
-                                                      delay,
-                                                      TimeUnit.MILLISECONDS);
+            (delay < 0 ? 0 : delay),
+            TimeUnit.MILLISECONDS);
 
         } else {
 
@@ -2168,9 +2177,9 @@ TODO NEeded?
                 }
 
             },
-                                                                 delay,
-                                                                 repeat,
-                                                                 TimeUnit.MILLISECONDS);
+            (delay < 0 ? 0 : delay),
+            repeat,
+            TimeUnit.MILLISECONDS);
 
         }
 

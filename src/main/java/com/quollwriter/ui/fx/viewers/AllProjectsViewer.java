@@ -643,7 +643,7 @@ public class AllProjectsViewer extends AbstractViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,newproject))
-                    .styleClassName (StyleClassNames.NEW)
+                    .iconName (StyleClassNames.NEW)
                     .onAction (ev ->
                     {
 
@@ -654,7 +654,7 @@ public class AllProjectsViewer extends AbstractViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,importfileorproject))
-                    .styleClassName (StyleClassNames.IMPORT)
+                    .iconName (StyleClassNames.IMPORT)
                     .onAction (ev ->
                     {
 
@@ -665,7 +665,7 @@ public class AllProjectsViewer extends AbstractViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,findprojects))
-                    .styleClassName (StyleClassNames.FIND)
+                    .iconName (StyleClassNames.FIND)
                     .onAction (ev ->
                     {
 
@@ -678,7 +678,7 @@ public class AllProjectsViewer extends AbstractViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,showcontacts))
-                    .styleClassName (StyleClassNames.CONTACTS)
+                    .iconName (StyleClassNames.CONTACTS)
                     .onAction (ev ->
                     {
 
@@ -689,7 +689,7 @@ public class AllProjectsViewer extends AbstractViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,statistics))
-                    .styleClassName (StyleClassNames.STATISTICS)
+                    .iconName (StyleClassNames.STATISTICS)
                     .onAction (ev ->
                     {
 
@@ -700,7 +700,7 @@ public class AllProjectsViewer extends AbstractViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,targets))
-                    .styleClassName (StyleClassNames.TARGETS)
+                    .iconName (StyleClassNames.TARGETS)
                     .onAction (ev ->
                     {
 
@@ -774,7 +774,7 @@ TODO Removed, not valid here.
 */
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,managestatuses))
-                    .styleClassName (StyleClassNames.MANAGESTATUSES)
+                    .iconName (StyleClassNames.MANAGESTATUSES)
                     .onAction (ev ->
                     {
 
@@ -812,7 +812,7 @@ TODO Remove as not appropriate.
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,dowarmup))
-                    .styleClassName (StyleClassNames.WARMUP)
+                    .iconName (StyleClassNames.WARMUP)
                     .onAction (ev ->
                     {
 
@@ -844,7 +844,7 @@ TODO Remove as not appropriate.
 
             controls.add (QuollButton.builder ()
                 .tooltip (prefix,add,tooltip)
-                .styleClassName (StyleClassNames.ADD)
+                .iconName (StyleClassNames.ADD)
                 .onAction (ev ->
                 {
 
@@ -855,7 +855,7 @@ TODO Remove as not appropriate.
 
             controls.add (QuollButton.builder ()
                 .tooltip (prefix,importfile,tooltip)
-                .styleClassName (StyleClassNames.IMPORT)
+                .iconName (StyleClassNames.IMPORT)
                 .onAction (ev ->
                 {
 
@@ -886,7 +886,7 @@ TODO Remove as not appropriate.
 
         Set<Node> cons = new LinkedHashSet<> ();
         cons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.CLOSE)
+            .iconName (StyleClassNames.CLOSE)
             .tooltip (getUILanguageStringProperty (actions,clicktoclose))
             .onAction (ev ->
             {
@@ -948,7 +948,7 @@ TODO Remove as not appropriate.
 
         Set<Node> cons = new LinkedHashSet<> ();
         cons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.CLOSE)
+            .iconName (StyleClassNames.CLOSE)
             .tooltip (getUILanguageStringProperty (actions,clicktoclose))
             .onAction (ev ->
             {
@@ -994,7 +994,7 @@ TODO Remove as not appropriate.
 
         Set<Node> cons = new LinkedHashSet<> ();
         cons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.CLOSE)
+            .iconName (StyleClassNames.CLOSE)
             .tooltip (getUILanguageStringProperty (actions,clicktoclose))
             .onAction (ev ->
             {

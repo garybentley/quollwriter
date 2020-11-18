@@ -10,7 +10,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
 
-public class NoteItemFormatter extends AbstractChapterItemFormatter<Note>
+public class NoteItemFormatter extends AbstractProjectItemFormatter<Note>
 {
 
     public NoteItemFormatter (ProjectViewer   viewer,

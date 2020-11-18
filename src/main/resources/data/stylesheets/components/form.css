@@ -1,29 +1,34 @@
 /*
  * Base styles applicable to all instances of com.quollwriter.ui.fx.components.Form
  */
- .form.stacked .label
+ .form:stacked .label
  {
      -fx-padding: 0 0 0.3em 0;
      /*-fx-text-overrun: clip;*/
  }
 
- .form.stacked .control
+ .form:stacked .control
  {
      -fx-padding: 0 0 0.5em 1em;
  }
 
- .form.column .label
+ .form:column .label
  {
      -fx-alignment: center-right;
      -fx-padding: 0 0.25em 0.5em 0;
  }
 
- .form.column .control
+ .form:column .control
  {
      -fx-padding: 0 0 0.5em 0;
  }
 
- .form.column .buttons
+.form:column .control .label
+{
+    -fx-alignment: center-left;
+}
+
+ .form:column .buttons
  {
      -fx-padding: 1em 0 0.5em 0;
  }

@@ -31,7 +31,6 @@ public class Viewer extends Stage implements Stateful
 	public static final int DEFAULT_WINDOW_HEIGHT = 800;
 
     private String styleName = null;
-    private StringProperty titleProp = null;
     private Supplier<Set<Node>> headerControlsSupplier = null;
     private IPropertyBinder binder = new PropertyBinder ();
     private Scene scene = null;
@@ -101,6 +100,13 @@ public class Viewer extends Stage implements Stateful
 
         this.addEventHandler (WindowEvent.WINDOW_HIDDEN,
                               wh);
+
+        if (b.title != null)
+        {
+
+            this.titleProperty ().bind (b.title);
+
+        }
 
         this._init (b);
 

@@ -33,7 +33,7 @@ public class QuollPasswordField extends HBox
         this.getStyleClass ().add (StyleClassNames.PASSWORDS);
 
         Label pl1 = new Label ();
-        pl1.textProperty ().bind (getUILanguageStringProperty (newprojectpanel,labels,password));
+        pl1.textProperty ().bind (b.passwordLabel != null ? b.passwordLabel : getUILanguageStringProperty (newprojectpanel,labels,password));
 
         this.getChildren ().add (pl1);
 
@@ -42,7 +42,7 @@ public class QuollPasswordField extends HBox
         this.getChildren ().add (this.password1);
 
         Label pl2 = new Label ();
-        pl2.textProperty ().bind (getUILanguageStringProperty (newprojectpanel,labels,confirmpassword));
+        pl2.textProperty ().bind (b.confirmLabel != null ? b.confirmLabel : getUILanguageStringProperty (newprojectpanel,labels,confirmpassword));
 
         this.getChildren ().add (pl2);
 
@@ -63,6 +63,14 @@ public class QuollPasswordField extends HBox
     {
 
         return this.password2;
+
+    }
+
+    public void setFieldsDisable (boolean v)
+    {
+
+        this.password1.setDisable (v);
+        this.password2.setDisable (v);
 
     }
 
@@ -91,9 +99,27 @@ public class QuollPasswordField extends HBox
     {
 
         private String styleName = null;
+        private StringProperty passwordLabel = null;
+        private StringProperty confirmLabel = null;
 
         private Builder ()
         {
+
+        }
+
+        public Builder confirmLabel (StringProperty l)
+        {
+
+            this.confirmLabel = l;
+            return this;
+
+        }
+
+        public Builder passwordLabel (StringProperty l)
+        {
+
+            this.passwordLabel = l;
+            return this;
 
         }
 

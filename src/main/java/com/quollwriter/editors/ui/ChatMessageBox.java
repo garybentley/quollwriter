@@ -1,25 +1,27 @@
 package com.quollwriter.editors.ui;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import java.awt.Image;
 import java.awt.image.*;
-import java.awt.Dimension;
-import java.awt.event.*;
-import java.awt.Component;
-import java.awt.Point;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.util.*;
+
+import javafx.beans.property.*;
+import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.scene.*;
+import javafx.embed.swing.*;
+import javafx.scene.image.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.ImagePanel;
+import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class ChatMessageBox extends MessageBox<EditorChatMessage>
 {
@@ -31,6 +33,64 @@ public class ChatMessageBox extends MessageBox<EditorChatMessage>
         super (mess,
                viewer);
 
+        this.managedProperty ().bind (this.visibleProperty ());
+        this.getStyleClass ().add (StyleClassNames.CHATMESSAGE);
+
+        HBox b = new HBox ();
+
+        this.getChildren ().add (b);
+
+        QuollTextView messText = QuollTextView.builder ()
+            .text (this.message.getMessage ())
+            .inViewer (this.viewer)
+            .build ();
+        HBox.setHgrow (messText,
+                       Priority.ALWAYS);
+
+        if (this.message.isSentByMe ())
+        {
+
+            ObjectProperty<Image> av = EditorsEnvironment.getUserAccount ().avatarProperty ();
+/*
+TODO Remove? Don't think its needed.
+            if (av != null)
+            {
+
+                b.getChildren ().add (new ImageView (SwingFXUtils.toFXImage (EditorsEnvironment.getUserAccount ().getAvatar (),
+                                                                             null)));
+
+            }
+*/
+            b.getChildren ().add (messText);
+
+            Node nav = this.createAvatar (av,
+                                          (av == null ? getUILanguageStringProperty (editors,editor,view,chatmessages,sentbyme) : null),
+                                          this.message.getWhen ());
+            nav.getStyleClass ().add (StyleClassNames.USER);
+
+            b.getChildren ().add (nav);
+
+        } else {
+
+            ObjectProperty<Image> av = this.message.getEditor ().mainAvatarProperty ();
+/*
+            if (av == null)
+            {
+
+                av = Environment.getNoEditorAvatarImage ();
+
+            }
+*/
+            Node nav = this.createAvatar (av,
+                                          null,
+                                          this.message.getWhen ());
+            nav.getStyleClass ().add (StyleClassNames.OTHER);
+
+            b.getChildren ().add (nav);
+            b.getChildren ().add (messText);
+
+        }
+
     }
 
     public boolean isAutoDealtWith ()
@@ -40,133 +100,54 @@ public class ChatMessageBox extends MessageBox<EditorChatMessage>
 
     }
 
-    public void doUpdate ()
+    private Node createAvatar (ObjectProperty<Image> im,
+                               StringProperty        message,
+                               Date                  when)
     {
 
-    }
+        VBox b = new VBox ();
 
-    public void doInit ()
-    {
-
-        //final JComponent b = this.getMessageQuoteComponent (this.message.getMessage ());
-
-        //this.add (b);
-
-        Box b = new Box (BoxLayout.X_AXIS);
-        b.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        this.add (b);
-
-        JComponent message = UIUtils.createHelpTextPane (this.message.getMessage (),
-                                                         this.viewer);
-        message.setAlignmentY (Component.TOP_ALIGNMENT);
-        message.setSize (new Dimension (300,
-                                        500));
-
-        message.setBorder (null);
-        message.setOpaque (false);
-        message.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                               Short.MAX_VALUE));
-
-        String name = this.message.getEditor ().getMainName ();
-
-        if (this.message.isSentByMe ())
-        {
-
-            BufferedImage av = EditorsEnvironment.getUserAccount ().getAvatar ();
-
-            if (av != null)
+        IconBox ib = IconBox.builder ()
+            .image (im)
+            .styleClassName ("avatar-box")
+            .onImagePresent (bb ->
             {
 
-                av = UIUtils.getScaledImage (av,
-                                             28);
+                bb.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, false);
 
-                if (av.getHeight () > 28)
+            })
+            .onNoImage (bb ->
+            {
+
+                bb.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, true);
+
+            })
+            .build ();
+
+        b.getChildren ().add (ib);
+
+        if (message != null)
+        {
+
+            b.getChildren ().add (QuollLabel.builder ()
+                .label (message)
+                .build ());
+
+        }
+
+        if (when != null)
+        {
+
+            b.getChildren ().add (QuollLabel.builder ()
+                .label (UILanguageStringsManager.createStringPropertyWithBinding (() ->
                 {
 
-                    av = UIUtils.getScaledImage (av,
-                                                 28,
-                                                 28);
+                    return Environment.formatTime (when);
 
-                }
-
-            }
-
-            message.setAlignmentX (Component.RIGHT_ALIGNMENT);
-            b.add (message);
-
-            JComponent avl = this.createAvatar (av,
-                                                (av == null ? getUIString (editors,editor,view,chatmessages,sentbyme) + "<br />" : "") + Environment.formatTime (this.message.getWhen ()));
-            avl.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-            b.add (avl);
-
-        } else {
-
-            message.setAlignmentX (Component.LEFT_ALIGNMENT);
-            BufferedImage av = this.message.getEditor ().getDisplayAvatar ();
-
-            if (av == null)
-            {
-
-                av = Environment.getNoEditorAvatarImage ();
-
-            }
-
-            av = UIUtils.getScaledImage (av,
-                                         28);
-
-            if (av.getHeight () > 28)
-            {
-
-                av = UIUtils.getScaledImage (av,
-                                             28,
-                                             28);
-
-            }
-
-            JComponent avl = this.createAvatar (av,
-                                                Environment.formatTime (this.message.getWhen ()));
-            avl.setBorder (UIUtils.createPadding (0, 0, 0, 5));
-            b.add (avl);
-            b.add (message);
+                }))
+                .build ());
 
         }
-
-    }
-
-    private JComponent createAvatar (Image  im,
-                                     String message)
-    {
-
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        JLabel ic = new JLabel ();
-
-        if (im != null)
-        {
-
-            ic.setIcon (new ImageIcon (im));
-
-            ic.setBorder (UIUtils.createLineBorder ());
-
-        }
-
-        ic.setAlignmentX (Component.RIGHT_ALIGNMENT);
-
-        b.add (ic);
-
-        b.add (Box.createVerticalStrut (0));
-
-        JLabel l = UIUtils.createInformationLabel (message);
-        l.setHorizontalTextPosition (JLabel.RIGHT);
-        l.setAlignmentX (Component.RIGHT_ALIGNMENT);
-        l.setForeground (UIUtils.getColor ("#aaaaaa"));
-
-        l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (10)));
-        b.add (l);
-
-        b.setMaximumSize (b.getPreferredSize ());
-        b.setAlignmentY (Component.TOP_ALIGNMENT);
 
         return b;
 

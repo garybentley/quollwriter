@@ -1,40 +1,21 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.*;
-import java.awt.dnd.*;
-import java.awt.event.*;
-
 import java.net.*;
 
 import java.security.*;
 
 import java.text.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Iterator;
+import java.util.*;
+import java.util.function.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.tree.*;
+import javafx.beans.property.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
 
-import com.gentlyweb.properties.*;
+//import com.gentlyweb.properties.*;
 
 import com.gentlyweb.utils.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.*;
 
@@ -48,41 +29,34 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.text.*;
 import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.editors.ui.panels.*;
-import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.sidebars.*;
-import com.quollwriter.ui.actionHandlers.*;
-import com.quollwriter.ui.*;
-
-import com.quollwriter.ui.components.TabHeader;
-import com.quollwriter.ui.components.ActionAdapter;
-import com.quollwriter.ui.components.IconProvider;
-import com.quollwriter.ui.events.*;
-import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.panels.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends AbstractProjectViewer
 {
 
-    protected ProjectSentReceivedSideBar  sideBar = null;
-    private DefaultChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
-    private IconProvider iconProvider = null;
+    //private DefaultChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
     private EditorEditor editor = null;
     protected E message = null;
+    private ProjectSentReceivedSideBar<E, ProjectSentReceivedViewer<E>> sideBar = null;
 
-    public ProjectSentReceivedViewer (Project      proj,
-                                      E            message)
+    public ProjectSentReceivedViewer (Project proj,
+                                      E       message)
     {
 
-        final ProjectSentReceivedViewer _this = this;
-
-        this.proj = proj;
         this.message = message;
 
+        // TODO Set icon of header.
+/*
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ()
         {
 
@@ -113,7 +87,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                 public String getTitle (Note item)
                                                                 {
 
-                                                                    return getUIString (editors,projectcomments,(_this.message.isSentByMe () ? sent : received),comment,view,title);
+                                                                    return getUILanguageStringProperty (editors,projectcomments,(_this.message.isSentByMe () ? sent : received),comment,view,title);
                                                                     //)"{Comment}";
 
                                                                 }
@@ -214,7 +188,9 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                 }
 
                                                             });
-
+*/
+/*
+TODO Remove/change?
         this.iconProvider = new DefaultIconProvider ()
         {
 
@@ -236,8 +212,18 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
             }
 
         };
+*/
 
-        this.sideBar = this.getSideBar ();
+    }
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        super.init (s);
+
+        this.viewObject (this.project.getBook (0).getChapters ().get (0));
 
     }
 
@@ -248,193 +234,34 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
     }
 
-    public abstract ProjectSentReceivedSideBar getSideBar ();
-
-    public void close ()
-    {
-
-        this.close (true,
-                    null);
-
-    }
-
     @Override
-    public boolean close (boolean              noConfirm,
-                          final ActionListener afterClose)
-    {
-
-        this.dispose ();
-
-        if (afterClose != null)
-        {
-
-            afterClose.actionPerformed (new ActionEvent (this,
-                                                         0,
-                                                         "closed"));
-
-        }
-
-        return true;
-
-    }
-
-    @Override
-    public Set<String> getTitleHeaderControlIds ()
+    public Supplier<Set<Node>> getTitleHeaderControlsSupplier ()
 	{
 
-		Set<String> ids = new LinkedHashSet ();
+        return () ->
+        {
 
-		ids.add (FIND_HEADER_CONTROL_ID);
-		ids.add (CLOSE_HEADER_CONTROL_ID);
+            Set<Node> controls = new LinkedHashSet<> ();
 
-		return ids;
+            controls.add (this.getTitleHeaderControl (HeaderControl.contacts));
+            controls.add (this.getTitleHeaderControl (HeaderControl.find));
+            controls.add (this.getTitleHeaderControl (HeaderControl.close));
+
+            return controls;
+
+        };
 
 	}
 
     @Override
-    public void init ()
-               throws Exception
+    public SideBar getMainSideBar ()
     {
 
-        super.init ();
-    /*
-        final ProjectSentReceivedViewer _this = this;
-
-        JToolBar titleC = UIUtils.createButtonBar (new ArrayList ());
-
-        titleC.add (UIUtils.createButton (Constants.FIND_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to open the find",
-                                          new ActionAdapter ()
-                                          {
-
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-
-                                                  _this.showFind (null);
-
-                                              }
-
-                                          }));
-
-        titleC.add (UIUtils.createButton (Constants.CLOSE_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to close",
-                                          new ActionAdapter ()
-                                          {
-
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-
-                                                  _this.close ();
-
-                                              }
-
-                                          }));
-
-        this.setViewerControls (titleC);
-        */
-        this.initSideBars ();
-
-        this.initWindow ();
+        return this.sideBar.getSideBar ();
 
     }
 
-    public IconProvider getIconProvider ()
-    {
-
-        return this.iconProvider;
-
-    }
-
-    public ChapterItemViewPopupProvider getChapterItemViewPopupProvider ()
-    {
-
-        return this.chapterItemViewPopupProvider;
-
-    }
-
-    public void initActionMappings (ActionMap am)
-    {
-
-        super.initActionMappings (am);
-
-    }
-
-    public void initKeyMappings (InputMap im)
-    {
-
-        super.initKeyMappings (im);
-
-    }
-
-    public void showObjectInTree (String      treeObjType,
-                                  NamedObject obj)
-    {
-
-        this.sideBar.showObjectInTree (treeObjType,
-                                       obj);
-
-    }
-
-    public void reloadTreeForObjectType (String objType)
-    {
-
-        this.sideBar.reloadTreeForObjectType (objType);
-
-    }
-
-    public void reloadTreeForObjectType (NamedObject obj)
-    {
-
-        this.sideBar.reloadTreeForObjectType (obj.getObjectType ());
-
-    }
-
-    public AbstractSideBar getMainSideBar ()
-    {
-
-        return this.sideBar;
-
-    }
-
-    public void fillFullScreenTitleToolbar (JToolBar toolbar)
-    {
-
-        this.fillTitleToolbar (toolbar);
-
-    }
-
-    public void fillTitleToolbar (JToolBar toolbar)
-    {
-
-    }
-
-    public void fillSettingsPopup (JPopupMenu titlePopup)
-    {
-
-    }
-
-    public Action getAction (int               name,
-                                     final NamedObject other)
-    {
-
-        Action a = super.getAction (name,
-                                            other);
-
-        if (a != null)
-        {
-
-            return a;
-
-        }
-
-        throw new IllegalArgumentException ("Action: " +
-                                            name +
-                                            " not known.");
-
-    }
-
+    @Override
     public void handleNewProject ()
     {
 
@@ -442,74 +269,20 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
     }
 
-    public String getViewerIcon ()
-    {
-
-        return Constants.COMMENT_ICON_NAME;
-
-    }
-
     @Override
-    public abstract String getViewerTitle ();
-
-    public void handleHTMLPanelAction (String v)
-    {
-
-        StringTokenizer t = new StringTokenizer (v,
-                                                 ",;");
-
-        if (t.countTokens () > 1)
-        {
-
-            while (t.hasMoreTokens ())
-            {
-
-                String tok = t.nextToken ().trim ();
-
-                this.handleHTMLPanelAction (tok);
-
-            }
-
-            return;
-
-        }
-
-        if (v.equals ("find"))
-        {
-
-            this.showFind (null);
-
-            return;
-
-        }
-
-        super.handleHTMLPanelAction (v);
-
-    }
-
     public void handleOpenProject ()
     {
 
-        throw new UnsupportedOperationException ("Not supported for viewing project comments.");
-
-    }
-
-    public void handleItemChangedEvent (ItemChangedEvent ev)
-    {
-
-        if (ev.getChangedObject () instanceof Chapter)
+        // Do nothing?
+        this.titleProperty ().unbind ();
+        this.titleProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
-            this.sideBar.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+            return getUILanguageStringProperty (Arrays.asList (editors,projectsent,viewertitle),
+                                                this.project.getName ()).getValue ();
 
-        }
-
-        if (ev.getChangedObject () instanceof Note)
-        {
-
-            this.sideBar.reloadTreeForObjectType (Note.OBJECT_TYPE);
-
-        }
+        },
+        this.project.nameProperty ()));
 
     }
 
@@ -517,16 +290,10 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 	public void saveProject ()
 	{
 
-
+        // Do nothing.
 
 	}
-
-    @Override
-    public void doSaveState ()
-    {
-
-    }
-
+/*
     public ChapterCommentsPanel getEditorForChapter (Chapter c)
     {
 
@@ -552,106 +319,55 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         return null;
 
     }
-
+*/
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter has been opened for editing.
      */
-    public boolean editChapter (Chapter        c,
-                                ActionListener doAfterOpen)
-    {
+     public void editChapter (final Chapter  c,
+                              final Runnable doAfterView)
+     {
 
-        // Check our tabs to see if we are already editing this chapter, if so then just switch to it instead.
-        ChapterCommentsPanel qep = (ChapterCommentsPanel) this.getQuollPanelForObject (c);
+         NamedObjectPanelContent p = this.getPanelForObject (c);
 
-        if (qep != null)
-        {
+         if (p != null)
+         {
 
-            this.setPanelVisible (qep);
+             this.showPanel (p.getPanel ().getPanelId ());
 
-            qep.getEditor ().grabFocus ();
+             UIUtils.runLater (doAfterView);
 
-            if (doAfterOpen != null)
-            {
+             return;
 
-                UIUtils.doActionWhenPanelIsReady (qep,
-                                                  doAfterOpen,
-                                                  c,
-                                                  "afterview");
+         }
 
-            }
+         try
+         {
 
-            return true;
+             p = new ChapterCommentsPanel (this,
+                                           c);
 
-        }
+             this.addPanel (p);
 
-        final ProjectSentReceivedViewer _this = this;
+             this.editChapter (c,
+                               doAfterView);
 
-        try
-        {
+         } catch (Exception e) {
 
-            qep = new ChapterCommentsPanel (this,
-                                            c);
+             Environment.logError ("Unable to edit chapter: " +
+                                   c,
+                                   e);
 
-            qep.init ();
+             ComponentUtils.showErrorMessage (this,
+                                              getUILanguageStringProperty (editors,projectsent,actions,viewchapter,actionerror));
 
-        } catch (Exception e)
-        {
+         }
 
-            Environment.logError ("Unable to edit chapter: " +
-                                  c,
-                                  e);
+     }
 
-            UIUtils.showErrorMessage (_this,
-                                      getUIString (editors,projectsent,actions,viewchapter,actionerror));
-                                      //"Unable to edit {chapter}: " +
-                                      //c.getName ());
-
-            return false;
-
-        }
-
-        final TabHeader th = this.addPanel (qep);
-
-        qep.addActionListener (new ActionAdapter ()
-        {
-
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                if (ev.getID () == QuollPanel.UNSAVED_CHANGES_ACTION_EVENT)
-                {
-
-                    th.setComponentChanged (true);
-
-                }
-
-            }
-
-        });
-
-        /*
-         *TODO: Change name if "parent" chapter changes name?
-        this.addNameChangeListener (c,
-                                    qep);
-*/
-        // Open the tab :)
-        return this.editChapter (c,
-                                 doAfterOpen);
-
-    }
-
-    public boolean viewObject (DataObject d)
-    {
-
-        return this.viewObject (d,
-                                null);
-
-    }
-
-    public boolean viewObject (final DataObject     d,
-                               final ActionListener doAfterView)
+    @Override
+    public void viewObject (final DataObject d,
+                            final Runnable   doAfterView)
     {
 
         if (d instanceof Note)
@@ -659,51 +375,43 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
             final Note n = (Note) d;
 
-            if (n.getObject () != null)
-            {
+            this.viewObject (n.getChapter (),
+                             () ->
+                             {
 
-                final Chapter c = (Chapter) n.getObject ();
+                                 ChapterCommentsPanel pc = (ChapterCommentsPanel) this.getEditorForChapter (n.getChapter ());
 
-                final ProjectSentReceivedViewer _this = this;
+                                 if (pc.isReadyForUse ())
+                                 {
 
-                ActionListener onOpen = new ActionListener ()
-                {
+                                     UIUtils.forceRunLater (() ->
+                                     {
 
-                    public void actionPerformed (ActionEvent ev)
-                    {
+                                         pc.showItem (n,
+                                                      false);
 
-                        try
-                        {
+                                     });
 
-                            _this.getEditorForChapter (c).showNote (n);
+                                } else {
 
-                        } catch (Exception e) {
+                                    pc.readyForUseProperty ().addListener ((pr, oldv, nev) ->
+                                    {
 
-                            Environment.logError ("Unable to scroll to note: " +
-                                                  n,
-                                                  e);
+                                        UIUtils.forceRunLater (() ->
+                                        {
 
-                            UIUtils.showErrorMessage (_this,
-                                                      getUIString (editors,projectsent,actions,viewcomment,actionerror));
-                                                      //"Unable to display {comment}.");
+                                            pc.showItem (n,
+                                                         false);
 
-                        }
+                                        });
 
-                        if (doAfterView != null)
-                        {
+                                    });
 
-                            doAfterView.actionPerformed (ev);
+                                }
 
-                        }
+                            });
 
-                    }
-
-                };
-
-                return this.editChapter (c,
-                                         onOpen);
-
-            }
+            return;
 
         }
 
@@ -712,175 +420,84 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
             Chapter c = (Chapter) d;
 
-            return this.editChapter (c,
-                                     doAfterView);
+            this.editChapter (c,
+                              doAfterView);
 
         }
 
         // Record the error, then ignore.
         Environment.logError ("Unable to open object: " + d);
 
-        return false;
-
-    }
-
-    public boolean openPanel (String id)
-    {
-
-        return false;
-
-    }
-
-    public JTree getTreeForObjectType (String objType)
-    {
-
-        return this.sideBar.getTreeForObjectType (objType);
-
-    }
-
-    public JTree getChapterTree ()
-    {
-
-        return this.getTreeForObjectType (Chapter.OBJECT_TYPE);
-
-    }
-
-    public void chapterTreeChanged (DataObject d)
-    {
-
-        DefaultTreeModel model = (DefaultTreeModel) this.getChapterTree ().getModel ();
-
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
-                                                                                                 d).getLastPathComponent ();
-
-        model.nodeStructureChanged (node);
-
-    }
-
-    public void scrollTo (final Chapter c,
-                          final int     pos)
-    {
-
-        final ProjectSentReceivedViewer _this = this;
-
-        this.editChapter (c,
-                          new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                try
-                {
-
-                    _this.getEditorForChapter (c).scrollToPosition (pos);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to show snippet at position: " +
-                                          pos,
-                                          e);
-/*
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to scroll to position.");
-*/
-                }
-
-            }
-
-        });
-
-    }
-
-    public void updateChapterIndexes (Book   b)
-                               throws GeneralException
-    {
-
-        throw new UnsupportedOperationException ("Not supported for project comments.");
-
-    }
-
-    public void deleteChapter (Chapter c)
-    {
-
-        throw new UnsupportedOperationException ("Not supported for project comments.");
-
-    }
-
-    public void deleteObject (NamedObject o)
-                  throws      GeneralException
-    {
-
-        throw new UnsupportedOperationException ("Not supported for project comments.");
-
-    }
-
-    public void deleteObject (NamedObject o,
-                              boolean     deleteChildObjects)
-                       throws GeneralException
-    {
-
-        throw new UnsupportedOperationException ("Not supported for project comments.");
-
-    }
-
-    public String getChapterObjectName ()
-    {
-
-        return Environment.getObjectTypeName (Chapter.OBJECT_TYPE).getValue ();
-
-    }
-
-    public TypesHandler getObjectTypesHandler (String objType)
-    {
-
-        return null;
-
-    }
-
-    @Override
-    public void setLinks (NamedObject o)
-    {
-
-        // No links for viewing comments.
-
     }
 
     public Set<FindResultsBox> findText (String t)
     {
 
-        Set<FindResultsBox> res = new LinkedHashSet ();
+        Set<FindResultsBox> res = new LinkedHashSet<> ();
 
-        // Get the snippets.
-        Map<Chapter, java.util.List<Segment>> snippets = this.getTextSnippets (t);
+        FindResultsBox chres = this.findTextInChapters (t);
 
-        if (snippets.size () > 0)
+        if (chres != null)
         {
 
-            res.add (new ChapterFindResultsBox (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE).getValue (),
-                                                Chapter.OBJECT_TYPE,
-                                                Chapter.OBJECT_TYPE,
-                                                this,
-                                                snippets));
+            res.add (chres);
 
         }
 
-        Set<Note> notes = this.proj.getNotesContaining (t);
+        Set<Note> notes = this.project.getNotesContaining (t);
 
         if (notes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<Note> (Environment.getObjectTypeNamePlural (comment).getValue (),
-                                                        //"{Comments}",
-                                                          Constants.COMMENT_ICON_NAME,
-                                                          Note.OBJECT_TYPE,
+            res.add (new NamedObjectFindResultsBox<Note> (getUILanguageStringProperty (objectnames,plural,Note.OBJECT_TYPE),
+                                                          StyleClassNames.COMMENTS,
                                                           this,
                                                           notes));
 
         }
 
         return res;
+
+    }
+
+    @Override
+    public Supplier<Set<MenuItem>> getSettingsMenuSupplier ()
+    {
+
+        final ProjectSentReceivedViewer _this = this;
+
+        return () ->
+        {
+
+            Set<MenuItem> items = new LinkedHashSet<> ();
+
+            List<String> prefix = Arrays.asList (editors,LanguageStrings.project,settingsmenu,LanguageStrings.items);
+
+            items.add (QuollMenuItem.builder ()
+                .label (Utils.newList (prefix,openproject))
+                .iconName (StyleClassNames.OPEN)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.openproject);
+
+                })
+                .build ());
+
+            items.add (QuollMenuItem.builder ()
+                .label (Utils.newList (prefix,closeproject))
+                .iconName (StyleClassNames.CLOSE)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.closeproject);
+
+                })
+                .build ());
+
+            return items;
+
+        };
 
     }
 

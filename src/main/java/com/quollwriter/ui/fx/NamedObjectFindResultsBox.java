@@ -23,9 +23,11 @@ public class NamedObjectFindResultsBox<E extends NamedObject> extends FindResult
     private Set<E> objs = null;
     private QuollTreeView<NamedObject> tree = null;
     private AccordionItem acc = null;
-    private String objType = null;
+    private String styleClassName = null;
+    private StringProperty title = null;
 
-    public NamedObjectFindResultsBox (String                objType,
+    public NamedObjectFindResultsBox (StringProperty        title,
+                                      String                styleClassName,
                                       AbstractProjectViewer viewer,
                                       Set<E>                objs)
     {
@@ -34,7 +36,8 @@ public class NamedObjectFindResultsBox<E extends NamedObject> extends FindResult
                null);
 
         this.objs = objs;
-        this.objType = objType;
+        this.styleClassName = styleClassName;
+        this.title = title;
 
     }
 
@@ -74,14 +77,16 @@ public class NamedObjectFindResultsBox<E extends NamedObject> extends FindResult
         {
 
             return String.format ("%1$s (%2$s)",
-                                  getUILanguageStringProperty (objectnames,plural,this.objType).getValue (),
+                                  this.title.getValue (),
+                                  //getUILanguageStringProperty (objectnames,plural,this.objType).getValue (),
                                   Environment.formatNumber (this.objs.size ()));
 
-        }));
+        },
+        this.title));
 
         this.acc = AccordionItem.builder ()
             .title (tProp)
-            .styleClassName (this.objType)
+            .styleClassName (this.styleClassName)
             .openContent (this.tree)
             .build ();
 
@@ -143,7 +148,7 @@ public class NamedObjectFindResultsBox<E extends NamedObject> extends FindResult
 
         QuollTreeView<NamedObject> tree = new QuollTreeView<> ();
         tree.setShowRoot (false);
-        tree.getStyleClass ().add (this.objType);
+        tree.getStyleClass ().add (this.styleClassName);
         tree.setCellProvider (cellProvider);
         tree.setRoot (root);
 

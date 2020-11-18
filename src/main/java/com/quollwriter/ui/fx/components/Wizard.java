@@ -336,6 +336,20 @@ public class Wizard extends VBox
 
     }
 
+    public StringProperty getNextButtonLabel (String nid)
+    {
+
+        return (nid == null ? getUILanguageStringProperty (wizard,buttons,finish) : getUILanguageStringProperty (wizard,buttons,next));
+
+    }
+
+    public StringProperty getPreviousButtonLabel (String pid)
+    {
+
+        return getUILanguageStringProperty (wizard,buttons,previous);
+
+    }
+
     private void updateButtons ()
     {
 

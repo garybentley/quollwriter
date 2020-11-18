@@ -155,7 +155,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
                 _its.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,view)))
-                    .styleClassName (StyleClassNames.VIEW)
+                    .iconName (StyleClassNames.VIEW)
                     .onAction (ev ->
                     {
 
@@ -176,7 +176,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
                 _its.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (prefix,remove)))
-                    .styleClassName (StyleClassNames.DELETE)
+                    .iconName (StyleClassNames.DELETE)
                     .onAction (ev ->
                     {
 
@@ -414,7 +414,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,rename)))
-                .styleClassName (StyleClassNames.EDIT)
+                .iconName (StyleClassNames.EDIT)
                 .onAction (ev ->
                 {
 
@@ -435,7 +435,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
             items.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
-                .styleClassName (StyleClassNames.DELETE)
+                .iconName (StyleClassNames.DELETE)
                 .onAction (ev ->
                 {
 

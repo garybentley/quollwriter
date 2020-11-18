@@ -1865,6 +1865,9 @@ public class ViewerSplitPane extends Pane implements Stateful
 
         }
 
+        this.div1.toFront ();
+        this.div2.toFront ();
+
     }
 
     public void dispose ()

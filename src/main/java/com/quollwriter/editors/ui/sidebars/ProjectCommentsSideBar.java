@@ -1,38 +1,30 @@
 package com.quollwriter.editors.ui.sidebars;
 
-import java.util.Vector;
-import java.util.Set;
-import java.util.Arrays;
+import java.util.*;
 
-import java.awt.event.*;
-import java.awt.Component;
-import java.awt.Dimension;
-
-import javax.swing.*;
-import javax.swing.event.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import javafx.beans.property.*;
+import javafx.scene.layout.*;
+import javafx.scene.input.*;
+import javafx.scene.*;
 
 import com.quollwriter.*;
-import com.quollwriter.events.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.data.*;
 import com.quollwriter.text.*;
-import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.messages.*;
-import com.quollwriter.ui.components.QPopup;
-import com.quollwriter.ui.components.Header;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.popups.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCommentsMessage, ProjectCommentsViewer>
 {
 
-    private JLabel otherCommentsLabel = null;
+    private QuollHyperlink otherCommentsLabel = null;
 
     public ProjectCommentsSideBar (ProjectCommentsViewer  viewer,
                                    ProjectCommentsMessage message)
@@ -44,22 +36,10 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
     }
 
     @Override
-    public void onHide ()
+    public StringProperty getTitle ()
     {
 
-    }
-
-    @Override
-    public void onShow ()
-    {
-
-    }
-
-    @Override
-    public String getTitle ()
-    {
-
-        return getUIString (editors,projectcomments,sidebar,comments,(this.message.isSentByMe () ? sent : received),title);
+        return getUILanguageStringProperty (editors,projectcomments,LanguageStrings.sidebar,comments,(this.message.isSentByMe () ? sent : received),title);
 
         //return String.format ("{Comments} %s",
         //                      (this.message.isSentByMe () ? "to" : "from"));
@@ -67,51 +47,55 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
     }
 
     @Override
-    public String getItemsIconType ()
+    public String getStyleClassName ()
     {
 
-        return Constants.COMMENT_ICON_NAME;
+        return StyleClassNames.COMMENTS;
 
     }
 
     @Override
-    public int getItemCount ()
+    public StringProperty getItemsTitle ()
     {
 
-        return this.message.getComments ().size ();
+        return new SimpleStringProperty ("{Comments}");
 
     }
 
     @Override
-    public String getItemsTitle ()
+    public String getStyleSheet ()
     {
 
-        return "{Comments}";
+        return "projectcomments";
 
     }
 
     @Override
-    public String getIconType ()
+    public Node getMessageDetails (ProjectCommentsMessage message)
     {
 
-        return null;
+        List<String> prefix = Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,labels);
 
-    }
+        ProjectVersion projVer = message.getProjectVersion ();
 
-    @Override
-    public JComponent getMessageDetails (ProjectCommentsMessage message)
-    {
+        String verName = projVer.getName ();
 
-        final ProjectCommentsSideBar _this = this;
+        final String notes = (projVer.getDescription () != null ? projVer.getDescription ().getText () : null);
 
-        String rows = "p";
+        Form.Builder fb = Form.builder ()
+            .item (getUILanguageStringProperty (Utils.newList (prefix,(this.message.isSentByMe () ? sent : received))),
+                   UILanguageStringsManager.createStringPropertyWithBinding (() ->
+                   {
 
-        String verName = this.viewer.getProject ().getProjectVersion ().getName ();
+                       return Environment.formatDateTime (message.getWhen ());
+
+                   }));
 
         if (verName != null)
         {
 
-            rows += ", 6px, p";
+            fb.item (getUILanguageStringProperty (Utils.newList (prefix,version)),
+                     new SimpleStringProperty (verName));
 
         }
 
@@ -120,144 +104,105 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
         if (genComments != null)
         {
 
-            rows += ", 6px, top:p";
-
-        }
-
-        FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
-                                        rows);
-
-        fl.setHonorsVisibility (true);
-        PanelBuilder builder = new PanelBuilder (fl);
-
-        CellConstraints cc = new CellConstraints ();
-
-        java.util.List<String> prefix = Arrays.asList (editors,projectcomments,sidebar,comments,labels);
-
-        int row = 1;
-
-        builder.addLabel ("<html>" + getUIString (prefix,(this.message.isSentByMe () ? sent : received)) + "</html>",
-                        //(this.message.isSentByMe () ? "Sent" : "Received"))),
-                          cc.xy (1,
-                                 row));
-
-        builder.addLabel (Environment.formatDateTime (message.getWhen ()),
-                          cc.xy (3,
-                                 row));
-
-        row += 2;
-
-        if (verName != null)
-        {
-
-            builder.addLabel ("<html>" + getUIString (prefix,version) + "</html>",
-                            //"<i>Version</i></html>"),
-                              cc.xy (1,
-                                     row));
-
-            builder.addLabel (verName,
-                              cc.xy (3,
-                                     row));
-
-            row += 2;
-
-        }
-
-        if (genComments != null)
-        {
-
-            builder.addLabel ("<html>" + getUIString (prefix,notes) + "</html>",
-                            //>{Notes}</i></html>"),
-                              cc.xy (1,
-                                     row));
-
             String commText = genComments;
 
             TextIterator ti = new TextIterator (commText);
 
-            final int sc = ti.getSentenceCount ();
-
-            if (sc > 1)
+            if (ti.getSentenceCount () > 1)
             {
 
                 commText = ti.getFirstSentence ().getText ();
 
-                commText += getUIString (prefix,more);
+                commText += getUILanguageStringProperty (prefix,more).getValue ();
                 //"<br /><a href='#'>More, click to view all.</a>";
 
             }
 
-            JComponent mess = UIUtils.createHelpTextPane (commText,
-                                                          this.viewer);
+            QuollTextView notesT = QuollTextView.builder ()
+                .inViewer (this.viewer)
+                .text (new SimpleStringProperty (commText))
+                .build ();
 
-            if (sc > 1)
+            notesT.setOnMouseClicked (ev ->
             {
 
-                mess.addMouseListener (new MouseEventHandler ()
-                {
+                QuollPopup.messageBuilder ()
+                    .title (editors,projectcomments,LanguageStrings.sidebar,comments,notes,popup,title)
+                    .message (genComments)
+                    .inViewer (this.viewer)
+                    .build ();
 
-                    public void handlePress (MouseEvent ev)
-                    {
+            });
 
-                        UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                             getUIString (editors,projectcomments,sidebar,comments,notes,popup,title),
-                                             //"Notes",
-                                             genComments);
-
-                    }
-
-                });
-
-            }
-
-            mess.setBorder (null);
-
-            builder.add (mess,
-                         cc.xy (3,
-                                row));
-
-            row += 2;
+            fb.item (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.notes)),
+                     notesT);
 
         }
 
-        JPanel bp = builder.getPanel ();
-        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        Node n = fb.build ();
 
-        Box b = new Box (BoxLayout.Y_AXIS);
+        VBox content = new VBox ();
 
-        b.add (bp);
+        Set<EditorMessage> messages = this.getMessage ().getEditor ().getMessages (this.getMessage ().getForProjectId (),
+                                                                                   ProjectCommentsMessage.MESSAGE_TYPE);
 
-        this.otherCommentsLabel = UIUtils.createClickableLabel ("",
-                                                                Environment.getIcon (Constants.VIEW_ICON_NAME,
-                                                                                     Constants.ICON_MENU),
-                                                                new ActionListener ()
-                                                                {
+        int otherC = 0;
 
-                                                                    public void actionPerformed (ActionEvent ev)
-                                                                    {
+        for (EditorMessage m : messages)
+        {
 
-                                                                        _this.showOtherCommentsSelector ();
+            ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
 
-                                                                    }
+            if (!pcm.equals (this.getMessage ()))
+            {
 
-                                                                });
+                otherC += pcm.getComments ().size ();
 
-        this.otherCommentsLabel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
+            }
 
-        b.add (this.otherCommentsLabel);
+        }
 
-        this.showOtherCommentsLabel ();
+        if (otherC > 0)
+        {
 
-        return b;
+            this.otherCommentsLabel = QuollHyperlink.builder ()
+                .styleClassName (StyleClassNames.VIEW)
+                .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,labels,othercomments),
+                                                     Environment.formatNumber (otherC)))
+                .onAction (ev ->
+                {
+
+                    this.showOtherCommentsSelector ();
+
+                })
+                .build ();
+
+            this.otherCommentsLabel.setVisible (otherC > 0);
+
+        }
+
+        content.getChildren ().addAll (n, this.otherCommentsLabel);
+
+        return content;
 
     }
 
     private void showOtherCommentsSelector ()
     {
 
-        final ProjectCommentsSideBar _this = this;
+        String popupId = this.message.getProjectVersion ().getId () + "othercomments";
 
-        final Vector<ProjectCommentsMessage> pcms = new Vector ();
+        QuollPopup qp = viewer.getPopupById (popupId);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        final Set<ProjectCommentsMessage> pcms = new LinkedHashSet<> ();
 
         Set<EditorMessage> messages = this.getMessage ().getEditor ().getMessages (this.getMessage ().getForProjectId (),
                                                                                    ProjectCommentsMessage.MESSAGE_TYPE);
@@ -288,83 +233,70 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
         if (pcms.size () == 1)
         {
 
-            EditorsUIUtils.showProjectComments (pcms.get (0),
-                                                _this.viewer,
+            EditorsUIUtils.showProjectComments (pcms.iterator ().next (),
+                                                this.viewer,
                                                 null);
 
         } else {
 
-            final JList<ProjectCommentsMessage> projCmsL = new JList (pcms);
-
-            projCmsL.addListSelectionListener (new ListSelectionListener ()
-            {
-
-                public void valueChanged (ListSelectionEvent ev)
+            ShowObjectSelectPopup.<ProjectCommentsMessage>builder ()
+                .withViewer (this.viewer)
+                .title (getUILanguageStringProperty (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,popup,title))
+                .styleClassName (StyleClassNames.OTHERCOMMENTS)
+                .popupId (popupId)
+                .objects (pcms)
+                .cellProvider ((obj, popupContent) ->
                 {
 
-                    ProjectCommentsMessage pcm = projCmsL.getSelectedValue ();
+                    int c = obj.getComments ().size ();
 
-                    EditorsUIUtils.showProjectComments (pcm,
-                                                        _this.viewer,
-                                                        null);
+                    VBox b = new VBox ();
 
-                    UIUtils.closePopupParent (projCmsL);
-
-                }
-
-            });
-
-            projCmsL.setCellRenderer (new DefaultListCellRenderer ()
-            {
-
-                public Component getListCellRendererComponent (JList   list,
-                                                               Object  value,
-                                                               int     index,
-                                                               boolean isSelected,
-                                                               boolean cellHasFocus)
-                {
-
-                    Box b = new Box (BoxLayout.Y_AXIS);
-
-                    if (index < pcms.size () - 1)
+                    b.setOnMouseClicked (ev ->
                     {
 
-                        b.setBorder (UIUtils.createBottomLineWithPadding (3, 3, 3, 3));
+                        if (ev.getButton () != MouseButton.PRIMARY)
+                        {
 
-                    } else {
+                            return;
 
-                        b.setBorder (UIUtils.createPadding (3, 3, 3, 3));
+                        }
 
-                    }
-
-                    ProjectCommentsMessage pcm = (ProjectCommentsMessage) value;
-
-                    int c = pcm.getComments ().size ();
-
-                    Header h = UIUtils.createBoldSubHeader (String.format (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,title),
-                                                                            //"%s {comment%s}",
-                                                                           Environment.formatNumber (c)),
-                                                                           //(c == 1 ? "" : "s")),
+                        EditorsUIUtils.showProjectComments (obj,
+                                                            this.viewer,
                                                             null);
 
-                    b.add (h);
+                        popupContent.close ();
 
-                    h.setPreferredSize (new Dimension (Short.MAX_VALUE,
-                                                       h.getPreferredSize ().height));
+                    });
 
-                    if (pcm.getProjectVersion ().getName () != null)
+                    UIUtils.setTooltip (b,
+                                        getUILanguageStringProperty (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,item,tooltip));
+
+
+                    QuollLabel h = QuollLabel.builder ()
+                        .styleClassName (StyleClassNames.TITLE)
+                        .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,item,title),
+                                                             Environment.formatNumber (c)))
+                        .build ();
+
+                    b.getChildren ().add (h);
+
+                    if (obj.getProjectVersion ().getName () != null)
                     {
 
-                        JLabel l = UIUtils.createLabel (String.format (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,version),
-                                                        pcm.getProjectVersion ().getName ()));
-                        l.setBorder (UIUtils.createPadding (0, 5, 0, 5));
+                        QuollLabel l = QuollLabel.builder ()
+                            .styleClassName (StyleClassNames.VERSION)
+                            .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,item,version),
+                                                                 obj.getProjectVersion ().getName ()))
+                            .build ();
 
-                        b.add (l);
+                        b.getChildren ().add (l);
 
                     }
 
                     // Get the first line of the notes, if provided.
-                    String genComm = pcm.getGeneralComment ();
+                    String genComm = obj.getGeneralComment ();
 
                     if (genComm != null)
                     {
@@ -378,109 +310,33 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
                         }
 
-                        JComponent mess = UIUtils.createHelpTextPane (genComm,
-                                                                      _this.viewer);
+                        QuollTextView notesT = QuollTextView.builder ()
+                            .inViewer (this.viewer)
+                            .styleClassName (StyleClassNames.COMMENTS)
+                            .text (genComm)
+                            .build ();
 
-                        Box mb = new Box (BoxLayout.X_AXIS);
-
-                        mb.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                        mess.setBorder (null);
-
-                        mb.add (mess);
-
-                        mb.setBorder (UIUtils.createPadding (0, 5, 0, 5));
-
-                        b.add (mb);
+                        b.getChildren ().add (notesT);
 
                     }
 
-                    JLabel info = UIUtils.createInformationLabel (String.format (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,(_this.getMessage ().isSentByMe () ? sent : received)),
-                                                                                //"Received: %s",
-                                                                                 Environment.formatDate (pcm.getWhen ())));
+                    QuollLabel info = QuollLabel.builder ()
+                        .styleClassName (StyleClassNames.WHEN)
+                        .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,item,(this.getMessage ().isSentByMe () ? sent : received)),
+                                                                                    //"Received: %s",
+                                                             Environment.formatDate (obj.getWhen ())))
+                        .build ();
 
-                    info.setBorder (UIUtils.createPadding (0, 5, 0, 5));
-
-                    b.add (info);
-
-                    b.setToolTipText (getUIString (editors,projectcomments,sidebar,comments,othercomments,item,tooltip));
-                    //"<html>Click to view the {comments}.</html>");
+                    b.getChildren ().add (info);
 
                     return b;
 
-                }
-
-            });
-
-            final QPopup qp = UIUtils.createClosablePopup (getUIString (editors,projectcomments,sidebar,comments,othercomments,popup,title),
-                                                            //"Select a set of comments to view",
-                                                           Environment.getIcon (Constants.COMMENT_ICON_NAME,
-                                                                                Constants.ICON_POPUP),
-                                                           null);
-
-            Box content = new Box (BoxLayout.Y_AXIS);
-
-            UIUtils.setAsButton (projCmsL);
-
-            content.add (projCmsL);
-            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-            qp.setContent (content);
-
-            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                                     content.getPreferredSize ().height));
-
-            _this.viewer.showPopupAt (qp,
-                                      this.otherCommentsLabel,
-                                      false);
-
-            qp.setDraggable (_this);
-
-        }
-
-    }
-
-    private void showOtherCommentsLabel ()
-    {
-
-        Set<EditorMessage> messages = this.getMessage ().getEditor ().getMessages (this.getMessage ().getForProjectId (),
-                                                                                   ProjectCommentsMessage.MESSAGE_TYPE);
-
-        int otherC = 0;
-
-        for (EditorMessage m : messages)
-        {
-
-            ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
-
-            if (!pcm.equals (this.getMessage ()))
-            {
-
-                otherC += pcm.getComments ().size ();
+                })
+                .build ()
+                .show ();
 
             }
 
-        }
-
-        String l = String.format (getUIString (editors,projectcomments,sidebar,comments,labels,othercomments),
-                                  Environment.formatNumber (otherC));
-/*
-        if (c == 1)
-        {
-
-            l = "1 other {comment} is available for this version, click to view it.";
-
-        } else {
-
-            l = String.format ("%s other {comments} are available for this version, click to select other {comments} to view.",
-                               Environment.formatNumber (c));
-
-        }
-*/
-
-        this.otherCommentsLabel.setText (l);
-
-        this.otherCommentsLabel.setVisible (otherC > 0);
-
     }
 
-};
+}

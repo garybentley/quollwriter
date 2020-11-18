@@ -27,7 +27,6 @@ import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.charts.*;
 import com.quollwriter.ui.fx.popups.*;
-import com.quollwriter.ui.fx.swing.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -689,7 +688,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,openproject))
-                    .styleClassName (StyleClassNames.OPEN)
+                    .iconName (StyleClassNames.OPEN)
                     .onAction (ev ->
                     {
 
@@ -700,7 +699,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,newproject))
-                    .styleClassName (StyleClassNames.NEW)
+                    .iconName (StyleClassNames.NEW)
                     .onAction (ev ->
                     {
 
@@ -713,7 +712,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,renameproject))
-                    .styleClassName (StyleClassNames.RENAME)
+                    .iconName (StyleClassNames.RENAME)
                     .onAction (ev ->
                     {
 
@@ -724,7 +723,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,statistics))
-                    .styleClassName (StyleClassNames.STATISTICS)
+                    .iconName (StyleClassNames.STATISTICS)
                     .onAction (ev ->
                     {
 
@@ -735,7 +734,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,targets))
-                    .styleClassName (StyleClassNames.TARGETS)
+                    .iconName (StyleClassNames.TARGETS)
                     .onAction (ev ->
                     {
 
@@ -746,7 +745,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,createbackup))
-                    .styleClassName (StyleClassNames.CREATEBACKUP)
+                    .iconName (StyleClassNames.CREATEBACKUP)
                     .onAction (ev ->
                     {
 
@@ -757,7 +756,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,closeproject))
-                    .styleClassName (StyleClassNames.CLOSE)
+                    .iconName (StyleClassNames.CLOSE)
                     .onAction (ev ->
                     {
 
@@ -768,7 +767,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,deleteproject))
-                    .styleClassName (StyleClassNames.DELETE)
+                    .iconName (StyleClassNames.DELETE)
                     .onAction (ev ->
                     {
 
@@ -781,7 +780,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,ideaboard))
-                    .styleClassName (StyleClassNames.IDEABOARD)
+                    .iconName (StyleClassNames.IDEABOARD)
                     .onAction (ev ->
                     {
 
@@ -792,7 +791,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,dowarmup))
-                    .styleClassName (StyleClassNames.WARMUP)
+                    .iconName (StyleClassNames.WARMUP)
                     .onAction (ev ->
                     {
 
@@ -805,7 +804,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,importfileorproject))
-                    .styleClassName (StyleClassNames.IMPORT)
+                    .iconName (StyleClassNames.IMPORT)
                     .onAction (ev ->
                     {
 
@@ -816,7 +815,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,exportproject))
-                    .styleClassName (StyleClassNames.EXPORT)
+                    .iconName (StyleClassNames.EXPORT)
                     .onAction (ev ->
                     {
 
@@ -848,7 +847,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
             controls.add (QuollButton.builder ()
                 .tooltip (prefix,ideaboard,tooltip)
-                .styleClassName (StyleClassNames.IDEABOARD)
+                .iconName (StyleClassNames.IDEABOARD)
                 .onAction (ev ->
                 {
 
@@ -943,21 +942,11 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    public boolean isEditing (Chapter c)
-    {
-
-        return this.getEditorForChapter (c) != null;
-
-    }
-
     public AssetViewPanel getAssetViewPanel (Asset a)
     {
 
         NamedObjectPanelContent p = this.getPanelForObject (a);
-if (p == null)
-{
-new Exception ().printStackTrace ();
-}
+
         if (p instanceof AssetViewPanel)
         {
 
@@ -1009,9 +998,13 @@ new Exception ().printStackTrace ();
                                      UIUtils.forceRunLater (() ->
                                      {
 
-                                     pc.showItem (ci,
-                                                  false);
-});
+                                         pc.showItem (ci,
+                                                      false);
+
+                                         UIUtils.runLater (doAfterView);
+
+                                    });
+
                                 } else {
 
                                     pc.readyForUseProperty ().addListener ((pr, oldv, nev) ->
@@ -1022,6 +1015,9 @@ new Exception ().printStackTrace ();
 
                                             pc.showItem (ci,
                                                          false);
+
+                                            UIUtils.runLater (doAfterView);
+
                                         });
 
                                     });
@@ -2061,7 +2057,7 @@ TODO
 
         ProjectChapterEditorPanelContent p = this.getEditorForChapter (chapter);
 
-        SwingUIUtils.doLater (() ->
+        UIUtils.runLater (() ->
         {
 
             try
@@ -2076,11 +2072,10 @@ TODO
                     l = Utils.stripEnd (p.getEditor ().getText ()).length ();
 
                     _textPos = Math.min (textPos, l);
-
+/*
+TODO
                     // See if we are on the last line (it may be that the user is in the icon
                     // column).
-                    /*
-                    TODO
                     Rectangle2D pp = p.getEditor ().modelToView2D (_textPos);
 
                     if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
@@ -2539,7 +2534,8 @@ TODO
         if (notes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox (Note.OBJECT_TYPE,
+            res.add (new NamedObjectFindResultsBox (getUILanguageStringProperty (objectnames,plural,Note.OBJECT_TYPE),
+                                                    Note.OBJECT_TYPE,
                                                     this,
                                                     notes));
 
@@ -2550,7 +2546,8 @@ TODO
         if (scenes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox (Scene.OBJECT_TYPE,
+            res.add (new NamedObjectFindResultsBox (getUILanguageStringProperty (objectnames,plural,Scene.OBJECT_TYPE),
+                                                    Scene.OBJECT_TYPE,
                                                     this,
                                                     scenes));
 
@@ -2561,7 +2558,8 @@ TODO
         if (oitems.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox (OutlineItem.OBJECT_TYPE,
+            res.add (new NamedObjectFindResultsBox (getUILanguageStringProperty (objectnames,plural,OutlineItem.OBJECT_TYPE),
+                                                    OutlineItem.OBJECT_TYPE,
                                                     this,
                                                     oitems));
 

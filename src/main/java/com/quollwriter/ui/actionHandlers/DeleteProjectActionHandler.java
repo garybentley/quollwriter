@@ -19,7 +19,7 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
 
     private ProjectInfo projInfo = null;
     private ActionListener onDelete = null;
-    
+
     public DeleteProjectActionHandler (AbstractViewer viewer,
                                        Project        proj,
                                        ActionListener onDelete)
@@ -28,7 +28,7 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
         this (viewer,
               Environment.getProjectInfo (proj),
               onDelete);
-               
+
     }
 
     public DeleteProjectActionHandler (AbstractViewer viewer,
@@ -41,23 +41,23 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
 
         this.projInfo = pi;
         this.onDelete = onDelete;
-               
+
     }
 
     public String getDeleteType ()
     {
-        
+
         return Environment.getUIString (LanguageStrings.project,
                                         LanguageStrings.actions,
                                         LanguageStrings.deleteproject,
                                         LanguageStrings.deletetype);
         //"{Project}";
-        
+
     }
-        
+
     public String getWarning ()
     {
-        
+
         String m = Environment.getUIString (LanguageStrings.project,
                                             LanguageStrings.actions,
                                             LanguageStrings.deleteproject,
@@ -67,72 +67,66 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
 
         if (this.projInfo.isEditorProject ())
         {
-            
+
             m += String.format (Environment.getUIString (LanguageStrings.project,
                                                          LanguageStrings.actions,
                                                          LanguageStrings.deleteproject,
                                                          LanguageStrings.warning,
                                                          LanguageStrings.editor),
                                 //"<br /><br />A message will also be sent to <b>%s</b> telling them you are no longer editing the {project}.",
-                                this.projInfo.getForEditor ().getShortName ());
-        
+                                this.projInfo.getForEditor ().getMainName ());
+
         }
-        
+
         return m;
-        
+
     }
-            
+
     @Override
     public boolean onConfirm (String v)
                               throws Exception
     {
 
         final DeleteProjectActionHandler _this = this;
-        
+
         if (this.projInfo.isEditorProject ())
         {
-        
-            EditorsEnvironment.sendProjectEditStopMessage (this.projInfo,
-                                                           new ActionListener ()
-            {
-              
-                @Override
-                public void actionPerformed (ActionEvent ev)
-                {
-        
-                    Environment.deleteProject (_this.projInfo,
-                                               _this.onDelete);
 
-                    UIUtils.showMessage ((Component) null,
-                                         Environment.getUIString (LanguageStrings.project,
-                                                                  LanguageStrings.actions,
-                                                                  LanguageStrings.deleteproject,
-                                                                  LanguageStrings.editorproject,
-                                                                  LanguageStrings.confirmpopup,
-                                                                  LanguageStrings.title),
-                                         String.format (Environment.getUIString (LanguageStrings.project,
-                                                                                 LanguageStrings.actions,
-                                                                                 LanguageStrings.deleteproject,
-                                                                                 LanguageStrings.editorproject,
-                                                                                 LanguageStrings.confirmpopup,
-                                                                                 LanguageStrings.text),
-                                                        _this.projInfo.getForEditor ().getShortName ()),
-                                         null,
-                                         null);
-    
-                }
-                
+            EditorsEnvironment.sendProjectEditStopMessage (this.projInfo,
+                                                           () ->
+            {
+
+                Environment.deleteProject (_this.projInfo,
+                                           _this.onDelete);
+
+                UIUtils.showMessage ((Component) null,
+                                     Environment.getUIString (LanguageStrings.project,
+                                                              LanguageStrings.actions,
+                                                              LanguageStrings.deleteproject,
+                                                              LanguageStrings.editorproject,
+                                                              LanguageStrings.confirmpopup,
+                                                              LanguageStrings.title),
+                                     String.format (Environment.getUIString (LanguageStrings.project,
+                                                                             LanguageStrings.actions,
+                                                                             LanguageStrings.deleteproject,
+                                                                             LanguageStrings.editorproject,
+                                                                             LanguageStrings.confirmpopup,
+                                                                             LanguageStrings.text),
+                                                    _this.projInfo.getForEditor ().getMainName ()),
+                                     null,
+                                     null);
+
             });
 
         } else {
-            
+
             Environment.deleteProject (this.projInfo,
-                                       this.onDelete);            
-            
+                                       this.onDelete);
+
         }
-        
+
         return true;
-        
+
     }
-    
+
 }

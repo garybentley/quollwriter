@@ -53,15 +53,9 @@ public class Notification extends HBox
         this.content = builder.content;
         this.viewer = builder.viewer;
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane p = new Pane ();
-        HBox.setHgrow (p,
-                       Priority.NEVER);
-        p.getStyleClass ().add (builder.styleName + StyleClassNames.ICON_SUFFIX);
-        p.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (p);
-        h.managedProperty ().bind (h.visibleProperty ());
+        IconBox h = IconBox.builder ()
+            .iconName (builder.styleName)
+            .build ();
         HBox.setHgrow (h,
                        Priority.NEVER);
 
@@ -74,7 +68,7 @@ public class Notification extends HBox
             .build ();
 
         this.close = QuollButton.builder ()
-            .styleClassName (StyleClassNames.CLOSE)
+            .iconName (StyleClassNames.CLOSE)
             .tooltip (getUILanguageStringProperty (notifications,remove,tooltip))
             .onAction (ev ->
             {
@@ -87,6 +81,13 @@ public class Notification extends HBox
         toolbar.getItems ().add (this.close);
 
         this.getChildren ().addAll (h, builder.content, toolbar);
+
+    }
+
+    public Node getContent ()
+    {
+
+        return this.content;
 
     }
 

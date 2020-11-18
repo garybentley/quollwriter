@@ -53,7 +53,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         this.headerEditBut = QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Arrays.asList (assets,view,toolbar,edit,tooltip),
                                                    this.object.getUserConfigurableObjectType ().nameProperty ()))
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .onAction (ev ->
             {
 
@@ -66,7 +66,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         this.headerSaveBut = QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Arrays.asList (assets,view,toolbar,save,tooltip),
                                                    this.object.getUserConfigurableObjectType ().nameProperty ()))
-            .styleClassName (StyleClassNames.SAVE)
+            .iconName (StyleClassNames.SAVE)
             .onAction (ev ->
             {
 
@@ -91,7 +91,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         this.headerCancelBut = QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (assets,view,toolbar,cancel,tooltip))
-            .styleClassName (StyleClassNames.CANCEL)
+            .iconName (StyleClassNames.CANCEL)
             .onAction (ev ->
             {
 
@@ -291,7 +291,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         items.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,appearsinchapters,tooltip),
                                                    Environment.getObjectTypeName (this.object)))
-            .styleClassName (StyleClassNames.APPEARSINCHAPTERS)
+            .iconName (StyleClassNames.APPEARSINCHAPTERS)
             .onAction (ev ->
             {
 
@@ -302,7 +302,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         items.add (QuollMenuButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,_new,tooltip)))
-            .styleClassName (StyleClassNames.NEW)
+            .iconName (StyleClassNames.NEW)
             .items (() ->
             {
 
@@ -319,7 +319,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         items.add (QuollButton.builder ()
            .tooltip (getUILanguageStringProperty (Utils.newList (prefix,delete,tooltip),
                                                                  Environment.getObjectTypeName (this.object)))
-           .styleClassName (StyleClassNames.DELETE)
+           .iconName (StyleClassNames.DELETE)
            .onAction (ev ->
            {
 
@@ -331,7 +331,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
        items.add (QuollButton.builder ()
           .tooltip (getUILanguageStringProperty (Utils.newList (prefix,config,tooltip),
                                                                 Environment.getObjectTypeName (this.object)))
-          .styleClassName (StyleClassNames.CONFIG)
+          .iconName (StyleClassNames.CONFIG)
           .onAction (ev ->
           {
 

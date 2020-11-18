@@ -159,7 +159,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         List<String> prefix = Arrays.asList (fullscreen,title,toolbar,buttons);
 
         Button but = QuollButton.builder ()
-            .styleClassName (StyleClassNames.DISTRACTIONFREEENTER)
+            .iconName (StyleClassNames.DISTRACTIONFREEENTER)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,distractionfreemodeenter,tooltip)))
             .onAction (ev ->
             {
@@ -203,7 +203,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         tb.getItems ().add (QuollButton.builder ()
             .tooltip (fullscreen,title,toolbar,buttons,ideaboard,tooltip)
-            .styleClassName (StyleClassNames.IDEABOARD)
+            .iconName (StyleClassNames.IDEABOARD)
             .onAction (ev ->
             {
 
@@ -214,7 +214,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         this.timerBut = QuollButton.builder ()
             .tooltip (fullscreen,title,toolbar,buttons,timer,tooltip)
-            .styleClassName (StyleClassNames.TIMER)
+            .iconName (StyleClassNames.TIMER)
             .build ();
         this.timerBut.setOnAction (ev ->
         {
@@ -405,7 +405,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         {
 
             tb.getItems ().add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.CONTACTS)
+                .iconName (StyleClassNames.CONTACTS)
                 .tooltip (EditorsEnvironment.hasRegistered () ?
                             getUILanguageStringProperty (Utils.newList (prefix,showcontacts,tooltip))
                             :
@@ -435,7 +435,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         }
 
         tb.getItems ().add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.FIND)
+            .iconName (StyleClassNames.FIND)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,find,tooltip)))
             .onAction (ev ->
             {
@@ -447,7 +447,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         tb.getItems ().add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,fullscreenexit,tooltip)))
-            .styleClassName (StyleClassNames.FULLSCREENEXIT)
+            .iconName (StyleClassNames.FULLSCREENEXIT)
             .onAction (ev ->
             {
 
@@ -458,7 +458,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         tb.getItems ().add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,editproperties,tooltip)))
-            .styleClassName (StyleClassNames.EDITPROPERTIES)
+            .iconName (StyleClassNames.EDITPROPERTIES)
             .onAction (ev ->
             {
 
@@ -542,7 +542,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
             m.getItems ().add (QuollMenuItem.builder ()
                 .label (fullscreen,popupmenu,items,editproperties)
-                .styleClassName (StyleClassNames.EDITPROPERTIES)
+                .iconName (StyleClassNames.EDITPROPERTIES)
                 .onAction (eev ->
                 {
 
@@ -553,7 +553,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
             m.getItems ().add (QuollMenuItem.builder ()
                 .label (fullscreen,popupmenu,items,selectbackground)
-                .styleClassName (StyleClassNames.SELECTBG)
+                .iconName (StyleClassNames.SELECTBG)
                 .onAction (eev ->
                 {
 

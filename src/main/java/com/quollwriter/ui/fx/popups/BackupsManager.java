@@ -172,7 +172,7 @@ public class BackupsManager extends PopupContent
         Set<Node> cons = new LinkedHashSet<> ();
         cons.add (QuollButton.builder ()
             .tooltip (backups,restore,tooltip)
-            .styleClassName (StyleClassNames.RESTORE)
+            .iconName (StyleClassNames.RESTORE)
             .onAction (ev ->
             {
 
@@ -537,7 +537,7 @@ TODO Remove
 
         cons.add (QuollButton.builder ()
             .tooltip (backups,delete,tooltip)
-            .styleClassName (StyleClassNames.DELETE)
+            .iconName (StyleClassNames.DELETE)
             .onAction (ev ->
             {
 

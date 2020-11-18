@@ -633,7 +633,7 @@ System.out.println ("REG: " + r);
 
                     cm.getItems ().add (QuollMenuItem.builder ()
                         .label (assets,documents,viewitem,popupmenu,items,open)
-                        .styleClassName (StyleClassNames.VIEW)
+                        .iconName (StyleClassNames.VIEW)
                         .onAction (eev ->
                         {
 
@@ -650,7 +650,7 @@ System.out.println ("REG: " + r);
 
                     cm.getItems ().add (QuollMenuItem.builder ()
                         .label (assets,documents,viewitem,popupmenu,items,showfolder)
-                        .styleClassName (StyleClassNames.FOLDER)
+                        .iconName (StyleClassNames.FOLDER)
                         .onAction (eev ->
                         {
 
@@ -664,7 +664,7 @@ System.out.println ("REG: " + r);
 
                 cm.getItems ().add (QuollMenuItem.builder ()
                     .label (assets,documents,viewitem,popupmenu,items,remove)
-                    .styleClassName (StyleClassNames.REMOVE)
+                    .iconName (StyleClassNames.REMOVE)
                     .onAction (eev ->
                     {
 

@@ -16,7 +16,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class ReportBugPopup extends PopupContent
+public class ReportBugPopup extends PopupContent<AbstractViewer>
 {
 
     public static final String POPUP_ID = "reportbug";
@@ -212,7 +212,7 @@ public class ReportBugPopup extends PopupContent
             {
 
                 this.desc.requestFocus ();
-                
+
             });
 
         });

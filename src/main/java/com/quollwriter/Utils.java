@@ -8,6 +8,7 @@ import java.text.*;
 import java.net.*;
 import java.util.jar.*;
 import java.util.*;
+import java.util.function.*;
 import java.util.zip.*;
 import java.util.stream.*;
 import java.nio.file.*;
@@ -811,12 +812,12 @@ TODO Remove
 
     }
 
-    public static void postToURL (final URL                 url,
-                                  final Map<String, String> headers,
-                                  final String              content,
-                                  final ActionListener      onSuccess,
-                                  final ActionListener      onError,
-                                  final ActionListener      onFailure,
+    public static void postToURL (final URL                                      url,
+                                  final Map<String, String>                      headers,
+                                  final String                                   content,
+                                  final BiConsumer<String, Integer>              onSuccess,
+                                  final BiConsumer<String, Integer>              onError,
+                                  final Consumer<Exception>                      onFailure,
                                   final UpdateEventListener<UploadProgressEvent> progressListener)
     {
 
@@ -834,12 +835,12 @@ TODO Remove
 
     }
 
-    public static void postToURL (final URL                 url,
-                                  final Map<String, String> headers,
-                                  final Path                file,
-                                  final ActionListener      onSuccess,
-                                  final ActionListener      onError,
-                                  final ActionListener      onFailure,
+    public static void postToURL (final URL                                      url,
+                                  final Map<String, String>                      headers,
+                                  final Path                                     file,
+                                  final BiConsumer<String, Integer>              onSuccess,
+                                  final BiConsumer<String, Integer>              onError,
+                                  final Consumer<Exception>                      onFailure,
                                   final UpdateEventListener<UploadProgressEvent> progressListener)
                            throws IOException
     {
@@ -861,239 +862,204 @@ TODO Remove
                                   final String              contentType,
                                   final long                contentLength,
                                   final InputStream         content,
-                                  final ActionListener      onSuccess,
-                                  final ActionListener      onError,
-                                  final ActionListener      onFailure,
+                                  final BiConsumer<String, Integer> onSuccess,
+                                  final BiConsumer<String, Integer> onError,
+                                  final Consumer<Exception>         onFailure,
                                   final UpdateEventListener<UploadProgressEvent> progressListener)
     {
 
-        new Thread (new Runnable ()
+        Environment.scheduleImmediately (() ->
         {
 
-            public void run ()
+            try
             {
 
-                try
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection ();
+
+                if (headers != null)
                 {
 
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection ();
+                    Iterator<String> iter = headers.keySet ().iterator ();
 
-                    if (headers != null)
+                    while (iter.hasNext ())
                     {
 
-                        Iterator<String> iter = headers.keySet ().iterator ();
+                        String n = iter.next ();
 
-                        while (iter.hasNext ())
-                        {
-
-                            String n = iter.next ();
-
-                            conn.setRequestProperty (n,
-                                                     headers.get (n));
-
-                        }
-
-                    }
-
-                    conn.setRequestProperty ("content-type",
-                                             contentType);
-                    conn.setRequestProperty ("content-length",
-                                             contentLength + "");
-
-                    conn.setRequestMethod ("POST");
-
-                    conn.setDoInput (true);
-                    conn.setDoOutput (true);
-                    conn.connect ();
-
-                    int count = 0;
-                    int sent = 0;
-
-                    OutputStream out = conn.getOutputStream ();
-
-                    byte[] bytes = new byte[8192];
-
-                    while ((count = content.read (bytes,
-                                                  0,
-                                                  8192)) != -1)
-                    {
-
-                        out.write (bytes,
-                                   0,
-                                   count);
-
-                        sent += count;
-
-                        if (progressListener != null)
-                        {
-
-                            int _sent = sent;
-
-                            UIUtils.doLater (new ActionListener ()
-                            {
-
-                                @Override
-                                public void actionPerformed (ActionEvent ev)
-                                {
-
-                                    progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
-                                                                                            _sent,
-                                                                                            contentLength));
-
-                                }
-
-                            });
-
-                        }
-
-                    }
-
-                    //BufferedWriter out = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream (), StandardCharsets.UTF_8));
-                    //out.write (content);
-
-                    out.flush ();
-                    out.close ();
-
-                    UIUtils.doLater (new ActionListener ()
-                    {
-
-                        @Override
-                        public void actionPerformed (ActionEvent ev)
-                        {
-
-                            progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
-                                                                                    contentLength,
-                                                                                    contentLength));
-
-                        }
-
-                    });
-
-                    // Try and get input stream, not all responses allow it.
-                    InputStream in = null;
-
-                    final int resCode = conn.getResponseCode ();
-
-                    if (resCode != HttpURLConnection.HTTP_OK)
-                    {
-
-                        in = conn.getErrorStream ();
-
-                    } else {
-
-                        in = conn.getInputStream ();
-
-                    }
-
-                    String r = null;
-
-                    if (in != null)
-                    {
-
-                        StringBuilder b = new StringBuilder ();
-
-                        BufferedReader bin = new BufferedReader (new InputStreamReader (in));
-
-                        // Read everything.
-                        char chars[] = new char[8192];
-
-                        count = 0;
-
-                        while ((count = bin.read (chars,
-                                                  0,
-                                                  8192)) != -1)
-                        {
-
-                            b.append (chars,
-                                      0,
-                                      count);
-
-                        }
-
-                        String s = b.toString ();
-
-                        String pref = Constants.JSON_RETURN_PREFIX; //"for(;;);";
-
-                        if (s.startsWith (pref))
-                        {
-
-                            s = s.substring (pref.length ());
-
-                        }
-
-                        r = s;
-
-                    }
-
-                    final String ret = r;
-
-                    conn.disconnect ();
-
-                    if (resCode != HttpURLConnection.HTTP_OK)
-                    {
-
-                        if (onError != null)
-                        {
-
-                            UIUtils.doLater (new ActionListener ()
-                                             {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    onError.actionPerformed (new ActionEvent (ret, resCode, "error"));
-
-                                                }
-
-                                             });
-
-                        }
-
-                    } else {
-
-                        if (onSuccess != null)
-                        {
-
-                            UIUtils.doLater (new ActionListener ()
-                                             {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    onSuccess.actionPerformed (new ActionEvent (ret, resCode, "success"));
-
-                                                }
-
-                                             });
-
-                        }
-
-                    }
-
-                } catch (final Exception e) {
-
-                    if (onFailure != null)
-                    {
-
-                        UIUtils.doLater (new ActionListener ()
-                                         {
-
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-
-                                                onFailure.actionPerformed (new ActionEvent (e, 0, "exception"));
-
-                                            }
-
-                                         });
+                        conn.setRequestProperty (n,
+                                                 headers.get (n));
 
                     }
 
                 }
 
+                conn.setRequestProperty ("content-type",
+                                         contentType);
+                conn.setRequestProperty ("content-length",
+                                         contentLength + "");
+
+                conn.setRequestMethod ("POST");
+
+                conn.setDoInput (true);
+                conn.setDoOutput (true);
+                conn.connect ();
+
+                int count = 0;
+                int sent = 0;
+
+                OutputStream out = conn.getOutputStream ();
+
+                byte[] bytes = new byte[8192];
+
+                while ((count = content.read (bytes,
+                                              0,
+                                              8192)) != -1)
+                {
+
+                    out.write (bytes,
+                               0,
+                               count);
+
+                    sent += count;
+
+                    if (progressListener != null)
+                    {
+
+                        int _sent = sent;
+
+                        Environment.scheduleImmediately (() ->
+                        {
+
+                            progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
+                                                                                    _sent,
+                                                                                    contentLength));
+
+                        });
+
+                    }
+
+                }
+
+                out.flush ();
+                out.close ();
+
+                Environment.scheduleImmediately (() ->
+                {
+
+                    progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
+                                                                            contentLength,
+                                                                            contentLength));
+
+                });
+
+                // Try and get input stream, not all responses allow it.
+                InputStream in = null;
+
+                final int resCode = conn.getResponseCode ();
+
+                if (resCode != HttpURLConnection.HTTP_OK)
+                {
+
+                    in = conn.getErrorStream ();
+
+                } else {
+
+                    in = conn.getInputStream ();
+
+                }
+
+                String r = null;
+
+                if (in != null)
+                {
+
+                    StringBuilder b = new StringBuilder ();
+
+                    BufferedReader bin = new BufferedReader (new InputStreamReader (in));
+
+                    // Read everything.
+                    char chars[] = new char[8192];
+
+                    count = 0;
+
+                    while ((count = bin.read (chars,
+                                              0,
+                                              8192)) != -1)
+                    {
+
+                        b.append (chars,
+                                  0,
+                                  count);
+
+                    }
+
+                    String s = b.toString ();
+
+                    String pref = Constants.JSON_RETURN_PREFIX; //"for(;;);";
+
+                    if (s.startsWith (pref))
+                    {
+
+                        s = s.substring (pref.length ());
+
+                    }
+
+                    r = s;
+
+                }
+
+                final String ret = r;
+
+                conn.disconnect ();
+
+                if (resCode != HttpURLConnection.HTTP_OK)
+                {
+
+                    if (onError != null)
+                    {
+
+                        Environment.scheduleImmediately (() ->
+                        {
+
+                            onError.accept (ret, resCode);
+
+                        });
+
+                    }
+
+                } else {
+
+                    if (onSuccess != null)
+                    {
+
+                        Environment.scheduleImmediately (() ->
+                        {
+
+                            onSuccess.accept (ret, resCode);
+
+                        });
+
+                    }
+
+                }
+
+            } catch (final Exception e) {
+
+                if (onFailure != null)
+                {
+
+                    Environment.scheduleImmediately (() ->
+                    {
+
+                        onFailure.accept (e);
+
+                    });
+
+                }
+
             }
 
-        }).start ();
+        });
 
     }
 

@@ -1,42 +1,22 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.Dimension;
-import java.awt.Component;
-import java.awt.dnd.*;
-import java.awt.event.*;
-
 import java.net.*;
 
 import java.security.*;
 
 import java.text.*;
 
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Iterator;
+import java.util.*;
+import java.util.function.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.tree.*;
+import javafx.scene.control.*;
+import javafx.scene.*;
+import javafx.geometry.*;
+import javafx.beans.property.*;
 
-import com.gentlyweb.properties.*;
+//import com.gentlyweb.properties.*;
 
 import com.gentlyweb.utils.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.*;
 
@@ -49,25 +29,26 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.text.*;
 import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.editors.ui.panels.*;
-import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.sidebars.*;
-import com.quollwriter.ui.actionHandlers.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.*;
 
-import com.quollwriter.ui.components.TabHeader;
-import com.quollwriter.ui.components.ActionAdapter;
-import com.quollwriter.ui.components.IconProvider;
-import com.quollwriter.ui.components.QPopup;
-import com.quollwriter.ui.events.*;
-import com.quollwriter.ui.renderers.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.ui.*;
+import com.quollwriter.uistrings.UILanguageStringsManager;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class EditorProjectViewer extends AbstractProjectViewer
 {
+
+    public interface CommandId extends AbstractProjectViewer.CommandId
+    {
+
+        String completeediting = "completeediting";
+
+    }
 
     public static final String TAB_OBJECT_TYPE = "tab";
     public static final int    NEW_COMMENT_ACTION = 3002; // "newComment";
@@ -79,14 +60,14 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
     private Date            sessionStart = new Date ();
     private EditorProjectSideBar  sideBar = null;
-    private DefaultChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
-    private IconProvider iconProvider = null;
+    //private DefaultChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
 
-    public EditorProjectViewer()
+    public EditorProjectViewer ()
+                         //throws GeneralException
     {
 
         final EditorProjectViewer _this = this;
-
+/*
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ()
         {
 
@@ -180,86 +161,22 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                 }
 
                                                             });
-
-        this.iconProvider = new DefaultIconProvider ()
-        {
-
-            @Override
-            public ImageIcon getIcon (String name,
-                                      int    type)
-            {
-
-                name = Constants.COMMENT_ICON_NAME;
-
-                return super.getIcon (name,
-                                      type);
-
-            }
-
-        };
-
+*/
         this.sideBar = new EditorProjectSideBar (this);
 
+        this.initActionMappings ();
+
     }
 
-    public IconProvider getIconProvider ()
+    @Override
+    public SideBar getMainSideBar ()
     {
 
-        return this.iconProvider;
+        return this.sideBar.getSideBar ();
 
     }
-
-    public ChapterItemViewPopupProvider getChapterItemViewPopupProvider ()
-    {
-
-        return this.chapterItemViewPopupProvider;
-
-    }
-
-    public void initActionMappings (ActionMap am)
-    {
-
-        super.initActionMappings (am);
-
-    }
-
-    public void initKeyMappings (InputMap im)
-    {
-
-        super.initKeyMappings (im);
-
-    }
-
-    public void showObjectInTree (String      treeObjType,
-                                  NamedObject obj)
-    {
-
-        this.sideBar.showObjectInTree (treeObjType,
-                                       obj);
-
-    }
-
-    public void reloadTreeForObjectType (String objType)
-    {
-
-        this.sideBar.reloadTreeForObjectType (objType);
-
-    }
-
-    public void reloadTreeForObjectType (NamedObject obj)
-    {
-
-        this.sideBar.reloadTreeForObjectType (obj.getObjectType ());
-
-    }
-
-    public AbstractSideBar getMainSideBar ()
-    {
-
-        return this.sideBar;
-
-    }
-
+/*
+TODO
     public void fillFullScreenTitleToolbar (JToolBar toolbar)
     {
 
@@ -274,38 +191,56 @@ public class EditorProjectViewer extends AbstractProjectViewer
         toolbar.add (b);
 
     }
-
-    public void fillTitleToolbar (JToolBar toolbar)
-    {
-
-    }
-
-    public void fillSettingsPopup (JPopupMenu titlePopup)
+*/
+    @Override
+    public Supplier<Set<MenuItem>> getSettingsMenuSupplier ()
     {
 
         final EditorProjectViewer _this = this;
 
-        JMenuItem mi = null;
+        return () ->
+        {
 
-        // Open project.
-        java.util.List<String> prefix = Arrays.asList (editors,project,settingsmenu,items);
+            Set<MenuItem> items = new LinkedHashSet<> ();
 
-        titlePopup.add (this.createMenuItem (getUIString (prefix,openproject),
-                                            //"Open {Project}",
-                                             Constants.OPEN_PROJECT_ICON_NAME,
-                                             EditorProjectViewer.OPEN_PROJECT_ACTION));
+            List<String> prefix = Arrays.asList (editors,LanguageStrings.project,settingsmenu,LanguageStrings.items);
 
-        // Close Project
-        titlePopup.add (this.createMenuItem (getUIString (prefix,closeproject),
-                                            //"Close {Project}",
-                                             Constants.CLOSE_ICON_NAME,
-                                             EditorProjectViewer.CLOSE_PROJECT_ACTION));
+            items.add (QuollMenuItem.builder ()
+                .label (Utils.newList (prefix,openproject))
+                .iconName (StyleClassNames.OPEN)
+                .onAction (ev ->
+                {
 
-        // Delete Project
-        titlePopup.add (this.createMenuItem (getUIString (prefix,deleteproject),
-                                            //"Delete {Project}",
-                                             Constants.DELETE_ICON_NAME,
-                                             EditorProjectViewer.COMPLETE_EDITING_ACTION));
+                    _this.runCommand (CommandId.openproject);
+
+                })
+                .build ());
+
+            items.add (QuollMenuItem.builder ()
+                .label (Utils.newList (prefix,closeproject))
+                .iconName (StyleClassNames.CLOSE)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.closeproject);
+
+                })
+                .build ());
+
+            items.add (QuollMenuItem.builder ()
+                .label (Utils.newList (prefix,deleteproject))
+                .iconName (StyleClassNames.DELETE)
+                .onAction (ev ->
+                {
+
+                    this.showCompleteEditing ();
+
+                })
+                .build ());
+
+            return items;
+
+        };
 
     }
 
@@ -335,8 +270,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                   pv,
                                   e);
 
-            UIUtils.showErrorMessage (this,
-                                      getUIString (editors,project,actions,switchtoversion,actionerror));
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (editors,LanguageStrings.project,actions,switchtoversion,actionerror));
                                       //"Unable to open project at that version, please contact Quoll Writer support for assistance.");
 
             return;
@@ -344,21 +279,19 @@ public class EditorProjectViewer extends AbstractProjectViewer
         }
 
         // Close all the current panels and save the state.
-        this.closeAllTabs (true);
+        this.closeAllTabs ();
 
         // Remove all the chapters from the book.
-        this.proj.getBook (0).removeAllChapters ();
+        this.project.getBook (0).removeAllChapters ();
 
         for (Chapter c : chaps)
         {
 
-            this.proj.getBook (0).addChapter (c);
+            this.project.getBook (0).addChapter (c);
 
         }
 
-        this.proj.setProjectVersion (pv);
-
-        this.setViewerTitle (this.getViewerTitle ());
+        this.project.setProjectVersion (pv);
 
         EditorProjectSideBar epb = null;
 
@@ -374,8 +307,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
             Environment.logError ("Unable to init new editor project side bar",
                                   e);
 
-            UIUtils.showErrorMessage (this,
-                                      getUIString (editors,project,actions,switchtoversion,actionerror));
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (editors,LanguageStrings.project,actions,switchtoversion,actionerror));
                                       //"Unable to open project at that version, please contact Quoll Writer support for assistance.");
 
             // Need to close and reopen the project?
@@ -425,195 +358,64 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
         final EditorProjectViewer _this = this;
 
-        final Project _proj = this.proj;
+        final Project _proj = this.project;
 
-        // Check for unsent comments.
-
-        final ActionListener deleteProj = new ActionListener ()
+        Runnable deleteProj = () ->
         {
 
-            public void actionPerformed (ActionEvent ev)
-            {
+            // Check for unsent comments.
+            List<String> prefix = Arrays.asList (editors,LanguageStrings.project,actions,deleteproject,popup);
 
-                java.util.List<String> prefix = Arrays.asList (editors,project,actions,deleteproject,popup);
-
-                final QPopup qp = UIUtils.createClosablePopup (getUIString (prefix,title),
-                                                                //"Delete {Project}?",
-                                                               Environment.getIcon (Constants.DELETE_ICON_NAME,
-                                                                                    Constants.ICON_POPUP),
-                                                               null);
-
-                Box content = new Box (BoxLayout.Y_AXIS);
-
-                JTextPane desc = UIUtils.createHelpTextPane (String.format (getUIString (prefix,LanguageStrings.text),
-                                                                            //"To delete {Project} <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All information/{comments} associated with the {project} will be deleted.<br /><br />A message will also be sent to <b>%s</b> telling them you are no longer editing the {project}.",
-                                                                            _this.proj.getName (),
-                                                                            _this.proj.getForEditor ().getShortName ()),
-                                                             _this);
-
-                content.add (desc);
-                desc.setBorder (null);
-                desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                             desc.getPreferredSize ().height));
-
-                content.add (Box.createVerticalStrut (10));
-
-                final JLabel error = UIUtils.createErrorLabel (getUIString (form,errors,affirmativevalue));
-                //"Please enter the word Yes.");
-
-                error.setVisible (false);
-                error.setBorder (UIUtils.createPadding (0,
-                                                  0,
-                                                  5,
-                                                  0));
-
-                final JTextField text = UIUtils.createTextField ();
-
-                text.setMinimumSize (new Dimension (300,
-                                                    text.getPreferredSize ().height));
-                text.setPreferredSize (new Dimension (300,
-                                                      text.getPreferredSize ().height));
-                text.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                    text.getPreferredSize ().height));
-                text.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                error.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                content.add (error);
-                content.add (text);
-
-                content.add (Box.createVerticalStrut (10));
-
-                // Blue pill/red pill?
-                ActionListener confirmAction = new ActionListener ()
+            QuollPopup.yesConfirmTextEntryBuilder ()
+                .title (Utils.newList (prefix,title))
+                .styleClassName (StyleClassNames.DELETE)
+                .styleSheet ("deleteeditorproject")
+                .inViewer (this)
+                .description (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                           this.project.getName (),
+                                                           this.project.getForEditor ().getMainName ()))
+                .confirmButtonLabel (Utils.newList (prefix,buttons,confirm))
+                .cancelButtonLabel (Utils.newList (prefix,buttons,cancel))
+                .onConfirm (ev ->
                 {
 
-                    @Override
-                    public void actionPerformed (ActionEvent ev)
+                    EditorsEnvironment.sendProjectEditStopMessage (this.project,
+                                                                   () ->
                     {
 
-                        if (!text.getText ().trim ().equalsIgnoreCase (getUIString (form,affirmativevalue)))
+                        _this.close (true,
+                                     () ->
                         {
 
-                            error.setVisible (true);
-
-                            qp.resize ();
-
-                            return;
-
-                        }
-
-                        qp.removeFromParent ();
-
-                        EditorsEnvironment.sendProjectEditStopMessage (_proj,
-                        new ActionListener ()
-                        {
-
-                            public void actionPerformed (ActionEvent ev)
+                            Environment.deleteProject (_proj,
+                                                       () ->
                             {
 
-                                _this.close (true,
-                                             new ActionListener ()
-                                {
+                                List<String> prefx = Arrays.asList (editors,LanguageStrings.project,actions,deleteproject,confirmpopup);
 
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
+                                QuollPopup.messageBuilder ()
+                                    .title (Utils.newList (prefx,title))
+                                    .message (getUILanguageStringProperty (Utils.newList (prefx,text),
+                                                                           _proj.getForEditor ().mainNameProperty ()))
+                                    .closeButton (null,
+                                                  () ->
+                                                  {
 
-                                        Environment.deleteProject (_proj,
-                                        new ActionListener ()
-                                        {
+                                                      Environment.showAllProjectsViewerIfNoOpenProjects ();
 
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
+                                                  })
+                                    .build ();
 
-                                                java.util.List<String> prefx = Arrays.asList (editors,project,actions,deleteproject,confirmpopup);
-
-                                                // TODO: Really must sort this mess out.
-                                                UIUtils.showMessage ((Component) null,
-                                                                     getUIString (prefix,title),
-                                                                    //"{Project} deleted",
-                                                                     String.format (getUIString (prefix,LanguageStrings.text),
-                                                                                    //"The {project} has been deleted and a message has been sent to <b>%s</b> to let them know.",
-                                                                                    _proj.getForEditor ().getShortName ()),
-                                                                     null,
-                                                                     new ActionListener ()
-                                                                     {
-
-                                                                        public void actionPerformed (ActionEvent ev)
-                                                                        {
-
-                                                                            Environment.showAllProjectsViewerIfNoOpenProjects ();
-
-                                                                        }
-
-                                                                     });
-
-                                            }
-
-                                         });
-
-                                    }
-
-                                });
-
-                            }
+                             });
 
                         });
 
-                    }
+                    });
 
-                };
-
-                JButton confirm = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.confirm),
-                                                        //"Yes, delete it",
-                                                        confirmAction);
-
-                UIUtils.addDoActionOnReturnPressed (text,
-                                                    confirmAction);
-
-                JButton cancel = UIUtils.createButton (getUIString (prefix,buttons,LanguageStrings.cancel),
-                                                        //Constants.CANCEL_BUTTON_LABEL_ID,
-                                                       new ActionListener ()
-                {
-
-                    @Override
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        qp.removeFromParent ();
-
-                    }
-
-                });
-
-                JButton[] buts = new JButton[] { confirm, cancel };
-
-                JComponent bs = UIUtils.createButtonBar2 (buts,
-                                                          Component.LEFT_ALIGNMENT);
-                bs.setAlignmentX (Component.LEFT_ALIGNMENT);
-                content.add (bs);
-                content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-                qp.setContent (content);
-
-                content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                                         content.getPreferredSize ().height));
-
-                _this.showPopupAt (qp,
-                                   UIUtils.getCenterShowPosition (_this,
-                                                                  qp),
-                                   false);
-
-                qp.setDraggable (_this);
-
-                text.grabFocus ();
-
-            }
+                })
+                .build ();
 
         };
-
-        // Send project edit complete message.
-
-        // Delete project.
 
         int count = 0;
 
@@ -625,11 +427,11 @@ public class EditorProjectViewer extends AbstractProjectViewer
         } catch (Exception e) {
 
             Environment.logError ("Unable to get unsent comments for project: " +
-                                  this.proj,
+                                  this.project,
                                   e);
 
-            UIUtils.showErrorMessage (this,
-                                      getUIString (editors,project,actions,unsentcomments,actionerror));
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (editors,LanguageStrings.project,actions,unsentcomments,actionerror));
                                       //"Unable to check for unsent comments, please contact Quoll Writer support for assistance.");
 
             // Let things through.
@@ -639,200 +441,96 @@ public class EditorProjectViewer extends AbstractProjectViewer
         if (count > 0)
         {
 
-            java.util.List<String> prefix = Arrays.asList (editors,project,actions,deleteproject,unsentcommentspopup);
+            List<String> prefix2 = Arrays.asList (editors,LanguageStrings.project,actions,deleteproject,unsentcommentspopup);
 
-            UIUtils.createQuestionPopup (this,
-                                         getUIString (prefix,title),
-                                        //"Unsent comments",
-                                         Constants.ERROR_ICON_NAME,
-                                         String.format (getUIString (prefix,text),
-                                                        //"There are <b>%s</b> comments that you have not yet sent to <b>%s</b>.<br /><br />Do you wish to send them now?",
-                                                        count,
-                                                        this.getProject ().getForEditor ().getShortName ()),
-                                         getUIString (prefix,buttons,confirm),
-                                         //"Yes, I'll send them now",
-                                         getUIString (prefix,buttons,cancel),
-                                         //"No, don't send them",
-                                         new ActionListener ()
-                                         {
+            QuollPopup.questionBuilder ()
+                .title (Utils.newList (prefix2,title))
+                .inViewer (this)
+                .styleClassName (StyleClassNames.COMMENTS)
+                .styleSheet (StyleClassNames.COMMENTS)
+                .message (getUILanguageStringProperty (Utils.newList (prefix2,text),
+                                                       count,
+                                                       this.getProject ().getForEditor ().mainNameProperty ()))
+                .confirmButtonLabel (Utils.newList (prefix2,buttons,confirm))
+                .cancelButtonLabel (Utils.newList (prefix2,buttons,cancel))
+                .onConfirm (ev ->
+                {
 
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
+                    EditorsUIUtils.showSendUnsentComments (this,
+                                                           deleteProj);
 
-                                                EditorsUIUtils.showSendUnsentComments (_this,
-                                                                                       deleteProj);
+                })
+                .onCancel (ev ->
+                {
 
-                                            }
+                    UIUtils.runLater (deleteProj);
 
-                                         },
-                                         deleteProj,
-                                         null,
-                                         null);
+                })
+                .build ();
 
             return;
 
         }
 
-        deleteProj.actionPerformed (new ActionEvent ("call", 1, "call"));
+        UIUtils.runLater (deleteProj);
 
     }
 
-    @Override
-    public Action getAction (int               name,
-                             final NamedObject other)
+    private void initActionMappings ()
     {
 
-        final EditorProjectViewer pv = this;
-
-        if (name == COMPLETE_EDITING_ACTION)
+        this.addActionMapping (() ->
         {
 
-            return new ActionAdapter ()
+            this.showCompleteEditing ();
+
+        },
+        CommandId.completeediting);
+
+    }
+
+    public void showAddNewComment (Chapter c,
+                                   int     pos)
+    {
+
+        EditorChapterPanel qep = this.getEditorForChapter (c);
+
+        qep.scrollToTextPosition (pos,
+                                  () ->
+        {
+
+            qep.showAddNewComment (pos);
+
+        });
+
+    }
+
+    public void editComment (Note n)
+    {
+
+        Chapter c = n.getChapter ();
+
+        this.editChapter (c,
+                          () ->
+        {
+
+            try
             {
 
-                public void actionPerformed (ActionEvent ev)
-                {
+                EditorChapterPanel editor = this.getEditorForChapter (c);
+                editor.editComment (n);
 
-                    pv.showCompleteEditing ();
+            } catch (Exception e) {
 
-                }
+                Environment.logError ("Unable to edit comment: " +
+                                      n,
+                                      e);
+                ComponentUtils.showErrorMessage (this,
+                                                 getUILanguageStringProperty (editors,LanguageStrings.project,actions,editcomment,actionerror));
 
-            };
+            }
 
-        }
-
-        if (name == EditorProjectViewer.DELETE_PROJECT_ACTION)
-        {
-
-            return null;
-
-        }
-
-        Action a = super.getAction (name,
-                                    other);
-
-        if (a != null)
-        {
-
-            return a;
-
-        }
-
-        if (name == EditorProjectViewer.VIEW_EDITOR_CHAPTER_INFO_ACTION)
-        {
-
-            return new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    pv.viewEditorChapterInformation ((Chapter) other);
-
-                }
-
-            };
-
-        }
-
-        if (name == EditorProjectViewer.EDIT_COMMENT_ACTION)
-        {
-
-            return new ActionAdapter ()
-            {
-
-                public void actionPerformed (final ActionEvent ev)
-                {
-
-                    final Chapter c = ((Note) other).getChapter ();
-
-                    pv.viewObject (c);
-
-                    UIUtils.doLater (new ActionListener ()
-                    {
-
-                        public void actionPerformed (ActionEvent ev)
-                        {
-
-                            try
-                            {
-
-                                EditorChapterPanel qep = (EditorChapterPanel) pv.getEditorForChapter (c);
-
-                                qep.editNote ((Note) other);
-
-                            } catch (Exception e)
-                            {
-
-                                Environment.logError ("Unable to edit comment: " +
-                                                      other,
-                                                      e);
-
-                                UIUtils.showErrorMessage (pv,
-                                                          getUIString (editors,project,actions,editcomment,actionerror));
-                                                          //"Unable to edit {Comment}");
-
-                            }
-
-                        }
-
-                    });
-
-                }
-
-            };
-
-        }
-
-        if (name == EditorProjectViewer.DELETE_COMMENT_ACTION)
-        {
-
-            return new DeleteCommentActionHandler ((Note) other,
-                                                   this,
-                                                   false);
-
-        }
-
-        if (name == EditorProjectViewer.NEW_COMMENT_ACTION)
-        {
-
-            return new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    Chapter c = (Chapter) other;
-
-                    EditorChapterPanel qep = pv.getEditorForChapter (c);
-
-                    String text = qep.getEditor ().getText ();
-
-                    int pos = 0;
-
-                    if (text != null)
-                    {
-
-                        pos = text.length ();
-
-                    }
-
-                    pv.scrollTo (c,
-                                 pos);
-
-                    new CommentActionHandler<EditorProjectViewer> (c,
-                                                                   qep,
-                                                                   pos).actionPerformed (ev);
-
-                }
-
-            };
-
-        }
-
-        throw new IllegalArgumentException ("Action: " +
-                                            name +
-                                            " not known.");
+        });
 
     }
 
@@ -840,7 +538,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
     public void handleNewProject ()
     {
 
-        Book b = this.proj.getBooks ().get (0);
+        Book b = this.project.getBooks ().get (0);
 
         Chapter c = b.getFirstChapter ();
 
@@ -852,9 +550,6 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
         }
 
-        // Refresh the chapter tree.
-        this.reloadTreeForObjectType (c.getObjectType ());
-
         this.handleOpenProject ();
 
         this.editChapter (c,
@@ -863,73 +558,43 @@ public class EditorProjectViewer extends AbstractProjectViewer
     }
 
     @Override
-    public String getViewerIcon ()
+    public String getStyleClassName ()
     {
 
-        return "editors";//this.proj.getObjectType ();
+        return StyleClassNames.EDITOR;
 
     }
 
     @Override
-    public String getViewerTitle ()
+    public StringProperty titleProperty ()
     {
 
-        ProjectVersion pv = this.proj.getProjectVersion ();
-
-        String suff = "";
-
-        if ((pv != null)
-            &&
-            (pv.getName () != null)
-           )
+        return UILanguageStringsManager.createStringPropertyWithBinding (() ->
         {
 
-            suff = String.format (getUIString (editors,project,viewertitleversionwrapper),
-                                //" (%s)",
-                                  pv.getName ());
+            ProjectVersion pv = this.project.getProjectVersion ();
 
-        }
+            StringProperty suff = null;
 
-        return String.format (getUIString (editors,project,viewertitle),
-                                    //"Editing%s: %s",
-                              suff,
-                              this.proj.getName ());
-
-    }
-
-    @Override
-    public void handleHTMLPanelAction (String v)
-    {
-
-        StringTokenizer t = new StringTokenizer (v,
-                                                 ",;");
-
-        if (t.countTokens () > 1)
-        {
-
-            while (t.hasMoreTokens ())
+            if ((pv != null)
+                &&
+                (pv.getName () != null)
+               )
             {
 
-                String tok = t.nextToken ().trim ();
-
-                this.handleHTMLPanelAction (tok);
+                suff = getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.project,viewertitleversionwrapper),
+                                    //" (%s)",
+                                                    pv.getName ());
 
             }
 
-            return;
+            return getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.project,viewertitle),
+                                        //"Editing%s: %s",
+                                                suff,
+                                                this.project.getName ()).getValue ();
 
-        }
-
-        if (v.equals ("find"))
-        {
-
-            this.showFind (null);
-
-            return;
-
-        }
-
-        super.handleHTMLPanelAction (v);
+        },
+        this.project.projectVersionProperty ());
 
     }
 
@@ -947,7 +612,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         {
 
             // No state, open the first chapter.
-            Book b = this.proj.getBooks ().get (0);
+            Book b = this.project.getBooks ().get (0);
 
             Chapter c = b.getFirstChapter ();
 
@@ -967,24 +632,20 @@ public class EditorProjectViewer extends AbstractProjectViewer
         if (this.getProject ().getForEditor ().isPrevious ())
         {
 
-            UIUtils.doLater (new ActionListener ()
+            UIUtils.forceRunLater (() ->
             {
 
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    UIUtils.showMessage (_this,
-                                         getUIString (editors,project,actions,openproject,openerrors,previouscontact));
-                                         //"Note: this is a {project} for a previous {contact}.  You can no longer send {comments}.");
-
-                }
+                QuollPopup.messageBuilder ()
+                    .inViewer (this)
+                    .message (editors,LanguageStrings.project,actions,openproject,openerrors,previouscontact)
+                    .build ();
 
             });
 
         }
 
     }
-
+/*
     public void expandNoteTypeInNoteTree (String type)
     {
 
@@ -999,6 +660,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                           tpn));
 
     }
+*/
 /*
     private void initNoteTree (boolean restoreSavedOpenTypes)
     {
@@ -1038,6 +700,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
     }
 */
+/*
+TODO Remove
     public void handleItemChangedEvent (ItemChangedEvent ev)
     {
 
@@ -1056,7 +720,9 @@ public class EditorProjectViewer extends AbstractProjectViewer
         }
 
     }
-
+*/
+/*
+TODO Remove
     public void reloadNoteTree ()
     {
 
@@ -1070,128 +736,60 @@ public class EditorProjectViewer extends AbstractProjectViewer
         this.sideBar.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
 
     }
-
-    @Override
-    public void doSaveState ()
-    {
-
-    }
+*/
 
     public EditorChapterPanel getEditorForChapter (Chapter c)
     {
 
-        for (QuollPanel qp : this.getAllQuollPanelsForObject (c))
-        {
+        EditorChapterPanel cp = this.getEditorForChapter (c);
 
-            if (qp instanceof FullScreenQuollPanel)
-            {
-
-                qp = ((FullScreenQuollPanel) qp).getChild ();
-
-            }
-
-            if (qp instanceof EditorChapterPanel)
-            {
-
-                return (EditorChapterPanel) qp;
-
-            }
-
-        }
-
-        return null;
+        return (EditorChapterPanel) cp;
 
     }
 
-    /**
-     * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
-     * whether the chapter has been opened for editing.
-     */
-    public boolean editChapter (Chapter c,
-                                ActionListener doAfterView)
+    public void editChapter (final Chapter  c,
+                             final Runnable doAfterView)
     {
 
-        // Check our tabs to see if we are already editing this chapter, if so then just switch to it instead.
-        EditorChapterPanel qep = (EditorChapterPanel) this.getQuollPanelForObject (c);
+        String pid = EditorChapterPanel.getPanelIdForChapter (c);
 
-        if (qep != null)
+        if (this.showPanel (pid))
         {
 
-            this.setPanelVisible (qep);
+            UIUtils.runLater (doAfterView);
 
-            this.getEditorForChapter (c).getEditor ().grabFocus ();
-
-            if (doAfterView != null)
-            {
-
-                UIUtils.doActionWhenPanelIsReady (qep,
-                                                  doAfterView,
-                                                  c,
-                                                  "afterview");
-
-            }
-
-            return true;
+            return;
 
         }
-
-        final EditorProjectViewer _this = this;
 
         try
         {
 
-            qep = new EditorChapterPanel (this,
-                                          c);
+            EditorChapterPanel p = new EditorChapterPanel (this,
+                                                           c);
 
-            qep.init ();
+            this.addPanel (p);
 
-        } catch (Exception e)
-        {
+            this.editChapter (c,
+                              doAfterView);
+
+        } catch (Exception e) {
 
             Environment.logError ("Unable to edit chapter: " +
                                   c,
                                   e);
 
-            UIUtils.showErrorMessage (_this,
-                                      String.format (getUIString (project,actions,editchapter,actionerror),
-                                    //"Unable to edit {chapter}: " +
-                                                     c.getName ()));
-
-            return false;
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,editchapter,actionerror),
+                                                                          c.getName ()));
 
         }
 
-        final TabHeader th = this.addPanel (qep);
-
-        qep.addActionListener (new ActionAdapter ()
-        {
-
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                if (ev.getID () == QuollPanel.UNSAVED_CHANGES_ACTION_EVENT)
-                {
-
-                    th.setComponentChanged (true);
-
-                }
-
-            }
-
-        });
-
-        this.addNameChangeListener (c,
-                                    qep);
-
-        // Open the tab :)
-        return this.editChapter (c,
-                                 doAfterView);
-
     }
 
-    public boolean viewObject (DataObject     d,
-                               ActionListener doAfterView)
+    @Override
+    public void viewObject (DataObject d,
+                            Runnable   doAfterView)
     {
 
         if (d instanceof Note)
@@ -1202,12 +800,12 @@ public class EditorProjectViewer extends AbstractProjectViewer
             if (n.getObject () != null)
             {
 
-                this.viewNote (n,
-                               doAfterView);
+                this.viewComment (n,
+                                  doAfterView);
 
             }
 
-            return true;
+            return;
 
         }
 
@@ -1216,75 +814,72 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
             Chapter c = (Chapter) d;
 
-            return this.editChapter (c,
-                                     doAfterView);
+            this.editChapter (c,
+                              doAfterView);
 
         }
 
         // Record the error, then ignore.
         Environment.logError ("Unable to open object: " + d);
 
-        return false;
-
     }
 
-    public boolean viewObject (DataObject d)
+    public void viewObject (DataObject d)
     {
 
-        return this.viewObject (d,
-                                null);
+        this.viewObject (d,
+                         null);
 
     }
 
-    public void viewNote (final Note           n,
-                          final ActionListener doAfterView)
+    public void viewComment (final Note     n,
+                             final Runnable doAfterView)
     {
 
         try
         {
 
-            // Need to change this.
-            if (n.getObject () instanceof Chapter)
+            final Chapter c = n.getChapter ();
+
+            this.editChapter (c,
+                              () ->
             {
 
-                final Chapter c = (Chapter) n.getObject ();
+                EditorChapterPanel pc = this.getEditorForChapter (c);
 
-                final EditorProjectViewer _this = this;
-
-                this.editChapter (c,
-                                  new ActionListener ()
+                if (pc.isReadyForUse ())
                 {
 
-                    public void actionPerformed (ActionEvent ev)
+                    UIUtils.forceRunLater (() ->
                     {
 
-                        EditorChapterPanel qep = _this.getEditorForChapter (c);
+                        pc.showItem (n,
+                                     false);
 
-                        try
-                        {
+                        UIUtils.runLater (doAfterView);
 
-                            qep.showNote (n,
-                                          doAfterView);
+                   });
 
-                        } catch (Exception e) {
+               } else {
 
-                            Environment.logError ("Unable to show note: " +
-                                                  n,
-                                                  e);
+                   pc.readyForUseProperty ().addListener ((pr, oldv, nev) ->
+                   {
 
-                            UIUtils.showErrorMessage (_this,
-                                                      getUIString (editors,project,actions,viewcomment,actionerror));
-                                                      //"Unable to show {comment}, please contact Quoll Writer support for assistance.");
+                       UIUtils.forceRunLater (() ->
+                       {
 
-                        }
+                           pc.showItem (n,
+                                        false);
 
-                    }
+                           UIUtils.runLater (doAfterView);
 
-                });
+                       });
 
-                return;
+                   });
 
-            }
+               }
+
+            });
 
         } catch (Exception e)
         {
@@ -1293,20 +888,25 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                   n,
                                   e);
 
-            UIUtils.showErrorMessage (this,
-                                      getUIString (editors,project,actions,viewcomment,actionerror));
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (editors,LanguageStrings.project,actions,viewcomment,actionerror));
 
         }
 
     }
 
-    public boolean openPanel (String id)
+    public void showDeleteComment (Note n)
     {
 
-        return false;
+        EditorChapterPanel pc = this.getEditorForChapter (n.getChapter ());
+
+        pc.showDeleteCommentPopup (n,
+                                   pc.getNodeForChapterItem (n));
 
     }
 
+/*
+TODO remove
     protected void addNameChangeListener (final NamedObject             n,
                                           final ProjectObjectQuollPanel qp)
     {
@@ -1336,7 +936,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         });
 
     }
-
+*/
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter information is viewed.
@@ -1355,14 +955,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
         return true;
 
     }
-
-    public JTree getTreeForObjectType (String objType)
-    {
-
-        return this.sideBar.getTreeForObjectType (objType);
-
-    }
-
+/*
+TODO Remove
     public void addChapterToTreeAfter (Chapter newChapter,
                                        Chapter addAfter)
     {
@@ -1414,21 +1008,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         this.getChapterTree ().setSelectionPath (new TreePath (cNode.getPath ()));
 
     }
-
-    public JTree getNoteTree ()
-    {
-
-        return this.getTreeForObjectType (Note.OBJECT_TYPE);
-
-    }
-
-    public JTree getChapterTree ()
-    {
-
-        return this.getTreeForObjectType (Chapter.OBJECT_TYPE);
-
-    }
-
+*/
     public void deleteObject (NamedObject o,
                               boolean     deleteChildObjects)
                        throws GeneralException
@@ -1492,12 +1072,11 @@ public class EditorProjectViewer extends AbstractProjectViewer
                      throws GeneralException
     {
 
-        java.util.Set<NamedObject> otherObjects = n.getOtherObjectsInLinks ();
+        Set<NamedObject> otherObjects = n.getOtherObjectsInLinks ();
 
         NamedObject obj = n.getObject ();
 
         // Need to get the links, they may not be setup.
-        this.setLinks (n);
 
         this.dBMan.deleteObject (n,
                                  false,
@@ -1505,44 +1084,14 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
         obj.removeNote (n);
 
-        this.fireProjectEvent (n.getObjectType (),
-                               ProjectEvent.DELETE,
+        this.fireProjectEvent (ProjectEvent.Type.note,
+                               ProjectEvent.Action.delete,
                                n);
 
-        this.refreshObjectPanels (otherObjects);
-
-        if (obj instanceof Chapter)
-        {
-
-            EditorChapterPanel qep = this.getEditorForChapter ((Chapter) obj);
-
-            if (qep != null)
-            {
-
-                qep.removeItem (n);
-
-            }
-
-        }
-
-        this.reloadNoteTree ();
-
-        this.reloadChapterTree ();
-
     }
 
-    public void chapterTreeChanged (DataObject d)
-    {
-
-        DefaultTreeModel model = (DefaultTreeModel) this.getChapterTree ().getModel ();
-
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
-                                                                                                 d).getLastPathComponent ();
-
-        model.nodeStructureChanged (node);
-
-    }
-
+/*
+TODO?
     public void scrollTo (final Chapter c,
                           final int     pos)
     {
@@ -1575,7 +1124,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         });
 
     }
-
+*/
     public Set<Note> getNotesForType (String t)
     {
 
@@ -1604,7 +1153,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
         Set<Note> notes = new HashSet ();
 
-        Book b = this.proj.getBooks ().get (0);
+        Book b = this.project.getBooks ().get (0);
 
         java.util.List<Chapter> chapters = b.getChapters ();
 
@@ -1619,28 +1168,6 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
     }
 
-    public TypesHandler getObjectTypesHandler (String objType)
-    {
-
-        return null;
-
-    }
-
-    public void updateChapterIndexes (Book b)
-                               throws GeneralException
-    {
-
-        this.dBMan.updateChapterIndexes (b);
-
-    }
-
-    public String getChapterObjectName ()
-    {
-
-        return Environment.getObjectTypeName (Chapter.OBJECT_TYPE).getValue ();
-
-    }
-
     public void deleteChapter (Chapter c)
     {
 
@@ -1648,37 +1175,30 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
     }
 
+    @Override
     public Set<FindResultsBox> findText (String t)
     {
 
-        Set<FindResultsBox> res = new LinkedHashSet ();
+        Set<FindResultsBox> res = new LinkedHashSet<> ();
 
-        // Get the snippets.
-        Map<Chapter, java.util.List<Segment>> snippets = this.getTextSnippets (t);
+        FindResultsBox chres = this.findTextInChapters (t);
 
-        if (snippets.size () > 0)
+        if (chres != null)
         {
 
-            res.add (new ChapterFindResultsBox (getUIString (objectnames,plural, Chapter.OBJECT_TYPE),
-                                                //Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
-                                                Chapter.OBJECT_TYPE,
-                                                Chapter.OBJECT_TYPE,
-                                                this,
-                                                snippets));
+            res.add (chres);
 
         }
 
-        Set<Note> notes = this.proj.getNotesContaining (t);
+        Set<Note> notes = this.project.getNotesContaining (t);
 
         if (notes.size () > 0)
         {
 
-            res.add (new NamedObjectFindResultsBox<Note> (getUIString (objectnames,plural,comment),
-                                                            //"{Comments}",
-                                                          Constants.COMMENT_ICON_NAME,
-                                                          Note.OBJECT_TYPE,
-                                                          this,
-                                                          notes));
+            res.add (new NamedObjectFindResultsBox (getUILanguageStringProperty (objectnames,plural,comment),
+                                                    StyleClassNames.COMMENTS,
+                                                    this,
+                                                    notes));
 
         }
 
@@ -1699,23 +1219,153 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                  throws GeneralException
     {
 
-        return this.getUnsentComments (this.proj.getProjectVersion ());
+        return this.getUnsentComments (this.project.getProjectVersion ());
 
     }
 
-    @Override
-    public Set<String> getTitleHeaderControlIds ()
-	{
+    public void setChapterEditComplete (Chapter chapter,
+                                        boolean editComplete)
+    {
 
-		Set<String> ids = new LinkedHashSet ();
+        try
+        {
 
-		ids.add (CONTACTS_HEADER_CONTROL_ID);
-		ids.add (FIND_HEADER_CONTROL_ID);
-		ids.add (FULL_SCREEN_HEADER_CONTROL_ID);
-        ids.add (SETTINGS_HEADER_CONTROL_ID);
+            chapter.setEditComplete (editComplete);
 
-		return ids;
+            EditorChapterPanel p = this.getEditorForChapter (chapter);
 
-	}
+            int pos = -1;
+
+            if (editComplete)
+            {
+
+                if (p != null)
+                {
+
+                    pos = Utils.stripEnd (p.getEditor ().getText ()).length ();
+
+                } else {
+
+                    String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
+
+                    pos = Utils.stripEnd (t).length ();
+
+                }
+
+            }
+
+            chapter.setEditPosition (pos);
+
+            this.saveObject (chapter,
+                             false);
+
+            p.recreateVisibleParagraphs ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set chapter edit complete: " +
+                                  chapter,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (LanguageStrings.project,editorpanel,actions,seteditcomplete,actionerror));
+
+        }
+
+    }
+
+    public void setChapterEditPosition (Chapter chapter,
+                                        int     textPos)
+    {
+
+        EditorChapterPanel p = this.getEditorForChapter (chapter);
+
+        try
+        {
+
+            int _textPos = 0;
+            int l = 0;
+
+            if (p != null)
+            {
+
+                l = Utils.stripEnd (p.getEditor ().getText ()).length ();
+
+                _textPos = Math.min (textPos, l);
+
+                // See if we are on the last line (it may be that the user is in the icon
+                // column).
+/*
+TODO
+                Rectangle2D pp = p.getEditor ().modelToView2D (_textPos);
+
+                if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
+                {
+
+                    if (_textPos <= l)
+                    {
+
+                        Rectangle2D ep = p.getEditor ().modelToView2D (l);
+
+                        chapter.setEditComplete ((Math.round (ep.getY ()) == Math.round (pp.getY ())));
+
+                    }
+
+                }
+*/
+            } else {
+
+                String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
+
+                l = Utils.stripEnd (t).length ();
+
+            }
+
+            _textPos = Math.min (_textPos, l);
+
+            chapter.setEditComplete (false);
+            chapter.setEditPosition (_textPos);
+
+            this.saveObject (chapter,
+                             false);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set edit position for: " + chapter,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (LanguageStrings.project,editorpanel,actions,seteditposition,actionerror));
+
+            return;
+
+        }
+
+    }
+
+    public void removeChapterEditPosition (Chapter chapter)
+    {
+
+        try
+        {
+
+            chapter.setEditComplete (false);
+            chapter.setEditPosition (-1);
+
+            this.saveObject (chapter,
+                             false);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to remove edit position for chapter: " +
+                                  chapter,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this,
+                                             getUILanguageStringProperty (LanguageStrings.project,editorpanel,actions,removeeditposition,actionerror));
+
+        }
+
+    }
 
 }

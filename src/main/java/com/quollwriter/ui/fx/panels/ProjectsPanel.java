@@ -157,7 +157,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,_new))
-                    .styleClassName (StyleClassNames.ADD)
+                    .iconName (StyleClassNames.ADD)
                     .onAction (ev ->
                     {
 
@@ -168,7 +168,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,importfileorproject))
-                    .styleClassName (StyleClassNames.IMPORT)
+                    .iconName (StyleClassNames.IMPORT)
                     .onAction (ev ->
                     {
 
@@ -179,7 +179,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,findprojects))
-                    .styleClassName (StyleClassNames.FIND)
+                    .iconName (StyleClassNames.FIND)
                     .onAction (ev ->
                     {
 
@@ -200,7 +200,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                         sitems.add (QuollMenuItem.builder ()
                             .label (Utils.newList (prefix,sortlastedited))
-                            .styleClassName (StyleClassNames.LASTEDITED)
+                            .iconName (StyleClassNames.LASTEDITED)
                             .onAction (ev ->
                             {
 
@@ -212,7 +212,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                         sitems.add (QuollMenuItem.builder ()
                             .label (Utils.newList (prefix,sortname))
-                            .styleClassName (StyleClassNames.NAME)
+                            .iconName (StyleClassNames.NAME)
                             .onAction (ev ->
                             {
 
@@ -224,7 +224,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                         sitems.add (QuollMenuItem.builder ()
                             .label (Utils.newList (prefix,sortstatus))
-                            .styleClassName (StyleClassNames.STATUS)
+                            .iconName (StyleClassNames.STATUS)
                             .onAction (ev ->
                             {
 
@@ -236,7 +236,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                         sitems.add (QuollMenuItem.builder ()
                             .label (Utils.newList (prefix,sortwordcount))
-                            .styleClassName (StyleClassNames.WORDCOUNT)
+                            .iconName (StyleClassNames.WORDCOUNT)
                             .onAction (ev ->
                             {
 
@@ -253,7 +253,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,managestatuses))
-                    .styleClassName (StyleClassNames.MANAGESTATUSES)
+                    .iconName (StyleClassNames.MANAGESTATUSES)
                     .onAction (ev ->
                     {
 
@@ -264,7 +264,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,changedisplay))
-                    .styleClassName (StyleClassNames.CHANGEDISPLAY)
+                    .iconName (StyleClassNames.CHANGEDISPLAY)
                     .onAction (ev ->
                     {
 
@@ -275,7 +275,7 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
 
                 items.add (QuollMenuItem.builder ()
                     .label (Utils.newList (prefix,selectbackground))
-                    .styleClassName (StyleClassNames.SELECTBG)
+                    .iconName (StyleClassNames.SELECTBG)
                     .onAction (ev ->
                     {
 
@@ -951,7 +951,7 @@ TODO Remove
                         if (ed != null)
                         {
 
-                            name = ed.getShortName ();
+                            name = ed.getMainName ();
 
                         }
 
@@ -1074,7 +1074,7 @@ TODO
 
                     items.add (QuollMenuItem.builder ()
                         .label (Utils.newList (prefix,remove))
-                        .styleClassName (StyleClassNames.REMOVE)
+                        .iconName (StyleClassNames.REMOVE)
                         .onAction (ev ->
                         {
 
@@ -1088,7 +1088,7 @@ TODO
 
                     items.add (QuollMenuItem.builder ()
                         .label (Utils.newList (prefix,open))
-                        .styleClassName (StyleClassNames.OPEN)
+                        .iconName (StyleClassNames.OPEN)
                         .onAction (ev ->
                         {
 
@@ -1122,7 +1122,7 @@ TODO
 
                             sitems.add (QuollMenuItem.builder ()
                                 .label (Utils.newList (prefix,newstatus))
-                                .styleClassName (StyleClassNames.NEWSTATUS)
+                                .iconName (StyleClassNames.NEWSTATUS)
                                 .onAction (ev ->
                                 {
 
@@ -1143,7 +1143,7 @@ TODO
 
                         items.add (QuollMenuItem.builder ()
                             .label (Utils.newList (prefix,createbackup))
-                            .styleClassName (StyleClassNames.CREATEBACKUP)
+                            .iconName (StyleClassNames.CREATEBACKUP)
                             .onAction (ev ->
                             {
 
@@ -1158,7 +1158,7 @@ TODO
 
                     items.add (QuollMenuItem.builder ()
                         .label (Utils.newList (prefix,managebackups))
-                        .styleClassName (StyleClassNames.MANAGEBACKUPS)
+                        .iconName (StyleClassNames.MANAGEBACKUPS)
                         .onAction (ev ->
                         {
 
@@ -1172,7 +1172,7 @@ TODO
 
                     items.add (QuollMenuItem.builder ()
                         .label (Utils.newList (prefix,showfolder))
-                        .styleClassName (StyleClassNames.SHOWFOLDER)
+                        .iconName (StyleClassNames.SHOWFOLDER)
                         .onAction (ev ->
                         {
 
@@ -1183,7 +1183,7 @@ TODO
 
                     items.add (QuollMenuItem.builder ()
                         .label (Utils.newList (prefix,delete))
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -1811,7 +1811,7 @@ TODO
 
           return QuollMenuItem.builder ()
                     .label ((status.getValue () == null ? getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,LanguageStrings.status,novalue)) : status))
-                    .styleClassName (status.getValue () == null ? StyleClassNames.NOVALUE : StyleClassNames.NOIMAGE)
+                    .iconName (status.getValue () == null ? StyleClassNames.NOVALUE : StyleClassNames.NOIMAGE)
                     .onAction (ev ->
                     {
 

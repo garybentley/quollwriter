@@ -25,7 +25,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class ParagraphIconMargin extends Pane
+public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
 {
 
     private static final CssMetaData<ParagraphIconMargin, Number> NOTE_INDENT = new CssMetaData<> ("-qw-note-item-indent", SizeConverter.getInstance (), 0d)
@@ -110,23 +110,25 @@ public class ParagraphIconMargin extends Pane
     private TextEditor editor = null;
     private Chapter chapter = null;
     private int paraNo = -1;
-    private ProjectViewer viewer = null;
+    private E viewer = null;
     private Set<Node> strucNodes = null;
     private Set<Node> noteNodes = null;
     private BiConsumer<ChapterItem, Node> showItem = null;
     private Function<IndexRange, List<ChapterItem>> getNewItems = null;
+    private Function<Integer, Set<MenuItem>> contextMenuItemSupplier = null;
     private Pane editMarker = null;
     private ChapterItemSorter sorter = new ChapterItemSorter ();
 
     private ChangeListener<javafx.scene.Scene> sceneList = null;
     private IPropertyBinder binder = new PropertyBinder ();
 
-    public ParagraphIconMargin (ProjectViewer                           viewer,
-                                ProjectChapterEditorPanelContent        editor,
+    public ParagraphIconMargin (E                                       viewer,
+                                TextEditor                              editor,
                                 int                                     paraNo,
                                 Chapter                                 chapter,
                                 BiConsumer<ChapterItem, Node>           showItem,
-                                Function<IndexRange, List<ChapterItem>> getNewItems)
+                                Function<IndexRange, List<ChapterItem>> getNewItems,
+                                Function<Integer, Set<MenuItem>>        contextMenuItemSupplier)
     {
 
         this.strucNodes = new TreeSet<> ((o1, o2) ->
@@ -165,8 +167,9 @@ public class ParagraphIconMargin extends Pane
 
         });
 
+        this.contextMenuItemSupplier = contextMenuItemSupplier;
         this.paraNo = paraNo;
-        this.editor = editor.getEditor ();
+        this.editor = editor;
         this.chapter = chapter;
         this.viewer = viewer;
         this.noteIndent = new SimpleStyleableDoubleProperty (NOTE_INDENT, 0d);
@@ -301,11 +304,7 @@ public class ParagraphIconMargin extends Pane
     private void setContextMenu (MouseEvent ev)
     {
 
-        List<String> prefix = Arrays.asList (iconcolumn,doubleclickmenu,items);
-
         ContextMenu cm = new ContextMenu ();
-
-        Set<MenuItem> items = new LinkedHashSet<> ();
 
         int pos = this.editor.getTextPositionForMousePosition (0,
                                                                ev.getY ());
@@ -313,67 +312,16 @@ public class ParagraphIconMargin extends Pane
 
         int cpos = (pos > -1 ? pos : this.editor.getCaretPosition ());
 
-        items.add (QuollMenuItem.builder ()
-            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Scene.OBJECT_TYPE)))
-            .styleClassName (StyleClassNames.SCENE)
-            .accelerator (new KeyCharacterCombination ("S",
-                                                       KeyCombination.SHORTCUT_DOWN,
-                                                       KeyCombination.SHIFT_DOWN))
-            .onAction (eev ->
-            {
+        Set<MenuItem> items = new LinkedHashSet<> ();
 
-                this.viewer.createNewScene (this.chapter,
-                                            cpos);
+        if (this.contextMenuItemSupplier != null)
+        {
 
-            })
-            .build ());
+            items.addAll (this.contextMenuItemSupplier.apply (cpos));
 
-        items.add (QuollMenuItem.builder ()
-            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.OutlineItem.OBJECT_TYPE)))
-            .styleClassName (StyleClassNames.OUTLINEITEM)
-            .accelerator (new KeyCharacterCombination ("O",
-                                                       KeyCombination.SHORTCUT_DOWN,
-                                                       KeyCombination.SHIFT_DOWN))
-            .onAction (eev ->
-            {
+        }
 
-                this.viewer.createNewOutlineItem (this.chapter,
-                                                  cpos);
-
-            })
-            .build ());
-
-        items.add (QuollMenuItem.builder ()
-            .label (getUILanguageStringProperty (Utils.newList (prefix,com.quollwriter.data.Note.OBJECT_TYPE)))
-            .styleClassName (StyleClassNames.NOTE)
-            .accelerator (new KeyCharacterCombination ("N",
-                                                       KeyCombination.SHORTCUT_DOWN,
-                                                       KeyCombination.SHIFT_DOWN))
-            .onAction (eev ->
-            {
-
-                this.viewer.createNewNote (this.chapter,
-                                           cpos);
-
-            })
-            .build ());
-
-        items.add (QuollMenuItem.builder ()
-            .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.editneedednote)))
-            .accelerator (new KeyCharacterCombination ("E",
-                                                       KeyCombination.SHORTCUT_DOWN,
-                                                       KeyCombination.SHIFT_DOWN))
-            .styleClassName (StyleClassNames.EDITNEEDEDNOTE)
-            .onAction (eev ->
-            {
-
-                this.viewer.createNewEditNeededNote (this.chapter,
-                                                     cpos);
-
-            })
-            .build ());
-
-        cm.getItems ().addAll (items);
+        //cm.getItems ().addAll (items);
 
         this.getProperties ().put ("context-menu", cm);
         cm.setAutoFix (true);
@@ -432,13 +380,9 @@ public class ParagraphIconMargin extends Pane
         for (Note n : its)
         {
 
-            HBox riv = new HBox ();
-            riv.getStyleClass ().add (StyleClassNames.ICONBOX);
-            Pane p = new Pane ();
-            p.getStyleClass ().add ((n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE) + StyleClassNames.ICON_SUFFIX);
-            p.getStyleClass ().add (StyleClassNames.ICON);
-            riv.getChildren ().add (p);
-            riv.managedProperty ().bind (riv.visibleProperty ());
+            IconBox riv = IconBox.builder ()
+                .iconName ((n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE))
+                .build ();
 /*
             ImageView iv = new ImageView ();
             Pane riv = new Pane ();
@@ -487,13 +431,9 @@ public class ParagraphIconMargin extends Pane
         for (ChapterItem ci : its)
         {
 
-            HBox riv = new HBox ();
-            riv.getStyleClass ().add (StyleClassNames.ICONBOX);
-            Pane p = new Pane ();
-            p.getStyleClass ().add (((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM) + StyleClassNames.ICON_SUFFIX);
-            p.getStyleClass ().add (StyleClassNames.ICON);
-            riv.getChildren ().add (p);
-            riv.managedProperty ().bind (riv.visibleProperty ());
+            IconBox riv = IconBox.builder ()
+                .iconName (((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM))
+                .build ();
 /*
             ImageView iv = new ImageView ();
             Pane riv = new Pane ();

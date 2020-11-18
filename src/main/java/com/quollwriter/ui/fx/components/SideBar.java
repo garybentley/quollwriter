@@ -82,7 +82,7 @@ public class SideBar extends BaseVBox implements Stateful
 
         this.otherSideBarsShowButton = QuollButton.builder ()
             .tooltip (sidebars,othersidebarselect,tooltip)
-            .styleClassName (StyleClassNames.OTHER)
+            .iconName (StyleClassNames.OTHER)
             .onAction (ev ->
             {
 
@@ -115,7 +115,7 @@ public class SideBar extends BaseVBox implements Stateful
 
             QuollButton but = QuollButton.builder ()
                 .tooltip (sidebars,close,tooltip)
-                .styleClassName (StyleClassNames.CLOSE)
+                .iconName (StyleClassNames.CLOSE)
                 .onAction (ev ->
                 {
 

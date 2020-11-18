@@ -101,7 +101,7 @@ public class LayoutColumn extends VBox
            ContextMenu cm = new ContextMenu ();
 
            cm.getItems ().add (QuollMenuItem.builder ()
-               .styleClassName (StyleClassNames.EDIT)
+               .iconName (StyleClassNames.EDIT)
                .label (assets,view,column,popupmenu,LanguageStrings.items,editall)
                .onAction (eev ->
                {
@@ -112,7 +112,7 @@ public class LayoutColumn extends VBox
                .build ());
 
            cm.getItems ().add (QuollMenuItem.builder ()
-               .styleClassName (StyleClassNames.ADD)
+               .iconName (StyleClassNames.ADD)
                .label (assets,view,column,popupmenu,LanguageStrings.items,newfield)
                .onAction (eev ->
                {
@@ -125,7 +125,7 @@ public class LayoutColumn extends VBox
            cm.getItems ().add (new SeparatorMenuItem ());
 
            cm.getItems ().add (QuollMenuItem.builder ()
-               .styleClassName (StyleClassNames.EDIT)
+               .iconName (StyleClassNames.EDIT)
                .label (assets,view,column,popupmenu,LanguageStrings.items,edit)
                .onAction (eev ->
                {
@@ -138,7 +138,7 @@ public class LayoutColumn extends VBox
            boolean show = !this.fieldsColumn.isShowFieldLabels ();
 
            cm.getItems ().add (QuollMenuItem.builder ()
-               .styleClassName (show ? StyleClassNames.SHOW : StyleClassNames.HIDE)
+               .iconName (show ? StyleClassNames.SHOW : StyleClassNames.HIDE)
                .label (assets,view,column,popupmenu,LanguageStrings.items,(show ? LanguageStrings.show : hide))
                .onAction (eev ->
                {
@@ -149,7 +149,7 @@ public class LayoutColumn extends VBox
                .build ());
 
            cm.getItems ().add (QuollMenuItem.builder ()
-               .styleClassName (StyleClassNames.ADD)
+               .iconName (StyleClassNames.ADD)
                .label (assets,view,column,popupmenu,LanguageStrings.items,addcolumn)
                .onAction (eev ->
                {
@@ -161,7 +161,7 @@ public class LayoutColumn extends VBox
                .build ());
 
            cm.getItems ().add (QuollMenuItem.builder ()
-               .styleClassName (StyleClassNames.DELETE)
+               .iconName (StyleClassNames.DELETE)
                .label (assets,view,column,popupmenu,LanguageStrings.items,delete)
                .onAction (eev ->
                {
@@ -469,7 +469,6 @@ public class LayoutColumn extends VBox
 
         this.fieldsBox.getChildren ().add (addAt,
                                            vb);
-
         vb.getLabel ().setOnDragDetected (ev ->
         {
 /*

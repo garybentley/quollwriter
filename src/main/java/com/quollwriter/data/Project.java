@@ -81,8 +81,8 @@ public class Project extends NamedObject
 
     // TODO: Need a new object to encapsulate this stuff
     //private EditorEditor       forEditor = null;
-    private Set<ProjectEditor> projectEditors = null;
-    private ProjectVersion     projVer = null;
+    private ObservableSet<ProjectEditor> projectEditors = FXCollections.observableSet (new LinkedHashSet<> ());
+    private ObjectProperty<ProjectVersion> projVerProp = new SimpleObjectProperty<> ();
 
     private Map<Tag, ObservableSet<NamedObject>> taggedObjects = new HashMap<> ();
 
@@ -162,7 +162,7 @@ public class Project extends NamedObject
             if (this.isEditorProject ())
             {
 
-                this.projVer = new ProjectVersion ();
+                this.projVerProp.setValue (new ProjectVersion ());
 
                 String dueDate = JDOMUtils.getAttributeValue (pEl,
                                                               XMLConstants.editDueDate,
@@ -172,7 +172,7 @@ public class Project extends NamedObject
                 {
 
                     // TODO: Fix this otherwise I will go to hell...
-                    this.projVer.setDueDate (new Date (Long.parseLong (dueDate)));
+                    this.projVerProp.getValue ().setDueDate (new Date (Long.parseLong (dueDate)));
 
                 }
 
@@ -572,13 +572,6 @@ public class Project extends NamedObject
     public void addProjectEditor (ProjectEditor pe)
     {
 
-        if (this.projectEditors == null)
-        {
-
-            this.projectEditors = new LinkedHashSet ();
-
-        }
-
         this.projectEditors.add (pe);
 
     }
@@ -586,26 +579,12 @@ public class Project extends NamedObject
     public void removeProjectEditor (ProjectEditor pe)
     {
 
-        if (this.projectEditors == null)
-        {
-
-            return;
-
-        }
-
         this.projectEditors.remove (pe);
 
     }
 
     public boolean isProjectEditor (EditorEditor ed)
     {
-
-        if (this.projectEditors == null)
-        {
-
-            return false;
-
-        }
 
         for (ProjectEditor pe : this.projectEditors)
         {
@@ -623,17 +602,10 @@ public class Project extends NamedObject
 
     }
 
-    public Set<ProjectEditor> getProjectEditors ()
+    public ObservableSet<ProjectEditor> getProjectEditors ()
     {
 
-        if (this.projectEditors == null)
-        {
-
-            return null;
-
-        }
-
-        return new LinkedHashSet (this.projectEditors);
+        return this.projectEditors;
 
     }
 
@@ -647,7 +619,8 @@ public class Project extends NamedObject
 
         }
 
-        this.projectEditors = new LinkedHashSet (eds);
+        this.projectEditors.clear ();
+        this.projectEditors.addAll (eds);
 
     }
 
@@ -725,14 +698,21 @@ public class Project extends NamedObject
     public void setProjectVersion (ProjectVersion pv)
     {
 
-        this.projVer = pv;
+        this.projVerProp.setValue (pv);
 
     }
 
     public ProjectVersion getProjectVersion ()
     {
 
-        return this.projVer;
+        return this.projVerProp.getValue ();
+
+    }
+
+    public ObjectProperty<ProjectVersion> projectVersionProperty ()
+    {
+
+        return this.projVerProp;
 
     }
 
@@ -2008,7 +1988,7 @@ public class Project extends NamedObject
 
         this.addToStringProperties (props,
                                     "projectVersion",
-                                    this.projVer);
+                                    this.projVerProp.getValue ());
 
     }
 
@@ -2431,11 +2411,11 @@ public class Project extends NamedObject
 
         if ((this.isEditorProject ())
             &&
-            (this.projVer != null)
+            (this.projVerProp.getValue () != null)
            )
         {
 
-            Date d = this.projVer.getDueDate ();
+            Date d = this.projVerProp.getValue ().getDueDate ();
 
             if (d != null)
             {

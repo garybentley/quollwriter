@@ -205,7 +205,7 @@ public class FieldBox extends VBox
         Set<MenuItem> its = new LinkedHashSet<> ();
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,LanguageStrings.edit))
             .onAction (eev ->
             {
@@ -216,7 +216,7 @@ public class FieldBox extends VBox
             .build ());
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.CONFIG)
+            .iconName (StyleClassNames.CONFIG)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,LanguageStrings.config))
             .onAction (eev ->
             {
@@ -227,7 +227,7 @@ public class FieldBox extends VBox
             .build ());
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.DELETE)
+            .iconName (StyleClassNames.DELETE)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,delete))
             .onAction (eev ->
             {
@@ -240,7 +240,7 @@ public class FieldBox extends VBox
         its.add (new SeparatorMenuItem ());
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,editall))
             .onAction (eev ->
             {
@@ -251,7 +251,7 @@ public class FieldBox extends VBox
             .build ());
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,addfieldbelow))
             .onAction (eev ->
             {
@@ -264,7 +264,7 @@ public class FieldBox extends VBox
         its.add (new SeparatorMenuItem ());
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,editcolumntitle))
             .onAction (eev ->
             {
@@ -277,7 +277,7 @@ public class FieldBox extends VBox
         boolean show = !this.column.getFieldsColumn ().isShowFieldLabels ();
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (show ? StyleClassNames.SHOW : StyleClassNames.HIDE)
+            .iconName (show ? StyleClassNames.SHOW : StyleClassNames.HIDE)
             .label (assets,fields,popupmenu,items,(show ? LanguageStrings.show : hide))
             .onAction (eev ->
             {
@@ -289,7 +289,7 @@ public class FieldBox extends VBox
 
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .label (assets,fields,popupmenu,LanguageStrings.items,addcolumn)
             .onAction (eev ->
             {
@@ -301,7 +301,7 @@ public class FieldBox extends VBox
             .build ());
 
         its.add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.DELETE)
+            .iconName (StyleClassNames.DELETE)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,removecolumn))
             .onAction (eev ->
             {
@@ -1124,7 +1124,7 @@ xxx
 
         QuollButton saveB = QuollButton.builder ()
             .tooltip (new SimpleStringProperty ("Click to save this field"))
-            .styleClassName (StyleClassNames.SAVE)
+            .iconName (StyleClassNames.SAVE)
             .buttonType (ButtonBar.ButtonData.APPLY)
             .onAction (ev ->
             {
@@ -1136,7 +1136,7 @@ xxx
 
         QuollButton cancelB = QuollButton.builder ()
             .tooltip (new SimpleStringProperty ("Click to cancel the changes"))
-            .styleClassName (StyleClassNames.CANCEL)
+            .iconName (StyleClassNames.CANCEL)
             .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
             .onAction (ev ->
             {

@@ -62,7 +62,7 @@ public class ProblemFinder extends VBox
 
        Set<Node> controls = new LinkedHashSet<> ();
        controls.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.CONFIG)
+            .iconName (StyleClassNames.CONFIG)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,headercontrols,items,config,tooltip)))
             .onAction (ev ->
             {
@@ -73,7 +73,7 @@ public class ProblemFinder extends VBox
             .build ());
 
        controls.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.FINISH)
+            .iconName (StyleClassNames.FINISH)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,headercontrols,items,cancel,tooltip)))
             .onAction (ev ->
             {
@@ -124,7 +124,7 @@ public class ProblemFinder extends VBox
        QuollButtonBar qbb = QuollButtonBar.builder ()
             .button (QuollButton.builder ()
                         .tooltip (getUILanguageStringProperty (Utils.newList (prefix, buttons,previous,tooltip)))
-                        .styleClassName (StyleClassNames.PREVIOUS)
+                        .iconName (StyleClassNames.PREVIOUS)
                         .onAction (ev ->
                         {
 
@@ -149,7 +149,7 @@ public class ProblemFinder extends VBox
             .button (QuollButton.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix, buttons,next,text)))
                         .tooltip (getUILanguageStringProperty (Utils.newList (prefix, buttons,next,tooltip)))
-                        .styleClassName (StyleClassNames.NEXT)
+                        .iconName (StyleClassNames.NEXT)
                         .onAction (ev ->
                         {
 
@@ -175,7 +175,7 @@ public class ProblemFinder extends VBox
             .button (QuollButton.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix, buttons,finish,text)))
                         .tooltip (getUILanguageStringProperty (Utils.newList (prefix, buttons,finish,tooltip)))
-                        .styleClassName (StyleClassNames.FINISH)
+                        .iconName (StyleClassNames.FINISH)
                         .onAction (ev ->
                         {
 
@@ -675,7 +675,7 @@ public class ProblemFinder extends VBox
         List<String> prefix = Arrays.asList (problemfinder,ignore,popupmenu,items);
 
         cm.getItems ().add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.FIND)
+            .iconName (StyleClassNames.FIND)
             .label (getUILanguageStringProperty (Utils.newList (prefix,find)))
             .onAction (ev ->
             {
@@ -688,7 +688,7 @@ public class ProblemFinder extends VBox
             .build ());
 
         cm.getItems ().add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.IGNORE)
+            .iconName (StyleClassNames.IGNORE)
             .label (getUILanguageStringProperty (Utils.newList (prefix,ignore)))
             .onAction (ev ->
             {
@@ -710,7 +710,7 @@ public class ProblemFinder extends VBox
             .build ());
 
         cm.getItems ().add (QuollMenuItem.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
             .onAction (ev ->
             {

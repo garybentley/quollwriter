@@ -46,7 +46,7 @@ public class AccordionItemLinkedToPanel extends VBox
         QuollButton saveB = QuollButton.builder ()
            .tooltip (getUILanguageStringProperty (Arrays.asList (linkedto,edit,buttons,save,tooltip),
                                                   obj.nameProperty ()))
-           .styleClassName (StyleClassNames.SAVE)
+           .iconName (StyleClassNames.SAVE)
            .buttonType (ButtonBar.ButtonData.APPLY)
            .onAction (ev ->
            {
@@ -69,7 +69,7 @@ public class AccordionItemLinkedToPanel extends VBox
 
         QuollButton cancelB = QuollButton.builder ()
            .tooltip (getUILanguageStringProperty (linkedto,edit,buttons,cancel,tooltip))
-           .styleClassName (StyleClassNames.CANCEL)
+           .iconName (StyleClassNames.CANCEL)
            .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
            .build ();
 
@@ -132,7 +132,7 @@ public class AccordionItemLinkedToPanel extends VBox
             .build ());
 
         this.editCon = QuollButton.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .tooltip (getUILanguageStringProperty (Arrays.asList (linkedto,view,buttons,edit,tooltip),
                                                  Environment.getObjectTypeName (obj)))
             .onAction (ev ->

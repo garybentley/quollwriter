@@ -1,181 +1,176 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Container;
-import java.awt.AWTEvent;
-import javax.swing.plaf.LayerUI;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.util.*;
+import java.util.concurrent.*;
+import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.data.*;
 import com.quollwriter.events.*;
-import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public abstract class MessageBox<E extends EditorMessage> extends Box implements EditorMessageListener
+public abstract class MessageBox<E extends EditorMessage> extends VBox implements EditorMessageListener
 {
 
     protected AbstractViewer viewer = null;
     protected E message = null;
     protected boolean showAttentionBorder = true;
-    private Box content = null;
     private PropertyChangedListener updateListener = null;
     private AbstractViewer childViewer = null;
+    private ScheduledFuture updateAttention = null;
+    protected IPropertyBinder binder = null;
 
     public MessageBox (E              mess,
                        AbstractViewer viewer)
     {
 
-        super (BoxLayout.Y_AXIS);
-
-        this.content = new Box (BoxLayout.Y_AXIS);
-
-        final MessageBox _this = this;
-
-        final Timer update = new Timer (750,
-                                        new ActionListener ()
-                                        {
-
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-
-                                                _this.message.setDealtWith (true);
-
-                                                try
-                                                {
-
-                                                    EditorsEnvironment.updateMessage (_this.message);
-
-                                                } catch (Exception e) {
-
-                                                    Environment.logError ("Unable to update message: " +
-                                                                          _this.message,
-                                                                          e);
-
-                                                }
-
-                                            }
-
-                                        });
-
-        update.setRepeats (false);
-
-        this.add (new JLayer<JComponent> (this.content, new LayerUI<JComponent> ()
-        {
-
-            @Override
-            public void installUI(JComponent c) {
-                super.installUI(c);
-                // enable mouse motion events for the layer's subcomponents
-                ((JLayer) c).setLayerEventMask(AWTEvent.MOUSE_EVENT_MASK);
-            }
-
-            @Override
-            public void uninstallUI(JComponent c) {
-                super.uninstallUI(c);
-                // reset the layer event mask
-                ((JLayer) c).setLayerEventMask(0);
-            }
-
-            @Override
-            public void processMouseEvent (MouseEvent                   ev,
-                                           JLayer<? extends JComponent> l)
-            {
-
-                if ((ev.isPopupTrigger ())
-                    &&
-                    (!_this.message.isSentByMe ())
-                   )
-                {
-
-                    ev.consume ();
-
-                    JPopupMenu popup = new JPopupMenu ();
-
-                    popup.add (UIUtils.createMenuItem (getUIString (editors,messages,report,popupmenu,items,report),
-                                                       //"Report this message",
-                                                       Constants.ERROR_ICON_NAME,
-                                                       new ActionListener ()
-                                                       {
-
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                                EditorsUIUtils.showReportMessage (_this,
-                                                                                                  _this.viewer);
-
-                                                            }
-
-                                                        }));
-
-                    popup.show (_this,
-                                ev.getX (),
-                                ev.getY ());
-
-                    return;
-
-                }
-
-                if ((!_this.message.isDealtWith ())
-                    &&
-                    (_this.isAutoDealtWith ())
-                   )
-                {
-
-                    if (ev.getID () == MouseEvent.MOUSE_EXITED)
-                    {
-
-                        Point p = SwingUtilities.convertPoint ((Component) ev.getSource (),
-                                                               ev.getPoint (),
-                                                               _this);
-
-                        if (!SwingUtilities.getLocalBounds (_this).contains (p))
-                        {
-
-                            update.stop ();
-
-                        }
-
-                        return;
-
-                    }
-
-                    if (ev.getID () == MouseEvent.MOUSE_ENTERED)
-                    {
-
-                        update.start ();
-
-                        return;
-
-                    }
-
-                }
-
-            }
-
-        }));
-
-        this.setOpaque (false);
-        this.setBackground (null);
-
-        this.content.setBackground (UIUtils.getComponentColor ());
-
+        this.binder = new PropertyBinder ();
         this.message = mess;
         this.viewer = viewer;
-        this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        this.content.setToolTipText (String.format (getUIString (editors,messages,view,tooltip,(this.message.isSentByMe () ? sent : received)),
-                                                    //"%s %s",
-                                                    //this.message.isSentByMe () ? "Sent" : "Received",
-                                                    Environment.formatDateTime (this.message.getWhen ())));
+        // TODO ADD SCENE LISTENER
+
+        this.getStyleClass ().add (StyleClassNames.MESSAGE);
+
+        this.binder.addChangeListener (this.message.dealtWithProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.update ();
+
+            this.pseudoClassStateChanged (StyleClassNames.ATTENTIONREQUIRED_PSEUDO_CLASS, !newv && this.showAttentionBorder);
+
+            UIUtils.setTooltip (this,
+                                getUILanguageStringProperty (Arrays.asList (editors,messages,view,tooltip,(this.message.isSentByMe () ? sent : received)),
+                                                        //"%s %s",
+                                                        //this.message.isSentByMe () ? "Sent" : "Received",
+                                                             Environment.formatDateTime (this.message.getWhen ())));
+
+        });
+
+        this.addEventHandler (MouseEvent.MOUSE_ENTERED,
+                              ev ->
+        {
+
+            if (this.updateAttention != null)
+            {
+
+                this.updateAttention.cancel (true);
+
+            }
+
+        });
+
+        this.addEventHandler (MouseEvent.MOUSE_EXITED,
+                              ev ->
+        {
+
+            if ((!this.message.isDealtWith ())
+                &&
+                (this.isAutoDealtWith ())
+               )
+            {
+
+                this.updateAttention = Environment.schedule (() ->
+                {
+
+                    this.message.setDealtWith (true);
+
+                    try
+                    {
+
+                        EditorsEnvironment.updateMessage (this.message);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to update message: " +
+                                              this.message,
+                                              e);
+
+                    }
+
+                },
+                750,
+                -1);
+
+            }
+
+        });
+
+        this.setOnContextMenuRequested (ev ->
+        {
+
+            if (this.getProperties ().get ("context-menu") != null)
+            {
+
+                ((ContextMenu) this.getProperties ().get ("context-menu")).hide ();
+
+            }
+
+            if (!this.message.isSentByMe ())
+            {
+
+                ContextMenu m = new ContextMenu ();
+
+                m.getItems ().add (QuollMenuItem.builder ()
+                    .label (editors,messages,report,popupmenu,items,report)
+                    .iconName (StyleClassNames.REPORTMESSAGE)
+                    .onAction (eev ->
+                    {
+
+                        EditorsUIUtils.showReportMessage (this,
+                                                          this.viewer,
+                                                          this.binder);
+
+                    })
+                    .build ());
+
+                m.show (this, ev.getScreenX (), ev.getScreenY ());
+
+                this.getProperties ().put ("context-menu", m);
+
+                ev.consume ();
+
+            }
+
+        });
+
+        this.update ();
+
+    }
+
+    private void update ()
+    {
+
+        this.pseudoClassStateChanged (StyleClassNames.ATTENTIONREQUIRED_PSEUDO_CLASS, !this.message.isDealtWith () && this.showAttentionBorder);
+
+        if ((!this.message.isDealtWith ())
+            &&
+            (this.showAttentionBorder)
+           )
+        {
+
+            UIUtils.setTooltip (this,
+                                getUILanguageStringProperty (editors,messages,view,attention,tooltip));//"This message needs your attention!");
+
+        } else {
+
+            UIUtils.setTooltip (this,
+                                    getUILanguageStringProperty (Arrays.asList (editors,messages,view,tooltip,(this.message.isSentByMe () ? sent : received)),
+                                                        //"%s %s",
+                                                        //this.message.isSentByMe () ? "Sent" : "Received",
+                                                                 Environment.formatDateTime (this.message.getWhen ())));
+
+        }
 
     }
 
@@ -195,6 +190,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
 
     }
 
+/*
     @Override
     public Component add (Component c)
     {
@@ -209,11 +205,13 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         return this.content.add (c);
 
     }
-
+*/
     public void setShowAttentionBorder (boolean v)
     {
 
         this.showAttentionBorder = v;
+
+        this.update ();
 
     }
 
@@ -238,11 +236,6 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
 
     }
 
-    public abstract void doUpdate ();
-
-    public abstract void doInit ()
-                          throws GeneralException;
-
     public String getOpenMessageLink (EditorMessage m,
                                       String        link)
     {
@@ -251,45 +244,6 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
                               Constants.OPENEDITORMESSAGE_PROTOCOL,
                               m.getKey (),
                               link);
-
-    }
-
-    public void update ()
-    {
-
-        this.doUpdate ();
-
-        if (this.message.isDealtWith ())
-        {
-
-            this.setToolTipText (null);
-            this.setBorder (null);
-
-        }
-
-    }
-
-    public void init ()
-               throws GeneralException
-    {
-
-        this.doInit ();
-
-        if ((!this.message.isDealtWith ())
-            &&
-            (this.isShowAttentionBorder ())
-           )
-        {
-
-            this.setToolTipText (getUIString (editors,messages,view,attention,tooltip));//"This message needs your attention!");
-
-            this.setBorder (new CompoundBorder (new MatteBorder (0, 2, 0, 0, UIUtils.getColor ("#ff0000")),
-                                                UIUtils.createPadding (0, 5, 0, 0)));
-
-        }
-
-        // Add ourselves as a message listener in case our message gets updated in a different context.
-        EditorsEnvironment.addEditorMessageListener (this);
 
     }
 
@@ -315,7 +269,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         }
 
     }
-
+/*
     protected JComponent getMessageQuoteComponent (String message)
     {
 
@@ -344,7 +298,8 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         return b;
 
     }
-
+*/
+/*
     protected JComponent getMessageComponent (String message,
                                               String iconName)
     {
@@ -379,5 +334,5 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         return b;
 
     }
-
+*/
 }

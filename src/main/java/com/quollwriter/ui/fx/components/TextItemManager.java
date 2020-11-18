@@ -219,7 +219,7 @@ public class TextItemManager extends VBox
 
             items.add (QuollMenuItem.builder ()
                 .label (manageitems,table,popupmenu,LanguageStrings.items,edit)
-                .styleClassName (StyleClassNames.EDIT)
+                .iconName (StyleClassNames.EDIT)
                 .onAction (eev ->
                 {
 
@@ -232,7 +232,7 @@ public class TextItemManager extends VBox
 
             items.add (QuollMenuItem.builder ()
                 .label (manageitems,table,popupmenu,LanguageStrings.items,remove)
-                .styleClassName (StyleClassNames.DELETE)
+                .iconName (StyleClassNames.DELETE)
                 .onAction (eev ->
                 {
 

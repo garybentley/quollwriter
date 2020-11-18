@@ -10,7 +10,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
 
-public class OutlineItemFormatter extends AbstractChapterItemFormatter<OutlineItem>
+public class OutlineItemFormatter extends AbstractProjectItemFormatter<OutlineItem>
 {
 
     public OutlineItemFormatter (ProjectViewer   viewer,

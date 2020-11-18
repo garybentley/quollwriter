@@ -92,7 +92,7 @@ public class SendProjectWizard extends Wizard<AbstractProjectViewer>
     {
 
         return String.format ("Send your {project} to <b>%s</b>.",
-                              this.editor.getShortName ());
+                              this.editor.getMainName ());
 
     }
 
@@ -212,67 +212,56 @@ public class SendProjectWizard extends Wizard<AbstractProjectViewer>
 
         EditorsEnvironment.sendMessageToEditor (mess,
                                                 // On send.
-                                                new ActionListener ()
+                                                () ->
                                                 {
 
-                                                    public void actionPerformed (ActionEvent ev)
+                                                    ProjectEditor pe = new ProjectEditor (_this.viewer.getProject (),
+                                                                                          _this.editor);
+
+                                                    pe.setStatus (ProjectEditor.Status.invited);
+                                                    pe.setStatusMessage ("{Project} sent: " + Environment.formatDate (new Date ()));
+
+                                                    // Add the editor to the list of editors
+                                                    // for the project.  A little dangerous to do it here
+                                                    // since it's not in the same transaction as the message.
+                                                    // TODO: Maybe have the message have a "side-effect" or "after save"
+                                                    // TODO: that will add the editor to the project in the same transaction.
+                                                    try
                                                     {
 
-                                                        ProjectEditor pe = new ProjectEditor (_this.viewer.getProject (),
-                                                                                              _this.editor);
+                                                        EditorsEnvironment.addProjectEditor (pe);
 
-                                                        pe.setStatus (ProjectEditor.Status.invited);
-                                                        pe.setStatusMessage ("{Project} sent: " + Environment.formatDate (new Date ()));
+                                                        _this.viewer.getProject ().addProjectEditor (pe);
 
-                                                        // Add the editor to the list of editors
-                                                        // for the project.  A little dangerous to do it here
-                                                        // since it's not in the same transaction as the message.
-                                                        // TODO: Maybe have the message have a "side-effect" or "after save"
-                                                        // TODO: that will add the editor to the project in the same transaction.
-                                                        try
-                                                        {
+                                                    } catch (Exception e) {
 
-                                                            EditorsEnvironment.addProjectEditor (pe);
+                                                        // Goddamn it!
+                                                        // Nothing worse than having to show an error and success at the same time.
+                                                        Environment.logError ("Unable to add editor: " +
+                                                                              _this.editor +
+                                                                              " to project: " +
+                                                                              _this.viewer.getProject (),
+                                                                              e);
 
-                                                            _this.viewer.getProject ().addProjectEditor (pe);
-
-                                                        } catch (Exception e) {
-
-                                                            // Goddamn it!
-                                                            // Nothing worse than having to show an error and success at the same time.
-                                                            Environment.logError ("Unable to add editor: " +
-                                                                                  _this.editor +
-                                                                                  " to project: " +
-                                                                                  _this.viewer.getProject (),
-                                                                                  e);
-
-                                                            UIUtils.showErrorMessage (_this.viewer,
-                                                                                      "Unable to add {editor} " + _this.editor.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
-
-                                                        }
-
-                                                        UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                                                             "Your {project} has been sent",
-                                                                             String.format ("Your {project} <b>%s</b> has been sent to <b>%s</b>",
-                                                                                            _this.viewer.getProject ().getName (),
-                                                                                            _this.editor.getMainName ()));
-
-                                                        UIUtils.closePopupParent (_this);
+                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                  "Unable to add {editor} " + _this.editor.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
 
                                                     }
+
+                                                    UIUtils.showMessage ((PopupsSupported) _this.viewer,
+                                                                         "Your {project} has been sent",
+                                                                         String.format ("Your {project} <b>%s</b> has been sent to <b>%s</b>",
+                                                                                        _this.viewer.getProject ().getName (),
+                                                                                        _this.editor.getMainName ()));
+
+                                                    UIUtils.closePopupParent (_this);
 
                                                 },
                                                 // On cancel of login.
-                                                new ActionListener ()
+                                                () ->
                                                 {
 
-                                                    @Override
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-
-                                                        UIUtils.closePopupParent (_this);
-
-                                                    }
+                                                    UIUtils.closePopupParent (_this);
 
                                                 },
                                                 null);
@@ -296,11 +285,9 @@ public class SendProjectWizard extends Wizard<AbstractProjectViewer>
 
             // Send an invite.
             EditorsEnvironment.sendMessageToEditor (invite,
-                                                    new ActionListener ()
+                                                    () ->
                                                     {
 
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
                                                             /*
                                                             TODO
                                                             AbstractViewer viewer = Environment.getFocusedViewer ();
@@ -312,7 +299,6 @@ public class SendProjectWizard extends Wizard<AbstractProjectViewer>
                                                                                  "Ok, got it",
                                                                                  null);
                                                             */
-                                                        }
 
                                                     },
                                                     null,

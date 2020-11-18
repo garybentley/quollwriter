@@ -17,6 +17,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class QuollMenuButton extends MenuButton
 {
 
+    private IconBox icon = null;
+
     private QuollMenuButton (Builder b)
     {
 
@@ -36,14 +38,14 @@ public class QuollMenuButton extends MenuButton
             this.setTooltip (t);
 
         }
-
+/*
         if (b.styleName != null)
         {
 
             this.getStyleClass ().add (b.styleName);
 
         }
-
+*/
         if (b.onAction != null)
         {
 
@@ -73,13 +75,24 @@ public class QuollMenuButton extends MenuButton
 
         });
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane p = new Pane ();
-        p.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
-        p.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (p);
-        this.setGraphic (h);
+        this.icon = IconBox.builder ()
+            .iconName (b.iconName)
+            .build ();
+        this.icon.setVisible (b.iconName != null);
+        this.setGraphic (this.icon);
+
+    }
+
+    public void setIconName (String s)
+    {
+
+        this.icon.setIconName (s);
+        if (s != null)
+        {
+
+            this.icon.setVisible (true);
+
+        }
 
     }
 
@@ -94,7 +107,7 @@ public class QuollMenuButton extends MenuButton
     {
 
         private StringProperty label = null;
-        private String styleName = null;
+        private String iconName = null;
         private StringProperty tooltip = null;
         private EventHandler<ActionEvent> onAction = null;
         private ButtonBar.ButtonData type = ButtonBar.ButtonData.APPLY;
@@ -129,10 +142,10 @@ public class QuollMenuButton extends MenuButton
 
         }
 
-        public Builder styleClassName (String n)
+        public Builder iconName (String n)
         {
 
-            this.styleName = n;
+            this.iconName = n;
 
             return this;
 

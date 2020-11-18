@@ -90,6 +90,20 @@ public class QuollTextView extends VBox
 
     }
 
+    public void setText (StringProperty t)
+    {
+
+        t.addListener ((pr, oldv, newv) ->
+        {
+
+            this.text.setContent (newv);
+
+        });
+
+        this.text.setContent (t.getValue ());
+
+    }
+
     /**
      *
      * @returns A new builder.

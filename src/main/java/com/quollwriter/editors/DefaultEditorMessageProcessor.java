@@ -7,12 +7,14 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Date;
 
+import javafx.embed.swing.*;
+
 import org.bouncycastle.openpgp.*;
 
 import com.quollwriter.data.editors.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.ui.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.*;
 
@@ -337,7 +339,13 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
     {
 
         ed.setName (inv.getEditorName ());
-        ed.setAvatar (inv.getEditorAvatar ());
+
+        if (inv.getEditorAvatar () != null)
+        {
+
+            ed.setAvatar (inv.getEditorAvatar ());
+
+        }
 
         // TODO: Need a nicer way of doing this.
         if (ed.getKey () != null)
@@ -350,73 +358,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             EditorsEnvironment.addNewEditor (ed);
 
         }
-/*
-        if (!showPopup)
-        {
 
-            return true;
-
-        }
-
-        ActionListener onAccept = new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                try
-                {
-
-                    EditorsEnvironment.addMessage (inv);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to save message for editor: " +
-                                          ed,
-                                          e);
-
-                    return;
-
-                }
-
-                InviteResponseMessage rm = new InviteResponseMessage (true,
-                                                                      EditorsEnvironment.getUserAccount ());
-                rm.setEditor (ed);
-
-                EditorsEnvironment.acceptInvite (ed,
-                                                 rm,
-                                                 null);
-
-            }
-
-        };
-
-        ActionListener onReject = new ActionListener ()
-        {
-
-            // Rejects, so update and ignore the message.
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                InviteResponseMessage rm = new InviteResponseMessage (false,
-                                                                      EditorsEnvironment.getUserAccount ());
-                rm.setEditor (ed);
-
-                EditorsEnvironment.rejectInvite (ed,
-                                                 rm,
-                                                 null);
-
-            }
-
-        };
-
-        // Pending, user needs to respond.
-        EditorsUIUtils.showInviteFromEditor ((ed.getName () != null ? String.format ("%s (%s)",
-                                                                                     ed.getName (),
-                                                                                     ed.getEmail ()) : ed.getMainName ()),
-                                             onAccept,
-                                             onReject);
-*/
         return true;
 
     }
@@ -445,69 +387,6 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
 
         }
 
-        /*
-        // Show the response.
-        rm.setDealtWith (true);
-
-        if (rm.isAccepted ())
-        {
-
-            // Show the acceptance.
-            // Set the editor as current.
-            ed.setEditorStatus (EditorEditor.EditorStatus.current);
-
-            EditorsEnvironment.getMessageHandler ().subscribeToEditor (ed);
-
-            if (rm.getEditorName () != null)
-            {
-
-                ed.setName (rm.getEditorName ());
-
-            }
-
-            if (rm.getEditorAvatar () != null)
-            {
-
-                ed.setAvatar (rm.getEditorAvatar ());
-
-            }
-
-            EditorsEnvironment.updateEditor (ed);
-
-            // Is this response for an invite message or just out of the blue from a web service invite?
-            if (!EditorsEnvironment.hasSentMessageOfTypeToEditor (ed,
-                                                                  InviteMessage.MESSAGE_TYPE))
-            {
-
-                EditorsEnvironment.sendUserInformationToEditor (ed,
-                                                                null,
-                                                                null,
-                                                                null);
-
-            }
-
-            if (showPopup)
-            {
-
-                EditorsUIUtils.showInviteAcceptance (ed);
-
-            }
-
-        } else {
-
-            ed.setEditorStatus (EditorEditor.EditorStatus.rejected);
-
-            EditorsEnvironment.updateEditor (ed);
-
-            if (showPopup)
-            {
-
-                EditorsUIUtils.showInviteRejection (ed);
-
-            }
-
-        }
-        */
         return true;
 
     }
@@ -536,74 +415,6 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                       throws Exception
     {
 
-        // Check to see if this is the first time that the editor has sent this info, if so
-        // then just update don't prompt.
-        // Need a better way of doing this, save me Hibernate!
-        /*
-        boolean hasSentInfo = false;
-
-        try
-        {
-
-            hasSentInfo = EditorsEnvironment.hasEditorSentInfo (ed);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to check if editor has sent info: " + ed,
-                                  e);
-
-            return true;
-
-        }
-        */
-        /*
-        if (hasSentInfo)
-        {
-
-            if (showPopup)
-            {
-
-                EditorsUIUtils.showEditorInfoReceived (info);
-
-            }
-
-        } else {
-
-            // Just update the info.
-            String newName = info.getName ();
-
-            if (newName != null)
-            {
-
-                ed.setName (newName.trim ());
-
-            }
-
-            java.awt.image.BufferedImage newImage = info.getAvatar ();
-
-            if (newImage != null)
-            {
-
-                ed.setAvatar (newImage);
-
-            }
-
-            info.setDealtWith (true);
-
-            try
-            {
-
-                EditorsEnvironment.updateEditor (ed);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to update editor: " + ed,
-                                      e);
-
-            }
-
-        }
-        */
         return true;
 
     }
@@ -614,17 +425,6 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                 throws Exception
     {
 
-/*
-        // Show a notification then inform our listeners.
-        if (showPopup)
-        {
-
-            mess.setDealtWith (true);
-
-            EditorsUIUtils.showNewEditorChatMessageNotification ((EditorChatMessage) mess);
-
-        }
-*/
         return true;
 
     }
@@ -671,138 +471,6 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
         npmess.setResponseMessage (res.getResponseMessage ());
 
         EditorsEnvironment.updateMessage (npmess);
-/*
-        if (showPopup)
-        {
-
-            EditorsUIUtils.showNewProjectResponseNotification (res);
-
-            return true;
-
-        }
-
-        ProjectInfo proj = null;
-
-        try
-        {
-
-            proj = Environment.getProjectById (res.getForProjectId (),
-                                               Project.NORMAL_PROJECT_TYPE);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to get project info for project with id: " +
-                                  res.getForProjectId (),
-                                  e);
-
-            return false;
-
-        }
-
-        ProjectEditor pe = null;
-
-        try
-        {
-
-            pe = EditorsEnvironment.getProjectEditor (proj,
-                                                      ed);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to get project editor: " +
-                                  proj +
-                                  ", editor: " +
-                                  ed,
-                                  e);
-
-            return false;
-
-        }
-*/
-     /*
-        if (ed.isPending ())
-        {
-
-            if (accepted)
-            {
-
-                EditorsEnvironment.getMessageHandler ().subscribeToEditor (ed);
-
-                if (res.getEditorName () != null)
-                {
-
-                    ed.setName (res.getEditorName ());
-
-                }
-
-                if (res.getEditorAvatar () != null)
-                {
-
-                    ed.setAvatar (res.getEditorAvatar ());
-
-                }
-
-
-            }
-
-            ed.setEditorStatus ((accepted ? EditorEditor.EditorStatus.current : EditorEditor.EditorStatus.rejected));
-
-            try
-            {
-
-                EditorsEnvironment.updateEditor (ed);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to update editor: " +
-                                      ed,
-                                      e);
-
-            }
-
-        }
-        */
-  /*
-        if (pe != null)
-        {
-
-            if (!accepted)
-            {
-
-                try
-                {
-
-                    EditorsEnvironment.removeProjectEditor (pe);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to remove project editor: " +
-                                          pe,
-                                          e);
-
-                }
-
-            } else {
-
-                try
-                {
-
-                    pe.setStatus (ProjectEditor.Status.accepted);
-
-                    EditorsEnvironment.updateProjectEditor (pe);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to accept project editor: " +
-                                          pe,
-                                          e);
-
-                }
-
-            }
-
-        }
-*/
         return true;
 
 
@@ -862,18 +530,6 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
 
         }
 
-/*
-        if (!showPopup)
-        {
-
-            // Save the message.
-            return true;
-
-        }
-
-        // Check to see if the editor is already editing the project.
-        EditorsUIUtils.showNewProjectReceived (proj);
-*/
         return true;
 
 
@@ -885,58 +541,6 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                          throws Exception
     {
 
-        /*
-        Project pr = Environment.getProjectById (mess.getForProjectId (),
-                                                 Project.EDITOR_PROJECT_TYPE);
-
-        // If we don't have the project then send an error.
-        if (pr == null)
-        {
-
-            EditorsEnvironment.sendError (mess,
-                                          ErrorMessage.ErrorType.projectnotexists,
-                                          "No project with id: " + mess.getForProjectId ());
-
-            Environment.logError ("Received an update project message from editor: " +
-                                  ed +
-                                  ", but project is unknown to user.");
-
-            return false;
-
-        }
-
-        // Auto update.
-        if (!pr.isEncrypted ())
-        {
-
-            try
-            {
-
-                Environment.updateToNewVersions (pr,
-                                                 mess.getProjectVersion (),
-                                                 mess.getChapters (),
-                                                 null);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to update project to new versions of chapters: " +
-                                      pr,
-                                      e);
-
-                return false;
-
-            }
-
-        }
-        */
-/*
-        if (showPopup)
-        {
-
-            EditorsUIUtils.showProjectUpdateReceived (mess);
-
-        }
-*/
         // Save the message.
         return true;
 

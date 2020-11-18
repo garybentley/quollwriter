@@ -48,7 +48,7 @@ public class WordCountTimerSelectPopup extends PopupContent
 
         QuollButton but = QuollButton.builder ()
             .tooltip (timer,buttons,start,tooltip)
-            .styleClassName (StyleClassNames.START)
+            .iconName (StyleClassNames.START)
             .onAction (ev ->
             {
 

@@ -1,0 +1,251 @@
+/*
+ * Styles relating to the contacts sidebar, com.quollwriter.ui.fx.sidebar.EditorsSideBar
+ */
+.content .scroll-pane
+{
+    -fx-fit-to-width: true;
+}
+
+.content .scroll-pane .content
+{
+    -fx-pref-width: 25em;
+    -fx-min-width: 20em;
+    -fx-fill-width: true;
+}
+
+.sidebar > .header .iconbox,
+.statusbar.controls .iconbox,
+.tab.contacts .tab-label .iconbox,
+.contact .controls .iconbox,
+.contact .controls .iconbox .icon,
+.chatbox .button .iconbox,
+.chatbox .button .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+}
+
+.icon.online-icon
+{
+    -fx-pref-height: 1em;
+}
+
+.contact .controls .iconbox .icon.online-icon
+{
+    -fx-pref-height: 1.000em;
+}
+
+.tab.contacts .tab-label .icon
+{
+    -fx-shape: "m 8,27.42857 h 24 v 4.571429 H 8 Z m 0,-9.142856 h 24 v 4.571428 H 8 Z M 8,9.1428568 H 32 V 13.714285 H 8 Z M 8,0 H 32 V 4.5714284 H 8 Z M 4,29.714285 A 2,2.2857142 0 0 1 2,31.999999 2,2.2857142 0 0 1 0,29.714285 2,2.2857142 0 0 1 2,27.42857 2,2.2857142 0 0 1 4,29.714285 M 4,20.571428 A 2,2.2857142 0 0 1 2,22.857142 2,2.2857142 0 0 1 0,20.571428 2,2.2857142 0 0 1 2,18.285714 2,2.2857142 0 0 1 4,20.571428 M 4,11.428571 A 2,2.2857142 0 0 1 2,13.714285 2,2.2857142 0 0 1 0,11.428571 2,2.2857142 0 0 1 2,9.1428568 2,2.2857142 0 0 1 4,11.428571 M 4,2.2857142 A 2,2.2857142 0 0 1 2,4.5714284 2,2.2857142 0 0 1 0,2.2857142 2,2.2857142 0 0 1 2,0 2,2.2857142 0 0 1 4,2.2857142";
+    -fx-background-color: -qw-icon-color;
+}
+
+.tab .tab-label .iconbox
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.tab .tab-label
+{
+    -fx-content-display: graphic-only;
+}
+
+.tab:noavatar .tab-label
+{
+    -fx-content-display: text-only;
+}
+
+.accordion .header
+{
+    -fx-padding: 0.5em 0.5em 0 0.5em;
+}
+
+.accordion > .header .iconbox
+{
+    visibility: hidden;
+}
+
+.accordion > .header .label
+{
+    -fx-padding: 0;
+}
+
+.accordion .header .label.title
+{
+    -fx-font-size: 1.5em;
+}
+
+.accordion > .content
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.accordion.allcontacts .content .qtextview
+{
+    visibility: hidden;
+}
+
+.contact
+{
+    -fx-padding: 0.5em 0 0.5em 0.5em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+    -fx-fill-width: true;
+}
+
+.contact .label.name
+{
+    -fx-font-size: 1.5em;
+    -fx-padding: 0 0.5em 0.5em 0em;
+}
+
+.contact .avatar-box,
+.chatmessage .avatar-box
+{
+    -fx-pref-width: 4.5em;
+    -fx-min-width: 4.5em;
+    -fx-max-width: 4.5em;
+    -fx-min-height: 4.5em;
+    -fx-pref-height: 4.5em;
+    -fx-max-height: 4.5em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.contact .avatar-box .icon,
+.chatmessage .avatar-box .icon
+{
+    -fx-pref-width: 4.5em;
+    -fx-min-width: 4.5em;
+    -fx-min-height: 4.5em;
+    -fx-pref-height: 4.5em;
+}
+
+.contact .statusbar
+{
+    -fx-padding: 0 0.5em 0 0.5em;
+}
+
+.contact .avatar-box:noavatar,
+.chatmessage .avatar-box:noavatar
+{
+    -fx-padding: 2px;
+    -fx-alignment: center;
+}
+
+.contact .avatar-box:noavatar .icon,
+.chatmessage .avatar-box:noavatar .icon
+{
+    -fx-shape: "M 18,6 A 6,6 0 0 1 12,12 6,6 0 0 1 6,6 6,6 0 0 1 12,0 6,6 0 0 1 18,6 M 12,16 C 5.375,16 0,21.375 0,28 c 0,2.211 1.789,4 4,4 h 16 c 2.211,0 4,-1.789 4,-4 0,-6.625 -5.375,-12 -12,-12 z";
+    -fx-background-color: #dfdfdf;
+    -fx-border-width: 0;
+    -fx-pref-width: 3em;
+    -fx-min-width: 3em;
+    -fx-max-width: 3em;
+    -fx-max-height: 4em;
+    -fx-min-height: 4em;
+    -fx-pref-height: 4em;
+    -fx-padding: 0;
+}
+
+.offline-icon
+{
+    -fx-shape: "m 28,24 c -0.973,0 -1.832,0.391 -2.523,0.965 L 19.379,20.613 C 19.766,19.816 20,18.941 20,18 20,16.707 19.578,15.512 18.883,14.535 L 26.016,7.398 C 26.609,7.746 27.262,8 28,8 30.211,8 32,6.211 32,4 32,1.789 30.211,0 28,0 c -2.211,0 -4,1.789 -4,4 0,0.738 0.254,1.391 0.602,1.984 l -7.133,7.137 C 16.484,12.418 15.297,12 14,12 11.711,12 9.742,13.301 8.73,15.191 L 3.914,13.582 C 3.719,12.684 2.957,12 2,12 c -1.105,0 -2,0.895 -2,2 0,1.105 0.895,2 2,2 0.504,0 0.953,-0.203 1.305,-0.512  l 4.789,1.598 C 8.047,17.387 8,17.688 8,18 c 0,3.312 2.688,6 6,6 1.648,0 3.145,-0.668 4.23,-1.746 l 6.059,4.324 C 24.117,27.023 24,27.496 24,28 c 0,2.207 1.789,4 4,4 2.211,0 4,-1.793 4,-4 0,-2.207 -1.789,-4 -4,-4 z";
+    -fx-background-color: -qw-icon-color;
+}
+
+.online-icon
+{
+    -fx-shape: "m -30.97206,-25.278583 c 8.579327,8.579327 8.579327,22.5390288 -0.0028,31.1211838 l 2.828427,2.8284272 c 10.14274,-10.1427397 10.14274,-26.638127 0.0028,-36.778038 z m -11.188292,5.656854 c 5.458157,5.458157 5.456743,14.345075 -0.0042,19.80606066 l 2.829841,2.82984134 c 7.021571,-7.0215703 7.022985,-18.444173 0.0028,-25.464329 z m -4.363814,12.7321644 a 4.0009999,4.0009999 0 0 1 -5.658268,0 4.0009999,4.0009999 0 0 1 0,-5.6582684 4.0009999,4.0009999 0 0 1 5.658268,0 4.0009999,4.0009999 0 0 1 0,5.6582684 M -67.58796,5.8425989 c -8.579327,-8.5793268 -8.579327,-22.5390289 0.0028,-31.1211839 l -2.828427,-2.828427 c -10.14274,10.14274 -10.14274,26.6381266 -0.0028,36.778038 z m 11.188291,-5.65685373 c -5.458157,-5.45815727 -5.456743,-14.34507517 0.0042,-19.80606117 l -2.829842,-2.829841 c -7.02157,7.02157 -7.022984,18.4441732 -0.0028,25.4643293 z m 4.363813,-12.73216617 a 4.0009999,4.0009999 0 0 1 5.658268,1e-6 4.0009999,4.0009999 0 0 1 0,5.6582668 4.0009999,4.0009999 0 0 1 -5.658268,7e-7 4.0009999,4.0009999 0 0 1 0,-5.6582685";
+    -fx-background-color: -qw-icon-color;
+}
+
+.chatmessages
+{
+    -fx-padding: 0.25em;
+}
+
+.chatmessages .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0;
+}
+
+.chatmessages .header .title.label
+{
+    -fx-font-size: 1.3em;
+    -fx-text-fill: #4d4d4d;
+    -fx-padding: 0.25em;
+}
+
+.chatbox .label.loading
+{
+    visibility: hidden;
+}
+
+.chatbox
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.chatmessages .chatmessage
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+.chatmessages .chatmessage .qtextview
+{
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.chatmessage
+{
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.chatbox .qtextarea .styled-text-area
+{
+    -fx-padding: 3px;
+}
+
+.chatmessages .content .user
+{
+    -fx-fill-width: false;
+    -fx-alignment: top-right;
+}
+
+.chatmessages .content .user .label
+{
+    -fx-text-alignment: right;
+}
+
+.chatmessages .content .other
+{
+    -fx-alignment: center-left;
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.chatbox-wrapper
+{
+    -fx-padding: 0.25em 0.25em 0.5em 0.5em;
+}
+
+.chatbox .styled-text-area
+{
+    -fx-border-width: 0;
+}
+
+.chatbox .buttons
+{
+    -fx-padding: 0.25em ;
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: #dddddd;
+    -fx-alignment: center-right;
+}

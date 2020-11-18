@@ -153,7 +153,7 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
                 ContextMenu cm = new ContextMenu ();
 
                 cm.getItems ().add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.IGNORE)
+                    .iconName (StyleClassNames.IGNORE)
                     .label (getUILanguageStringProperty (Utils.newList (mprefix, ignoreall)))
                     .onAction (ev ->
                     {
@@ -222,7 +222,7 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
                 ContextMenu cm = new ContextMenu ();
 
                 cm.getItems ().add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.IGNORE)
+                    .iconName (StyleClassNames.IGNORE)
                     .label (getUILanguageStringProperty (Utils.newList (mprefix, ignore)))
                     .onAction (ev ->
                     {

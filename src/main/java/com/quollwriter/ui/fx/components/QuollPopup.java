@@ -83,6 +83,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         {
 
             QuollButton close = QuollButton.builder ()
+                .iconName (StyleClassNames.CLOSE)
                 .styleClassName (StyleClassNames.CLOSE)
                 .tooltip (actions,clicktoclose)
                 .onAction (ev ->
@@ -109,15 +110,6 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         // TODO
         //this.setOnCloseRequest (ev -> this._close ());
 
-        Header h = Header.builder ()
-            .title (b.title)
-            .styleClassName (b.styleName)
-            .iconClassName (b.headerIconStyleName)
-            .controls (controls)
-            .build ();
-        h.managedProperty ().bind (h.visibleProperty ());
-        h.getStyleClass ().add (StyleClassNames.TITLE);
-
         VBox vb = new VBox ();
 
         UIUtils.addStyleSheet (this,
@@ -143,11 +135,116 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         }
 
         VBox.setVgrow (b.content, Priority.ALWAYS);
-        vb.getChildren ().addAll (h, b.content);
+
+        this.headerProp = new SimpleObjectProperty<> ();
+
+        if (b.title != null)
+        {
+
+            Header h = Header.builder ()
+                .title (b.title)
+                .styleClassName (b.styleName)
+                .iconClassName (b.headerIconStyleName)
+                .controls (controls)
+                .build ();
+            h.managedProperty ().bind (h.visibleProperty ());
+            h.getStyleClass ().add (StyleClassNames.TITLE);
+            this.headerProp.setValue (h);
+            vb.getChildren ().add (h);
+
+            h.setOnMousePressed(ev ->
+            {
+                // record a delta distance for the drag and drop operation.
+                _this.dx = ev.getSceneX();
+                _this.dy = ev.getSceneY();
+                _this.mx = _this.getLayoutX ();
+                _this.my = _this.getLayoutY ();
+                h.setCursor (Cursor.MOVE);
+
+            });
+            h.setOnMouseReleased(ev -> h.setCursor (Cursor.DEFAULT));
+            h.setOnMouseDragged(ev ->
+            {
+
+                ev.consume ();
+
+                double diffx = ev.getSceneX () - _this.dx;
+                double diffy = ev.getSceneY () - _this.dy;
+
+                _this.mx = _this.mx + diffx;
+                _this.my = _this.my + diffy;
+
+                Point2D p = _this.localToScene (ev.getX (), ev.getY ());
+
+                Bounds _b = vb.localToScene (vb.getBoundsInLocal ());
+    /*
+                if ((diffx < 1)
+                    &&
+                    ((_b.getMinX () <= 0)
+                     ||
+                     (_b.getMinY () <= 0)
+                    )
+                   )
+                {
+
+                    _this.mx = _this.getLayoutX ();
+                    _this.my = _this.getLayoutY ();
+
+                    _this.dx = ev.getSceneX();
+                    _this.dy = ev.getSceneY();
+
+                    _this.relocate (0, _this.my);
+
+                    return;
+
+                }
+
+                if ((diffx > 0)
+                    &&
+                    (_b.getWidth () + _b.getMinX () >= _this.getScene ().getWidth ())
+                   )
+                {
+
+                    _this.dx = ev.getSceneX ();
+                    _this.dy = ev.getSceneY ();
+
+                    return;
+
+                }
+    */
+
+                _this.moving = true;
+
+                _this.relocate (_this.mx, _this.my);
+
+                _this.moving = false;
+
+                _this.dx = ev.getSceneX ();
+                _this.dy = ev.getSceneY ();
+
+            });
+            h.setOnMouseEntered(ev ->
+            {
+                if (!ev.isPrimaryButtonDown ())
+                {
+
+                    h.setCursor (Cursor.MOVE);
+
+                }
+            });
+            h.setOnMouseExited(ev ->
+            {
+                if (!ev.isPrimaryButtonDown())
+                {
+                    h.setCursor(Cursor.DEFAULT);
+                }
+            });
+
+        }
+
+        vb.getChildren ().addAll (b.content);
 
         b.content.getStyleClass ().add (StyleClassNames.CONTENT);
-
-        this.headerProp = new SimpleObjectProperty<> (h);
 
         this.getChildren ().add (vb);
 
@@ -156,94 +253,6 @@ public class QuollPopup extends StackPane implements IPropertyBinder
 
             _this.toFront ();
 
-        });
-
-        h.setOnMousePressed(ev ->
-        {
-            // record a delta distance for the drag and drop operation.
-            _this.dx = ev.getSceneX();
-            _this.dy = ev.getSceneY();
-            _this.mx = _this.getLayoutX ();
-            _this.my = _this.getLayoutY ();
-            h.setCursor (Cursor.MOVE);
-
-        });
-        h.setOnMouseReleased(ev -> h.setCursor (Cursor.DEFAULT));
-        h.setOnMouseDragged(ev ->
-        {
-
-            ev.consume ();
-
-            double diffx = ev.getSceneX () - _this.dx;
-            double diffy = ev.getSceneY () - _this.dy;
-
-            _this.mx = _this.mx + diffx;
-            _this.my = _this.my + diffy;
-
-            Point2D p = _this.localToScene (ev.getX (), ev.getY ());
-
-            Bounds _b = vb.localToScene (vb.getBoundsInLocal ());
-/*
-            if ((diffx < 1)
-                &&
-                ((_b.getMinX () <= 0)
-                 ||
-                 (_b.getMinY () <= 0)
-                )
-               )
-            {
-
-                _this.mx = _this.getLayoutX ();
-                _this.my = _this.getLayoutY ();
-
-                _this.dx = ev.getSceneX();
-                _this.dy = ev.getSceneY();
-
-                _this.relocate (0, _this.my);
-
-                return;
-
-            }
-
-            if ((diffx > 0)
-                &&
-                (_b.getWidth () + _b.getMinX () >= _this.getScene ().getWidth ())
-               )
-            {
-
-                _this.dx = ev.getSceneX ();
-                _this.dy = ev.getSceneY ();
-
-                return;
-
-            }
-*/
-
-            _this.moving = true;
-
-            _this.relocate (_this.mx, _this.my);
-
-            _this.moving = false;
-
-            _this.dx = ev.getSceneX ();
-            _this.dy = ev.getSceneY ();
-
-        });
-        h.setOnMouseEntered(ev ->
-        {
-            if (!ev.isPrimaryButtonDown ())
-            {
-
-                h.setCursor (Cursor.MOVE);
-
-            }
-        });
-        h.setOnMouseExited(ev ->
-        {
-            if (!ev.isPrimaryButtonDown())
-            {
-                h.setCursor(Cursor.DEFAULT);
-            }
         });
 
         UIUtils.doOnKeyReleased (this,
@@ -402,6 +411,14 @@ _this.moving = false;
     {
 
         return new MessageBuilder<E> ();
+
+    }
+
+    public static <E extends NotificationBuilder<E>> NotificationBuilder<E> notificationBuilder ()
+    {
+
+
+        return new NotificationBuilder<E> ();
 
     }
 
@@ -1491,7 +1508,7 @@ TODO
 
             QuollPopup qp = new QuollPopup (this);
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 qp.toFront ();
@@ -1681,7 +1698,7 @@ TODO
                 Button confirm = QuollButton.builder ()
                     .label ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.confirm)))
                     .buttonType (ButtonBar.ButtonData.OK_DONE)
-                    .styleClassName (StyleClassNames.CONFIRM)
+                    .iconName (StyleClassNames.CONFIRM)
                     .onAction (this.onConfirm)
                     .build ();
 
@@ -1694,7 +1711,7 @@ TODO
             Button cancel = QuollButton.builder ()
                 .label ((this.cancelButtonLabel != null ? this.cancelButtonLabel : getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.cancel)))
                 .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
-                .styleClassName (StyleClassNames.CANCEL)
+                .iconName (StyleClassNames.CANCEL)
                 .onAction (this.onCancel)
                 .build ();
 
@@ -1715,6 +1732,107 @@ TODO
 
             cancel.addEventHandler (ActionEvent.ACTION,
                                     ev -> qp.close ());
+
+            return qp;
+
+        }
+
+    }
+
+    public static class NotificationBuilder<X extends NotificationBuilder<X>> extends Builder<X>
+    {
+
+        private StringProperty message = null;
+        private int hideIn = -1;
+
+        protected NotificationBuilder ()
+        {
+
+        }
+
+        @Override
+        public X _this ()
+        {
+
+            // TODO Dodgy cast, fix?
+            return (X) this;
+
+        }
+
+        public X hideIn (int v)
+        {
+
+            this.hideIn = v;
+            return _this ();
+
+        }
+
+        public X message (String... m)
+        {
+
+            return this.message (getUILanguageStringProperty (m));
+
+        }
+
+        public X message (List<String> prefix,
+                          String...    m)
+        {
+
+            return this.message (getUILanguageStringProperty (Utils.newList (prefix, m)));
+
+        }
+
+        public X message (StringProperty m)
+        {
+
+            this.message = m;
+            return _this ();
+
+        }
+
+        @Override
+        public QuollPopup build ()
+        {
+
+            if (this.styleName == null)
+            {
+
+                this.styleClassName (StyleClassNames.NOTIFICATION);
+
+            }
+
+            if (this.message == null)
+            {
+
+                throw new IllegalArgumentException ("Message must be provided.");
+
+            }
+
+            Node content = QuollTextView.builder ()//BasicHtmlTextFlow.builder ()
+                .text (this.message)
+                .styleClassName (StyleClassNames.MESSAGE)
+                .inViewer (this.viewer)
+                .build ();
+
+            this.removeOnClose (true);
+            this.content (content);
+
+            QuollPopup qp = super.build ();
+
+            qp.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                                ev ->
+            {
+
+                Environment.schedule (() ->
+                {
+
+                    qp.close ();
+
+                },
+                this.hideIn,
+                -1);
+
+            });
 
             return qp;
 
@@ -1793,6 +1911,13 @@ TODO
 
             this.show = true;
             return _this ();
+
+        }
+
+        public X inViewer (AbstractViewer viewer)
+        {
+
+            return this.withViewer (viewer);
 
         }
 

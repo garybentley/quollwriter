@@ -13,12 +13,8 @@ import java.math.*;
 import java.util.*;
 import java.security.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import javafx.scene.image.*;
+import javafx.embed.swing.*;
 
 import org.bouncycastle.bcpg.*;
 import org.bouncycastle.openpgp.*;
@@ -28,7 +24,7 @@ import org.bouncycastle.crypto.params.*;
 import org.bouncycastle.openpgp.operator.bc.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -38,8 +34,8 @@ import com.quollwriter.data.editors.*;
 public class EditorsUtils
 {
 
-    public static BufferedImage getImageFromBase64EncodedString (String s)
-                                                          throws Exception
+    public static Image getImageFromBase64EncodedString (String s)
+                                                  throws Exception
     {
 
         if (s == null)
@@ -56,6 +52,21 @@ public class EditorsUtils
 
     }
 
+    public static String getImageAsBase64EncodedString (Image im)
+                                                 throws Exception
+    {
+
+        if (im == null)
+        {
+
+            return null;
+
+        }
+
+        return EditorsUtils.getImageAsBase64EncodedString (SwingFXUtils.fromFXImage (im, null));
+
+    }
+
     public static String getImageAsBase64EncodedString (BufferedImage im)
                                                  throws Exception
     {
@@ -67,7 +78,7 @@ public class EditorsUtils
 
         }
 
-		byte[] bytes = UIUtils.getImageBytes (im);
+		byte[] bytes = UIUtils.getImageBytes (SwingFXUtils.toFXImage (im, null));
 
         return com.quollwriter.Base64.encodeBytes (bytes);
 

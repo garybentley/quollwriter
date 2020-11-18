@@ -84,7 +84,7 @@ public class FindProjectsPopup extends PopupContent
 
             Set<Node> controls = new LinkedHashSet<> ();
             controls.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.STOP)
+                .iconName (StyleClassNames.STOP)
                 .tooltip (getUILanguageStringProperty (allprojects,actions,findprojects,LanguageStrings.notification,buttons,stop,tooltip))
                 .onAction (aev ->
                 {

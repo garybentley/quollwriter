@@ -38,6 +38,8 @@ public class QuollImageView extends VBox
         this.managedProperty ().bind (this.visibleProperty ());
         this.setMinWidth (100);
         this.setMinHeight (100);
+        this.iv.fitWidthProperty ().bind (this.prefWidthProperty ());
+        this.iv.fitHeightProperty ().bind (this.prefHeightProperty ());
 
         //iv.relocate (0, 0);
         this.getChildren ().add (iv);
@@ -66,7 +68,7 @@ public class QuollImageView extends VBox
         this.widthProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            this.iv.setFitWidth (Math.round (newv.doubleValue ()) - this.getInsets ().getLeft () - this.getInsets ().getRight ());
+            //this.iv.setFitWidth (Math.round (newv.doubleValue ()) - this.getInsets ().getLeft () - this.getInsets ().getRight ());
 
             UIUtils.runLater (() ->
             {

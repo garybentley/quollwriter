@@ -50,7 +50,7 @@ public class ControllableProgressBar extends HBox
 
                 m.getItems ().add (QuollMenuItem.builder ()
                     .label (timer,popupmenu,items,pause)
-                    .styleClassName (StyleClassNames.PAUSE)
+                    .iconName (StyleClassNames.PAUSE)
                     .onAction (eev ->
                     {
 
@@ -61,7 +61,7 @@ public class ControllableProgressBar extends HBox
 
                 m.getItems ().add (QuollMenuItem.builder ()
                     .label (timer,popupmenu,items,stop)
-                    .styleClassName (StyleClassNames.STOP)
+                    .iconName (StyleClassNames.STOP)
                     .onAction (eev ->
                     {
 
@@ -77,7 +77,7 @@ public class ControllableProgressBar extends HBox
 
                 m.getItems ().add (QuollMenuItem.builder ()
                     .label (timer,popupmenu,items,play)
-                    .styleClassName (StyleClassNames.PLAY)
+                    .iconName (StyleClassNames.PLAY)
                     .onAction (eev ->
                     {
 
@@ -93,7 +93,7 @@ public class ControllableProgressBar extends HBox
 
                 m.getItems ().add (QuollMenuItem.builder ()
                     .label (timer,popupmenu,items,play)
-                    .styleClassName (StyleClassNames.PLAY)
+                    .iconName (StyleClassNames.PLAY)
                     .onAction (eev ->
                     {
 
@@ -104,7 +104,7 @@ public class ControllableProgressBar extends HBox
 
                 m.getItems ().add (QuollMenuItem.builder ()
                     .label (timer,popupmenu,items,stop)
-                    .styleClassName (StyleClassNames.STOP)
+                    .iconName (StyleClassNames.STOP)
                     .onAction (eev ->
                     {
 
@@ -117,7 +117,7 @@ public class ControllableProgressBar extends HBox
 
             m.getItems ().add (QuollMenuItem.builder ()
                 .label (timer,popupmenu,items,reset)
-                .styleClassName (StyleClassNames.RESET)
+                .iconName (StyleClassNames.RESET)
                 .onAction (eev ->
                 {
 
@@ -129,7 +129,7 @@ public class ControllableProgressBar extends HBox
 
             m.getItems ().add (QuollMenuItem.builder ()
                 .label (timer,popupmenu,items,cancel)
-                .styleClassName (StyleClassNames.CANCEL)
+                .iconName (StyleClassNames.CANCEL)
                 .onAction (eev ->
                 {
 
@@ -152,7 +152,7 @@ public class ControllableProgressBar extends HBox
         });
 
         this.playBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.PLAY)
+            .iconName (StyleClassNames.PLAY)
             .onAction (ev ->
             {
 
@@ -171,7 +171,7 @@ public class ControllableProgressBar extends HBox
         this.playBut.setVisible (b.allowPlay);
 
         this.stopBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.STOP)
+            .iconName (StyleClassNames.STOP)
             .onAction (ev ->
             {
 
@@ -191,7 +191,7 @@ public class ControllableProgressBar extends HBox
         this.stopBut.setDisable (true);
 
         this.pauseBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.PAUSE)
+            .iconName (StyleClassNames.PAUSE)
             .onAction (ev ->
             {
 
@@ -209,7 +209,7 @@ public class ControllableProgressBar extends HBox
         this.pauseBut.setVisible (false);
 
         this.resetBut = QuollButton.builder ()
-            .styleClassName (StyleClassNames.RESET)
+            .iconName (StyleClassNames.RESET)
             .onAction (ev ->
             {
 /*

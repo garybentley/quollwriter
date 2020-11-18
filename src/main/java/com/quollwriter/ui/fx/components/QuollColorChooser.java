@@ -258,7 +258,7 @@ public class QuollColorChooser extends VBox
 
             items.add (QuollMenuItem.builder ()
                 .label (colorchooser,LanguageStrings.swatch,popupmenu,LanguageStrings.items,remove)
-                .styleClassName (StyleClassNames.DELETE)
+                .iconName (StyleClassNames.DELETE)
                 .onAction (eev ->
                 {
 

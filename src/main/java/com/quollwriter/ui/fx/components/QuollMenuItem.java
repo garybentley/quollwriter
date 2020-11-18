@@ -18,6 +18,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class QuollMenuItem extends MenuItem
 {
 
+    private IconBox iconBox = null;
+
     private QuollMenuItem (Builder b)
     {
 
@@ -27,7 +29,7 @@ public class QuollMenuItem extends MenuItem
             this.textProperty ().bind (b.text);
 
         }
-
+/*
         if (b.styleName != null)
         {
 
@@ -35,6 +37,7 @@ public class QuollMenuItem extends MenuItem
             //this.setId (b.styleName);
 
         }
+*/
 /*
         if (b.tooltip != null)
         {
@@ -67,16 +70,11 @@ public class QuollMenuItem extends MenuItem
         iv.setSmooth (true);
         iv.setCache (true);
 */
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane p = new Pane ();
-        p.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
-        p.getStyleClass ().add (StyleClassNames.ICON);
-        //p.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (p);
-        h.managedProperty ().bind (h.visibleProperty ());
-
-        this.setGraphic (h);
+        this.iconBox = IconBox.builder ()
+            .iconName (b.iconName)
+            .image (b.icon)
+            .build ();
+        this.setGraphic (this.iconBox);
 
         //this.setGraphic (new ImageView ());
 
@@ -100,8 +98,9 @@ public class QuollMenuItem extends MenuItem
 
         private StringProperty text = null;
         private KeyCombination accelerator = null;
-        private String styleName = null;
+        private String iconName = null;
         private EventHandler<ActionEvent> onAction = null;
+        private ObjectProperty<Image> icon = null;
 
         private Builder ()
         {
@@ -132,10 +131,18 @@ public class QuollMenuItem extends MenuItem
 
         }
 
-        public Builder styleClassName (String n)
+        public Builder icon (ObjectProperty<Image> i)
         {
 
-            this.styleName = n;
+            this.icon = i;
+            return this;
+
+        }
+
+        public Builder iconName (String n)
+        {
+
+            this.iconName = n;
 
             return this;
 

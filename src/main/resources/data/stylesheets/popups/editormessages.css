@@ -1,0 +1,43 @@
+/*
+ * Styles for the popup that displays a list of editor messages.
+ */
+.message
+{
+    -fx-padding: 0.5em 0 0 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.form:column .items > .label
+{
+    -fx-pref-width: 5em;
+    -fx-max-width: 5em;
+    -fx-min-width: 5em;
+    -fx-font-style: italic;
+    -fx-alignment: center-right;
+}
+
+.form:column .items > .control
+{
+    -fx-alignment: center-left;
+}
+
+.form:column .items > .control .label
+{
+    -fx-padding: 0;
+}
+
+.scroll-pane
+{
+    -fx-pref-height: 30em;
+}
+
+.hyperlink.viewproject
+{
+    -fx-content-display: text-only;
+}
+
+.hyperlink.view
+{
+    -fx-padding: 0;
+}

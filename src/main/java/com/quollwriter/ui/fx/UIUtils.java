@@ -236,6 +236,29 @@ public class UIUtils
 
     }
 
+    public static Tooltip createTooltip (StringProperty text)
+    {
+
+        Tooltip t = new Tooltip ();
+
+        t.setContentDisplay (ContentDisplay.GRAPHIC_ONLY);
+
+        t.setOnShowing (ev ->
+        {
+
+            QuollTextView tf = QuollTextView.builder ()
+                .text (text)
+                .build ();
+            t.setGraphic (tf);
+
+        });
+
+        t.minWidthProperty ().bind (t.prefWidthProperty ());
+
+        return t;
+
+    }
+
     /**
      * Set a bound tooltip on the control using the uistring ids.
      *
@@ -684,8 +707,16 @@ public class UIUtils
             if (handler != null)
             {
 
-                handler.handleURLAction (action,
-                                         null);
+                StringTokenizer t = new StringTokenizer (action,
+                                                         ",;");
+
+                while (t.hasMoreTokens ())
+                {
+
+                    handler.handleURLAction (t.nextToken ().trim (),
+                                             null);
+
+                }
 
                 return;
 
@@ -751,7 +782,7 @@ public class UIUtils
     {
 
         QuollButton b = QuollButton.builder ()
-            .styleClassName (StyleClassNames.HELP)
+            .iconName (StyleClassNames.HELP)
             .tooltip (tooltip != null ? tooltip : getUILanguageStringProperty (help,button,LanguageStrings.tooltip))
             .onAction (ev ->
             {
@@ -907,6 +938,27 @@ public class UIUtils
                                         e);
 
         }
+
+    }
+
+    public static BufferedImage getScaledImage (BufferedImage img,
+                                                int           targetWidth)
+    {
+
+        if (img == null)
+        {
+
+            return null;
+
+        }
+
+        img = Scalr.resize (img,
+                           Scalr.Method.QUALITY,
+                           Scalr.Mode.FIT_TO_WIDTH,
+                           targetWidth,
+                           Scalr.OP_ANTIALIAS);
+
+        return img;
 
     }
 
@@ -1570,7 +1622,7 @@ public class UIUtils
 
         StringProperty warning = getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,deleteproject,LanguageStrings.warning,normal),
                                                               (proj.isEditorProject () ? getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,deleteproject,LanguageStrings.warning,editor,
-                                                                                                                                     proj.getForEditor ().getShortName ()))
+                                                                                                                                     proj.getForEditor ().getMainName ()))
                                                                                             : ""));
 
         UIUtils.showDeleteObjectPopup (getUILanguageStringProperty (project,actions,deleteproject,deletetype),
@@ -1585,29 +1637,23 @@ public class UIUtils
 
                                                EditorsEnvironment.sendProjectEditStopMessage (proj,
                                                 // TODO Change.
-                                                                                              new java.awt.event.ActionListener ()
+                                                                                              () ->
                                                {
 
-                                                   @Override
-                                                   public void actionPerformed (java.awt.event.ActionEvent ev)
+                                                   UIUtils.runLater (() ->
                                                    {
 
-                                                       UIUtils.runLater (() ->
-                                                       {
+                                                       Environment.deleteProject (proj,
+                                                                                  onDelete);
 
-                                                           Environment.deleteProject (proj,
-                                                                                      onDelete);
+                                                       QuollPopup.messageBuilder ()
+                                                        .withViewer (viewer)
+                                                        .title (project,actions,deleteproject,editorproject,confirmpopup,title)
+                                                        .message (getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,editorproject,confirmpopup,text),
+                                                                                               proj.getForEditor ().getMainName ()))
+                                                        .build ();
 
-                                                           QuollPopup.messageBuilder ()
-                                                            .withViewer (viewer)
-                                                            .title (project,actions,deleteproject,editorproject,confirmpopup,title)
-                                                            .message (getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,editorproject,confirmpopup,text),
-                                                                                                   proj.getForEditor ().getShortName ()))
-                                                            .build ();
-
-                                                       });
-
-                                                   }
+                                                   });
 
                                                });
 
@@ -2941,7 +2987,7 @@ TODO Remove
     {
 
         return QuollMenuButton.builder ()
-            .styleClassName (StyleClassNames.TAG)
+            .iconName (StyleClassNames.TAG)
             .tooltip (tooltip)
             .items (UIUtils.createTagsMenuItemsSupplier (obj,
                                                          viewer))
@@ -3028,7 +3074,7 @@ TODO Remove
             }
 
             items.add (QuollMenuItem.builder ()
-                .styleClassName (StyleClassNames.ADD)
+                .iconName (StyleClassNames.ADD)
                 .label (getUILanguageStringProperty (tags,popupmenu,_new))
                 .onAction (ev ->
                 {
@@ -3068,7 +3114,7 @@ TODO Remove
 
         Set<MenuItem> items = new LinkedHashSet<> ();
         items.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.MOVETOP)
+                    .iconName (StyleClassNames.MOVETOP)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,top)))
                     .onAction (ev ->
                     {
@@ -3079,7 +3125,7 @@ TODO Remove
                     .build ());
 
         items.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.MOVEUP)
+                    .iconName (StyleClassNames.MOVEUP)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,up)))
                     .onAction (ev ->
                     {
@@ -3090,7 +3136,7 @@ TODO Remove
                     .build ());
 
         items.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.MOVEDOWN)
+                    .iconName (StyleClassNames.MOVEDOWN)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,down)))
                     .onAction (ev ->
                     {
@@ -3101,7 +3147,7 @@ TODO Remove
                     .build ());
 
         items.add (QuollMenuItem.builder ()
-                    .styleClassName (StyleClassNames.MOVEBOTTOM)
+                    .iconName (StyleClassNames.MOVEBOTTOM)
                     .label (getUILanguageStringProperty (Utils.newList (prefix,bottom)))
                     .onAction (ev ->
                     {
@@ -3125,6 +3171,13 @@ TODO Remove
     {
 
         return new ImageView (SwingFXUtils.toFXImage (i, null));
+
+    }
+
+    public static ImageView getImageView (Image i)
+    {
+
+        return new ImageView (i);
 
     }
 
@@ -3154,6 +3207,7 @@ TODO Remove
 
             QuollMenuItem i = QuollMenuItem.builder ()
                 .label (type.getObjectTypeName ())
+                .icon (type.icon16x16Property ())
                 .onAction (ev ->
                 {
 
@@ -3192,11 +3246,6 @@ TODO Remove
 
                 })
                 .build ();
-
-            ImageView iv = new ImageView ();
-            iv.imageProperty ().bind (type.icon16x16Property ());
-
-            i.setGraphic (iv);
 
             ret.add (i);
 
@@ -4698,5 +4747,27 @@ TODO
         });
 
     }
+/*
+    public static HBox createIconBox (String                        styleClassName)
+    {
 
+        HBox h = new HBox ();
+        h.getStyleClass ().add (StyleClassNames.ICONBOX);
+        Pane p = new Pane ();
+        p.getStyleClass ().add (StyleClassNames.ICON);
+
+        if (styleClassName != null)
+        {
+
+            p.getStyleClass ().addAll (styleClassName + StyleClassNames.ICON_SUFFIX);
+
+        }
+        h.getChildren ().add (p);
+
+        h.managedProperty ().bind (h.visibleProperty ());
+
+        return h;
+
+    }
+    */
 }

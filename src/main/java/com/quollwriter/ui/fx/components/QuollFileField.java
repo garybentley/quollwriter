@@ -110,7 +110,7 @@ public class QuollFileField extends HBox
         this.getChildren ().add (this.text);
 
         this.getChildren ().add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.FIND)
+            .iconName (StyleClassNames.FIND)
             .tooltip (b.findButtonTooltip)
             .onAction (ev ->
             {
@@ -122,7 +122,7 @@ public class QuollFileField extends HBox
             .build ());
 
         this.getChildren ().add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.VIEW)
+            .iconName (StyleClassNames.VIEW)
             .tooltip (b.viewButtonTooltip)
             .onAction (ev ->
             {
@@ -139,7 +139,7 @@ public class QuollFileField extends HBox
         {
 
             this.getChildren ().add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.CLEAR)
+                .iconName (StyleClassNames.CLEAR)
                 .tooltip (b.clearButtonTooltip)
                 .onAction (ev ->
                 {

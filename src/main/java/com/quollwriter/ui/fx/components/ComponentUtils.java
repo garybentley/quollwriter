@@ -25,7 +25,13 @@ public class ComponentUtils
     public static void showErrorMessage (StringProperty message)
     {
 
-        // TODO
+        UIUtils.runLater (() ->
+        {
+
+            ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                             message);
+
+        });
 
     }
 

@@ -2,13 +2,15 @@ package com.quollwriter.editors.messages;
 
 import java.util.*;
 
+import javafx.beans.property.*;
+
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.*;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 /**
  * The base class for all messages sent between editors.
@@ -46,14 +48,14 @@ public abstract class EditorMessage extends DataObject
 
     protected EditorEditor editor = null;
     private String forProjectId = null;
-    private String forProjectName = null;
+    private StringProperty forProjectNameProp = new SimpleStringProperty ();
     private String origMessage = null;
     private boolean sentByMe = false;
     private Date when = new Date ();
     private String messageId = null;
     private boolean wantsAck = false;
     private long ackKey = -1;
-    private boolean dealtWith = false;
+    private BooleanProperty dealtWithProp = new SimpleBooleanProperty (false);
 
     public EditorMessage ()
     {
@@ -82,7 +84,7 @@ public abstract class EditorMessage extends DataObject
                                     this.messageId);
         this.addToStringProperties (props,
                                     "dealtWith",
-                                    this.dealtWith);
+                                    this.dealtWithProp.getValue ());
         this.addToStringProperties (props,
                                     "sentByMe",
                                     this.sentByMe);
@@ -109,19 +111,26 @@ public abstract class EditorMessage extends DataObject
 
     }
 
+    public BooleanProperty dealtWithProperty ()
+    {
+
+        return this.dealtWithProp;
+
+    }
+
     public boolean isDealtWith ()
     {
 
-        return this.dealtWith;
+        return this.dealtWithProp.getValue ();
 
     }
 
     public void setDealtWith (boolean v)
     {
 
-        boolean oldV = this.dealtWith;
+        boolean oldV = this.dealtWithProp.getValue ();
 
-        this.dealtWith = v;
+        this.dealtWithProp.setValue (v);
 
         this.firePropertyChangedEvent (EditorMessage.DEALT_WITH,
                                        oldV,
@@ -201,7 +210,52 @@ public abstract class EditorMessage extends DataObject
     public void setForProjectName (String n)
     {
 
-        this.forProjectName = n;
+        this.forProjectNameProp.setValue (n);
+
+    }
+
+    public StringProperty forProjectNameProperty ()
+    {
+
+        if (this.forProjectId == null)
+        {
+
+            return null;
+
+        }
+
+        StringProperty projName = this.forProjectNameProp;
+
+        try
+        {
+
+            ProjectInfo proj = Environment.getProjectById (this.forProjectId,
+                                                           null);
+
+            if (proj != null)
+            {
+
+                projName = proj.nameProperty ();
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get project for id: " +
+                                  this.forProjectId,
+                                  e);
+
+        }
+
+        if (projName.getValue () == null)
+        {
+
+            projName = getUILanguageStringProperty (editors,messages,unknownproject);
+            //"Unknown {Project}";
+
+        }
+
+        return projName;
 
     }
 
@@ -219,45 +273,7 @@ public abstract class EditorMessage extends DataObject
     public String getForProjectName ()
     {
 
-        if (this.forProjectId == null)
-        {
-
-            return null;
-
-        }
-
-        String projName = this.forProjectName;
-
-        try
-        {
-
-            ProjectInfo proj = Environment.getProjectById (this.forProjectId,
-                                                           null);
-
-            if (proj != null)
-            {
-
-                projName = proj.getName ();
-
-            }
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to get project for id: " +
-                                  this.forProjectId,
-                                  e);
-
-        }
-
-        if (projName == null)
-        {
-
-            projName = getUIString (editors,messages,unknownproject);
-            //"Unknown {Project}";
-
-        }
-
-        return projName;
+        return this.forProjectNameProperty ().getValue ();
 
     }
 

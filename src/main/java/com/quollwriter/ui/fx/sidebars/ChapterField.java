@@ -109,7 +109,7 @@ public class ChapterField extends NamedObjectContent<ProjectViewer, Chapter>
         Set<Node> headerCons = new LinkedHashSet<> ();
 
         this.showEditButton = QuollButton.builder ()
-            .styleClassName (StyleClassNames.EDIT)
+            .iconName (StyleClassNames.EDIT)
             .tooltip (prefix,headercontrols,items,edit,tooltip)
             .onAction (ev ->
             {

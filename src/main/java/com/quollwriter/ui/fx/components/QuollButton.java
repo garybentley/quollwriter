@@ -17,7 +17,7 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class QuollButton extends Button
 {
 
-    private Pane icon = null;
+    private IconBox icon = null;
 
     private QuollButton (Builder b)
     {
@@ -39,10 +39,10 @@ public class QuollButton extends Button
 
         }
 
-        if (b.styleNames != null)
+        if (b.styleClassName != null)
         {
 
-            this.getStyleClass ().addAll (b.styleNames);
+            this.getStyleClass ().addAll (b.styleClassName);
 
         }
 
@@ -63,27 +63,19 @@ public class QuollButton extends Button
 
         this.setSnapToPixel (true);
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        this.icon = new Pane ();
-        if (b.styleNames != null)
-        {
-
-            this.icon.getStyleClass ().add (b.styleNames.stream ().collect (Collectors.joining (" ", "", StyleClassNames.ICON_SUFFIX)));
-
-        }
-        this.icon.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (this.icon);
-        this.setGraphic (h);
+        this.icon = IconBox.builder ()
+            .iconName (b.iconName)
+            .build ();
+        this.setGraphic (this.icon);
+        this.icon.setVisible (b.iconName != null);
+        this.managedProperty ().bind (this.visibleProperty ());
 
     }
 
-    public void setIconClassName (String c)
+    public void setIconName (String c)
     {
 
-        this.icon.getStyleClass ().clear ();
-        this.icon.getStyleClass ().add (StyleClassNames.ICON);
-        this.icon.getStyleClass ().add (c + StyleClassNames.ICON_SUFFIX);
+        this.icon.setIconName (c);
 
     }
 
@@ -104,7 +96,8 @@ public class QuollButton extends Button
     {
 
         private StringProperty label = null;
-        private Set<String> styleNames = null;
+        private String styleClassName = null;
+        private String iconName = null;
         private StringProperty tooltip = null;
         private EventHandler<ActionEvent> onAction = null;
         private ButtonBar.ButtonData type = ButtonBar.ButtonData.APPLY;
@@ -138,16 +131,19 @@ public class QuollButton extends Button
 
         }
 
-        public Builder styleClassName (String... n)
+        public Builder iconName (String n)
         {
 
-            if (n != null)
-            {
+            this.iconName = n;
 
-                this.styleNames = new LinkedHashSet<> (Arrays.asList (n));
+            return this;
 
-            }
+        }
 
+        public Builder styleClassName (String n)
+        {
+
+            this.styleClassName = n;
             return this;
 
         }

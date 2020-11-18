@@ -1,125 +1,525 @@
 package com.quollwriter.editors.ui;
 
-import java.awt.Component;
-import java.awt.Insets;
-import java.awt.event.*;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.Arrays;
-import java.util.ArrayList;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.util.*;
+import java.util.function.*;
 
+import javafx.beans.value.*;
+import javafx.beans.property.*;
+import javafx.scene.*;
+import javafx.scene.layout.*;
+import javafx.scene.control.*;
+
+import com.quollwriter.data.DataObject;
+import com.quollwriter.data.NamedObject;
+import com.quollwriter.data.IPropertyBinder;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.sidebars.*;
+import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.events.*;
-import com.quollwriter.ui.*;
 import com.quollwriter.editors.*;
-import com.quollwriter.ui.components.ScrollableBox;
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 import static com.quollwriter.LanguageStrings.*;
-import static com.quollwriter.Environment.getUIString;
 
-public class ProjectEditorsAccordionItem extends AccordionItem implements ProjectEditorChangedListener, EditorMessageListener
+public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<ProjectViewer>
 {
 
-    private Box wrapper = null;
-    private ProjectViewer viewer = null;
-    private ComponentListener listener = null;
-    private Box currentEditors = null;
-    private Box previousEditors = null;
+    private VBox content = null;
+    private VBox currentEditors = null;
+    private VBox previousEditors = null;
     private boolean showPreviousEditors = false;
     private boolean inited = false;
+    private IntegerProperty countProp = new SimpleIntegerProperty (0);
+    private Map<ProjectEditor, ChangeListener<Boolean>> listeners = new HashMap<> ();
 
-    public ProjectEditorsAccordionItem (ProjectViewer pv)
+    public ProjectEditorsAccordionItem (ProjectViewer   pv,
+                                        IPropertyBinder binder)
     {
 
-        super ("",
+        super (pv,
                 //"{Editors}",
-               Constants.EDIT_ICON_NAME);
-               //Constants.EDITORS_ICON_NAME);
+                binder);
 
-        this.viewer = pv;
+        this.content = new VBox ();
 
-        final ProjectEditorsAccordionItem _this = this;
+        this.currentEditors = new VBox ();
 
-        this.wrapper = new ScrollableBox (BoxLayout.Y_AXIS);
-        this.wrapper.setBorder (UIUtils.createPadding (0, 10, 0, 0));
-
-        this.currentEditors = new Box (BoxLayout.Y_AXIS);
-        this.currentEditors.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        this.wrapper.add (this.currentEditors);
-
-        this.previousEditors = new Box (BoxLayout.Y_AXIS);
-        this.previousEditors.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        this.wrapper.add (this.previousEditors);
-
-        JLabel help = UIUtils.createInformationLabel (getUIString (project,sidebar,editors,text));
-        //"People who are editing this {project} for you.");
-        help.setBorder (UIUtils.createPadding (0, 0, 5, 0));
-
-        this.currentEditors.add (help);
-
-        this.previousEditors.add (UIUtils.createBoldSubHeader (getUIString (project,sidebar,editors,previouseditors,title),
-                                                                //"<i>Previous {Editors}</i>",
-                                                               null));
-
+        this.previousEditors = new VBox ();
         this.previousEditors.setVisible (false);
 
-        this.listener = new ComponentAdapter ()
+        this.content.getChildren ().addAll (this.currentEditors, this.previousEditors);
+
+        QuollTextView help = QuollTextView.builder ()
+            .inViewer (pv)
+            .styleClassName (StyleClassNames.INFORMATION)
+            .text (getUILanguageStringProperty (project,sidebar,editors,text))
+            .build ();
+
+        this.currentEditors.getChildren ().add (help);
+
+        this.previousEditors.getChildren ().add (QuollLabel.builder ()
+            .styleClassName (StyleClassNames.SUBTITLE)
+            .label (project,sidebar,editors,previouseditors,title)
+            .build ());
+
+        for (ProjectEditor pe : pv.getProject ().getProjectEditors ())
         {
 
-            @Override
-            public void componentResized (ComponentEvent ev)
+            this.addProjectEditor (pe);
+
+        }
+
+        binder.addSetChangeListener (pv.getProject ().getProjectEditors (),
+                                     ev ->
+        {
+
+            if (ev.wasRemoved ())
             {
 
-                _this.updateBorders ();
+                ProjectEditor pe = ev.getElementRemoved ();
+
+                pe.currentProperty ().removeListener (this.listeners.get (pe));
+
+                for (Node n : this.previousEditors.getChildren ())
+                {
+
+                    if (!(n instanceof EditorInfoBox))
+                    {
+
+                        continue;
+
+                    }
+
+                    EditorInfoBox ib = (EditorInfoBox) n;
+
+                    if (ib.getEditor ().equals (pe))
+                    {
+
+                        this.previousEditors.getChildren ().remove (ib);
+
+                        if (this.previousEditors.getChildren ().size () == 1)
+                        {
+
+                            this.previousEditors.setVisible (false);
+
+                        }
+
+                        return;
+
+                    }
+
+                }
+
+                for (Node n : this.currentEditors.getChildren ())
+                {
+
+                    if (!(n instanceof EditorInfoBox))
+                    {
+
+                        continue;
+
+                    }
+
+                    EditorInfoBox ib = (EditorInfoBox) n;
+
+                    if (ib.getEditor ().equals (pe))
+                    {
+
+                        this.currentEditors.getChildren ().remove (ib);
+                        return;
+
+                    }
+
+                }
+
+            }
+
+            if (ev.wasAdded ())
+            {
+
+                ProjectEditor pe = ev.getElementAdded ();
+
+                this.addProjectEditor (pe);
+
+            }
+
+        });
+
+    }
+
+    private void addProjectEditor (ProjectEditor pe)
+    {
+
+        // Editor is new.
+        EditorInfoBox infBox = null;
+
+        try
+        {
+
+            infBox = this.getEditorBox (pe);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get editor info box for project editor: " +
+                                  pe,
+                                  e);
+
+            return;
+
+        }
+
+        ChangeListener<Boolean> currentList = (pr, oldv, newv) ->
+        {
+
+            if (!oldv && newv)
+            {
+
+                for (Node n : this.previousEditors.getChildren ())
+                {
+
+                    if (!(n instanceof EditorInfoBox))
+                    {
+
+                        continue;
+
+                    }
+
+                    EditorInfoBox ib = (EditorInfoBox) n;
+
+                    if (ib.getEditor ().equals (pe))
+                    {
+
+                        this.previousEditors.getChildren ().remove (ib);
+                        this.currentEditors.getChildren ().add (1,
+                                                                ib);
+
+                    }
+
+                }
+
+            }
+
+            if (oldv && !newv)
+            {
+
+                for (Node n : this.currentEditors.getChildren ())
+                {
+
+                    if (!(n instanceof EditorInfoBox))
+                    {
+
+                        continue;
+
+                    }
+
+                    EditorInfoBox ib = (EditorInfoBox) n;
+
+                    if (ib.getEditor ().equals (pe))
+                    {
+
+                        this.currentEditors.getChildren ().remove (ib);
+                        this.previousEditors.getChildren ().add (1,
+                                                                 ib);
+
+                    }
+
+                }
 
             }
 
         };
 
-        EditorsEnvironment.addProjectEditorChangedListener (this);
-        EditorsEnvironment.addEditorMessageListener (this);
+        pe.currentProperty ().addListener (currentList);
 
-        //this.getHeader ().setPadding (new Insets (0, 0, 2, 0));
-        //this.getHeader ().getLabel ().setBorder (UIUtils.createPadding (0, 5, 0, 0));
+        this.listeners.put (pe,
+                            currentList);
+
+        if (pe.isPrevious ())
+        {
+
+            this.previousEditors.getChildren ().add (1,
+                                                     infBox);
+
+        } else {
+
+            this.currentEditors.getChildren ().add (1,
+                                                    infBox);
+
+        }
 
     }
 
     @Override
-    public String getTitle ()
+    public Node getContent ()
     {
 
-        return getUIString (project,sidebar,editors,title);
+        return this.content;
 
     }
 
     @Override
-    public void handleMessage (EditorMessageEvent ev)
+    public IntegerProperty getItemCount ()
     {
 
-        if (this.viewer.getProject () == null)
+        return this.countProp;
+
+    }
+
+    @Override
+    public Supplier<Set<MenuItem>> getHeaderContextMenuItemSupplier ()
+    {
+
+        ProjectViewer viewer = this.viewer;
+        ProjectEditorsAccordionItem _this = this;
+
+        return () ->
         {
 
-            // The viewer is no longer valid.
-            return;
+            List<String> prefix = Arrays.asList (project,sidebar,editors,headerpopupmenu,items);
 
-        }
+            Set<MenuItem> items = new LinkedHashSet<> ();
 
-        // See if the editor is a project editor.
-        ProjectEditor pe = this.viewer.getProject ().getProjectEditor (ev.getMessage ().getEditor ());
+            if (EditorsEnvironment.getUserAccount () != null)
+            {
 
-        if (pe == null)
-        {
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,invite)))
+                                                //"Invite someone to edit this {project}",
+                    .iconName (StyleClassNames.ADD)
+                    .onAction (ev ->
+                    {
 
-            return;
+                        Set<EditorEditor> eds = new LinkedHashSet<> (EditorsEnvironment.getEditors ());
 
-        }
+                        List<ProjectEditor> projEds = null;
 
-        this.setContentVisible (true);
+                        try
+                        {
+
+                            projEds = EditorsEnvironment.getProjectEditors (viewer.getProject ().getId ());
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to get project editors for project: " +
+                                                  viewer.getProject ().getId (),
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (viewer,
+                                                             getUILanguageStringProperty (project,sidebar,editors,sendinvite,actionerror));
+                                                      //"Unable to show contacts.");
+
+                            return;
+
+                        }
+
+                        for (ProjectEditor pe : projEds)
+                        {
+
+                            eds.remove (pe.getEditor ());
+
+                        }
+
+                        Iterator<EditorEditor> iter = eds.iterator ();
+
+                        while (iter.hasNext ())
+                        {
+
+                            EditorEditor ed = iter.next ();
+
+                            if (ed.isPending ())
+                            {
+
+                                iter.remove ();
+
+                            }
+
+                        }
+
+                        QuollHyperlink l = QuollHyperlink.builder ()
+                            .label (project,sidebar,editors,sendinvite,popup,labels,notinlist)
+                            .styleClassName (StyleClassNames.EMAIL)
+                            .onAction (eev ->
+                            {
+
+                                EditorsUIUtils.showInviteEditor (viewer);
+
+                            })
+                            .build ();
+
+                        EditorsUIUtils.showContacts (eds,
+                                                     getUILanguageStringProperty (project,sidebar,editors,sendinvite,popup,title),
+                                                     viewer,
+                                                     ed ->
+                        {
+
+                            EditorsUIUtils.showSendProject (viewer,
+                                                            ed,
+                                                            null);
+
+                        },
+                        l);
+
+                    })
+                    .build ());
+
+                items.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,vieweditors)))
+                    .iconName (StyleClassNames.EDITORS)
+                    .onAction (eev ->
+                    {
+
+                        try
+                        {
+
+                            viewer.viewEditors ();
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to view all editors",
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (viewer,
+                                                             getUILanguageStringProperty (editors,vieweditorserror));
+                                                      //"Unable to view all {contacts}");
+
+                        }
+
+                    })
+                    .build ());
+
+            }
+
+            // Get all previous editors.
+            if (!this.showPreviousEditors)
+            {
+
+                int prevCount = 0;
+
+                Set<ProjectEditor> pes = viewer.getProject ().getProjectEditors ();
+
+                if (pes != null)
+                {
+
+                    for (ProjectEditor pe : pes)
+                    {
+
+                        if (pe.isPrevious ())
+                        {
+
+                            prevCount++;
+
+                        }
+
+                    }
+
+                    if (prevCount > 0)
+                    {
+
+                        items.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,previouseditors),
+                                                                 Environment.formatNumber (prevCount)))
+                            .iconName (StyleClassNames.PREVIOUSEDITORS)
+                            .onAction (eev ->
+                            {
+
+                                _this.showPreviousEditors = true;
+                                _this.showPreviousEditors ();
+
+                            })
+                            .build ());
+
+                    }
+
+                }
+
+            } else {
+
+                int prevCount = 0;
+
+                Set<ProjectEditor> pes = viewer.getProject ().getProjectEditors ();
+
+                if (pes != null)
+                {
+
+                    for (ProjectEditor pe : pes)
+                    {
+
+                        if (pe.isPrevious ())
+                        {
+
+                            prevCount++;
+
+                        }
+
+                    }
+
+                    if (prevCount > 0)
+                    {
+
+                        items.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,hidepreviouseditors)))
+                            .iconName (StyleClassNames.HIDE)
+                            .onAction (eev ->
+                            {
+
+                                _this.showPreviousEditors = false;
+                                _this.showPreviousEditors ();
+
+                            })
+                            .build ());
+
+                    }
+
+                }
+
+            }
+
+            return items;
+
+        };
+
+    }
+
+    @Override
+    public List<String> getStyleClassNames ()
+    {
+
+        return Arrays.asList (StyleClassNames.CONTACTS);
+
+    }
+
+    @Override
+    public BooleanProperty showItemCountOnHeader ()
+    {
+
+        return new SimpleBooleanProperty (true);
+
+    }
+
+    @Override
+    public boolean canImport (NamedObject o)
+    {
+
+        return false;
+
+    }
+
+    @Override
+    public void importObject (NamedObject o)
+    {
+
+        // Do nothing.
+
+    }
+
+    @Override
+    public StringProperty getTitle ()
+    {
+
+        return getUILanguageStringProperty (project,sidebar,editors,title);
 
     }
 
@@ -128,138 +528,6 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
     {
 
         return ProjectEditor.OBJECT_TYPE;
-
-    }
-
-    @Override
-    public void projectEditorChanged (ProjectEditorChangedEvent ev)
-    {
-
-        if (this.viewer.getProject () == null)
-        {
-
-            return;
-
-        }
-
-        ProjectEditor pe = ev.getProjectEditor ();
-
-        if (ev.getType () == ProjectEditorChangedEvent.PROJECT_EDITOR_ADDED)
-        {
-
-            // Editor is new.
-            EditorInfoBox infBox = null;
-
-            try
-            {
-
-                infBox = this.getEditorBox (pe);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to get editor info box for project editor: " +
-                                      pe,
-                                      e);
-
-                return;
-
-            }
-
-            infBox.init ();
-
-            this.currentEditors.add (infBox,
-                                     1);
-
-        } else {
-
-            for (int i = 0; i < this.currentEditors.getComponentCount (); i++)
-            {
-
-                Component c = this.currentEditors.getComponent (i);
-
-                if (c instanceof EditorInfoBox)
-                {
-
-                    EditorInfoBox b = (EditorInfoBox) c;
-
-                    if (b.getProjectEditor () == pe)
-                    {
-
-                        if (ev.getType () == EditorChangedEvent.EDITOR_DELETED)
-                        {
-
-                            this.currentEditors.remove (b);
-
-                            break;
-
-                        }
-
-                        if (ev.getType () == EditorChangedEvent.EDITOR_CHANGED)
-                        {
-
-                            // See if there is a project editor and if they are now previous, if so remove them.
-                            if (!pe.isCurrent ())
-                            {
-
-                                this.previousEditors.add (b);
-
-                                break;
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-            for (int i = 0; i < this.previousEditors.getComponentCount (); i++)
-            {
-
-                Component c = this.previousEditors.getComponent (i);
-
-                if (c instanceof EditorInfoBox)
-                {
-
-                    EditorInfoBox b = (EditorInfoBox) c;
-
-                    if (b.getProjectEditor () == pe)
-                    {
-
-                        if (ev.getType () == EditorChangedEvent.EDITOR_DELETED)
-                        {
-
-                            this.previousEditors.remove (b);
-
-                            break;
-
-                        }
-
-                        if (ev.getType () == EditorChangedEvent.EDITOR_CHANGED)
-                        {
-
-                            if (pe.isCurrent ())
-                            {
-
-                                this.currentEditors.add (b);
-
-                                break;
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        this.setContentVisible (true);
 
     }
 
@@ -277,92 +545,20 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
 
         EditorInfoBox b = new EditorInfoBox (ed,
                                              this.viewer,
-                                             true);
-
-        b.setAlignmentX (Component.LEFT_ALIGNMENT);
+                                             true,
+                                             this.getBinder ());
 
         b.addFullPopupListener ();
-
-        b.init ();
-
-        b.addComponentListener (this.listener);
 
         return b;
 
     }
-
-    @Override
-    public JComponent getContent ()
+/*
+TODO?
+    public void XupdateItemCount ()
     {
 
-        return this.wrapper;
-
-    }
-
-    private Set<ProjectEditor> getCurrentEditors ()
-    {
-
-        Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
-
-        Set<ProjectEditor> ret = new LinkedHashSet ();
-
-        if (pes != null)
-        {
-
-            for (ProjectEditor pe : pes)
-            {
-
-                if (pe.isPrevious ())
-                {
-
-                    continue;
-
-                }
-
-                ret.add (pe);
-
-            }
-
-        }
-
-        return ret;
-
-    }
-
-    private Set<ProjectEditor> getPreviousEditors ()
-    {
-
-        Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
-
-        Set<ProjectEditor> ret = new LinkedHashSet ();
-
-        if (pes != null)
-        {
-
-            for (ProjectEditor pe : pes)
-            {
-
-                if (pe.isCurrent ())
-                {
-
-                    continue;
-
-                }
-
-                ret.add (pe);
-
-            }
-
-        }
-
-        return ret;
-
-    }
-
-    public void updateItemCount ()
-    {
-
-        Set<ProjectEditor> pes = this.getCurrentEditors ();
+        Set<ProjectEditor> pes = this.viewer.getCurrentEditors ();
 
         String title = String.format ("%s (%s)",
                                       this.getTitle (),
@@ -372,7 +568,9 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
         this.header.setTitle (title);
 
     }
-
+    */
+/*
+TODO?
     @Override
     public void setContentVisible (boolean v)
     {
@@ -386,84 +584,18 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
 
         super.setContentVisible (this.currentEditors.isVisible () || this.previousEditors.isVisible ());
 
-        this.updateBorders ();
-
         this.updateItemCount ();
 
     }
-
-    private void updateBorders ()
-    {
-
-        EditorInfoBox last = null;
-
-        for (int i = 0; i < this.currentEditors.getComponentCount (); i++)
-        {
-
-            Component c = this.currentEditors.getComponent (i);
-
-            if (c instanceof EditorInfoBox)
-            {
-
-                EditorInfoBox b = (EditorInfoBox) c;
-
-                this.setBorder (b,
-                                false);
-
-                last = b;
-
-            }
-
-        }
-
-        if (last != null)
-        {
-
-            this.setBorder (last,
-                            true);
-
-        }
-
-        last = null;
-
-        for (int i = 0; i < this.previousEditors.getComponentCount (); i++)
-        {
-
-            Component c = this.previousEditors.getComponent (i);
-
-            if (c instanceof EditorInfoBox)
-            {
-
-                EditorInfoBox b = (EditorInfoBox) c;
-
-                this.setBorder (b,
-                                false);
-
-                last = b;
-
-            }
-
-        }
-
-        if (last != null)
-        {
-
-            this.setBorder (last,
-                            true);
-
-        }
-
-    }
-
+*/
     private void showPreviousEditors ()
     {
 
         this.previousEditors.setVisible (this.showPreviousEditors);
 
-        this.setContentVisible (true);
-
     }
-
+/*
+TODO Remove?  put check on header for register or handle better?
     @Override
     public void init ()
     {
@@ -515,309 +647,6 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
 
         });
 
-        Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
-
-        if (pes != null)
-        {
-
-            for (ProjectEditor pe : pes)
-            {
-
-                EditorInfoBox infBox = null;
-
-                try
-                {
-
-                    infBox = this.getEditorBox (pe.getEditor ());
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to get editor info box for editor: " +
-                                          pe.getEditor (),
-                                          e);
-
-                    continue;
-
-                }
-
-                infBox.init ();
-
-                if (!pe.isPrevious ())
-                {
-
-                    this.currentEditors.add (infBox);
-
-                } else {
-
-                    this.previousEditors.add (infBox);
-
-                }
-
-            }
-
-        }
-
-        this.setContentVisible (true);
-
     }
-
-    @Override
-    public void fillHeaderPopupMenu (JPopupMenu m,
-                                     MouseEvent ev)
-    {
-
-        java.util.List<String> prefix = Arrays.asList (project,sidebar,editors,headerpopupmenu,items);
-
-        final ProjectEditorsAccordionItem _this = this;
-
-        if (EditorsEnvironment.getUserAccount () != null)
-        {
-
-            m.add (UIUtils.createMenuItem (getUIString (prefix,invite),
-                                            //"Invite someone to edit this {project}",
-                                           Constants.ADD_ICON_NAME,
-                                           new ActionListener ()
-                                           {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    Set<EditorEditor> eds = new LinkedHashSet<> (EditorsEnvironment.getEditors ());
-
-                                                    java.util.List<ProjectEditor> projEds = null;
-
-                                                    try
-                                                    {
-
-                                                        projEds = EditorsEnvironment.getProjectEditors (_this.viewer.getProject ().getId ());
-
-                                                    } catch (Exception e) {
-
-                                                        Environment.logError ("Unable to get project editors for project: " +
-                                                                              _this.viewer.getProject ().getId (),
-                                                                              e);
-
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  getUIString (project,sidebar,editors,sendinvite,actionerror));
-                                                                                  //"Unable to show contacts.");
-
-                                                        return;
-
-                                                    }
-
-                                                    for (ProjectEditor pe : projEds)
-                                                    {
-
-                                                        eds.remove (pe.getEditor ());
-
-                                                    }
-
-                                                    java.util.Iterator<EditorEditor> iter = eds.iterator ();
-
-                                                    while (iter.hasNext ())
-                                                    {
-
-                                                        EditorEditor ed = iter.next ();
-
-                                                        if (ed.isPending ())
-                                                        {
-
-                                                            iter.remove ();
-
-                                                        }
-
-                                                    }
-
-                                                    final JLabel l = UIUtils.createClickableLabel (getUIString (project,sidebar,editors,sendinvite,popup,labels,notinlist),
-                                                                                                    //"Not in the list?  Click here to invite someone using their email address.",
-                                                                                                   Environment.getIcon (Constants.EMAIL_ICON_NAME,
-                                                                                                                        Constants.ICON_MENU));
-
-                                                    UIUtils.makeClickable (l,
-                                                                           new ActionListener ()
-                                                    {
-
-                                                       @Override
-                                                       public void actionPerformed (ActionEvent ev)
-                                                       {
-
-                                                           EditorsUIUtils.showInviteEditor (_this.viewer);
-
-                                                            UIUtils.closePopupParent (l);
-
-                                                       }
-
-                                                    });
-
-                                                    EditorsUIUtils.showContacts (eds,
-                                                                                 getUIString (project,sidebar,editors,sendinvite,popup,title),
-                                                                                 _this.viewer,
-                                                                                 new ActionListener ()
-                                                    {
-
-                                                        @Override
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            EditorsUIUtils.showSendProject (_this.viewer,
-                                                                                            (EditorEditor) ev.getSource (),
-                                                                                            null);
-
-                                                        }
-
-                                                    },
-                                                    l);
-
-                                                }
-
-                                            }));
-
-            m.add (UIUtils.createMenuItem (getUIString (prefix,vieweditors),
-                                            //"Show all {contacts}",
-                                           Constants.EDITORS_ICON_NAME,
-                                           new ActionListener ()
-                                           {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    try
-                                                    {
-
-                                                        _this.viewer.viewEditors ();
-
-                                                    } catch (Exception e) {
-
-                                                        Environment.logError ("Unable to view all editors",
-                                                                              e);
-
-                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                  getUIString (editors,vieweditorserror));
-                                                                                  //"Unable to view all {contacts}");
-
-                                                    }
-
-                                                }
-
-                                            }));
-
-        }
-
-        // Get all previous editors.
-        if (!this.showPreviousEditors)
-        {
-
-            int prevCount = 0;
-
-            Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
-
-            if (pes != null)
-            {
-
-                for (ProjectEditor pe : pes)
-                {
-
-                    if (pe.isPrevious ())
-                    {
-
-                        prevCount++;
-
-                    }
-
-                }
-
-                if (prevCount > 0)
-                {
-
-                    m.add (UIUtils.createMenuItem (String.format (getUIString (prefix,previouseditors),
-                                                                //"View the previous {editors} (%s)",
-                                                                      Environment.formatNumber (prevCount)),
-                                                       Constants.STOP_ICON_NAME,
-                                                       new ActionListener ()
-                                                       {
-
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-
-                                                                _this.showPreviousEditors = true;
-                                                                _this.showPreviousEditors ();
-
-                                                            }
-
-                                                       }));
-
-                }
-
-            }
-
-        } else {
-
-            int prevCount = 0;
-
-            Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
-
-            if (pes != null)
-            {
-
-                for (ProjectEditor pe : pes)
-                {
-
-                    if (pe.isPrevious ())
-                    {
-
-                        prevCount++;
-
-                    }
-
-                }
-
-                if (prevCount > 0)
-                {
-
-                    m.add (UIUtils.createMenuItem (getUIString (prefix,hidepreviouseditors),
-                                                    //"Hide the previous {editors}",
-                                                   Constants.CANCEL_ICON_NAME,
-                                                   new ActionListener ()
-                                                   {
-
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            _this.showPreviousEditors = false;
-                                                            _this.showPreviousEditors ();
-
-                                                        }
-
-                                                    }));
-
-                }
-
-            }
-
-        }
-
-    }
-
-    private void setBorder (EditorInfoBox b,
-                            boolean       isLast)
-    {
-
-        b.setBorder (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
-
-        /*
-        if (b.isShowAttentionBorder ())
-        {
-
-            b.setBorder (new CompoundBorder (new MatteBorder (0, 2, 0, 0, UIUtils.getColor ("#ff0000")),
-                                             new CompoundBorder (new EmptyBorder (0, 5, 0, 0),
-                                                                 (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0)))));
-
-        } else {
-
-            b.setBorder (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
-
-        }
-        */
-    }
-
+*/
 }

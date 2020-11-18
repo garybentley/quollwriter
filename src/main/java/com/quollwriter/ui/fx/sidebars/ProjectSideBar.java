@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx.sidebars;
 
+import java.awt.image.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -22,6 +23,7 @@ import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.editors.ui.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -560,7 +562,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         items.add (QuollMenuItem.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,addtag)))
-            .styleClassName (StyleClassNames.TAG)
+            .iconName (StyleClassNames.TAG)
             .onAction (ev ->
             {
 
@@ -571,7 +573,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         items.add (QuollMenuItem.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,newobject)))
-            .styleClassName (StyleClassNames.ASSET)
+            .iconName (StyleClassNames.ASSET)
             .onAction (ev ->
             {
 
@@ -735,7 +737,8 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
                 QuollMenuItem mi = QuollMenuItem.builder ()
                     .label (mName)
-                    .styleClassName ((style != null ? style : sect))
+                    .iconName ((style != null ? style : sect))
+                    .icon (getIconForObjectType (sect))
                     .onAction (ev ->
                     {
 
@@ -755,7 +758,8 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
                     })
                     .build ();
-
+/*
+TODO Remove
                 if (style == null)
                 {
 
@@ -771,7 +775,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
                     mi.setGraphic (iv);
 
                 }
-
+*/
                 its.add (mi);
 
             }
@@ -798,7 +802,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         return QuollMenuItem.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,hidesection)))
-            .styleClassName (StyleClassNames.CLOSE)
+            .iconName (StyleClassNames.CLOSE)
             .onAction (ev ->
             {
 
@@ -862,7 +866,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
                     items2.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Arrays.asList (project,LanguageStrings.sidebar,assets,headerpopupmenu,LanguageStrings.items,deleteall),
                                                              type.getObjectTypeNamePlural ()))
-                        .styleClassName (StyleClassNames.DELETE)
+                        .iconName (StyleClassNames.DELETE)
                         .onAction (ev ->
                         {
 
@@ -1031,29 +1035,42 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         if (objType.equals (ProjectEditor.OBJECT_TYPE))
         {
 
-/*
-TODO
-            return new ProjectEditorsAccordionItem (this.viewer)
+            return new ProjectEditorsAccordionItem (this.viewer,
+                                                    this)
             {
 
                 @Override
-                public void fillHeaderPopupMenu (JPopupMenu m,
-                                                 MouseEvent ev)
+                public Supplier<Set<MenuItem>> getHeaderContextMenuItemSupplier ()
                 {
 
-                    super.fillHeaderPopupMenu (m,
-                                               ev);
+                    Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
 
-                    _this.addHideSectionMenuItem (m,
-                                                  objType);
+                    return () ->
+                    {
 
-                    _this.addAddSectionMenu (m,
-                                             objType);
+                        Set<MenuItem> items2 = new LinkedHashSet<> (items);
+
+                        items2.add (_this.getHideSectionMenuItem (Chapter.OBJECT_TYPE));
+
+                        Set<MenuItem> its = _this.getAddSectionMenu (Chapter.OBJECT_TYPE);
+
+                        if (its.size () > 0)
+                        {
+
+                            items2.add (new SeparatorMenuItem ());
+
+                        }
+
+                        items2.addAll (its);
+
+                        return items2;
+
+                    };
 
                 }
 
             };
-*/
+
         }
 
         if (objType.startsWith (TaggedObjectSidebarItem.ID_PREFIX))
@@ -1469,7 +1486,7 @@ TODO REmove
 
     }
 
-    private Node getIconForObjectType (String objType)
+    private ObjectProperty<Image> getIconForObjectType (String objType)
     {
 
         if (objType.startsWith (AssetsSidebarItem.ID_PREFIX))
@@ -1513,10 +1530,10 @@ TODO REmove
             if (t != null)
             {
 
-                ImageView iv = new ImageView ();
-                iv.imageProperty ().bind (t.icon16x16Property ());
+                //ImageView iv = new ImageView ();
+                //iv.imageProperty ().bind (t.icon16x16Property ());
 
-                return iv;
+                return t.icon16x16Property ();
 
             }
 
@@ -1525,9 +1542,10 @@ TODO REmove
         if (this.legacyAssetObjTypes.contains (objType))
         {
 
-            ImageView iv = new ImageView ();
-            iv.imageProperty ().bind (Environment.getUserConfigurableObjectType (objType).icon16x16Property ());
-            return iv;
+            //ImageView iv = new ImageView ();
+            //iv.imageProperty ().bind (Environment.getUserConfigurableObjectType (objType).icon16x16Property ());
+            //return iv;
+            return Environment.getUserConfigurableObjectType (objType).icon16x16Property ();
 
         }
 

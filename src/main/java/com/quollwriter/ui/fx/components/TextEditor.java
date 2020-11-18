@@ -847,7 +847,7 @@ TODO
 
                         MenuItem mi = QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,nosuggestions)))
-                            .styleClassName (StyleClassNames.NOSUGGESTIONS)
+                            .iconName (StyleClassNames.NOSUGGESTIONS)
                             .onAction (ev ->
                             {
 
@@ -936,7 +936,7 @@ TODO
 
                     items.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,add)))
-                        .styleClassName (StyleClassNames.ADDWORD)
+                        .iconName (StyleClassNames.ADDWORD)
                         .onAction (ev ->
                         {
 
@@ -984,7 +984,7 @@ TODO
                                         {
 
                                             items.add (QuollMenuItem.builder ()
-                                                .styleClassName (StyleClassNames.FIND)
+                                                .iconName (StyleClassNames.FIND)
                                                 .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,find),
                                                                                      word))
                                                 .onAction (ev ->
@@ -1019,7 +1019,7 @@ TODO
                                         } else {
 
                                             MenuItem mi = QuollMenuItem.builder ()
-                                                .styleClassName (StyleClassNames.NOSYNONYMS)
+                                                .iconName (StyleClassNames.NOSYNONYMS)
                                                 .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,nosynonyms),
                                                                                      word))
                                                 .build ();
@@ -1069,7 +1069,7 @@ TODO
         {
 
             buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.CUT)
+                .iconName (StyleClassNames.CUT)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,cut,tooltip)))
                 .onAction (ev ->
                 {
@@ -1079,7 +1079,7 @@ TODO
                 })
                 .build ());
             buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.COPY)
+                .iconName (StyleClassNames.COPY)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,copy,tooltip)))
                 .onAction (ev ->
                 {
@@ -1095,7 +1095,7 @@ TODO
         {
 
             buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.PASTE)
+                .iconName (StyleClassNames.PASTE)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,paste,tooltip)))
                 .onAction (ev ->
                 {
@@ -1113,7 +1113,7 @@ TODO
 
             // Only add if there is an undo available.
             buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.UNDO)
+                .iconName (StyleClassNames.UNDO)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,undo,tooltip)))
                 .onAction (ev ->
                 {
@@ -1129,7 +1129,7 @@ TODO
         {
 
             buts.add (QuollButton.builder ()
-                .styleClassName (StyleClassNames.REDO)
+                .iconName (StyleClassNames.REDO)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,redo,tooltip)))
                 .onAction (ev ->
                 {
@@ -1178,7 +1178,7 @@ TODO
 
             buts.add (QuollButton.builder ()
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,bold,tooltip)))
-                .styleClassName (StyleClassNames.BOLD)
+                .iconName (StyleClassNames.BOLD)
                 .onAction (ev ->
                 {
 
@@ -1189,7 +1189,7 @@ TODO
 
             buts.add (QuollButton.builder ()
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,italic,tooltip)))
-                .styleClassName (StyleClassNames.ITALIC)
+                .iconName (StyleClassNames.ITALIC)
                 .onAction (ev ->
                 {
 
@@ -1200,7 +1200,7 @@ TODO
 
             buts.add (QuollButton.builder ()
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,underline,tooltip)))
-                .styleClassName (StyleClassNames.UNDERLINE)
+                .iconName (StyleClassNames.UNDERLINE)
                 .onAction (ev ->
                 {
 

@@ -16,7 +16,7 @@ import org.bouncycastle.openpgp.*;
 
 import com.quollwriter.*;
 
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.*;

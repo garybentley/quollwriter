@@ -156,7 +156,7 @@ public class SelectBGPopup extends PopupContent
         Set<Node> imgsHeaderCons = new LinkedHashSet<> ();
 
         imgsHeaderCons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .tooltip (getUILanguageStringProperty (selectbackground,types,image,add,tooltip))
             .onAction (ev ->
             {
@@ -221,7 +221,7 @@ public class SelectBGPopup extends PopupContent
         Set<Node> colsHeaderCons = new LinkedHashSet<> ();
 
         colsHeaderCons.add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.ADD)
+            .iconName (StyleClassNames.ADD)
             .tooltip (getUILanguageStringProperty (selectbackground,types,color,add,tooltip))
             .onAction (ev ->
             {
@@ -395,7 +395,7 @@ public class SelectBGPopup extends PopupContent
 
         items.add (QuollMenuItem.builder ()
             .label (selectbackground,popupmenu,LanguageStrings.items,remove)
-            .styleClassName (StyleClassNames.DELETE)
+            .iconName (StyleClassNames.DELETE)
             .onAction (eev ->
             {
 
@@ -475,7 +475,7 @@ public class SelectBGPopup extends PopupContent
 
             items.add (QuollMenuItem.builder ()
                 .label (colorchooser,LanguageStrings.swatch,popupmenu,LanguageStrings.items,remove)
-                .styleClassName (StyleClassNames.DELETE)
+                .iconName (StyleClassNames.DELETE)
                 .onAction (eev ->
                 {
 
@@ -571,7 +571,7 @@ public class SelectBGPopup extends PopupContent
         Set<Node> headerCons = new LinkedHashSet<> ();
 
         QuollButton b = QuollButton.builder ()
-            .styleClassName (StyleClassNames.RESTORE)
+            .iconName (StyleClassNames.RESTORE)
             .tooltip (getUILanguageStringProperty (selectbackground,types,reset,tooltip))
             .onAction (ev ->
             {

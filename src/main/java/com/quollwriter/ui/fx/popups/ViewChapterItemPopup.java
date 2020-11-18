@@ -26,7 +26,6 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
 
     private static final String POPUP_ID = "viewchapteritem";
     private Set<ChapterItem> items = null;
-    private PropertyBinder binder = new PropertyBinder ();
     private TextEditor.Highlight highlight = null;
 
     public ViewChapterItemPopup (ProjectViewer    viewer,
@@ -55,7 +54,8 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
         for (ChapterItem i : items)
         {
 
-            ChapterItemFormatter form = this.getChapterItemFormatter (i);
+            ChapterItemFormatter form = this.getChapterItemFormatter (i,
+                                                                      this.getBinder ());
 
             Node n = form.format ();
             n.getStyleClass ().add (StyleClassNames.CHAPTERITEM);
@@ -116,7 +116,10 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
 
         ChapterItem top = this.items.iterator ().next ();
 
-        ChapterItemFormatter form = this.getChapterItemFormatter (top);
+        ChapterItemFormatter form = this.getChapterItemFormatter (top,
+                                                                  // We use a null binder here since we just want information from the formatter
+                                                                  // we don't want it to actually format anything.
+                                                                  null);
 
         QuollPopup p = QuollPopup.builder ()
             .title (form.getPopupTitle ())
@@ -138,7 +141,7 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
                            ev ->
         {
 
-            this.binder.dispose ();
+            this.getBinder ().dispose ();
 
             ChapterItem ci = this.items.iterator ().next ();
 
@@ -164,7 +167,8 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
 
     }
 
-    public ChapterItemFormatter getChapterItemFormatter (ChapterItem     ci)
+    public ChapterItemFormatter getChapterItemFormatter (ChapterItem     ci,
+                                                         IPropertyBinder binder)
     {
 
         Runnable r = () ->
@@ -179,7 +183,7 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
         {
 
             return new SceneItemFormatter (this.viewer,
-                                           this.binder,
+                                           binder,
                                            (com.quollwriter.data.Scene) ci,
                                            r);
 
@@ -189,7 +193,7 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
         {
 
             return new OutlineItemFormatter (this.viewer,
-                                             this.binder,
+                                             binder,
                                              (com.quollwriter.data.OutlineItem) ci,
                                              r);
 
@@ -199,7 +203,7 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
         {
 
             return new NoteItemFormatter (this.viewer,
-                                          this.binder,
+                                          binder,
                                           (com.quollwriter.data.Note) ci,
                                           r);
 
