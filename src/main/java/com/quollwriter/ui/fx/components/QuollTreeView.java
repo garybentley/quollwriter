@@ -229,6 +229,8 @@ public class QuollTreeView<T> extends Pane
 
         this.selectedObjectProp.setValue (o);
 
+        this.requestLayout ();
+
         /*
         this.clearSelection ();
 
@@ -702,6 +704,13 @@ xxx
     public double computePrefHeight (double width)
     {
 
+        if (this.root == null)
+        {
+
+            return 0;
+
+        }
+
         return this.calcPrefHeight (this.root,
                                     width,
                                     0);
@@ -901,12 +910,59 @@ xxx
             HBox h = new HBox ();
             h.getStyleClass ().add (StyleClassNames.ICONBOX);
             h.getStyleClass ().add ("disclosure");
-            this.disclosureNode = new Pane ();
+            this.disclosureNode = new Pane ()
+            {
+
+                @Override
+                public void executeAccessibleAction (AccessibleAction act,
+                                                     Object... params)
+                {
+
+                    if (act == AccessibleAction.EXPAND)
+                    {
+
+                        ti.setExpanded (true);
+
+                        UIUtils.forceRunLater (() ->
+                        {
+
+                            this.requestLayout ();
+
+                        });
+
+                    }
+
+                    if (act == AccessibleAction.COLLAPSE)
+                    {
+
+                        ti.setExpanded (false);
+
+                        UIUtils.forceRunLater (() ->
+                        {
+
+                            this.requestLayout ();
+
+                        });
+
+                    }
+
+                }
+
+            };
+
             this.disclosureNode.getStyleClass ().add ("tree-disclosure-icon");
             this.disclosureNode.getStyleClass ().add (StyleClassNames.ICON);
             h.getChildren ().add (this.disclosureNode);
             h.managedProperty ().bind (h.visibleProperty ());
             this.disclosureNodeWrapper.getChildren ().add (h);
+
+            this.setAccessibleRole (AccessibleRole.TREE_ITEM);
+
+            this.setAccessibleRoleDescription ("This is a test");
+            this.setAccessibleHelp ("This is the help");
+            this.setAccessibleText ("Click to open this item");
+            
+            //UIUtils.setTooltip (this.disclosureNode, new SimpleStringProperty ("Click to open this item"));
 
             this.getStyleClass ().add (StyleClassNames.CELL);
             this.getChildren ().add (this.disclosureNodeWrapper);
@@ -977,7 +1033,12 @@ xxx
 
                 ti.setExpanded (!ti.isExpanded ());
 
-                this.requestLayout ();
+                UIUtils.forceRunLater (() ->
+                {
+
+                    this.requestLayout ();
+
+                });
 
             });
 

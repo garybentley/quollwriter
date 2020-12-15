@@ -8,8 +8,6 @@ import org.josql.*;
 
 import javax.swing.text.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 public class TextUtilities
@@ -722,24 +720,24 @@ public class TextUtilities
 
         }
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\r'),
                                        "");
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\u201c'),
                                        DEFAULT_OPEN_Q);
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\u201d'),
                                        DEFAULT_CLOSE_Q);
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\u2019'),
                                        DEFAULT_APOS);
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\u2018'),
                                        DEFAULT_APOS);
         // Ellipsis
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\u2026'),
                                        DEFAULT_ELLIPSIS);
 
@@ -835,7 +833,7 @@ public class TextUtilities
         if (text != null)
         {
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               String.valueOf ('\r'),
                                               "");
 
@@ -913,7 +911,7 @@ public class TextUtilities
         if (text != null)
         {
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               String.valueOf ('\r'),
                                               "");
 

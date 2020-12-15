@@ -2,21 +2,12 @@ package com.quollwriter.text.rules;
 
 import java.util.*;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
 
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.forms.*;
-
-import org.jdom.Element;
-import org.jdom.JDOMException;
 
 import com.quollwriter.ui.fx.components.Form;
 
@@ -39,7 +30,7 @@ public class DoubleWordRule extends AbstractSentenceRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);

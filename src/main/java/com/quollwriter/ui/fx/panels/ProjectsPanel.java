@@ -9,9 +9,6 @@ import java.util.*;
 
 import org.josql.*;
 
-import com.gentlyweb.utils.*;
-//import com.gentlyweb.properties.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;

@@ -4951,10 +4951,10 @@
                     },
                     "labels" :
                     {
-                        "sent" : "<i>Sent</i>",
-                        "received" : "<i>Received</i>",
-                        "version" : "<i>Version</i>",
-                        "notes" : "<i>Notes</i>",
+                        "sent" : "Sent",
+                        "received" : "Received",
+                        "version" : "Version",
+                        "notes" : "Notes",
                         ":comment.notes" : "Only the first sentence of the notes is shown by default, the rest of the text is displayed in a popup when clicked.  The {more} text provides the indication to the user that there is more text to see.",
                         "more" : "<br /><a href='#'>More, click to view all.</a>",
                         "othercomments" : "%1$s other ${objectnames.plural.comment} are available, click to select other ${objectnames.plural.comment} to view.",
@@ -5199,9 +5199,9 @@
                         "otherversions" : "%1$s other versions are available, click to select one",
                         ":comment.otherversions" : "%1$s is the number of other versions.",
                         ":scount.otherversions" : 1,
-                        "version" : "<i>Version</i>",
-                        "notes" : "<i>Notes</i>",
-                        "due" : "<i>Due</i>",
+                        "version" : "Version",
+                        "notes" : "Notes",
+                        "due" : "Due",
                         ":comment.notes" : "Only the first sentence of the notes is shown by default, the rest of the text is displayed in a popup when clicked.  The {more} text provides the indication to the user that there is more text to see.",
                         "more" : "<br /><a href='#'>More, click to view all.</a>",
                         "latest" : " (latest)",
@@ -5230,6 +5230,7 @@
                             "items" :
                             {
                                 "view" : "${actions.view} ${objectnames.singular.chapter}",
+                                "edit" : "${actions.edit} ${objectnames.singular.chapter}",
                                 "seteditcomplete" : "Set as Edit Complete",
                                 "seteditneeded" : "Set as Edit Needed",
                                 "removeeditposition" : "Remove Edit Point",
@@ -6081,7 +6082,7 @@
         },
         "dofor" :
         {
-            "title" : "And do the ${objectnames.singular.warmup} for"
+            "title" : "AND, Do the ${objectnames.singular.warmup} for"
         },
         "andor" : "and/or",
         "whicheverfirst" : "(whichever is reached first)",
@@ -7442,6 +7443,11 @@
                         "text" : "Save ${objectnames.singular.warmup}",
                         "tooltip" : "${warmups.editorpanel.popupmenu.items.save.text}"
                     },
+                    "textproperties" :
+                    {
+                        "text" : "${actions.edittextproperties}",
+                        "tooltip" : "${actions.edittextproperties}"
+                    },                    
                     "convert" :
                     {
                         "text" : "${objectnames.singular.warmup} to a ${objectnames.singular.project}",
@@ -7490,6 +7496,7 @@
                 "renameproject" : "${settingsmenu.items.renameproject}",
                 "showcontacts" : "${settingsmenu.items.showcontacts}",
                 "statistics" : "${settingsmenu.items.statistics}",
+                "targets" : "${settingsmenu.items.targets}",
                 "createbackup" : "${settingsmenu.items.createbackup}",
                 "closeproject" : "${settingsmenu.items.closeproject}",
                 "deleteproject" : "${settingsmenu.items.deleteproject}",
@@ -7513,7 +7520,14 @@
             {
                 "buttons" :
                 {
-
+                    "wordcounttimer" :
+                    {
+                        "tooltip" : "Click to select a word count/time"
+                    },
+                    "new" :
+                    {
+                        "tooltip" : "Click to add a new {objectnames.singular.warmup}"
+                    }
                 }
 
             }
@@ -7524,7 +7538,7 @@
             {
                 "actionerror" : "Unable to create new ${objectnames.singular.project} from ${objectnames.singular.warmup}.",
                 "title" : "Convert ${objectnames.singular.warmup} to a ${objectnames.singular.project}",
-                "text" : "To create the new ${objectnames.singular.warmup} enter the name below, select the folder it should be saved to and press the Create button.  Your ${objectnames.singular.warmup} text will be added as a ${objectnames.singular.chapter} to the ${objectnames.singular.project}."
+                "text" : "To create the new ${objectnames.singular.project} enter the name below, select the folder it should be saved to and press the Create button.  Your ${objectnames.singular.warmup} text will be added as a ${objectnames.singular.chapter} to the ${objectnames.singular.project}."
             },
             "editwarmup" :
             {
@@ -7543,6 +7557,10 @@
                 "actionerror" : "Unable to delete ${objectnames.singular.warmup}.",
                 "deletetype" : "${objectnames.singular.warmup}",
                 "warning" : "Warning!  Once deleted a ${objectnames.singular.warmup} cannot be restored."
+            },
+            "save" :
+            {
+                "actionerror" : "Unable to save ${objectnames.singluar.warmup}."
             }
         }
     },

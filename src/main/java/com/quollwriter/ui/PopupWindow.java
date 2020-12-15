@@ -7,8 +7,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.factories.*;
 
 import com.quollwriter.*;
@@ -26,7 +24,7 @@ public abstract class PopupWindow extends JFrame
     private Box              content = null;
     private Point            showAt = null;
     private JTextPane        helpP = null;
-    
+
     public PopupWindow()
     {
 
@@ -37,20 +35,20 @@ public abstract class PopupWindow extends JFrame
     {
 
         this (pv);
-        
+
         this.viewer = pv;
-        
+
         this.buttonAlignment = buttonAlignment;
-                
+
     }
-    
+
     public PopupWindow(AbstractViewer pv)
     {
 
         super ();
-        
+
         this.setModalExclusionType (Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
-        
+
         this.viewer = pv;
 
         if (pv != null)
@@ -76,55 +74,55 @@ public abstract class PopupWindow extends JFrame
 
     public void setShowAt (Point p)
     {
-        
+
         this.showAt = p;
-        
+
         if ((this.inited)
             &&
             (this.showAt != null)
            )
         {
-            
+
             this.setLocation (this.showAt.x,
                               this.showAt.y);
-                        
+
         }
-    
+
     }
-    
+
     public Point getShowAt ()
     {
-        
+
         return this.showAt;
-        
+
     }
-    
+
     public AbstractViewer getViewer ()
     {
-        
+
         return this.viewer;
-        
+
     }
 
     public ActionListener getCloseAction ()
     {
-        
+
         final PopupWindow _this = this;
-        
+
         return new ActionListener ()
         {
-          
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 _this.close ();
-                
+
             }
-            
+
         };
-        
+
     }
-        
+
     public void init ()
     {
 
@@ -147,21 +145,21 @@ public abstract class PopupWindow extends JFrame
         final PopupWindow _this = this;
 
         this.setDefaultCloseOperation (WindowConstants.DISPOSE_ON_CLOSE);
-                                                               
+
         this.content = new Box (BoxLayout.PAGE_AXIS);
 
         this.content.setOpaque (true);
         this.content.setBackground (UIUtils.getComponentColor ());
         this.content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-                                                 
+
         String headerTitle = (this.getHeaderTitle () != null) ? this.getHeaderTitle () : this.getWindowTitle ();
-        
+
         if (headerTitle != null)
         {
-            
+
             this.header = UIUtils.createHeader (headerTitle,
                                                 Constants.POPUP_WINDOW_TITLE);
-            
+
             this.content.add (this.header);
 
         }
@@ -169,14 +167,14 @@ public abstract class PopupWindow extends JFrame
         Box helpWrapper = new Box (BoxLayout.Y_AXIS);
         helpWrapper.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         helpWrapper.setBorder (UIUtils.createPadding (5, 5, 0, 0));
-        
+
         this.helpP = UIUtils.createHelpTextPane (this.viewer);
         this.helpP.setBorder (null);
         this.helpP.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                            Short.MAX_VALUE));
-        
+
         helpWrapper.add (this.helpP);
-        
+
         this.content.add (helpWrapper);
         this.setHelpText (this.getHelpText ());
 
@@ -221,33 +219,33 @@ public abstract class PopupWindow extends JFrame
         this.getContentPane ().add (this.content);
 
         this.setResizable (false);
-        
+
         this.pack ();
-        
+
         this.resize ();
-               
+
         if (this.showAt == null)
         {
-        
+
             //UIUtils.setCenterOfScreenLocation (this);
-            
+
             // Let the windows manager decide where to show.
             this.setLocationByPlatform (true);
 
         } else {
-            
+
             this.setLocation (this.showAt.x,
                               this.showAt.y);
-            
+
         }
-        
+
         this.inited = true;
-                
+
         this.setVisible (true);
-                
+
         this.toFront ();
         this.pack ();
-        
+
     }
 
     public void resize ()
@@ -255,34 +253,34 @@ public abstract class PopupWindow extends JFrame
 
         this.getContentPane ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                                 this.content.getPreferredSize ().height));
-            
+
         this.validate ();
         this.repaint ();
-        
+
         final PopupWindow _this = this;
-        
+
         UIUtils.doLater (new ActionListener ()
         {
-        
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 _this.pack ();
-                                                 
+
             }
-            
+
         });
-        
+
     }
-    
+
     public void setButtonAlignment (float v)
     {
-        
+
         this.buttonAlignment = v;
-        
+
     }
-    
+
     public void setVisible (boolean v)
     {
 
@@ -297,11 +295,11 @@ public abstract class PopupWindow extends JFrame
 
         if (v)
         {
-        
+
             this.resize ();
-            
+
         }
-        
+
     }
 
     public void close ()
@@ -321,11 +319,11 @@ public abstract class PopupWindow extends JFrame
 
     public Header getHeader ()
     {
-        
+
         return this.header;
-        
+
     }
-    
+
     public void setHelpText (String t)
     {
 
@@ -342,16 +340,16 @@ public abstract class PopupWindow extends JFrame
 
             this.helpP.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                                Short.MAX_VALUE));
-                        
+
             //this.helpP.setText (UIUtils.formatTextForHelpPane (t));
 
             this.helpP.setVisible (true);
 
         }
-        
+
         this.resize ();
         this.resize ();
-        
+
     }
 
     public abstract String getWindowTitle ();

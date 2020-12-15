@@ -11,8 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.image.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.userobjects.*;

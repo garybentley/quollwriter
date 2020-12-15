@@ -79,3 +79,13 @@
  {
      -fx-image: url(/imgs/find16.png);
  }
+
+.header .controls .container
+ {
+     -fx-spacing: 5.25em;
+ }
+
+.sidebar > .header .controls
+{
+    -fx-padding: 0.25em;
+}

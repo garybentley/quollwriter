@@ -12,8 +12,6 @@ import javax.sql.*;
 
 import javafx.collections.*;
 
-import com.gentlyweb.xml.JDOMUtils;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -32,7 +30,7 @@ import org.apache.commons.pool2.impl.*;
 
 import org.h2.jdbc.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import org.josql.*;
 
@@ -1942,7 +1940,7 @@ TODO REmove
                 try
                 {
 
-                    m = JDOMUtils.getElementAsString (changesEl);
+                    m = DOM4JUtils.elementAsString (changesEl);
 
                 } catch (Exception e)
                 {
@@ -2848,7 +2846,7 @@ TODO REmove
 
             }
 
-            Element root = JDOMUtils.getStringAsElement (xml);
+            Element root = DOM4JUtils.stringAsElement (xml);
 
             this.runScriptElements (root,
                                     conn,
@@ -2945,11 +2943,11 @@ TODO REmove
 
             }
 
-            Element root = JDOMUtils.getStringAsElement (xml);
+            Element root = DOM4JUtils.stringAsElement (xml);
 
-            int from = JDOMUtils.getAttributeValueAsInt (root,
+            int from = DOM4JUtils.attributeValueAsInt (root,
                                                          XMLConstants.from);
-            int to = JDOMUtils.getAttributeValueAsInt (root,
+            int to = DOM4JUtils.attributeValueAsInt (root,
                                                        XMLConstants.to);
 
             if ((oldVersion != from) ||
@@ -3013,8 +3011,7 @@ TODO REmove
     private void runScriptElements (Element    root,
                                     Connection conn,
                                     boolean    allowAllToFail)
-                             throws GeneralException,
-                                    JDOMException
+                             throws GeneralException
     {
 
         if ((allowAllToFail)
@@ -3027,33 +3024,26 @@ TODO REmove
 
         }
 
-        List itemEls = JDOMUtils.getChildElements (root,
-                                                   XMLConstants.item,
-                                                   false);
-
-        for (int i = 0; i < itemEls.size (); i++)
+        for (Element el : root.elements (XMLConstants.item))
         {
 
-            Element el = (Element) itemEls.get (i);
-
-            String log = JDOMUtils.getChildElementContent (el,
+            String log = DOM4JUtils.childElementContent (el,
                                                            XMLConstants.log);
 
-            Element sqlEl = JDOMUtils.getChildElement (el,
-                                                       XMLConstants.sql);
+            Element sqlEl = el.element (XMLConstants.sql);
 
-            boolean canFail = JDOMUtils.getAttributeValueAsBoolean (el,
+            boolean canFail = DOM4JUtils.attributeValueAsBoolean (el,
                                                                     XMLConstants.canFail,
                                                                     false);
 
             // See if there is a file attribute.
-            String file = JDOMUtils.getAttributeValue (sqlEl,
+            String file = DOM4JUtils.attributeValue (sqlEl,
                                                        XMLConstants.file,
                                                        false);
 
             String sql = null;
 
-            if (!file.equals (""))
+            if (file != null)
             {
 
                 // Get the file.
@@ -3063,7 +3053,7 @@ TODO REmove
             } else
             {
 
-                sql = JDOMUtils.getChildElementContent (el,
+                sql = DOM4JUtils.childElementContent (el,
                                                         XMLConstants.sql);
 
             }
@@ -3072,7 +3062,7 @@ TODO REmove
             {
 
                 throw new GeneralException ("Expected to find sql for item: " +
-                                            JDOMUtils.getPath (el) +
+                                            DOM4JUtils.getPath (el) +
                                             " from update script: " +
                                             file);
 
@@ -3098,7 +3088,7 @@ TODO REmove
                     Environment.logError ("Unable to execute sql: " +
                                           sql +
                                           " for item: " +
-                                          JDOMUtils.getPath (el) +
+                                          DOM4JUtils.getPath (el) +
                                           " from update script: " +
                                           file +
                                           ", not fatal, continuing.",
@@ -3110,7 +3100,7 @@ TODO REmove
                     throw new GeneralException ("Unable to execute sql: " +
                                                 sql +
                                                 " for item: " +
-                                                JDOMUtils.getPath (el) +
+                                                DOM4JUtils.getPath (el) +
                                                 " from update script: " +
                                                 file,
                                                 e);

@@ -16,10 +16,6 @@ import javax.swing.table.*;
 
 import com.gentlyweb.properties.*;
 
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -30,8 +26,6 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.ui.components.*;
-
-import org.jdom.*;
 
 import org.josql.*;
 
@@ -544,7 +538,8 @@ public class DebugConsole extends JFrame
                                              3,
                                              3,
                                              3));
-
+/*
+TODO Remove
         File file = Environment.getErrorLogFile ();
 
         JTextField f = UIUtils.createTextField ();
@@ -563,7 +558,7 @@ public class DebugConsole extends JFrame
         try
         {
 
-            t.setText (IOUtils.getFile (file));
+            t.setText (Utils.getFileContentAsString (file.toPath ()));
 
         } catch (Exception e)
         {
@@ -574,7 +569,7 @@ public class DebugConsole extends JFrame
                 t.setText ("Unable to read log file: " +
                            file +
                            ", Exception: \n" +
-                           GeneralUtils.getExceptionTraceAsString (e));
+                           Utils.getExceptionTraceAsString (e));
 
             } catch (Exception ee)
             {
@@ -595,7 +590,7 @@ public class DebugConsole extends JFrame
                                            3,
                                            3));
 
-        file = Environment.getSQLLogFile ();
+        file = Environment.getLogFile ();
 
         f = UIUtils.createTextField ();
         f.setText (file + ", can write: " + file.canWrite () + ", can read: " + file.canRead ());
@@ -613,7 +608,7 @@ public class DebugConsole extends JFrame
         try
         {
 
-            t.setText (IOUtils.getFile (file));
+            t.setText (Utils.getFileContentAsString (file.toPath ()));
 
         } catch (Exception e)
         {
@@ -624,7 +619,7 @@ public class DebugConsole extends JFrame
                 t.setText ("Unable to read log file: " +
                            file +
                            ", Exception: \n" +
-                           GeneralUtils.getExceptionTraceAsString (e));
+                           Utils.getExceptionTraceAsString (e));
 
             } catch (Exception ee)
             {
@@ -663,7 +658,7 @@ public class DebugConsole extends JFrame
         try
         {
 
-            t.setText (IOUtils.getFile (file));
+            t.setText (Utils.getFileContentAsString (file.toPath ()));
 
         } catch (Exception e)
         {
@@ -674,7 +669,7 @@ public class DebugConsole extends JFrame
                 t.setText ("Unable to read log file: " +
                            file +
                            ", Exception: \n" +
-                           GeneralUtils.getExceptionTraceAsString (e));
+                           Utils.getExceptionTraceAsString (e));
 
             } catch (Exception ee)
             {
@@ -688,7 +683,7 @@ public class DebugConsole extends JFrame
 
         tp.add ("General",
                 genlog);
-
+*/
         return tp;
 
     }

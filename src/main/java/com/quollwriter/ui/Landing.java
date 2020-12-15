@@ -15,7 +15,6 @@ import javax.swing.filechooser.*;
 import javax.swing.plaf.LayerUI;
 
 import com.gentlyweb.properties.*;
-import com.gentlyweb.utils.*;
 
 import org.josql.*;
 
@@ -2517,42 +2516,42 @@ TODO
 
 			text = text.toLowerCase ();
 
-			text = StringUtils.replaceString (text,
+			text = Utils.replaceString (text,
 											  " ",
 											  "&nbsp;");
-			text = StringUtils.replaceString (text,
+			text = Utils.replaceString (text,
 											  nl,
 											  "<br />");
 
-			text = StringUtils.replaceString (text,
+			text = Utils.replaceString (text,
 											  STATUS_TAG,
 											  (this.project.getStatus () != null ? this.project.getStatus () : getUIString (LanguageStrings.project,status,novalue)));
                                               //"No status"));
 
-			text = StringUtils.replaceString (text,
+			text = Utils.replaceString (text,
 											  WORDS_TAG,
 											  String.format (Environment.getUIString (prefix,
                                                                                       LanguageStrings.words),
                                                             //"%s words",
 															 Environment.formatNumber (this.project.getWordCount ())));
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               CHAPTERS_TAG,
                                               String.format (Environment.getUIString (prefix,
                                                                                       LanguageStrings.chapters),
                                                 //"%s ${objectnames.%s.chapter}",
                                                              Environment.formatNumber (this.project.getChapterCount ())));
 
-			text = StringUtils.replaceString (text,
+			text = Utils.replaceString (text,
 											  LAST_EDITED_TAG,
 											  lastEd);
-			text = StringUtils.replaceString (text,
+			text = Utils.replaceString (text,
 											  EDIT_COMPLETE_TAG,
 											  String.format (Environment.getUIString (prefix,
                                                                                       LanguageStrings.editcomplete),
                                                             //"%s%% complete",
 															 Environment.formatNumber (Utils.getPercent (this.project.getEditedWordCount (), project.getWordCount ()))));
-			text = StringUtils.replaceString (text,
+			text = Utils.replaceString (text,
 											  READABILITY_TAG,
 											  String.format (Environment.getUIString (prefix,
                                                                                       LanguageStrings.readability),

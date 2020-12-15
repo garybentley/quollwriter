@@ -18,7 +18,6 @@ import javax.swing.plaf.LayerUI;
 import javax.swing.tree.*;
 
 import com.gentlyweb.properties.*;
-import com.gentlyweb.utils.*;
 
 import org.josql.*;
 
@@ -390,14 +389,14 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
             String url = UserProperties.get (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
-            url = StringUtils.replaceString (url,
+            url = Utils.replaceString (url,
                                              Constants.VERSION_TAG,
                                              _this.baseStrings.getQuollWriterVersion ().toString ());
-            url = StringUtils.replaceString (url,
+            url = Utils.replaceString (url,
                                              Constants.ID_TAG,
                                              _this.baseStrings.getId ());
 
-            url = StringUtils.replaceString (url,
+            url = Utils.replaceString (url,
                                              Constants.LAST_MOD_TAG,
                                              "0");
 
@@ -1381,15 +1380,15 @@ TODO Improve
 
                         String p = UserProperties.get (Constants.DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
-                        p = StringUtils.replaceString (p,
+                        p = Utils.replaceString (p,
                                                        Constants.ID_TAG,
                                                        _this.userStrings.getId ());
 
-                        p = StringUtils.replaceString (p,
+                        p = Utils.replaceString (p,
                                                        Constants.VERSION_TAG,
                                                        _this.userStrings.getQuollWriterVersion ().toString ());
 
-                        p = StringUtils.replaceString (p,
+                        p = Utils.replaceString (p,
                                                        Constants.ALL_TAG,
                                                        (delAll.isSelected () ? "true" : ""));
 

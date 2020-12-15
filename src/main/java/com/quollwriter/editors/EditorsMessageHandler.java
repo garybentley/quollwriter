@@ -4,11 +4,9 @@ import java.io.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.concurrent.atomic.*;
+import java.util.logging.*;
 
 import javax.net.ssl.*;
-
-import java.awt.event.*;
-import javax.swing.*;
 
 import javafx.beans.property.*;
 
@@ -27,8 +25,6 @@ import org.jivesoftware.smack.tcp.*;
 
 import org.jivesoftware.smackx.iqregister.*;
 import org.jivesoftware.smackx.offline.*;
-
-import com.gentlyweb.logging.Logger;
 
 //import com.gentlyweb.utils.*;
 
@@ -56,7 +52,6 @@ public class EditorsMessageHandler implements ChatMessageListener
     private boolean loggedIn = false;
     private EditorMessageProcessor messageProcessor = null;
     private boolean logMessages = false;
-    private Logger messageLog = null;
 
     // We use an atomic integer here (rather than volatile which has problems with value increment/decrement)
     // to keep track of how many messages we are in the process of sending.  This is most useful when sending a
@@ -91,13 +86,6 @@ public class EditorsMessageHandler implements ChatMessageListener
 
         }
 
-        File lf = EditorsEnvironment.getEditorsMessageLogFile ();
-
-        lf.delete ();
-
-        this.messageLog = new Logger ();
-        this.messageLog.initLogFile (lf);
-
     }
 
     private void logMessage (String text)
@@ -120,16 +108,7 @@ public class EditorsMessageHandler implements ChatMessageListener
 
             String t = text + (mess != null ? ": " + mess : "");
 
-            if (this.messageLog != null)
-            {
-
-                this.messageLog.logInformationMessage (t);
-
-            } else {
-
-                Environment.logMessage (t);
-
-            }
+            Environment.logMessage (t);
 
         }
 

@@ -10,9 +10,11 @@ import java.text.*;
 import java.util.*;
 import java.util.function.*;
 import java.nio.file.*;
+import java.nio.file.attribute.*;
 import java.nio.charset.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
+import java.util.logging.*;
 import java.security.*;
 
 import javafx.beans.value.*;
@@ -25,15 +27,8 @@ import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.event.*;
 
-import org.jdom.*;
-
-//import de.codecentric.centerdevice.javafxsvg.*;
-//import de.codecentric.centerdevice.javafxsvg.dimension.*;
-
-import com.gentlyweb.xml.*;
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.logging.Logger;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 import com.quollwriter.achievements.*;
 import com.quollwriter.achievements.rules.*;
@@ -50,6 +45,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.events.ProjectInfoChangedEvent;
 import com.quollwriter.ui.fx.swing.QTextEditor;
+import com.quollwriter.editors.ui.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -62,11 +58,13 @@ public class Environment
 {
 
     public static PrintStream out = null;
-
+/*
     private static Logger generalLog = null;
     private static Logger errorLog = null;
     private static Logger sqlLog = null;
-
+*/
+    private static Logger sqlLog = null;
+    private static Logger logger = null;
     private static Version appVersion = null;
     //private static String appVersion = null;
     //private static boolean betaVersion = false;
@@ -93,6 +91,7 @@ public class Environment
     private static ScheduledThreadPoolExecutor generalTimer = null;
 
     private static AllProjectsViewer allProjectsViewer = null;
+    private static CSSViewer cssViewer = null;
 
     private static ObservableMap<ProjectInfo, AbstractProjectViewer> openProjects = null;
     private static ObservableSet<ProjectInfo> allProjects = null;
@@ -275,9 +274,18 @@ public class Environment
 
         Files.createDirectories (Environment.userQuollWriterDirPath);
 
+        InputStream configFile = Environment.class.getResourceAsStream (Constants.LOGGING_CONFIG_FILE_NAME);
+        LogManager.getLogManager ().readConfiguration (configFile);
+
+        Environment.logger = Logger.getLogger ("logger");
+/*
         File f = Environment.getErrorLogFile ();
 
         f.delete ();
+
+        Environment.errorLog = Logger.getLogger ("error");
+
+        Environment.errorLog.addHandler (errorHandler);
 
         Environment.errorLog = new Logger ();
         Environment.errorLog.initLogFile (f);
@@ -292,10 +300,12 @@ public class Environment
         f = Environment.getSQLLogFile ();
 
         f.delete ();
-
+*/
+        Environment.sqlLog = Logger.getLogger ("sql-logger");
+/*
         Environment.sqlLog = new Logger ();
         Environment.sqlLog.initLogFile (f);
-
+*/
         Environment.incrStartupProgress ();
 
         Environment.isWindows = System.getProperty ("os.name").startsWith ("Windows");
@@ -350,6 +360,10 @@ public class Environment
         UserProperties.init (sysProps);
 
         UILanguageStringsManager.init ();
+
+        URL u = UserProperties.getDefaultStyleSheetURL ();
+
+        Environment.styleSheets.add (u);
 
         Environment.incrStartupProgress ();
 
@@ -1031,16 +1045,16 @@ TODO
 
         });
 
-        // Register our viewer types, requires the tags property.e
+        // Register our viewer types, requires the tags property.
         AbstractProjectViewer.registerViewerType (Project.NORMAL_PROJECT_TYPE,
                                                   ProjectViewer.class);
+        AbstractProjectViewer.registerViewerType (Project.EDITOR_PROJECT_TYPE,
+                                                  EditorProjectViewer.class);
+        AbstractProjectViewer.registerViewerType (Project.WARMUPS_PROJECT_TYPE,
+                                                  WarmupProjectViewer.class);
 
         // Get all the projects.
         Environment.initProjectInfos ();
-
-        URL u = UserProperties.getDefaultStyleSheetURL ();
-
-        Environment.styleSheets.add (u);
 
         ObjectProperty<Path> usProp = UserProperties.userStyleSheetProperty ();
 
@@ -2239,17 +2253,10 @@ TODO NEeded?
         }
 
         // Get the projects file.
-        Element root = JDOMUtils.getFileAsElement (f.toFile (),
-                                                   Constants.GZIP_EXTENSION);
+        Element root = DOM4JUtils.fileAsElement (f);
 
-        List pels = JDOMUtils.getChildElements (root,
-                                                Project.OBJECT_TYPE,
-                                                false);
-
-        for (int i = 0; i < pels.size (); i++)
+        for (Element pEl : root.elements (Project.OBJECT_TYPE))
         {
-
-            Element pEl = (Element) pels.get (i);
 
             Project p = null;
 
@@ -2261,7 +2268,7 @@ TODO NEeded?
             } catch (Exception e) {
 
                 Environment.logError ("Unable to convert element: " +
-                                      JDOMUtils.getPath (pEl) +
+                                      DOM4JUtils.getPath (pEl) +
                                       " to a project",
                                       e);
 
@@ -2328,7 +2335,7 @@ TODO NEeded?
                 Environment.logError ("Unable to load project: " +
                                       p +
                                       ", path: " +
-                                      JDOMUtils.getPath (pEl) +
+                                      DOM4JUtils.getPath (pEl) +
                                       " into the project db",
                                       e);
 
@@ -2694,7 +2701,7 @@ TODO NEeded?
         {
 
             // Use this one.
-            Map t = (Map) JSONDecoder.decode (IOUtils.getFile (f.toFile ()));
+            Map t = (Map) JSONDecoder.decode (Utils.getFileContentAsString (f));
 
             Map sing = (Map) t.get (LanguageStrings.singular);
             Map plur = (Map) t.get (LanguageStrings.plural);
@@ -2749,7 +2756,7 @@ TODO NEeded?
             if (Files.exists (f))
             {
 
-                Environment.loadLegacyObjectTypeNames (JDOMUtils.getStringAsElement (IOUtils.getFile (f.toFile ())));
+                Environment.loadLegacyObjectTypeNames (DOM4JUtils.stringAsElement (Utils.getFileContentAsString (f)));
 
                 Environment.updateUserObjectTypeNames (Environment.objectTypeNamesSingular,
                                                        Environment.objectTypeNamesPlural);
@@ -2806,28 +2813,23 @@ xxx
                                            throws  Exception
     {
 
-        Map<String, StringProperty> singular = new HashMap ();
-        Map<String, StringProperty> plural = new HashMap ();
+        Map<String, StringProperty> singular = new HashMap<> ();
+        Map<String, StringProperty> plural = new HashMap<> ();
 
-        List els = JDOMUtils.getChildElements (root,
-                                               XMLConstants.object,
-                                               false);
-
-        for (int i = 0; i < els.size (); i++)
+        for (Element el : root.elements (XMLConstants.object))
         {
 
-            Element el = (Element) els.get (i);
-
-            String objType = JDOMUtils.getAttributeValue (el,
+            String objType = DOM4JUtils.attributeValue (el,
                                                           XMLConstants.type);
 
             objType = objType.toLowerCase ();
 
-            String s = JDOMUtils.getChildElementContent (el,
+            String s = DOM4JUtils.childElementContent (el,
                                                          XMLConstants.singular,
-                                                         false);
+                                                         false,
+                                                         null);
 
-            if (!s.equals (""))
+            if (s != null)
             {
 
                 singular.put (objType,
@@ -2835,11 +2837,12 @@ xxx
 
             }
 
-            String p = JDOMUtils.getChildElementContent (el,
+            String p = DOM4JUtils.childElementContent (el,
                                                          XMLConstants.plural,
-                                                         false);
+                                                         false,
+                                                         null);
 
-            if (!p.equals (""))
+            if (p != null)
             {
 
                 plural.put (objType,
@@ -2853,7 +2856,7 @@ xxx
                                                plural);
 
     }
-
+/*
     public static File getGeneralLogFile ()
                                    throws IOException
     {
@@ -2885,21 +2888,101 @@ xxx
         return Environment.getLogDir ().resolve (Constants.ERROR_LOG_NAME);
 
     }
+*/
+
+    public static Path getLogPath ()
+    {
+
+        Set<Path> paths = Environment.getLogPaths ();
+
+        if (paths.size () > 0)
+        {
+
+            return paths.iterator ().next ();
+
+        }
+
+        return null;
+
+    }
+
+    public static Set<Path> getLogPaths ()
+    {
+
+        Path p = Paths.get (System.getProperty ("user.home"));
+
+        Set<Path> paths = new TreeSet<> ((p1, p2) ->
+        {
+
+            try
+            {
+
+                return Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to compare last modified times for: " + p1 + " and: " + p2,
+                                      e);
+                return 0;
+
+            }
+
+        });
+
+        if (Files.exists (p))
+        {
+
+            try
+            {
+
+                Files.walkFileTree (p,
+                                    new SimpleFileVisitor<Path> ()
+                {
+
+                    @Override
+                    public FileVisitResult visitFile (Path                path,
+                                                      BasicFileAttributes attrs)
+                    {
+
+                        if (path.getFileName ().toString ().startsWith ("QuollWriter.log"))
+                        {
+
+                            paths.add (path);
+
+                        }
+
+                        return FileVisitResult.CONTINUE;
+
+                    }
+
+                });
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to walk files in path: " + p,
+                                      e);
+
+            }
+
+        }
+
+        return paths;
+
+    }
 
     private static void saveUserObjectTypeNames ()
                                           throws Exception
     {
 
-        Map<String, Map<String, StringProperty>> t = new HashMap ();
+        Map<String, Map<String, StringProperty>> t = new HashMap<> ();
 
         t.put (LanguageStrings.singular,
                Environment.objectTypeNamesSingular);
         t.put (LanguageStrings.plural,
                Environment.objectTypeNamesPlural);
 
-        IOUtils.writeStringToFile (UserProperties.getUserObjectTypeNamesPath ().toFile (),
-                                   JSONEncoder.encode (t),
-                                   false);
+        Utils.writeStringToFile (UserProperties.getUserObjectTypeNamesPath (),
+                                 JSONEncoder.encode (t));
 
     }
 
@@ -3481,8 +3564,8 @@ xxx
         // TODO Use a constant here.
         Path f = Environment.getUserPath ("default-" + objType + "-properties.xml");
 
-        JDOMUtils.writeElementToFile (props.getAsJDOMElement (),
-                                      f.toFile (),
+        DOM4JUtils.writeToFile (props.getAsElement (),
+                                      f,
                                       true);
 
     }
@@ -3849,19 +3932,12 @@ TODO Remove
 
         }
 
-        Environment.generalLog.logInformationMessage (m);
+        Environment.logger.info (m);
 
     }
 
     public static void logError (String m)
     {
-
-        if (Environment.errorLog == null)
-        {
-
-            return;
-
-        }
 
         Environment.logError (m,
                               null);
@@ -3879,7 +3955,7 @@ TODO Remove
 
         }
 
-        Environment.sqlLog.logInformationMessage ("SQL:=============================\n" + s + "\nPARAMS:\n" + params);
+        Environment.sqlLog.info ("SQL:=============================\n" + s + "\nPARAMS:\n" + params);
 
     }
 
@@ -3887,16 +3963,9 @@ TODO Remove
                                  Exception ex)
     {
 
-        if (Environment.errorLog == null)
-        {
-
-            return;
-
-        }
-
-        Environment.errorLog.logError (m,
-                                       ex,
-                                       null);
+        Environment.logger.log (Level.SEVERE,
+                                m,
+                                ex);
 
         if ((!Environment.isDebugModeEnabled ())
             &&
@@ -3997,20 +4066,20 @@ TODO Remove
                 info.put ("osArch",
                           System.getProperty ("os.arch"));
 
-                Element root = new Element ("message");
-                root.setAttribute ("quollWriterVersion",
+                Element root = new DefaultElement ("message");
+                root.addAttribute ("quollWriterVersion",
                                    Environment.getQuollWriterVersion ().toString ());
-                root.setAttribute ("beta",
+                root.addAttribute ("beta",
                                    String.valueOf (Environment.appVersion.isBeta ()));
-                root.setAttribute ("javaVersion",
+                root.addAttribute ("javaVersion",
                                    System.getProperty ("java.version"));
-                root.setAttribute ("osName",
+                root.addAttribute ("osName",
                                    System.getProperty ("os.name"));
-                root.setAttribute ("osVersion",
+                root.addAttribute ("osVersion",
                                    System.getProperty ("os.version"));
-                root.setAttribute ("osArch",
+                root.addAttribute ("osArch",
                                    System.getProperty ("os.arch"));
-                root.setAttribute ("type",
+                root.addAttribute ("type",
                                    type);
 
                 // Encode as XML.
@@ -4023,21 +4092,21 @@ TODO Remove
 
                     Object v = info.get (k);
 
-                    Element el = new Element (k.toString ());
+                    Element el = new DefaultElement (k.toString ());
 
                     if (v != null)
                     {
 
-                        el.addContent (v.toString ());
+                        el.add (new DefaultCDATA (v.toString ()));
 
                     }
 
-                    root.addContent (el);
+                    root.add (el);
 
                 }
 
                 // Get as a string.
-                String data = JDOMUtils.getElementAsString (root);
+                String data = DOM4JUtils.elementAsString (root);
 
                 URL u = Environment.getSupportUrl (Constants.SEND_MESSAGE_TO_SUPPORT_PAGE_PROPERTY_NAME);
 
@@ -5478,31 +5547,25 @@ TODO: IS THIS NEEDED?
                                        throws Exception
     {
 
-        Element root = JDOMUtils.getStringAsElement (Utils.getResourceFileAsString (Constants.TEST_BOOK_FILE));
+        Element root = DOM4JUtils.stringAsElement (Utils.getResourceFileAsString (Constants.TEST_BOOK_FILE));
 
-        String name = JDOMUtils.getAttributeValue (root,
+        String name = DOM4JUtils.attributeValue (root,
                                                    XMLConstants.name);
 
         Book b = new Book ();
 
         b.setName (name);
 
-        List chEls = JDOMUtils.getChildElements (root,
-                                                 Chapter.OBJECT_TYPE,
-                                                 false);
-
-        for (int i = 0; i < chEls.size (); i++)
+        for (Element el : root.elements (Chapter.OBJECT_TYPE))
         {
 
-            Element el = (Element) chEls.get (i);
-
-            name = JDOMUtils.getAttributeValue (el,
-                                                XMLConstants.name);
+            name = DOM4JUtils.attributeValue (el,
+                                              XMLConstants.name);
 
             Chapter ch = new Chapter ();
             ch.setName (name);
 
-            String text = JDOMUtils.getChildContent (el);
+            String text = el.getTextTrim ();
 
             ch.setText (new StringWithMarkup (text));
 
@@ -5790,6 +5853,8 @@ TODO
 
                 v.createViewer ();
 
+                v.init (null);
+
                 // Put it in the user's directory.
                 v.newProject (Environment.getUserQuollWriterDirPath (),
                               p,
@@ -5808,22 +5873,35 @@ TODO
                 Environment.logError ("Unable to create warmups project",
                                       e);
 
-                ComponentUtils.showErrorMessage (null,
-                                                 getUILanguageStringProperty (prefix,createwarmupsproject,actionerror));
+                ComponentUtils.showErrorMessage (getUILanguageStringProperty (dowarmup,createwarmupsproject,actionerror));
                                           //"Unable to create {Warmups} project please contact Quoll Writer support for assistance.");
 
                 return null;
 
             }
 
+        } else {
+
+            WarmupProjectViewer v = (WarmupProjectViewer) Environment.openProjects.get (pi);
+
+            if (v != null)
+            {
+
+                v.toFront ();
+                v.show ();
+                return v;
+
+            }
+
         }
 
-        WarmupProjectViewer v = new WarmupProjectViewer ();
-        v.openProject (pi,
-                       null);
+        Environment.openProject (pi,
+                                 null);
+
+        WarmupProjectViewer v = (WarmupProjectViewer) Environment.openProjects.get (pi);
 
         return v;
-
+        
     }
 
     public static ProjectInfo getProjectByDirectory (Path dir)
@@ -6191,6 +6269,39 @@ TODO
         }
 
         throw new IllegalArgumentException ("Object type: " + objType + " not supported.");
+
+    }
+
+    public static void showCSSViewer (AbstractViewer v,
+                                      javafx.scene.Node n)
+                               throws GeneralException
+    {
+
+        if (Environment.cssViewer == null)
+        {
+            Environment.cssViewer = new CSSViewer (v);
+            Environment.cssViewer.createViewer ();
+            Environment.cssViewer.init (null);
+
+            Environment.cssViewer.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+            (ev ->
+            {
+
+                Environment.cssViewer = null;
+
+            }));
+
+        }
+
+        UIUtils.forceRunLater (() ->
+        {
+
+            Environment.cssViewer.requestFocus ();
+
+        });
+
+        Environment.cssViewer.updateForNode (n);
+        Environment.cssViewer.toFront ();
 
     }
 

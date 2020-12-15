@@ -2,10 +2,9 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
-import com.gentlyweb.xml.*;
-
+import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -29,21 +28,22 @@ public class WordCountAchievementRule extends AbstractAchievementRule
     private boolean chaptersOnly = false;
 
     public WordCountAchievementRule (Element root)
-                                     throws  JDOMException
+                                     throws  GeneralException
     {
 
         super (root);
 
-        this.count = JDOMUtils.getAttributeValueAsInt (root,
-                                                       XMLConstants.count,
-                                                       false);
+        this.count = DOM4JUtils.attributeValueAsInt (root,
+                                                     XMLConstants.count,
+                                                     false);
 
-        this.wordCount = JDOMUtils.getAttributeValueAsInt (root,
-                                                           XMLConstants.wordCount);
+        this.wordCount = DOM4JUtils.attributeValueAsInt (root,
+                                                         XMLConstants.wordCount,
+                                                         true);
 
-        this.chaptersOnly = JDOMUtils.getAttributeValueAsBoolean (root,
-                                                                  XMLConstants.chapter,
-                                                                  false);
+        this.chaptersOnly = DOM4JUtils.attributeValueAsBoolean (root,
+                                                                XMLConstants.chapter,
+                                                                false);
 
         if ((this.count < 1)
             &&
@@ -129,11 +129,13 @@ public class WordCountAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public void init (Element root)
     {
 
     }
 
+    @Override
     public void fillState (Element root)
     {
 

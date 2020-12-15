@@ -13,8 +13,6 @@ import javafx.scene.layout.*;
 import javafx.beans.property.*;
 import javafx.geometry.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.*;

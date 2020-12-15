@@ -36,7 +36,6 @@ import com.quollwriter.Utils;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
-import com.quollwriter.ui.fx.swing.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.text.TextIterator;
 import com.quollwriter.text.Word;
@@ -47,23 +46,10 @@ import static com.quollwriter.LanguageStrings.*;
 public class ProjectChapterEditorPanelContent extends ChapterEditorWithMarginPanelContent<ProjectViewer> implements ToolBarSupported
 {
 
-    private ScheduledFuture autoSaveTask = null;
-    //private QuollEditorPanel panel = null;
-    private Runnable wordCountUpdate = null;
-    private ScheduledFuture a4PageCountUpdater = null;
-
     //private IconColumn iconColumn = null;
     //private QTextEditor editor = null;
     private boolean isScrolling = false;
-    //private Insets origEditorMargin = null;
-    //private Map<String, ContextMenu> contextMenus = new HashMap<> ();
-    //private List<QuollPopup> popupsToCloseOnClick = new ArrayList<> ();
-    //private Subscription itemsSubscription = null;
-    //private Subscription itemsPositionSubscription = null;
-    //private ObservableList<ChapterItem> newItems = FXCollections.observableList (new ArrayList<> ());
     private ProblemFinder problemFinder = null;
-    //private Map<ChapterItem, TextEditor.Position> textPositions = new HashMap<> ();
-    //private Map<ChapterItem, TextEditor.Position> endTextPositions = new HashMap<> ();
 
     public ProjectChapterEditorPanelContent (ProjectViewer viewer,
                                              Chapter       chapter)
@@ -78,26 +64,6 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorWithMarginPan
         UIUtils.addStyleSheet (this,
                                Constants.PANEL_STYLESHEET_TYPE,
                                "chapteredit");
-
-        final ProjectChapterEditorPanelContent _this = this;
-
-        this.addChangeListener (UserProperties.chapterAutoSaveEnabledProperty (),
-                                (v, oldv, newv) ->
-        {
-
-           this.tryScheduleAutoSave ();
-
-        });
-
-        this.addChangeListener (UserProperties.chapterAutoSaveTimeProperty (),
-                                (v, oldv, newv) ->
-        {
-
-           this.tryScheduleAutoSave ();
-
-        });
-
-        this.tryScheduleAutoSave ();
 /*
 TODO
         this.addChangeListener (chapter.editPositionProperty (),
@@ -154,25 +120,6 @@ TODO
                 this.object.getNotes ().stream ()
                     .forEach (n -> this.createTextPosition (n));
 
-                UIUtils.forceRunLater (() ->
-                {
-
-                    // Don't need this.
-                    //this.recreateVisibleParagraphs ();
-
-                });
-/*
-                IntStream.range (0,
-                                 this.editor.getVisibleParagraphs ().size ())
-                    .forEach (i ->
-                    {
-
-                        this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
-
-                    });
-*/
-                //this.recreateVisibleParagraphs ();
-
             });
 
         });
@@ -225,27 +172,79 @@ TODO
 
                                              }));
 
-        this.addChangeListener (this.viewer.projectSpellCheckLanguageProperty (),
-                                (v, oldv, newv) ->
+    }
+
+    @Override
+    public Node getMarginNodeForChapterItem (ChapterItem ci)
+    {
+
+        if ((ci instanceof com.quollwriter.data.Scene)
+            ||
+            (ci instanceof OutlineItem)
+           )
         {
 
-           this.editor.setDictionaryProvider (this.viewer.getDictionaryProvider ());
+            IconBox riv = IconBox.builder ()
+                .iconName (((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM))
+                .build ();
 
-           try
-           {
+            riv.setOnMouseClicked (ev ->
+            {
 
-              this.editor.setSynonymProvider (viewer.getSynonymProvider ());
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
 
-           } catch (Exception e) {
+                    return;
 
-               Environment.logError ("Unable to set synonym provider.",
-                                     e);
+                }
 
-              // TODO Should error.
+                this.showItem (ci,
+                               true);
+                ev.consume ();
 
-           }
+            });
 
-        });
+            return riv;
+
+        }
+
+        if (ci instanceof Note)
+        {
+
+            Note n = (Note) ci;
+
+            IconBox riv = IconBox.builder ()
+                .iconName ((n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE))
+                .build ();
+
+            riv.setOnMouseDragged (ev ->
+            {
+
+                riv.requestFocus ();
+
+            });
+            riv.setOnMouseClicked (ev ->
+            {
+
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
+
+                    return;
+
+                }
+
+                this.showItem (n,
+                               true);
+
+                ev.consume ();
+
+            });
+
+            return riv;
+
+        }
+
+        throw new UnsupportedOperationException ("Object not supported: " + ci);
 
     }
 
@@ -452,132 +451,6 @@ TODO
 */
         }
 
-    }
-
-    public void showIconColumn (boolean v)
-    {
-/*
-TODO REmove
-        if (!SwingUtilities.isEventDispatchThread ())
-        {
-
-            SwingUIUtils.doLater (() ->
-            {
-
-                this.showIconColumn (v);
-
-            });
-
-            return;
-
-        }
-
-         this.iconColumn.setVisible (v);
-
-         this.scrollPane.validate ();
-         this.scrollPane.repaint ();
-*/
-    }
-
-    public void bindTextPropertiesTo (TextProperties p)
-    {
-
-        this.editor.bindTo (p);
-
-    }
-
-    private void setUseTypewriterScrolling (boolean v)
-    {
-/*
-TODO
-
-        if (!SwingUtilities.isEventDispatchThread ())
-        {
-
-            SwingUIUtils.doLater (() ->
-            {
-
-                this.setUseTypewriterScrolling (v);
-
-            });
-
-            return;
-
-        }
-
-        if (!v)
-        {
-
-            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-            // Reset the margin.
-            this.editor.setMargin (this.origEditorMargin);
-            this.showIconColumn (true);
-
-        } else {
-
-            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-            this.showIconColumn (false);
-
-        }
-
-        this.scrollCaretIntoView (null);
-
-        this.scrollPane.getViewport ().setViewSize (this.editor.getPreferredSize ());
-
-        this.editor.requestFocus ();
-*/
-    }
-
-    public void scrollCaretIntoView (final Runnable runAfterScroll)
-    {
-/*
-TODO Remove
-        if (!SwingUtilities.isEventDispatchThread ())
-        {
-
-            SwingUIUtils.doLater (() ->
-            {
-
-                this.scrollCaretIntoView (runAfterScroll);
-
-            });
-
-            return;
-
-        }
-
-        final ProjectChapterEditorPanelContent _this = this;
-*/
-/*
-TODO
-        try
-        {
-
-            int c = _this.editor.getCaret ().getDot ();
-
-            if (c > -1)
-            {
-
-                _this.scrollToPosition (c);
-
-            }
-
-            _this.updateViewportPositionForTypewriterScrolling ();
-
-            if (runAfterScroll != null)
-            {
-
-                SwingUIUtils.doLater (runAfterScroll);
-
-            }
-
-        } catch (Exception e)
-        {
-
-            // Ignore it.
-
-        }
-*/
     }
 
     @Override
@@ -890,8 +763,6 @@ TODO
         try
         {
 
-            this.object.setText (this.editor.getTextWithMarkup ());
-
             super.saveObject ();
 
         } catch (Exception e) {
@@ -903,95 +774,6 @@ TODO
                                              getUILanguageStringProperty (project,editorpanel,actions,save,actionerror));
 
         }
-
-    }
-
-    private void scheduleWordCountUpdate ()
-    {
-
-        final ProjectChapterEditorPanelContent _this = this;
-
-        if (this.wordCountUpdate != null)
-        {
-
-            return;
-
-        }
-
-        this.wordCountUpdate = () ->
-        {
-
-            try
-            {
-
-                ChapterCounts cc = this.viewer.getChapterCounts (this.object);
-
-                if (this.getText () == null)
-                {
-
-                    _this.wordCountUpdate = null;
-                    this.scheduleWordCountUpdate ();
-
-                    return;
-
-                }
-
-                final String t = this.getText ().getText ();
-
-                final ChapterCounts ncc = new ChapterCounts (t);
-
-                cc.setWordCount (ncc.getWordCount ());
-                cc.setSentenceCount (ncc.getSentenceCount ());
-
-                _this.wordCountUpdate = null;
-
-                this.scheduleA4PageCountUpdate ();
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to determine word count for chapter: " +
-                                      _this.object,
-                                      e);
-
-            }
-
-        };
-
-        this.viewer.schedule (this.wordCountUpdate,
-                              1 * Constants.SEC_IN_MILLIS,
-                              -1);
-
-    }
-
-    private void scheduleA4PageCountUpdate ()
-    {
-
-        this.viewer.unschedule (this.a4PageCountUpdater);
-
-        this.a4PageCountUpdater = this.viewer.schedule (() ->
-        {
-
-            try
-            {
-
-                ChapterCounts cc = this.viewer.getChapterCounts (this.object);
-
-                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (this.object,
-                                                                           this.getText ().getText ()));
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to get a4 page count for chapter: " +
-                                      this.object,
-                                      e);
-
-            }
-
-        },
-        // Start in 2 seconds
-        2 * Constants.SEC_IN_MILLIS,
-        // Do it once.
-        0);
 
     }
 
@@ -2468,7 +2250,7 @@ TODO
                 ret.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (fprefix,bold,text)))
                     .iconName (StyleClassNames.BOLD)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.BOLD_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.BOLD_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -2480,7 +2262,7 @@ TODO
                 ret.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (fprefix,italic,text)))
                     .iconName (StyleClassNames.ITALIC)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.ITALIC_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.ITALIC_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -2492,7 +2274,7 @@ TODO
                 ret.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (fprefix,underline,text)))
                     .iconName (StyleClassNames.UNDERLINE)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.UNDERLINE_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.UNDERLINE_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -2513,7 +2295,7 @@ TODO
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,cut,text)))
                     .iconName (StyleClassNames.CUT)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.CUT_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.CUT_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -2525,7 +2307,7 @@ TODO
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,copy,text)))
                     .iconName (StyleClassNames.COPY)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.COPY_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.COPY_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -2543,7 +2325,7 @@ TODO
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,paste,text)))
                     .iconName (StyleClassNames.PASTE)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.PASTE_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.PASTE_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -2561,7 +2343,7 @@ TODO
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,undo,text)))
                     .iconName (StyleClassNames.UNDO)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.UNDO_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.UNDO_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -2579,7 +2361,7 @@ TODO
                 eitems.add (QuollMenuItem.builder ()
                     .label (getUILanguageStringProperty (Utils.newList (eprefix,redo,text)))
                     .iconName (StyleClassNames.REDO)
-                    .accelerator (Environment.getActionKeyCombination (QTextEditor.REDO_ACTION_NAME))
+                    //.accelerator (Environment.getActionKeyCombination (QTextEditor.REDO_ACTION_NAME))
                     .onAction (ev ->
                     {
 
@@ -3084,119 +2866,6 @@ TODO
 
      }
 
-    private void tryScheduleAutoSave ()
-    {
-
-        if (this.autoSaveTask != null)
-        {
-
-            this.autoSaveTask.cancel (true);
-
-        }
-
-        if (UserProperties.chapterAutoSaveEnabledProperty ().getValue ())
-        {
-
-            final long autoSaveInt = UserProperties.chapterAutoSaveTimeProperty ().getValue ();
-
-            if (autoSaveInt > 0)
-            {
-
-				final ProjectChapterEditorPanelContent _this = this;
-
-                this.autoSaveTask = this.viewer.schedule (() ->
-                {
-
-                    UIUtils.runLater (() ->
-                    {
-
-                        if (!_this.unsavedChangesProperty ().getValue ())
-                        {
-
-                            return;
-
-                        }
-
-                        try
-                        {
-
-                            _this.saveObject ();
-
-                        } catch (Exception e)
-                        {
-
-                            Environment.logError ("Unable to auto save chapter: " +
-                                                  _this.object,
-                                                  e);
-
-                            ComponentUtils.showErrorMessage (this.viewer,
-                                                             getUILanguageStringProperty (project,editorpanel,actions,autosave,actionerror));
-
-                        }
-
-                    });
-
-                },
-                autoSaveInt,
-                autoSaveInt);
-
-            }
-
-        }
-
-    }
-
-    public void insertSectionBreak ()
-    {
-/*
-TODO
-        if (!SwingUtilities.isEventDispatchThread ())
-        {
-
-            SwingUIUtils.doLater (() ->
-            {
-
-                this.insertSectionBreak ();
-
-            });
-
-            return;
-
-        }
-*/
-/*
-TODO
-        final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
-
-        final int offset = this.editor.getCaret ().getDot ();
-
-        try
-        {
-
-            this.editor.startCompoundEdit ();
-
-            String ins = String.valueOf ('\n') + String.valueOf ('\n') + Constants.SECTION_BREAK + String.valueOf ('\n') + String.valueOf ('\n');
-
-            doc.insertString (offset,
-                              ins,
-                              this.editor.sectionBreakStyle);
-
-            doc.setParagraphAttributes (offset + 2,
-                                        Constants.SECTION_BREAK.length (),
-                                        this.editor.sectionBreakStyle,
-                                        false);
-
-            doc.setLogicalStyle (offset + 2,
-                                 this.editor.sectionBreakStyle);
-
-            this.editor.endCompoundEdit ();
-
-        } catch (Exception e)
-        {
-
-        }
-*/
-    }
 /*
 TODO
     public void updateViewportPositionForTypewriterScrolling ()
@@ -3448,15 +3117,6 @@ TODO
                                     this.object).getPopup ();
 
         this.viewer.showPopup (qp);
-
-    }
-
-    public Node getNodeForChapterItem (ChapterItem ci)
-    {
-
-        ParagraphIconMargin m = (ParagraphIconMargin) this.editor.getParagraphGraphic (this.editor.getParagraphForOffset (ci.getPosition ()));
-
-        return m.getNodeForChapterItem (ci);
 
     }
 

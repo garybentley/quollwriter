@@ -8,9 +8,8 @@ import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import javafx.scene.image.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.bcpg.*;
@@ -189,18 +188,15 @@ public class EditorEditor extends AbstractEditorObject
         super (root,
                OBJECT_TYPE);
 
-        this.about = JDOMUtils.getChildElementContent (root,
-                                                       XMLConstants.about,
-                                                       true);
+        this.about = DOM4JUtils.childElementContent (root,
+                                                     XMLConstants.about);
 
-        String genres = JDOMUtils.getAttributeValue (root,
-                                                     XMLConstants.genres,
-                                                     false);
+        String genres = root.attributeValue (XMLConstants.genres);
 
-        if (!genres.equals (""))
+        if (genres != null)
         {
 
-            this.genres = new TreeSet ();
+            this.genres = new TreeSet<> ();
 
             StringTokenizer t = new StringTokenizer (genres,
                                                      ",");
@@ -214,14 +210,12 @@ public class EditorEditor extends AbstractEditorObject
 
         }
 
-        String wcls = JDOMUtils.getAttributeValue (root,
-                                                   XMLConstants.wordCountLengths,
-                                                   false);
+        String wcls = root.attributeValue (XMLConstants.wordCountLengths);
 
-        if (!wcls.equals (""))
+        if (wcls != null)
         {
 
-            this.wcLengths = new TreeSet ();
+            this.wcLengths = new TreeSet<> ();
 
             StringTokenizer t = new StringTokenizer (wcls,
                                                      ",");
@@ -731,17 +725,17 @@ public class EditorEditor extends AbstractEditorObject
 
     }
 
-    public Element getAsJDOMElement ()
+    public Element getAsElement ()
     {
 
-        Element root = new Element (XMLConstants.root);
+        Element root = new DefaultElement (XMLConstants.root);
 
-        this.fillJDOMElement (root);
+        this.fillElement (root);
 
-        Element about = new Element (XMLConstants.about);
-        about.addContent (this.about);
+        Element about = new DefaultElement (XMLConstants.about);
+        about.add (new DefaultCDATA (this.about));
 
-        root.addContent (about);
+        root.add (about);
 
         if (this.genres != null)
         {
@@ -752,7 +746,7 @@ public class EditorEditor extends AbstractEditorObject
             if (gs.length () > 0)
             {
 
-                root.setAttribute (XMLConstants.genres,
+                root.addAttribute (XMLConstants.genres,
                                    gs);
 
             }
@@ -768,7 +762,7 @@ public class EditorEditor extends AbstractEditorObject
             if (wcs.length () > 0)
             {
 
-                root.setAttribute (XMLConstants.wordCountLengths,
+                root.addAttribute (XMLConstants.wordCountLengths,
                                    wcs);
 
             }

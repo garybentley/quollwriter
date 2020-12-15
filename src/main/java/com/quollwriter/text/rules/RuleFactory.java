@@ -8,14 +8,11 @@ import java.util.*;
 
 import com.gentlyweb.properties.StringProperty;
 
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.text.*;
 
-import org.jdom.*;
-
+import org.dom4j.*;
 
 public class RuleFactory
 {
@@ -36,16 +33,10 @@ public class RuleFactory
         // Load the standard rules.
         String xml = Utils.getResourceFileAsString (Constants.PROBLEM_FINDER_RULES_FILE);
 
-        Element root = JDOMUtils.getStringAsElement (xml);
+        Element root = DOM4JUtils.stringAsElement (xml);
 
-        List els = JDOMUtils.getChildElements (root,
-                                               AbstractRule.XMLConstants.root,
-                                               false);
-
-        for (int i = 0; i < els.size (); i++)
+        for (Element el : root.elements (AbstractRule.XMLConstants.root))
         {
-
-            Element el = (Element) els.get (i);
 
             Rule r = null;
 
@@ -59,7 +50,7 @@ public class RuleFactory
 
                 Environment.logError ("Unable to create rule",
                                       new GeneralException ("Unable to create rule from element: " +
-                                                            JDOMUtils.getPath (el),
+                                                            DOM4JUtils.getPath (el),
                                                             e));
 
                 continue;
@@ -358,8 +349,7 @@ TODO
                                throws Exception
     {
 
-        Element el = JDOMUtils.getFileAsElement (f.toFile (),
-                                                 Constants.GZIP_EXTENSION);
+        Element el = DOM4JUtils.fileAsElement (f);
 
         Rule r = RuleFactory.createRule (el,
                                          false);
@@ -446,9 +436,9 @@ TODO Clean up
 
         }
 */
-        JDOMUtils.writeElementToFile (r.getAsElement (),
-                                      f.toFile (),
-                                      true);
+        DOM4JUtils.writeToFile (r.getAsElement (),
+                                f,
+                                true);
 
         RuleFactory.loadUserRule (f);
 
@@ -655,10 +645,10 @@ TODO Clean up
 
     private static Rule createRule (Element root,
                                     boolean userRule)
-                             throws JDOMException
+                             throws GeneralException
     {
 
-        String type = JDOMUtils.getAttributeValue (root,
+        String type = DOM4JUtils.attributeValue (root,
                                                    AbstractRule.XMLConstants.createType);
 
         Class c = null;
@@ -681,10 +671,9 @@ TODO Clean up
 
             }
 
-            throw new JDOMException (String.format ("Unable to load class: %s, referenced by: %s",
+            throw new GeneralException (String.format ("Unable to load class: %s, referenced by: %s",
                                                     type,
-                                                    JDOMUtils.getPath (JDOMUtils.getAttribute (root,
-                                                                                               AbstractRule.XMLConstants.createType))),
+                                                    DOM4JUtils.getPath (root.attribute (AbstractRule.XMLConstants.createType))),
                                      e);
 
         }
@@ -698,10 +687,9 @@ TODO Clean up
 
         } catch (Exception e) {
 
-            throw new JDOMException (String.format ("Unable to create new instance of rule for class: %s, referenced by: %s",
+            throw new GeneralException (String.format ("Unable to create new instance of rule for class: %s, referenced by: %s",
                                                     type,
-                                                    JDOMUtils.getPath (JDOMUtils.getAttribute (root,
-                                                                                               AbstractRule.XMLConstants.createType))),
+                                                    DOM4JUtils.getPath (root.attribute (AbstractRule.XMLConstants.createType))),
                                      e);
 
         }
@@ -724,12 +712,12 @@ TODO Clean up
      */
     private static Rule createLegacyRule (Element root,
                                           boolean userRule)
-                                   throws JDOMException
+                                   throws GeneralException
     {
 
         Rule r = null;
 
-        String type = JDOMUtils.getAttributeValue (root,
+        String type = DOM4JUtils.attributeValue (root,
                                                    AbstractRule.XMLConstants.createType);
 
         if (type.equals ("wordFinder"))

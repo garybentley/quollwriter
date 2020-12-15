@@ -2,10 +2,10 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
-import com.gentlyweb.xml.*;
-
+import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -27,18 +27,18 @@ public class SentenceAchievementRule extends AbstractAchievementRule
     private int chapterCount = -1;
 
     public SentenceAchievementRule (Element root)
-                                    throws  JDOMException
+                                    throws  GeneralException
     {
 
         super (root);
 
-        this.sentenceCount = JDOMUtils.getAttributeValueAsInt (root,
-                                                               XMLConstants.sentenceCount,
-                                                               false);
+        this.sentenceCount = DOM4JUtils.attributeValueAsInt (root,
+                                                             XMLConstants.sentenceCount,
+                                                             false);
 
-        this.chapterCount = JDOMUtils.getAttributeValueAsInt (root,
-                                                              XMLConstants.chapterCount,
-                                                              false);
+        this.chapterCount = DOM4JUtils.attributeValueAsInt (root,
+                                                            XMLConstants.chapterCount,
+                                                            false);
 
     }
 
@@ -69,6 +69,13 @@ public class SentenceAchievementRule extends AbstractAchievementRule
     @Override
     public boolean achieved (AbstractProjectViewer viewer)
     {
+
+        if (viewer.getProject () == null)
+        {
+
+            throw new IllegalArgumentException ("No project found.");
+
+        }
 
         Set<NamedObject> chapters = viewer.getProject ().getAllNamedChildObjects (Chapter.class);
 

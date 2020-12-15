@@ -9,8 +9,6 @@ import javafx.event.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.ui.fx.*;

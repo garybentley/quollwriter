@@ -5,8 +5,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.*;
 
-import org.jdom.*;
-
 import javafx.event.*;
 import javafx.scene.*;
 import javafx.stage.*;
@@ -17,8 +15,6 @@ import javafx.scene.control.cell.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.importer.*;
 
@@ -634,12 +630,13 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                         continue;
 
                     }
-
+/*
+TODO?
                     this.pv.addChapterToTreeAfter (c,
                                                    null);
 
                     this.pv.openObjectSection (c.getObjectType ());
-
+*/
                 }
 
             }

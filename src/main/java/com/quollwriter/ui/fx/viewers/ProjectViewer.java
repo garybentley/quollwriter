@@ -55,10 +55,7 @@ public class ProjectViewer extends AbstractProjectViewer
         String deletechapter = "deletechapter";
         String renamechapter = "renamechapter";
         String showchapterinfo = "showchapterinfo";
-        String createbackup = "createbackup";
         String exportproject = "exportproject";
-        String deleteproject = "deleteproject";
-        String renameproject = "renameproject";
 
     }
 
@@ -1250,14 +1247,6 @@ public class ProjectViewer extends AbstractProjectViewer
     }
 
     @Override
-    public SideBar getMainSideBar ()
-    {
-
-        return this.sidebar.getSideBar ();
-
-    }
-
-    @Override
     public String getStyleClassName ()
     {
 
@@ -1265,7 +1254,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    public void addChapterToTreeAfter (Chapter newChapter,
+    public void addChapterToTreeAfterX (Chapter newChapter,
                                        Chapter addAfter)
     {
 /*
@@ -1318,14 +1307,14 @@ TODO
 */
     }
 
-    public void openObjectSection (Asset a)
+    public void openObjectSectionX (Asset a)
     {
 
         // TODO this.sideBar.setObjectsOpen (a.getUserConfigurableObjectType ().getObjectTypeId ());
 
     }
 
-    public void openObjectSection (String objType)
+    public void openObjectSectionX (String objType)
     {
 
         // TODO this.sideBar.setObjectsOpen (objType);
@@ -2492,6 +2481,20 @@ TODO
         }
 
         return ret;
+
+    }
+
+    public void openObjectSection (Asset a)
+    {
+
+        // TODO
+
+    }
+
+    public void openObjectSection (String objType)
+    {
+
+        // TODO
 
     }
 

@@ -11,8 +11,6 @@ import org.fxmisc.richtext.model.*;
 
 import com.quollwriter.ui.fx.components.TextEditor;
 
-import com.gentlyweb.utils.*;
-
 public class Markup
 {
 
@@ -465,7 +463,7 @@ public class Markup
                 ct.append (item.getStyles (sep));
                 ct.append ("\">");
 
-                ct.append (StringUtils.replaceString (st,
+                ct.append (Utils.replaceString (st,
                                                       String.valueOf ('\n'),
                                                       "<br />"));
 

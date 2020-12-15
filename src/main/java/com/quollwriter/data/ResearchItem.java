@@ -1,6 +1,6 @@
 package com.quollwriter.data;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class ResearchItem extends LegacyAsset
@@ -11,7 +11,7 @@ public class ResearchItem extends LegacyAsset
 
     public static final String OBJECT_TYPE = "researchitem";
     public static final String URL = "url";
-    
+
     private String url = null;
 
     public ResearchItem ()
@@ -32,37 +32,38 @@ public class ResearchItem extends LegacyAsset
     {
 
         String oldUrl = this.url;
-    
+
         UserConfigurableObjectField f = this.getLegacyField (WEB_PAGE_LEGACY_FIELD_ID);
-                
+
         if (f == null)
         {
-            
-            UserConfigurableObjectTypeField type = this.getLegacyTypeField (WEB_PAGE_LEGACY_FIELD_ID);            
-            
+
+            UserConfigurableObjectTypeField type = this.getLegacyTypeField (WEB_PAGE_LEGACY_FIELD_ID);
+
             if (type == null)
             {
-                
+
                 return;
-                
+
             }
-            
+
             f = new UserConfigurableObjectField (type);
-                        
+
             this.addField (f);
-            
+
         }
-            
+
         f.setValue (url);
-    
+
         this.url = url;
 
         this.firePropertyChangedEvent (URL,
                                        oldUrl,
-                                       this.url);        
-        
+                                       this.url);
+
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

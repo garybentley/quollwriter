@@ -735,4 +735,14 @@ Removed so that the full screen properties will inherit from the standard editor
   <property id="windowWidth" type="integer"><description><![CDATA[The default window width.]]></description><value><![CDATA[1000]]></value></property>
   <property id="chapterAutoSaveInterval" type="integer"><value><![CDATA[300000]]></value></property>
 
+  <property id="defaultWarmupMins" type="integer">
+    <description>The default time in minutes for a warm-up.</description>
+    <value>30</value>
+  </property>
+
+  <property id="defaultWarmupWords" type="integer">
+     <description>The default number of words to write for a warm-up.</description>
+     <value>500</value>
+ </property>
+
 </properties>

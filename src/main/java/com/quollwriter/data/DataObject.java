@@ -18,13 +18,11 @@ import org.reactfx.*;
 
 import com.gentlyweb.properties.*;
 
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.events.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public abstract class DataObject implements IPropertyBinder
@@ -448,7 +446,7 @@ public abstract class DataObject implements IPropertyBinder
     {
 
         // Conver the properties to a string.
-        return JDOMUtils.getElementAsString (this.props.getAsJDOMElement ());
+        return DOM4JUtils.elementAsString (this.props.getAsElement ());
 
     }
 
@@ -464,7 +462,7 @@ public abstract class DataObject implements IPropertyBinder
         }
 
         // Convert to XML, convert to Properties.
-        Element root = JDOMUtils.getStringAsElement (p);
+        Element root = DOM4JUtils.stringAsElement (p);
 
         if (this.props == null)
         {

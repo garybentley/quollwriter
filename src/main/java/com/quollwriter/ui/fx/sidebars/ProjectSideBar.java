@@ -28,7 +28,7 @@ import com.quollwriter.editors.ui.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class ProjectSideBar extends SideBarContent<ProjectViewer>
+public class ProjectSideBar extends BaseSideBar<ProjectViewer>
 {
 
     public static final DataFormat PROJECT_OBJECT_SIDEBAR_ITEM_DATA_FORMAT = new DataFormat ("projectsidebar/section");
@@ -38,10 +38,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
     private Set<String> legacyAssetObjTypes = null;
     private Map<String, ProjectObjectsSidebarItem> items = null;
     private VBox contentBox = null;
-    private HBox toolbarBox = null;
-    private Pane contentWrapper = null;
     private State state = new State ();
-    private Map<Panel, ToolBar> toolbars = null;
 
     public ProjectSideBar (ProjectViewer viewer)
     {
@@ -49,7 +46,6 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         super (viewer);
 
         this.items = new HashMap<> ();
-        this.toolbars = new HashMap<> ();
 
         Set<String> aObjTypes = new HashSet<> ();
 
@@ -59,10 +55,6 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         aObjTypes.add (ResearchItem.OBJECT_TYPE);
 
         this.legacyAssetObjTypes = aObjTypes;
-
-        this.toolbarBox = new HBox ();
-        this.toolbarBox.getStyleClass ().add (StyleClassNames.TOOLBAR);
-        this.toolbarBox.managedProperty ().bind (this.toolbarBox.visibleProperty ());
 
         this.contentBox = new VBox ();
         VBox.setVgrow (this.contentBox,
@@ -74,7 +66,6 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
         UIUtils.setTooltip (this.contentBox,
                             getUILanguageStringProperty (project,LanguageStrings.sidebar,tooltip));
                             */
-        this.contentWrapper = new VBox ();
         ScrollPane sp = new ScrollPane (this.contentBox);
         UIUtils.makeDraggable (sp);
         this.contentBox.getChildren ().addListener ((ListChangeListener<Node>) ch ->
@@ -213,9 +204,7 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
 
         VBox.setVgrow (sp,
                        Priority.ALWAYS);
-        this.contentWrapper.getChildren ().addAll (sp);
-
-        this.getChildren ().add (this.contentWrapper);
+        this.setContent (sp);
 
         this.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
                                    ch ->
@@ -256,99 +245,6 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
             }
 
         });
-
-        this.viewer.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
-                                     ev ->
-        {
-
-            this.toolbars.remove (ev.getPanel ());
-
-        });
-
-        this.addChangeListener (this.viewer.currentPanelProperty (),
-                                (pr, oldv, newv) ->
-        {
-
-            this.updateToolbar ();
-
-        });
-
-    }
-
-    private void updateToolbar ()
-    {
-
-        Panel p = this.viewer.getCurrentPanel ();
-
-        if (p == null)
-        {
-
-            return;
-
-        }
-
-        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.TOP), false);
-        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.BOTTOM), false);
-
-        this.toolbarBox.setVisible (false);
-        this.toolbarBox.getChildren ().clear ();
-
-        String loc = UserProperties.toolbarLocationProperty ().getValue ();
-
-        if (loc == null)
-        {
-
-            loc = Constants.BOTTOM;
-
-        }
-
-        this.contentWrapper.getChildren ().remove (this.toolbarBox);
-
-        if (loc.equals (Constants.TOP))
-        {
-
-            this.contentWrapper.getChildren ().add (0,
-                                                    this.toolbarBox);
-
-        } else {
-
-            this.contentWrapper.getChildren ().add (this.toolbarBox);
-
-        }
-
-        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (loc), true);
-
-        // Update the toolbar.
-        if (p.getContent () instanceof ToolBarSupported)
-        {
-
-            ToolBar tb = this.toolbars.get (p);
-
-            if (tb == null)
-            {
-
-                tb = new ToolBar ();
-                tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
-
-                ToolBarSupported tbs = (ToolBarSupported) p.getContent ();
-
-                tb.getItems ().addAll (tbs.getToolBarItems ());
-
-                HBox.setHgrow (tb,
-                               Priority.ALWAYS);
-
-                this.toolbars.put (p,
-                                   tb);
-
-            }
-
-            this.toolbarBox.getChildren ().add (tb);
-
-            this.toolbarBox.setVisible (true);
-
-        }
-
-        this.requestLayout ();
 
     }
 
@@ -427,19 +323,6 @@ public class ProjectSideBar extends SideBarContent<ProjectViewer>
             this.addSidebarItem (it);
 
         }
-
-        // Add listener to toolbar location position.
-        this.addChangeListener (this.viewer.getProject ().toolbarLocationProperty (),
-                                (pr, oldv, newv) ->
-        {
-
-            this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (oldv), false);
-
-            this.updateToolbar ();
-
-        });
-
-        this.updateToolbar ();
 
     }
 

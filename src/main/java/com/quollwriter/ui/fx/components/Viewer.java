@@ -300,6 +300,8 @@ public class Viewer extends Stage implements Stateful
 
         });
 
+        box.pseudoClassStateChanged (StyleClassNames.NIGHT_MODE_PSEUDO_CLASS, Environment.isNightModeEnabled ());
+
         this.getIcons ().addAll (Environment.getWindowIcons ());
 
         this.initStyle (StageStyle.UNIFIED);

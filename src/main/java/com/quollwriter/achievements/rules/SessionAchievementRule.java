@@ -2,9 +2,8 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -54,34 +53,34 @@ public class SessionAchievementRule extends AbstractAchievementRule
     private Set<Long> editedChapters = new HashSet ();
 
     public SessionAchievementRule (Element root)
-                                   throws  JDOMException
+                                   throws  GeneralException
     {
 
         super (root);
 
-        this.action = JDOMUtils.getAttributeValue (root,
-                                                   XMLConstants.action,
-                                                   false).toLowerCase ();
+        this.action = DOM4JUtils.attributeValue (root,
+                                                 XMLConstants.action,
+                                                 false);
 
-        this.currentSession = JDOMUtils.getAttributeValueAsBoolean (root,
-                                                                    XMLConstants.currentSession,
-                                                                    false);
+        this.currentSession = DOM4JUtils.attributeValueAsBoolean (root,
+                                                                  XMLConstants.currentSession,
+                                                                  false);
 
-        this.count = JDOMUtils.getAttributeValueAsInt (root,
-                                                       XMLConstants.count,
-                                                       false);
+        this.count = DOM4JUtils.attributeValueAsInt (root,
+                                                     XMLConstants.count,
+                                                     false);
 
-        this.wordCount = JDOMUtils.getAttributeValueAsInt (root,
-                                                           XMLConstants.wordCount,
-                                                           false);
+        this.wordCount = DOM4JUtils.attributeValueAsInt (root,
+                                                         XMLConstants.wordCount,
+                                                         false);
 
-        this.days = JDOMUtils.getAttributeValueAsInt (root,
-                                                      XMLConstants.days,
-                                                      false);
+        this.days = DOM4JUtils.attributeValueAsInt (root,
+                                                    XMLConstants.days,
+                                                    false);
 
-        this.mins = JDOMUtils.getAttributeValueAsInt (root,
-                                                      XMLConstants.mins,
-                                                      false);
+        this.mins = DOM4JUtils.attributeValueAsInt (root,
+                                                    XMLConstants.mins,
+                                                    false);
 
     }
 
@@ -209,7 +208,7 @@ public class SessionAchievementRule extends AbstractAchievementRule
             if (ev.getAction ().equals (ProjectEvent.Action.open))
             {
 
-                if (this.action.equals (NO_EDIT))
+                if (NO_EDIT.equals (this.action))
                 {
 
                     if (viewer != null)
@@ -330,14 +329,8 @@ public class SessionAchievementRule extends AbstractAchievementRule
         try
         {
 
-            List els = JDOMUtils.getChildElements (root,
-                                                   SessionData.XMLConstants.root,
-                                                   false);
-
-            for (int i = 0; i < els.size (); i++)
+            for (Element el : root.elements (SessionData.XMLConstants.root))
             {
-
-                Element el = (Element) els.get (i);
 
                 this.previousSessions.add (new SessionData (el));
 
@@ -347,7 +340,7 @@ public class SessionAchievementRule extends AbstractAchievementRule
 
             // Ignore.
             Environment.logError ("Unable to init from: " +
-                                  JDOMUtils.getPath (root),
+                                  DOM4JUtils.getPath (root),
                                   e);
 
         }
@@ -355,9 +348,9 @@ public class SessionAchievementRule extends AbstractAchievementRule
         try
         {
 
-            String lc = JDOMUtils.getAttributeValue (root,
-                                                     XMLConstants.lastChecked,
-                                                     false);
+            String lc = DOM4JUtils.attributeValue (root,
+                                                   XMLConstants.lastChecked,
+                                                   false);
 
             if (!lc.equals (""))
             {
@@ -381,7 +374,7 @@ public class SessionAchievementRule extends AbstractAchievementRule
         if (this.count > 0)
         {
 
-            List<SessionData> sessions = new ArrayList (this.previousSessions);
+            List<SessionData> sessions = new ArrayList<> (this.previousSessions);
 
             sessions.add (this.currData);
 
@@ -398,7 +391,7 @@ public class SessionAchievementRule extends AbstractAchievementRule
 
                 }
 
-                root.addContent (sd.getAsElement ());
+                root.add (sd.getAsElement ());
 
             }
 
@@ -407,7 +400,7 @@ public class SessionAchievementRule extends AbstractAchievementRule
         if (this.lastChecked > 0)
         {
 
-            root.setAttribute (XMLConstants.lastChecked,
+            root.addAttribute (XMLConstants.lastChecked,
                                String.valueOf (this.lastChecked));
 
         }
@@ -437,29 +430,29 @@ public class SessionAchievementRule extends AbstractAchievementRule
         }
 
         public SessionData (Element root)
-                            throws  JDOMException
+                            throws  GeneralException
         {
 
-            this.start = Long.parseLong (JDOMUtils.getAttributeValue (root,
-                                                                      XMLConstants.start));
-            this.end = Long.parseLong (JDOMUtils.getAttributeValue (root,
-                                                                    XMLConstants.end));
+            this.start = Long.parseLong (DOM4JUtils.attributeValue (root,
+                                                                    XMLConstants.start));
+            this.end = Long.parseLong (DOM4JUtils.attributeValue (root,
+                                                                  XMLConstants.end));
 
-            this.wordCount = JDOMUtils.getAttributeValueAsInt (root,
-                                                               XMLConstants.wordCount);
+            this.wordCount = DOM4JUtils.attributeValueAsInt (root,
+                                                             XMLConstants.wordCount);
             this.wordCount = 560;
         }
 
         public Element getAsElement ()
         {
 
-            Element root = new Element (XMLConstants.root);
+            Element root = new DefaultElement (XMLConstants.root);
 
-            root.setAttribute (XMLConstants.start,
+            root.addAttribute (XMLConstants.start,
                                String.valueOf (this.start));
-            root.setAttribute (XMLConstants.end,
+            root.addAttribute (XMLConstants.end,
                                String.valueOf (this.end));
-            root.setAttribute (XMLConstants.wordCount,
+            root.addAttribute (XMLConstants.wordCount,
                                String.valueOf (this.wordCount));
 
             return root;

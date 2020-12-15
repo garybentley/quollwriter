@@ -10,14 +10,13 @@ import javax.swing.text.Document;
 import javafx.collections.*;
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.comparators.*;
 
 import org.incava.util.diff.*;
 
-import org.jdom.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 import org.reactfx.*;
 
@@ -416,6 +415,7 @@ public class Chapter extends LegacyUserConfigurableObject
 
     }
 */
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -466,14 +466,14 @@ public class Chapter extends LegacyUserConfigurableObject
             if (diffs.size () > 0)
             {
 
-                Element fieldEl = new Element ("field");
+                Element fieldEl = new DefaultElement ("field");
 
-                root.addContent (fieldEl);
+                root.add (fieldEl);
 
-                fieldEl.setAttribute ("name",
+                fieldEl.addAttribute ("name",
                                       "text");
 
-                fieldEl.setAttribute ("type",
+                fieldEl.addAttribute ("type",
                                       "diff");
 
                 for (int i = 0; i < diffs.size (); i++)
@@ -488,13 +488,13 @@ public class Chapter extends LegacyUserConfigurableObject
                         for (int k = d.getAddedStart (); k < (d.getAddedEnd () + 1); k++)
                         {
 
-                            Element el = new Element ("change");
-                            fieldEl.addContent (el);
-                            el.setAttribute ("type",
+                            Element el = new DefaultElement ("change");
+                            fieldEl.add (el);
+                            el.addAttribute ("type",
                                              "add");
-                            el.setAttribute ("line",
+                            el.addAttribute ("line",
                                              String.valueOf (k));
-                            el.addContent (newText[k]);
+                            el.add (new DefaultCDATA (newText[k]));
 
                         }
 
@@ -509,13 +509,13 @@ public class Chapter extends LegacyUserConfigurableObject
                         for (int k = d.getDeletedStart (); k < (d.getDeletedEnd () + 1); k++)
                         {
 
-                            Element el = new Element ("change");
-                            fieldEl.addContent (el);
-                            el.setAttribute ("type",
+                            Element el = new DefaultElement ("change");
+                            fieldEl.add (el);
+                            el.addAttribute ("type",
                                              "remove");
-                            el.setAttribute ("line",
+                            el.addAttribute ("line",
                                              String.valueOf (k));
-                            el.addContent (oldText[k]);
+                            el.add (new DefaultCDATA (oldText[k]));
 
                         }
 
@@ -527,15 +527,15 @@ public class Chapter extends LegacyUserConfigurableObject
                     for (int k = d.getAddedStart (); k < (d.getAddedEnd () + 1); k++)
                     {
 
-                        Element el = new Element ("change");
-                        fieldEl.addContent (el);
-                        el.setAttribute ("type",
+                        Element el = new DefaultElement ("change");
+                        fieldEl.add (el);
+                        el.addAttribute ("type",
                                          "change");
-                        el.setAttribute ("line",
+                        el.addAttribute ("line",
                                          String.valueOf (k));
 
-                        Element oel = new Element ("old");
-                        el.addContent (oel);
+                        Element oel = new DefaultElement ("old");
+                        el.add (oel);
 
                         ot = "";
 
@@ -546,10 +546,10 @@ public class Chapter extends LegacyUserConfigurableObject
 
                         }
 
-                        oel.addContent (ot);
+                        oel.add (new DefaultCDATA (ot));
 
-                        Element nel = new Element ("new");
-                        el.addContent (nel);
+                        Element nel = new DefaultElement ("new");
+                        el.add (nel);
 
                         nt = "";
 
@@ -560,7 +560,7 @@ public class Chapter extends LegacyUserConfigurableObject
 
                         }
 
-                        nel.addContent (nt);
+                        nel.add (new DefaultCDATA (nt));
 
                     }
 
@@ -580,6 +580,7 @@ public class Chapter extends LegacyUserConfigurableObject
 
     }
 
+    @Override
     public DataObject getObjectForReference (ObjectReference r)
     {
 
@@ -627,7 +628,7 @@ public class Chapter extends LegacyUserConfigurableObject
     public Set<ChapterItem> getChapterItemsWithPositionGreaterThan (int pos)
     {
 
-        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+        Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
 
         for (OutlineItem it : this.outlineItems)
         {
@@ -673,7 +674,7 @@ public class Chapter extends LegacyUserConfigurableObject
                                                                 int end)
     {
 
-        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+        Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
 
         for (OutlineItem it : this.outlineItems)
         {
@@ -727,7 +728,7 @@ public class Chapter extends LegacyUserConfigurableObject
     public Set<OutlineItem> getItemsFromPositionToNextScene (int pos)
     {
 
-        Set<OutlineItem> items = new TreeSet (new ChapterItemSorter ());
+        Set<OutlineItem> items = new TreeSet<> (new ChapterItemSorter ());
 
         for (OutlineItem it : this.outlineItems)
         {
@@ -840,7 +841,7 @@ public class Chapter extends LegacyUserConfigurableObject
     public Set<OutlineItem> getOutlineItemsAt (int pos)
     {
 
-        Set<OutlineItem> its = new TreeSet (new ChapterItemSorter ());
+        Set<OutlineItem> its = new TreeSet<> (new ChapterItemSorter ());
 
         for (Scene s : this.scenes)
         {
@@ -868,14 +869,51 @@ public class Chapter extends LegacyUserConfigurableObject
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        Set<NamedObject> objs = new TreeSet (new ChapterItemSorter ());
+        Set<ChapterItem> objs = new TreeSet<> (new ChapterItemSorter ());
+
+        for (Scene s : this.scenes)
+        {
+
+            objs.add (s);
+
+        }
+
+        for (OutlineItem oi : this.outlineItems)
+        {
+
+            objs.add (oi);
+
+        }
+
+        for (Note n : this.getNotes ())
+        {
+
+            objs.add (n);
+
+        }
+
+        return new LinkedHashSet<NamedObject> (objs);
+
+        /*
+        List<NamedObject> objs = new ArrayList<> ();
+        objs.addAll (this.scenes);
+        objs.addAll (this.outlineItems);
+        objs.addAll (this.getNotes ());
+
+        Collections.sort (objs,
+                          new ChapterItemSorter ());
+
+        return new TreeSet<NamedObject> (objs);
+        */
+/*
+        Set<NamedObject> objs = new TreeSet<> (new ChapterItemSorter ());
 
         objs.addAll (this.scenes);
         objs.addAll (this.outlineItems);
         objs.addAll (this.getNotes ());
 
         return objs;
-
+*/
     }
 
     public void addChapterItem (ChapterItem item)
@@ -908,7 +946,7 @@ public class Chapter extends LegacyUserConfigurableObject
                                                                        int max)
     {
 
-        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+        Set<ChapterItem> items = new TreeSet<> (new ChapterItemSorter ());
 
         for (OutlineItem it : this.outlineItems)
         {
@@ -1203,7 +1241,7 @@ public class Chapter extends LegacyUserConfigurableObject
            )
         {
 
-            t.update (StringUtils.replaceString (t.getText (),
+            t.update (Utils.replaceString (t.getText (),
                                                  String.valueOf ('\r'),
                                                  ""),
                       t.getMarkup ());
@@ -1266,7 +1304,7 @@ public class Chapter extends LegacyUserConfigurableObject
            )
         {
 
-            t.update (StringUtils.replaceString (t.getText (),
+            t.update (Utils.replaceString (t.getText (),
                                                  String.valueOf ('\r'),
                                                  ""),
                       t.getMarkup ());

@@ -56,13 +56,15 @@ repositories {
 dependencies {
 
     implementation fileTree('3rd-party-jars') {
-        include 'jdom-1.0.jar'
+        //include 'jdom-1.0.jar'
         //include 'jgoodies-forms-1.8.0.jar'
-        include 'JoSQL-2.2.jar'
-        include 'gentlyWEB-utils-1.1.jar'
-        include 'gentlyWEB-xml-1.1.jar'
-        include 'gentlyWEB-properties-1.2.jar'
-        include 'gentlyWEB-logging-1.0.jar'
+        //include 'JoSQL-2.2.jar'
+        include 'josql-2.3.jar'
+        //include 'gentlyWEB-utils-1.1.jar'
+        //include 'gentlyWEB-xml-1.1.jar'
+        //include 'gentlyWEB-properties-1.2.jar'
+        //include 'gentlyWEB-logging-1.0.jar'
+        include 'gentlyweb-properties-3.jar'
         include 'javadiff.jar'
 
         // Spellchecker
@@ -82,7 +84,7 @@ dependencies {
 
     }
 
-    compile 'org.jsoup:jsoup:1.11.3'
+    //compile 'org.jsoup:jsoup:1.11.3'
     implementation 'org.jsoup:jsoup:1.11.3'
 
     // Use JUnit test framework
@@ -154,6 +156,9 @@ dependencies {
     // PDF support
     //implementation 'org.apache.pdfbox:pdfbox:2.0.20'
 
+    // DOM4J
+    implementation 'org.dom4j:dom4j:2.1.3'
+
 }
 
 compileJava {
@@ -173,8 +178,9 @@ compileJava {
         //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib',
         'D:/reference/java/javafx/javafx-sdk-12/lib',
         //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
+        //'D:/reference/java/javafx/javafx-sdk-15.0.1/lib',
         '-Xmaxerrs',
-        '2000'
+        '3000'
     ]
 }
 
@@ -198,6 +204,7 @@ application {
         //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib'
         'D:/reference/java/javafx/javafx-sdk-12/lib',
         //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
+        //'D:/reference/java/javafx/javafx-sdk-15.0.1/lib',
         '--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
         '--add-exports',
         'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',

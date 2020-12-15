@@ -17,10 +17,8 @@ import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.events.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.xml.*;
-import com.gentlyweb.utils.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 public class Project extends NamedObject
 {
@@ -99,52 +97,37 @@ public class Project extends NamedObject
 
         this ();
 
-        String name = JDOMUtils.getChildElementContent (pEl,
-                                                        XMLConstants.name);
-        String type = JDOMUtils.getAttributeValue (pEl,
-                                                   XMLConstants.type,
-                                                   false);
+        String name = DOM4JUtils.childElementContent (pEl,
+                                                         XMLConstants.name);
+        String type = pEl.attributeValue (XMLConstants.type);
 
-        if (type.equals (""))
-        {
+        String id = pEl.attributeValue (XMLConstants.id);
 
-            type = null;
-
-        }
-
-        String id = JDOMUtils.getAttributeValue (pEl,
-                                                 XMLConstants.id,
-                                                 false);
-
-        if (!id.equals (""))
+        if (id != null)
         {
 
             this.setId (id);
 
         }
 
-        String directory = JDOMUtils.getChildElementContent (pEl,
-                                                             XMLConstants.directory);
+        String directory = DOM4JUtils.childElementContent (pEl,
+                                                              XMLConstants.directory);
 
-        boolean encrypted = JDOMUtils.getAttributeValueAsBoolean (pEl,
+        boolean encrypted = DOM4JUtils.attributeValueAsBoolean (pEl,
                                                                   XMLConstants.encrypted,
                                                                   false);
 
         boolean noCredentials = false;
 
-        if (JDOMUtils.getAttribute (pEl,
-                                    XMLConstants.noCredentials,
-                                    false) != null)
+        if (pEl.attribute (XMLConstants.noCredentials) != null)
         {
 
-            noCredentials = JDOMUtils.getAttributeValueAsBoolean (pEl,
+            noCredentials = DOM4JUtils.attributeValueAsBoolean (pEl,
                                                                   XMLConstants.noCredentials);
 
         }
 
-        String d = JDOMUtils.getAttributeValue (pEl,
-                                                XMLConstants.lastEdited,
-                                                false);
+        String d = pEl.attributeValue (XMLConstants.lastEdited);
 
         File dir = new File (directory);
 
@@ -164,11 +147,9 @@ public class Project extends NamedObject
 
                 this.projVerProp.setValue (new ProjectVersion ());
 
-                String dueDate = JDOMUtils.getAttributeValue (pEl,
-                                                              XMLConstants.editDueDate,
-                                                              false);
+                String dueDate = pEl.attributeValue (XMLConstants.editDueDate);
 
-                if (!dueDate.equals (""))
+                if (dueDate != null)
                 {
 
                     // TODO: Fix this otherwise I will go to hell...
@@ -176,8 +157,8 @@ public class Project extends NamedObject
 
                 }
 
-                String editorEmail = JDOMUtils.getChildElementContent (pEl,
-                                                                       XMLConstants.forEditor);
+                String editorEmail = DOM4JUtils.childElementContent (pEl,
+                                                                        XMLConstants.forEditor);
 
                 if (editorEmail == null)
                 {
@@ -966,6 +947,7 @@ public class Project extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -1732,7 +1714,7 @@ public class Project extends NamedObject
     // TODO Remove
     public void saveToFilesDirectory (File   file,
                                       String fileName)
-                               throws IOException
+                               throws GeneralException
     {
 
         if ((file == null)
@@ -1750,20 +1732,40 @@ public class Project extends NamedObject
         File dir = this.getFilesDirectory ();
 
         dir.mkdirs ();
-        Utils.createQuollWriterDirFile (dir);
+
+        try
+        {
+
+            Utils.createQuollWriterDirFile (dir);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to create dir: " + dir,
+                                        e);
+
+        }
 
         File f = new File (dir,
                            fileName);
 
-        IOUtils.copyFile (file,
-                          f,
-                          4096);
+        try
+        {
+
+            Files.copy (file.toPath (),
+                        f.toPath ());
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to copy file: " + file + " to: " + f,
+                                        e);
+
+        }
 
     }
 
     public void saveToFilesDirectory (Path   file,
                                       String fileName)
-                               throws IOException
+                               throws GeneralException
     {
 
         if ((file == null)
@@ -1780,15 +1782,35 @@ public class Project extends NamedObject
 
         Path dir = this.getFilesDirectory ().toPath ();
 
-        Files.createDirectories (dir);
+        try
+        {
+
+            Files.createDirectories (dir);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to create dirs for: " + dir,
+                                        e);
+
+        }
 
         Utils.createQuollWriterDirFile (dir);
 
         Path f = dir.resolve (fileName);
 
-        Files.copy (file,
-                    f,
-                    StandardCopyOption.REPLACE_EXISTING);
+        try
+        {
+
+            Files.copy (file,
+                        f,
+                        StandardCopyOption.REPLACE_EXISTING);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to copy file: " + file + " to: " + f,
+                                        e);
+
+        }
 
     }
 
@@ -2367,14 +2389,14 @@ public class Project extends NamedObject
 
     }
 
-    public Element getAsJDOMElement ()
+    public Element getAsElement ()
     {
 
-        Element pEl = new Element (Project.OBJECT_TYPE);
+        Element pEl = new DefaultElement (Project.OBJECT_TYPE);
 
-        Element nEl = new Element (Environment.XMLConstants.name);
-        pEl.addContent (nEl);
-        nEl.addContent (this.getName ());
+        Element nEl = new DefaultElement (Environment.XMLConstants.name);
+        pEl.add (nEl);
+        nEl.add (new DefaultCDATA (this.getName ()));
 
         if (this.getType () == null)
         {
@@ -2383,29 +2405,29 @@ public class Project extends NamedObject
 
         }
 
-        pEl.setAttribute (XMLConstants.type,
+        pEl.addAttribute (XMLConstants.type,
                           this.getType ());
 
         if (this.getId () != null)
         {
 
-            pEl.setAttribute (XMLConstants.id,
+            pEl.addAttribute (XMLConstants.id,
                               this.getId ());
 
         }
 
-        Element dEl = new Element (XMLConstants.directory);
-        pEl.addContent (dEl);
-        dEl.addContent (this.getProjectDirectory ().getPath ());
+        Element dEl = new DefaultElement (XMLConstants.directory);
+        pEl.add (dEl);
+        dEl.add (new DefaultCDATA (this.getProjectDirectory ().getPath ()));
 
         EditorEditor ed = this.getForEditor ();
 
         if (ed != null)
         {
 
-            Element fEl = new Element (XMLConstants.forEditor);
-            pEl.addContent (fEl);
-            fEl.addContent (ed.getEmail ());
+            Element fEl = new DefaultElement (XMLConstants.forEditor);
+            pEl.add (fEl);
+            fEl.add (new DefaultCDATA (ed.getEmail ()));
 
         }
 
@@ -2420,7 +2442,7 @@ public class Project extends NamedObject
             if (d != null)
             {
 
-                pEl.setAttribute (XMLConstants.editDueDate,
+                pEl.addAttribute (XMLConstants.editDueDate,
                                   d.getTime () + "");
 
             }
@@ -2432,18 +2454,18 @@ public class Project extends NamedObject
         if (lastEdited != null)
         {
 
-            pEl.setAttribute (XMLConstants.lastEdited,
+            pEl.addAttribute (XMLConstants.lastEdited,
                               String.valueOf (lastEdited.getTime ()));
 
         }
 
-        pEl.setAttribute (XMLConstants.encrypted,
+        pEl.addAttribute (XMLConstants.encrypted,
                           Boolean.valueOf (this.isEncrypted ()).toString ());
 
         if (this.isNoCredentials ())
         {
 
-            pEl.setAttribute (XMLConstants.noCredentials,
+            pEl.addAttribute (XMLConstants.noCredentials,
                               Boolean.valueOf (this.isNoCredentials ()).toString ());
 
         }

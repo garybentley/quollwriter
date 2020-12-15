@@ -37,6 +37,8 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         super (mess,
                viewer);
 
+        this.getStyleClass ().add (StyleClassNames.NEWPROJECT);
+
         final NewProjectMessageBox _this = this;
 
         StringProperty text = getUILanguageStringProperty (editors,messages,newproject,sent,title);

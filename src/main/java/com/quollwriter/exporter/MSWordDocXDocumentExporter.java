@@ -14,8 +14,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;

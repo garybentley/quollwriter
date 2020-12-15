@@ -2,11 +2,10 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
-import com.gentlyweb.utils.*;
-import com.gentlyweb.xml.*;
 
+import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -64,12 +63,12 @@ public class ItemAchievementRule extends AbstractAchievementRule
     private Class objClass = null;
 
     public ItemAchievementRule (Element root)
-                                throws  JDOMException
+                                throws  GeneralException
     {
 
         super (root);
 
-        this.objType = JDOMUtils.getAttributeValue (root,
+        this.objType = DOM4JUtils.attributeValue (root,
                                                     XMLConstants.objectType,
                                                     true);
 
@@ -78,32 +77,30 @@ public class ItemAchievementRule extends AbstractAchievementRule
         if (this.objClass == null)
         {
 
-            throw new JDOMException ("Object type: " +
+            throw new GeneralException ("Object type: " +
                                      this.objType +
                                      ", referenced by: " +
-                                     JDOMUtils.getAttribute (root,
-                                                             XMLConstants.objectType,
-                                                             true) +
+                                     DOM4JUtils.getPath (root.attribute (XMLConstants.objectType)) +
                                      " is not supported.");
 
         }
 
-        String act = JDOMUtils.getAttributeValue (root,
+        String act = DOM4JUtils.attributeValue (root,
                                                   XMLConstants.action,
                                                   false);
 
-        if (!act.equals (""))
+        if (act != null)
         {
 
             this.eventIds.add (this.objType + "." + act.toLowerCase ());
 
         }
 
-        String acts = JDOMUtils.getAttributeValue (root,
+        String acts = DOM4JUtils.attributeValue (root,
                                                    XMLConstants.actions,
                                                    false);
 
-        if (!acts.equals (""))
+        if (acts != null)
         {
 
             StringTokenizer t = new StringTokenizer (acts,
@@ -118,9 +115,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
 
         }
 
-        Element mEl = JDOMUtils.getChildElement (root,
-                                                 XMLConstants.match,
-                                                 false);
+        Element mEl = root.element (XMLConstants.match);
 
         if (mEl != null)
         {
@@ -129,9 +124,9 @@ public class ItemAchievementRule extends AbstractAchievementRule
 
         }
 
-        this.count = JDOMUtils.getAttributeValueAsInt (root,
-                                                       XMLConstants.count,
-                                                       false);
+        this.count = DOM4JUtils.attributeValueAsInt (root,
+                                                     XMLConstants.count,
+                                                     false);
 
     }
 

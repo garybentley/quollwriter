@@ -2,12 +2,10 @@ package com.quollwriter.ui.fx.tips;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import javafx.beans.property.*;
 import javafx.scene.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -44,22 +42,16 @@ public class Tips
 
         String tipsXML = Utils.getResourceFileAsString (Constants.TIPS_FILE);
 
-        Element root = JDOMUtils.getStringAsElement (tipsXML);
+        Element root = DOM4JUtils.stringAsElement (tipsXML);
 
-        List tipEls = JDOMUtils.getChildElements (root,
-                                                  XMLConstants.tip,
-                                                  false);
-
-        for (int i = 0; i < tipEls.size (); i++)
+        for (Element el : root.elements (XMLConstants.tip))
         {
-
-            Element el = (Element) tipEls.get (i);
 
             this.baseTips.add (new Tip (el));
 
         }
 
-        this.tips = new ArrayList (this.baseTips);
+        this.tips = new ArrayList<> (this.baseTips);
 
     }
 
@@ -117,20 +109,14 @@ public class Tips
         private List<Item> items = new ArrayList ();
 
         public Tip (Element root)
-                    throws  JDOMException
+                    throws  GeneralException
         {
 
-            String id = JDOMUtils.getAttributeValue (root,
+            String id = DOM4JUtils.attributeValue (root,
                                                      XMLConstants.id);
 
-            List els = JDOMUtils.getChildElements (root,
-                                                   XMLConstants.item,
-                                                   false);
-
-            for (int i = 0; i < els.size (); i++)
+            for (Element el : root.elements (XMLConstants.item))
             {
-
-                Element el = (Element) els.get (i);
 
                 this.items.add (new Item (id,
                                           el));
@@ -174,27 +160,27 @@ public class Tips
 
             public Item (String  tipId,
                          Element root)
-                         throws  JDOMException
+                         throws  GeneralException
             {
 
                 String id = tipId;
 
-                String iid = JDOMUtils.getAttributeValue (root,
+                String iid = DOM4JUtils.attributeValue (root,
                                                           XMLConstants.id,
                                                           false);
 
-                if (!iid.equals (""))
+                if (iid != null)
                 {
 
                     id = tipId + "_" + iid;
 
                 }
 
-                String cs = JDOMUtils.getAttributeValue (root,
+                String cs = DOM4JUtils.attributeValue (root,
                                                          XMLConstants.condition,
                                                          false);
 
-                if (!cs.equals (""))
+                if (cs != null)
                 {
 
                     StringTokenizer t = new StringTokenizer (cs,
@@ -214,7 +200,7 @@ public class Tips
                 if (this.text == null)
                 {
 
-                    throw new JDOMException ("Unable to find language string for tip/item: " +
+                    throw new GeneralException ("Unable to find language string for tip/item: " +
                                              id);
 
                 }
@@ -288,7 +274,7 @@ public class Tips
 
                         }
 
-                        Node qpc = qp.getContent ();
+                        javafx.scene.Node qpc = qp.getContent ();
 
                         if (qp != null)
                         {

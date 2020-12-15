@@ -2,10 +2,8 @@ package com.quollwriter.ui;
 
 import java.util.*;
 
+import org.dom4j.*;
 import com.quollwriter.data.*;
-
-import org.jdom.*;
-
 
 public class TreeParentNode extends NamedObject
 {
@@ -18,13 +16,13 @@ public class TreeParentNode extends NamedObject
     public TreeParentNode (String objType,
                            String name)
     {
-        
+
         this (objType,
               name,
               -1);
-        
+
     }
-    
+
     public TreeParentNode(String objType,
                           String name,
                           int    count)
@@ -37,31 +35,33 @@ public class TreeParentNode extends NamedObject
         this.setKey ((long) name.toLowerCase ().hashCode ());
 
         this.setName (name);
-        
+
         this.count = count;
 
     }
 
     public void setCount (int c)
     {
-        
+
         this.count = c;
-        
+
     }
-    
+
     public int getCount ()
     {
-        
+
         return this.count;
-        
+
     }
-    
+
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
 
     }
 
+    @Override
     public int hashCode ()
     {
 
@@ -80,6 +80,7 @@ public class TreeParentNode extends NamedObject
 
     }
 
+    @Override
     public boolean equals (Object o)
     {
 
@@ -105,6 +106,7 @@ public class TreeParentNode extends NamedObject
 
     }
 
+    @Override
     public String toString ()
     {
 
@@ -112,6 +114,7 @@ public class TreeParentNode extends NamedObject
 
     }
 
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 

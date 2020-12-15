@@ -31,8 +31,6 @@ import javafx.css.*;
 
 import javax.imageio.*;
 
-import com.gentlyweb.utils.*;
-
 import org.imgscalr.Scalr;
 
 import com.quollwriter.*;
@@ -1558,32 +1556,32 @@ public class UIUtils
                                           nl,
                                           "<br />");
 */
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           PROJECT_INFO_STATUS_TAG,
                                           (project.getStatus () != null ? project.getStatus () : getUIString (LanguageStrings.project,status,novalue)));
                                           //"No status"));
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           PROJECT_INFO_WORDS_TAG,
                                           String.format (getUIString (prefix, LanguageStrings.words),
                                                         //"%s words",
                                                          Environment.formatNumber (project.getWordCount ())));
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           PROJECT_INFO_CHAPTERS_TAG,
                                           String.format (getUIString (prefix, LanguageStrings.chapters),
                                             //"%s ${objectnames.%s.chapter}",
                                                          Environment.formatNumber (project.getChapterCount ())));
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           PROJECT_INFO_LAST_EDITED_TAG,
                                           lastEd);
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           PROJECT_INFO_EDIT_COMPLETE_TAG,
                                           String.format (getUIString (prefix, LanguageStrings.editcomplete),
                                                         //"%s%% complete",
                                                          Environment.formatNumber (Utils.getPercent (project.getEditedWordCount (), project.getWordCount ()))));
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           PROJECT_INFO_READABILITY_TAG,
                                           String.format (getUIString (prefix, LanguageStrings.readability),
                                                         //"GL: %s, RE: %s, GF: %s",
@@ -2199,22 +2197,22 @@ public class UIUtils
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           " ",
                                           "&nbsp;");
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           nl,
                                           "<br />");
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.DESCRIPTION_TAG,
                                           desc);
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.DESCRIPTION_FIRST_LINE_TAG,
                                           descFirstLine);
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.CHAPTER_FIRST_LINE_TAG,
                                           chapText);
 
@@ -2228,13 +2226,13 @@ public class UIUtils
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.WORDS_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,words),
                                                         //"%s words",
                                                          Environment.formatNumber (cc.getWordCount ())));
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.LAST_EDITED_TAG,
                                           lastEd);
 
@@ -2273,7 +2271,7 @@ public class UIUtils
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.EDIT_COMPLETE_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,editcomplete),
                                           //"%s%% complete",
@@ -2282,7 +2280,7 @@ public class UIUtils
         if (text.contains (Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG))
         {
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG,
                                               String.format (getUIString (project,sidebar,chapters,preview,problemcount),
                                                             //"%s problems",
@@ -2293,7 +2291,7 @@ public class UIUtils
         if (text.contains (Constants.SPELLING_ERROR_COUNT_TAG))
         {
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               Constants.SPELLING_ERROR_COUNT_TAG,
                                               String.format (getUIString (project,sidebar,chapters,preview,spellingcount),
                                                             //"%s spelling errors",
@@ -2328,7 +2326,7 @@ public class UIUtils
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.READABILITY_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,readability),
                                           //"GL: %s, RE: %s, GF: %s",
@@ -2756,9 +2754,9 @@ public class UIUtils
         try
         {
 
-            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (UserProperties.get (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + Utils.replaceString (UserProperties.get (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
                                                                                                    "[[LANG]]",
-                                                                                                   StringUtils.replaceString (fileLang,
+                                                                                                   Utils.replaceString (fileLang,
                                                                                                                               " ",
                                                                                                                               "%20")));
 
@@ -3548,6 +3546,14 @@ TODO
 
                     String t = n.getType ();
 
+                    if (t == null)
+                    {
+
+                        // TODO Handle?
+                        continue;
+
+                    }
+
                     Set<Note> l = allNotes.get (t);
 
                     if (l == null)
@@ -3613,6 +3619,14 @@ TODO
                 {
 
                     String t = n.getType ();
+
+                    if (t == null)
+                    {
+
+                        // TODO Handle?
+                        continue;
+
+                    }
 
                     Set<Note> l = allNotes.get (t);
 
@@ -4463,67 +4477,6 @@ TODO
 
     }
 
-    public static void outputApplicableCSSRules (Styleable n)
-    {
-
-        System.out.println ("SEL: " + n.getTypeSelector ());
-
-        List<String> ss = n.getStyleableNode ().getScene ().getStylesheets ();
-
-        if (n instanceof Skinnable)
-        {
-
-            n = ((Skinnable) n.getStyleableNode ()).getSkin ().getNode ();
-
-        }
-
-        for (String s : ss)
-        {
-
-            CssParser ccsp = new CssParser ();
-            Stylesheet sheet = null;
-
-            try
-            {
-
-                sheet = ccsp.parse (new URL (s));
-
-            } catch (Exception e) {
-
-                new Exception ("Unable to convert to a stylesheet: " + s,
-                               e).printStackTrace ();
-
-                continue;
-
-            }
-
-            System.out.println ("STYLESHEET: " + s);
-
-            List<javafx.css.Rule> rules = sheet.getRules ();
-
-            for (javafx.css.Rule r : rules)
-            {
-
-                List<Selector> sels = r.getSelectors ();
-
-                for (Selector sel : sels)
-                {
-
-                    if (sel.applies (n))
-                    {
-
-                        System.out.println ("RULE: " + r);
-
-                    }
-
-                }
-
-            }
-
-        }
-
-    }
-
     public static void showContextMenu (Node          n,
                                         Set<MenuItem> items,
                                         double        x,
@@ -4603,30 +4556,40 @@ TODO
 
     public static void addStyleSheet (Parent parent,
                                       String type,
-                                      String name)
+                                      String... name)
     {
 
-        try
+        if (name != null)
         {
 
-            URL u = Utils.getResourceUrl (String.format (Constants.STYLESHEET_PATH,
-                                                         type,
-                                                         name));
-
-            if (u != null)
+            for (String n : name)
             {
 
-                parent.getStylesheets ().add (u.toExternalForm ());
+                try
+                {
+
+                    URL u = Utils.getResourceUrl (String.format (Constants.STYLESHEET_PATH,
+                                                                 type,
+                                                                 n));
+
+                    if (u != null)
+                    {
+
+                        parent.getStylesheets ().add (u.toExternalForm ());
+
+                    }
+
+                } catch (Exception e) {
+
+                    Environment.logError (String.format ("Unable to get/apply stylesheet for: %1$s, type: %2$s, name: %3$s",
+                                                         parent,
+                                                         type,
+                                                         n),
+                                          e);
+
+                }
 
             }
-
-        } catch (Exception e) {
-
-            Environment.logError (String.format ("Unable to get/apply stylesheet for: %1$s, type: %2$s, name: %3$s",
-                                                 parent,
-                                                 type,
-                                                 name),
-                                  e);
 
         }
 
@@ -4634,30 +4597,40 @@ TODO
 
     public static void addStyleSheet (Scene parent,
                                       String type,
-                                      String name)
+                                      String... name)
     {
 
-        try
+        if (name != null)
         {
 
-            URL u = Utils.getResourceUrl (String.format (Constants.STYLESHEET_PATH,
-                                                         type,
-                                                         name));
-
-            if (u != null)
+            for (String n : name)
             {
 
-                parent.getStylesheets ().add (u.toExternalForm ());
+                try
+                {
+
+                    URL u = Utils.getResourceUrl (String.format (Constants.STYLESHEET_PATH,
+                                                                 type,
+                                                                 n));
+
+                    if (u != null)
+                    {
+
+                        parent.getStylesheets ().add (u.toExternalForm ());
+
+                    }
+
+                } catch (Exception e) {
+
+                    Environment.logError (String.format ("Unable to get/apply stylesheet for: %1$s, type: %2$s, name: %3$s",
+                                                         parent,
+                                                         type,
+                                                         n),
+                                          e);
+
+                }
 
             }
-
-        } catch (Exception e) {
-
-            Environment.logError (String.format ("Unable to get/apply stylesheet for: %1$s, type: %2$s, name: %3$s",
-                                                 parent,
-                                                 type,
-                                                 name),
-                                  e);
 
         }
 
@@ -4747,6 +4720,7 @@ TODO
         });
 
     }
+
 /*
     public static HBox createIconBox (String                        styleClassName)
     {

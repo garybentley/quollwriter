@@ -1,13 +1,8 @@
 package com.quollwriter.text.rules;
 
 import java.util.*;
-import java.awt.event.*;
-
-import javax.swing.*;
 
 import javafx.beans.property.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
@@ -18,7 +13,8 @@ import com.quollwriter.ui.fx.components.Form;
 
 // TODO import com.quollwriter.ui.fx.components.Form;
 
-import org.jdom.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 
 public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
@@ -49,7 +45,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     public abstract String getEditFormTitle (boolean add);
 
-    public abstract Set<FormItem> getFormItems ();
+    public abstract Set<com.quollwriter.ui.forms.FormItem> getFormItems ();
 
     public Set<Form.Item> getFormItems2 ()
     {
@@ -135,23 +131,23 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
     }
 
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
-        this.id = JDOMUtils.getAttributeValue (root,
+        this.id = DOM4JUtils.attributeValue (root,
                                                XMLConstants.id);
 
-        this.userRule = JDOMUtils.getAttributeValueAsBoolean (root,
+        this.userRule = DOM4JUtils.attributeValueAsBoolean (root,
                                                               XMLConstants.user,
                                                               false);
 
-        this.desc = JDOMUtils.getChildElementContent (root,
+        this.desc = DOM4JUtils.childElementContent (root,
                                                       XMLConstants.description,
-                                                      false);
+                                                      false,
+                                                      null);
 
-        this.summary = JDOMUtils.getChildElementContent (root,
-                                                         XMLConstants.summary,
-                                                         true);
+        this.summary = DOM4JUtils.childElementContent (root,
+                                                         XMLConstants.summary);
 
         if (!this.userRule)
         {
@@ -165,26 +161,26 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
     public Element getAsElement ()
     {
 
-        Element root = new Element (XMLConstants.root);
+        Element root = new DefaultElement (XMLConstants.root);
 
-        root.setAttribute (XMLConstants.id,
+        root.addAttribute (XMLConstants.id,
                            this.id);
-        root.setAttribute (XMLConstants.createType,
+        root.addAttribute (XMLConstants.createType,
                            this.getClass ().getName ());
 
         if (this.userRule)
         {
 
-            root.setAttribute (XMLConstants.user,
+            root.addAttribute (XMLConstants.user,
                                Boolean.toString (this.userRule));
 
         }
 
-        Element summ = new Element (XMLConstants.summary);
+        Element summ = new DefaultElement (XMLConstants.summary);
 
-        root.addContent (summ);
+        root.add (summ);
 
-        summ.addContent (this.summary);
+        summ.add (new DefaultCDATA (this.summary));
 
         if ((this.desc != null)
             &&
@@ -192,11 +188,11 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
            )
         {
 
-            Element desc = new Element (XMLConstants.description);
+            Element desc = new DefaultElement (XMLConstants.description);
 
-            root.addContent (desc);
+            root.add (desc);
 
-            desc.addContent (this.desc);
+            desc.add (new DefaultCDATA (this.desc));
 
         }
 
@@ -204,8 +200,8 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
-    public com.quollwriter.ui.forms.Form getEditForm (final ActionListener        onSaveComplete,
-                             final ActionListener        onCancel,
+    public com.quollwriter.ui.forms.Form getEditForm (final java.awt.event.ActionListener        onSaveComplete,
+                             final java.awt.event.ActionListener        onCancel,
                              final AbstractProjectViewer viewer,
                              final boolean               add)
     {
@@ -235,14 +231,14 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
         items.add (desc);
 
-        Map<com.quollwriter.ui.forms.Form.Button, ActionListener> buttons = new LinkedHashMap<> ();
+        Map<com.quollwriter.ui.forms.Form.Button, java.awt.event.ActionListener> buttons = new LinkedHashMap<> ();
 
         buttons.put (com.quollwriter.ui.forms.Form.Button.save,
-                     new ActionListener ()
+                     new java.awt.event.ActionListener ()
                      {
 
                         @Override
-                        public void actionPerformed (ActionEvent ev)
+                        public void actionPerformed (java.awt.event.ActionEvent ev)
                         {
 
                             com.quollwriter.ui.forms.Form f = (com.quollwriter.ui.forms.Form) ev.getSource ();
@@ -303,7 +299,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                             if (onSaveComplete != null)
                             {
 
-                                onSaveComplete.actionPerformed (new ActionEvent (_this, 1, "saved"));
+                                onSaveComplete.actionPerformed (new java.awt.event.ActionEvent (_this, 1, "saved"));
 
                             }
 
@@ -312,17 +308,17 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                      });
 
         buttons.put (com.quollwriter.ui.forms.Form.Button.cancel,
-                     new ActionListener ()
+                     new java.awt.event.ActionListener ()
                      {
 
                         @Override
-                        public void actionPerformed (ActionEvent ev)
+                        public void actionPerformed (java.awt.event.ActionEvent ev)
                         {
 
                             if (onCancel != null)
                             {
 
-                                onCancel.actionPerformed (new ActionEvent (_this, 1, "cancelled"));
+                                onCancel.actionPerformed (new java.awt.event.ActionEvent (_this, 1, "cancelled"));
 
                             }
 

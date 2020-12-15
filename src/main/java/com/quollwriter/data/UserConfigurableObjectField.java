@@ -2,7 +2,7 @@ package com.quollwriter.data;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import com.quollwriter.*;
 
@@ -122,6 +122,7 @@ public class UserConfigurableObjectField extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

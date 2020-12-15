@@ -68,7 +68,7 @@ public class AccordionItem extends VBox implements Stateful
             // TODO, make this support multiple...
             .styleClassName ((b.styleNames != null && b.styleNames.size () > 0 ? lls.get (0) : null))
             .iconClassName (b.headerIconStyleName)
-            .tooltip (project,sidebar,section,title,tooltip)
+            //.tooltip (project,sidebar,section,title,tooltip)
             // TODO REmove, use css .cursor (Cursor.HAND)
             .contextMenu (b.contextMenuItemSupplier)
             .build ();

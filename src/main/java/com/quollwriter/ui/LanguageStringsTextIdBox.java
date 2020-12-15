@@ -19,8 +19,6 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.uistrings.*;
@@ -982,11 +980,11 @@ _this.showPreview ();
 
         String t = this.getEditor ().getPreviewText (s);
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        "[",
                                        "&#91;");
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        "]",
                                        "&#93;");
 

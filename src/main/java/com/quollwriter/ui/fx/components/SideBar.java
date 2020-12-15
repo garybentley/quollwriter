@@ -25,7 +25,7 @@ public class SideBar extends BaseVBox implements Stateful
 {
 
     private AbstractViewer viewer = null;
-    private Button otherSideBarsShowButton = null;
+    private QuollMenuButton otherSideBarsShowButton = null;
     private Header header = null;
     private SideBarContent content = null;
     private String sidebarId = null;
@@ -80,21 +80,10 @@ public class SideBar extends BaseVBox implements Stateful
 
         this.styleName = b.styleName;
 
-        this.otherSideBarsShowButton = QuollButton.builder ()
+        this.otherSideBarsShowButton = QuollMenuButton.builder ()
             .tooltip (sidebars,othersidebarselect,tooltip)
             .iconName (StyleClassNames.OTHER)
-            .onAction (ev ->
-            {
-
-                ContextMenu n = viewer.getShowOtherSideBarsSelector ();
-
-                n.show (this.otherSideBarsShowButton, Side.BOTTOM, 0, 0);
-/*
-                n.show (_this.otherSideBarsShowButton,
-                        ev.getX (),
-                        ev.getY ());
-*/
-            })
+            .items (() -> viewer.getShowOtherSideBarsMenuItems ())
             .build ();
 
         Set<Node> hcontrols = new LinkedHashSet<> ();
@@ -307,7 +296,7 @@ public class SideBar extends BaseVBox implements Stateful
         private String sidebarId = null;
         private boolean wrapInScrollPane = true;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
-        private String styleSheet = null;
+        private String[] styleSheet = null;
         private String headerIconStyleName = null;
 
         private Builder ()
@@ -339,7 +328,7 @@ public class SideBar extends BaseVBox implements Stateful
 
         }
 
-        public Builder styleSheet (String s)
+        public Builder styleSheet (String... s)
         {
 
             this.styleSheet = s;

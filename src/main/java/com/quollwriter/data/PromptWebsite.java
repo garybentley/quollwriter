@@ -1,9 +1,8 @@
 package com.quollwriter.data;
 
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
 
-import org.jdom.*;
-
+import com.quollwriter.*;
 
 public class PromptWebsite
 {
@@ -22,16 +21,16 @@ public class PromptWebsite
     private String name = null;
     private String url = null;
 
-    public PromptWebsite(Element root)
-                  throws JDOMException
+    public PromptWebsite (Element root)
+                   throws GeneralException
     {
 
-        this.count = JDOMUtils.getAttributeValue (root,
+        this.count = DOM4JUtils.attributeValue (root,
                                                   XMLConstants.count);
-        this.name = JDOMUtils.getAttributeValue (root,
-                                                 XMLConstants.name);
-        this.url = JDOMUtils.getChildElementContent (root,
-                                                     XMLConstants.url);
+        this.name = DOM4JUtils.attributeValue (root,
+                                               XMLConstants.name);
+        this.url = DOM4JUtils.childElementContent (root,
+                                                   XMLConstants.url);
 
     }
 

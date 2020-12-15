@@ -1,10 +1,9 @@
 package com.quollwriter.text.rules;
 
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.text.*;
+import com.quollwriter.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implements DialogueRule
@@ -81,12 +80,12 @@ public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implem
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        this.where = JDOMUtils.getAttributeValue (root,
+        this.where = DOM4JUtils.attributeValue (root,
                                                   XMLConstants.location,
                                                   false);
 
@@ -97,10 +96,10 @@ public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implem
 
         }
 
-        this.ignoreInDialogue = JDOMUtils.getAttributeValueAsBoolean (root,
+        this.ignoreInDialogue = DOM4JUtils.attributeValueAsBoolean (root,
                                                                       XMLConstants.ignoreInDialogue,
                                                                       false);
-        this.onlyInDialogue = JDOMUtils.getAttributeValueAsBoolean (root,
+        this.onlyInDialogue = DOM4JUtils.attributeValueAsBoolean (root,
                                                                     XMLConstants.onlyInDialogue,
                                                                     false);
 
@@ -115,7 +114,7 @@ public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implem
         if (this.ignoreInDialogue)
         {
 
-            root.setAttribute (XMLConstants.ignoreInDialogue,
+            root.addAttribute (XMLConstants.ignoreInDialogue,
                                Boolean.toString (this.ignoreInDialogue));
 
         }
@@ -123,7 +122,7 @@ public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implem
         if (this.onlyInDialogue)
         {
 
-            root.setAttribute (XMLConstants.onlyInDialogue,
+            root.addAttribute (XMLConstants.onlyInDialogue,
                                Boolean.toString (this.onlyInDialogue));
 
         }
@@ -131,7 +130,7 @@ public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implem
         if (this.where != null)
         {
 
-            root.setAttribute (XMLConstants.location,
+            root.addAttribute (XMLConstants.location,
                                this.where);
 
         }

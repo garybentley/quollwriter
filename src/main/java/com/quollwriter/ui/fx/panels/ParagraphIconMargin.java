@@ -121,11 +121,13 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
 
     private ChangeListener<javafx.scene.Scene> sceneList = null;
     private IPropertyBinder binder = new PropertyBinder ();
+    private Function<ChapterItem, Node> nodeProvider = null;
 
     public ParagraphIconMargin (E                                       viewer,
                                 TextEditor                              editor,
                                 int                                     paraNo,
                                 Chapter                                 chapter,
+                                Function<ChapterItem, Node>             nodeProvider,
                                 BiConsumer<ChapterItem, Node>           showItem,
                                 Function<IndexRange, List<ChapterItem>> getNewItems,
                                 Function<Integer, Set<MenuItem>>        contextMenuItemSupplier)
@@ -176,6 +178,7 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
         this.structureItemIndent = new SimpleStyleableDoubleProperty (STRUCTUREITEM_INDENT, 10d);
         this.showItem = showItem;
         this.getNewItems = getNewItems;
+        this.nodeProvider = nodeProvider;
 
         this.editMarker = new Pane ();
         this.editMarker.getStyleClass ().add (StyleClassNames.EDITMARKER);
@@ -380,16 +383,9 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
         for (Note n : its)
         {
 
-            IconBox riv = IconBox.builder ()
-                .iconName ((n.isEditNeeded () ? StyleClassNames.EDITNEEDEDNOTE : StyleClassNames.NOTE))
-                .build ();
-/*
-            ImageView iv = new ImageView ();
-            Pane riv = new Pane ();
-            riv.getChildren ().add (iv);
-*/
+            Node riv = this.nodeProvider.apply (n);
             this.getChildren ().add (riv);
-
+/*
             riv.setOnMouseDragged (ev ->
             {
 
@@ -412,7 +408,7 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
                 ev.consume ();
 
             });
-
+*/
             riv.setUserData (n);
 
             this.noteNodes.add (riv);
@@ -431,17 +427,9 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
         for (ChapterItem ci : its)
         {
 
-            IconBox riv = IconBox.builder ()
-                .iconName (((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM))
-                .build ();
-/*
-            ImageView iv = new ImageView ();
-            Pane riv = new Pane ();
-            riv.getChildren ().add (iv);
-            riv.getStyleClass ().add ((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM);
-*/
+            Node riv = this.nodeProvider.apply (ci);
             this.getChildren ().add (riv);
-
+/*
             riv.setOnMouseClicked (ev ->
             {
 
@@ -451,12 +439,12 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
                     return;
 
                 }
-
+xxx
                 this.showItem.accept (ci,
                                       riv);
 
             });
-
+*/
             riv.setUserData (ci);
 
             this.strucNodes.add (riv);

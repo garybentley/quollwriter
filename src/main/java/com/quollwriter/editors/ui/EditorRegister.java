@@ -12,11 +12,8 @@ import java.util.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.beans.property.*;
-import javafx.embed.swing.*;
 
 import org.bouncycastle.openpgp.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 

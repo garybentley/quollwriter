@@ -2,16 +2,8 @@ package com.quollwriter.text.rules;
 
 import java.util.*;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-
 import javafx.scene.control.*;
 import javafx.scene.control.SpinnerValueFactory.*;
-
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -21,8 +13,7 @@ import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.dom4j.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -42,9 +33,9 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     private int fleschKincaid = 0;
     private int fleschReading = 0;
     private int gunningFog = 0;
-    private JSpinner gfF = null;
-    private JSpinner fkF = null;
-    private JSpinner frF = null;
+    private javax.swing.JSpinner gfF = null;
+    private javax.swing.JSpinner fkF = null;
+    private javax.swing.JSpinner frF = null;
 
     private Spinner<Integer> gfF2 = null;
     private Spinner<Integer> fkF2 = null;
@@ -74,15 +65,15 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         String d = super.getDescription ();
 
-        d = StringUtils.replaceString (d,
+        d = Utils.replaceString (d,
                                        "[FLESCH_KINCAID]",
                                        this.fleschKincaid + "");
 
-        d = StringUtils.replaceString (d,
+        d =Utils.replaceString (d,
                                        "[FLESCH_READING]",
                                        this.fleschReading + "");
 
-        d = StringUtils.replaceString (d,
+        d = Utils.replaceString (d,
                                        "[GUNNING_FOG]",
                                        this.gunningFog + "");
 
@@ -94,15 +85,15 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     public String getSummary ()
     {
 
-        String t = StringUtils.replaceString (super.getSummary (),
+        String t = Utils.replaceString (super.getSummary (),
                                               "[FLESCH_KINCAID]",
                                               this.fleschKincaid + "");
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        "[FLESCH_READING]",
                                        this.fleschReading + "");
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        "[GUNNING_FOG]",
                                        this.gunningFog + "");
 
@@ -112,16 +103,16 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        this.fleschKincaid = JDOMUtils.getAttributeValueAsInt (root,
+        this.fleschKincaid = DOM4JUtils.attributeValueAsInt (root,
                                                                XMLConstants.fleschKincaid);
-        this.fleschReading = JDOMUtils.getAttributeValueAsInt (root,
+        this.fleschReading = DOM4JUtils.attributeValueAsInt (root,
                                                                XMLConstants.fleschReading);
-        this.gunningFog = JDOMUtils.getAttributeValueAsInt (root,
+        this.gunningFog = DOM4JUtils.attributeValueAsInt (root,
                                                             XMLConstants.gunningFog);
 
     }
@@ -132,11 +123,11 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         Element root = super.getAsElement ();
 
-        root.setAttribute (XMLConstants.fleschKincaid,
+        root.addAttribute (XMLConstants.fleschKincaid,
                            this.fleschKincaid + "");
-        root.setAttribute (XMLConstants.fleschReading,
+        root.addAttribute (XMLConstants.fleschReading,
                            this.fleschReading + "");
-        root.setAttribute (XMLConstants.gunningFog,
+        root.addAttribute (XMLConstants.gunningFog,
                            this.gunningFog + "");
 
         return root;
@@ -264,7 +255,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
+    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
     {
 
         List<String> pref = new ArrayList<> ();
@@ -274,54 +265,54 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         pref.add (LanguageStrings.paragraphreadability);
         pref.add (LanguageStrings.labels);
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet ();
 
-        this.fkF = new JSpinner (new SpinnerNumberModel (this.fleschKincaid,
+        this.fkF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.fleschKincaid,
                                                          0,
                                                          30,
                                                          1));
 
-        Box b = new Box (BoxLayout.X_AXIS);
+        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
         b.add (this.fkF);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.fkF.setMaximumSize (this.fkF.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.fk),
                                     //"Flesch Kincaid Grade level",
                                     b));
 
-        this.frF = new JSpinner (new SpinnerNumberModel (this.fleschReading,
+        this.frF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.fleschReading,
                                                          0,
                                                          30,
                                                          1));
 
-        b = new Box (BoxLayout.X_AXIS);
+        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
 
         b.add (this.frF);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.frF.setMaximumSize (this.frF.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.fr),
                                     //"Flesch Reading ease level",
                                     b));
 
-        this.gfF = new JSpinner (new SpinnerNumberModel (this.gunningFog,
+        this.gfF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.gunningFog,
                                                          0,
                                                          30,
                                                          1));
 
-        b = new Box (BoxLayout.X_AXIS);
+        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
 
         b.add (this.gfF);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.gfF.setMaximumSize (this.gfF.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.gf),
                                     //"Gunning Fog index",
                                     b));
@@ -342,9 +333,9 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     public void updateFromForm ()
     {
 
-        this.fleschKincaid = ((SpinnerNumberModel) this.fkF.getModel ()).getNumber ().intValue ();
-        this.fleschReading = ((SpinnerNumberModel) this.frF.getModel ()).getNumber ().intValue ();
-        this.gunningFog = ((SpinnerNumberModel) this.gfF.getModel ()).getNumber ().intValue ();
+        this.fleschKincaid = ((javax.swing.SpinnerNumberModel) this.fkF.getModel ()).getNumber ().intValue ();
+        this.fleschReading = ((javax.swing.SpinnerNumberModel) this.frF.getModel ()).getNumber ().intValue ();
+        this.gunningFog = ((javax.swing.SpinnerNumberModel) this.gfF.getModel ()).getNumber ().intValue ();
 
     }
 

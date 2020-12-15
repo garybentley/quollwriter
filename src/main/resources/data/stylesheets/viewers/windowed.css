@@ -54,3 +54,8 @@
      -fx-border-color: -qw-component-border-color;
      -fx-alignment: center-left;
  }
+
+.windowed > .notifications .controls
+{
+    -fx-padding: 0.5em;
+}

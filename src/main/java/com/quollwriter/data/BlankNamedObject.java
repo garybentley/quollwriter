@@ -3,7 +3,7 @@ package com.quollwriter.data;
 import java.util.*;
 import javafx.beans.property.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class BlankNamedObject extends NamedObject
@@ -32,12 +32,14 @@ public class BlankNamedObject extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
 
     }
 
+    @Override
     public void setObjectType (String t)
     {
 
@@ -45,6 +47,7 @@ public class BlankNamedObject extends NamedObject
 
     }
 
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 

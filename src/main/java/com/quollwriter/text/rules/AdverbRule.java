@@ -14,8 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.util.converter.*;
 
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.synonyms.*;
@@ -28,7 +26,7 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -65,12 +63,12 @@ public class AdverbRule extends AbstractSentenceRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        String sw = JDOMUtils.getAttributeValue (root,
+        String sw = DOM4JUtils.attributeValue (root,
                                                  XMLConstants.speechVerbs);
 
         StringTokenizer t = new StringTokenizer (sw,
@@ -128,7 +126,7 @@ public class AdverbRule extends AbstractSentenceRule
 
         }
 
-        root.setAttribute (XMLConstants.speechVerbs,
+        root.addAttribute (XMLConstants.speechVerbs,
                            b.toString ());
 
         return root;

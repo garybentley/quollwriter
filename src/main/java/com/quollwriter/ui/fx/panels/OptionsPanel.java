@@ -53,7 +53,6 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
         this.scrollPane = new QScrollPane (bb);
         VBox.setVgrow (this.scrollPane,
                        Priority.ALWAYS);
-
         b.getChildren ().add (this.scrollPane);
 
         this.getChildren ().add (b);

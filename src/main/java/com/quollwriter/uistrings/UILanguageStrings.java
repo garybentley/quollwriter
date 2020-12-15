@@ -4,10 +4,6 @@ import java.io.*;
 import java.util.*;
 import java.nio.charset.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.data.*;
 import com.quollwriter.*;
 

@@ -31,6 +31,8 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
         super (mess,
                viewer);
 
+        this.getStyleClass ().add (StyleClassNames.EDITORREMOVED);
+
         this.binder.addChangeListener (mess.dealtWithProperty (),
                                        (pr, oldv, newv) ->
         {

@@ -57,6 +57,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         String closeproject = "closeproject";
         String closepanel = "closepanel";
         String showwordcounts = "showwordcounts";
+        String renameproject = "renameproject";
+        String createbackup = "createbackup";
+        String deleteproject = "deleteproject";
 
     }
 
@@ -1155,8 +1158,6 @@ TODO
 
         }
 
-        this.initProperties ();
-
         Environment.incrStartupProgress ();
 
 		this.project.setFilePassword (filePassword);
@@ -1170,6 +1171,20 @@ TODO
         this.project.addPropertyChangedListener (this);
 
         Environment.incrStartupProgress ();
+
+        // This is done here because the achievements manager needs the project.
+        // Also the achievements panel needs the achievements manager.
+        try
+        {
+
+            Environment.getAchievementsManager ().addProjectViewer (this);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to add viewer to achievements manager.",
+                                  e);
+
+        }
 
         this.handleOpenProject ();
 
@@ -1549,8 +1564,6 @@ TODO
 
         this.project = this.dBMan.getProject ();
 
-        this.initProperties ();
-
         if ((this.project.getBooks () == null) ||
             (this.project.getBooks ().size () == 0) ||
             (this.project.getBooks ().get (0).getChapters ().size () == 0))
@@ -1581,6 +1594,20 @@ TODO
         }
 
         this.project.addPropertyChangedListener (this);
+
+        // This is done here because the achievements manager needs the project.
+        // Also the achievements panel needs the achievements manager.
+        try
+        {
+
+            Environment.getAchievementsManager ().addProjectViewer (this);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to add viewer to achievements manager.",
+                                  e);
+
+        }
 
         this.handleNewProject ();
 
@@ -1793,6 +1820,13 @@ TODO Needed?
 
     public NamedObjectPanelContent getPanelForObject (NamedObject n)
     {
+
+        if (n == null)
+        {
+
+            throw new NullPointerException ("Expected an object to be passed.");
+
+        }
 
         for (Panel qp : this.panels.values ())
         {
@@ -4221,6 +4255,8 @@ TODO REmove
 
         //this.windowedContent.init (s.getAsState ("splitpane"));
 
+        this.initProperties ();
+
         this.initChapterCounts ();
 
         this.initDictionaryProvider ();
@@ -4229,20 +4265,6 @@ TODO REmove
         this.startAutoBackups ();
 
         this.titleProp.bind (this.project.nameProperty ());
-
-        // This is done here because the achievements manager needs the project.
-        // Also the achievements panel needs the achievements manager.
-        try
-        {
-
-            Environment.getAchievementsManager ().addProjectViewer (this);
-
-        } catch (Exception e) {
-
-            throw new GeneralException ("Unable to add viewer to achievements manager.",
-                                        e);
-
-        }
 
         this.restoreSideBars ();
 
@@ -4308,6 +4330,23 @@ TODO REmove
         this.initSideBar (sb.getSideBar ());
 
         super.addSideBar (sb);
+
+    }
+
+    @Override
+    public Node getTitleHeaderControl (HeaderControl control)
+    {
+
+        if (control == HeaderControl.wordcounttimer)
+        {
+
+            return WordCountTimerButton.builder ()
+                .inViewer (this)
+                .build ();
+
+        }
+
+        return super.getTitleHeaderControl (control);
 
     }
 
@@ -5363,7 +5402,7 @@ TODO Remove?
 
     public void saveToProjectFilesDirectory (Path   file,
                                              String fileName)
-                                      throws IOException
+                                      throws GeneralException
     {
 
         this.project.saveToFilesDirectory (file,

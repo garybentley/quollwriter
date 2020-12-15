@@ -4,9 +4,6 @@ import java.io.*;
 import java.util.*;
 import java.nio.charset.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.utils.*;
 import com.quollwriter.*;
 
 public class WebsiteLanguageStrings extends AbstractLanguageStrings<WebsiteLanguageStrings> implements RefValueProvider, Comparable<WebsiteLanguageStrings>

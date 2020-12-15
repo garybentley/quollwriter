@@ -19,8 +19,6 @@ import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import javafx.scene.input.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
@@ -832,6 +830,7 @@ public class Options extends VBox implements Stateful
 
         Node downloadFiles = QuollHyperlink.builder ()
             .label (options,editingchapters,labels,downloadlanguagefiles)
+            .styleClassName (StyleClassNames.DOWNLOAD)
             .onAction (ev ->
             {
 
@@ -1267,6 +1266,7 @@ public class Options extends VBox implements Stateful
                             .build (),
                        QuollHyperlink.builder ()
                             .label (actions,viewexample)
+                            .styleClassName (StyleClassNames.VIEW)
                            .onAction (ev ->
                            {
 
@@ -1304,6 +1304,7 @@ public class Options extends VBox implements Stateful
                       editPosColorSwatch,
                       QuollHyperlink.builder ()
                           .label (actions,viewexample)
+                          .styleClassName (StyleClassNames.VIEW)
                           .onAction (ev ->
                           {
 
@@ -1338,6 +1339,7 @@ public class Options extends VBox implements Stateful
             .mainItem (compressChapterContextMenu)
             .subItem (QuollHyperlink.builder ()
                 .label (actions,viewexample)
+                .styleClassName (StyleClassNames.VIEW)
                 .onAction (ev ->
                 {
 

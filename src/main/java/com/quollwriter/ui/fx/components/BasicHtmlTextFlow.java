@@ -12,8 +12,6 @@ import javafx.scene.input.*;
 
 import org.jsoup.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -163,11 +161,11 @@ public class BasicHtmlTextFlow extends TextFlow
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           "{QW}",
                                           Constants.QUOLL_WRITER_NAME);
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           String.valueOf ('\n'),
                                           "<br />");
 
@@ -190,7 +188,7 @@ public class BasicHtmlTextFlow extends TextFlow
                 String t = tn.text ();
 
                 // TODO Expand, consider using: https://code.i-harness.com/en/q/f2c1b
-                t = StringUtils.replaceString (t,
+                t = Utils.replaceString (t,
                                                "&nbsp;",
                                                "\u00A0");
 

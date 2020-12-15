@@ -10,8 +10,6 @@ import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.*;
@@ -77,6 +75,7 @@ public class DoWarmupExercisePopup extends PopupContent
         QuollButtonBar bb = QuollButtonBar.builder ()
             .button (QuollButton.builder ()
                         .iconName (StyleClassNames.WEBLINKS)
+                        .styleClassName (StyleClassNames.WEBLINKS)
                         .buttonType (ButtonBar.ButtonData.OTHER)
                         .tooltip (getUILanguageStringProperty (dowarmup,weblinks,tooltip))
                         .onAction (ev ->
@@ -89,6 +88,7 @@ public class DoWarmupExercisePopup extends PopupContent
                         .build ())
             .button (QuollButton.builder ()
                         .iconName (StyleClassNames.PREVIOUS)
+                        .styleClassName (StyleClassNames.PREVIOUS)
                         .buttonType (ButtonBar.ButtonData.BACK_PREVIOUS)
                         .tooltip (getUILanguageStringProperty (dowarmup,previousprompt,tooltip))
                         .onAction (ev ->
@@ -129,6 +129,7 @@ public class DoWarmupExercisePopup extends PopupContent
                         .build ())
             .button (QuollButton.builder ()
                         .iconName (StyleClassNames.NEXT)
+                        .styleClassName (StyleClassNames.NEXT)
                         .buttonType (ButtonBar.ButtonData.NEXT_FORWARD)
                         .label (getUILanguageStringProperty (dowarmup,nextprompt,text))
                         .tooltip (getUILanguageStringProperty (dowarmup,nextprompt,tooltip))
@@ -279,8 +280,8 @@ public class DoWarmupExercisePopup extends PopupContent
 
         }
 */
-        final int mins = UserProperties.getAsInt (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
-        final int words = UserProperties.getAsInt (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+        final int mins = DoWarmupExercisePopup.getMinsUserProperty ();
+        final int words = DoWarmupExercisePopup.getWordsUserProperty ();
 
         if ((mins == 0)
             &&
@@ -289,7 +290,7 @@ public class DoWarmupExercisePopup extends PopupContent
         {
 
             ComponentUtils.showErrorMessage (this.viewer,
-                                             getUILanguageStringProperty (prefix,starterror));
+                                             getUILanguageStringProperty (dowarmup,starterror));
                                       //"o_O  The timer can't be unlimited for both time and words.");
 
             return;
@@ -498,36 +499,59 @@ public class DoWarmupExercisePopup extends PopupContent
 
     }
 
+    private static Integer getWordsUserProperty ()
+    {
+
+        String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+
+        try
+        {
+
+            return Integer.parseInt (v);
+
+        } catch (Exception e)
+        {
+
+            return -1;
+
+        }
+
+    }
+
+    private static Integer getMinsUserProperty ()
+    {
+
+        String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+
+        int minsC = Constants.DEFAULT_MINS;
+
+        if (minsDef != null)
+        {
+
+            minsC = Integer.parseInt (minsDef);
+
+        }
+
+        return minsC;
+
+    }
+
     public static ChoiceBox<StringProperty> createWordsOptions ()
     {
 
         return UIUtils.getWordsOptions (() ->
         {
 
-            String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+            Integer v = DoWarmupExercisePopup.getWordsUserProperty ();
 
-            try
+            if (v == -1)
             {
 
-                return Integer.parseInt (v);
-
-            } catch (Exception e)
-            {
-
-                try
-                {
-
-                    return Integer.parseInt (v.substring (0,
-                                                          v.indexOf (" ") - 1));
-
-                } catch (Exception ee)
-                {
-
-                    return Constants.DEFAULT_WORDS;
-
-                }
+                v = Constants.DEFAULT_WORDS;
 
             }
+
+            return v;
 
         },
         val ->
@@ -546,18 +570,7 @@ public class DoWarmupExercisePopup extends PopupContent
         return UIUtils.getTimeOptions (() ->
         {
 
-            String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
-
-            int minsC = Constants.DEFAULT_MINS;
-
-            if (minsDef != null)
-            {
-
-                minsC = Integer.parseInt (minsDef);
-
-            }
-
-            return minsC;
+            return DoWarmupExercisePopup.getMinsUserProperty ();
 
         },
         // Called when the value changes.

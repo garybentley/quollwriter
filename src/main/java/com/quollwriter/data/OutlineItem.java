@@ -3,6 +3,8 @@ package com.quollwriter.data;
 import java.text.*;
 import java.util.*;
 
+import org.dom4j.*;
+
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
@@ -52,8 +54,10 @@ public class OutlineItem extends ChapterItem
 
     }
 
-    public void getChanges (NamedObject      old,
-                            org.jdom.Element root)
+
+    @Override
+    public void getChanges (NamedObject old,
+                            Element     root)
     {
 
     }

@@ -2,10 +2,9 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
-import com.gentlyweb.xml.*;
-
+import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 
@@ -27,18 +26,16 @@ public class EventAchievementRule extends AbstractAchievementRule
     private int matchCount = 0;
 
     public EventAchievementRule (Element root)
-                                 throws  JDOMException
+                                 throws  GeneralException
     {
 
         super (root);
 
-        this.count = JDOMUtils.getAttributeValueAsInt (root,
+        this.count = DOM4JUtils.attributeValueAsInt (root,
                                                        XMLConstants.count,
                                                        false);
 
-        Element mEl = JDOMUtils.getChildElement (root,
-                                                 XMLConstants.match,
-                                                 false);
+        Element mEl = root.element (XMLConstants.match);
 
         if (mEl != null)
         {
@@ -50,8 +47,8 @@ public class EventAchievementRule extends AbstractAchievementRule
         if (this.getEventIds ().size () == 0)
         {
 
-            throw new JDOMException ("Expected at least one event/action to be defined, referenced by: " +
-                                     JDOMUtils.getPath (root));
+            throw new GeneralException ("Expected at least one event/action to be defined, referenced by: " +
+                                        DOM4JUtils.getPath (root));
 
         }
 
@@ -126,7 +123,7 @@ public class EventAchievementRule extends AbstractAchievementRule
             if (root != null)
             {
 
-                this.matchCount = JDOMUtils.getAttributeValueAsInt (root,
+                this.matchCount = DOM4JUtils.attributeValueAsInt (root,
                                                                     XMLConstants.count,
                                                                     false);
 
@@ -147,10 +144,11 @@ public class EventAchievementRule extends AbstractAchievementRule
 
     }
 
+    @Override
     public void fillState (Element root)
     {
 
-        root.setAttribute (XMLConstants.count,
+        root.addAttribute (XMLConstants.count,
                            String.valueOf (this.matchCount));
 
     }

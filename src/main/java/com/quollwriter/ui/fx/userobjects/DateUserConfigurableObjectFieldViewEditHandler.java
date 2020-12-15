@@ -3,8 +3,6 @@ package com.quollwriter.ui.fx.userobjects;
 import java.time.*;
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 

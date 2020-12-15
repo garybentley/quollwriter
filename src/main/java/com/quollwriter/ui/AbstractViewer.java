@@ -42,8 +42,6 @@ import javax.swing.text.*;
 
 import com.gentlyweb.properties.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -1090,11 +1088,12 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                         if (sendLogFiles.isSelected ())
                         {
 
-                            details.put ("errorLog",
-                                         IOUtils.getFile (Environment.getErrorLogFile ()));
+                            details.put ("log",
+                                         Utils.getFileContentAsString (Environment.getLogPath ()));
+/*
                             details.put ("editorsMessageLog",
-                                         IOUtils.getFile (EditorsEnvironment.getEditorsMessageLogFile ()));
-
+                                         Utils.getFileContentAsString (EditorsEnvironment.getMessageLogPath ()));
+*/
                         }
 
                         if (sendScreenshot.isSelected ())
@@ -2037,7 +2036,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             String relNotesUrl = UserProperties.get (Constants.QUOLL_WRITER_RELEASE_NOTES_URL_PROPERTY_NAME);
 
-            relNotesUrl = StringUtils.replaceString (relNotesUrl,
+            relNotesUrl = Utils.replaceString (relNotesUrl,
                                                      "[[VERSION]]",
                                                      Environment.getQuollWriterVersion ().getVersion ().replace ('.',
                                                                                                                  '_'));

@@ -31,6 +31,8 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
         super (mess,
                viewer);
 
+        this.getStyleClass ().add (StyleClassNames.PROJECTCOMMENTS);
+
         final ProjectCommentsMessageBox _this = this;
 
         ProjectInfo proj = null;
@@ -197,6 +199,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                             {
 
                                 this.commentsViewer.show ();
+                                this.commentsViewer.toFront ();
 
                                 return;
 
@@ -208,8 +211,8 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                                                                 {
 
                                                                     _this.commentsViewer = commViewer;
-                                                                    _this.commentsViewer.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                                                                                                          eev ->
+                                                                    _this.commentsViewer.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+                                                                                                                       eev ->
                                                                     {
 
                                                                         _this.commentsViewer = null;

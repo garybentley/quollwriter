@@ -133,9 +133,8 @@ public class ReportBugPopup extends PopupContent<AbstractViewer>
                 if (sendLogFiles.isSelected ())
                 {
 
-                    details.put ("errorLog",
-                                 new String (Files.readAllBytes (Environment.getErrorLogPath ()),
-                                             StandardCharsets.UTF_8));
+                    details.put ("log",
+                                 this.getLogFilesAsSingleString (Environment.getLogPaths ()));
                     details.put ("editorsMessageLog",
                                  new String (Files.readAllBytes (EditorsEnvironment.getEditorsMessageLogFile ().toPath ()),
                                              StandardCharsets.UTF_8));
@@ -218,6 +217,38 @@ public class ReportBugPopup extends PopupContent<AbstractViewer>
         });
 
         return p;
+
+    }
+
+    private String getLogFilesAsSingleString (Set<Path> paths)
+    {
+
+        StringBuilder b = new StringBuilder ();
+
+        paths.stream ()
+            .forEach (p ->
+            {
+
+                try
+                {
+
+                    b.append ("File: ");
+                    b.append (p.toString ());
+                    b.append ("\n");
+                    b.append (Utils.getFileContentAsString (p));
+                    b.append ("\n\n");
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get log file: " +
+                                          p,
+                                          e);
+
+                }
+
+            });
+
+        return b.toString ();
 
     }
 

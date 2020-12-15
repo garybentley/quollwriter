@@ -10,8 +10,6 @@ import javafx.event.*;
 
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;

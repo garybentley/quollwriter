@@ -5,8 +5,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;

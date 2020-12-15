@@ -10,8 +10,6 @@ import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.*;
@@ -38,10 +36,43 @@ public class WordCountTimerSelectPopup extends PopupContent
 
         HBox b = new HBox ();
 
-        ChoiceBox<StringProperty> words = UIUtils.getWordsOptions (() -> { return Constants.DEFAULT_WORDS; },
-                                                                   (v) -> { this.wordCount = v; });
-        ChoiceBox<StringProperty> times = UIUtils.getTimeOptions (() -> {return Constants.DEFAULT_MINS; },
-                                                                  (v) -> { this.mins = v; });
+        ChoiceBox<StringProperty> words = UIUtils.getWordsOptions (() ->
+        {
+
+            String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+
+            try
+            {
+
+                return Integer.parseInt (v);
+
+            } catch (Exception e)
+            {
+
+                return Constants.DEFAULT_WORDS;
+
+            }
+
+        },
+        (v) -> { this.wordCount = v; });
+        ChoiceBox<StringProperty> times = UIUtils.getTimeOptions (() ->
+        {
+
+            String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+
+            int minsC = Constants.DEFAULT_MINS;
+
+            if (minsDef != null)
+            {
+
+                minsC = Integer.parseInt (minsDef);
+
+            }
+
+            return minsC;
+
+        },
+        (v) -> { this.mins = v; });
         QuollLabel l = QuollLabel.builder ()
             .label (timer,labels,andor)
             .build ();
@@ -49,6 +80,7 @@ public class WordCountTimerSelectPopup extends PopupContent
         QuollButton but = QuollButton.builder ()
             .tooltip (timer,buttons,start,tooltip)
             .iconName (StyleClassNames.START)
+            .styleClassName (StyleClassNames.START)
             .onAction (ev ->
             {
 

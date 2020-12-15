@@ -4,9 +4,8 @@ import java.io.*;
 import java.util.*;
 import java.nio.charset.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
-import com.gentlyweb.utils.*;
 import com.quollwriter.*;
 
 public class BaseStrings implements RefValueProvider
@@ -920,7 +919,7 @@ copy?
 
         }
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        "{QW}",
                                        Constants.QUOLL_WRITER_NAME);
 

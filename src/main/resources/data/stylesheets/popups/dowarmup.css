@@ -43,7 +43,8 @@
 .chooseprompt .previous.button .iconbox .icon {
     -fx-rotate: 180;
 }
-.chooseprompt .next.button .iconbox .icon {
+.chooseprompt .next.button .iconbox .icon,
+.chooseprompt .previous.button .iconbox .icon {
     -fx-pref-width: 0.888em;
 }
 .chooseprompt .weblinks {
@@ -51,7 +52,7 @@
     -fx-content-display: graphic-only;
     -fx-min-width: 16px;
 }
-.ownprompt .text { -fx-padding: 0.5em 0 0 0.5em; }
+/*.ownprompt .text { -fx-padding: 0.5em 0 0 0.5em; }*/
 .ownprompt .text .text-area {
     -fx-max-height: 5em;
     -fx-pref-height: 5em;
@@ -61,4 +62,14 @@
 .config > HBox {
     -fx-spacing: 0.5em;
     -fx-alignment: center-left;
+}
+
+.chooseprompt .buttons .button
+{
+    -fx-content-display: left;
+}
+
+.chooseprompt .buttons .button.previous
+{
+    -fx-content-display: graphic-only;
 }

@@ -2,7 +2,7 @@ package com.quollwriter.data;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class Link extends NamedObject
@@ -31,12 +31,14 @@ public class Link extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
 
     }
 
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
@@ -72,6 +74,7 @@ public class Link extends NamedObject
 
     }
 
+    @Override
     public String toString ()
     {
 
@@ -100,6 +103,7 @@ public class Link extends NamedObject
 
     }
 
+    @Override
     public boolean equals (Object o)
     {
 
@@ -126,6 +130,7 @@ public class Link extends NamedObject
 
     }
 
+    @Override
     public int hashCode ()
     {
 

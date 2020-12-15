@@ -2,14 +2,12 @@ package com.quollwriter.ui.fx.popups;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import javafx.scene.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -67,20 +65,14 @@ public class WhatsNewPopup extends PopupContent
             String whatsNew = Utils.getResourceFileAsString (Constants.WHATS_NEW_FILE);
 
             // Load up all the whats new for greater versions.
-            Element root = JDOMUtils.getStringAsElement (whatsNew);
-
-            List verEls = JDOMUtils.getChildElements (root,
-                                                                XMLConstants.version,
-                                                                false);
+            Element root = DOM4JUtils.stringAsElement (whatsNew);
 
             // Assume they are in the right order
             // TODO: Enforce the order and/or sort.
-            for (int i = 0; i < verEls.size (); i++)
+            for (Element vEl : root.elements (XMLConstants.version))
             {
 
-                Element vEl = (Element) verEls.get (i);
-
-                String id = JDOMUtils.getAttributeValue (vEl,
+                String id = DOM4JUtils.attributeValue (vEl,
                                                          XMLConstants.id,
                                                          true);
 
@@ -109,7 +101,7 @@ public class WhatsNewPopup extends PopupContent
 
                     WhatsNewNodeProvider compProv = null;
 
-                    String cl = JDOMUtils.getAttributeValue (vEl,
+                    String cl = DOM4JUtils.attributeValue (vEl,
                                                              XMLConstants.clazz,
                                                              false);
 
@@ -137,16 +129,10 @@ public class WhatsNewPopup extends PopupContent
                     }
 
                     // This is a version we are interested in.
-                    List itemEls = JDOMUtils.getChildElements (vEl,
-                                                                         WhatsNewItem.XMLConstants.root,
-                                                                         true);
-
                     List<WhatsNewItem> its = new ArrayList<> ();
 
-                    for (int j = 0; j < itemEls.size (); j++)
+                    for (Element itEl : vEl.elements (WhatsNewItem.XMLConstants.root))
                     {
-
-                        Element itEl = (Element) itemEls.get (j);
 
                         WhatsNewItem it = new WhatsNewItem (itEl,
                                                             compProv,
@@ -190,7 +176,7 @@ public class WhatsNewPopup extends PopupContent
                         {
 
                             Environment.logMessage ("Whats new item has no title, referenced by: " +
-                                                    JDOMUtils.getPath (itEl));
+                                                    DOM4JUtils.getPath (itEl));
 
                             continue;
 
@@ -203,7 +189,7 @@ public class WhatsNewPopup extends PopupContent
                         {
 
                             Environment.logMessage ("Whats new item has no description or component, referenced by: " +
-                                                    JDOMUtils.getPath (itEl));
+                                                    DOM4JUtils.getPath (itEl));
 
                             continue;
 
@@ -532,7 +518,7 @@ public class WhatsNewPopup extends PopupContent
         public StringProperty descriptionProp = null;
         public String id = null;
         public boolean onlyIfCurrentVersion = false;
-        public Node component = null;
+        public javafx.scene.Node component = null;
 
         public WhatsNewItem (Element              root,
                              WhatsNewNodeProvider prov,
@@ -540,7 +526,7 @@ public class WhatsNewPopup extends PopupContent
                              throws               Exception
         {
 
-            this.id = JDOMUtils.getAttributeValue (root,
+            this.id = DOM4JUtils.attributeValue (root,
                                                    XMLConstants.id,
                                                    false);
 
@@ -559,30 +545,25 @@ public class WhatsNewPopup extends PopupContent
 
             }
 
-            this.onlyIfCurrentVersion = JDOMUtils.getAttributeValueAsBoolean (root,
+            this.onlyIfCurrentVersion = DOM4JUtils.attributeValueAsBoolean (root,
                                                                               XMLConstants.onlyIfCurrentVersion,
                                                                               false);
-            this.title = JDOMUtils.getChildElementContent (root,
+            this.title = DOM4JUtils.childElementContent (root,
                                                            XMLConstants.title,
-                                                           false);
+                                                           false,
+                                                           null);
 
             this.titleProp = new SimpleStringProperty (this.title);
 
-            String desc = JDOMUtils.getChildElementContent (root,
-                                                            XMLConstants.description,
-                                                            false);
+            String desc = DOM4JUtils.childElementContent (root,
+                                                          XMLConstants.description,
+                                                          false,
+                                                          null);
 
-            if (!desc.equals (""))
+            if (desc != null)
             {
 
                 this.descriptionProp = new SimpleStringProperty (desc);
-
-            }
-
-            if (this.title.equals (""))
-            {
-
-                this.title = null;
 
             }
 

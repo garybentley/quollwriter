@@ -2,7 +2,7 @@ package com.quollwriter.data;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class WordCount
@@ -34,6 +34,7 @@ public class WordCount
 
     }
 
+    @Override
     public String toString ()
     {
 

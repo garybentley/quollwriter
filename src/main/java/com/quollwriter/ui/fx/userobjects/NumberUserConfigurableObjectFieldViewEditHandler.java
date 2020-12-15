@@ -7,8 +7,6 @@ import java.math.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;

@@ -1,6 +1,6 @@
 package com.quollwriter.data;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 public class Location extends LegacyAsset
 {
@@ -11,13 +11,14 @@ public class Location extends LegacyAsset
     {
 
         super (Location.OBJECT_TYPE);
-        
+
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
 
     }
-    
+
 }

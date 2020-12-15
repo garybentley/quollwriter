@@ -1991,6 +1991,7 @@ public class EditorsUIUtils
 
         QuollPopup qp = QuollPopup.formBuilder ()
             .styleClassName (StyleClassNames.CHANGEPASSWORD)
+            .headerIconClassName (StyleClassNames.EDIT)
             .title (Utils.newList (prefix,title))
             .inViewer (viewer)
             .form (form)
@@ -2118,6 +2119,10 @@ public class EditorsUIUtils
                                        Runnable        onLogin,
                                        Runnable        onCancel)
     {
+
+        UIUtils.runLater (() ->
+        {
+
         /*
         if (EditorsUIUtils.editorLogin.getParent () == null)
         {
@@ -2132,24 +2137,26 @@ public class EditorsUIUtils
         }
         */
 
-        EditorsUIUtils.editorLogin.show ();
+            EditorsUIUtils.editorLogin.show ();
 
-        EditorsUIUtils.editorLogin.showError (error);
+            EditorsUIUtils.editorLogin.showError (error);
 
-        if (onLogin != null)
-        {
+            if (onLogin != null)
+            {
 
-            EditorsUIUtils.editorLogin.setOnLogin (onLogin);
+                EditorsUIUtils.editorLogin.setOnLogin (onLogin);
 
-        }
+            }
 
-        if (onCancel != null)
-        {
+            if (onCancel != null)
+            {
 
-            EditorsUIUtils.editorLogin.setOnCancel (onCancel);
-            //EditorsUIUtils.editorLogin.setOnClose (onCancel);
+                EditorsUIUtils.editorLogin.setOnCancel (onCancel);
+                //EditorsUIUtils.editorLogin.setOnClose (onCancel);
 
-        }
+            }
+
+        });
 
         //EditorsUIUtils.editorLogin.resize ();
 
@@ -2203,6 +2210,7 @@ public class EditorsUIUtils
         QuollPopup.textEntryBuilder ()
             .popupId (popupId)
             .styleClassName (StyleClassNames.INVITEEDITOR)
+            .headerIconClassName (StyleClassNames.ADD)
             .title (Utils.newList (prefix,title))
             .description (Utils.newList (prefix,text))
             .removeOnClose (true)
@@ -2500,6 +2508,7 @@ public class EditorsUIUtils
 
                     // Need to give it a fake key.
                     n.setKey (k++);
+                    n.setType (Note.EDIT_NEEDED_OBJECT_TYPE);
 
                     // Get the fake chapter.
                     Chapter fakec = n.getChapter ();
@@ -2725,7 +2734,9 @@ public class EditorsUIUtils
 
         List<String> prefix = Arrays.asList (editors,project,sidebar,comments,labels);
 
-        Form.Builder f = Form.builder ();
+        Form.Builder f = Form.builder ()
+            .layoutType (Form.LayoutType.column)
+            .styleClassName (StyleClassNames.PROJECTVERSIONINFO);
 
         if (ver != null)
         {
@@ -2747,7 +2758,7 @@ public class EditorsUIUtils
 
             }));
 
-            f.item (getUILanguageStringProperty (prefix,version),
+            f.item (getUILanguageStringProperty (Utils.newList (prefix,version)),
                     QuollLabel.builder ()
                         .label (l)
                         .build ());
@@ -2757,7 +2768,7 @@ public class EditorsUIUtils
         if (due != null)
         {
 
-            f.item (getUILanguageStringProperty (prefix,LanguageStrings.due),
+            f.item (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.due)),
                     QuollLabel.builder ()
                         .label (new SimpleStringProperty (Environment.formatDate (due)))
                         .build ());
@@ -2786,7 +2797,7 @@ public class EditorsUIUtils
                 .inViewer (viewer)
                 .build ();
 
-            f.item (getUILanguageStringProperty (prefix,notes),
+            f.item (getUILanguageStringProperty (Utils.newList (prefix,notes)),
                     v);
 
             v.setOnMouseClicked (ev ->
@@ -2803,7 +2814,11 @@ public class EditorsUIUtils
 
         }
 
-        return f.build ();
+        Form form = f.build ();
+        VBox.setVgrow (form,
+                       Priority.NEVER);
+
+        return form;
 
     }
 
@@ -2977,9 +2992,9 @@ public class EditorsUIUtils
 
         java.util.List<String> prefix = Arrays.asList (editors,LanguageStrings.messages,show,project,popup);
 
-        EditorsUIUtils.showMessagesInPopup (getUILanguageStringProperty (prefix,title),
+        EditorsUIUtils.showMessagesInPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
                                             //"{Project} updates sent/received",
-                                            Project.OBJECT_TYPE,
+                                            StyleClassNames.PROJECTMESSAGES,
                                             getUILanguageStringProperty (Utils.newList (prefix,text),
                                                           //"All {project} updates you have sent to or received from <b>%s</b> for {project} <b>%s</b>.  The latest update is shown first.",
                                                                          ed.mainNameProperty (),
@@ -3017,7 +3032,7 @@ public class EditorsUIUtils
         //String suffix = (sentByMe ? "sent" : "received");
         //String suffix2 = (sentByMe ? "sent to" : "received from");
 
-        EditorsUIUtils.showMessagesInPopup (getUILanguageStringProperty (prefix,title),
+        EditorsUIUtils.showMessagesInPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
                                             //String.format ("{Comments} %s",
                                             //    suffix),
                                             StyleClassNames.COMMENTS,
@@ -3503,11 +3518,14 @@ public class EditorsUIUtils
                                 {
 
                                     @Override
-                                    public SideBar getMainSideBar ()
+                                    public void init (State s)
+                                               throws GeneralException
                                     {
 
-                                        return new ProjectSentReceivedSideBar<> (this,
-                                                                                 this.message)
+                                        super.init (s);
+
+                                        this.setMainSideBar (new ProjectSentReceivedSideBar<> (this,
+                                                                                               this.message)
                                         {
 
                                             @Override
@@ -3618,7 +3636,7 @@ public class EditorsUIUtils
 
                                             }
 
-                                        }.getSideBar ();
+                                        });
 
                                     }
 

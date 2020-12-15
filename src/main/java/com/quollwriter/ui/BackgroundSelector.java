@@ -17,9 +17,8 @@ import javax.swing.filechooser.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 import com.quollwriter.*;
 
@@ -286,18 +285,12 @@ public class BackgroundSelector extends Box implements ListSelectionListener
             }
 
             // Will be xml.
-            Element root = JDOMUtils.getStringAsElement (bgFiles);
+            Element root = DOM4JUtils.stringAsElement (bgFiles);
 
-            List els = JDOMUtils.getChildElements (root,
-                                                   "f",
-                                                   false);
-
-            for (int i = 0; i < els.size (); i++)
+            for (Element el : root.elements ("f"))
             {
 
-                Element el = (Element) els.get (i);
-
-                File f = new File (JDOMUtils.getChildContent (el));
+                File f = new File (el.getTextTrim ());
 
                 if ((!f.exists ())
                     ||
@@ -328,20 +321,20 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         try
         {
 
-            Element root = new Element ("files");
+            Element root = new DefaultElement ("files");
 
             for (File f : this.files)
             {
 
-                Element el = new Element ("f");
-                el.addContent (f.getPath ());
+                Element el = new DefaultElement ("f");
+                el.add (new DefaultCDATA (f.getPath ()));
 
-                root.addContent (el);
+                root.add (el);
 
             }
 
             // Get as a string.
-            String data = JDOMUtils.getElementAsString (root);
+            String data = DOM4JUtils.elementAsString (root);
 
             UserProperties.set (Constants.BG_IMAGE_FILES_PROPERTY_NAME,
                                 data);

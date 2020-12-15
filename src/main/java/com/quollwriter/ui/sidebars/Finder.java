@@ -20,8 +20,6 @@ import javax.swing.tree.*;
 import javax.swing.text.*;
 import javax.swing.event.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;

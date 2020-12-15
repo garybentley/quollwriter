@@ -4,7 +4,7 @@ import java.util.*;
 
 import javafx.beans.property.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 import org.josql.*;
 
 import com.quollwriter.*;

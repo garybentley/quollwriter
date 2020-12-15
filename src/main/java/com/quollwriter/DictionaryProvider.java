@@ -5,8 +5,6 @@ import java.net.*;
 import java.util.*;
 import java.nio.file.*;
 
-import com.gentlyweb.utils.*;
-
 import javafx.scene.control.*;
 import javafx.scene.text.*;
 import javafx.scene.layout.*;
@@ -604,9 +602,9 @@ public class DictionaryProvider
         try
         {
 
-            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (UserProperties.get (com.quollwriter.Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + Utils.replaceString (UserProperties.get (com.quollwriter.Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
                                                                                                    "[[LANG]]",
-                                                                                                   StringUtils.replaceString (fileLang,
+                                                                                                   Utils.replaceString (fileLang,
                                                                                                                               " ",
                                                                                                                               "%20")));
 
@@ -674,7 +672,7 @@ public class DictionaryProvider
                                                                 @Override
                                                                 public void onStop ()
                                                                 {
-                                                                    
+
                                                                 }
 
                                                                 @Override

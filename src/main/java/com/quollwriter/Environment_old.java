@@ -40,13 +40,7 @@ import javax.sound.sampled.*;
 
 import javafx.beans.binding.*;
 
-import com.gentlyweb.logging.Logger;
-
 import com.gentlyweb.properties.*;
-
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
 
 import com.jgoodies.looks.*;
 import com.jgoodies.looks.windows.*;
@@ -87,7 +81,7 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 
 import javafx.beans.property.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 public class Environment_old
 {
@@ -4699,7 +4693,7 @@ TODO Add this somewhere else?
     private static void loadLegacyObjectTypeNames (Element root)
                                            throws  Exception
     {
-
+/*
         Map<String, String> singular = new HashMap ();
         Map<String, String> plural = new HashMap ();
 
@@ -4742,6 +4736,7 @@ TODO Add this somewhere else?
             }
 
         }
+        */
 /*
         // Load the names from the configurable types.
         for (UserConfigurableObjectType t : Environment.userConfigObjTypes)

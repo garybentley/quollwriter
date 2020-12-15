@@ -1,0 +1,7 @@
+.viewer
+{
+    -fx-min-width: 300px;
+    -fx-min-height: 300px;
+    -fx-pref-width: 1200px;
+    -fx-pref-height: 800px;
+}

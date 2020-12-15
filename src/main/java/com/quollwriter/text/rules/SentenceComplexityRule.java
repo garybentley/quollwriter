@@ -2,28 +2,16 @@ package com.quollwriter.text.rules;
 
 import java.util.*;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-
 import javafx.scene.control.*;
 import javafx.scene.control.SpinnerValueFactory.*;
 
 import java.text.*;
 
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.forms.*;
+import org.dom4j.*;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
-
-import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
@@ -43,8 +31,8 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     private float      ratio = 0;
     private int wordCount = 0;
-    private JSpinner ratioF = null;
-    private JSpinner wordCountF = null;
+    private javax.swing.JSpinner ratioF = null;
+    private javax.swing.JSpinner wordCountF = null;
 
     private Spinner<Double> ratioF2 = null;
     private Spinner<Integer> wordCountF2 = null;
@@ -71,11 +59,11 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         String d = super.getDescription ();
 
-        d = StringUtils.replaceString (d,
+        d = Utils.replaceString (d,
                                        "[RATIO]",
                                        Environment.formatNumber (this.ratio) + "");
 
-        d = StringUtils.replaceString (d,
+        d = Utils.replaceString (d,
                                        "[COUNT]",
                                        this.wordCount + "");
 
@@ -87,11 +75,11 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     public String getSummary ()
     {
 
-        String t = StringUtils.replaceString (super.getSummary (),
+        String t = Utils.replaceString (super.getSummary (),
                                               "[RATIO]",
                                               Environment.formatNumber (this.ratio) + "");
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        "[COUNT]",
                                        this.wordCount + "");
 
@@ -101,14 +89,14 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        this.ratio = JDOMUtils.getAttributeValueAsFloat (root,
+        this.ratio = DOM4JUtils.attributeValueAsFloat (root,
                                                          XMLConstants.ratio);
-        this.wordCount = JDOMUtils.getAttributeValueAsInt (root,
+        this.wordCount = DOM4JUtils.attributeValueAsInt (root,
                                                        XMLConstants.wordCount);
 
     }
@@ -119,9 +107,9 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         Element root = super.getAsElement ();
 
-        root.setAttribute (XMLConstants.ratio,
+        root.addAttribute (XMLConstants.ratio,
                            this.ratio + "");
-        root.setAttribute (XMLConstants.wordCount,
+        root.addAttribute (XMLConstants.wordCount,
                            this.wordCount + "");
 
         return root;
@@ -184,7 +172,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
+    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
     {
 
         List<String> pref = new ArrayList<> ();
@@ -194,36 +182,36 @@ public class SentenceComplexityRule extends AbstractSentenceRule
         pref.add (LanguageStrings.sentencecomplexity);
         pref.add (LanguageStrings.labels);
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet<> ();
 
-        this.ratioF = new JSpinner (new SpinnerNumberModel (this.ratio,
+        this.ratioF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.ratio,
                                                             0.1f,
                                                             3.0f,
                                                             0.1));
 
-        Box b = new Box (BoxLayout.X_AXIS);
+        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
         b.add (this.ratioF);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.ratioF.setMaximumSize (this.ratioF.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.ratio),
                                     b));
 
-        this.wordCountF = new JSpinner (new SpinnerNumberModel (this.wordCount,
+        this.wordCountF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.wordCount,
                                                             1,
                                                             500,
                                                             1));
 
-        b = new Box (BoxLayout.X_AXIS);
+        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
 
         b.add (this.wordCountF);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.sentencelength),
                                     //"Sentence length (words)",
                                     b));
@@ -265,8 +253,8 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     public void updateFromForm ()
     {
 
-        this.ratio = ((SpinnerNumberModel) this.ratioF.getModel ()).getNumber ().floatValue ();
-        this.wordCount = ((SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
+        this.ratio = ((javax.swing.SpinnerNumberModel) this.ratioF.getModel ()).getNumber ().floatValue ();
+        this.wordCount = ((javax.swing.SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
 
     }
 

@@ -114,13 +114,6 @@ public class CommentItemFormatter extends AbstractChapterItemFormatter<Note, Abs
     public String getStyleClassName ()
     {
 
-        if (this.item.isEditNeeded ())
-        {
-
-            return StyleClassNames.EDITNEEDEDNOTE;
-
-        }
-
         return StyleClassNames.COMMENT;
 
     }
@@ -128,20 +121,19 @@ public class CommentItemFormatter extends AbstractChapterItemFormatter<Note, Abs
     @Override
     public StringProperty getPopupTitle ()
     {
-/*
-TODO?
+
+        return null;
+        /*
         if (mode == CommentActionHandler.EDIT)
         {
 
-            return getUIString (comments,edit,title);
+            return getUILanguageStringProperty (comments,edit,title);
             //"Edit Comment";
 
         }
 
-        return getUIString (comments,_new,title);
+        return getUILanguageStringProperty (comments,_new,title);
 */
-        return Environment.getObjectTypeName (this.item);
-
     }
 
 }

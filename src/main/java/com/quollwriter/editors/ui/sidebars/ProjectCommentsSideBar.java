@@ -58,7 +58,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
     public StringProperty getItemsTitle ()
     {
 
-        return new SimpleStringProperty ("{Comments}");
+        return getUILanguageStringProperty (objectnames,plural,comment);
 
     }
 
@@ -83,6 +83,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
         final String notes = (projVer.getDescription () != null ? projVer.getDescription ().getText () : null);
 
         Form.Builder fb = Form.builder ()
+            .layoutType (Form.LayoutType.column)
             .item (getUILanguageStringProperty (Utils.newList (prefix,(this.message.isSentByMe () ? sent : received))),
                    UILanguageStringsManager.createStringPropertyWithBinding (() ->
                    {
@@ -162,24 +163,19 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
         }
 
-        if (otherC > 0)
-        {
+        this.otherCommentsLabel = QuollHyperlink.builder ()
+            .styleClassName (StyleClassNames.VIEW)
+            .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,labels,othercomments),
+                                                 Environment.formatNumber (otherC)))
+            .onAction (ev ->
+            {
 
-            this.otherCommentsLabel = QuollHyperlink.builder ()
-                .styleClassName (StyleClassNames.VIEW)
-                .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,labels,othercomments),
-                                                     Environment.formatNumber (otherC)))
-                .onAction (ev ->
-                {
+                this.showOtherCommentsSelector ();
 
-                    this.showOtherCommentsSelector ();
+            })
+            .build ();
 
-                })
-                .build ();
-
-            this.otherCommentsLabel.setVisible (otherC > 0);
-
-        }
+        this.otherCommentsLabel.setVisible (otherC > 0);
 
         content.getChildren ().addAll (n, this.otherCommentsLabel);
 

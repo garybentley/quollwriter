@@ -4,10 +4,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.synonyms.*;
@@ -16,7 +12,7 @@ import com.quollwriter.text.*;
 
 import com.quollwriter.ui.forms.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.QuollCheckBox;
@@ -97,12 +93,12 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        String sw = JDOMUtils.getAttributeValue (root,
+        String sw = DOM4JUtils.attributeValue (root,
                                                  XMLConstants.beWords);
 
         StringTokenizer t = new StringTokenizer (sw,
@@ -115,7 +111,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         }
 
-        String w = JDOMUtils.getAttributeValue (root,
+        String w = DOM4JUtils.attributeValue (root,
                                                 XMLConstants.irregularForms);
 
         t = new StringTokenizer (w,
@@ -128,7 +124,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         }
 
-        this.ignoreInDialogue = JDOMUtils.getAttributeValueAsBoolean (root,
+        this.ignoreInDialogue = DOM4JUtils.attributeValueAsBoolean (root,
                                                                       XMLConstants.ignoreInDialogue,
                                                                       false);
 
@@ -143,7 +139,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         if (this.ignoreInDialogue)
         {
 
-            root.setAttribute (XMLConstants.ignoreInDialogue,
+            root.addAttribute (XMLConstants.ignoreInDialogue,
                                Boolean.toString (this.ignoreInDialogue));
 
         }
@@ -164,7 +160,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         }
 
-        root.setAttribute (XMLConstants.beWords,
+        root.addAttribute (XMLConstants.beWords,
                            b.toString ());
 
         b = new StringBuilder ();
@@ -183,7 +179,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         }
 
-        root.setAttribute (XMLConstants.irregularForms,
+        root.addAttribute (XMLConstants.irregularForms,
                            b.toString ());
 
         return root;
@@ -194,7 +190,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     public List<Issue> getIssues (Sentence sentence)
     {
 
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         List<Word> swords = sentence.getWords ();
 

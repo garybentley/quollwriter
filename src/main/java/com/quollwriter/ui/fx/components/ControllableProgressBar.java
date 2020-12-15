@@ -77,7 +77,7 @@ public class ControllableProgressBar extends HBox
 
                 m.getItems ().add (QuollMenuItem.builder ()
                     .label (timer,popupmenu,items,play)
-                    .iconName (StyleClassNames.PLAY)
+                    .iconName (StyleClassNames.START)
                     .onAction (eev ->
                     {
 
@@ -93,7 +93,7 @@ public class ControllableProgressBar extends HBox
 
                 m.getItems ().add (QuollMenuItem.builder ()
                     .label (timer,popupmenu,items,play)
-                    .iconName (StyleClassNames.PLAY)
+                    .iconName (StyleClassNames.START)
                     .onAction (eev ->
                     {
 
@@ -152,7 +152,7 @@ public class ControllableProgressBar extends HBox
         });
 
         this.playBut = QuollButton.builder ()
-            .iconName (StyleClassNames.PLAY)
+            .iconName (StyleClassNames.START)
             .onAction (ev ->
             {
 

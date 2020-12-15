@@ -5,6 +5,7 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
+import javafx.scene.control.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -56,10 +57,10 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
         visItems.add (context);
 
         // TODO Change or make work!
-        ConfigurableToolbar ctb = ConfigurableToolbar.builder ()
-            .items (hc)
-            .visibleItems (hc)
-            .withViewer (this.viewer)
+        QuollToolBar ctb = QuollToolBar.builder ()
+            .controls (hc)
+            //.visibleItems (hc)
+            //.withViewer (this.viewer)
             .build ();
 
         this.header = Header.builder ()
@@ -85,6 +86,8 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
         this.parentPane.setContent (mainContent);
 
         VBox b = new VBox ();
+        VBox.setVgrow (b,
+                       Priority.ALWAYS);
 
         UIUtils.addStyleSheet (b,
                                Constants.VIEWER_STYLESHEET_TYPE,
@@ -100,6 +103,18 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
         b.getStyleClass ().add (StyleClassNames.WINDOWED);
         b.prefWidthProperty ().bind (this.widthProperty ());
         b.prefHeightProperty ().bind (this.heightProperty ());
+
+        TabPane tp = new TabPane ();
+        Tab tab = new Tab ();
+        VBox.setVgrow (tp,
+                       Priority.ALWAYS);
+        tab.setContent (new ScrollPane (AccordionItem.builder ()
+            .openContent (new TextArea ())
+            .title (new javafx.beans.property.SimpleStringProperty ("TEST"))
+            .closedContent (new Label ("THIS IS A TEST"))
+            .build ()));
+        tp.getTabs ().add (tab);
+//this.parentPane.setContent (tp);
         this.getChildren ().add (b);
         b.getChildren ().addAll (this.header, this.notifications, this.parentPane);
 

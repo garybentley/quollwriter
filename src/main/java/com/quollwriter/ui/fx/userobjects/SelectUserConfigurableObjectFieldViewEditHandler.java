@@ -2,8 +2,6 @@ package com.quollwriter.ui.fx.userobjects;
 
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
 import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;

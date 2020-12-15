@@ -8,8 +8,6 @@ import javafx.scene.control.IndexRange;
 
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.*;

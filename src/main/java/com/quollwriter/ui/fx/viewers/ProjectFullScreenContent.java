@@ -149,7 +149,8 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         //double swidth = Screen.getPrimary ().getVisualBounds ().getWidth ();
         //double sheight = Screen.getPrimary ().getVisualBounds ().getHeight ();
 
-        ToolBar tb = new ToolBar ();
+        QuollToolBar tb = QuollToolBar.builder ()
+            .build ();
 
         this.headerClockLabel = QuollLabel.builder ()
             .styleClassName (StyleClassNames.CLOCK)
@@ -1395,7 +1396,6 @@ TODO ? psuedo class
             ProjectChapterEditorPanelContent p = (ProjectChapterEditorPanelContent) this.panel;
 
             this.viewer.setUseTypewriterScrolling (v);
-            p.showIconColumn (!v);
 
         }
 

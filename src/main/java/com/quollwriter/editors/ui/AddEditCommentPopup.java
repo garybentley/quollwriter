@@ -10,8 +10,6 @@ import javafx.collections.*;
 
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.*;
@@ -57,7 +55,7 @@ public class AddEditCommentPopup extends PopupContent<EditorProjectViewer>
 
         this.addMode = this.item.getKey () < 0;
 
-        EditorChapterPanel editor = viewer.getEditorForChapter (this.item.getChapter ());
+        EditorChapterPanel editor = viewer.getEditorForChapter (this.chapter);
 
         this.form = this.addItems (Form.builder (),
                                    editor.getSelectedText ())
@@ -101,9 +99,9 @@ public class AddEditCommentPopup extends PopupContent<EditorProjectViewer>
         if (!this.addMode)
         {
 
-            this.highlight = this.viewer.getEditorForChapter (this.item.getChapter ()).getEditor ().addHighlight (new IndexRange (this.item.getStartPosition (),
-                                                                                                                                  this.item.getEndPosition ()),
-                                                                                                                  UserProperties.getEditorCommentChapterHighlightColor ());
+            this.highlight = this.viewer.getEditorForChapter (this.chapter).getEditor ().addHighlight (new IndexRange (this.item.getStartPosition (),
+                                                                                                                       this.item.getEndPosition ()),
+                                                                                                       UserProperties.getEditorCommentChapterHighlightColor ());
 
         }
 
@@ -156,14 +154,13 @@ public class AddEditCommentPopup extends PopupContent<EditorProjectViewer>
         List<String> prefix = Arrays.asList (comments,addedit,labels);
 
         this.desc = QuollTextArea.builder ()
-            .placeholder (getUILanguageStringProperty (chapteritems,labels,description,tooltip))
+            .placeholder (getUILanguageStringProperty (comment,addedit,labels,comment,tooltip))
             .styleClassName (StyleClassNames.DESCRIPTION)
             .withViewer (this.viewer)
             .formattingEnabled (true)
             .build ();
 
-        builder.item (getUILanguageStringProperty (Utils.newList (prefix,description)),
-                      this.desc);
+        builder.item (this.desc);
 
         this.linkedToPanel = new HyperlinkLinkedToPanel (this.item,
                                                          this.getBinder (),
@@ -190,7 +187,7 @@ public class AddEditCommentPopup extends PopupContent<EditorProjectViewer>
 
         this.item.setSummary (p.getFirstSentence ().getText ());
 
-        EditorChapterPanel editor = viewer.getEditorForChapter (this.item.getChapter ());
+        EditorChapterPanel editor = viewer.getEditorForChapter (this.chapter);
 
         String type = Note.EDIT_NEEDED_NOTE_TYPE;
 
@@ -344,6 +341,7 @@ TODO Needed?
         QuollPopup p = QuollPopup.builder ()
             .title (title)
             .styleClassName (this.addMode ? StyleClassNames.ADD : StyleClassNames.EDIT)
+            .headerIconClassName (StyleClassNames.COMMENT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)
@@ -368,7 +366,7 @@ TODO Needed?
                            ev ->
         {
 
-            EditorChapterPanel ed = this.viewer.getEditorForChapter (this.item.getChapter ());
+            EditorChapterPanel ed = this.viewer.getEditorForChapter (this.chapter);
 
             if (ed != null)
             {

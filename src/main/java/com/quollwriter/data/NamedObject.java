@@ -4,8 +4,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-import com.gentlyweb.xml.*;
-
 import javafx.collections.*;
 import javafx.beans.property.*;
 
@@ -13,7 +11,8 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.comparators.*;
 
-import org.jdom.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 public abstract class NamedObject extends DataObject
 {
@@ -758,21 +757,21 @@ TODO Remove, isn't working.
                                       newValue))
         {
 
-            Element fieldEl = new Element ("field");
+            Element fieldEl = new DefaultElement ("field");
 
-            changesEl.addContent (fieldEl);
+            changesEl.add (fieldEl);
 
-            fieldEl.setAttribute ("name",
+            fieldEl.addAttribute ("name",
                                   fieldName);
 
-            Element oldEl = new Element ("old");
-            Element newEl = new Element ("new");
+            Element oldEl = new DefaultElement ("old");
+            Element newEl = new DefaultElement ("new");
 
-            oldEl.addContent ((oldValue != null) ? (oldValue + "") : (null + ""));
-            newEl.addContent ((newValue != null) ? (newValue + "") : (null + ""));
+            oldEl.add (new DefaultCDATA ((oldValue != null) ? oldValue : (null + "")));
+            newEl.add (new DefaultCDATA ((newValue != null) ? (newValue + "") : (null + "")));
 
-            fieldEl.addContent (oldEl);
-            fieldEl.addContent (newEl);
+            fieldEl.add (oldEl);
+            fieldEl.add (newEl);
 
         }
 
@@ -791,21 +790,21 @@ TODO Remove, isn't working.
                                       nt))
         {
 
-            Element fieldEl = new Element ("field");
+            Element fieldEl = new DefaultElement ("field");
 
-            changesEl.addContent (fieldEl);
+            changesEl.add (fieldEl);
 
-            fieldEl.setAttribute ("name",
+            fieldEl.addAttribute ("name",
                                   fieldName);
 
-            Element oldEl = new Element ("old");
-            Element newEl = new Element ("new");
+            Element oldEl = new DefaultElement ("old");
+            Element newEl = new DefaultElement ("new");
 
-            oldEl.addContent ((ot != null) ? (ot + "") : (null + ""));
-            newEl.addContent ((nt != null) ? (nt + "") : (null + ""));
+            oldEl.add (new DefaultCDATA ((ot != null) ? (ot + "") : (null + "")));
+            newEl.add (new DefaultCDATA ((nt != null) ? (nt + "") : (null + "")));
 
-            fieldEl.addContent (oldEl);
-            fieldEl.addContent (newEl);
+            fieldEl.add (oldEl);
+            fieldEl.add (newEl);
 
         }
 
@@ -821,21 +820,21 @@ TODO Remove, isn't working.
                                       newValue))
         {
 
-            Element fieldEl = new Element ("field");
+            Element fieldEl = new DefaultElement ("field");
 
-            changesEl.addContent (fieldEl);
+            changesEl.add (fieldEl);
 
-            fieldEl.setAttribute ("name",
+            fieldEl.addAttribute ("name",
                                   fieldName);
 
-            Element oldEl = new Element ("old");
-            Element newEl = new Element ("new");
+            Element oldEl = new DefaultElement ("old");
+            Element newEl = new DefaultElement ("new");
 
-            oldEl.addContent ((oldValue != null) ? (oldValue.getTime () + "") : (null + ""));
-            newEl.addContent ((newValue != null) ? (newValue.getTime () + "") : (null + ""));
+            oldEl.add (new DefaultCDATA ((oldValue != null) ? (oldValue.getTime () + "") : (null + "")));
+            newEl.add (new DefaultCDATA ((newValue != null) ? (newValue.getTime () + "") : (null + "")));
 
-            fieldEl.addContent (oldEl);
-            fieldEl.addContent (newEl);
+            fieldEl.add (oldEl);
+            fieldEl.add (newEl);
 
         }
 
@@ -844,7 +843,7 @@ TODO Remove, isn't working.
     public Element getChanges (NamedObject old)
     {
 
-        Element root = new Element ("changes");
+        Element root = new DefaultElement ("changes");
 
         this.addFieldChangeElement (root,
                                     "name",
@@ -864,7 +863,7 @@ TODO Remove, isn't working.
         this.getChanges (old,
                          root);
 
-        if (root.getContent ().size () > 0)
+        if (root.content ().size () > 0)
         {
 
             return root;

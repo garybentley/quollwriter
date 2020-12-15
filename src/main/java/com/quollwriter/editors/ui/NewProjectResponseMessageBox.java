@@ -34,6 +34,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         super (mess,
                viewer);
 
+        this.getStyleClass ().add (StyleClassNames.NEWPROJECTRESPONSE);
+
         this.binder.addChangeListener (mess.getEditor ().editorStatusProperty (),
                                        (pr, oldv, newv) ->
         {

@@ -18,12 +18,9 @@ import javax.swing.*;
 
 import javafx.beans.property.*;
 
-import org.jdom.*;
-import org.jdom.output.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
-import com.gentlyweb.xml.*;
-
-import com.gentlyweb.utils.*;
 import com.quollwriter.ui.*;
 
 import com.quollwriter.data.*;
@@ -56,28 +53,6 @@ public class Utils
         }
 
         return ret;
-
-    }
-
-    public static String getElementAsString (Element el)
-	                                     throws  IOException
-    {
-
-	StringWriter sout = new StringWriter ();
-	PrintWriter pout = new PrintWriter (new BufferedWriter (sout));
-
-	// Output the rule to the string...
-	XMLOutputter xout = new XMLOutputter ();
-
-	xout.setFormat (org.jdom.output.Format.getPrettyFormat ());
-	System.out.println ("T: " + xout.getFormat ().getEncoding ());
-	xout.output (el,
-		     pout);
-
-	pout.flush ();
-	pout.close ();
-
-	return sout.toString ();
 
     }
 
@@ -138,9 +113,9 @@ public class Utils
         if (m.length () > 0)
         {
 
-            b.append (StringUtils.replaceString (m.toLowerCase (),
-                                                 "+",
-                                                 " "));
+            b.append (Utils.replaceString (m.toLowerCase (),
+                                           "+",
+                                           " "));
             b.append (" ");
 
         }
@@ -323,7 +298,7 @@ public class Utils
 
         }
 
-        Element root = new Element (Environment.XMLConstants.stats);
+        Element root = new DefaultElement (Environment.XMLConstants.stats);
 
         Iterator<ProjectInfo.Statistic> iter = stats.keySet ().iterator ();
 
@@ -340,18 +315,18 @@ public class Utils
                )
             {
 
-                Element stat = new Element (Environment.XMLConstants.stat);
+                Element stat = new DefaultElement (Environment.XMLConstants.stat);
 
-                root.addContent (stat);
+                root.add (stat);
 
-                stat.setAttribute (Environment.XMLConstants.id,
+                stat.addAttribute (Environment.XMLConstants.id,
                                    s.getType ());
-                stat.addContent (v.toString ());
+                stat.add (new DefaultCDATA (v.toString ()));
 
                 if (v instanceof String)
                 {
 
-                    stat.setAttribute (Environment.XMLConstants.type,
+                    stat.addAttribute (Environment.XMLConstants.type,
                                        "string");
 
                 }
@@ -359,7 +334,7 @@ public class Utils
                 if (v instanceof Number)
                 {
 
-                    stat.setAttribute (Environment.XMLConstants.type,
+                    stat.addAttribute (Environment.XMLConstants.type,
                                        "number");
 
                 }
@@ -371,7 +346,7 @@ public class Utils
         try
         {
 
-            return JDOMUtils.getElementAsString (root);
+            return Utils.getAsXML (root);
 
         } catch (Exception e) {
 
@@ -382,6 +357,15 @@ public class Utils
             return null;
 
         }
+
+    }
+
+    public static String getAsXML (Element el)
+    {
+
+        Document doc = DocumentHelper.createDocument ();
+        doc.setRootElement (el);
+        return doc.asXML ();
 
     }
 
@@ -402,7 +386,7 @@ public class Utils
         try
         {
 
-            root = JDOMUtils.getStringAsElement (t);
+            root = DOM4JUtils.stringAsElement (t);
 
         } catch (Exception e) {
 
@@ -415,67 +399,48 @@ public class Utils
 
         }
 
-        List els = null;
-
-        try
-        {
-
-            els = JDOMUtils.getChildElements (root,
-                                              Environment.XMLConstants.stat,
-                                              false);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to get child stat elements: " +
-                                  e);
-
-            return ret;
-
-        }
-
-        for (int i = 0; i < els.size (); i++)
-        {
-
-            Element el = (Element) els.get (i);
-
-            try
+        root.elements (Environment.XMLConstants.stat).stream ()
+            .forEach (el ->
             {
 
-                String val = JDOMUtils.getChildContent (el);
+                try
+                {
 
-                String id = JDOMUtils.getAttributeValue (el,
-                                                         Environment.XMLConstants.id,
-                                                         true);
+                    String val = el.getTextTrim ();
 
-                String type = JDOMUtils.getAttributeValue (el,
-                                                           Environment.XMLConstants.type,
+                    String id = DOM4JUtils.attributeValue (el,
+                                                           Environment.XMLConstants.id,
                                                            true);
 
-                if (type.equals ("number"))
-                {
+                    String type = DOM4JUtils.attributeValue (el,
+                                                             Environment.XMLConstants.type,
+                                                             true);
 
-                    ret.put (ProjectInfo.Statistic.valueOf (id),
-                             Double.parseDouble (val));
+                    if (type.equals ("number"))
+                    {
+
+                        ret.put (ProjectInfo.Statistic.valueOf (id),
+                                 Double.parseDouble (val));
+
+                    }
+
+                    if (type.equals ("string"))
+                    {
+
+                        ret.put (ProjectInfo.Statistic.valueOf (id),
+                                 val);
+
+                    }
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get stats info from element: " +
+                                          DOM4JUtils.getPath (el),
+                                          e);
 
                 }
 
-                if (type.equals ("string"))
-                {
-
-                    ret.put (ProjectInfo.Statistic.valueOf (id),
-                             val);
-
-                }
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to get stats info from element: " +
-                                      JDOMUtils.getPath (el),
-                                      e);
-
-            }
-
-        }
+            });
 
         return ret;
 
@@ -498,7 +463,7 @@ public class Utils
         try
         {
 
-            root = JDOMUtils.getStringAsElement (t);
+            root = DOM4JUtils.stringAsElement (t);
 
         } catch (Exception e) {
 
@@ -511,6 +476,11 @@ public class Utils
 
         }
 
+        ret.addAll (root.elements (Environment.XMLConstants.file).stream ()
+            .map (el -> Paths.get (el.getTextTrim ()))
+            .collect (Collectors.toList ()));
+/*
+TODO Remove
         List els = null;
 
         try
@@ -551,7 +521,7 @@ public class Utils
             }
 
         }
-
+*/
         return ret;
 
     }
@@ -622,23 +592,23 @@ TODO Remove
 
         }
 
-        Element root = new Element (Environment.XMLConstants.files);
+        Element root = new DefaultElement (Environment.XMLConstants.files);
 
         for (Path f : files)
         {
 
-            Element fel = new Element (Environment.XMLConstants.file);
+            Element fel = new DefaultElement (Environment.XMLConstants.file);
 
-            root.addContent (fel);
+            root.add (fel);
 
-            fel.addContent (f.toString ());
+            fel.add (new DefaultCDATA (f.toString ()));
 
         }
 
         try
         {
 
-            return JDOMUtils.getElementAsString (root);
+            return Utils.getAsXML (root);
 
         } catch (Exception e) {
 
@@ -1251,7 +1221,7 @@ TODO Remove
 
                         BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (zFile));
 
-                        IOUtils.streamTo (in,
+                        Utils.streamTo (in,
                                           bout,
                                           4096);
 
@@ -1742,7 +1712,7 @@ TODO Remove
 
     @Deprecated
     public static void createQuollWriterDirFile (File d)
-                                          throws IOException
+                                          throws GeneralException
     {
 
         Utils.createQuollWriterDirFile (d.toPath ());
@@ -1750,7 +1720,7 @@ TODO Remove
     }
 
     public static void createQuollWriterDirFile (Path d)
-                                          throws IOException
+                                          throws GeneralException
     {
 
         if (Files.notExists (d))
@@ -1767,8 +1737,8 @@ TODO Remove
 
         }
 
-        Files.write (d.resolve (Constants.QUOLLWRITER_DIR_FILE_NAME),
-                     "This file indicates to quollwriter that the parent directory can be safely deleted or copied.".getBytes (StandardCharsets.UTF_8));
+        Utils.writeStringToFile (d.resolve (Constants.QUOLLWRITER_DIR_FILE_NAME),
+                                 "This file indicates to quollwriter that the parent directory can be safely deleted or copied.");
 
     }
 
@@ -1914,9 +1884,8 @@ TODO REmove
 
                 }
 
-                IOUtils.copyFile (f,
-                                  nf,
-                                  4096);
+                Files.copy (f.toPath (),
+                            nf.toPath ());
 
             }
 
@@ -1969,9 +1938,8 @@ TODO REmove
 
                 }
 
-                IOUtils.copyFile (f,
-                                  nf,
-                                  4096);
+                Files.copy (f.toPath (),
+                            nf.toPath ());
 
             } else
             {
@@ -2334,6 +2302,54 @@ TODO REmove
 
     }
 
+    public static String getFileContentAsString (Path f)
+                                          throws GeneralException
+    {
+
+        try
+        {
+
+            return new String (Files.readAllBytes (f),
+                               StandardCharsets.UTF_8);
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to get content of file: " + f,
+                                        e);
+
+        }
+
+    }
+
+    public static void writeStringToFile (Path   f,
+                                          String v)
+                                   throws GeneralException
+    {
+
+        try
+        {
+
+            try (BufferedWriter bw = Files.newBufferedWriter (f,
+                                                              StandardCharsets.UTF_8))
+            {
+
+                bw.write (v,
+                          0,
+                          v.length ());
+                bw.flush ();
+                bw.close ();
+
+            }
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to write string to: " + f,
+                                        e);
+
+        }
+
+    }
+
     public static File writeStreamToTempFile (InputStream in)
                                        throws IOException
     {
@@ -2344,7 +2360,7 @@ TODO REmove
 
         BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (f));
 
-        IOUtils.streamTo (new BufferedInputStream (in),
+        Utils.streamTo (new BufferedInputStream (in),
                           bout,
                           4096);
 
@@ -2367,7 +2383,7 @@ TODO REmove
 
             BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (outFile));
 
-            IOUtils.streamTo (bin,
+            Utils.streamTo (bin,
                               bout,
                               4096);
 
@@ -2540,6 +2556,7 @@ TODO REmove
                                            throws GeneralException
     {
 
+        // TODO Change this...
         InputStream is = Utils.getResourceStream (name);
 
         if (is == null)
@@ -2737,6 +2754,86 @@ TODO REmove
     {
 
         return Math.min (Math.max (v, min), max);
+
+    }
+
+    public static String replaceString (String  text,
+					                    String  str,
+					                    String  replace)
+	                            throws  NullPointerException
+    {
+
+    	if (text == null)
+    	{
+
+    	    throw new NullPointerException ("text parm (arg 1).");
+
+    	}
+
+    	if (str == null)
+    	{
+
+    	    throw new NullPointerException ("str parm (arg 2).");
+
+    	}
+
+    	if (replace == null)
+    	{
+
+    	    throw new NullPointerException ("replace parm (arg3).");
+
+    	}
+
+    	StringBuilder buf = new StringBuilder (text);
+
+    	int index = buf.indexOf (str);
+
+    	while (index != -1)
+    	{
+
+    	    buf.replace (index,
+    			 index + str.length (),
+    			 replace);
+
+    	    index = buf.indexOf (str,
+    				 index + replace.length ());
+
+    	}
+
+    	return buf.toString ();
+
+    }
+
+    public static void streamTo (InputStream  in,
+				 OutputStream out,
+				 int          bufSize)
+				 throws       IOException
+    {
+
+    	byte buf[] = new byte[bufSize];
+
+    	int bRead = -1;
+
+    	while ((bRead = in.read (buf)) != -1)
+    	{
+
+    	    out.write (buf,
+    		           0,
+    		           bRead);
+
+    	}
+
+    }
+
+    public static String getExceptionTraceAsString (Throwable e)
+    {
+
+        StringWriter sw = new StringWriter ();
+        PrintWriter pw = new PrintWriter (sw);
+        e.printStackTrace (pw);
+        pw.flush ();
+        pw.close ();
+        return sw.toString ();
 
     }
 

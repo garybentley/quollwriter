@@ -25,8 +25,6 @@ import javax.swing.text.*;
 
 import com.gentlyweb.properties.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -434,10 +432,10 @@ public class WarmupsViewer extends AbstractProjectViewer
                     // Get the number (if present)
                     String n = c.getName ().substring (ind + 1);
 
-                    n = StringUtils.replaceString (n,
+                    n = Utils.replaceString (n,
                                                    "(",
                                                    "");
-                    n = StringUtils.replaceString (n,
+                    n = Utils.replaceString (n,
                                                    ")",
                                                    "");
 

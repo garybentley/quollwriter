@@ -20,8 +20,6 @@ import javax.swing.filechooser.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 
-import com.gentlyweb.xml.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;

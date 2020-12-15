@@ -6,7 +6,7 @@ import javafx.collections.*;
 
 import com.quollwriter.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import org.josql.utils.*;
 
@@ -122,6 +122,7 @@ public class IdeaType extends NamedObject
 
     }
      */
+    @Override   
     public String toString ()
     {
 
@@ -129,6 +130,7 @@ public class IdeaType extends NamedObject
 
     }
 
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
@@ -136,6 +138,7 @@ public class IdeaType extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

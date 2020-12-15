@@ -6,8 +6,6 @@ import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -194,7 +192,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
     @Override
     public Set<Form.Item> getViewFormItems ()
-                                     throws GeneralException    
+                                     throws GeneralException
     {
 
         StringWithMarkup text = this.getFieldValue ();

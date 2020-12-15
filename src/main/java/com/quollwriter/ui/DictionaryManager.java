@@ -24,10 +24,6 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
-
 //import com.jgoodies.forms.builder.*;
 //import com.jgoodies.forms.factories.*;
 //import com.jgoodies.forms.layout.*;
@@ -47,7 +43,7 @@ import com.quollwriter.ui.renderers.*;
 public class DictionaryManager extends TypesEditor implements TypesHandler
 {
 
-    private FileWatcher watcher = null;
+    //private FileWatcher watcher = null;
     private Set<PropertyChangedListener> listeners = new HashSet<> ();
     private UserDictionaryProvider userDict = null;
 
@@ -119,7 +115,7 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
         try
         {
 
-            w = IOUtils.getFile (userDict);
+            w = Utils.getFileContentAsString (userDict.toPath ());
 
         } catch (Exception e)
         {
@@ -200,11 +196,13 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
 
         final DictionaryManager _this = this;
 
-        this.watcher = new FileWatcher ();
+        //this.watcher = new FileWatcher ();
         // TODO Use the Files.watch service instead.
-        this.watcher.addFile (DictionaryProvider.getUserDictionaryFilePath ().toFile ());
+        // See Path.register
+        //this.watcher.addFile (DictionaryProvider.getUserDictionaryFilePath ().toFile ());
 
         // TODO CHange to use a path and the Files.watchService.
+        /*
         this.watcher.addFileChangeListener (new FileChangeListener ()
           {
 
@@ -227,8 +225,8 @@ public class DictionaryManager extends TypesEditor implements TypesHandler
 
           },
           FileChangeEvent.MODIFIED | FileChangeEvent.EXISTS);
-
-        this.watcher.start ();
+*/
+        //this.watcher.start ();
 
     }
 

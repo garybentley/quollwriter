@@ -2,9 +2,8 @@ package com.quollwriter.data.editors;
 
 import java.io.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 import com.quollwriter.*;
 
@@ -38,23 +37,22 @@ public class EditorAuthor extends AbstractEditorObject
         super (root,
                OBJECT_TYPE);
 
-        this.about = JDOMUtils.getChildElementContent (root,
-                                                       XMLConstants.about,
-                                                       true);
+        this.about = DOM4JUtils.childElementContent (root,
+                                                     XMLConstants.about);
 
     }
 
-    public Element getAsJDOMElement ()
+    public Element getAsElement ()
     {
 
-        Element root = new Element (XMLConstants.root);
+        Element root = new DefaultElement (XMLConstants.root);
 
-        this.fillJDOMElement (root);
+        this.fillElement (root);
 
-        Element about = new Element (XMLConstants.about);
-        about.addContent (this.about);
+        Element about = new DefaultElement (XMLConstants.about);
+        about.add (new DefaultCDATA (this.about));
 
-        root.addContent (about);
+        root.add (about);
 
         return root;
 

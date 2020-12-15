@@ -3,14 +3,10 @@ package com.quollwriter.ui.fx.popups;
 import java.util.*;
 import java.nio.file.*;
 
-import org.jdom.*;
-
 import javafx.scene.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;

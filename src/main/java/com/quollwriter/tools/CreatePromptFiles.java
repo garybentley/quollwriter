@@ -1,16 +1,15 @@
 package com.quollwriter.tools;
 
 import java.io.*;
+import java.nio.file.*;
 
 import java.util.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class CreatePromptFiles
@@ -125,13 +124,13 @@ public class CreatePromptFiles
                                        url,
                                        text);
 
-                File pFile = new File (outputDir.getPath () + "/" + id + ".txt");
+                Path pFile = outputDir.toPath ().resolve (id + ".txt");
 
                 Element root = p.getAsElement ();
 
-                JDOMUtils.writeElementToFile (root,
-                                              pFile,
-                                              true);
+                DOM4JUtils.writeToFile (root,
+                                        pFile,
+                                        true);
 
                 System.out.println ("STORY: " + storyName + ", AUTHOR: " + authorName + ", URL: " + url + ", ID: " + id);
                 System.out.println ("WRITING TO: " + pFile);

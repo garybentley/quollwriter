@@ -58,18 +58,21 @@ public class QuollHyperlink extends Hyperlink
 
         }
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane p = new Pane ();
+        IconBox ib = IconBox.builder ()
+            .build ();
+
+        ib.setVisible (false);
+
         if (b.styleName != null)
         {
 
-            p.getStyleClass ().add (b.styleName + "-" + StyleClassNames.ICON);
+            ib.setVisible (true);
+            ib.setIconName (b.styleName);
 
         }
-        p.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (p);
-        this.setGraphic (h);
+
+        this.setGraphic (ib);
+        this.managedProperty ().bind (this.visibleProperty ());
 
     }
 

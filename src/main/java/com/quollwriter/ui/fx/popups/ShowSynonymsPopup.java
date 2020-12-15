@@ -14,8 +14,6 @@ import javafx.scene.text.*;
 import javafx.beans.property.*;
 import javafx.scene.input.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.synonyms.*;

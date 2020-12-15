@@ -8,6 +8,11 @@
     -fx-border-color: -qw-border-color;
     -fx-background-color: -qw-bg-color;
 }
+.header.title .controls
+{
+    -fx-padding: 0.5em;
+}
+
 .content {
     -fx-padding: 0.5em 0.75em 0.5em 0.75em;
     -fx-pref-width: -qw-popup-width;
@@ -29,7 +34,9 @@
     -fx-padding: 0.2em;
 }
 .header .controls .close .iconbox,
-.header .controls .close .iconbox .icon
+.header .controls .close .iconbox .icon,
+.timer .start .iconbox,
+.timer .start .iconbox .icon
 {
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
@@ -43,6 +50,12 @@
      -fx-alignment: center;
      -fx-fill-height: false;
 }
+
+.header .iconbox .information-icon.icon
+{
+    -fx-pref-width: 0.666em;
+}
+
 .header .controls .close .icon {
     -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
 }
@@ -89,3 +102,13 @@
 .controls .contacts { -fx-graphic: url(/imgs/editors24.png); }
 .controls .add { -fx-graphic: url(/imgs/add24.png); }
 */
+
+.popupviewer .qpopup
+{
+    -fx-border-width: 0;
+}
+
+.timer .button.start
+{
+    -fx-content-display: graphic-only;
+}

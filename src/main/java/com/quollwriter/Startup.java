@@ -16,6 +16,9 @@ import javafx.stage.*;
 import javafx.application.*;
 import javafx.beans.property.*;
 
+import javafx.scene.*;
+import javafx.scene.control.*;
+
 //import de.codecentric.centerdevice.javafxsvg.*;
 //import de.codecentric.centerdevice.javafxsvg.dimension.*;
 

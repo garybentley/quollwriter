@@ -2,7 +2,7 @@ package com.quollwriter.data;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class QCharacter extends LegacyAsset
@@ -17,6 +17,7 @@ public class QCharacter extends LegacyAsset
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

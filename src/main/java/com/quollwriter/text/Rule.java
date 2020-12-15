@@ -1,20 +1,13 @@
 package com.quollwriter.text;
 
 import java.util.*;
-import java.awt.event.*;
-
-import javax.swing.*;
-
 import javafx.beans.property.*;
-
-import com.gentlyweb.xml.*;
-
-import com.quollwriter.ui.*;
 //import com.quollwriter.ui.forms.*;
 
 import com.quollwriter.ui.fx.components.Form;
+import com.quollwriter.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public interface Rule<E extends TextBlock>
@@ -41,7 +34,7 @@ public interface Rule<E extends TextBlock>
     public List<Issue> getIssues (E block);
 
     public void init (Element root)
-               throws JDOMException;
+               throws GeneralException;
 
     public Element getAsElement ();
 
@@ -57,9 +50,9 @@ public interface Rule<E extends TextBlock>
 
     public String getEditFormTitle (boolean add);
 
-    public com.quollwriter.ui.forms.Form getEditForm (ActionListener        onSaveComplete,
-                             ActionListener        onCancel,
-                             AbstractProjectViewer viewer,
+    public com.quollwriter.ui.forms.Form getEditForm (java.awt.event.ActionListener        onSaveComplete,
+                             java.awt.event.ActionListener        onCancel,
+                             com.quollwriter.ui.AbstractProjectViewer viewer,
                              boolean               add);
 
     public void updateFromForm ();

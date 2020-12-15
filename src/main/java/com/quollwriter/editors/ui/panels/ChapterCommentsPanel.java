@@ -50,6 +50,15 @@ public class ChapterCommentsPanel extends ChapterEditorWithMarginPanelContent<Pr
 
         //this.projectViewer = pv;
 
+        this.editor.setEditable (false);
+
+        UIUtils.addStyleSheet (this,
+                               Constants.PANEL_STYLESHEET_TYPE,
+                               "chapteredit");
+        UIUtils.addStyleSheet (this,
+                               Constants.PANEL_STYLESHEET_TYPE,
+                               "editorchapteredit");
+
         final ChapterCommentsPanel _this = this;
 
         //this.editor.setEditable (false);
@@ -187,6 +196,50 @@ System.out.println ("DIFF: " + diffs);
 
     }
     */
+
+    @Override
+    public Node getMarginNodeForChapterItem (ChapterItem ci)
+    {
+
+        if (ci instanceof Note)
+        {
+
+            Note n = (Note) ci;
+
+            IconBox riv = IconBox.builder ()
+                .iconName (StyleClassNames.COMMENT)
+                .build ();
+
+            riv.setOnMouseDragged (ev ->
+            {
+
+                riv.requestFocus ();
+
+            });
+            riv.setOnMouseClicked (ev ->
+            {
+
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
+
+                    return;
+
+                }
+
+                this.showItem (n,
+                               true);
+
+                ev.consume ();
+
+            });
+
+            return riv;
+
+        }
+
+        throw new UnsupportedOperationException ("Object not supported: " + ci);
+
+    }
 
     @Override
     public Set<MenuItem> getMarginContextMenuItems (int cpos)

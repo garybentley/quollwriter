@@ -26,7 +26,7 @@ public class Header extends HBox
 {
 
     private Label title = null;
-    private ToolBar toolbar = null;
+    private QuollToolBar toolbar = null;
     private ObjectProperty<Label> titleLabelProp = null;
     private Tooltip origTooltip = null;
     private IconBox icon = null;
@@ -265,7 +265,13 @@ public class Header extends HBox
                        Priority.NEVER);
 
         this.getChildren ().add (this.toolbar);
-        this.toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
+
+        if (!this.toolbar.getStyleClass ().contains (StyleClassNames.CONTROLS))
+        {
+
+            this.toolbar.getStyleClass ().add (StyleClassNames.CONTROLS);
+
+        }
 
         if (b.cursor != null)
         {
@@ -361,7 +367,7 @@ TODO Clean up
         private Node icon = null;
         private String styleName = null;
         private Set<Node> controls = null;
-        private ToolBar toolbar = null;
+        private QuollToolBar toolbar = null;
         private Supplier<Set<MenuItem>> contextMenuItemSupplier = null;
         private boolean onlyShowToolbarOnMouseOver = false;
         private String iconStyleName = null;
@@ -433,7 +439,7 @@ TODO Remove
 
         }
 
-        public Builder toolbar (ToolBar t)
+        public Builder toolbar (QuollToolBar t)
         {
 
             this.toolbar = t;

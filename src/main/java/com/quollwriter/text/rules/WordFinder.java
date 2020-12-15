@@ -1,27 +1,19 @@
 package com.quollwriter.text.rules;
 
 import java.util.*;
-import java.awt.event.*;
-
-import javax.swing.*;
 
 import javafx.scene.control.*;
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 import com.quollwriter.text.*;
-import com.quollwriter.ui.forms.*;
 import com.quollwriter.uistrings.*;
 
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.QuollTextField;
 import com.quollwriter.ui.fx.components.QuollCheckBox;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -43,11 +35,11 @@ public class WordFinder extends AbstractDialogueRule
     private CheckBox onlyInDialogueCB2 = null;
     private ChoiceBox<String> where2 = null;
 
-    private TextFormItem words = null;
+    //private TextFormItem words = null;
     private List<Word> tWords = null;
-    private CheckboxFormItem ignoreInDialogueCB = null;
-    private CheckboxFormItem onlyInDialogueCB = null;
-    private ComboBoxFormItem whereCB = null;
+    //private CheckboxFormItem ignoreInDialogueCB = null;
+    //private CheckboxFormItem onlyInDialogueCB = null;
+    //private ComboBoxFormItem whereCB = null;
 
     public WordFinder ()
     {
@@ -181,13 +173,13 @@ public class WordFinder extends AbstractDialogueRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        this.setWord (JDOMUtils.getAttributeValue (root,
-                                                   XMLConstants.word));
+        this.setWord (DOM4JUtils.attributeValue (root,
+                                                 XMLConstants.word));
 
     }
 
@@ -204,7 +196,7 @@ public class WordFinder extends AbstractDialogueRule
 
         Element root = super.getAsElement ();
 
-        root.setAttribute (XMLConstants.word,
+        root.addAttribute (XMLConstants.word,
                            this.word);
 
         return root;
@@ -340,7 +332,8 @@ public class WordFinder extends AbstractDialogueRule
 
     public void updateFromForm ()
     {
-
+/*
+TODO Remove
         this.setOnlyInDialogue (this.onlyInDialogueCB.isSelected ());
         this.setIgnoreInDialogue (this.ignoreInDialogueCB.isSelected ());
 
@@ -368,7 +361,7 @@ public class WordFinder extends AbstractDialogueRule
         }
 
         this.setWord (this.words.getText ().trim ());
-
+*/
     }
 
     @Override
@@ -384,7 +377,7 @@ public class WordFinder extends AbstractDialogueRule
 
         }
 
-        return StringUtils.replaceString (d,
+        return Utils.replaceString (d,
                                           "[WORD]",
                                           ((this.word == null) ? "[WORD]" : this.word));
 
@@ -482,11 +475,13 @@ public class WordFinder extends AbstractDialogueRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
+    // TODO REmove
+    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
     {
 
-        Set<FormItem> items = new LinkedHashSet<> ();
+        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet<> ();
 
+/*
         List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
@@ -592,7 +587,7 @@ public class WordFinder extends AbstractDialogueRule
         items.add (this.ignoreInDialogueCB);
 
         items.add (this.onlyInDialogueCB);
-
+*/
         return items;
 
     }
@@ -618,7 +613,8 @@ public class WordFinder extends AbstractDialogueRule
 
     public String getFormError ()
     {
-
+/*
+TODO Remove
         String newWords = this.words.getText ();
 
         if ((newWords == null)
@@ -634,7 +630,7 @@ public class WordFinder extends AbstractDialogueRule
                                             LanguageStrings.nowordserror);
 
         }
-
+*/
         return null;
 
     }

@@ -18,7 +18,6 @@ import javax.swing.plaf.LayerUI;
 import javax.swing.tree.*;
 
 import com.gentlyweb.properties.*;
-import com.gentlyweb.utils.*;
 
 import org.josql.*;
 

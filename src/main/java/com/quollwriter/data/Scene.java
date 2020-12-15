@@ -138,8 +138,9 @@ public class Scene extends ChapterItem
 
     }
 
+    @Override
     public void getChanges (NamedObject      old,
-                            org.jdom.Element root)
+                            org.dom4j.Element root)
     {
 
     }

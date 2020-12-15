@@ -42,32 +42,35 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
 
         List<String> prefix = Arrays.asList (editors,messages,contactinfo);
 
-        StringProperty text = getUILanguageStringProperty (prefix,sent,title);
+        StringProperty title = getUILanguageStringProperty (Utils.newList (prefix,sent,LanguageStrings.title));
         //"Sent name/avatar";
 
         if (!this.message.isSentByMe ())
         {
 
-            text = getUILanguageStringProperty (prefix,received,title);
+            title = getUILanguageStringProperty (Utils.newList (prefix,received,LanguageStrings.title));
             //"Received name/avatar update";
 
         }
 
-        QuollLabel h = QuollLabel.builder ()
-            .label (text)
-            .styleClassName (StyleClassNames.TITLE)
-            .build ();
-
-        this.getChildren ().add (h);
+        this.getChildren ().add (Header.builder ()
+            .title (title)
+            .iconClassName (StyleClassNames.INFORMATION)
+            .styleClassName (StyleClassNames.SUBTITLE)
+            .build ());
 
         HBox edInfo = new HBox ();
+        edInfo.getStyleClass ().add (StyleClassNames.INFO);
 
         this.getChildren ().add (edInfo);
 
         if (this.message.getAvatar () != null)
         {
 
-            edInfo.getChildren ().add (new ImageView (this.message.getAvatar ()));
+            edInfo.getChildren ().add (IconBox.builder ()
+                .styleClassName ("avatar-box")
+                .image (new SimpleObjectProperty<> (this.message.getAvatar ()))
+                .build ());
 
         }
 

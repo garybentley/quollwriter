@@ -19,8 +19,6 @@ import javafx.geometry.*;
 import javafx.beans.value.*;
 import javafx.collections.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.UserConfigurableObjectType;
 import com.quollwriter.editors.*;
@@ -53,13 +51,16 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         dowarmup,
         fullscreen,
         find,
-        close
+        close,
+        wordcounttimer
     };
 
     // Using an interface to reduce typing :)
     public interface CommandId
     {
 
+        String close = "close";
+        String cssviewer = "cssviewer";
         String exitfullscreen = "exitfullscreen";
         String showfullscreenheader = "showfullscreenheader";
         String debug = "debug";
@@ -925,6 +926,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                             KeyCode.F12, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.debugmode,
                             KeyCode.F1, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
+        this.addKeyMapping (CommandId.cssviewer,
+                            KeyCode.F2, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.whatsnew,
                             KeyCode.F11);
         this.addKeyMapping (CommandId.showoptions,
@@ -960,6 +963,14 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     {
 
         final AbstractViewer _this = this;
+
+        this.addActionMapping (() ->
+        {
+
+            this.close (null);
+
+        },
+        CommandId.close);
 
         this.addActionMapping (() ->
         {
@@ -1420,11 +1431,14 @@ TODO Remove handled by the content.
     public void updateLayout ()
     {
 
-        this.currentContent.updateLayout ();
-        if (true)
+        if (this.currentContent == null)
         {
+
             return;
+
         }
+
+        this.currentContent.updateLayout ();
 
     }
 
@@ -1542,10 +1556,12 @@ TODO Remove handled by the content.
 
         }
 
-        QuollPopup popup = QuollPopup.builder ()
+        QuollPopup popup = QuollPopup.messageBuilder ()
             .title (title)
             .styleClassName (StyleClassNames.INFORMATION)
-            .content (m)
+            .message (m)
+            .closeButton ()
+            .withClose (true)
             .removeOnClose (true)
             .build ();
 
@@ -2183,6 +2199,22 @@ TODO
 
         }
 
+        if (control == HeaderControl.close)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,close,tooltip)
+                .iconName (StyleClassNames.CLOSE)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.close);
+
+                })
+                .build ();
+
+        }
+
         if (control == HeaderControl.reportbetabug)
         {
 
@@ -2253,7 +2285,12 @@ TODO
 
     public abstract StringProperty titleProperty ();
 
-    public abstract SideBar getMainSideBar ();
+    public final SideBar getMainSideBar ()
+    {
+
+        return this.mainSideBar;
+
+    }
 
     public abstract void showOptions (String sect)
                                throws GeneralException;
@@ -2547,6 +2584,68 @@ TODO Clean up?
         }
 
         return m;
+
+    }
+
+    public Set<MenuItem> getShowOtherSideBarsMenuItems ()
+    {
+
+        Set<MenuItem> its = new LinkedHashSet<> ();
+
+        String l = UserProperties.uiLayoutProperty ().getValue ();
+
+        if (this.mainSideBar != null)
+        {
+
+            QuollMenuItem mi = QuollMenuItem.builder ()
+                .label (this.mainSideBar.activeTitleProperty ())
+                .iconName (this.mainSideBar.getStyleClassName ())
+                .onAction (ev ->
+                {
+
+                    this.showMainSideBar ();
+
+                })
+                .build ();
+            // TODO mi.setGraphic (new ImageView (this.mainSideBar.getHeader ().getIcon ().getImage ()));
+            //mi.setGraphic (this.mainSideBar.getHeader ().getIcon ());
+            its.add (mi);
+
+        }
+
+        // Means we are showing the main sidebar and the other sidebar.
+        // Exclude those from the list.
+        for (SideBar sb : this.activeSideBars)
+        {
+
+            if ((this.currentOtherSideBarProp.getValue () != null)
+                &&
+                (this.currentOtherSideBarProp.getValue () == sb)
+               )
+            {
+
+                continue;
+
+            }
+
+            final SideBar _sb = sb;
+
+            QuollMenuItem mi = QuollMenuItem.builder ()
+                .label (sb.activeTitleProperty ())
+                .iconName (sb.getStyleClassName ())
+                .onAction (ev ->
+                {
+
+                    this.showSideBar (sb.getSideBarId ());
+
+                })
+                .build ();
+            // TODO mi.setGraphic (new ImageView (sb.getHeader ().getIcon ().getImage ()));
+            its.add (mi);
+
+        }
+
+        return its;
 
     }
 
@@ -3061,6 +3160,13 @@ TODO Not needed, is a function of the sidebar itself...
                          throws GeneralException
     {
 
+        if (this.viewer != null)
+        {
+
+            return this.viewer;
+
+        }
+
         final AbstractViewer _this = this;
 
         // Get the header controls.
@@ -3241,10 +3347,10 @@ TODO Not needed, is a function of the sidebar itself...
         Set<Node> visItems = new LinkedHashSet<> ();
         visItems.add (context);
 
-        ConfigurableToolbar ctb = ConfigurableToolbar.builder ()
-            .items (headerCons)
-            .visibleItems (headerCons)
-            .withViewer (this)
+        QuollToolBar ctb = QuollToolBar.builder ()
+            .controls (headerCons)
+            //.visibleItems (headerCons)
+            //.withViewer (this)
             .build ();
 
         Viewer v = Viewer.builder ()
@@ -3276,6 +3382,35 @@ TODO Not needed, is a function of the sidebar itself...
             {
 
                 this.exitFullScreen ();
+
+            }
+
+        });
+
+        // Best place for this?
+        v.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
+                                      ev ->
+        {
+
+            if (!ev.isShortcutDown ())
+            {
+
+                return;
+
+            }
+
+            try
+            {
+
+                ev.consume ();
+
+                Environment.showCSSViewer (this,
+                                           (Node) ev.getTarget ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to show css viewer for node: " + ev.getTarget (),
+                                      e);
 
             }
 

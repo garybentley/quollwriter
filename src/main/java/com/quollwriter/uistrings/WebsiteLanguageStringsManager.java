@@ -10,8 +10,6 @@ import java.util.stream.*;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.WebsiteLanguageStringsEditor;
 import com.quollwriter.ui.fx.*;

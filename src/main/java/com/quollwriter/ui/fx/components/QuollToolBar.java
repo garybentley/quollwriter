@@ -2,6 +2,7 @@ package com.quollwriter.ui.fx.components;
 
 import java.util.*;
 
+import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -12,7 +13,7 @@ import com.quollwriter.ui.fx.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class QuollToolBar extends ToolBar
+public class QuollToolBar extends HBox //ToolBar
 {
 
     private QuollToolBar (Builder b)
@@ -24,9 +25,12 @@ public class QuollToolBar extends ToolBar
             Tooltip t = new Tooltip ();
             t.textProperty ().bind (b.tooltip);
 
-            this.setTooltip (t);
+            UIUtils.setTooltip (this,
+                                b.tooltip);
 
         }
+
+        this.getStyleClass ().add (StyleClassNames.QTOOLBAR);
 
         if (b.styleName != null)
         {
@@ -43,16 +47,27 @@ public class QuollToolBar extends ToolBar
         }
 
         this.managedProperty ().bind (this.visibleProperty ());
-        this.minWidthProperty ().bind (this.widthProperty ());
+
+        this.maxWidthProperty ().bind (this.prefWidthProperty ());
+        this.minWidthProperty ().bind (this.prefWidthProperty ());
+        //this.prefWidthProperty ().bind (this.widthProperty ());
+
         HBox.setHgrow (this,
                        Priority.NEVER);
 
         if (b.controls != null)
         {
 
-            this.getItems ().addAll (b.controls);
+            this.getChildren ().addAll (b.controls);
 
         }
+
+    }
+
+    public ObservableList<Node> getItems ()
+    {
+
+        return this.getChildren ();
 
     }
 

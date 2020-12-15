@@ -60,8 +60,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.application.*;
 import javafx.embed.swing.*;
 
-import com.gentlyweb.utils.StringUtils;
-
 import org.imgscalr.Scalr;
 
 import com.jgoodies.forms.builder.*;
@@ -3586,7 +3584,7 @@ public class UIUtils
         if (text != null)
         {
 
-            text = StringUtils.replaceString (text,
+            text =  (text,
                                               String.valueOf ('\r'),
                                               "");
 
@@ -3964,7 +3962,7 @@ public class UIUtils
                                  s);
 
         // Replace <a with "<a style=' etc...
-        s = StringUtils.replaceString (s,
+        s = Utils.replaceString (s,
                                        "<a ",
                                        "<a style='color: " + Constants.HTML_LINK_COLOR + ";' ");
 
@@ -4264,7 +4262,7 @@ public class UIUtils
 
             NamedObjectNameWrapper nw = nitems.get (0);
 
-            t = StringUtils.replaceString (t,
+            t = Utilities.replaceString (t,
                                            "[[_$@" + name.hashCode () + "@$_]]",
                                            "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + nw.namedObject.getObjectReference ().asString () + "'>" + nw.name + "</a>");
 
@@ -4498,7 +4496,7 @@ public class UIUtils
 
         t = b.toString ();
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\n'),
                                        "<br />");
 
@@ -4908,11 +4906,11 @@ public class UIUtils
 
             //text = Environment.replaceObjectNames (text);
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               "{QW}",
                                               Constants.QUOLL_WRITER_NAME);
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               String.valueOf ('\n'),
                                               "<br />");
 
@@ -5064,7 +5062,7 @@ public class UIUtils
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           String.valueOf ('\n'),
                                           "<br />");
 
@@ -10290,9 +10288,9 @@ TODO Moved to BackupsManager.
         try
         {
 
-            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (UserProperties.get (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + Utils.replaceString (UserProperties.get (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
                                                                                                    "[[LANG]]",
-                                                                                                   StringUtils.replaceString (fileLang,
+                                                                                                   Utils.replaceString (fileLang,
                                                                                                                               " ",
                                                                                                                               "%20")));
 
@@ -10681,22 +10679,22 @@ TODO Moved to BackupsManager.
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           " ",
                                           "&nbsp;");
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           nl,
                                           "<br />");
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.DESCRIPTION_TAG,
                                           desc);
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.DESCRIPTION_FIRST_LINE_TAG,
                                           descFirstLine);
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.CHAPTER_FIRST_LINE_TAG,
                                           chapText);
 
@@ -10710,13 +10708,13 @@ TODO Moved to BackupsManager.
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.WORDS_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,words),
                                                         //"%s words",
                                                          Environment.formatNumber (cc.getWordCount ())));
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.LAST_EDITED_TAG,
                                           lastEd);
 
@@ -10755,7 +10753,7 @@ TODO Moved to BackupsManager.
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.EDIT_COMPLETE_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,editcomplete),
                                           //"%s%% complete",
@@ -10764,7 +10762,7 @@ TODO Moved to BackupsManager.
         if (text.contains (Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG))
         {
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG,
                                               String.format (getUIString (project,sidebar,chapters,preview,problemcount),
                                                             //"%s problems",
@@ -10775,7 +10773,7 @@ TODO Moved to BackupsManager.
         if (text.contains (Constants.SPELLING_ERROR_COUNT_TAG))
         {
 
-            text = StringUtils.replaceString (text,
+            text = Utils.replaceString (text,
                                               Constants.SPELLING_ERROR_COUNT_TAG,
                                               String.format (getUIString (project,sidebar,chapters,preview,spellingcount),
                                                             //"%s spelling errors",
@@ -10808,7 +10806,7 @@ TODO Moved to BackupsManager.
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           Constants.READABILITY_TAG,
                                           String.format (getUIString (project,sidebar,chapters,preview,readability),
                                           //"GL: %s, RE: %s, GF: %s",

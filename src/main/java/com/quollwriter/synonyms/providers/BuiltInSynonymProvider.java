@@ -7,8 +7,6 @@ import java.net.*;
 
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.uistrings.*;
 import com.quollwriter.synonyms.*;

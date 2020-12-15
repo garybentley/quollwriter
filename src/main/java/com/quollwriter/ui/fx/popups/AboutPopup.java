@@ -7,8 +7,6 @@ import java.text.*;
 
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.*;
@@ -41,7 +39,7 @@ public class AboutPopup extends PopupContent
 
         String relNotesUrl = UserProperties.get (Constants.QUOLL_WRITER_RELEASE_NOTES_URL_PROPERTY_NAME);
 
-        relNotesUrl = StringUtils.replaceString (relNotesUrl,
+        relNotesUrl = Utils.replaceString (relNotesUrl,
                                                  "[[VERSION]]",
                                                  Environment.getQuollWriterVersion ().getVersion ().replace ('.',
                                                                                                              '_'));

@@ -54,73 +54,6 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
         pv.getProject ().getBooks ().get (0).getChapters ().stream ()
             .forEach (c -> this.addListenersForChapter (c));
 
-        this.addListChangeListener (pv.getProject ().getBooks ().get (0).getChapters (),
-                                    ev ->
-        {
-
-            if (this.ignoreChaptersEvents)
-            {
-
-                return;
-
-            }
-
-            while (ev.next ())
-            {
-
-                if (ev.wasAdded ())
-                {
-
-                    ev.getAddedSubList ().stream ()
-                        .forEach (c ->
-                        {
-
-                            this.addListenersForChapter (c);
-
-                        });
-
-                    this.tree.getRoot ().getChildren ().addAll (ev.getFrom (),
-                                                                ev.getAddedSubList ().stream ()
-                                                                    .map (c -> this.createTreeItem (c))
-                                                                    .collect (Collectors.toList ()));
-
-                }
-
-                if (ev.wasRemoved ())
-                {
-
-                    ev.getRemoved ().stream ()
-                        .forEach (c ->
-                        {
-
-                            this.removeListenersForChapter (c);
-                            NoteTreeLabel l = this.noteTreeLabels.remove (c);
-
-                            if (l != null)
-                            {
-
-                                if (l.listenerHandle != null)
-                                {
-
-                                    l.listenerHandle.dispose ();
-
-                                }
-
-                            }
-
-                        });
-
-                    this.tree.getRoot ().getChildren ().removeAll (this.tree.getRoot ().getChildren ().subList (ev.getFrom (),
-                                                                                                                ev.getTo () + 1));
-
-                }
-
-                this.countProp.setValue (pv.getProject ().getBooks ().get (0).getChapters ().size ());
-
-            }
-
-        });
-
         this.countProp = new SimpleIntegerProperty (0);
 
         this.addChangeListener (this.viewer.currentPanelProperty (),
@@ -149,43 +82,7 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
 
                 }
 
-                if (n instanceof NoteTreeLabel)
-                {
-
-                    NoteTreeLabel nl = (NoteTreeLabel) n;
-
-                    QuollLabel l = QuollLabel.builder ()
-                        .styleClassName (StyleClassNames.NOTES)
-                        .build ();
-
-                    StringBinding b = UILanguageStringsManager.createStringBinding (() ->
-                    {
-
-                        String v = "%1$s (%2$s)";
-
-                        return String.format (v,
-                                              getUILanguageStringProperty (objectnames,plural, Note.OBJECT_TYPE).getValue (),
-                                              Environment.formatNumber (nl.chapter.getNotes ().size ()));
-
-                    },
-                    Environment.objectTypeNameChangedProperty ());
-
-                    l.textProperty ().bind (b);
-
-                    nl.listenerHandle = this.addSetChangeListener (nl.chapter.getNotes (),
-                                                                   ev ->
-                    {
-
-                        b.invalidate ();
-
-                    });
-
-                    return l;
-
-                }
-
                 QuollLabel l = QuollLabel.builder ()
-                    .label (n.nameProperty ())
                     .styleClassName (n.getObjectType ())
                     .build ();
 
@@ -196,6 +93,7 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
 
                     l.setIconClassName (StyleClassNames.COMMENT);
                     l.getStyleClass ().add (StyleClassNames.COMMENT);
+                    l.textProperty ().bind (n.nameProperty ());
 
                 }
 
@@ -221,6 +119,27 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
                 {
 
                     Chapter c = (Chapter) n;
+
+                    this.addSetChangeListener (c.getNotes (),
+                                               ev ->
+                    {
+
+                        this.updateChapterLabel (c,
+                                                 l);
+
+                    });
+
+                    this.addChangeListener (c.nameProperty (),
+                                            (pr, oldv, newv) ->
+                    {
+
+                        this.updateChapterLabel (c,
+                                                 l);
+
+                    });
+
+                    this.updateChapterLabel (c,
+                                             l);
 
                     //l.setFocusTraversable (true);
 
@@ -434,7 +353,7 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
 
                     its.add (QuollMenuItem.builder ()
                         .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
-                        .iconName (StyleClassNames.VIEW)
+                        .iconName (StyleClassNames.EDIT)
                         .onAction (ev ->
                         {
 
@@ -596,6 +515,23 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
 
     }
 
+    private void updateChapterLabel (Chapter c,
+                                     Label   l)
+    {
+
+        l.textProperty ().unbind ();
+
+        String v = "%1$s (%2$s)";
+
+        l.setText (String.format (v,
+                                  c.getName (),
+                                  Environment.formatNumber (c.getNotes ().size ())));
+
+        //l.setAccessibleText ("TEXTING");//l.getText ());
+
+
+    }
+
     private void addListenersForChapter (Chapter c)
     {
 
@@ -615,53 +551,18 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
             if (ev.getType () == CollectionEvent.Type.add)
             {
 
-                TreeItem<NamedObject> pti = null;
-
                 ChapterItem ci = ev.getSource ();
 
-                int ind = 0;
+                TreeItem<NamedObject> pti = this.tree.getTreeItemForObject (ci.getChapter ());
 
-                if (ci instanceof Note)
-                {
+                int ind = new ArrayList (c.getNotes ()).indexOf (ci);
 
-                    if (this.noteTreeLabels.get (c) == null)
-                    {
-
-                        TreeItem<NamedObject> noteLabel = this.createNotesItem (c);
-
-                        // Notes always go at the bottom.
-                        this.tree.getTreeItemForObject (c).getChildren ().add (noteLabel);
-                        // createNotesItem will already have created the items for the notes.
-                        return;
-
-                    }
-
-                    // TODO Add in positioning.
-                    pti = this.tree.getTreeItemForObject (this.noteTreeLabels.get (c));
-                    ind = new ArrayList (c.getNotes ()).indexOf (ci);
-                    TreeItem<NamedObject> _pti = pti;
-
-                }
-
-                if (pti == null)
-                {
-
-                    pti = this.tree.getTreeItemForObject (ci.getChapter ());
-
-                }
-
-                TreeItem<NamedObject> ti = this.createTreeItem (ci.getChapter ());
-
-                //int ind = pti.getChildren ().indexOf (this.tree.getTreeItemForObject (this.getChapterItemBefore (ci)));
+                TreeItem<NamedObject> ti = new TreeItem<> (ci);
 
                 if (ind < 0)
                 {
 
                     ind = 0;
-
-                } else {
-
-                    //ind++;
 
                 }
 
@@ -671,13 +572,6 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
             }
 
         }));
-
-       subs.add (c.chapterItemsPositionEvents ().subscribe (ev ->
-       {
-
-           // TODO Check for position change.
-
-       }));
 
        this.eventSourceSubscriptions.put (c,
                                           subs);
@@ -862,17 +756,6 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
 
             Set<MenuItem> items = new LinkedHashSet<> ();
 
-            items.add (QuollMenuItem.builder ()
-                .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings._new)))
-                .iconName (StyleClassNames.ADD)
-                .onAction (ev ->
-                {
-
-                    this.viewer.runCommand (ProjectViewer.CommandId.newchapter);
-
-                })
-                .build ());
-
             return items;
 
         };
@@ -884,23 +767,11 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
 
         TreeItem<NamedObject> ci = new TreeItem<> (c);
 
-        ci.getChildren ().add (this.createNotesItem (c));
+        ci.getChildren ().addAll (c.getNotes ().stream ()
+            .map (n -> new TreeItem<NamedObject> (n))
+            .collect (Collectors.toList ()));
 
         return ci;
-
-    }
-
-    private TreeItem<NamedObject> createNotesItem (Chapter c)
-    {
-
-        NoteTreeLabel l = new NoteTreeLabel (c);
-        TreeItem<NamedObject> noteLabel = new TreeItem<> (l);
-        this.noteTreeLabels.put (c, l);
-        // Add the current notes.
-        c.getNotes ().stream ()
-            .forEach (n -> noteLabel.getChildren ().add (new TreeItem<> (n)));
-
-        return noteLabel;
 
     }
 

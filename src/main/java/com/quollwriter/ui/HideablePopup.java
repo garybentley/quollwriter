@@ -10,8 +10,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.text.*;
@@ -91,8 +89,8 @@ public abstract class HideablePopup<E extends AbstractViewer> extends Box
      *
      * @return The content of the popup.
      */
-    public abstract JComponent getContent ();    
-    
+    public abstract JComponent getContent ();
+
     /**
      * Use if you want to show the popup after a specific delay.  The hideDelay indicates how long to wait
      * until the user moves the mouse out of the popup before closing.  The hide delay is restarted if the user
@@ -212,7 +210,7 @@ public abstract class HideablePopup<E extends AbstractViewer> extends Box
         this.hideTimer = null;
 
     }
-    
+
     /**
      * Immediately shows the popup at the specified point.  {@link getContent()} is called to get the content of the
      * popup.
@@ -229,7 +227,7 @@ public abstract class HideablePopup<E extends AbstractViewer> extends Box
         content.add (this.getContent ());
 
         this.add (content);
-        
+
         // For some reason we need to set the size manually.
         content.setPreferredSize (new Dimension (310,
                                                  content.getPreferredSize ().height));

@@ -15,6 +15,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
+// TODO Extend QuollToolBar
 public class ConfigurableToolbar extends ToolBar
 {
 

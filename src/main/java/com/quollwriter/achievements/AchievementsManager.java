@@ -11,9 +11,8 @@ import javafx.scene.media.*;
 import javafx.collections.*;
 import javafx.event.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
 import com.gentlyweb.properties.*;
 
@@ -90,26 +89,16 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
-        Element root = JDOMUtils.getStringAsElement (achFile);
-
-        List els = JDOMUtils.getChildElements (root,
-                                               XMLConstants.item,
-                                               true);
+        Element root = DOM4JUtils.stringAsElement (achFile);
 
         Set<AchievementRule> userSessionRules = new HashSet<> ();
 
-        // Get the user ones.
-        for (int i = 0; i < els.size (); i++)
+        for (Element el : root.elements (XMLConstants.item))
         {
 
-            Element el = (Element) els.get (i);
+            String id = el.attributeValue (XMLConstants.id).toLowerCase ().trim ();
 
-            String id = JDOMUtils.getAttributeValue (el,
-                                                     XMLConstants.id,
-                                                     true).toLowerCase ().trim ();
-
-            if (JDOMUtils.getAttributeValue (el,
-                                             XMLConstants.category).equals (USER))
+            if (el.attributeValue (XMLConstants.category).equals (USER))
             {
 
                 // Load the rule.
@@ -118,8 +107,8 @@ public class AchievementsManager implements ProjectEventListener
                 if (ar == null)
                 {
 
-                    throw new JDOMException ("Unable to create rule from element: " +
-                                             JDOMUtils.getPath (el));
+                    DOM4JUtils.raiseException ("Unable to create rule from element: %1$s",
+                                               el);
 
                 }
 
@@ -354,7 +343,7 @@ TODO Remove
         try
         {
 
-            root = JDOMUtils.getStringAsElement (achFile);
+            root = DOM4JUtils.stringAsElement (achFile);
 
         } catch (Exception e) {
 
@@ -369,25 +358,16 @@ TODO Remove
 
         Set<AchievementRule> rules = new LinkedHashSet<> ();
 
-        List els = JDOMUtils.getChildElements (root,
-                                               XMLConstants.item,
-                                               true);
-
         // Get the user ones.
-        for (int i = 0; i < els.size (); i++)
+        for (Element el : root.elements (XMLConstants.item))
         {
-
-            Element el = (Element) els.get (i);
 
             try
             {
 
-                String id = JDOMUtils.getAttributeValue (el,
-                                                         XMLConstants.id,
-                                                         true).toLowerCase ().trim ();
+                String id = el.attributeValue (XMLConstants.id).toLowerCase ().trim ();
 
-                if (JDOMUtils.getAttributeValue (el,
-                                                 XMLConstants.category).equals (type))
+                if (el.attributeValue (XMLConstants.category).equals (type))
                 {
 
                     AchievementRule ar = AchievementRuleFactory.createRule (el);
@@ -409,7 +389,7 @@ TODO Remove
             } catch (Exception e) {
 
                 Environment.logError ("Unable to convert element: " +
-                                      JDOMUtils.getPath (el) +
+                                      DOM4JUtils.getPath (el) +
                                       " to a rule",
                                       e);
 
@@ -491,7 +471,7 @@ TODO Remove
                              throws               Exception
     {
 
-        Element root = new Element (XMLConstants.state);
+        Element root = new DefaultElement (XMLConstants.state);
 
         // Now persist any user rules.
         for (AchievementRule ar : rules)
@@ -500,19 +480,19 @@ TODO Remove
             if (ar.shouldPersistState ())
             {
 
-                Element el = new Element (XMLConstants.item);
+                Element el = new DefaultElement (XMLConstants.item);
 
-                el.setAttribute (XMLConstants.id,
+                el.addAttribute (XMLConstants.id,
                                  ar.getId ());
                 ar.fillState (el);
 
-                root.addContent (el);
+                root.add (el);
 
             }
 
         }
 
-        return JDOMUtils.getElementAsString (root);
+        return DOM4JUtils.elementAsString (root);
 
     }
 
@@ -573,7 +553,7 @@ TODO Remove
                                                   throws Exception
     {
 
-        Map<String, Element> initEls = new HashMap ();
+        Map<String, Element> initEls = new HashMap<> ();
 
         if (v != null)
         {
@@ -581,20 +561,12 @@ TODO Remove
             try
             {
 
-                Element root = JDOMUtils.getStringAsElement (v);
+                Element root = DOM4JUtils.stringAsElement (v);
 
-                List els = JDOMUtils.getChildElements (root,
-                                                       XMLConstants.item,
-                                                       false);
-
-                for (int i = 0; i < els.size (); i++)
+                for (Element el : root.elements (XMLConstants.item))
                 {
 
-                    Element el = (Element) els.get (i);
-
-                    initEls.put (JDOMUtils.getAttributeValue (el,
-                                                              XMLConstants.id,
-                                                              true),
+                    initEls.put (el.attributeValue (XMLConstants.id),
                                  el);
 
                 }
@@ -751,8 +723,8 @@ TODO Remove
             if (ar == null)
             {
 
-                throw new JDOMException ("Unable to create rule from element: " +
-                                         JDOMUtils.getPath (el));
+                throw new GeneralException ("Unable to create rule from element: " +
+                                         DOM4JUtils.getPath (el));
 
             }
 

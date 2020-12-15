@@ -1826,7 +1826,12 @@ TODO
                 Environment.schedule (() ->
                 {
 
-                    qp.close ();
+                    UIUtils.runLater (() ->
+                    {
+
+                        qp.close ();
+
+                    });
 
                 },
                 this.hideIn,

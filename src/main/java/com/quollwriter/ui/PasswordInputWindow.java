@@ -7,8 +7,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.factories.*;
 
 import com.quollwriter.*;

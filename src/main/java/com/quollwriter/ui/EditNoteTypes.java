@@ -2,8 +2,6 @@ package com.quollwriter.ui;
 
 import javax.swing.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 import static com.quollwriter.LanguageStrings.*;

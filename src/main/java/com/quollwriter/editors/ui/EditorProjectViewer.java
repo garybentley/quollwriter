@@ -14,10 +14,6 @@ import javafx.scene.*;
 import javafx.geometry.*;
 import javafx.beans.property.*;
 
-//import com.gentlyweb.properties.*;
-
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -32,6 +28,7 @@ import com.quollwriter.editors.ui.panels.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.panels.*;
 
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.ui.*;
@@ -167,7 +164,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         this.initActionMappings ();
 
     }
-
+/*
     @Override
     public SideBar getMainSideBar ()
     {
@@ -175,6 +172,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         return this.sideBar.getSideBar ();
 
     }
+*/
 /*
 TODO
     public void fillFullScreenTitleToolbar (JToolBar toolbar)
@@ -487,6 +485,54 @@ TODO
         },
         CommandId.completeediting);
 
+        this.addActionMapping (new CommandWithArgs<DataObject> (objs ->
+        {
+
+            DataObject o = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                o = objs[0];
+
+            }
+
+            if (o == null)
+            {
+
+                throw new IllegalArgumentException ("No object provided.");
+
+            }
+
+            this.editObject (o);
+
+        },
+        CommandId.editobject));
+
+    }
+
+    public void editObject (DataObject d)
+    {
+
+        if (d instanceof Chapter)
+        {
+
+            this.editChapter ((Chapter) d,
+                              null);
+            return;
+
+        }
+
+        if (d instanceof Note)
+        {
+
+            this.editComment ((Note) d);
+
+        }
+
     }
 
     public void showAddNewComment (Chapter c,
@@ -566,39 +612,6 @@ TODO
     }
 
     @Override
-    public StringProperty titleProperty ()
-    {
-
-        return UILanguageStringsManager.createStringPropertyWithBinding (() ->
-        {
-
-            ProjectVersion pv = this.project.getProjectVersion ();
-
-            StringProperty suff = null;
-
-            if ((pv != null)
-                &&
-                (pv.getName () != null)
-               )
-            {
-
-                suff = getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.project,viewertitleversionwrapper),
-                                    //" (%s)",
-                                                    pv.getName ());
-
-            }
-
-            return getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.project,viewertitle),
-                                        //"Editing%s: %s",
-                                                suff,
-                                                this.project.getName ()).getValue ();
-
-        },
-        this.project.projectVersionProperty ());
-
-    }
-
-    @Override
     public void handleOpenProject ()
     {
 
@@ -637,6 +650,8 @@ TODO
 
                 QuollPopup.messageBuilder ()
                     .inViewer (this)
+                    .closeButton ()
+                    .headerIconClassName (StyleClassNames.INFORMATION)
                     .message (editors,LanguageStrings.project,actions,openproject,openerrors,previouscontact)
                     .build ();
 
@@ -741,7 +756,7 @@ TODO Remove
     public EditorChapterPanel getEditorForChapter (Chapter c)
     {
 
-        EditorChapterPanel cp = this.getEditorForChapter (c);
+        ChapterEditorPanelContent cp = super.getEditorForChapter (c);
 
         return (EditorChapterPanel) cp;
 
@@ -816,6 +831,8 @@ TODO Remove
 
             this.editChapter (c,
                               doAfterView);
+
+            return;
 
         }
 
@@ -1365,6 +1382,45 @@ TODO
                                              getUILanguageStringProperty (LanguageStrings.project,editorpanel,actions,removeeditposition,actionerror));
 
         }
+
+    }
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        super.init (s);
+
+        this.setMainSideBar (this.sideBar);
+
+        this.titleProperty ().unbind ();
+        this.titleProperty ().bind (UILanguageStringsManager.createStringPropertyWithBinding (() ->
+        {
+
+            ProjectVersion pv = this.project.getProjectVersion ();
+
+            StringProperty suff = new SimpleStringProperty ("");
+
+            if ((pv != null)
+                &&
+                (pv.getName () != null)
+               )
+            {
+
+                suff = getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.project,viewertitleversionwrapper),
+                                    //" (%s)",
+                                                    pv.getName ());
+
+            }
+
+            return getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.project,viewertitle),
+                                        //"Editing%s: %s",
+                                                suff,
+                                                this.project.getName ()).getValue ();
+
+        },
+        this.project.projectVersionProperty ()));
 
     }
 

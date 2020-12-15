@@ -10,8 +10,6 @@ import javafx.scene.input.*;
 import javafx.scene.image.*;
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;

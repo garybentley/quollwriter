@@ -5,7 +5,6 @@ import java.util.*;
 import java.sql.*;
 //import javax.imageio.*;
 //import java.awt.image.*;
-import javax.swing.*;
 import javafx.scene.image.*;
 
 import org.bouncycastle.bcpg.*;
@@ -14,8 +13,6 @@ import org.bouncycastle.openpgp.bc.*;
 import org.bouncycastle.crypto.generators.*;
 import org.bouncycastle.crypto.params.*;
 import org.bouncycastle.openpgp.operator.bc.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
@@ -403,12 +400,7 @@ public class ProjectInfoObjectManager extends ObjectManager
 
                 String p = rs.getString (ind++);
 
-                com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties (JDOMUtils.getStringAsElement (p));
-
-
-                //new ByteArrayInputStream (p.getBytes ()),
-                //                                                                                     null);
-
+                com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties (DOM4JUtils.stringAsElement (p));
                 props.setId ("user");
 
                 return props;
@@ -463,7 +455,7 @@ public class ProjectInfoObjectManager extends ObjectManager
 
             params = new ArrayList ();
 
-            String t = JDOMUtils.getElementAsString (props.getAsJDOMElement ());
+            String t = DOM4JUtils.elementAsString (props.getAsElement ());
 
             if (rs.next ())
             {
@@ -621,7 +613,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
         //chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
         chapterType.setLayout (null);
-        chapterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift H"));
+        // TODO DO! chapterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift H"));
         /*
         TODO
         chapterType.setIcon24x24 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
@@ -686,7 +678,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //characterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
         characterType.setLayout (null);
         characterType.setAssetObjectType (true);
-        characterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift C"));
+        // TODO DO! characterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift C"));
         characterType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_SMALL_ICON_IMAGE_NAME)));
         characterType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_LARGE_ICON_IMAGE_NAME)));
 
@@ -750,7 +742,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //locType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
         locType.setLayout (null);
         locType.setAssetObjectType (true);
-        locType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift L"));
+        // TODO DO! locType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift L"));
         locType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_SMALL_ICON_IMAGE_NAME)));
         locType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_LARGE_ICON_IMAGE_NAME)));
 
@@ -800,7 +792,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //qobjType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
         qobjType.setLayout (null);
         qobjType.setAssetObjectType (true);
-        qobjType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift I"));
+        // TODO DO! qobjType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift I"));
         qobjType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_SMALL_ICON_IMAGE_NAME)));
         qobjType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_LARGE_ICON_IMAGE_NAME)));
 
@@ -891,7 +883,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         //riType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
         riType.setLayout (null);
         riType.setAssetObjectType (true);
-        riType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift R"));
+        // TODO DO! riType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift R"));
         riType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_SMALL_ICON_IMAGE_NAME)));
         riType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_LARGE_ICON_IMAGE_NAME)));
 

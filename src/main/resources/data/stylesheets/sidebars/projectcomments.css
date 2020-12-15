@@ -1,0 +1,15 @@
+/**
+ * Styles for the sidebar shown for the project comments, class: com.quollwriter.editors.ui.sidebars.ProjectCommentsSideBar
+ * The class also makes use of the sidebars/project.css amd sidebars/editorproject.css stylesheet.
+ */
+.form .items > .label
+{
+    -fx-font-style: italic;
+    -fx-min-width: 5em;
+    -fx-pref-width: 5em;
+}
+
+.accordion.comments .header .iconbox
+{
+    visibility: hidden;
+}

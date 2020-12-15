@@ -625,6 +625,7 @@ public class Constants
     public static final String NO_AVATAR_IMAGE_FILE_NAME = "noavatar.png";
 
     public static final String DATA_DIR = "/data/";
+    public static final String LOGGING_CONFIG_FILE_NAME = Constants.DATA_DIR + "logging.properties";
     public static final String DEFAULT_UI_LANGUAGE_STRINGS_FILE = Constants.DATA_DIR + "default-ui-language-strings" + JSON_FILE_EXT;
     public static final String TIPS_FILE = Constants.DATA_DIR + "tips.xml";
     public static final String PROBLEM_FINDER_RULES_FILE = Constants.DATA_DIR + "problem-finder-rules.xml";

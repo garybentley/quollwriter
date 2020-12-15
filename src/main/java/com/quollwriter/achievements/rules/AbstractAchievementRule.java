@@ -4,9 +4,7 @@ import java.util.*;
 
 import javafx.beans.property.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -50,16 +48,14 @@ public abstract class AbstractAchievementRule implements AchievementRule
     }
 
     public AbstractAchievementRule (Element root)
-                                    throws  JDOMException
+                                    throws  GeneralException
     {
 
-        this.id = JDOMUtils.getAttributeValue (root,
-                                               XMLConstants.id,
-                                               true);
-        this.cat = JDOMUtils.getAttributeValue (root,
-                                                XMLConstants.category,
-                                                true);
-        this.hidden = JDOMUtils.getAttributeValueAsBoolean (root,
+        this.id = DOM4JUtils.attributeValue (root,
+                                             XMLConstants.id);
+        this.cat = DOM4JUtils.attributeValue (root,
+                                                XMLConstants.category);
+        this.hidden = DOM4JUtils.attributeValueAsBoolean (root,
                                                             XMLConstants.hidden,
                                                             false);
 
@@ -86,22 +82,15 @@ public abstract class AbstractAchievementRule implements AchievementRule
 
         }
 */
-        this.icon = JDOMUtils.getAttributeValue (root,
+        this.icon = DOM4JUtils.attributeValue (root,
                                                  XMLConstants.icon,
                                                  false);
 
-        if (this.icon.equals (""))
-        {
-
-            this.icon = null;
-
-        }
-
-        String ev = JDOMUtils.getAttributeValue (root,
+        String ev = DOM4JUtils.attributeValue (root,
                                                  XMLConstants.event,
                                                  false);
 
-        if (!ev.equals (""))
+        if (ev != null)
         {
 
             StringTokenizer t = new StringTokenizer (ev,

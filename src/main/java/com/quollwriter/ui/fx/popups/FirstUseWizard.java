@@ -18,8 +18,6 @@ import javafx.scene.input.*;
 import javafx.util.*;
 import javafx.collections.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;

@@ -6,8 +6,6 @@ import java.net.*;
 
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.synonyms.*;
@@ -94,7 +92,7 @@ public class BigHugeLabsSynonymProvider implements SynonymProvider
 
         String url = UserProperties.get (BigHugeLabsSynonymProvider.URL_PROPERTY_NAME);
 
-        url = StringUtils.replaceString (url,
+        url = Utils.replaceString (url,
                                          BigHugeLabsSynonymProvider.WORD_TAG,
                                          word);
 

@@ -4,9 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.nio.charset.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.utils.*;
+import org.dom4j.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.*;
@@ -447,6 +445,7 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

@@ -475,7 +475,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                         .build ();
 
                     this.viewer.showPopup (np,
-                                           this.statusBut,
+                                           this.loginBut,
                                            Side.BOTTOM);
 
                 }
@@ -486,24 +486,32 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                                              () ->
                                              {
 
-                                                 if (_np != null)
+                                                 UIUtils.runLater (() ->
                                                  {
 
-                                                     _np.close ();
+                                                     if (_np != null)
+                                                     {
 
-                                                 }
+                                                         _np.close ();
 
-                                                 QuollPopup qp = QuollPopup.notificationBuilder ()
-                                                     .message (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.sidebar,headercontrols,items,onlinestatus,update,LanguageStrings.notification),
-                                                                                            EditorsEnvironment.getUserOnlineStatus ().getName ()))
-                                                     .styleClassName (StyleClassNames.LOADING)
-                                                     .inViewer (this.viewer)
-                                                     .hideIn (3 * Constants.SEC_IN_MILLIS)
-                                                     .build ();
+                                                     }
 
-                                                 this.viewer.showPopup (qp,
-                                                                        this.statusBut,
-                                                                        Side.BOTTOM);
+                                                     QuollPopup qp = QuollPopup.notificationBuilder ()
+                                                         .message (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.sidebar,headercontrols,items,onlinestatus,update,LanguageStrings.notification),
+                                                                                                EditorsEnvironment.getUserOnlineStatus ().getName ()))
+                                                         .styleClassName (StyleClassNames.LOADING)
+                                                         .inViewer (this.viewer)
+                                                         .hideIn (3 * Constants.SEC_IN_MILLIS)
+                                                         .build ();
+
+                                                     this.loginBut.setVisible (false);
+                                                     this.statusBut.setVisible (true);
+
+                                                     this.viewer.showPopup (qp,
+                                                                            this.statusBut,
+                                                                            Side.BOTTOM);
+
+                                                });
 
                                              },
                                              // On cancel
@@ -591,12 +599,14 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                     }
 
                     its.add (QuollMenuItem.builder ()
-                        .iconName (StyleClassNames.LOGOUT)
+                        .iconName (this.getStatusStyleClassName (EditorEditor.OnlineStatus.offline))
                         .label (editors,LanguageStrings.sidebar,headercontrols,items,onlinestatus,popupmenu,items,logout)
                         .onAction (ev ->
                         {
 
                             EditorsEnvironment.goOffline ();
+                            this.statusBut.setVisible (false);
+                            this.loginBut.setVisible (true);
 
                         })
                         .build ());
@@ -748,6 +758,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                                 QuollPopup.messageBuilder ()
                                     .inViewer (_this.viewer)
+                                    .headerIconClassName (StyleClassNames.VIEW)
                                     .title (editors,user,displaypassword,LanguageStrings.popup,title)
                                     .message (getUILanguageStringProperty (Arrays.asList (editors,user,displaypassword,LanguageStrings.popup,text),
                                                                     //"Note: your password is being displayed because you have checked the <i>Save password</i> box for logging into the Editors service.<br /><br />Your login details are:<br /><br />Email address: <b>%s</b><br />Password: <b>%s</b>%s",
@@ -1254,33 +1265,6 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
         StringProperty nameProp = new SimpleStringProperty ();
 
         PropertyBinder edBinder = new PropertyBinder ();
-        edBinder.addChangeListener (ed.mainAvatarProperty (),
-                                    (pr, oldv, newv) ->
-        {
-
-            if (newv == null)
-            {
-
-                t.getPseudoClassStates ().add (StyleClassNames.NOAVATAR_PSEUDO_CLASS);
-
-            } else {
-
-                t.getPseudoClassStates ().remove (StyleClassNames.NOAVATAR_PSEUDO_CLASS);
-
-            }
-
-        });
-
-        if (ed.mainAvatarProperty ().getValue () == null)
-        {
-
-            t.getPseudoClassStates ().add (StyleClassNames.NOAVATAR_PSEUDO_CLASS);
-
-        } else {
-
-            t.getPseudoClassStates ().remove (StyleClassNames.NOAVATAR_PSEUDO_CLASS);
-
-        }
 
         edBinder.addChangeListener (ed.mainNameProperty (),
                                     (pr, oldv, newv) ->
@@ -1305,6 +1289,17 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             .binder (edBinder)
             .build ();
         t.setGraphic (h);
+
+        h.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, ed.mainAvatarProperty ().getValue () == null);
+
+        edBinder.addChangeListener (ed.mainAvatarProperty (),
+                                    (pr, oldv, newv) ->
+        {
+
+            h.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, newv == null);
+
+        });
+
         edBinder.addChangeListener (ed.onlineStatusProperty (),
                                     (pr, oldv, newv) ->
         {

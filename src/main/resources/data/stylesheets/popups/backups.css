@@ -16,6 +16,7 @@
 .item {
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em;
 }
 .item > .iconbox { visibility: hidden; }
 .item:hover { -fx-background-color: -qw-hover-bg; }

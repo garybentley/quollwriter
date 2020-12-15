@@ -4,8 +4,6 @@ import java.time.*;
 import java.io.*;
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;

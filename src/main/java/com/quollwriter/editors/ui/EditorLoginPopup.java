@@ -257,6 +257,8 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
 
         });
 
+        this.getChildren ().add (this.form);
+
     }
 
     public void showError (StringProperty v)

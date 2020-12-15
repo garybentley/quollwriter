@@ -3,23 +3,14 @@ package com.quollwriter.text.rules;
 import java.util.*;
 import java.awt.event.*;
 
-import javax.swing.*;
-
 import javafx.scene.control.*;
 import javafx.scene.control.SpinnerValueFactory.*;
-
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.forms.*;
+import org.dom4j.*;
 
-import org.jdom.*;
-
-import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
@@ -37,8 +28,8 @@ public class TooManyClausesRule extends AbstractSentenceRule
     }
 
     private int                 clauseCount = 0;
-    private JSpinner            count = null;
-    private Map<String, String> separators = new HashMap ();
+    private javax.swing.JSpinner            count = null;
+    private Map<String, String> separators = new HashMap<> ();
 
     private Spinner<Integer> count2 = null;
 
@@ -68,7 +59,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
         String d = super.getDescription ();
 
-        return StringUtils.replaceString (d,
+        return Utils.replaceString (d,
                                           "[LIMIT]",
                                           this.clauseCount + "");
 
@@ -78,7 +69,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
     public String getSummary ()
     {
 
-        return StringUtils.replaceString (super.getSummary (),
+        return Utils.replaceString (super.getSummary (),
                                           "[LIMIT]",
                                           this.clauseCount + "");
 
@@ -86,12 +77,12 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        this.clauseCount = JDOMUtils.getAttributeValueAsInt (root,
+        this.clauseCount = DOM4JUtils.attributeValueAsInt (root,
                                                              XMLConstants.clauseCount);
 
     }
@@ -102,7 +93,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
         Element root = super.getAsElement ();
 
-        root.setAttribute (XMLConstants.clauseCount,
+        root.addAttribute (XMLConstants.clauseCount,
                            this.clauseCount + "");
 
         return root;
@@ -136,7 +127,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
         }
 
         // Look for , ; or -.
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         if (c > this.clauseCount)
         {
@@ -161,7 +152,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
+    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
     {
 
         List<String> pref = new ArrayList ();
@@ -171,20 +162,20 @@ public class TooManyClausesRule extends AbstractSentenceRule
         pref.add (LanguageStrings.toomanyclauses);
         pref.add (LanguageStrings.labels);
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet<> ();
 
-        this.count = new JSpinner (new SpinnerNumberModel (this.clauseCount,
+        this.count = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.clauseCount,
                                                            1,
                                                            200,
                                                            1));
 
-        Box b = new Box (BoxLayout.X_AXIS);
+        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
         b.add (this.count);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.count.setMaximumSize (this.count.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.clauses),
                                     //"No of Clauses",
                                     b));
@@ -223,7 +214,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
     public void updateFromForm ()
     {
 
-        this.clauseCount = ((SpinnerNumberModel) this.count.getModel ()).getNumber ().intValue ();
+        this.clauseCount = ((javax.swing.SpinnerNumberModel) this.count.getModel ()).getNumber ().intValue ();
 
     }
 

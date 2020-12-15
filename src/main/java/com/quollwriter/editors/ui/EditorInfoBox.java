@@ -34,7 +34,7 @@ public class EditorInfoBox extends VBox
     private Pane avatar = null;
     private HBox avatarBox = null;
     private QuollLabel mainName = null;
-    private Pane onlineStatus = null;
+    private IconBox onlineStatus = null;
     private QuollLabel other = null;
     private VBox details = null;
     private HBox editorInfo = null;
@@ -57,6 +57,10 @@ public class EditorInfoBox extends VBox
         final EditorInfoBox _this = this;
 
         this.editor = ed;
+
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.CONTACT);
 
         this.setFillWidth (true);
         this.getStyleClass ().add (StyleClassNames.CONTACT);
@@ -118,7 +122,7 @@ public class EditorInfoBox extends VBox
         HBox.setHgrow (this.editorInfo,
                        Priority.ALWAYS);
 
-        this.setOnMousePressed (ev ->
+        this.setOnMouseReleased (ev ->
         {
 
             if (this.getProperties ().get ("context-menu") != null)
@@ -232,12 +236,9 @@ public class EditorInfoBox extends VBox
             .styleClassName (StyleClassNames.OTHER)
             .build ();
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        this.onlineStatus = new Pane ();
-        this.onlineStatus.getStyleClass ().addAll (StyleClassNames.ONLINESTATUS, StyleClassNames.ICON);
-        h.getChildren ().add (this.onlineStatus);
-        h.managedProperty ().bind (h.visibleProperty ());
+        this.onlineStatus = IconBox.builder ()
+            .styleClassName (StyleClassNames.ONLINESTATUS)
+            .build ();
 
         binder.addChangeListener (ed.onlineStatusProperty (),
                                   (pr, oldv, newv) ->
@@ -360,7 +361,7 @@ public class EditorInfoBox extends VBox
 
         QuollToolBar tb = QuollToolBar.builder ()
             .styleClassName (StyleClassNames.STATUSBAR)
-            .controls (Arrays.asList (h,
+            .controls (Arrays.asList (this.onlineStatus,
                                       this.importantMessages,
                                       this.comments,
                                       this.projectMessages,
@@ -593,10 +594,6 @@ public class EditorInfoBox extends VBox
     private void updateForOnlineStatus ()
     {
 
-        this.onlineStatus.getStyleClass ().clear ();
-        this.onlineStatus.getStyleClass ().add (StyleClassNames.ICON);
-        this.onlineStatus.getStyleClass ().add (StyleClassNames.ONLINESTATUS);
-
         if (this.editor.getOnlineStatus () != null)
         {
 
@@ -612,7 +609,7 @@ public class EditorInfoBox extends VBox
 
         }
 
-        this.onlineStatus.getStyleClass ().add (EditorEditor.OnlineStatus.online.getType () + "-icon");
+        this.onlineStatus.setIconName (EditorEditor.OnlineStatus.online.getType ());
 
     }
 

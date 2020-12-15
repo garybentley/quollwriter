@@ -4,13 +4,11 @@ import java.io.*;
 
 import java.util.*;
 
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class GetPromptAuthors
@@ -37,8 +35,7 @@ public class GetPromptAuthors
                 try
                 {
 
-                    root = JDOMUtils.getFileAsElement (files[i],
-                                                       ".zip");
+                    root = DOM4JUtils.fileAsElement (files[i]);
 
                 } catch (Exception e)
                 {

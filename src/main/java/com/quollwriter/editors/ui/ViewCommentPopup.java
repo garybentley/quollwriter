@@ -8,8 +8,6 @@ import javafx.scene.control.IndexRange;
 
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.editors.*;
@@ -98,14 +96,10 @@ public class ViewCommentPopup extends PopupContent<AbstractProjectViewer>
 
         Note top = this.items.iterator ().next ();
 
-        CommentItemFormatter form = new CommentItemFormatter (this.viewer,
-                                                              this.getBinder (),
-                                                              top,
-                                                              null);
-
         QuollPopup p = QuollPopup.builder ()
-            .title (form.getPopupTitle ())
-            .styleClassName (form.getStyleClassName ())
+            .title (getUILanguageStringProperty (objectnames,singular,StyleClassNames.COMMENT))
+            .styleClassName (StyleClassNames.COMMENT)
+            .headerIconClassName (StyleClassNames.COMMENT)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

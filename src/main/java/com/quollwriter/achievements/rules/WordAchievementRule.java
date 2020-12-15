@@ -2,10 +2,9 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
-import com.gentlyweb.xml.*;
-
+import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -32,20 +31,20 @@ public class WordAchievementRule extends AbstractAchievementRule
     private Map<String, String> words = new HashMap ();
 
     public WordAchievementRule (Element root)
-                                throws  JDOMException
+                                throws  GeneralException
     {
 
         super (root);
 
-        this.allowRepeats = JDOMUtils.getAttributeValueAsBoolean (root,
+        this.allowRepeats = DOM4JUtils.attributeValueAsBoolean (root,
                                                                   XMLConstants.allowRepeats,
                                                                   false);
 
-        this.count = JDOMUtils.getAttributeValueAsInt (root,
+        this.count = DOM4JUtils.attributeValueAsInt (root,
                                                        XMLConstants.count,
                                                        false);
 
-        this.chaptersOnly = JDOMUtils.getAttributeValueAsBoolean (root,
+        this.chaptersOnly = DOM4JUtils.attributeValueAsBoolean (root,
                                                                   XMLConstants.chapter,
                                                                   false);
 
@@ -59,8 +58,16 @@ public class WordAchievementRule extends AbstractAchievementRule
 
         }
 
-        String w = JDOMUtils.getAttributeValue (root,
-                                                XMLConstants.words);
+        String w = root.attributeValue (XMLConstants.words);
+
+        if (w == null)
+        {
+
+            DOM4JUtils.raiseException ("Expected: %1$s to have an attribute: %2$s",
+                                       root,
+                                       XMLConstants.words);
+
+        }
 
         StringTokenizer t = new StringTokenizer (w,
                                                  ",;");

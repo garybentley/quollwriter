@@ -15,8 +15,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -309,16 +307,16 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             String css = Utils.getResourceFileAsString ("/data/export/epub/css-template.xml");
 
-            css = StringUtils.replaceString (css,
+            css = Utils.replaceString (css,
                                              "[[FONT_NAME]]",
                                              UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
-            css = StringUtils.replaceString (css,
+            css = Utils.replaceString (css,
                                              "[[FONT_SIZE]]",
                                              UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME) + "pt");
-            css = StringUtils.replaceString (css,
+            css = Utils.replaceString (css,
                                              "[[LINE_SPACING]]",
                                              (100 * UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME)) + "%");
-            css = StringUtils.replaceString (css,
+            css = Utils.replaceString (css,
                                              "[[ALIGN]]",
                                              UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toLowerCase ());
 
@@ -331,7 +329,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             }
 
-            css = StringUtils.replaceString (css,
+            css = Utils.replaceString (css,
                                              "[[INDENT]]",
                                              indent);
 
@@ -351,7 +349,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 count++;
 
-                String chapterText = StringUtils.replaceString (cTemp,
+                String chapterText = Utils.replaceString (cTemp,
                                                                 "[[TITLE]]",
                                                                 c.getName ());
 
@@ -373,7 +371,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 }
 
-                chapterText = StringUtils.replaceString (chapterText,
+                chapterText = Utils.replaceString (chapterText,
                                                          "[[CONTENT]]",
                                                          ct.toString ());
 
@@ -421,10 +419,10 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                               apxC,
                                               type.getObjectTypeNamePlural ());
 
-                String t = StringUtils.replaceString (appendixTemp,
+                String t = Utils.replaceString (appendixTemp,
                                                       "[[TITLE]]",
                                                       title);
-                t = StringUtils.replaceString (t,
+                t = Utils.replaceString (t,
                                                "[[CONTENT]]",
                                                this.getAssetsPage (as,
                                                                    book));

@@ -10,8 +10,6 @@ import javafx.scene.control.*;
 import javafx.beans.binding.*;
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.text.*;

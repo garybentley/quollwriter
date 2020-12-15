@@ -4,8 +4,6 @@ import java.sql.*;
 
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.ui.fx.*;

@@ -2,10 +2,12 @@ package com.quollwriter.editors;
 
 import java.io.*;
 import java.nio.file.*;
+import java.nio.file.attribute.*;
 import java.awt.image.*;
 import java.net.*;
 import java.util.*;
 import java.util.function.*;
+import java.util.logging.*;
 import java.sql.*;
 
 import javafx.collections.*;
@@ -13,9 +15,6 @@ import javafx.scene.input.*;
 import javafx.scene.*;
 import javafx.beans.property.*;
 import javafx.scene.image.*;
-
-import com.gentlyweb.xml.*;
-//import com.gentlyweb.properties.*;
 
 import org.bouncycastle.openpgp.*;
 
@@ -3178,11 +3177,9 @@ TODO Remove
         }
 
         // Load the per user properties.
-        File pf = UserProperties.getUserEditorsPropertiesPath ().toFile ();
-
-        JDOMUtils.writeElementToFile (props.getAsJDOMElement (),
-                                      pf,
-                                      true);
+        DOM4JUtils.writeToFile (props.getAsElement (),
+                                UserProperties.getUserEditorsPropertiesPath (),
+                                true);
 
     }
 

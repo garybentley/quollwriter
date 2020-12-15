@@ -10,12 +10,7 @@ import javax.imageio.*;
 
 import javafx.beans.property.*;
 
-import org.jdom.*;
-
 import org.bouncycastle.openpgp.*;
-
-import com.gentlyweb.xml.*;
-import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;

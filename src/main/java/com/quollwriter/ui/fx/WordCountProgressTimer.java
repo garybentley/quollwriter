@@ -69,7 +69,7 @@ public class WordCountProgressTimer
     {
 
         this.paused = false;
-        this.startTimer ();
+        //this.startTimer ();
 
     }
 
@@ -213,7 +213,7 @@ public class WordCountProgressTimer
             perc = MIN_VALUE;
 
         }
-
+System.out.println ("PERC: " + perc);
         this.progress.setProgress (perc);
 
         UIUtils.setTooltip (this.progress,

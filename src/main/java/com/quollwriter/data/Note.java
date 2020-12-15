@@ -2,7 +2,7 @@ package com.quollwriter.data;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import com.quollwriter.text.*;
 
@@ -97,6 +97,7 @@ public class Note extends ChapterItem
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

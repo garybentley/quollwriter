@@ -5,8 +5,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.*;
 
-import org.jdom.*;
-
 import javafx.event.*;
 import javafx.scene.*;
 import javafx.stage.*;
@@ -16,8 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.exporter.*;
 

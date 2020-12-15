@@ -325,14 +325,6 @@ public class AllProjectsViewer extends AbstractViewer
 
     }
 
-    @Override
-    public SideBar getMainSideBar ()
-    {
-
-        return null;
-
-    }
-
     private void initKeyMappings ()
     {
 

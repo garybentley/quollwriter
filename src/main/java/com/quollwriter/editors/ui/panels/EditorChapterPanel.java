@@ -66,6 +66,13 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
         this.editor.setEditable (false);
         // TODO this.editor.setCanCopy (false);
 
+        UIUtils.addStyleSheet (this,
+                               Constants.PANEL_STYLESHEET_TYPE,
+                               "chapteredit");
+        UIUtils.addStyleSheet (this,
+                               Constants.PANEL_STYLESHEET_TYPE,
+                               "editorchapteredit");
+
         this.editor.readyForUseProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -110,6 +117,25 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
 
                                              }));
 
+        Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.mouseReleased (),
+                                              ev ->
+                                              {
+
+                                                  if ((_this.editor.getSelection ().getEnd () > _this.editor.getSelection ().getStart ())
+                                                      &&
+                                                      (!_this.isChapterItemEditVisible ())
+                                                      &&
+                                                      (_this.isReadyForUse ())
+                                                     )
+                                                  {
+
+                                                      this.showAddNewComment (this.editor.getSelection ().getStart ());
+
+                                                  }
+
+                                              }));
+
 /*
         this.iconColumn = new IconColumn<EditorProjectViewer> (this,
                                                                c,
@@ -129,22 +155,6 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
 
         });
 */
-        this.editor.caretPositionProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            if ((_this.editor.getSelection ().getEnd () > _this.editor.getSelection ().getStart ())
-                &&
-                (!_this.isChapterItemEditVisible ())
-                &&
-                (_this.isReadyForUse ())
-               )
-            {
-
-                this.showAddNewComment (this.editor.getSelection ().getStart ());
-
-            }
-
-        });
 
         //this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
 
@@ -959,6 +969,50 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
             .collect (Collectors.toSet ()));
 
         return ret;
+
+    }
+
+    @Override
+    public Node getMarginNodeForChapterItem (ChapterItem ci)
+    {
+
+        if (ci instanceof Note)
+        {
+
+            Note n = (Note) ci;
+
+            IconBox riv = IconBox.builder ()
+                .iconName (StyleClassNames.COMMENT)
+                .build ();
+
+            riv.setOnMouseDragged (ev ->
+            {
+
+                riv.requestFocus ();
+
+            });
+            riv.setOnMouseClicked (ev ->
+            {
+
+                if (ev.getButton () != MouseButton.PRIMARY)
+                {
+
+                    return;
+
+                }
+
+                this.showItem (n,
+                               true);
+
+                ev.consume ();
+
+            });
+
+            return riv;
+
+        }
+
+        throw new UnsupportedOperationException ("Object not supported: " + ci);
 
     }
 

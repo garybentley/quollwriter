@@ -32,8 +32,6 @@ import org.w3c.dom.*;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 
@@ -403,7 +401,7 @@ System.out.println ("ADDING: " + r);
 */
         b.append ("</style></head><body>");
 
-        String c = StringUtils.replaceString (this.content,
+        String c = Utils.replaceString (this.content,
                                               String.valueOf ('\n'),
                                               "<br />");
 

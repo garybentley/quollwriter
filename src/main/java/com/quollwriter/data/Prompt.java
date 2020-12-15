@@ -1,9 +1,9 @@
 package com.quollwriter.data;
 
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
-import org.jdom.*;
-
+import com.quollwriter.*;
 
 public class Prompt
 {
@@ -52,57 +52,31 @@ public class Prompt
     }
 
     public Prompt(Element root)
-           throws JDOMException
+           throws GeneralException
     {
 
-        this.id = JDOMUtils.getAttributeValue (root,
-                                               XMLConstants.id,
-                                               false);
+        this.id = root.attributeValue (XMLConstants.id);
 
-        if (this.id.equals (""))
-        {
+        this.text = root.element (XMLConstants.text).getTextTrim ();
 
-            this.id = null;
+        this.author = DOM4JUtils.childElementContent (root,
+                                                         XMLConstants.author,
+                                                         false,
+                                                         null);
 
-        }
+        this.storyName = DOM4JUtils.childElementContent (root,
+                                                            XMLConstants.storyName,
+                                                            false,
+                                                            null);
 
-        this.text = JDOMUtils.getChildElementContent (root,
-                                                      XMLConstants.text);
-        this.author = JDOMUtils.getChildElementContent (root,
-                                                        XMLConstants.author,
-                                                        false);
-
-        if (this.author.equals (""))
-        {
-
-            this.author = null;
-
-        }
-
-        this.storyName = JDOMUtils.getChildElementContent (root,
-                                                           XMLConstants.storyName,
-                                                           false);
-
-        if (this.storyName.equals (""))
-        {
-
-            this.storyName = null;
-
-        }
-
-        this.url = JDOMUtils.getChildElementContent (root,
-                                                     XMLConstants.url,
-                                                     false);
-
-        if (this.url.equals (""))
-        {
-
-            this.url = null;
-
-        }
+        this.url = DOM4JUtils.childElementContent (root,
+                                                      XMLConstants.url,
+                                                      false,
+                                                      null);
 
     }
 
+    @Override
     public String toString ()
     {
 
@@ -127,12 +101,12 @@ public class Prompt
     public Element getAsElement ()
     {
 
-        Element root = new Element (XMLConstants.root);
+        Element root = new DefaultElement (XMLConstants.root);
 
         if (this.id != null)
         {
 
-            root.setAttribute (XMLConstants.id,
+            root.addAttribute (XMLConstants.id,
                                this.id);
 
         }
@@ -140,33 +114,33 @@ public class Prompt
         if (this.author != null)
         {
 
-            Element auth = new Element (XMLConstants.author);
-            root.addContent (auth);
-            auth.addContent (this.author);
+            Element auth = new DefaultElement (XMLConstants.author);
+            root.add (auth);
+            auth.add (new DefaultCDATA (this.author));
 
         }
 
         if (this.storyName != null)
         {
 
-            Element st = new Element (XMLConstants.storyName);
-            root.addContent (st);
-            st.addContent (this.storyName);
+            Element st = new DefaultElement (XMLConstants.storyName);
+            root.add (st);
+            st.add (new DefaultCDATA (this.storyName));
 
         }
 
         if (this.url != null)
         {
 
-            Element url = new Element (XMLConstants.url);
-            root.addContent (url);
-            url.addContent (this.url);
+            Element url = new DefaultElement (XMLConstants.url);
+            root.add (url);
+            url.add (new DefaultCDATA (this.url));
 
         }
 
-        Element text = new Element (XMLConstants.text);
-        root.addContent (text);
-        text.addContent (this.text);
+        Element text = new DefaultElement (XMLConstants.text);
+        root.add (text);
+        text.add (new DefaultCDATA (this.text));
 
         return root;
 

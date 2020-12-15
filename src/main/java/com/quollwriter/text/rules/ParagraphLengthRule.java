@@ -2,16 +2,8 @@ package com.quollwriter.text.rules;
 
 import java.util.*;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-
 import javafx.scene.control.*;
 import javafx.scene.control.SpinnerValueFactory.*;
-
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.text.*;
@@ -20,8 +12,7 @@ import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.dom4j.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -39,8 +30,8 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     private int sentenceCount = 0;
     private int wordCount = 0;
-    private JSpinner sentCountF = null;
-    private JSpinner wordCountF = null;
+    private javax.swing.JSpinner sentCountF = null;
+    private javax.swing.JSpinner wordCountF = null;
 
     private Spinner<Integer> sentCountF2 = null;
     private Spinner<Integer> wordCountF2 = null;
@@ -95,11 +86,11 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         String d = super.getDescription ();
 
-        d = StringUtils.replaceString (d,
+        d = Utils.replaceString (d,
                                        "[SENTENCE_COUNT]",
                                        this.sentenceCount + "");
 
-        d = StringUtils.replaceString (d,
+        d = Utils.replaceString (d,
                                        "[WORD_COUNT]",
                                        this.wordCount + "");
 
@@ -111,11 +102,11 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public String getSummary ()
     {
 
-        String t = StringUtils.replaceString (super.getSummary (),
+        String t = Utils.replaceString (super.getSummary (),
                                               "[SENTENCE_COUNT]",
                                               this.sentenceCount + "");
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        "[WORD_COUNT]",
                                        this.wordCount + "");
 
@@ -125,14 +116,14 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        this.sentenceCount = JDOMUtils.getAttributeValueAsInt (root,
+        this.sentenceCount = DOM4JUtils.attributeValueAsInt (root,
                                                                XMLConstants.sentenceCount);
-        this.wordCount = JDOMUtils.getAttributeValueAsInt (root,
+        this.wordCount = DOM4JUtils.attributeValueAsInt (root,
                                                            XMLConstants.wordCount);
 
     }
@@ -143,9 +134,9 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         Element root = super.getAsElement ();
 
-        root.setAttribute (XMLConstants.sentenceCount,
+        root.addAttribute (XMLConstants.sentenceCount,
                            this.sentenceCount + "");
-        root.setAttribute (XMLConstants.wordCount,
+        root.addAttribute (XMLConstants.wordCount,
                            this.wordCount + "");
 
         return root;
@@ -226,7 +217,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
+    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
     {
 
         List<String> pref = new ArrayList<> ();
@@ -236,37 +227,37 @@ public class ParagraphLengthRule extends AbstractParagraphRule
         pref.add (LanguageStrings.paragraphlength);
         pref.add (LanguageStrings.labels);
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet ();
 
-        this.wordCountF = new JSpinner (new SpinnerNumberModel (this.wordCount,
+        this.wordCountF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.wordCount,
                                                                 1,
                                                                 500,
                                                                 1));
 
-        Box b = new Box (BoxLayout.X_AXIS);
+        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
         b.add (this.wordCountF);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.words),
                                     //"Words",
                                     b));
 
-        this.sentCountF = new JSpinner (new SpinnerNumberModel (this.sentenceCount,
+        this.sentCountF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.sentenceCount,
                                                                 1,
                                                                 500,
                                                                 1));
 
-        b = new Box (BoxLayout.X_AXIS);
+        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
 
         b.add (this.sentCountF);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.sentCountF.setMaximumSize (this.sentCountF.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.sentences),
                                     //"Sentences",
                                     b));
@@ -310,8 +301,8 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public void updateFromForm ()
     {
 
-        this.sentenceCount = ((SpinnerNumberModel) this.sentCountF.getModel ()).getNumber ().intValue ();
-        this.wordCount = ((SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
+        this.sentenceCount = ((javax.swing.SpinnerNumberModel) this.sentCountF.getModel ()).getNumber ().intValue ();
+        this.wordCount = ((javax.swing.SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
 
     }
 

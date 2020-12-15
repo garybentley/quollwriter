@@ -6,17 +6,13 @@ import java.util.*;
 
 import javafx.collections.*;
 
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.events.*;
-
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class Book extends NamedObject
@@ -90,12 +86,14 @@ public class Book extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
 
     }
 
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 

@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.panels;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import javafx.geometry.*;
 import javafx.stage.*;
@@ -30,6 +31,14 @@ import static com.quollwriter.LanguageStrings.*;
 //public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer, P extends javax.swing.JComponent> extends NamedObjectPanelContent<E, Chapter>
 public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer> extends NamedObjectPanelContent<E, Chapter>
 {
+
+    private ScheduledFuture autoSaveTask = null;
+    //private QuollEditorPanel panel = null;
+    private Runnable wordCountUpdate = null;
+    private ScheduledFuture a4PageCountUpdater = null;
+
+    protected List<QuollPopup> popupsToCloseOnClick = new ArrayList<> ();
+    private Map<String, ContextMenu> contextMenus = new HashMap<> ();
 
     //private P chapterPanel = null;
     protected TextEditor editor = null;
@@ -86,6 +95,56 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         }
 
+        Nodes.addInputMap (this.editor,
+                           InputMap.process (EventPattern.mousePressed (),
+                                             ev ->
+                                             {
+
+                                                this.hidePopups ();
+
+                                                // TODO Handle right click on chapter items in margin.
+                                                if (ev.isPopupTrigger ())
+                                                {
+
+                                                    this.setContextMenu ();
+
+                                                    return InputHandler.Result.PROCEED;
+
+                                                }
+
+                                                return InputHandler.Result.PROCEED;
+
+                                            }));
+
+         Nodes.addInputMap (this.editor,
+                            InputMap.process (EventPattern.mouseReleased (),
+                                               ev ->
+                                               {
+
+                                                   if (ev.isPopupTrigger ())
+                                                   {
+
+                                                       this.setContextMenu ();
+
+                                                       return InputHandler.Result.PROCEED;
+
+                                                   }
+
+                                                   return InputHandler.Result.PROCEED;
+
+                                               }));
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.process (EventPattern.keyPressed (),
+                                             ev ->
+                                             {
+
+                                                 this.hidePopups ();
+
+                                                 return InputHandler.Result.PROCEED;
+
+                                             }));
+
         this.editor.readyForUseProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -123,7 +182,30 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         });
 
-        this.viewer.spellCheckingEnabledProperty ().addListener ((pr, oldv, newv) ->
+        this.addChangeListener (this.viewer.projectSpellCheckLanguageProperty (),
+                                (v, oldv, newv) ->
+        {
+
+           this.editor.setDictionaryProvider (this.viewer.getDictionaryProvider ());
+
+           try
+           {
+
+              this.editor.setSynonymProvider (viewer.getSynonymProvider ());
+
+           } catch (Exception e) {
+
+               Environment.logError ("Unable to set synonym provider.",
+                                     e);
+
+              // TODO Should error.
+
+           }
+
+        });
+
+        this.addChangeListener (this.viewer.spellCheckingEnabledProperty (),
+                                (pr, oldv, newv) ->
         {
 
             this.editor.setSpellCheckEnabled (newv);
@@ -220,6 +302,338 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         this.setText (chapter.getText ());
 
+        this.addChangeListener (UserProperties.chapterAutoSaveEnabledProperty (),
+                                (v, oldv, newv) ->
+        {
+
+           this.tryScheduleAutoSave ();
+
+        });
+
+        this.addChangeListener (UserProperties.chapterAutoSaveTimeProperty (),
+                                (v, oldv, newv) ->
+        {
+
+           this.tryScheduleAutoSave ();
+
+        });
+
+        this.tryScheduleAutoSave ();
+
+    }
+
+    private void setContextMenu ()
+    {
+
+        //Set<MenuItem> items = this.editor.getSpellingSynonymItemsForContextMenu (this.viewer);//new LinkedHashSet<> ();
+/*
+        Point2D p = this.editor.getMousePosition ();
+
+        // TODO? this.lastMousePosition = p;
+
+        if (p != null)
+        {
+
+            TextIterator iter = new TextIterator (this.editor.getText ());
+
+            final Word w = iter.getWordAt (this.editor.getTextPositionForMousePosition (p.getX (),
+                                                                                        p.getY ()));
+
+            if (w != null)
+            {
+
+                final String word = w.getText ();
+
+                final int loc = w.getAllTextStartOffset ();
+
+                List<String> l = this.editor.getSpellCheckSuggestions (w);
+
+                if (l != null)
+                {
+
+                    List<String> prefix = Arrays.asList (dictionary,spellcheck,popupmenu,LanguageStrings.items);
+
+                    if (l.size () == 0)
+                    {
+
+                        MenuItem mi = QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,nosuggestions)))
+                            .styleClassName (StyleClassNames.NOSUGGESTIONS)
+                            .onAction (ev ->
+                            {
+
+                                this.editor.addWordToDictionary (word);
+
+                                this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                              ProjectEvent.Action.addword,
+                                                              word);
+
+                            })
+                            .build ();
+                        mi.setDisable (true);
+                        items.add (mi);
+
+                    } else
+                    {
+
+                        if (l.size () > 15)
+                        {
+
+                            l = l.subList (0, 15);
+
+                        }
+
+                        Consumer<String> replace = (repWord ->
+                        {
+
+                            int cp = this.editor.getCaretPosition ();
+
+                            this.editor.replaceText (loc,
+                                                     loc + word.length (),
+                                                     repWord);
+
+                            this.editor.moveTo (cp - 1);
+
+                            this.viewer.fireProjectEvent (ProjectEvent.Type.spellcheck,
+                                                          ProjectEvent.Action.replace,
+                                                          repWord);
+
+                        });
+
+                        List<String> more = null;
+
+                        if (l.size () > 5)
+                        {
+
+                            more = l.subList (5, l.size ());
+                            l = l.subList (0, 5);
+
+                        }
+
+                        items.addAll (l.stream ()
+                            .map (repWord ->
+                            {
+
+                                return QuollMenuItem.builder ()
+                                    .label (new SimpleStringProperty (repWord))
+                                    .onAction (ev -> replace.accept (repWord))
+                                    .build ();
+
+                            })
+                            .collect (Collectors.toList ()));
+
+                        if (more != null)
+                        {
+
+                            items.add (QuollMenu.builder ()
+                                .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.more)))
+                                .styleClassName (StyleClassNames.MORE)
+                                .items (new LinkedHashSet<> (more.stream ()
+                                    .map (repWord ->
+                                    {
+
+                                        return QuollMenuItem.builder ()
+                                            .label (new SimpleStringProperty (repWord))
+                                            .onAction (ev -> replace.accept (repWord))
+                                            .build ();
+
+                                    })
+                                    .collect (Collectors.toList ())))
+                                .build ());
+
+                        }
+
+                    }
+
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,add)))
+                        .styleClassName (StyleClassNames.ADDWORD)
+                        .onAction (ev ->
+                        {
+
+                            this.editor.addWordToDictionary (word);
+
+                            this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
+                                                          ProjectEvent.Action.addword,
+                                                          word);
+
+                        })
+                        .build ());
+
+                    items.add (new SeparatorMenuItem ());
+
+                } else
+                {
+
+                    if (this.viewer.synonymLookupsSupported ())
+                    {
+
+                        // TODO Check this...
+                        if (this.viewer.isLanguageFunctionAvailable ())
+                        {
+
+                            if ((word != null) &&
+                                (word.length () > 0))
+                            {
+
+                                //String mt = "No synonyms found for: " + word;
+
+                                try
+                                {
+
+                                    // See if there are any synonyms.
+                                    if (this.editor.getSynonymProvider ().hasSynonym (word))
+                                    {
+
+                                        items.add (QuollMenuItem.builder ()
+                                            .styleClassName (StyleClassNames.FIND)
+                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,find),
+                                                                                 word))
+                                            .onAction (ev ->
+                                            {
+
+                                                QuollPopup qp = this.viewer.getPopupById (ShowSynonymsPopup.getPopupIdForChapter (this.object));
+
+                                                if (qp != null)
+                                                {
+
+                                                    qp.toFront ();
+                                                    return;
+
+                                                }
+
+                                                qp = new ShowSynonymsPopup (this.viewer,
+                                                                            w,
+                                                                            this.object).getPopup ();
+
+                                                Bounds b = this.viewer.screenToLocal (this.editor.getBoundsForPosition (loc));
+
+                                                this.viewer.showPopup (qp,
+                                                                       b,
+                                                                       Side.TOP);
+                                                                       //b.getMinX (),
+                                                                       //b.getMinY () - b.getHeight ());
+
+                                            })
+                                            .build ());
+
+                                    } else {
+
+                                        MenuItem mi = QuollMenuItem.builder ()
+                                            .styleClassName (StyleClassNames.NOSYNONYMS)
+                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,nosynonyms),
+                                                                                 word))
+                                            .build ();
+                                        mi.setDisable (true);
+                                        items.add (mi);
+
+                                    }
+
+                                    items.add (new SeparatorMenuItem ());
+
+                                } catch (Exception e) {
+
+                                    Environment.logError ("Unable to determine whether word: " +
+                                                          word +
+                                                          " has synonyms.",
+                                                          e);
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+*/
+        if (this.editor.getProperties ().get ("context-menu") != null)
+        {
+
+            ((ContextMenu) this.editor.getProperties ().get ("context-menu")).hide ();
+
+        }
+
+        ContextMenu cm = new ContextMenu ();
+
+        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+
+        cm.getItems ().addAll (this.getContextMenuItems (compress));
+
+        this.editor.setContextMenu (cm);
+
+        this.editor.getProperties ().put ("context-menu", cm);
+        cm.setAutoFix (true);
+        cm.setAutoHide (true);
+        cm.setHideOnEscape (true);
+
+    }
+
+    private void tryScheduleAutoSave ()
+    {
+
+        if (this.autoSaveTask != null)
+        {
+
+            this.autoSaveTask.cancel (true);
+
+        }
+
+        if (UserProperties.chapterAutoSaveEnabledProperty ().getValue ())
+        {
+
+            final long autoSaveInt = UserProperties.chapterAutoSaveTimeProperty ().getValue ();
+
+            if (autoSaveInt > 0)
+            {
+
+				final ChapterEditorPanelContent _this = this;
+
+                this.autoSaveTask = this.viewer.schedule (() ->
+                {
+
+                    UIUtils.runLater (() ->
+                    {
+
+                        if (!_this.unsavedChangesProperty ().getValue ())
+                        {
+
+                            return;
+
+                        }
+
+                        try
+                        {
+
+                            _this.saveObject ();
+
+                        } catch (Exception e)
+                        {
+
+                            Environment.logError ("Unable to auto save chapter: " +
+                                                  _this.object,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (project,editorpanel,actions,autosave,actionerror));
+
+                        }
+
+                    });
+
+                },
+                autoSaveInt,
+                autoSaveInt);
+
+            }
+
+        }
+
     }
 
     public long getTextLastModifiedTime ()
@@ -235,6 +649,8 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         this.editor.hideContextMenu ();
 
     }
+
+    public abstract Set<MenuItem> getContextMenuItems (boolean    compress);
 
     public abstract Map<KeyCombination, Runnable> getActionMappings ();
 
@@ -577,6 +993,18 @@ TODO ? Remove?
 
     }
 */
+
+    @Override
+    public void saveObject ()
+                     throws Exception
+    {
+
+        this.object.setText (this.editor.getTextWithMarkup ());
+
+        super.saveObject ();
+
+    }
+
     public static String getPanelIdForChapter (Chapter c)
     {
 
@@ -603,6 +1031,273 @@ TODO ? Remove?
     {
 
         return this.editor.createTextPosition (pos);
+
+    }
+
+    public void bindTextPropertiesTo (TextProperties p)
+    {
+
+        this.editor.bindTo (p);
+
+    }
+
+    public void setUseTypewriterScrolling (boolean v)
+    {
+/*
+TODO
+
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.setUseTypewriterScrolling (v);
+
+            });
+
+            return;
+
+        }
+
+        if (!v)
+        {
+
+            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            // Reset the margin.
+            this.editor.setMargin (this.origEditorMargin);
+            this.showIconColumn (true);
+
+        } else {
+
+            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+            this.showIconColumn (false);
+
+        }
+
+        this.scrollCaretIntoView (null);
+
+        this.scrollPane.getViewport ().setViewSize (this.editor.getPreferredSize ());
+
+        this.editor.requestFocus ();
+*/
+    }
+
+    public void scrollCaretIntoView (final Runnable runAfterScroll)
+    {
+/*
+TODO Remove
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.scrollCaretIntoView (runAfterScroll);
+
+            });
+
+            return;
+
+        }
+
+        final ProjectChapterEditorPanelContent _this = this;
+*/
+/*
+TODO
+        try
+        {
+
+            int c = _this.editor.getCaret ().getDot ();
+
+            if (c > -1)
+            {
+
+                _this.scrollToPosition (c);
+
+            }
+
+            _this.updateViewportPositionForTypewriterScrolling ();
+
+            if (runAfterScroll != null)
+            {
+
+                SwingUIUtils.doLater (runAfterScroll);
+
+            }
+
+        } catch (Exception e)
+        {
+
+            // Ignore it.
+
+        }
+*/
+    }
+
+    private void scheduleWordCountUpdate ()
+    {
+
+        final ChapterEditorPanelContent _this = this;
+
+        if (this.wordCountUpdate != null)
+        {
+
+            return;
+
+        }
+
+        this.wordCountUpdate = () ->
+        {
+
+            try
+            {
+
+                ChapterCounts cc = this.viewer.getChapterCounts (this.object);
+
+                if (this.getText () == null)
+                {
+
+                    _this.wordCountUpdate = null;
+                    this.scheduleWordCountUpdate ();
+
+                    return;
+
+                }
+
+                final String t = this.getText ().getText ();
+
+                final ChapterCounts ncc = new ChapterCounts (t);
+
+                cc.setWordCount (ncc.getWordCount ());
+                cc.setSentenceCount (ncc.getSentenceCount ());
+
+                _this.wordCountUpdate = null;
+
+                this.scheduleA4PageCountUpdate ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to determine word count for chapter: " +
+                                      _this.object,
+                                      e);
+
+            }
+
+        };
+
+        this.viewer.schedule (this.wordCountUpdate,
+                              1 * Constants.SEC_IN_MILLIS,
+                              -1);
+
+    }
+
+    private void scheduleA4PageCountUpdate ()
+    {
+
+        this.viewer.unschedule (this.a4PageCountUpdater);
+
+        this.a4PageCountUpdater = this.viewer.schedule (() ->
+        {
+
+            try
+            {
+
+                ChapterCounts cc = this.viewer.getChapterCounts (this.object);
+
+                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (this.object,
+                                                                           this.getText ().getText ()));
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get a4 page count for chapter: " +
+                                      this.object,
+                                      e);
+
+            }
+
+        },
+        // Start in 2 seconds
+        2 * Constants.SEC_IN_MILLIS,
+        // Do it once.
+        0);
+
+    }
+
+    public void insertSectionBreak ()
+    {
+/*
+TODO
+        if (!SwingUtilities.isEventDispatchThread ())
+        {
+
+            SwingUIUtils.doLater (() ->
+            {
+
+                this.insertSectionBreak ();
+
+            });
+
+            return;
+
+        }
+*/
+/*
+TODO
+        final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
+
+        final int offset = this.editor.getCaret ().getDot ();
+
+        try
+        {
+
+            this.editor.startCompoundEdit ();
+
+            String ins = String.valueOf ('\n') + String.valueOf ('\n') + Constants.SECTION_BREAK + String.valueOf ('\n') + String.valueOf ('\n');
+
+            doc.insertString (offset,
+                              ins,
+                              this.editor.sectionBreakStyle);
+
+            doc.setParagraphAttributes (offset + 2,
+                                        Constants.SECTION_BREAK.length (),
+                                        this.editor.sectionBreakStyle,
+                                        false);
+
+            doc.setLogicalStyle (offset + 2,
+                                 this.editor.sectionBreakStyle);
+
+            this.editor.endCompoundEdit ();
+
+        } catch (Exception e)
+        {
+
+        }
+*/
+    }
+
+    public void hidePopups ()
+    {
+
+        Set<QuollPopup> popups = new HashSet<> (this.popupsToCloseOnClick);
+
+        popups.stream ()
+           .forEach (p -> p.close ());
+
+        this.popupsToCloseOnClick.clear ();
+
+    }
+
+    private void hideAllContextMenus ()
+    {
+
+        UIUtils.runLater (() ->
+        {
+
+            this.contextMenus.values ().stream ()
+                .forEach (cm -> cm.hide ());
+
+        });
 
     }
 

@@ -18,10 +18,6 @@ import javax.swing.table.*;
 
 import com.gentlyweb.properties.*;
 
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -32,8 +28,6 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.*;
-
-import org.jdom.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
@@ -543,7 +537,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
             ByteArrayOutputStream bout = new ByteArrayOutputStream ();
 
-            IOUtils.streamTo (bin,
+            Utils.streamTo (bin,
                               bout,
                               8192);
 

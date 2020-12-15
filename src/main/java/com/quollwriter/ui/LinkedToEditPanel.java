@@ -26,8 +26,6 @@ import javax.swing.tree.*;
 
 import com.gentlyweb.properties.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -48,21 +46,21 @@ import com.quollwriter.ui.components.Runner;
 
 public class LinkedToEditPanel<E extends NamedObject, V extends AbstractProjectViewer> extends EditPanel
 {
-    
+
     private E obj = null;
     private V viewer = null;
     private JTree linkedToEditTree = null;
-    private JTree linkedToViewTree = null;    
-    
+    private JTree linkedToViewTree = null;
+
     public LinkedToEditPanel (E obj,
                               V viewer)
     {
-        
+
         this.obj = obj;
         this.viewer = viewer;
-        
+
     }
-    
+
     @Override
     public void refreshViewPanel ()
     {
@@ -99,11 +97,11 @@ public class LinkedToEditPanel<E extends NamedObject, V extends AbstractProjectV
     @Override
     public JComponent getSaveButton ()
     {
-        
+
         final LinkedToEditPanel _thisep = this;
-        
+
         IconProvider ip = this.getIconProvider ();
-        
+
         JButton save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
                                                       Constants.ICON_PANEL_SECTION_ACTION),
                                              String.format (Environment.getUIString (LanguageStrings.linkedto,
@@ -115,62 +113,62 @@ public class LinkedToEditPanel<E extends NamedObject, V extends AbstractProjectV
                                              //"Click to save the details",
                                              new ActionListener ()
                                              {
-                                            
+
                                                 @Override
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
-                                                  
+
                                                     _thisep.doSave ();
-                                                  
+
                                                 }
-                                            
+
                                           });
 
         return save;
-            
+
     }
-    
+
     @Override
     public JComponent getCancelButton ()
     {
-        
+
         final LinkedToEditPanel _thisep = this;
-        
-        IconProvider ip = this.getIconProvider ();        
-        
+
+        IconProvider ip = this.getIconProvider ();
+
         JButton cancel = UIUtils.createButton (ip.getIcon (Constants.CANCEL_ICON_NAME,
                                                            Constants.ICON_PANEL_SECTION_ACTION),
                                                Environment.getUIString (LanguageStrings.linkedto,
                                                                         LanguageStrings.edit,
                                                                         LanguageStrings.buttons,
                                                                         LanguageStrings.cancel,
-                                                                        LanguageStrings.tooltip),                                              
+                                                                        LanguageStrings.tooltip),
                                                //"Click to cancel the editing",
                                                new ActionListener ()
                                                {
-                                                
+
                                                   @Override
                                                   public void actionPerformed (ActionEvent ev)
                                                   {
-                                                    
+
                                                       _thisep.doCancel ();
-                                                    
+
                                                   }
-                                                
+
                                                });
 
         return cancel;
-            
+
     }
-    
+
     @Override
     public JComponent getEditButton ()
     {
-        
+
         final LinkedToEditPanel _thisep = this;
-        
-        IconProvider ip = this.getIconProvider ();                            
-        
+
+        IconProvider ip = this.getIconProvider ();
+
         return UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
                                                  Constants.ICON_PANEL_SECTION_ACTION),
                                      String.format (Environment.getUIString (LanguageStrings.linkedto,
@@ -181,19 +179,19 @@ public class LinkedToEditPanel<E extends NamedObject, V extends AbstractProjectV
                                                     Environment.getObjectTypeName (this.obj)),
                                      new ActionListener ()
                                      {
-                                      
+
                                         @Override
                                         public void actionPerformed (ActionEvent ev)
                                         {
-                                          
+
                                             _thisep.doEdit ();
-                                          
+
                                         }
-                                      
+
                                      });
 
-    }            
-    
+    }
+
     @Override
     public Set<FormItem> getEditItems ()
     {
@@ -260,7 +258,7 @@ public class LinkedToEditPanel<E extends NamedObject, V extends AbstractProjectV
             UIUtils.showErrorMessage (this.viewer,
                                       Environment.getUIString (LanguageStrings.linkedto,
                                                                LanguageStrings.save,
-                                                               LanguageStrings.actionerror));                                              
+                                                               LanguageStrings.actionerror));
                                       //"An internal error has occurred.\n\nUnable to save links.");
 
             return false;
@@ -308,7 +306,7 @@ public class LinkedToEditPanel<E extends NamedObject, V extends AbstractProjectV
         UIUtils.expandAllNodesWithChildren (this.linkedToViewTree);
 
     }
-    
+
     @Override
     public boolean handleCancel ()
     {
@@ -369,7 +367,7 @@ public class LinkedToEditPanel<E extends NamedObject, V extends AbstractProjectV
                                         LanguageStrings.title);
 
     }
-    
+
     @Override
     public String getTitle ()
     {

@@ -38,8 +38,6 @@ import javafx.beans.property.*;
 
 import org.imgscalr.Scalr;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 import com.quollwriter.events.PropertyChangedAdapter;
@@ -2158,7 +2156,7 @@ TODO
 
         t = b.toString ();
 
-        t = StringUtils.replaceString (t,
+        t = Utils.replaceString (t,
                                        String.valueOf ('\n'),
                                        "<br />");
 
@@ -2339,7 +2337,7 @@ TODO
 
         }
 
-        text = StringUtils.replaceString (text,
+        text = Utils.replaceString (text,
                                           String.valueOf ('\n'),
                                           "<br />");
 
@@ -2387,7 +2385,7 @@ TODO
                                  s);
 
         // Replace <a with "<a style=' etc...
-        s = StringUtils.replaceString (s,
+        s = Utils.replaceString (s,
                                        "<a ",
                                        "<a style='color: " + Constants.HTML_LINK_COLOR + ";' ");
 

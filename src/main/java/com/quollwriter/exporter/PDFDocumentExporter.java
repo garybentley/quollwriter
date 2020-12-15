@@ -12,8 +12,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -47,14 +45,14 @@ public class PDFDocumentExporter extends MSWordDocXDocumentExporter
         name = name.replace ('\\',
                              '_');
         name = Utils.sanitizeForFilename (name);
-                             
+
         FileOutputStream out = new FileOutputStream (new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.PDF_FILE_EXTENSION));
 
         wordMLPackage.setFontMapper (new IdentityPlusMapper (), true);
-        
+
         Docx4J.toPDF (wordMLPackage,
                       out);
-        
+
     }
 
 }

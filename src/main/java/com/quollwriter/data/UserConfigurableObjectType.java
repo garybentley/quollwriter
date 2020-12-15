@@ -3,13 +3,11 @@ package com.quollwriter.data;
 import java.util.*;
 import java.util.stream.*;
 
-import javax.swing.*;
-
 import javafx.collections.*;
 import javafx.beans.property.*;
 import javafx.scene.image.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -35,7 +33,7 @@ public class UserConfigurableObjectType extends NamedObject
     private String layout = null;
     private String userObjectType = null;
     private boolean isAsset = false;
-    private KeyStroke createShortcutKeyStroke = null;
+    private javax.swing.KeyStroke createShortcutKeyStroke = null;
     private boolean pluralNameSet = false;
     private boolean singularNameSet = false;
     private ObservableList<FieldsColumn> sortableFieldsColumns = null;
@@ -708,14 +706,14 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
-    public void setCreateShortcutKeyStroke (KeyStroke k)
+    public void setCreateShortcutKeyStroke (javax.swing.KeyStroke k)
     {
 
         this.createShortcutKeyStroke = k;
 
     }
 
-    public KeyStroke getCreateShortcutKeyStroke ()
+    public javax.swing.KeyStroke getCreateShortcutKeyStroke ()
     {
 
         return this.createShortcutKeyStroke;
@@ -743,6 +741,7 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
@@ -750,6 +749,7 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

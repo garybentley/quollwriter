@@ -12,8 +12,6 @@ import java.util.function.*;
 import javafx.scene.*;
 import javafx.beans.property.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -161,20 +159,14 @@ public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectComm
 	}
 
     @Override
-    public SideBar getMainSideBar ()
-    {
-
-        return new ProjectCommentsSideBar (this,
-                                           this.message).getSideBar ();
-
-    }
-
-    @Override
     public void init (State s)
                throws GeneralException
     {
 
         super.init (s);
+
+        this.setMainSideBar (new ProjectCommentsSideBar (this,
+                                                         this.message));
 
         // Show the first comment in the first chapter.
         this.viewObject (this.project.getBook (0).getChapters ().get (0).getNotes ().iterator ().next ());
@@ -196,18 +188,21 @@ public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectComm
         return UILanguageStringsManager.createStringPropertyWithBinding (() ->
         {
 
-            String verName = this.getProject ().getProjectVersion ().getName ();
+            String verName = "";
 
-            if (verName != null)
+            if (this.getProject ().getProjectVersion () != null)
             {
 
-                verName = getUILanguageStringProperty (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitleversionwrapper,
-                                        //" (%s)",
-                                                       verName).getValue ();
+                verName = this.getProject ().getProjectVersion ().getName ();
 
-            } else {
+                if (verName != null)
+                {
 
-                verName = "";
+                    verName = getUILanguageStringProperty (editors,projectcomments,(this.message.isSentByMe () ? sent : received),viewertitleversionwrapper,
+                                            //" (%s)",
+                                                           verName).getValue ();
+
+                }
 
             }
 

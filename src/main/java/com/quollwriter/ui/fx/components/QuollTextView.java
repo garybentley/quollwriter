@@ -24,7 +24,6 @@ import org.fxmisc.wellbehaved.event.*;
 import org.fxmisc.richtext.model.*;
 
 import org.jsoup.*;
-import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;

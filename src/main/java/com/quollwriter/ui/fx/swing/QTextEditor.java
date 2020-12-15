@@ -18,7 +18,6 @@ import javax.swing.text.*;
 import javax.swing.undo.*;
 
 import com.quollwriter.ui.fx.*;
-import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
 
@@ -2100,7 +2099,7 @@ System.out.println ("HERE: " + newv);
         if (t != null)
         {
 
-            t = StringUtils.replaceString (t,
+            t =Utils.replaceString (t,
                                            String.valueOf ('\r'),
                                            "");
 

@@ -2,26 +2,14 @@ package com.quollwriter.text.rules;
 
 import java.util.*;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-
 import javafx.scene.control.*;
 import javafx.scene.control.SpinnerValueFactory.*;
-
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.forms.*;
+import org.dom4j.*;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
-
-import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
@@ -39,7 +27,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
     }
 
     private int      wordCount = 0;
-    private JSpinner count = null;
+    private javax.swing.JSpinner count = null;
 
     private Spinner<Integer> count2 = null;
 
@@ -63,7 +51,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
         String d = super.getDescription ();
 
-        return StringUtils.replaceString (d,
+        return Utils.replaceString (d,
                                           "[LIMIT]",
                                           this.wordCount + "");
 
@@ -73,7 +61,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
     public String getSummary ()
     {
 
-        return StringUtils.replaceString (super.getSummary (),
+        return Utils.replaceString (super.getSummary (),
                                           "[LIMIT]",
                                           this.wordCount + "");
 
@@ -81,12 +69,12 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
     @Override
     public void init (Element root)
-               throws JDOMException
+               throws GeneralException
     {
 
         super.init (root);
 
-        this.wordCount = JDOMUtils.getAttributeValueAsInt (root,
+        this.wordCount = DOM4JUtils.attributeValueAsInt (root,
                                                            XMLConstants.wordCount);
 
     }
@@ -97,7 +85,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
         Element root = super.getAsElement ();
 
-        root.setAttribute (XMLConstants.wordCount,
+        root.addAttribute (XMLConstants.wordCount,
                            this.wordCount + "");
 
         return root;
@@ -109,7 +97,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
     {
 
         // Check each word to make sure it's not punctuation.
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         int wc = sentence.getWordCount ();
 
@@ -146,7 +134,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
+    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
     {
 
         List<String> pref = new ArrayList ();
@@ -156,20 +144,20 @@ public class SentenceLengthRule extends AbstractSentenceRule
         pref.add (LanguageStrings.sentencelength);
         pref.add (LanguageStrings.labels);
 
-        Set<FormItem> items = new LinkedHashSet ();
+        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet ();
 
-        this.count = new JSpinner (new SpinnerNumberModel (this.wordCount,
+        this.count = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.wordCount,
                                                            1,
                                                            200,
                                                            1));
 
-        Box b = new Box (BoxLayout.X_AXIS);
+        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
         b.add (this.count);
-        b.add (Box.createHorizontalGlue ());
+        b.add (javax.swing.Box.createHorizontalGlue ());
 
         this.count.setMaximumSize (this.count.getPreferredSize ());
 
-        items.add (new AnyFormItem (Environment.getUIString (pref,
+        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
                                                              LanguageStrings.words),
                                     //"No of Words",
                                     b));
@@ -207,7 +195,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
     public void updateFromForm ()
     {
 
-        this.wordCount = ((SpinnerNumberModel) this.count.getModel ()).getNumber ().intValue ();
+        this.wordCount = ((javax.swing.SpinnerNumberModel) this.count.getModel ()).getNumber ().intValue ();
 
     }
 

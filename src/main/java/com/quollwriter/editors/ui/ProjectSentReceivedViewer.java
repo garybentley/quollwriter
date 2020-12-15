@@ -15,8 +15,6 @@ import javafx.scene.control.*;
 
 //import com.gentlyweb.properties.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -47,12 +45,13 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
     //private DefaultChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
     private EditorEditor editor = null;
     protected E message = null;
-    private ProjectSentReceivedSideBar<E, ProjectSentReceivedViewer<E>> sideBar = null;
+    //private ProjectSentReceivedSideBar<E, ProjectSentReceivedViewer<E>> sideBar = null;
 
     public ProjectSentReceivedViewer (Project proj,
                                       E       message)
     {
 
+        this.project = proj;
         this.message = message;
 
         // TODO Set icon of header.
@@ -227,6 +226,15 @@ TODO Remove/change?
 
     }
 
+    @Override
+    public void close (Runnable afterClose)
+    {
+
+        this.project = null;
+        super.close (afterClose);
+
+    }
+
     public E getMessage ()
     {
 
@@ -254,14 +262,6 @@ TODO Remove/change?
 	}
 
     @Override
-    public SideBar getMainSideBar ()
-    {
-
-        return this.sideBar.getSideBar ();
-
-    }
-
-    @Override
     public void handleNewProject ()
     {
 
@@ -270,19 +270,25 @@ TODO Remove/change?
     }
 
     @Override
-    public void handleOpenProject ()
+    public StringProperty titleProperty ()
     {
 
-        // Do nothing?
-        this.titleProperty ().unbind ();
-        this.titleProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
+        return UILanguageStringsManager.createStringPropertyWithBinding (() ->
         {
 
             return getUILanguageStringProperty (Arrays.asList (editors,projectsent,viewertitle),
                                                 this.project.getName ()).getValue ();
 
         },
-        this.project.nameProperty ()));
+        this.project.nameProperty ());
+
+    }
+
+    @Override
+    public void handleOpenProject ()
+    {
+
+        throw new UnsupportedOperationException ("Not supported for viewing sent/received information.");
 
     }
 
@@ -498,6 +504,15 @@ TODO Remove/change?
             return items;
 
         };
+
+    }
+
+    @Override
+    public void createActionLogEntry (NamedObject n,
+                                      String      m)
+    {
+
+        // Do nothing.
 
     }
 

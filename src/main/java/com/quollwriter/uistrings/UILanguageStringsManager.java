@@ -13,8 +13,6 @@ import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.ui.LanguageStringsEditor;
 import com.quollwriter.ui.fx.*;
@@ -214,15 +212,15 @@ public class UILanguageStringsManager
 
             String url = UserProperties.get (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
-            url = StringUtils.replaceString (url,
+            url = Utils.replaceString (url,
                                              Constants.VERSION_TAG,
                                              Environment.getQuollWriterVersion ().toString ());
 
-            url = StringUtils.replaceString (url,
+            url = Utils.replaceString (url,
                                              Constants.ID_TAG,
                                              id);
 
-            url = StringUtils.replaceString (url,
+            url = Utils.replaceString (url,
                                              Constants.LAST_MOD_TAG,
                                              lastMod);
 
@@ -290,7 +288,8 @@ public class UILanguageStringsManager
 
                     Path f = UILanguageStringsManager.getUILanguageStringsFilePath (nid);
 
-                    Files.write (f, JSONEncoder.encode (m).getBytes (StandardCharsets.UTF_8));
+                    Utils.writeStringToFile (f,
+                                             JSONEncoder.encode (m));
 
                 }
 
@@ -361,15 +360,15 @@ public class UILanguageStringsManager
 
         String url = UserProperties.get (Constants.QUOLL_WRITER_GET_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
-        url = StringUtils.replaceString (url,
+        url = Utils.replaceString (url,
                                          Constants.VERSION_TAG,
                                          Environment.getQuollWriterVersion ().toString ());
 
-        url = StringUtils.replaceString (url,
+        url = Utils.replaceString (url,
                                          Constants.ID_TAG,
                                          id);
 
-        url = StringUtils.replaceString (url,
+        url = Utils.replaceString (url,
                                          Constants.LAST_MOD_TAG,
                                          lastMod);
 
@@ -485,7 +484,8 @@ public class UILanguageStringsManager
 
                             Path f = UILanguageStringsManager.getUILanguageStringsFilePath (nid);
 
-                            Files.write (f, JSONEncoder.encode (m).getBytes (StandardCharsets.UTF_8));
+                            Utils.writeStringToFile (f,
+                                                     JSONEncoder.encode (m));
 
                         } catch (Exception e) {
 
@@ -1244,8 +1244,8 @@ TODO
 
         String json = JSONEncoder.encode (ls.getAsJSON ());
 
-        Files.write (f,
-                     json.getBytes (StandardCharsets.UTF_8));
+        Utils.writeStringToFile (f,
+                                 json);
 
     }
 

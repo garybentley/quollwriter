@@ -2,8 +2,7 @@ package com.quollwriter.data;
 
 import java.util.*;
 
-import org.jdom.*;
-
+import org.dom4j.*;
 
 public class Idea extends NamedObject
 {
@@ -22,9 +21,9 @@ public class Idea extends NamedObject
 
     public String getName ()
     {
-        
+
         return this.getDescriptionText ();
-        
+
     }
 
     @Override
@@ -36,23 +35,23 @@ public class Idea extends NamedObject
         this.addToStringProperties (props,
                                     "type",
                                     this.type);
-                        
+
     }
-    
+
     public Date getLastModified ()
     {
-        
+
         Date d = super.getLastModified ();
-        
+
         if (d != null)
         {
-            
+
             return d;
-            
+
         }
-        
+
         return this.getDateCreated ();
-        
+
     }
 
     public IdeaType getType ()
@@ -66,7 +65,7 @@ public class Idea extends NamedObject
     {
 
         this.type = t;
-        
+
         this.setParent (t);
 
     }
@@ -92,6 +91,7 @@ public class Idea extends NamedObject
 
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {

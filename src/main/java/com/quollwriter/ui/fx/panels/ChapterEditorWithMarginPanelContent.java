@@ -48,8 +48,6 @@ public abstract class ChapterEditorWithMarginPanelContent<E extends AbstractProj
 {
 
     private boolean isScrolling = false;
-    private Map<String, ContextMenu> contextMenus = new HashMap<> ();
-    private List<QuollPopup> popupsToCloseOnClick = new ArrayList<> ();
     protected Subscription itemsSubscription = null;
     protected Subscription itemsPositionSubscription = null;
     protected ObservableList<ChapterItem> newItems = FXCollections.observableList (new ArrayList<> ());
@@ -176,6 +174,12 @@ TODO
                                                        this.getEditor (),
                                                        paraNo,
                                                        this.object,
+                                                       item ->
+                                                       {
+
+                                                           return this.getMarginNodeForChapterItem (item);
+
+                                                       },
                                                        (item, node) ->
                                                        {
 
@@ -220,23 +224,12 @@ TODO
 
         }
 
-        Nodes.addInputMap (this.editor,
-                           InputMap.process (EventPattern.keyPressed (),
-                                             ev ->
-                                             {
-
-                                                 this.hidePopups ();
-
-                                                 return InputHandler.Result.PROCEED;
-
-                                             }));
-
        Nodes.addInputMap (this.editor,
                           InputMap.process (EventPattern.mousePressed (),
                                             ev ->
                                             {
 
-                                               this.hidePopups ();
+                                               //this.hidePopups ();
 
                                                // TODO Handle right click on chapter items in margin.
                                                if ((ev.isPopupTrigger ())
@@ -246,7 +239,9 @@ TODO
                                                   )
                                                {
 
-                                                   this.setContextMenu ();
+                                                   //this.setContextMenu ();
+
+                                                   return InputHandler.Result.PROCEED;
 
                                                }
 
@@ -267,7 +262,9 @@ TODO
                                                      )
                                                   {
 
-                                                      this.setContextMenu ();
+                                                      //this.setContextMenu ();
+
+                                                      return InputHandler.Result.PROCEED;
 
                                                   }
 
@@ -276,6 +273,8 @@ TODO
                                               }));
 
     }
+
+    public abstract Node getMarginNodeForChapterItem (ChapterItem it);
 
     public abstract Set<MenuItem> getMarginContextMenuItems (int cpos);
 
@@ -367,258 +366,6 @@ TODO
 
     }
 
-    private void setContextMenu ()
-    {
-
-        //Set<MenuItem> items = this.editor.getSpellingSynonymItemsForContextMenu (this.viewer);//new LinkedHashSet<> ();
-/*
-        Point2D p = this.editor.getMousePosition ();
-
-        // TODO? this.lastMousePosition = p;
-
-        if (p != null)
-        {
-
-            TextIterator iter = new TextIterator (this.editor.getText ());
-
-            final Word w = iter.getWordAt (this.editor.getTextPositionForMousePosition (p.getX (),
-                                                                                        p.getY ()));
-
-            if (w != null)
-            {
-
-                final String word = w.getText ();
-
-                final int loc = w.getAllTextStartOffset ();
-
-                List<String> l = this.editor.getSpellCheckSuggestions (w);
-
-                if (l != null)
-                {
-
-                    List<String> prefix = Arrays.asList (dictionary,spellcheck,popupmenu,LanguageStrings.items);
-
-                    if (l.size () == 0)
-                    {
-
-                        MenuItem mi = QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,nosuggestions)))
-                            .styleClassName (StyleClassNames.NOSUGGESTIONS)
-                            .onAction (ev ->
-                            {
-
-                                this.editor.addWordToDictionary (word);
-
-                                this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
-                                                              ProjectEvent.Action.addword,
-                                                              word);
-
-                            })
-                            .build ();
-                        mi.setDisable (true);
-                        items.add (mi);
-
-                    } else
-                    {
-
-                        if (l.size () > 15)
-                        {
-
-                            l = l.subList (0, 15);
-
-                        }
-
-                        Consumer<String> replace = (repWord ->
-                        {
-
-                            int cp = this.editor.getCaretPosition ();
-
-                            this.editor.replaceText (loc,
-                                                     loc + word.length (),
-                                                     repWord);
-
-                            this.editor.moveTo (cp - 1);
-
-                            this.viewer.fireProjectEvent (ProjectEvent.Type.spellcheck,
-                                                          ProjectEvent.Action.replace,
-                                                          repWord);
-
-                        });
-
-                        List<String> more = null;
-
-                        if (l.size () > 5)
-                        {
-
-                            more = l.subList (5, l.size ());
-                            l = l.subList (0, 5);
-
-                        }
-
-                        items.addAll (l.stream ()
-                            .map (repWord ->
-                            {
-
-                                return QuollMenuItem.builder ()
-                                    .label (new SimpleStringProperty (repWord))
-                                    .onAction (ev -> replace.accept (repWord))
-                                    .build ();
-
-                            })
-                            .collect (Collectors.toList ()));
-
-                        if (more != null)
-                        {
-
-                            items.add (QuollMenu.builder ()
-                                .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.more)))
-                                .styleClassName (StyleClassNames.MORE)
-                                .items (new LinkedHashSet<> (more.stream ()
-                                    .map (repWord ->
-                                    {
-
-                                        return QuollMenuItem.builder ()
-                                            .label (new SimpleStringProperty (repWord))
-                                            .onAction (ev -> replace.accept (repWord))
-                                            .build ();
-
-                                    })
-                                    .collect (Collectors.toList ())))
-                                .build ());
-
-                        }
-
-                    }
-
-                    items.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,add)))
-                        .styleClassName (StyleClassNames.ADDWORD)
-                        .onAction (ev ->
-                        {
-
-                            this.editor.addWordToDictionary (word);
-
-                            this.viewer.fireProjectEvent (ProjectEvent.Type.personaldictionary,
-                                                          ProjectEvent.Action.addword,
-                                                          word);
-
-                        })
-                        .build ());
-
-                    items.add (new SeparatorMenuItem ());
-
-                } else
-                {
-
-                    if (this.viewer.synonymLookupsSupported ())
-                    {
-
-                        // TODO Check this...
-                        if (this.viewer.isLanguageFunctionAvailable ())
-                        {
-
-                            if ((word != null) &&
-                                (word.length () > 0))
-                            {
-
-                                //String mt = "No synonyms found for: " + word;
-
-                                try
-                                {
-
-                                    // See if there are any synonyms.
-                                    if (this.editor.getSynonymProvider ().hasSynonym (word))
-                                    {
-
-                                        items.add (QuollMenuItem.builder ()
-                                            .styleClassName (StyleClassNames.FIND)
-                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,find),
-                                                                                 word))
-                                            .onAction (ev ->
-                                            {
-
-                                                QuollPopup qp = this.viewer.getPopupById (ShowSynonymsPopup.getPopupIdForChapter (this.object));
-
-                                                if (qp != null)
-                                                {
-
-                                                    qp.toFront ();
-                                                    return;
-
-                                                }
-
-                                                qp = new ShowSynonymsPopup (this.viewer,
-                                                                            w,
-                                                                            this.object).getPopup ();
-
-                                                Bounds b = this.viewer.screenToLocal (this.editor.getBoundsForPosition (loc));
-
-                                                this.viewer.showPopup (qp,
-                                                                       b,
-                                                                       Side.TOP);
-                                                                       //b.getMinX (),
-                                                                       //b.getMinY () - b.getHeight ());
-
-                                            })
-                                            .build ());
-
-                                    } else {
-
-                                        MenuItem mi = QuollMenuItem.builder ()
-                                            .styleClassName (StyleClassNames.NOSYNONYMS)
-                                            .label (getUILanguageStringProperty (Arrays.asList (synonyms,popupmenu,LanguageStrings.items,nosynonyms),
-                                                                                 word))
-                                            .build ();
-                                        mi.setDisable (true);
-                                        items.add (mi);
-
-                                    }
-
-                                    items.add (new SeparatorMenuItem ());
-
-                                } catch (Exception e) {
-
-                                    Environment.logError ("Unable to determine whether word: " +
-                                                          word +
-                                                          " has synonyms.",
-                                                          e);
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-*/
-        if (this.editor.getProperties ().get ("context-menu") != null)
-        {
-
-            ((ContextMenu) this.editor.getProperties ().get ("context-menu")).hide ();
-
-        }
-
-        ContextMenu cm = new ContextMenu ();
-
-        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
-
-        cm.getItems ().addAll (this.getContextMenuItems (compress));
-
-        this.editor.setContextMenu (cm);
-
-        this.editor.getProperties ().put ("context-menu", cm);
-        cm.setAutoFix (true);
-        cm.setAutoHide (true);
-        cm.setHideOnEscape (true);
-
-    }
-
     public void recreateVisibleParagraphs ()
     {
 
@@ -666,55 +413,6 @@ TODO
 
         }
 
-    }
-
-    public void bindTextPropertiesTo (TextProperties p)
-    {
-
-        this.editor.bindTo (p);
-
-    }
-
-    private void setUseTypewriterScrolling (boolean v)
-    {
-/*
-TODO
-
-        if (!SwingUtilities.isEventDispatchThread ())
-        {
-
-            SwingUIUtils.doLater (() ->
-            {
-
-                this.setUseTypewriterScrolling (v);
-
-            });
-
-            return;
-
-        }
-
-        if (!v)
-        {
-
-            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-            // Reset the margin.
-            this.editor.setMargin (this.origEditorMargin);
-            this.showIconColumn (true);
-
-        } else {
-
-            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-            this.showIconColumn (false);
-
-        }
-
-        this.scrollCaretIntoView (null);
-
-        this.scrollPane.getViewport ().setViewSize (this.editor.getPreferredSize ());
-
-        this.editor.requestFocus ();
-*/
     }
 
     @Override
@@ -783,8 +481,6 @@ TODO
         }
 
     }
-
-    public abstract Set<MenuItem> getContextMenuItems (boolean    compress);
 /*
     public Set<ChapterItem> getStructureItemsForPosition (int p)
     {
@@ -979,18 +675,6 @@ TODO
 
     }
 */
-    private void hideAllContextMenus ()
-    {
-
-        UIUtils.runLater (() ->
-        {
-
-            this.contextMenus.values ().stream ()
-                .forEach (cm -> cm.hide ());
-
-        });
-
-    }
 
     public Node getNodeForChapterItem (ChapterItem ci)
     {
@@ -998,18 +682,6 @@ TODO
         ParagraphIconMargin<E> m = (ParagraphIconMargin<E>) this.editor.getParagraphGraphic (this.editor.getParagraphForOffset (ci.getPosition ()));
 
         return m.getNodeForChapterItem (ci);
-
-    }
-
-    public void hidePopups ()
-    {
-
-        Set<QuollPopup> popups = new HashSet<> (this.popupsToCloseOnClick);
-
-        popups.stream ()
-           .forEach (p -> p.close ());
-
-        this.popupsToCloseOnClick.clear ();
 
     }
 

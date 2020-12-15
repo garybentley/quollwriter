@@ -34,9 +34,9 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.ListProperty;
 
-import org.jdom.*;
+import org.dom4j.*;
+import org.dom4j.tree.*;
 
-import com.gentlyweb.xml.*;
 import com.gentlyweb.properties.*;
 
 import com.quollwriter.data.*;
@@ -344,20 +344,20 @@ public class UserProperties
             try
             {
 
-                Element root = new Element ("files");
+                Element root = new DefaultElement ("files");
 
                 for (Path p : UserProperties.userBGImagePaths)
                 {
 
-                    Element el = new Element ("f");
-                    el.addContent (p.toString ());
+                    Element el = new DefaultElement ("f");
+                    el.add (new DefaultCDATA (p.toString ()));
 
-                    root.addContent (el);
+                    root.add (el);
 
                 }
 
                 // Get as a string.
-                String data = JDOMUtils.getElementAsString (root);
+                String data = DOM4JUtils.elementAsString (root);
 
                 UserProperties.set (Constants.BG_IMAGE_FILES_PROPERTY_NAME,
                                     data);
@@ -1471,32 +1471,19 @@ public class UserProperties
         }
 
         // Will be xml.
-        Element root = JDOMUtils.getStringAsElement (bgFiles);
+        Element root = DOM4JUtils.stringAsElement (bgFiles);
 
-        List els = JDOMUtils.getChildElements (root,
-                                               "f",
-                                               false);
-
-        for (int i = 0; i < els.size (); i++)
-        {
-
-            Element el = (Element) els.get (i);
-
-            Path p = Paths.get (JDOMUtils.getChildContent (el));
-
-            if ((Files.notExists (p))
-                ||
-                (Files.isDirectory (p))
-               )
+        UserProperties.userBGImagePaths.addAll (root.elements ("f").stream ()
+            .map (el -> Paths.get (el.getTextTrim ()))
+            .filter (p ->
             {
 
-                continue;
+                return ((Files.exists (p))
+                        &&
+                        (!Files.isDirectory (p)));
 
-            }
-
-            UserProperties.userBGImagePaths.add (p);
-
-        }
+            })
+            .collect (Collectors.toList ()));
 
     }
 

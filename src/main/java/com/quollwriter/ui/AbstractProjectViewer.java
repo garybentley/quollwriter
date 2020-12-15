@@ -42,8 +42,6 @@ import javax.swing.text.*;
 
 import com.gentlyweb.properties.*;
 
-import com.gentlyweb.utils.*;
-
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -7557,7 +7555,7 @@ TODO REmove
 
     public void saveToProjectFilesDirectory (File   file,
                                              String fileName)
-                                      throws IOException
+                                      throws GeneralException
     {
 
         this.proj.saveToFilesDirectory (file,

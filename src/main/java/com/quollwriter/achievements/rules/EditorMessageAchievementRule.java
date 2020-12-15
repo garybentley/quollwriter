@@ -2,10 +2,7 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
-
-import com.gentlyweb.utils.*;
-import com.gentlyweb.xml.*;
+import org.dom4j.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -29,21 +26,19 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
 
     }
 
-    private Set<String> messageTypes = new HashSet ();
+    private Set<String> messageTypes = new HashSet<> ();
     private ObjectMatch match = null;
     private int count = 0;
     private boolean sentByMe = true;
     private int savedCount = 0;
 
     public EditorMessageAchievementRule (Element root)
-                                 throws  JDOMException
+                                 throws  GeneralException
     {
 
         super (root);
 
-        Element mEl = JDOMUtils.getChildElement (root,
-                                                 XMLConstants.match,
-                                                 false);
+        Element mEl = root.element (XMLConstants.match);
 
         if (mEl != null)
         {
@@ -52,24 +47,21 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
 
         }
 
-        this.count = JDOMUtils.getAttributeValueAsInt (root,
+        this.count = DOM4JUtils.attributeValueAsInt (root,
                                                        XMLConstants.count,
                                                        false);
 
-        if (JDOMUtils.getAttribute (root,
-                                    XMLConstants.sentByMe,
-                                    false) != null)
+        if (root.attribute (XMLConstants.sentByMe) != null)
         {
 
-            this.sentByMe = JDOMUtils.getAttributeValueAsBoolean (root,
+            this.sentByMe = DOM4JUtils.attributeValueAsBoolean (root,
                                                                   XMLConstants.sentByMe,
                                                                   false);
 
         }
 
-        String mt = JDOMUtils.getAttributeValue (root,
-                                                 XMLConstants.messageTypes,
-                                                 true);
+        String mt = DOM4JUtils.attributeValue (root,
+                                                 XMLConstants.messageTypes);
 
         StringTokenizer t = new StringTokenizer (mt.toLowerCase (),
                                                  ",");
@@ -96,10 +88,10 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
 
             } catch (Exception e) {
 
-                throw new JDOMException ("Invalid message type: " +
+                throw new GeneralException ("Invalid message type: " +
                                          tok +
                                          ", referenced by: " +
-                                         JDOMUtils.getPath (root),
+                                         DOM4JUtils.getPath (root),
                                          e);
 
             }
@@ -193,10 +185,10 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
             try
             {
 
-                this.savedCount = JDOMUtils.getAttributeValueAsInt (root,
+                this.savedCount = DOM4JUtils.attributeValueAsInt (root,
                                                                     XMLConstants.savedCount,
                                                                     false);
-this.savedCount = 0;
+                //this.savedCount = 0;
             } catch (Exception e) {
 
                 Environment.logError ("Unable to set saved count for rule: " +
@@ -209,10 +201,11 @@ this.savedCount = 0;
 
     }
 
+    @Override
     public void fillState (Element root)
     {
 
-        root.setAttribute (XMLConstants.savedCount,
+        root.addAttribute (XMLConstants.savedCount,
                            String.valueOf (this.savedCount));
 
     }

@@ -2,8 +2,6 @@ package com.quollwriter.ui;
 
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.events.*;
 

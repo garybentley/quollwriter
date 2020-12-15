@@ -2,7 +2,6 @@ package com.quollwriter.data;
 
 import java.util.*;
 
-import org.jdom.*;
 import org.josql.*;
 
 import com.quollwriter.*;

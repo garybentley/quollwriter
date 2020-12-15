@@ -1121,6 +1121,14 @@ public class ViewerSplitPane extends Pane implements Stateful
     }
 
     @Override
+    protected double computePrefHeight (double w)
+    {
+
+        return this.content.prefHeight (w) + this.content.getInsets ().getTop () + this.content.getInsets ().getBottom ();
+
+    }
+
+    @Override
     protected double computeMinHeight (double w)
     {
 
@@ -1865,8 +1873,15 @@ public class ViewerSplitPane extends Pane implements Stateful
 
         }
 
-        this.div1.toFront ();
-        this.div2.toFront ();
+        UIUtils.forceRunLater (() ->
+        {
+
+            // This causes performance issues...
+            // Use with care.
+            //this.div1.toFront ();
+            //this.div2.toFront ();
+
+        });
 
     }
 

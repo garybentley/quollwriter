@@ -14,8 +14,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.uistrings.*;
@@ -58,7 +56,7 @@ public class LanguageStringsIdsPanel extends BasicQuollPanel<AbstractLanguageStr
         String title = (this.parent.getTitle () != null ? this.parent.getTitle () : this.parent.getNodeId ());
 
         // Replace the kludge to limit the length of the title.
-        title = StringUtils.replaceString (title,
+        title = Utils.replaceString (title,
                                            "<br />&nbsp;&nbsp;",
                                            " ");
 

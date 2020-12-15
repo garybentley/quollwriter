@@ -110,7 +110,7 @@ public class ProjectEvent extends EventObject
         timereached ("timereached"),
         showchart ("showchart"),
         wordcountreached ("wordcountreached"),
-        contverttoproject ("converttoproject"),
+        converttoproject ("converttoproject"),
         warmuponstartup ("warmuponstartup"),
         timerrestart ("timerrestart"),
         timerstarted ("timerstarted"),

@@ -122,6 +122,7 @@ public class Form extends VBox
                 ColumnConstraints _cc = new ColumnConstraints ();
                 _cc.setHgrow (Priority.NEVER);
                 _cc.setHalignment (HPos.RIGHT);
+                //_cc.setValignment (VPos.TOP);
                 gp.getColumnConstraints ().add (_cc);
 
             }
@@ -130,12 +131,13 @@ public class Form extends VBox
             _cc.setFillWidth (true);
             _cc.setHgrow (Priority.ALWAYS);
             _cc.setHalignment (HPos.LEFT);
+            //_cc.setValignment (VPos.TOP);
             gp.getColumnConstraints ().add (_cc);
 
             for (Item i : b.items)
             {
 
-                Label l = i.label;
+                Node l = i.label;
 
                 if (l != null)
                 {
@@ -235,7 +237,12 @@ public class Form extends VBox
                 if (l != null)
                 {
 
-                    l.setLabelFor (c);
+                    if (l instanceof Label)
+                    {
+
+                        ((Label) l).setLabelFor (c);
+
+                    }
 
                 }
 
@@ -539,8 +546,29 @@ public class Form extends VBox
         public Builder item (Node      control)
         {
 
-            return this.item (null,
-                              control);
+            return this.item (new Form.Item ((Label) null,
+                                             control));
+
+        }
+
+        public Builder item (Node           label,
+                             StringProperty view)
+        {
+
+            //Label v = null;
+            Text v = null;
+
+            if (view != null)
+            {
+
+                v = new Text ();
+                //v = new Label ();
+                v.textProperty ().bind (view);
+
+            }
+
+            return this.item (label,
+                              new TextFlow (v));
 
         }
 
@@ -548,18 +576,20 @@ public class Form extends VBox
                              StringProperty view)
         {
 
-            Label v = null;
+            //Label v = null;
+            Text v = null;
 
             if (view != null)
             {
 
-                v = new Label ();
+                //v = new Text ();
+                v = new Text ();
                 v.textProperty ().bind (view);
 
             }
 
             return this.item (label,
-                              v);
+                              new TextFlow (v));
 
         }
 
@@ -582,6 +612,15 @@ public class Form extends VBox
 
         }
 
+        public Builder item (Node  label,
+                             Node  control)
+        {
+
+            return this.item (new Form.Item (label,
+                                             control));
+
+        }
+
         public Builder item (StringProperty label,
                              Node           control)
         {
@@ -596,7 +635,8 @@ public class Form extends VBox
 
             }
 
-            return this.item (new Form.Item (t,
+            return this.item (new Form.Item (label,
+            //new TextFlow (t),
                                              control));
 
         }
@@ -733,7 +773,7 @@ public class Form extends VBox
     public static class Item
     {
 
-        public Label label = null;
+        public Node label = null;
         public Node control = null;
 
         public Item (Node c)
@@ -754,17 +794,17 @@ public class Form extends VBox
             this.control = c;
 
         }
-
-        public Item (Label l)
+/*
+        public Item (Node l)
         {
 
             this (l,
                   null);
 
         }
-
-        public Item (Label l,
-                     Node  c)
+*/
+        public Item (Node l,
+                     Node c)
         {
 
             this.label = l;

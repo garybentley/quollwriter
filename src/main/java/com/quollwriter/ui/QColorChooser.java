@@ -25,8 +25,6 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ChangeAdapter;

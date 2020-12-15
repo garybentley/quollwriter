@@ -5,13 +5,9 @@ import java.nio.file.*;
 
 import java.util.*;
 
-import com.gentlyweb.utils.*;
-
-import com.gentlyweb.xml.*;
-
 import com.quollwriter.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 
 public class Prompts
@@ -194,8 +190,7 @@ public class Prompts
 
             Path f = Prompts.getUserPromptFilePath (id);
 
-            root = JDOMUtils.getFileAsElement (f.toFile (),
-                                               ".gz");
+            root = DOM4JUtils.fileAsElement (f);
 
         } else
         {
@@ -212,7 +207,7 @@ public class Prompts
 
             }
 
-            root = JDOMUtils.getStringAsElement (xml);
+            root = DOM4JUtils.stringAsElement (xml);
 
         }
 
@@ -244,9 +239,9 @@ public class Prompts
 
         }
 
-        JDOMUtils.writeElementToFile (p.getAsElement (),
-                                      f.toFile (),
-                                      true);
+        DOM4JUtils.writeToFile (p.getAsElement (),
+                                f,
+                                true);
 
         return p;
 
@@ -375,16 +370,10 @@ public class Prompts
 
             String xml = Utils.getResourceFileAsString (Constants.PROMPT_WEBSITES_FILE);
 
-            Element root = JDOMUtils.getStringAsElement (xml);
+            Element root = DOM4JUtils.stringAsElement (xml);
 
-            List els = JDOMUtils.getChildElements (root,
-                                                   PromptWebsite.XMLConstants.root,
-                                                   false);
-
-            for (int i = 0; i < els.size (); i++)
+            for (Element el : root.elements (PromptWebsite.XMLConstants.root))
             {
-
-                Element el = (Element) els.get (i);
 
                 try
                 {
@@ -397,7 +386,7 @@ public class Prompts
                 {
 
                     Environment.logError ("Unable to load prompt website: " +
-                                          JDOMUtils.getPath (el),
+                                          DOM4JUtils.getPath (el),
                                           e);
 
                 }

@@ -5,6 +5,8 @@ import javafx.css.*;
 public final class StyleClassNames
 {
 
+    public static final PseudoClass HASSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASSTYLES);
+    public static final PseudoClass NOSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NOSTYLES);
     public static final PseudoClass COLUMN_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.COLUMN);
     public static final PseudoClass STACKED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.STACKED);
     public static final PseudoClass NOAVATAR_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NOAVATAR);
@@ -41,6 +43,20 @@ public final class StyleClassNames
     public static final PseudoClass UNDEALTWITH_PSEUDO_CLASS  = PseudoClass.getPseudoClass (StyleClassNames.UNDEALTWITH);
     public static final PseudoClass ATTENTIONREQUIRED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.ATTENTIONREQUIRED);
 
+    public static final String PROMPT = "prompt";
+    public static final String QTOOLBAR = "qtoolbar";
+    public static final String EDITORREMOVED = "editorremoved";
+    public static final String NEWPROJECTRESPONSE = "newprojectresponse";
+    public static final String PROJECTCOMMENTS = "projectcomments";
+    public static final String STYLESHEETS = "stylesheets";
+    public static final String PROPERTIES = "properties";
+    public static final String HASSTYLES = "hasstyles";
+    public static final String NOSTYLES = "nostyles";
+    public static final String CSS = "css";
+    public static final String CSSNODE = "cssnode";
+    public static final String PROJECTMESSAGES = "projectmessages";
+    public static final String EDITORPROJECT = "editorproject";
+    public static final String PROJECTVERSIONINFO = "projectversioninfo";
     public static final String VIEWPROJECT = "viewproject";
     public static final String EDITORMESSAGES = "editormessages";
     public static final String USER = "user";

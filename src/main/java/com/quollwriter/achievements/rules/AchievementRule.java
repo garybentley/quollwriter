@@ -2,7 +2,7 @@ package com.quollwriter.achievements.rules;
 
 import java.util.*;
 
-import org.jdom.*;
+import org.dom4j.*;
 
 import javafx.beans.property.*;
 

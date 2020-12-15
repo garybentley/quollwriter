@@ -17,8 +17,6 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
-import com.gentlyweb.utils.*;
-
 import com.quollwriter.StringWithMarkup;
 import com.quollwriter.DictionaryProvider2;
 
@@ -1548,7 +1546,7 @@ public class QTextEditor extends JTextPane implements TextStylable
         if (t != null)
         {
 
-            t = StringUtils.replaceString (t,
+            t = Utils.replaceString (t,
                                            String.valueOf ('\r'),
                                            "");
 

@@ -43,7 +43,6 @@
 .bug .header .icon { -fx-image: url(/imgs/bug16.png); }
 */
 .editing .hyperlink {
-    -fx-graphic: url(/imgs/view16.png);
     -fx-graphic-text-gap: 0.5em;
 }
 .header:scrolling {
@@ -58,4 +57,8 @@
     -fx-alignment: center-left;
 }
 .sections .sub .check-box { -fx-padding: 0 0 0.5em 0; }
-.ownsound { -fx-max-width: 50em; }
+.ownsound
+{
+    -fx-cursor: hand;
+    -fx-max-width: 50em;
+}

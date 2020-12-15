@@ -24,7 +24,7 @@ import com.quollwriter.ui.fx.popups.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class EditorProjectSideBar extends SideBarContent<EditorProjectViewer>
+public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 {
 
     public static final String SIDEBAR_ID = "editorproject";
@@ -43,7 +43,26 @@ public class EditorProjectSideBar extends SideBarContent<EditorProjectViewer>
         super (v);
 
         this.content = new VBox ();
-        this.getChildren ().add (this.content);
+        VBox.setVgrow (this.content,
+                       Priority.ALWAYS);
+        this.setContent (this.content);
+
+    }
+/*
+    @Override
+    public String getSideBarId ()
+    {
+
+        return SIDEBAR_ID;
+
+    }
+*/
+
+    @Override
+    public void init (State s)
+    {
+
+        super.init (s);
 
         this.editor = this.viewer.getProject ().getForEditor ();
 
@@ -62,7 +81,6 @@ public class EditorProjectSideBar extends SideBarContent<EditorProjectViewer>
 
             Node pvp = EditorsUIUtils.getProjectVersionPanel (projVer,
                                                               this.viewer);
-
             this.content.getChildren ().add (pvp);
 
         }
@@ -102,7 +120,7 @@ public class EditorProjectSideBar extends SideBarContent<EditorProjectViewer>
 
         final EditorProjectSideBar _this = this;
 
-        v.addProjectEventListener (new ProjectEventListener ()
+        this.viewer.addProjectEventListener (new ProjectEventListener ()
         {
 
             public void eventOccurred (ProjectEvent ev)
@@ -124,19 +142,12 @@ public class EditorProjectSideBar extends SideBarContent<EditorProjectViewer>
 
         ScrollPane sp = new QScrollPane (this.chapters.getAccordionItem ());
 
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
         this.content.getChildren ().add (sp);
 
-
     }
-/*
-    @Override
-    public String getSideBarId ()
-    {
 
-        return SIDEBAR_ID;
-
-    }
-*/
     private void showUnsentNotification ()
     {
 
@@ -485,10 +496,9 @@ public class EditorProjectSideBar extends SideBarContent<EditorProjectViewer>
             //.contextMenu ()?
             .styleClassName (StyleClassNames.PROJECT)
             .headerIconClassName (StyleClassNames.PROJECT)
+            .styleSheet (StyleClassNames.PROJECT, StyleClassNames.EDITORPROJECT)
             .withScrollPane (false)
             .canClose (true)
-            //.headerControls (headerCons)
-            .styleSheet (StyleClassNames.PROJECT)
             .withViewer (this.viewer)
             .content (this)
             .sideBarId (SIDEBAR_ID)

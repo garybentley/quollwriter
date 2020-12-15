@@ -80,13 +80,15 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
     @Override
     public SideBar createSideBar ()
     {
-
+        
+System.out.println ("HERE SIDEBAR: " + this.getTitle ().getValue ());
         SideBar sb = SideBar.builder ()
             .title (this.getTitle ())
             .activeTitle (this.getTitle ())
             .styleClassName (this.getStyleClassName ())
-            .styleSheet (this.getStyleSheet ())
+            //.styleSheet (this.getStyleSheet ())
             .headerIconClassName (StyleClassNames.COMMENTS)
+            .styleSheet (StyleClassNames.PROJECT, StyleClassNames.EDITORPROJECT, this.getStyleSheet ())
             .withScrollPane (false)
             .canClose (false)
             .withViewer (this.viewer)
