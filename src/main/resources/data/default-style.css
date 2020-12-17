@@ -1407,7 +1407,8 @@ REPLACE
 .qpopup.timer .button.start,
 .toolbar.buttons .button,
 .progress .button,
-.filefind .button
+.filefind .button,
+.tab-header-area .control-buttons-tab .tab-down-button
  {
      -fx-border-color: transparent;
      -fx-border-width: 1px;
@@ -1457,7 +1458,9 @@ REPLACE
 .filefind .button:hover,
 .filefind .button:focused,
 .chatbox .button:hover,
-.chatbox .button:focused
+.chatbox .button:focused,
+.tab-header-area .control-buttons-tab .tab-down-button:hover,
+.tab-header-area .control-buttons-tab .tab-down-button:focused
  {
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
@@ -2366,22 +2369,6 @@ REPLACE
 {
     -fx-image: url(/imgs/project24.png);
 }
-/*
-.tab-pane:top *.tab-header-area {
-    -fx-padding: 0.5em 0 0 0.25em;
-    -fx-border-width: 0 0 0 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-background-insets: 0;
-}
-
-.tab-pane:bottom *.tab-header-area {
-    -fx-padding: 0em 0.25em 0.77em 0.25em;
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
-    -fx-background-insets: -1 0 2 0;
-        -fx-padding: 0 0.166667em 0.0em 0.0em;
-}
-*/
 .tab-pane *.tab-header-area .tab .tab-label .iconbox,
 .tab-pane *.tab-header-area .tab .tab-label .iconbox .icon {
     -fx-pref-height: 1.333em;
@@ -2435,39 +2422,6 @@ REPLACE
     -fx-text-fill: -qw-dark-color;
 }
 
-/*
- * The border here needs to be for the bottom of node to show up at the top
- * even though the tab is at the bottom.
- */
- /*
-.tab-pane:bottom .tab
-{
-    -fx-border-width: 0px 0px 0px 0px;
-    -fx-background-radius: 0;
-    -fx-border-color: -qw-component-border-color;
-}
-
-.tab-pane:top .tab
-{
-    -fx-border-width: 0px 0px 0px 0px;
-    -fx-background-radius: 0;
-    -fx-border-color: -qw-component-border-color;
-
-    -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 1 2;
-       -fx-padding: 0.083333em 0.5em 0.0769em 0.5em;
-}
-
-.tab-pane:top > .tab-header-area > .tab-header-background {
-    -fx-background-insets: 0, 0 0 1 0, 1;
-}
-
-.tab-pane:top .tab:selected
-{
-    -fx-background-color: -fx-outer-border, -fx-inner-border, transparent;
-    -fx-background-insets: 0 1 1 0, 1 2 0 1, 2 3 0 2;
-}
-*/
-
 .tab-pane > .tab-header-area > .tab-header-background
 {
     -fx-background-color: -qw-component-border-color, -qw-bg-color, -qw-bg-color;
@@ -2476,6 +2430,7 @@ REPLACE
 .tab-pane:bottom > .tab-header-area
 {
     -fx-padding: 0 0.1em 0.5em 0.1em;
+    -fx-padding: 0 0em 0.51em 0em;
 }
 
 .tab-pane:top > .tab-header-area
@@ -2485,19 +2440,11 @@ REPLACE
 
 .tab-pane:bottom > .tab-header-area > .tab-header-background
 {
-    /*-fx-background-color: -qw-component-border-color, -qw-bg-color, -qw-bg-color;*/
     -fx-background-color: -qw-bg-color , -qw-component-border-color, -qw-bg-color;
+    /*-fx-background-color: red, green, yellow;*/
+    -fx-background-insets: 0, 1 0 0 0, 0 0 1 0;
 }
 
-.tab-pane:bottom > .tab-header-area > .tab-header-background {
-    -fx-background-insets: 0, 1 0 0 0, 1;
-}
-/*
-.tab-header-area .headers-region
-{
-    -fx-background-color: transparent;
-}
-*/
 .tab.chapter .tab-label .iconbox .chapter-icon.icon {
     -fx-pref-width: 1em;
 }
@@ -2506,12 +2453,7 @@ REPLACE
 .tab.achievements .tab-label .iconbox .achievements-icon.icon {
     -fx-pref-width: 0.888em;
 }
-/*
-.tab.statistics .tab-label
-{
-    -fx-graphic: url(/imgs/chart16.png);
-}
-*/
+
 .menu-button .label
 {
     -fx-padding: 0 0.1em 0 0;
@@ -3262,4 +3204,35 @@ a
 {
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
+}
+
+.tab-pane > .tab-header-area > .control-buttons-tab > .container > .tab-down-button
+{
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-padding: 0.5em;
+}
+
+.tab-pane:bottom > .tab-header-area > .control-buttons-tab > .container > .tab-down-button
+{
+    -fx-padding: -0.5em 0 0 0;
+    -fx-padding: 0.5em;
+}
+
+.tab-pane > .tab-header-area > .control-buttons-tab > .container > .tab-down-button > .arrow
+{
+    -fx-pref-height: 0.888em;
+    -fx-pref-width: 0.5em;
+    /*-fx-shape: "M 12.011719,32 20,21.333333 H 16 V 0 H 8 V 21.333333 H 4 Z";*/
+    -fx-shape: "M 0,32 V 0 l 24,16 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-rotate: -90;
+    -fx-padding: 0;
+}
+
+.tab-pane > .tab-header-area > .control-buttons-tab .container
+{
+    -fx-alignment: center;
+    -fx-padding: 0.5em 0 0 0;
 }

@@ -119,9 +119,10 @@ public class EditorInfoBox extends VBox
         });
 
         this.editorInfo = new HBox ();
+        /*
         HBox.setHgrow (this.editorInfo,
                        Priority.ALWAYS);
-
+*/
         this.setOnMouseReleased (ev ->
         {
 

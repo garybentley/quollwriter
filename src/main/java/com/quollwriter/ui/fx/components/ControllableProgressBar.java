@@ -138,7 +138,18 @@ public class ControllableProgressBar extends HBox
                 })
                 .build ());
 
-            this.progressBar.setContextMenu (m);
+            ev.consume ();
+
+            this.getProperties ().put ("context-menu", m);
+
+            m.setAutoFix (true);
+            m.setAutoHide (true);
+            m.setHideOnEscape (true);
+            m.show (this,
+                    ev.getScreenX (),
+                    ev.getScreenY ());
+
+//            this.progressBar.setContextMenu (m);
 /*
             this.progressBar.getProperties ().put ("context-menu", m);
 

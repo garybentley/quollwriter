@@ -307,10 +307,8 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         super.init (ss);
 
-        Pane p = this.getAccordionItem ().getHeader ().getIcon ();
-        UIUtils.setBackgroundImage (p,
-                                    this.objType.icon16x16Property (),
-                                    this.getBinder ());
+        this.getAccordionItem ().getHeader ().getIcon ().setImage (this.objType.icon16x16Property (),
+                                                                   this.getBinder ());
 
         Number sortFieldKey = (ss != null ? ss.getAsInt ("sortFieldKey") : null);
 

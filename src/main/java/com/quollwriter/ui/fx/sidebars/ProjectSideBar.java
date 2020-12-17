@@ -68,6 +68,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
                             */
         ScrollPane sp = new ScrollPane (this.contentBox);
         UIUtils.makeDraggable (sp);
+
         this.contentBox.getChildren ().addListener ((ListChangeListener<Node>) ch ->
         {
 
@@ -81,6 +82,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
 
         //this.contentBox.prefWidthProperty ().bind (sp.prefViewportWidthProperty ());
         this.contentBox.prefHeightProperty ().bind (sp.prefViewportHeightProperty ());
+        //this.contentBox.prefWidthProperty ().bind (sp.prefViewportWidthProperty ());
         this.contentBox.addEventHandler (MouseEvent.MOUSE_CLICKED,
                                          ev ->
         {

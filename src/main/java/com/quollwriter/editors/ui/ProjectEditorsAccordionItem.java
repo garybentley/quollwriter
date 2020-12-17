@@ -58,6 +58,8 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
             .text (getUILanguageStringProperty (project,sidebar,editors,text))
             .build ();
 
+        help.prefWidthProperty ().bind (this.content.widthProperty ());
+
         this.currentEditors.getChildren ().add (help);
 
         this.previousEditors.getChildren ().add (QuollLabel.builder ()

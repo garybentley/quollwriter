@@ -182,6 +182,11 @@
     -fx-border-color: -qw-component-border-color;
 }
 
+.chatbox .qtextarea
+{
+    -fx-border-width: 0;
+}
+
 .chatmessages .chatmessage
 {
     -fx-padding: 0.5em 0 0.5em 0;

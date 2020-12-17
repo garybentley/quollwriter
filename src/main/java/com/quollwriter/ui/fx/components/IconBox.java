@@ -68,6 +68,16 @@ public class IconBox extends HBox
 
     }
 
+    public void setImage (ObjectProperty<Image> i,
+                          IPropertyBinder       binder)
+    {
+
+        UIUtils.setBackgroundImage (this.pane,
+                                    i,
+                                    binder);
+
+    }
+
     public void setIconName (String c)
     {
 

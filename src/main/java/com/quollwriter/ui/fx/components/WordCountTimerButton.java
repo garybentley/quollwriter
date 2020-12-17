@@ -197,8 +197,8 @@ public class WordCountTimerButton extends HBox
         this.timerProgress.setProgress (0.1d);
 
         this.wctimer = new WordCountProgressTimer (this.viewer,
-                                                   2, //mins,
-                                                   2, //words,
+                                                   mins,
+                                                   words,
                                                    this.timerProgress.getProgressBar ());
 
 /*

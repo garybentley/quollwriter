@@ -300,15 +300,7 @@ public class Header extends HBox
         return this.title;
 
     }
-/*
-TODO Clean up
-    public ImageView getIcon ()
-    {
 
-        return this.image;
-
-    }
-    */
     public IconBox getIcon ()
     {
 

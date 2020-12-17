@@ -213,7 +213,7 @@ public class WordCountProgressTimer
             perc = MIN_VALUE;
 
         }
-System.out.println ("PERC: " + perc);
+
         this.progress.setProgress (perc);
 
         UIUtils.setTooltip (this.progress,

@@ -2,12 +2,12 @@
  * Styles for the project sidebar, com.quollwriter.ui.fx.sidebars.ProjectSideBar
  */
 .scroll-pane {
-    -fx-fit-to-width: true;
+    -fx-fit-to-width: false;
     -fx-fit-to-height: true;
 }
 .content {
     -fx-min-width: 16em;
-    -fx-pref-width: 20em;
+    /*-fx-pref-width: 20em;*/
 }
 .accordion:dragover { -fx-background-color: -qw-dragover-bg; }
 .accordion:dragging {
@@ -121,3 +121,18 @@
 }
 .toolbar .help { -fx-graphic: url(/imgs/help20.png); }
 .toolbar .button { -fx-content-display: graphic-only; }
+
+.accordion.contacts .content .information
+{
+    -fx-padding: 0 0 0.25em 1em;
+}
+
+.accordion.contacts .content .contact
+{
+    -fx-padding: 0 0 0 1em;
+}
+
+.hyperlink.view
+{
+    -fx-padding: 0 0 0 0.5em;
+}
