@@ -304,7 +304,7 @@ public class Viewer extends Stage implements Stateful
 
         this.getIcons ().addAll (Environment.getWindowIcons ());
 
-        this.initStyle (StageStyle.UNIFIED);
+        //this.initStyle (StageStyle.UNIFIED);
 
         // Hide the window by default, this allows subclasses to set things up.
         this.hide ();

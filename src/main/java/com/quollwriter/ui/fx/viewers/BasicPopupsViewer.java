@@ -78,7 +78,7 @@ public class BasicPopupsViewer extends Stage
         this.getIcons ().addAll (Environment.getWindowIcons ());
 
         this.setResizable (false);
-        this.initStyle (StageStyle.UNIFIED);
+        //this.initStyle (StageStyle.UNIFIED);
 
         //this.sizeToScene ();
 

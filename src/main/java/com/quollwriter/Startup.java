@@ -5,8 +5,6 @@ import java.nio.channels.*;
 
 import java.util.*;
 
-import javax.swing.*;
-
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.fx.*;
