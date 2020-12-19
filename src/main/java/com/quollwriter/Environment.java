@@ -5853,8 +5853,6 @@ TODO
 
                 v.createViewer ();
 
-                v.init (null);
-
                 // Put it in the user's directory.
                 v.newProject (Environment.getUserQuollWriterDirPath (),
                               p,
@@ -5901,7 +5899,7 @@ TODO
         WarmupProjectViewer v = (WarmupProjectViewer) Environment.openProjects.get (pi);
 
         return v;
-        
+
     }
 
     public static ProjectInfo getProjectByDirectory (Path dir)

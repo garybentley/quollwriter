@@ -23,6 +23,7 @@ public class WarmupsSideBar extends BaseSideBar<WarmupProjectViewer>
     private WarmupsSidebarItem   warmupsItem = null;
     private QuollTextView prompt = null;
     private VBox contentBox = null;
+    private ScrollPane sp = null;
 
     public WarmupsSideBar (WarmupProjectViewer v)
     {
@@ -31,10 +32,10 @@ public class WarmupsSideBar extends BaseSideBar<WarmupProjectViewer>
 
         this.contentBox = new VBox ();
 
-        ScrollPane sp = new ScrollPane (this.contentBox);
-        VBox.setVgrow (sp,
+        this.sp = new ScrollPane (this.contentBox);
+        VBox.setVgrow (this.sp,
                        Priority.ALWAYS);
-        this.setContent (sp);
+        this.setContent (this.sp);
 
     }
 

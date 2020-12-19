@@ -323,7 +323,7 @@ public class SplitChapterPopup extends PopupContent<ProjectViewer>
     {
 
         QuollPopup p = QuollPopup.builder ()
-            .title (tags,actions,manage,title)
+            .title (tags,actions,splitchapter,title)
             .styleClassName (StyleClassNames.SPLITCHAPTER)
             .headerIconClassName (StyleClassNames.SPLIT)
             .hideOnEscape (true)

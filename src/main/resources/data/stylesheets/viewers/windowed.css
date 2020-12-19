@@ -31,10 +31,14 @@
     -fx-pref-height: 2em;
     -fx-fill-height: false;
 }
-.windowed > .header .controls .button.ideaboard .iconbox .ideaboard-icon {
+.windowed > .header .controls .button .iconbox .ideaboard-icon {
     -fx-pref-width: 1.333em;
 }
-.windowed > .header .controls .button.help .iconbox .icon {
+.windowed > .header .controls .button .iconbox .warmup-icon,
+.windowed > .header.title .iconbox .warmup-icon {
+    -fx-pref-width: 1.5em;
+}
+.windowed > .header .controls .button .iconbox .help.icon {
     -fx-pref-width: 1.333em;
 }
 .windowed > .header .controls .menu-button.config .iconbox .icon {

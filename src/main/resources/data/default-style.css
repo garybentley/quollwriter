@@ -67,6 +67,7 @@
     -fx-text-base-color: #333333;
     -qw-text-base-color: -fx-text-base-color;
     -fx-font-size: 9pt;
+    -fx-font-family: serif;
 
     -qw-popup-header-font-size: 2em;
     -qw-window-header-font-size: 2.5em;
@@ -323,214 +324,6 @@ Text
  Icons for menu items.
  The > * > for menu-items is deliberate and used to prevent cascade issues for submenus.
  */
-/*
- .menu-item.start .image-view,
- .button.start
- {
-     -fx-image: url(/imgs/play16.png);
-     -fx-graphic: url(/imgs/play16.png);
- }
- */
-/*
-.menu-item.stop .image-view,
-.button.stop
-{
-    -fx-image: url(/imgs/stop16.png);
-    -fx-graphic: url(/imgs/stop16.png);
-}
-*/
-/*
-REPLACE
-.menu-item.add .image-view,
-.button.add
-{
-    -fx-image: url(/imgs/add16.png);
-    -fx-graphic: url(/imgs/add16.png);
-}
-*/
-/*
-.menu-item.project .image-view,
-.button.project
-{
-    -fx-image: url(/imgs/project16.png);
-    -fx-graphic: url(/imgs/project16.png);
-}
-*/
-/*
-.menu-item.convert .image-view,
-.menu-button.convert,
-.button.convert
-{
-    -fx-image: url(/imgs/convert16.png);
-    -fx-graphic: url(/imgs/convert16.png);
-}
-*/
-/*
-.menu-item.star .image-view,
-.button.star
-{
-    -fx-image: url(/imgs/star16.png);
-    -fx-graphic: url(/imgs/star16.png);
-}
-*/
-/*
-.menu-item.up .image-view,
-.button.up
-{
-    -fx-image: url(/imgs/up16.png);
-    -fx-graphic: url(/imgs/up16.png);
-}
-*/
-/*
-.menu-item.chapter .image-view,
-.button.chapter
-{
-     -fx-image: url(/imgs/chapter16.png);
-     -fx-graphic: url(/imgs/chapter16.png);
-}
-*/
-/*
-.menu-item.scene .image-view,
-.button.scene,
-.texteditor .margin .scene .image-view
-{
-    -fx-image: url(/imgs/scene16.png);
-    -fx-graphic: url(/imgs/scene16.png);
-}
-*/
-/*
-.menu-item.outlineitem .image-view,
-.button.outlineitem,
-.texteditor .margin .outlineitem .image-view
-{
-    -fx-image: url(/imgs/outlineitem16.png);
-    -fx-graphic: url(/imgs/outlineitem16.png);
-}
-*/
-/*
-.menu-item.editneedednote .image-view,
-.button.editneedednote,
-.texteditor .margin .editneedednote .image-view
-{
-    -fx-image: url(/imgs/edit-needed-note16.png);
-    -fx-graphic: url(/imgs/edit-needed-note16.png);
-}
-*/
-/*
-.menu-item.note .image-view,
-.menu-item.note .image-view.note,
-.button.note,
-.texteditor .margin .note .image-view
-
-{
-    -fx-image: url(/imgs/note16.png);
-    -fx-graphic: url(/imgs/note16.png);
-}
-*/
-/*
-.menu-item.add .image-view,
-.menu-item.new > * > .image-view,
-.menu-item.newstatus .image-view
-{
-    -fx-image: url(/imgs/add16.png);
-}
-*/
-/*.button.cancel,*/
-/*
-.menu-item.cancel .image-view,
-.menu-item.novalue .image-view,
-.menu-item.ignore .image-view,
-.button.removeeditposition
-{
-    -fx-graphic: url(/imgs/cancel16.png);
-    -fx-image: url(/imgs/cancel16.png);
-}
-*/
-/*
-.menu-item.gotoeditposition .image-view,
-.button.gotoeditposition
-{
-    -fx-graphic: url(/imgs/down-arrow16.png);
-    -fx-image: url(/imgs/down-arrow16.png);
-}
-*/
-.menu-item.noimage > .image-view
-{
-    -fx-image: url(/imgs/16x16-transparent.png);
-}
-/*
-.menu-item.changedisplay .image-view,
-.menu-item.managebackups .image-view,
-.menu-item.editneeded .image-view,
-.button.editneeded,
-.button.edit
-{
-    -fx-image: url(/imgs/edit16.png);
-    -fx-graphic: url(/imgs/edit16.png);
-}
-*/
-/*
-.menu-item.refresh .image-view,
-.button.refresh
-{
-    -fx-image: url(/imgs/restore16.png);
-    -fx-graphic: url(/imgs/restore16.png);
-}
-*/
-/*
-.menu-item.config .image-view,
-.button.config
-{
-    -fx-image: url(/imgs/config16.png);
-    -fx-graphic: url(/imgs/config16.png);
-}
-*/
-/*
-.menu-item.delete .image-view,
-.button.delete
-{
-    -fx-image: url(/imgs/delete16.png);
-    -fx-graphic: url(/imgs/delete16.png);
-}
-*/
-/*
-.menu-item.link .image-view,
-.button.link
-{
-    -fx-image: url(/imgs/link16.png);
-    -fx-graphic: url(/imgs/link16.png);
-}
-.menu-item.import .image-view  { -fx-image: url(/imgs/project-import16.png); }
-.menu-item.export .image-view  { -fx-image: url(/imgs/project-export16.png); }
-.menu-item.ideaboard .image-view  { -fx-image: url(/imgs/idea16.png); }
-*/
-/*
-.menu-item.find .image-view,
-.button.find
-{
-    -fx-graphic: url(/imgs/find16.png);
-    -fx-image: url(/imgs/find16.png);
-}
-*/
-.menu-item.sort .image-view,
-.menu-item.sortmenu .image-view
-{
-    -fx-image: url(/imgs/sort16.png);
-}
-.menu-item.lastedited .image-view { -fx-image: url(/imgs/date16.png); }
-.menu-item.name .image-view  { -fx-image: url(/imgs/spellchecker16.png); }
-.menu-item.status .image-view,
-.menu-item.setstatus .image-view
-{
-    -fx-image: url(/imgs/star16.png);
-}
-.menu-item.wordcount .image-view  { -fx-image: url(/imgs/wordcount16.png); }
-.menu-item.selectbg .image-view,
-.button.selectbg
-{
-    -fx-image: url(/imgs/bg-select16.png);
-    -fx-graphic: url(/imgs/bg-select16.png);
-}
 
 .root:night .menu-item .icon
 {
@@ -1688,7 +1481,6 @@ REPLACE
 
 }
 */
-.panel.importfile .title { -fx-graphic: url(/imgs/project-import24.png); }
 
 .panel.importfile .title
 {
@@ -1763,12 +1555,6 @@ REPLACE
     */
     /*-fx-min-width: 3.5em;*/
 }
-/*
-.qpopup.project .header .icon
-{
-    -fx-image: url(/imgs/save16.png);
-}
-*/
 /**
  * COPIED FROM AeroFX
  */
@@ -1962,25 +1748,6 @@ REPLACE
     -fx-padding: 0 0 0 0.5em;
 }
 
-.qpopup.reportbug .header .icon, .qpopup.bug .header .icon { -fx-image: url(/imgs/bug16.png); }
-.qpopup.export .header .icon { -fx-image: url(/imgs/project-export16.png); }
-
-/*
- * Contact support popup (ContactSupportPopup)
- */
-.qpopup.contactsupport .header .icon, .qpopup.contactuilangcreator .header .icon
-{
-    -fx-image: url(/imgs/email16.png);
-}
-
-/*
- * New chapter popup (NewChapterPopup)
- */
-.qpopup.createchapter .header .icon
-{
-    -fx-image: url(/imgs/add16.png);
-}
-
 /*
  * About QW popup (AboutPopup)
  */
@@ -1992,22 +1759,6 @@ REPLACE
 .qpopup.about .content .form
 {
     -fx-padding: 0 0 0 0.5em;
-}
-
-/*
- Find projects Popup (FindProjectsPopup)
- */
-.qpopup.findprojects .header .icon
-{
-    -fx-image: url(/imgs/find16.png);
-}
-
-/*
- Error popup
- */
-.qpopup.error .header .icon
-{
-    -fx-image: url(/imgs/warning16.png);
 }
 
 /*
@@ -2043,107 +1794,12 @@ REPLACE
 {
     -fx-padding: 0 0 0 0.4em;
 }
-/*
-.qpopup.scene .header .icon
-{
-    -fx-image: url(/imgs/scene16.png);
-}
-*/
-/*
-.qpopup.outlineitem .header .icon
-{
-    -fx-image: url(/imgs/outlineitem16.png);
-}
-*/
-/*
-.qpopup.note .header .icon
-{
-    -fx-image: url(/imgs/note16.png);
-}
-*/
-.qpopup.editneedednote .header .icon
-{
-    -fx-image: url(/imgs/edit-needed-note16.png);
-}
-
-.qpopup.outlineitem .scene.hyperlink
-{
-    -fx-graphic: url(/imgs/scene16.png);
-}
-
-.qpopup.createbackup .header.title .icon,
-.qpopup.backupcreated .header.title .icon
-{
-    -fx-image: url(/imgs/snapshot16.png);
-}
-/*
-.qpopup.restore .header .icon
-{
-    -fx-image: url(/imgs/restore16.png);
-}
-*/
 .qpopup .itemmanager .buttons, .qpopup .backups .buttons
 {
     -fx-alignment: center-left;
     -fx-padding: 1em 0.5em 1em 0em;
 }
 */
-/**
- * Change project display popup (ChangeProjectDisplayPopup)
- */
- /*
-.changeprojectdisplay .project.normal .header
-{
-    -fx-padding: 0;
-}
-*/
-/*
-.changeprojectdisplay .header .icon
-{
-    -fx-image: url(/imgs/edit16.png);
-}
-*/
-/*
-.changeprojectdisplay .content .header .icon
-{
-    visibility: hidden;
-}
-
-.changeprojectdisplay .header.example
-{
-    -fx-padding: 0.5em 0 0.5em 0;
-    -fx-content-display: text-only;
-    -fx-graphic-text-gap: 0;
-    -fx-label-padding: 0;
-}
-*/
-/*
-.changeprojectdisplay .header.example .title
-{
-    -fx-padding: 0;
-}
-
-.changeprojectdisplay .example.project
-{
-    -fx-alignment: top-center;
-    -fx-fill-width: true;
-    -fx-max-width: 25em;
-    -fx-pref-width: 25em;
-}
-
-.changeprojectdisplay .qtextarea.format, .changeprojectdisplay .qtextarea.format .text-area
-{
-    -fx-min-height: 6em;
-    -fx-pref-height: 6em;
-}
-*/
-/**
- * What's new popup.  (WhatsNewPopup)
- */
-.qpopup.whatsnew .header .icon
-{
-    -fx-image: url(/imgs/whats-new16.png);
-}
 
 .qpopup.whatsnew .content
 {
@@ -2151,15 +1807,6 @@ REPLACE
     -fx-min-height: 20em;
 }
 
-/*
- * Select UI language strings to edit (ShowObjectSelectPopup with style uilangstringsselect)
- */
- /*
- .qpopup.uilangstringsselect .header .icon, .qpopup.addnewuilangstrings .header .icon
- {
-     -fx-image: url(/imgs/edit16.png);
- }
-*/
  .qpopup.uilangstringsselect .scroll-pane
  {
      -fx-fit-to-width: true;
@@ -2286,27 +1933,6 @@ REPLACE
     -fx-padding: 0;
 }
 
-/*
- * Tagged objects in sidebar
- */
- /*
- .sidebar.project .accordion.tag .tree .cell .label.chapter
- {
-     -fx-graphic: url(/imgs/chapter16.png);
- }
-
- .sidebar.project .accordion.tag .tree .cell .label.note
- {
-     -fx-graphic: url(/imgs/note16.png);
- }
-
- .sidebar.project .accordion.tag .tree .cell .label.editneedednote
- {
-     -fx-graphic: url(/imgs/edit16.png);
-
- }
-*/
-
 :dragging, :dragover
 {
     -fx-cursor: closed-hand;
@@ -2365,10 +1991,6 @@ REPLACE
     -fx-vbar-policy: as-needed;
 }
 
-.project .windowed > .header.title .icon
-{
-    -fx-image: url(/imgs/project24.png);
-}
 .tab-pane *.tab-header-area .tab .tab-label .iconbox,
 .tab-pane *.tab-header-area .tab .tab-label .iconbox .icon {
     -fx-pref-height: 1.333em;
@@ -2472,13 +2094,6 @@ REPLACE
     -fx-rotate: 180;
 }
 */
-/*
- * Rename project popup.
- */
-.qpopup.rename .header .icon
-{
-    -fx-image: url(/imgs/rename16.png);
-}
 
 .qpopup.rename .content .form .control
 {
@@ -2490,15 +2105,6 @@ REPLACE
     -fx-padding: 0.5em 0.5em 0.5em 0;
 }
 
-/*
- * Chapters over readability target (ChaptersOverReadabilityTargetPopup)
- */
- /*
-.qpopup.readability .header .icon
-{
-    -fx-image: url(/imgs/eye16.png);
-}
-*/
 .qpopup.readability .header .iconbox .icon {
     -fx-pref-height: 0.888em;
 }
@@ -2520,12 +2126,6 @@ REPLACE
 /*
  * Chapters over word count target (ChaptersOverWordCountTargetPopup)
  */
- /*
-.qpopup.wordcount .header .icon
-{
-    -fx-image: url(/imgs/wordcount16.png);
-}
-*/
 .qpopup.wordcount .items .hyperlink, .qpopup.wordcount .items .label
 {
     -fx-padding: 0.25em;
@@ -2569,46 +2169,6 @@ REPLACE
     -fx-alignment: center;
 }
 
-/*
-.linkedto .tree .cell .label.header.chapter
-{
-    -fx-graphic: url(/imgs/chapter16.png);
-}
-
-.linkedto .tree .cell .label.header.note
-{
-    -fx-graphic: url(/imgs/note16.png);
-}
-
-.linkedto .tree .cell .label.scene
-{
-    -fx-graphic: url(/imgs/scene16.png);
-}
-
-.linkedto .tree .cell .label.outlineitem
-{
-    -fx-graphic: url(/imgs/outlineitem16.png);
-}
-
-.linkedto .tree .cell .label.outlineitem
-{
-    -fx-graphic: url(/imgs/outlineitem16.png);
-}
-*/
-/*
- * Chapter information sidebar (ChapterInformationSideBar)
- */
-.sidebar.chapterinfo .header .icon
-{
-    -fx-image: url(/imgs/chapter-information16.png);
-}
-
-/*
-.sidebar.chapterinfo .accordion .header .controls .edit
-{
-    -fx-graphic: url(/imgs/edit16.png);
-}
-*/
 .sidebar.chapterinfo .accordion .header
 {
     -fx-border-width: 0 0 1px 0;
@@ -2650,19 +2210,6 @@ REPLACE
     -fx-border-width: 0 1px 1px 1px;
     -fx-border-color: -qw-component-border-color;
 }
-/*
-.sidebar.chapterinfo .accordion .button.save,
-.button.save
-{
-    -fx-graphic: url(/imgs/save16.png);
-}
-*/
-/*
-.sidebar.chapterinfo .accordion .button.cancel
-{
-    -fx-graphic: url(/imgs/cancel16.png);
-}
-*/
 .sidebar.chapterinfo .accordion .placeholder
 {
     -fx-font-style: italic;
@@ -2675,27 +2222,6 @@ REPLACE
     -fx-fill-height: false;
     -fx-alignment: center;
 }
-/*
-.chapterinfo .accordion.description .header .icon
-{
-    -fx-image: url(/imgs/chapter-information16.png);
-}
-
-.chapterinfo .accordion.goals .header .icon
-{
-    -fx-image: url(/imgs/goals16.png);
-}
-
-.chapterinfo .accordion.plan .header .icon
-{
-    -fx-image: url(/imgs/plan16.png);
-}
-
-.chapterinfo .accordion.linkedto .header .icon
-{
-    -fx-image: url(/imgs/link16.png);
-}
-*/
 .viewer.project .sidebar.chapterinfo .scroll-pane
 {
     -fx-hbar-policy: as-needed;
@@ -2727,11 +2253,6 @@ REPLACE
 .sidebar.chapterinfo .accordion.linkedto .buttons
 {
     -fx-border-width: 1px 0 0 0;
-}
-
-.qpopup.save .header .icon
-{
-    -fx-image: url(/imgs/save16.png);
 }
 
 .nosynonyms
@@ -2789,12 +2310,6 @@ REPLACE
  */
  /* TODO Fix this, causes issue with chapter right click menu */
 /*
-.qpopup.problemfinder .header .icon
-{
-    -fx-image: url(/imgs/eye16.png);
-}
-*/
-/*
  * IdeaBoard (IdeaBoard)
  */
 
@@ -2822,7 +2337,6 @@ REPLACE
 {
     -fx-padding: 0.75em;
     -fx-background-radius: 0;
-    -fx-background-image: url(/imgs/date16.png);
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
     -fx-background-color: transparent;
@@ -2929,7 +2443,6 @@ a
     -fx-background-color: #ffffff;
     -fx-opacity: 1;
     -fx-padding: 1em;
-    -fx-graphic: url(/imgs/down24.png);
     -fx-wrap-text: true;
 }
 
@@ -2958,11 +2471,6 @@ a
     -fx-padding: 0.25em 0 0 0.5em;
     -fx-max-width: 70em;
 }
-/*
-.qpopup.dictionarymanager .header .icon { -fx-image: url(/imgs/dictionary16.png); }
-.qpopup.tagsmanager .header.title .icon { -fx-image: url(/imgs/tag16.png); }
-.qpopup.notetypesmanager .header.title .icon { -fx-image: url(/imgs/note16.png); }
-*/
 .root.popupviewer .qpopup.question
 {
     /*-fx-padding: 0.5em 0.75em 0.5em 0.75em;*/
@@ -2978,63 +2486,6 @@ a
     visibility: hidden;
 }
 
-.status-busy
-{
-    -fx-graphic: url(/imgs/status-busy16.png);
-    -fx-image: url(/imgs/status-busy16.png);
-}
-
-.status-online
-{
-    -fx-graphic: url(/imgs/status-online16.png);
-    -fx-image: url(/imgs/status-online16.png);
-}
-
-.status-away
-{
-    -fx-graphic: url(/imgs/status-away16.png);
-    -fx-image: url(/imgs/status-away16.png);
-}
-
-.status-snooze
-{
-    -fx-graphic: url(/imgs/status-snooze16.png);
-    -fx-image: url(/imgs/status-snooze16.png);
-}
-
-.viewer .qpopup.stop .header .icon
-{
-    -fx-image: url(/imgs/stop16.png);
-}
-
-.smallicon
-{
-    -fx-max-width: 16px;
-    -fx-max-height: 16px;
-    -fx-pref-height: 16px;
-    -fx-pref-width: 16px;
-    -fx-cursor: hand;
-}
-
-.bigicon
-{
-    -fx-max-width: 24px;
-    -fx-max-height: 24px;
-    -fx-pref-width: 24px;
-    -fx-pref-height: 24px;
-    -fx-cursor: hand;
-}
-/*
-.bigicon:noimage .image-view
-{
-    -fx-image: url(/imgs/find24.png);
-}
-
-.smallicon:noimage .image-view
-{
-    -fx-image: url(/imgs/find16.png);
-}
-*/
 .sidebar.editproperties .fullscreen .background
 {
     -fx-min-height: 10em;
@@ -3058,15 +2509,6 @@ a
     -fx-background-color: -qw-hover-bg;
 }
 
-/**
- * AchievementsPopup
- */
- /*
-.qpopup.achievements .header.title .icon
-{
-    -fx-image: url(/imgs/achievement16.png);
-}
-*/
 .filefind
 {
     -fx-spacing: 0.2em;
@@ -3078,26 +2520,6 @@ a
     -fx-padding: 0.3em;
     -fx-cursor: hand;
 }
-/*
-.filefind .button.find
-{
-    -fx-graphic: url(/imgs/find16.png);
-}
-
-.filefind .button.view
-{
-    -fx-graphic: url(/imgs/eye16.png);
-}
-
-.filefind .button.clear
-{
-    -fx-graphic: url(/imgs/clear16.png);
-}
-*/
-.sidebar.problemfinder .header .icon
-{
-    -fx-image: url(/imgs/eye16.png);
-}
 
 .hyperlink {
     -fx-fill: -qw-hyperlink-color;
@@ -3107,14 +2529,6 @@ a
     -fx-underline: false;
     -fx-text-wrap: true;
 }
-/*
-.hyperlink.help { -fx-graphic: url(/imgs/help16.png); }
-.hyperlink.warning { -fx-graphic: url(/imgs/warning16.png); }
-.hyperlink.find { -fx-graphic: url(/imgs/find16.png); }
-.hyperlink.selectbg { -fx-graphic: url(/imgs/bg-select16.png); }
-.hyperlink.linkedto { -fx-graphic: url(/imgs/link16.png); }
-.hyperlink.edit { -fx-graphic: url(/imgs/edit16.png); }
-*/
 .hyperlink.view { -fx-padding: 0.5em 0.5em 0.5em 0em; }
 .hyperlink:hover { -fx-underline: true; }
 .hyperlink .iconbox,

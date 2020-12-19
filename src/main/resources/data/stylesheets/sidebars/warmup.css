@@ -6,6 +6,16 @@
     visibility: hidden;
 }
 
+.content {
+    -fx-min-width: 16em;
+    /*-fx-pref-width: 20em;*/
+}
+
+.scroll-pane
+{
+    -fx-fit-to-width: true;
+}
+
 .header .title
 {
     -fx-font-size: 1.6em;
