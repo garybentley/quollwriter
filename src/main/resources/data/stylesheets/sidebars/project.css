@@ -6,7 +6,7 @@
     -fx-fit-to-height: true;
 }
 .content {
-    -fx-min-width: 16em;
+    -fx-min-width: 24.5em;
     /*-fx-pref-width: 20em;*/
 }
 .accordion:dragover { -fx-background-color: -qw-dragover-bg; }

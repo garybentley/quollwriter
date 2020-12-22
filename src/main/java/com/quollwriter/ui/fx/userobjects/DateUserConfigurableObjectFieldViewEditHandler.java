@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.userobjects;
 
 import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
 import javafx.beans.property.*;
@@ -15,7 +16,7 @@ import com.quollwriter.data.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUserConfigurableObjectFieldViewEditHandler<DateUserConfigurableObjectTypeField, Date>
+public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUserConfigurableObjectFieldViewEditHandler<DateUserConfigurableObjectTypeField, LocalDate>
 {
 
     private DatePicker editItem = null;
@@ -54,7 +55,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
-        this.editItem = new DatePicker (Utils.dateToLocalDate (this.getFieldValue () != null ? this.getFieldValue () : this.typeField.getDefault ()));
+        this.editItem = new DatePicker (this.getFieldValue () != null ? this.getFieldValue () : this.typeField.getDefault ());
 
 /*
         if (initValue != null)
@@ -82,13 +83,15 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     }
 
     @Override
-    public Date getInputSaveValue ()
+    public LocalDate getInputSaveValue ()
     {
 
-        LocalDate l = this.editItem.getValue ();
+        //LocalDate l = this.editItem.getValue ();
         //Instant i = (Instant) l.adjustInto (Instant.ofEpochMilli (0));
 
-        return Utils.localDateToDate (l);
+        //return Utils.localDateToDate (l);
+
+        return this.editItem.getValue ();
 
         //return Date.from (l.atStartOfDay (ZoneId.systemDefault ()).toInstant ());
 
@@ -97,22 +100,15 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     }
 
     @Override
-    public Date stringToValue (String s)
+    public LocalDate stringToValue (String s)
     {
 
-        if (s == null)
-        {
-
-            return null;
-
-        }
-
-        return Environment.parseDate (s);
+        return UserConfigurableObjectTypeField.parseDate (s);
 
     }
 
     @Override
-    public String valueToString (Date val)
+    public String valueToString (LocalDate val)
     {
 
         if (val == null)
@@ -122,7 +118,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
         }
 
-        return Environment.formatDate (val);
+        return UserConfigurableObjectTypeField.formatDate (val);
 
     }
 
@@ -133,14 +129,14 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
-        Date d = this.getFieldValue ();
+        LocalDate d = this.getFieldValue ();
 
         if (d != null)
         {
 
             items.add (new Form.Item (this.typeField.formNameProperty (),
                                       QuollLabel2.builder ()
-                                        .label (new SimpleStringProperty (Environment.formatDate (d)))
+                                        .label (new SimpleStringProperty (Environment.formatLocalDate (d)))
                                         .build ()));
 
         } else {

@@ -1,6 +1,8 @@
 package com.quollwriter.data;
 
 import java.util.*;
+import java.time.*;
+import java.time.format.*;
 
 import org.dom4j.*;
 
@@ -16,6 +18,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 
 public abstract class UserConfigurableObjectTypeField extends NamedObject
 {
+
+    private static DateTimeFormatter DATE_FORMATTER = null;
 
     public enum Type
     {
@@ -224,7 +228,60 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
 
     }
 
-    public Date getDateDefinitionValue (String id)
+    public static String formatDate (LocalDate d)
+    {
+
+        return d.format (DATE_FORMATTER);
+
+    }
+
+    public static LocalDate parseDate (String d)
+    {
+
+        if (DATE_FORMATTER == null)
+        {
+
+            DATE_FORMATTER = DateTimeFormatter.ofPattern ("d-MM-yyyy");
+
+        }
+
+        if (d == null)
+        {
+
+            return null;
+
+        }
+
+        try
+        {
+
+            return LocalDate.parse (d,
+                                    DATE_FORMATTER);
+
+        } catch (Exception e) {
+
+            // Try legacy format.
+            try
+            {
+
+                return LocalDate.parse (d,
+                                        DateTimeFormatter.ofPattern ("d MMM yyyy"));
+
+            } catch (Exception ee) {
+
+                Environment.logError ("Unable to parse date: " +
+                                      d,
+                                      ee);
+
+                return null;
+
+            }
+
+        }
+
+    }
+
+    public LocalDate getDateDefinitionValue (String id)
     {
 
         Object v = this.getDefinitionValue (id);
@@ -236,7 +293,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
 
         }
 
-        return Environment.parseDate (v.toString ());
+        return UserConfigurableObjectTypeField.parseDate (v.toString ());
 
     }
 

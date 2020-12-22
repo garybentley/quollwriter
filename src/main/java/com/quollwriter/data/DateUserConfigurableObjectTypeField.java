@@ -2,10 +2,11 @@ package com.quollwriter.data;
 
 import java.awt.Dimension;
 
+import java.time.*;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
-import java.util.Date;
 
 import javax.swing.*;
 
@@ -81,42 +82,42 @@ public class DateUserConfigurableObjectTypeField extends UserConfigurableObjectT
 
     }
 
-    public void setMaximum (Date d)
+    public void setMaximum (LocalDate d)
     {
 
-        this.setDefinitionValue (max, (d != null ? Environment.formatDate (d) : null));
+        this.setDefinitionValue (max, (d != null ? UserConfigurableObjectTypeField.formatDate (d) : null));
 
     }
 
-    public Date getMaximum ()
+    public LocalDate getMaximum ()
     {
 
         return this.getDateDefinitionValue (max);
 
     }
 
-    public void setMinimum (Date d)
+    public void setMinimum (LocalDate d)
     {
 
-        this.setDefinitionValue (min, (d != null ? Environment.formatDate (d) : null));
+        this.setDefinitionValue (min, (d != null ? UserConfigurableObjectTypeField.formatDate (d) : null));
 
     }
 
-    public Date getMinimum ()
+    public LocalDate getMinimum ()
     {
 
         return this.getDateDefinitionValue (min);
 
     }
 
-    public void setDefault (Date d)
+    public void setDefault (LocalDate d)
     {
 
-        this.setDefinitionValue (def, (d != null ? Environment.formatDate (d) : null));
+        this.setDefinitionValue (def, (d != null ? UserConfigurableObjectTypeField.formatDate (d) : null));
 
     }
 
-    public Date getDefault ()
+    public LocalDate getDefault ()
     {
 
         return this.getDateDefinitionValue (def);

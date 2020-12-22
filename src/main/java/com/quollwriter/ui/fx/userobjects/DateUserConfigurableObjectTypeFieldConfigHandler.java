@@ -30,9 +30,9 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
 
         this.field = f;
 
-        this.editDefDate = new DatePicker (Utils.dateToLocalDate (f.getDefault ()));
-        this.editMinDate = new DatePicker (Utils.dateToLocalDate (f.getMinimum ()));
-        this.editMaxDate = new DatePicker (Utils.dateToLocalDate (f.getMaximum ()));
+        this.editDefDate = new DatePicker (f.getDefault ());
+        this.editMinDate = new DatePicker (f.getMinimum ());
+        this.editMaxDate = new DatePicker (f.getMaximum ());
 
     }
 
@@ -55,7 +55,7 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
             {
 
                 strs.add (String.format (getUILanguageStringProperty (Utils.newList (prefix,min,description)).getValue (),
-                                         Environment.formatDate (this.field.getMinimum ())));
+                                         Environment.formatLocalDate (this.field.getMinimum ())));
 
                 //strs.add ("min: " + Environment.formatDate (this.field.getMinimum ()));
 
@@ -65,7 +65,7 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
             {
 
                 strs.add (String.format (getUILanguageStringProperty (Utils.newList (prefix,max,description)).getValue (),
-                                         Environment.formatDate (this.field.getMaximum ())));
+                                         Environment.formatLocalDate (this.field.getMaximum ())));
                 //strs.add ("max: " + Environment.formatDate (this.field.getMaximum ()));
 
             }
@@ -74,7 +74,7 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
             {
 
                 strs.add (String.format (getUILanguageStringProperty (Utils.newList (prefix,_default,description)).getValue (),
-                                         Environment.formatDate (this.field.getDefault ())));
+                                         Environment.formatLocalDate (this.field.getDefault ())));
                 //strs.add ("default: " + Environment.formatDate (this.field.getDefault ()));
 
             }
@@ -94,9 +94,9 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
     public boolean updateFromExtraFormItems ()
     {
 
-        this.field.setDefault (Utils.localDateToDate (this.editDefDate.getValue ()));
-        this.field.setMinimum (Utils.localDateToDate (this.editMinDate.getValue ()));
-        this.field.setMaximum (Utils.localDateToDate (this.editMaxDate.getValue ()));
+        this.field.setDefault (this.editDefDate.getValue ());
+        this.field.setMinimum (this.editMinDate.getValue ());
+        this.field.setMaximum (this.editMaxDate.getValue ());
 
         return true;
 

@@ -101,3 +101,15 @@
  {
      -fx-padding: 0;
  }
+
+ .styled-text-area .paragraph-box
+ {
+     /*-fx-padding: 0 0 0em 0;*/
+     /*-rtfx-first-line-indent: 0;*/
+     -fx-padding: 0 0 37px 0;
+ }
+
+.styled-text-area .paragraph-box:last-paragraph
+{
+    -fx-padding: 0;
+}

@@ -29,6 +29,8 @@
     -fx-alignment: center;
     -fx-pref-width: 2em;
     -fx-pref-height: 2em;
+    -fx-min-height: 2em;
+    -fx-max-height: 2em;
     -fx-fill-height: false;
 }
 .windowed > .header .controls .button .iconbox .ideaboard-icon {

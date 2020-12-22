@@ -20,15 +20,7 @@
     -fx-font-size: 1em;
     -fx-padding: 0 0 0 0.25em;
 }
-/*.projectslist .project:hover .title, .projectslist .project:hover .info { -fx-text-fill: #333333; }*/
 .projectslist .project .header { -fx-alignment: top-left; }
-/*
-.projectslist .project .header .icon { -fx-image: url(/imgs/project20.png); }
-.projectslist .warmup .header .icon { -fx-image: url(/imgs/warmups20.png); }
-.projectslist .editor .header .icon { -fx-image: url(/imgs/editor20.png); }
-.projectslist .encrypted .header .icon { -fx-image: url(/imgs/lock20.png); }
-.projectslist .error .header .icon { -fx-image: url(/imgs/warning20.png); }
-*/
 .projectslist .project .header .iconbox,
 .projectslist .project .header .iconbox .icon
 {
@@ -49,6 +41,13 @@
     -fx-pref-width: 1.1em;
     -fx-min-width: 1.1em;
 }
+.projectslist .project .header .iconbox .error-icon.icon
+{
+    -fx-pref-width: 0.555em;
+    -fx-min-width: 0.555em;
+    -fx-max-width: 0.555em;
+}
+
 .projectslist .scroll-pane .scroll-bar:vertical { -fx-unit-increment: 10em; }
 .scroll-pane {
     -fx-padding: 0px;

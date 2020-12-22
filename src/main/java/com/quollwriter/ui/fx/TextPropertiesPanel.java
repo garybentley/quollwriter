@@ -347,7 +347,7 @@ public class TextPropertiesPanel extends VBox
 
         });
 
-        // TODO fb.item (this.highlightWritingLine);
+        fb.item (this.highlightWritingLine);
 
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,highlightlinecolor,text),
                  UIUtils.createColorSelectorSwatch (viewer,

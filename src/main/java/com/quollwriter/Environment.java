@@ -6,6 +6,8 @@ import java.io.*;
 import javax.imageio.*;
 import java.net.*;
 
+import java.time.*;
+import java.time.format.*;
 import java.text.*;
 import java.util.*;
 import java.util.function.*;
@@ -3822,6 +3824,13 @@ xxx
     {
 
         return Environment.floatNumFormat.format (f);
+
+    }
+
+    public static String formatLocalDate (LocalDate d)
+    {
+
+        return d.format (DateTimeFormatter.ofPattern ("d MMM yyyy"));
 
     }
 

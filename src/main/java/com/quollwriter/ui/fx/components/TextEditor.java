@@ -433,7 +433,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     	@Override
     	public AbstractSegment createEmptySeg()
     	{
-    		return EMPTY;
+    		return new TextSegment ("");
     	}
 
     	@Override
@@ -451,6 +451,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     	@Override
     	public int length( AbstractSegment seg )
     	{
+
     		return seg.length();
     	}
 
@@ -463,9 +464,9 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     	@Override
     	public AbstractSegment subSequence( AbstractSegment seg, int start, int end )
     	{
-    		if ( start == seg.length() || end == 0 ) return EMPTY;
+    		if ( start == seg.length() || end == 0 ) return new TextSegment ("");
     		Optional<AbstractSegment>  opt = seg.subSequence( start, end );
-    		return opt.orElse( EMPTY );
+    		return opt.orElse( new TextSegment ("") );
     	}
 
     	@Override
@@ -582,55 +583,16 @@ TODO
 
                 this.suspendUndos.suspendWhile (() ->
                 {
-/*
-                    this.getContent ().setStyleSpans (newv.getStart (),
-                                                      this.getContent ().getStyleSpans (newv.getStart (),
-                                                                                        newv.getEnd ()).mapStyles (ss ->
-                    {
 
-                        TextStyle _s = new TextStyle (ss);
-                        _s.setTextColor (Color.WHITE);
-                        //this.props.getTextColor ().invert ());
-
-                        return _s;
-
-                    }));
-*/
                     this.ignoreDocumentChange = false;
 
                 });
 
             } else {
-/*
-                if (oldv.getStart () != oldv.getEnd ())
-                {
-
-                    this.ignoreDocumentChange = true;
-
-                    this.suspendUndos.suspendWhile (() ->
-                    {
-
-                        this.getContent ().setStyleSpans (oldv.getStart (),
-                                                          this.getContent ().getStyleSpans (oldv.getStart (),
-                                                                                            oldv.getEnd ()).mapStyles (ss ->
-                        {
-
-                            TextStyle _s = new TextStyle (ss);
-                            _s.setTextColor (this.props.getTextColor ());
-                            return _s;
-
-                        }));
-
-                        this.ignoreDocumentChange = false;
-
-                });
 
             }
-            */
 
-        }
-
-    });
+        });
 
         this.setUndoManager (org.fxmisc.richtext.util.UndoUtils.richTextSuspendableUndoManager (this, this.suspendUndos));
         /*

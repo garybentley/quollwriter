@@ -51,7 +51,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     {
 
         Set<FormItem> items = new LinkedHashSet ();
-
+/*
         this.editItem = new DateFormItem  (this.typeField.getFormName (),
                                            this.typeField.getMinimum (),
                                            this.typeField.getMaximum (),
@@ -72,7 +72,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
         }
 
         items.add (this.editItem);
-
+*/
         return items;
 
     }

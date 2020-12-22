@@ -49,6 +49,7 @@ public class WordCountsSideBar extends SideBarContent<AbstractProjectViewer>
         AccordionItem selText = AccordionItem.builder ()
             .title (project,LanguageStrings.sidebar,wordcount,sectiontitles,selected)
             .styleClassName (StyleClassNames.SELECTED)
+            .headerIconClassName (StyleClassNames.EDIT)
             .openContent (this.createSelectedTextSection ())
             .build ();
         selText.managedProperty ().bind (selText.visibleProperty ());
@@ -680,7 +681,12 @@ TODO
                                 (pr, oldv, newv) ->
         {
 
-            this.updateSelectedTextValues ();
+            UIUtils.runLater (() ->
+            {
+
+                this.updateSelectedTextValues ();
+
+            });
 
         });
 

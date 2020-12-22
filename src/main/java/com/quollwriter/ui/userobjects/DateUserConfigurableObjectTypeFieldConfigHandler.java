@@ -69,34 +69,36 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
 
         if (this.field.getMinimum () != null)
         {
-
+/*
             strs.add (String.format (Environment.getUIString (prefix,
                                                               LanguageStrings.min,
                                                               LanguageStrings.description),
                                      Environment.formatDate (this.field.getMinimum ())));
-
+*/
             //strs.add ("min: " + Environment.formatDate (this.field.getMinimum ()));
 
         }
 
         if (this.field.getMaximum () != null)
         {
-
+/*
             strs.add (String.format (Environment.getUIString (prefix,
                                                               LanguageStrings.max,
                                                               LanguageStrings.description),
                                      Environment.formatDate (this.field.getMaximum ())));
+*/
             //strs.add ("max: " + Environment.formatDate (this.field.getMaximum ()));
 
         }
 
         if (this.field.getDefault () != null)
         {
-
+/*
             strs.add (String.format (Environment.getUIString (prefix,
                                                               LanguageStrings._default,
                                                               LanguageStrings.description),
                                      Environment.formatDate (this.field.getDefault ())));
+*/
             //strs.add ("default: " + Environment.formatDate (this.field.getDefault ()));
 
         }
@@ -109,11 +111,11 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
     @Override
     public boolean updateFromExtraFormItems ()
     {
-
+/*
         this.field.setDefault (this.editDefDate.getValue ());
         this.field.setMinimum (this.editMinDate.getValue ());
         this.field.setMaximum (this.editMaxDate.getValue ());
-
+*/
         return true;
 
     }
@@ -189,11 +191,11 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
     {
 
         Set<FormItem> nitems = new LinkedHashSet ();
-
+/*
         this.editDefDate.setDate (this.field.getDefault ());
         this.editMinDate.setDate (this.field.getMinimum ());
         this.editMaxDate.setDate (this.field.getMaximum ());
-
+*/
         nitems.add (this.editDefDate);
 
         nitems.add (this.editMinDate);
