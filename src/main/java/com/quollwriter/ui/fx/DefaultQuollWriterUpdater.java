@@ -383,14 +383,14 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
                         List<String> args = new ArrayList<> ();
 
-                        if (Environment.OsCheck.getOperatingSystemType () == Environment.OsCheck.MacOS)
+                        if (Environment.OsCheck.getOperatingSystemType () == Environment.OsCheck.OSType.MacOS)
                         {
 
                             args.add ("open");
 
                         }
 
-                        if (Environment.OsCheck.getOperatingSystemType () == Environment.OsCheck.Linux)
+                        if (Environment.OsCheck.getOperatingSystemType () == Environment.OsCheck.OSType.Linux)
                         {
 
                             args.add ("xdg-open");
