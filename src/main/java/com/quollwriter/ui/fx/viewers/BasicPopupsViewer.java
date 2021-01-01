@@ -12,50 +12,31 @@ import com.quollwriter.data.IPropertyBinder;
 import com.quollwriter.data.PropertyBinder;
 import com.quollwriter.ui.fx.components.*;
 
-public class BasicPopupsViewer extends Stage
+public class BasicPopupsViewer extends VBox implements ViewerCreator,
+                                                       Stateful
 {
 
     private IPropertyBinder binder = new PropertyBinder ();
+    private Viewer viewer = null;
+    private QuollPopup qp = null;
 
     public BasicPopupsViewer (QuollPopup qp)
     {
 
         //super (StageStyle.TRANSPARENT);
-
-        this.titleProperty ().bind (qp.getHeader ().titleProperty ());
+        this.qp = qp;
 
         VBox popupPane = new VBox ();
         popupPane.getStyleClass ().add (StyleClassNames.POPUPVIEWER);
         popupPane.getChildren ().add (qp);
 
-        Scene s = new Scene (popupPane);
-        this.setScene (s);
-
-        this.binder.addSetChangeListener (Environment.getStyleSheets (),
-                                          ev ->
-        {
-
-            if (ev.wasAdded ())
-            {
-
-                this.addStyleSheet (ev.getElementAdded ());
-
-            }
-
-            if (ev.wasRemoved ())
-            {
-
-                this.removeStyleSheet (ev.getElementRemoved ());
-
-            }
-
-        });
+        this.getChildren ().add (popupPane);
 
         qp.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
                             ev ->
         {
 
-            this.hide ();
+            this.getViewer ().hide ();
 
         });
 
@@ -67,36 +48,19 @@ public class BasicPopupsViewer extends Stage
 
         });
 
-        Environment.getStyleSheets ().stream ()
-            .forEach (u ->
-            {
-
-                this.addStyleSheet (u);
-
-            });
-
-        this.getIcons ().addAll (Environment.getWindowIcons ());
-
-        this.setResizable (false);
-        //this.initStyle (StageStyle.UNIFIED);
-
-        //this.sizeToScene ();
-
-        this.show ();
-
         popupPane.boundsInParentProperty ().addListener ((pr, oldv, newv) ->
         {
 
             //this.setHeight (popupPane.getHeight ());
-            this.sizeToScene ();
+            //this.getViewer ().sizeToScene ();
 
         });
 
         popupPane.prefHeightProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            //this.setHeight (popupPane.getHeight ());
-            this.sizeToScene ();
+            this.getViewer ().setHeight (popupPane.getHeight ());
+            //this.getViewer ().sizeToScene ();
 
         });
 
@@ -104,19 +68,12 @@ public class BasicPopupsViewer extends Stage
         {
 
             //this.setWidth (popupPane.getWidth ());
-            this.sizeToScene ();
-
-        });
-
-        UIUtils.runLater (() ->
-        {
-
-            this.sizeToScene ();
+            //this.getViewer ().sizeToScene ();
 
         });
 
     }
-
+/*
     public void removeStyleSheet (URL url)
     {
 
@@ -128,6 +85,116 @@ public class BasicPopupsViewer extends Stage
     {
 
         this.getScene ().getStylesheets ().add (url.toExternalForm ());
+
+    }
+*/
+
+    @Override
+    public State getState ()
+    {
+
+        State s = this.getViewer ().getState ();
+
+        if (s == null)
+        {
+
+            s = new State ();
+
+        }
+
+        return s;
+
+    }
+
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        this.getViewer ().setResizable (false);
+
+        this.getViewer ().sizeToScene ();
+
+        //this.getViewer ().init (s);
+
+        UIUtils.runLater (() ->
+        {
+
+            this.getViewer ().show ();
+
+        });
+
+    }
+
+    public Viewer getViewer ()
+    {
+
+        if (this.viewer == null)
+        {
+
+            throw new IllegalStateException ("Viewer has not been created.");
+
+        }
+
+        return this.viewer;
+
+    }
+
+    @Override
+    public Viewer createViewer ()
+    {
+
+        if (this.viewer != null)
+        {
+
+            return this.viewer;
+
+        }
+
+        Viewer v = Viewer.builder ()
+            //.headerControls (headerCons)
+            //.headerToolbar (ctb)
+            //.styleClassName (this.getStyleClassName ())
+            .styleSheet ("popup")
+            .content (this)
+            .title (this.qp.getHeader ().titleProperty ())
+            .build ();
+
+        v.setResizable (true);
+
+        this.viewer = v;
+
+        // Best place for this?
+        v.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
+                                      ev ->
+        {
+
+            if (!ev.isShortcutDown ())
+            {
+
+                return;
+
+            }
+
+            try
+            {
+
+                ev.consume ();
+
+                Environment.showCSSViewer (this.getViewer (),
+                                           (Node) ev.getTarget ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to show css viewer for node: " + ev.getTarget (),
+                                      e);
+
+            }
+
+        });
+
+        return v;
 
     }
 

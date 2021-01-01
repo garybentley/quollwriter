@@ -335,6 +335,23 @@ System.out.println ("ADDING: " + r);
 
             this.getParent ().fireEvent (ev);
             ev.consume ();
+
+        });
+
+        webview.setOnScrollStarted (ev ->
+        {
+
+            this.getParent ().fireEvent (ev);
+            ev.consume ();
+
+        });
+
+        webview.setOnScrollFinished (ev ->
+        {
+
+            this.getParent ().fireEvent (ev);
+            ev.consume ();
+
         });
 
         webview.setOnKeyPressed (ev ->
@@ -396,7 +413,7 @@ System.out.println ("ADDING: " + r);
 /*
         b.append ("<script>");
         b.append ("function noScroll(){window.scrollTo(0,0);}window.addEventListener('scroll', noScroll);");
-        b.append ("document.addEventListener('DOMContentLoaded',function(e){window.___domready=true;});");
+        //b.append ("document.addEventListener('DOMContentLoaded',function(e){window.___domready=true;});");
         b.append ("</script>");
 */
         b.append ("</style></head><body>");

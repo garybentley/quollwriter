@@ -1,6 +1,6 @@
 package com.quollwriter;
 
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 public interface QuollWriterUpdater
 {

@@ -52,10 +52,6 @@ import com.quollwriter.editors.ui.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-/*
- THis is the new version...
- */
-
 public class Environment
 {
 
@@ -144,6 +140,8 @@ public class Environment
     private static ObservableSet<URL> styleSheets = FXCollections.observableSet (new LinkedHashSet<> ());
 
     private static HostServices hostServices = null;
+
+    private static List<Runnable> doOnShutdown = new ArrayList<> ();
 
     static
     {
@@ -635,6 +633,8 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         }
 */
+
+        //Environment.setDebugModeEnabled (true);
 
         // Create the text properties, they are derived from the user properties so need to be done after
         // the user props are inited.
@@ -2016,7 +2016,7 @@ TODO NEeded?
 
     private static void closeDown ()
     {
-
+System.out.println ("CLOSE DOWN CALLED");
         if (Environment.getOpenViewers ().size () > 0)
         {
 
@@ -2044,9 +2044,7 @@ TODO NEeded?
         }
 
         Environment.projectInfoManager.closeConnectionPool ();
-
-        /*
-        TODO Needed?
+System.out.println ("SIZE: " + Environment.doOnShutdown);
         if (Environment.doOnShutdown.size () > 0)
         {
 
@@ -2055,7 +2053,7 @@ TODO NEeded?
 
                 try
                 {
-
+System.out.println ("RUNNING: " + r);
                     r.run ();
 
                 } catch (Exception e) {
@@ -2068,7 +2066,6 @@ TODO NEeded?
             }
 
         }
-        */
 
         Platform.exit ();
 
@@ -3119,13 +3116,13 @@ xxx
 
             final QuollWriterUpdater _updater = updater;
 
-            Thread t = new Thread (() ->
+            Environment.scheduleImmediately (() ->
             {
 
                 try
                 {
 
-                    // TODO _updater.doUpdate (viewer);
+                     _updater.doUpdate (viewer);
 
                 } catch (Exception e)
                 {
@@ -3136,11 +3133,6 @@ xxx
                 }
 
             });
-
-            t.setDaemon (true);
-            t.setPriority (Thread.MIN_PRIORITY);
-
-            t.start ();
 
         }
 
@@ -3360,12 +3352,6 @@ xxx
                                          Runnable       afterUnregister)
     {
 
-        if (true)
-        {
-                // TODO REMOVE THIS METHOD
-            return;
-        }
-
         Environment.openViewers.remove (v);
 
         if (Environment.openProjects.size () == 0)
@@ -3434,7 +3420,10 @@ xxx
                 if (Environment.openProjects.size () == 0)
                 {
 
-                    if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+                    if ((v != Environment.allProjectsViewer)
+                        &&
+                        (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+                       )
                     {
 
                         Environment.showAllProjectsViewer ();
@@ -3445,10 +3434,13 @@ xxx
 
                     if ((Environment.allProjectsViewer != null)
                         &&
+                        (v != Environment.allProjectsViewer)
+                        &&
                         (Environment.allProjectsViewer.isVisible ())
                        )
                     {
 
+                        Environment.allProjectsViewer.toFront ();
                         return;
 
                     }
@@ -4029,8 +4021,7 @@ TODO Remove
     public static void addDoOnShutdown (Runnable r)
     {
 
-        // TODO Is this still needed?
-        // Probably due to the updater...
+        Environment.doOnShutdown.add (r);
 
     }
 
@@ -6279,6 +6270,39 @@ TODO
 
     }
 
+    public static void showCSSViewer (javafx.stage.Stage             v,
+                                      javafx.scene.Node n)
+                               throws GeneralException
+    {
+
+        if (Environment.cssViewer == null)
+        {
+            Environment.cssViewer = new CSSViewer (v);
+            Environment.cssViewer.createViewer ();
+            Environment.cssViewer.init (null);
+
+            Environment.cssViewer.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
+            (ev ->
+            {
+
+                Environment.cssViewer = null;
+
+            }));
+
+        }
+
+        UIUtils.forceRunLater (() ->
+        {
+
+            Environment.cssViewer.requestFocus ();
+
+        });
+
+        Environment.cssViewer.updateForNode (n);
+        Environment.cssViewer.toFront ();
+
+    }
+
     public static void showCSSViewer (AbstractViewer v,
                                       javafx.scene.Node n)
                                throws GeneralException
@@ -6312,4 +6336,76 @@ TODO
 
     }
 
+    public static String getOSPlatform ()
+    {
+
+        OsCheck.OSType type = OsCheck.getOperatingSystemType ();
+
+        if (type == OsCheck.OSType.Windows)
+        {
+
+            return "windows";
+
+        }
+
+        if (type == OsCheck.OSType.MacOS)
+        {
+
+            return "macos";
+
+        }
+
+        if (type == OsCheck.OSType.Linux)
+        {
+
+            return "linux";
+
+        }
+
+        return null;
+
+    }
+
+    /**
+     * helper class to check the operating system this Java VM runs in
+     *
+     * please keep the notes below as a pseudo-license
+     *
+     * http://stackoverflow.com/questions/228477/how-do-i-programmatically-determine-operating-system-in-java
+     * compare to http://svn.terracotta.org/svn/tc/dso/tags/2.6.4/code/base/common/src/com/tc/util/runtime/Os.java
+     * http://www.docjar.com/html/api/org/apache/commons/lang/SystemUtils.java.html
+     */
+    public static final class OsCheck {
+      /**
+       * types of Operating Systems
+       */
+      public enum OSType {
+        Windows, MacOS, Linux, Other
+      };
+
+      // cached result of OS detection
+      protected static OSType detectedOS;
+
+      /**
+       * detect the operating system from the os.name System property and cache
+       * the result
+       *
+       * @returns - the operating system detected
+       */
+      public static OSType getOperatingSystemType() {
+        if (detectedOS == null) {
+          String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+          if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
+            detectedOS = OSType.MacOS;
+          } else if (OS.indexOf("win") >= 0) {
+            detectedOS = OSType.Windows;
+          } else if (OS.indexOf("nux") >= 0) {
+            detectedOS = OSType.Linux;
+          } else {
+            detectedOS = OSType.Other;
+          }
+        }
+        return detectedOS;
+      }
+    }
 }

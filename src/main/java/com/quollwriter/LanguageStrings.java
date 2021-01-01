@@ -3,6 +3,8 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String sections = "sections";
+    public static final String license = "license";
     public static final String wordcounttimer = "wordcounttimer";
     public static final String top = "top";
     public static final String bottom = "bottom";

@@ -43,7 +43,8 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
         super (null);
 
         Form.Builder fb = Form.builder ()
-            .confirmButton (editors,login,LanguageStrings.popup,buttons,login);
+            .confirmButton (editors,login,LanguageStrings.popup,buttons,login)
+            .cancelButton (editors,login,LanguageStrings.popup,buttons,cancel);
 
         final EditorAccount acc = EditorsEnvironment.getUserAccount ();
 
@@ -143,50 +144,12 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
 
         this.form = fb.build ();
 
-        this.form.getConfirmButton ().setDisable (true);
+        this.checkButtons ();
 
         EventHandler<KeyEvent> onKeyPressed = ev ->
         {
 
-            this.form.getConfirmButton ().setDisable (false);
-
-            if (this.emailField != null)
-            {
-
-                String email = this.emailField.getText ().trim ();
-
-                int atInd = email.indexOf ('@');
-
-                int dotInd = email.indexOf ('.',
-                                            atInd);
-
-                if ((email.length () == 0)
-                    ||
-                    (atInd == -1)
-                    ||
-                    (email.length () - 1 == dotInd)
-                    ||
-                    (dotInd == -1)
-                   )
-                {
-
-                    this.form.getConfirmButton ().setDisable (true);
-
-                }
-
-            }
-
-            String pwd = this.passwordField.getText ();
-
-            if ((pwd.length () == 0)
-                ||
-                (pwd.length () < 8)
-               )
-            {
-
-                this.form.getConfirmButton ().setDisable (true);
-
-            }
+            this.checkButtons ();
 
         };
 
@@ -261,6 +224,51 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
 
     }
 
+    private void checkButtons ()
+    {
+
+        this.form.getConfirmButton ().setDisable (false);
+
+        if (this.emailField != null)
+        {
+
+            String email = this.emailField.getText ().trim ();
+
+            int atInd = email.indexOf ('@');
+
+            int dotInd = email.indexOf ('.',
+                                        atInd);
+
+            if ((email.length () == 0)
+                ||
+                (atInd == -1)
+                ||
+                (email.length () - 1 == dotInd)
+                ||
+                (dotInd == -1)
+               )
+            {
+
+                this.form.getConfirmButton ().setDisable (true);
+
+            }
+
+        }
+
+        String pwd = this.passwordField.getText ();
+
+        if ((pwd.length () == 0)
+            ||
+            (pwd.length () < 8)
+           )
+        {
+
+            this.form.getConfirmButton ().setDisable (true);
+
+        }
+
+    }
+
     public void showError (StringProperty v)
     {
 
@@ -313,6 +321,7 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
         QuollPopup p = QuollPopup.builder ()
             .title (editors,login,LanguageStrings.popup,title)
             .styleClassName (StyleClassNames.EDITORLOGIN)
+            .headerIconClassName (StyleClassNames.CONTACTS)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

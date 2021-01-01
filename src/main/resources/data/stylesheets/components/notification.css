@@ -113,3 +113,8 @@
      -fx-image: url(/imgs/find24.png);
  }
 */
+
+.content .buttons
+{
+    -fx-padding: 0.5em 0.5em 0 0.5em;
+}

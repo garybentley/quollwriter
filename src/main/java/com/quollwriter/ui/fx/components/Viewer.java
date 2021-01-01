@@ -243,7 +243,9 @@ public class Viewer extends Stage implements Stateful
         if (b.styleSheet != null)
         {
 
-            box.getStylesheets ().add (b.styleSheet);
+            UIUtils.addStyleSheet (box,
+                                   Constants.VIEWER_STYLESHEET_TYPE,
+                                   b.styleSheet);
 
         }
 

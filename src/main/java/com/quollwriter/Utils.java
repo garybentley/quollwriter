@@ -2837,4 +2837,32 @@ TODO REmove
 
     }
 
+    public static String encodeParms (Map<String, String> parms)
+    {
+
+        StringBuilder b = new StringBuilder ();
+
+        for (String k : parms.keySet ())
+        {
+
+            if (b.length () > 0)
+            {
+
+                b.append ("&");
+
+            }
+
+            b.append (k);
+            b.append ("=");
+            b.append (parms.get (k));
+
+        }
+
+        b.insert (0,
+                  "?");
+
+        return b.toString ();
+
+    }
+
 }

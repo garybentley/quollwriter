@@ -32,7 +32,7 @@ import com.quollwriter.ui.components.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUIString;
 
-public class DefaultQuollWriterUpdater implements QuollWriterUpdater
+public class DefaultQuollWriterUpdater //implements QuollWriterUpdater
 {
 
     private AbstractViewer viewer = null;

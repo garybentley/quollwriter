@@ -539,6 +539,40 @@
                 "text" : "First, select the language you would like to use for the user interface.  You can download additional languages in the Options panel later.",
                 "downloading" : "The user interface files are being downloaded... please wait...",
                 "actionerror" : "Unable to download user interface language strings."
+            },
+            "license" :
+            {
+                "title" : "{QW} End-user license",
+                "copyright" : "&copy; Copyright [year] Gary Bentley, All rights reserved.",
+                "accept" : "I accept the terms of the license",
+                "sections" :
+                {
+                    "1" :
+                    {
+                        "title" : "No Warranties",
+                        "text" : "I'm sorry but I cannot provide any warranty for the use of {QW}.  It is (and any related documentation) provided \"as is\" without warranty of any kind, either express or implied, including, without limitation, the implied warranties or merchantability, fitness for a particular purpose or noninfringement.<br /><br />My apologies for the legalese but it is important, I have to cover myself and I cannot be held responsible for you using Quoll Writer.  I have done my best to ensure that it is bug free and works as intended and will not corrupt your work but I cannot and will not guarantee it.  You use {QW} at your own risk and I recommend that you create a test project to try it out first to ensure that you are happy that it fits your needs.  That said, if you are having problems with one of your projects within {QW} then contact me as soon as possible and I will do my best to help resolve the issue."
+                    },
+                    "2" :
+                    {
+                        "title" : "Please back up your work",
+                        "text" : "By using {QW} you are agreeing that you will keep adequate backups of your work (produced via {QW}) and that the backups will be kept in a secure location that is suitable for the storage of digital information.  Again, I cannot be held responsible if you lose your work, backups are a necessary evil that helps to ensure that your time and effort are not wasted.  Please do not use {QW} if you ARE NOT doing regular backups.  Please do not keep just a single copy of your work on disk, if you have a power cut and the {QW} project database becomes corrupted then it may not be possible to retrieve it.<br /><br /><b>PLEASE DO NOT LET THIS HAPPEN!</b><br /><br />I also recommend that you use a secure online backup service to ensure redundancy.  Personally I use <a href='https://idrive.com'>IDrive</a>, they’re cheap, reliable and it just works but there are many other backup providers."
+                    },
+                    "3" :
+                    {
+                        "title" : "If you like {QW} then tell other writers",
+                        "text" : "If you like {QW} and it fits your needs then I would ask that you tell other writers you know about it.  If you do not like {QW} then I would ask that you are fair in your criticisms when you complain to others about it."
+                    },
+                    "4" :
+                    {
+                        "title" : "Let me know about bugs and your desire for new features",
+                        "text" : "I am constantly looking to improve upon {QW}, I wrote it because I like to write and I am interested in the opinions of other writers about what they would like to see in a writing application.  I am also interested in ensuring that it is bug free and I would ask that you report any issues you have, and when you do so, please provide as much information as you can including screenshots where appropriate.  The more information I have, the easier bugs are to fix."
+                    },
+                    "5" :
+                    {
+                        "title" : "Do not lose your encryption password(s)",
+                        "text" : "If you elect to encrypt your project(s) then please <b>DO NOT</b> lose your password.  It is not stored ANYWHERE and so if you lose it/forget it then you WILL NOT be able to access your project (regardless of whether you have backups) either via {QW} or by using a database access mechanism such as the H2 console.  The encryption used (see: http://en.wikipedia.org/wiki/Advanced_Encryption_Standard ) is very strong and unless you are the NSA it won't be broken, so do not lose your password or you will lose your work."
+                    }
+                }
             }
         }
     },
@@ -7447,7 +7481,7 @@
                     {
                         "text" : "${actions.edittextproperties}",
                         "tooltip" : "${actions.edittextproperties}"
-                    },                    
+                    },
                     "convert" :
                     {
                         "text" : "${objectnames.singular.warmup} to a ${objectnames.singular.project}",

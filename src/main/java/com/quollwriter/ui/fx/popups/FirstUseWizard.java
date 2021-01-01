@@ -8,6 +8,8 @@ import java.util.stream.*;
 import java.util.function.*;
 import java.text.*;
 import java.net.*;
+import java.time.*;
+import java.time.format.*;
 
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -39,6 +41,7 @@ public class FirstUseWizard extends PopupContent
 
     public static final String POPUP_ID = "firstuse";
 
+    private final static String LICENSE_STAGE = "license";
     private final static String SELECT_FILE_STAGE = "select-file";
     private final static String DECIDE_STAGE = "decide";
     private final static String START_STAGE = "start";
@@ -60,6 +63,8 @@ public class FirstUseWizard extends PopupContent
 
     private QuollRadioButton findProjects = null;
     private QuollRadioButton selectProjectDB = null;
+
+    private QuollCheckBox licenseAccept = null;
 
     private Form projDBFindForm = null;
     private QuollFileField projDBFind = null;
@@ -473,6 +478,23 @@ System.out.println ("HERE2");
 
             wizard.enableButton (Wizard.NEXT_BUTTON_ID,
                                  false);
+
+        }
+
+        if (LICENSE_STAGE.equals (currentStage))
+        {
+
+            if (this.licenseAccept.isSelected ())
+            {
+
+                return;
+
+            }
+
+            wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                 false);
+
+            return;
 
         }
 
@@ -1092,6 +1114,65 @@ System.out.println ("HERE2");
 
         ws.content = f;
 
+        return ws;
+
+    }
+
+    private String getYear ()
+    {
+
+        return LocalDate.now ().format (DateTimeFormatter.ofPattern ("yyyy"));
+
+    }
+
+    private Wizard.Step createLicenseStep ()
+    {
+
+        Wizard.Step ws = new Wizard.Step ();
+
+        ws.title = getUILanguageStringProperty (firstusewizard,stages,license,title);
+
+        StringBuilder b = new StringBuilder ();
+        b.append ("<style>h2{padding: 0;margin:0;font-weight:normal;font-size:1.5em;border-width: 0 0 1px 0; border-style: solid; border-color: black;}h3{font-weight:normal;}p{margin:0;padding: 0.5em;}</style>");
+
+        for (int i = 1; i < 6; i++)
+        {
+
+            b.append ("<h2>");
+            b.append (getUILanguageStringProperty (firstusewizard,stages,license,sections,i +"",title).getValue ());
+            b.append ("</h2><p>");
+            b.append (getUILanguageStringProperty (firstusewizard,stages,license,sections,i +"",text).getValue ());
+            b.append ("</p>");
+
+        }
+
+        b.append ("<h3>");
+        b.append (Utils.replaceString (getUILanguageStringProperty (firstusewizard,stages,license,copyright).getValue (),
+                                       "[year]",
+                                       this.getYear ()));
+        b.append ("</h3>");
+
+        QuollTextView v = QuollTextView.builder ()
+            .text (b.toString ())
+            .build ();
+
+        VBox vb = new VBox ();
+        vb.getStyleClass ().add (LICENSE_STAGE);
+        vb.getChildren ().add (new ScrollPane (v));
+
+        this.licenseAccept = QuollCheckBox.builder ()
+            .label (getUILanguageStringProperty (firstusewizard,stages,license,accept))
+            .onAction (ev ->
+            {
+
+                this.wizard.enableButton (Wizard.NEXT_BUTTON_ID, this.licenseAccept.isSelected ());
+
+            })
+            .build ();
+
+        vb.getChildren ().add (this.licenseAccept);
+
+        ws.content = vb;
         return ws;
 
     }
@@ -1741,12 +1822,26 @@ System.out.println ("HERE2");
 
         }
 
+        if (LICENSE_STAGE.equals (stage))
+        {
+
+            return this.createLicenseStep ();
+
+        }
+
         return null;
 
     }
 
     public String getPreviousStepId (String currStage)
     {
+
+        if (LICENSE_STAGE.equals (currStage))
+        {
+
+            return START_STAGE;
+
+        }
 
         if (SELECT_PROJECT_DB_STAGE.equals (currStage))
         {
@@ -1758,7 +1853,7 @@ System.out.println ("HERE2");
         if (SPELL_CHECK_LANG_STAGE.equals (currStage))
         {
 
-            return START_STAGE;
+            return LICENSE_STAGE;
 
         }
 
@@ -1819,6 +1914,13 @@ System.out.println ("HERE2");
     {
 
         if (START_STAGE.equals (currStage))
+        {
+
+            return LICENSE_STAGE;
+
+        }
+
+        if (LICENSE_STAGE.equals (currStage))
         {
 
             return SPELL_CHECK_LANG_STAGE;

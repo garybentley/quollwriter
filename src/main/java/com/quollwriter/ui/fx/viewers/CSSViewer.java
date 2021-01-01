@@ -8,6 +8,7 @@ import java.util.stream.*;
 import javafx.geometry.*;
 import javafx.beans.property.*;
 import javafx.css.*;
+import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -27,13 +28,13 @@ public class CSSViewer extends AbstractViewer
     private WindowedContent windowedContent = null;
     private Map<Node, Panel> panels = new HashMap<> ();
     private ObjectProperty<Panel> currentPanelProp = null;
-    private AbstractViewer viewer = null;
+    private Stage viewer = null;
     private CSSSideBar sidebar = null;
 
     public CSSViewer (AbstractViewer forViewer)
     {
 
-        this.viewer = forViewer;
+        this (forViewer.getViewer ());
 
         forViewer.getViewer ().addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
                                                 ev ->
@@ -42,6 +43,13 @@ public class CSSViewer extends AbstractViewer
             this.close (null);
 
         });
+
+    }
+
+    public CSSViewer (Stage forViewer)
+    {
+
+        this.viewer = forViewer;
 
         this.currentPanelProp = new SimpleObjectProperty<> ();
 

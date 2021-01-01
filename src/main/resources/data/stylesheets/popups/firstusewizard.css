@@ -81,3 +81,15 @@
  {
      -fx-padding: 0 0 0.5em 1em;
  }
+
+.firstusewizard .content .license .scroll-pane
+{
+    /*-fx-max-height: 25em;*/
+    -fx-fit-to-width: true;
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.license .check-box
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+}

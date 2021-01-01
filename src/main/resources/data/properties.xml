@@ -266,7 +266,7 @@ Removed so that the full screen properties will inherit from the standard editor
 -->
   <property id="quollWriterUpdaterClassName" type="string">
     <description>The class that will check for updates.</description>
-    <value>com.quollwriter.ui.DefaultQuollWriterUpdater</value>
+    <value>com.quollwriter.ui.fx.DefaultQuollWriterUpdater</value>
   </property>
 
   <property id="synonymProviderClass" type="string">

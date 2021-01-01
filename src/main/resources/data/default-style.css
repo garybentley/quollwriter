@@ -727,9 +727,14 @@ Text
     -fx-shape:"M 28.419183,32 V 21.922882 c 0,0 -5.648313,0 -11.211368,0 L 32,7.1270019 24.874778,-2.4945e-7 10.082593,14.79588 10.075488,3.5746049 -7.1520001e-8,3.5737165 0.01420952,31.985787 Z";
     -fx-background-color: -qw-icon-color;
 }
-.export-icon {
+.export-icon,
+.download-icon {
     -fx-shape: "M 3.5808169,-8.0485002e-8 3.5879169,10.070011 c 0,0 5.648312,0 11.2113681,0 L -8.0485e-8,24.872998 7.1252219,32 21.924512,17.197013 V 28.425395 L 32,28.426283 31.98579,0.01421292 Z";
     -fx-background-color: -qw-icon-color;
+}
+.download-icon
+{
+    -fx-rotate: 135;
 }
 .achievement-icon,
 .achievements-icon {

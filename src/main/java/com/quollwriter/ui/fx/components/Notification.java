@@ -84,6 +84,13 @@ public class Notification extends HBox
 
     }
 
+    public void setOnRemove (Runnable r)
+    {
+
+        this.onRemove = r;
+
+    }
+
     public Node getContent ()
     {
 

@@ -143,6 +143,11 @@ public class EditorsEnvironment
         EditorsEnvironment.editorsHandler.init ();
 
         EditorsEnvironment.messageHandler = new EditorsMessageHandler ();
+
+// YYY
+        EditorsEnvironment.logEditorMessages (true);
+
+
         EditorsEnvironment.messageHandler.init ();
 
         String eddir = EditorsEnvironment.editorsProps.getProperty (Constants.QW_EDITORS_DB_DIR_PROPERTY_NAME);

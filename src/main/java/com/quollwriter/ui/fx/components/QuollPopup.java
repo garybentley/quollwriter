@@ -535,15 +535,28 @@ _this.moving = false;
 
             BasicPopupsViewer p = new BasicPopupsViewer (this);
 
-            // Show in the center of the screen.
-            p.onShowingProperty ().addListener ((pr, oldv, newv) ->
+            try
             {
 
-                Rectangle2D b = Screen.getPrimary().getVisualBounds();
-                p.setX((b.getWidth() - p.getWidth()) / 2);
-                p.setY((b.getHeight() - p.getHeight()) / 2);
+                Viewer v = p.createViewer ();
+                p.init (null);
 
-            });
+                // Show in the center of the screen.
+                v.onShowingProperty ().addListener ((pr, oldv, newv) ->
+                {
+
+                    Rectangle2D b = Screen.getPrimary().getVisualBounds();
+                    v.setX((b.getWidth() - p.getWidth()) / 2);
+                    v.setY((b.getHeight() - p.getHeight()) / 2);
+
+                });
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to show popup: " + this,
+                                      e);
+
+            }
 
             this.fireEvent (new PopupEvent (this,
                                             PopupEvent.SHOWN_EVENT));
