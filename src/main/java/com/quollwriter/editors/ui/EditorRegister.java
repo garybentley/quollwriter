@@ -35,13 +35,11 @@ public class EditorRegister extends PopupContent<AbstractViewer>
 
     private CheckBox tcAgreeField = null;
     private QuollLabel tcError = null;
-    private QuollLabel loginError = null;
     private QuollFileField finder = null;
     private QuollTextField emailField = null;
     private QuollPasswordField passwordField = null;
     private QuollTextField nameField = null;
     private ImageSelector avatar = null;
-    private QuollLabel saving = null;
     private PGPKeyPair keyPair = null;
     private String messagingUsername = null;
     private String serviceName = null;
@@ -49,6 +47,7 @@ public class EditorRegister extends PopupContent<AbstractViewer>
     private boolean login = false;
     private boolean tcsClicked = false;
     private Wizard wizard = null;
+    private Form loginDetailsForm = null;
 
     private Map<String, Wizard.Step> steps = new HashMap<> ();
 
@@ -60,33 +59,25 @@ public class EditorRegister extends PopupContent<AbstractViewer>
 
         final EditorRegister _this = this;
 
-        Thread t = new Thread (new Runnable ()
+        Environment.scheduleImmediately (() ->
         {
 
-            public void run ()
+            // Create our public/private key.
+            try
             {
 
-                // Create our public/private key.
-                try
-                {
+                _this.keyPair = EditorsUtils.generateKeyPair ();
 
-                    _this.keyPair = EditorsUtils.generateKeyPair ();
+            } catch (Exception e) {
 
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to generate key pair",
-                                          e);
-
-                }
+                Environment.logError ("Unable to generate key pair",
+                                      e);
 
             }
 
         });
 
-        t.setPriority (Thread.MIN_PRIORITY);
-        t.start ();
-
-        Wizard w = Wizard.builder ()
+        this.wizard = Wizard.builder ()
             .startStepId (this.getStartStepId ())
             .nextStepIdProvider (currId ->
             {
@@ -100,7 +91,7 @@ public class EditorRegister extends PopupContent<AbstractViewer>
                 return getPreviousStepId (currId);
 
             })
-            .nextButtonLabelProvider (currId ->
+            .nextButtonLabelProvider ((currId, wizard) ->
             {
 
                 if ((currId != null)
@@ -125,7 +116,7 @@ public class EditorRegister extends PopupContent<AbstractViewer>
 
                 }
 
-                return this.wizard.getNextButtonLabel (currId);
+                return wizard.getNextButtonLabel (currId);
 
             })
             .stepProvider (currId ->
@@ -172,7 +163,7 @@ public class EditorRegister extends PopupContent<AbstractViewer>
 
         VBox b = new VBox ();
         VBox.setVgrow (this.wizard, Priority.ALWAYS);
-        b.getChildren ().addAll (w);
+        b.getChildren ().addAll (this.wizard);
 
         this.getChildren ().addAll (b);
 
@@ -460,7 +451,8 @@ TODO Remove
 
         }
 
-        if ((newStage.equals ("finish"))
+System.out.println ("OLD: " + oldStage + ", " + newStage);
+        if ((oldStage.equals ("finish"))
             &&
             (this.createCalled)
            )
@@ -483,15 +475,6 @@ TODO Remove
         if (oldStage.equals ("start"))
         {
 
-            if (!this.tcAgreeField.isSelected ())
-            {
-
-                this.tcError.setVisible (true);
-
-                return false;
-
-            }
-
             if (!this.tcsClicked)
             {
 
@@ -499,6 +482,7 @@ TODO Remove
                     .title (editors,user,register,stages,start,reminderpopup,title)
                     .message (editors,user,register,stages,start,reminderpopup,text)
                     .inViewer (this.viewer)
+                    .closeButton ()
                     .build ();
 
             }
@@ -522,6 +506,8 @@ TODO Remove
 
             }
 
+            return true;
+
         }
 
         if ((oldStage.equals ("login-details"))
@@ -529,6 +515,9 @@ TODO Remove
             (newStage.equals ("finish"))
            )
         {
+
+            this.loginDetailsForm.hideLoading ();
+            this.loginDetailsForm.hideError ();
 
             final EditorRegister _this = this;
 
@@ -549,9 +538,8 @@ TODO Remove
                )
             {
 
-                this.loginError.setText (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,invalidemail));
+                this.loginDetailsForm.showError (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,invalidemail));
                 //"Please provide a valid email address.");
-                this.loginError.setVisible (true);
 
                 return false;
 
@@ -563,9 +551,8 @@ TODO Remove
             if (pwd.length () == 0)
             {
 
-                this.loginError.setText (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,nopassword));
+                this.loginDetailsForm.showError (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,nopassword));
                 //"Please provide a password.");
-                this.loginError.setVisible (true);
 
                 return false;
 
@@ -574,9 +561,8 @@ TODO Remove
             if (pwd2.length () == 0)
             {
 
-                this.loginError.setText (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,confirmpassword));
+                this.loginDetailsForm.showError (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,confirmpassword));
                 //"Please confirm your password.");
-                this.loginError.setVisible (true);
 
                 return false;
 
@@ -585,9 +571,8 @@ TODO Remove
             if (!pwd.equals (pwd2))
             {
 
-                this.loginError.setText (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,nomatch));
+                this.loginDetailsForm.showError (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,nomatch));
                 //"Your passwords do not match.");
-                this.loginError.setVisible (true);
 
                 return false;
 
@@ -596,15 +581,12 @@ TODO Remove
             if (pwd.length () < 8)
             {
 
-                this.loginError.setText (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,minlength));
+                this.loginDetailsForm.showError (getUILanguageStringProperty (editors,user,register,stages,logindetails,errors,minlength));
                 //"Your password must be at least 8 characters long.");
-                this.loginError.setVisible (true);
 
                 return false;
 
             }
-
-            this.loginError.setVisible (false);
 
             // Create the account, show the saving.
             this.wizard.enableButton (Wizard.FINISH_BUTTON_ID,
@@ -614,7 +596,7 @@ TODO Remove
             this.wizard.enableButton (Wizard.CANCEL_BUTTON_ID,
                                       false);
 
-            this.saving.setVisible (true);
+            this.loginDetailsForm.showLoading (getUILanguageStringProperty (editors,user,register,stages,logindetails,LanguageStrings.saving));
 
             this.emailField.setDisable (true);
             this.passwordField.setFieldsDisable (true);
@@ -635,28 +617,36 @@ TODO Remove
 
                     this.createCalled = true;
 
-                    this.wizard.showStep ("finish");
+                    UIUtils.runLater (() ->
+                    {
+
+                        this.wizard.showStep ("finish");
+
+                    });
 
                 },
                 res ->
                 {
 
-                    this.wizard.enableButton (Wizard.FINISH_BUTTON_ID,
-                                              true);
-                    this.wizard.enableButton (Wizard.PREVIOUS_BUTTON_ID,
-                                              true);
-                    this.wizard.enableButton (Wizard.CANCEL_BUTTON_ID,
-                                              true);
+                    UIUtils.runLater (() ->
+                    {
 
-                    _this.saving.setVisible (false);
+                        this.wizard.enableButton (Wizard.FINISH_BUTTON_ID,
+                                                  true);
+                        this.wizard.enableButton (Wizard.PREVIOUS_BUTTON_ID,
+                                                  true);
+                        this.wizard.enableButton (Wizard.CANCEL_BUTTON_ID,
+                                                  true);
 
-                    // Handle parameter errors, then other error types.
+                        this.loginDetailsForm.hideLoading ();
 
-                    _this.emailField.setDisable (false);
-                    _this.passwordField.setFieldsDisable (false);
-                    _this.loginError.setText (new SimpleStringProperty (getUILanguageStringProperty (editors,user,register,actionerror).getValue () + "  " + res.getErrorMessage ()));
-                    //"Unable to create account: " + res.getErrorMessage ());
-                    _this.loginError.setVisible (true);
+                        // Handle parameter errors, then other error types.
+
+                        _this.emailField.setDisable (false);
+                        _this.passwordField.setFieldsDisable (false);
+                        _this.loginDetailsForm.showError (new SimpleStringProperty (getUILanguageStringProperty (editors,user,register,actionerror).getValue () + "  " + res.getErrorMessage ()));
+
+                    });
 
                 });
 
@@ -696,14 +686,6 @@ TODO Remove
         ws.title = getUILanguageStringProperty (Utils.newList (prefix,title));
         //"Getting started";
 
-        QuollTextView desc = QuollTextView.builder ()
-            .styleClassName (StyleClassNames.DESCRIPTION)
-            .inViewer (this.viewer)
-            .text (getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                Environment.getQuollWriterHelpLink ("editor-mode/overview",
-                                                                                    null)))
-            .build ();
-
         QuollHyperlink tc = QuollHyperlink.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,labels,viewtandc)))
             .styleClassName (StyleClassNames.INFORMATION)
@@ -718,27 +700,32 @@ TODO Remove
             })
             .build ();
 
-        this.tcError = QuollLabel.builder ()
-            .label (getUILanguageStringProperty (Utils.newList (prefix,errors,agreetandc)))
-            .styleClassName (StyleClassNames.ERROR)
-            .build ();
-
-        this.tcError.setVisible (false);
-
         this.tcAgreeField = QuollCheckBox.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,labels,agreetandc)))
-            .onAction (ev ->
-            {
-
-                if (this.tcAgreeField.isSelected ())
-                {
-
-                    this.tcError.setVisible (false);
-
-                }
-
-            })
             .build ();
+
+        Form f = Form.builder ()
+            .description (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                       Environment.getQuollWriterHelpLink ("editor-mode/overview",
+                                                                                           null)))
+            .item (tc)
+            .item (this.tcAgreeField)
+            .build ();
+
+        VBox.setVgrow (f,
+                       Priority.ALWAYS);
+
+        this.tcAgreeField.setOnAction (ev ->
+        {
+
+            f.hideError ();
+
+            this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                      this.tcAgreeField.isSelected ());
+
+        });
+
+        VBox b = new VBox ();
 
         QuollHyperlink reg = QuollHyperlink.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,labels,alreadyregistered)))
@@ -751,9 +738,7 @@ TODO Remove
             })
             .build ();
 
-        VBox b = new VBox ();
-
-        b.getChildren ().addAll (desc, tc, this.tcError, this.tcAgreeField, reg);
+        b.getChildren ().addAll (f, reg);
 
         ws.content = b;
 
@@ -959,6 +944,7 @@ TODO Remove
             .build ();
 
         this.avatar = ImageSelector.builder ()
+            .withViewer (this.viewer)
             .build ();
 
         Form f = Form.builder ()
@@ -985,23 +971,6 @@ TODO Remove
         ws.title = getUILanguageStringProperty (Utils.newList (prefix,title));
         //"Your login details";
 
-        QuollTextView desc = QuollTextView.builder ()
-            .styleClassName (StyleClassNames.DESCRIPTION)
-            .inViewer (this.viewer)
-            .text (getUILanguageStringProperty (Utils.newList (prefix,text)))
-            .build ();
-
-        this.saving = QuollLabel.builder ()
-            .styleClassName (StyleClassNames.LOADING)
-            .label (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.saving)))
-            .build ();
-        this.saving.setVisible (false);
-
-        this.loginError = QuollLabel.builder ()
-            .styleClassName (StyleClassNames.ERROR)
-            .build ();
-        this.loginError.setVisible (false);
-
         this.emailField = QuollTextField.builder ()
             .build ();
         this.passwordField = QuollPasswordField.builder ()
@@ -1009,15 +978,19 @@ TODO Remove
             .confirmLabel (getUILanguageStringProperty (Utils.newList (prefix,labels,confirmpassword)))
             .build ();
 
-        Form f = Form.builder ()
+        this.loginDetailsForm = Form.builder ()
+            .description (getUILanguageStringProperty (Utils.newList (prefix,text)))
             .item (getUILanguageStringProperty (Utils.newList (prefix,labels,email)),
                    this.emailField)
-            .item (this.passwordField)
+            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,password)),
+                   this.passwordField.getPasswordField1 ())
+            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,confirmpassword)),
+                   this.passwordField.getPasswordField2 ())
             .build ();
 
         // TODO Use form error/loading?
         VBox b = new VBox ();
-        b.getChildren ().addAll (this.saving, this.loginError, f);
+        b.getChildren ().addAll (this.loginDetailsForm);
 
         ws.content = b;
 
@@ -1089,6 +1062,15 @@ TODO Remove
                                 String currentStage)
     {
 
+        if ("start".equals (currentStage))
+        {
+
+            wiz.enableButton (Wizard.NEXT_BUTTON_ID,
+                              false);
+            return;
+
+        }
+
         wiz.enableButton (Wizard.NEXT_BUTTON_ID,
                           true);
 
@@ -1110,6 +1092,7 @@ TODO Remove
             .title (getUILanguageStringProperty (editors,user,register,LanguageStrings.popup,title))
             .styleClassName (StyleClassNames.EDITORREGISTER)
             .styleSheet (StyleClassNames.EDITORREGISTER)
+            .headerIconClassName (StyleClassNames.CONTACTS)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

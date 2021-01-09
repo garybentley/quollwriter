@@ -127,11 +127,9 @@ public class WordCountsSideBar extends SideBarContent<AbstractProjectViewer>
             .onAction (ev ->
             {
 
-/*
-TODO
                 viewer.runCommand (ProjectViewer.CommandId.statistics,
-                                   WordCountsCharts.CHART_TYPE);
-*/
+                                   AllWordCountsChart.CHART_TYPE);
+
             })
             .build ();
 

@@ -6,7 +6,7 @@
  {
      -fx-border-width: 0 1px 1px 1px;
      -fx-border-color: -qw-border-color;
-     -fx-padding: 0 0 0 0.5em;
+     -fx-padding: 0 0.5em 0 0.5em;
      -fx-background-color: -qw-bg-color;
  }
 
@@ -23,6 +23,7 @@
      -fx-font-size: 2em;
      -fx-padding: 0 0.5em 0 0;
  }
+
 /*
  .fullscreen > .header.chapter .icon
  {

@@ -27,7 +27,7 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
 
     private StackPane controlPane = null;
     private StackPane chartPane = null;
-    private StackPane detailPane = null;
+    //private StackPane detailPane = null;
     private List<QuollChart> charts = null;
     private Map<String, String> chartIds = new HashMap<> ();
     private QuollChart currentChart = null;
@@ -65,11 +65,14 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
         this.chartProp.addListener ((pr, oldv, newv) ->
         {
 
+            this.chartSel.getSelectionModel ().select (newv);
+
         });
 
         Header h = Header.builder ()
             .title (title)
             .controls (headerCons)
+            .iconClassName (StyleClassNames.STATISTICS)
             .build ();
 
         //SplitPane content = new SplitPane ();
@@ -81,35 +84,6 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
 
         this.controlPane = new StackPane ();
         this.chartPane = new StackPane ();
-        this.detailPane = new StackPane ();
-        this.detailPane.getStyleClass ().add (StyleClassNames.DETAIL);
-
-        for (QuollChart qc : charts)
-        {
-
-            String uuid = UUID.randomUUID ().toString ();
-
-            Node cons = qc.getControls ();
-            cons.setId ("controls" + uuid);
-
-            Region chart = qc.getChart ();
-            chart.setId ("chart" + uuid);
-
-            chart.prefWidthProperty ().bind (this.chartPane.widthProperty ());
-            chart.prefHeightProperty ().bind (this.chartPane.heightProperty ());
-
-            Node dets = qc.getDetails ();
-            dets.setId ("details" + uuid);
-
-            this.chartIds.put (qc.getType (),
-                               uuid);
-
-            this.controlPane.getChildren ().add (cons);
-            this.chartPane.getChildren ().add (chart);
-            this.detailPane.getChildren ().add (dets);
-
-        }
-
         this.charts = Arrays.asList (charts);
 
         HBox hb = new HBox ();
@@ -121,8 +95,9 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
 
         // Add the charts selector.
         this.chartSel = new ComboBox<> ();
-        chartSel.getItems ().addAll (this.charts);
-        chartSel.valueProperty ().addListener ((pr, oldv, newv) ->
+
+        this.chartSel.getItems ().addAll (this.charts);
+        this.chartSel.valueProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.updateChart (newv);
@@ -166,26 +141,24 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
         chartSel.setCellFactory (cellFactory);
         chartSel.setButtonCell (cellFactory.call (null));
 
+        HBox.setHgrow (this.controlPane,
+                       Priority.ALWAYS);
+
         hb.getChildren ().add (this.chartSel);
         hb.getChildren ().add (this.controlPane);
 
-        //sidebar.getChildren ().add (this.chartSel);
-        //sidebar.getChildren ().add (this.controlPane);
-/*
-        sidebar.getChildren ().add (Header.builder ()
-            .title (statistics,sectiontitles,detail)
-            .build ());
-
-        sidebar.getChildren ().add (this.detailPane);
-*/
-        //SplitPane.setResizableWithParent (chartPane, true);
         VBox.setVgrow (chartPane,
                        Priority.ALWAYS);
-        content.getChildren ().addAll (hb, /*new ScrollPane (sidebar),*/ chartPane, this.detailPane);
-        //content.setDividerPositions (0.2f);
+        content.getChildren ().addAll (chartPane);//, this.detailPane);
+
+        ScrollPane sp = new QScrollPane (content);
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
 
         VBox b = new VBox ();
-        b.getChildren ().addAll (h, content);
+        VBox.setVgrow (b,
+                       Priority.ALWAYS);
+        b.getChildren ().addAll (/*h,*/ hb, sp);
 
         this.getChildren ().add (b);
 
@@ -298,14 +271,27 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
     private void updateChart (QuollChart chart)
     {
 
-        String uid = this.chartIds.get (chart.getType ());
+        try
+        {
 
-        this.controlPane.lookup ("#controls" + uid).toFront ();
-        this.chartPane.lookup ("#chart" + uid).toFront ();
-        this.detailPane.lookup ("#details" + uid).toFront ();
+            this.controlPane.getChildren ().clear ();
+            this.controlPane.getChildren ().add (chart.getControls ());
+            this.chartPane.getChildren ().clear ();
+            this.chartPane.getChildren ().add (chart.getChart ());
 
-        this.currentChart = chart;
-        this.chartProp.setValue (this.currentChart);
+            this.currentChart = chart;
+            this.chartProp.setValue (this.currentChart);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to show chart: " +
+                                  chart,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (LanguageStrings.charts,view,actionerror));
+
+        }
 
     }
 
@@ -335,6 +321,7 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
             .title (title)
             .content (this)
             .styleClassName (StyleClassNames.STATISTICS)
+            .styleSheet (StyleClassNames.STATISTICS)
             .panelId (PANEL_ID)
             // TODO .headerControls ()
             .toolbar (() ->

@@ -12,7 +12,7 @@ import com.quollwriter.ui.fx.*;
 public class QuollButtonBar extends HBox
 {
 
-    public static final String DEFAULT_BUTTON_LAYOUT = "BXUIAOC";
+    public static final String DEFAULT_BUTTON_LAYOUT = "BXUIAYNOC";
     //public static final String APPLY_BUTTON_LAYOUT = "A";
 
     private ButtonBar buttonBar = null;

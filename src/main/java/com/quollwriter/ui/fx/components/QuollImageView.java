@@ -21,39 +21,43 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class QuollImageView extends VBox
 {
 
-    private ImageView iv = null;
+    //private ImageView iv = null;
 
+    private IconBox ib = null;
     private VBox overlay = null;
     private Label dropLabel = null;
 
+    private ObjectProperty<Image> imageProp = null;
     private ObjectProperty<Path> imagePathProp = null;
 
     public QuollImageView ()
     {
 
-        this.iv = new ImageView ();
         this.imagePathProp = new SimpleObjectProperty<> ();
+        this.imageProp = new SimpleObjectProperty<> ();
+
+/*
+        this.iv = new ImageView ();
         this.iv.setPreserveRatio (true);
         this.iv.managedProperty ().bind (this.iv.visibleProperty ());
         this.managedProperty ().bind (this.visibleProperty ());
-        this.setMinWidth (100);
-        this.setMinHeight (100);
         this.iv.fitWidthProperty ().bind (this.prefWidthProperty ());
         this.iv.fitHeightProperty ().bind (this.prefHeightProperty ());
-
+*/
         //iv.relocate (0, 0);
-        this.getChildren ().add (iv);
+        this.setMinWidth (100);
+        this.setMinHeight (100);
+
+        //this.getChildren ().add (iv);
         this.getStyleClass ().add (StyleClassNames.IMAGE);
 
-        HBox h = new HBox ();
-        h.getStyleClass ().addAll (StyleClassNames.ICONBOX, StyleClassNames.NOIMAGE);
-        Pane pp = new Pane ();
-        pp.getStyleClass ().add (StyleClassNames.ICON);
-        h.getChildren ().add (pp);
-        h.managedProperty ().bind (h.visibleProperty ());
+        this.ib = IconBox.builder ()
+            .build ();
+
+        this.getChildren ().add (this.ib);
         //h.relocate (0, 0);
 
-        this.getChildren ().add (h);
+        //this.getChildren ().add (h);
 
         this.overlay = new VBox ();
         this.overlay.getStyleClass ().add (StyleClassNames.OVERLAY);
@@ -311,26 +315,29 @@ public class QuollImageView extends VBox
         if (im == null)
         {
 
-            this.iv.setImage (null);
+            this.ib.setImage (null);
+            this.imageProp.setValue (null);
             this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, true);
             return;
 
         }
 
-        this.iv.setImage (im);
+        this.imageProp.setValue (im);
+        this.ib.setImage (im);
+        /*
         UIUtils.runLater (() ->
         {
 
             this.requestLayout ();
 
         });
-
+*/
     }
 
     public ObjectProperty<Image> imageProperty ()
     {
 
-        return this.iv.imageProperty ();
+        return this.imageProp;
 
     }
 

@@ -1894,6 +1894,15 @@ TODO Remove handled by the content.
 
     }
 
+    public ScheduledFuture scheduleImmediately (Runnable r)
+    {
+
+        return this.schedule (r,
+                              0,
+                              -1);
+
+    }
+
     /**
      * Schedule the runnable to run after delay and repeat (use -1 or 0 for no repeat).
      *

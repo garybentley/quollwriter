@@ -68,6 +68,7 @@
     -fx-padding: 1em 0.5em 0.5em 0.5em;
 }
 .button { -fx-content-display: text-only; }
+.filefind .button,
 .toolbar.buttons .button,
 .form .filefind .button { -fx-content-display: graphic-only; }
 .form .buttons {
@@ -111,4 +112,9 @@
 .timer .button.start
 {
     -fx-content-display: graphic-only;
+}
+
+.qpopup .header .iconbox .icon.important-icon
+{
+    -fx-pref-width: 0.333em;
 }

@@ -1964,7 +1964,7 @@ public class EditorsUIUtils
 
         }
 
-        EditorsUIUtils.editorLogin.setVisible (false);
+        EditorsUIUtils.editorLogin.close ();
 
     }
 
@@ -2092,6 +2092,13 @@ public class EditorsUIUtils
 
                 }
 
+                if (errType.equals ("AccountNotActive"))
+                {
+
+                    reason = getUILanguageStringProperty (editors,login,errors,inactiveaccount);
+
+                }
+
             }
 
         } else {
@@ -2119,6 +2126,13 @@ public class EditorsUIUtils
                                        Runnable        onLogin,
                                        Runnable        onCancel)
     {
+
+        if (error == null)
+        {
+
+            throw new NullPointerException ("Error must be provided.");
+
+        }
 
         UIUtils.runLater (() ->
         {
@@ -2964,7 +2978,7 @@ public class EditorsUIUtils
 
         java.util.List<String> prefix = Arrays.asList (editors,messages,show,important,popup);
 
-        EditorsUIUtils.showMessagesInPopup (getUILanguageStringProperty (prefix,title),
+        EditorsUIUtils.showMessagesInPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
                                             //"Important messages",
                                             StyleClassNames.IMPORTANT,
                                             getUILanguageStringProperty (Utils.newList (prefix,text),

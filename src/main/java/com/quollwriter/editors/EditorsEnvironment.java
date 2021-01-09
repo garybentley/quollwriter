@@ -144,8 +144,7 @@ public class EditorsEnvironment
 
         EditorsEnvironment.messageHandler = new EditorsMessageHandler ();
 
-// YYY
-        EditorsEnvironment.logEditorMessages (true);
+        //EditorsEnvironment.logEditorMessages (true);
 
 
         EditorsEnvironment.messageHandler.init ();
@@ -1962,16 +1961,21 @@ TODO Remove
                                                                         () ->
                                                                         {
 
-                                                                            List<String> prefix = Arrays.asList (LanguageStrings.editors,user,invitesent,popup);
+                                                                            UIUtils.runLater (() ->
+                                                                            {
 
-                                                                            AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+                                                                                List<String> prefix = Arrays.asList (LanguageStrings.editors,user,invitesent,popup);
 
-                                                                            QuollPopup.messageBuilder ()
-                                                                                .withViewer (viewer)
-                                                                                .title (Utils.newList (prefix,title))
-                                                                                .message (getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                                                                                       toEmail))
-                                                                                .build ();
+                                                                                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+
+                                                                                QuollPopup.messageBuilder ()
+                                                                                    .withViewer (viewer)
+                                                                                    .title (Utils.newList (prefix,title))
+                                                                                    .message (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                                                                                           toEmail))
+                                                                                    .build ();
+
+                                                                            });
 
                                                                         },
                                                                         null,

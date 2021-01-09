@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx.charts;
 
+import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.beans.property.*;
 
@@ -13,13 +14,13 @@ public interface QuollChart extends Stateful
 
     public String getType ();
 
-    public Region getControls ()
+    public Node getControls ()
                       throws GeneralException;
 
-    public Region getChart ()
+    public Node getChart ()
                    throws GeneralException;
-
+/*
     public Region getDetails ()
                     throws GeneralException;
-
+*/
 }

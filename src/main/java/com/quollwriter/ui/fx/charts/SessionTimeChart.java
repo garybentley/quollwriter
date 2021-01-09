@@ -23,31 +23,29 @@ import com.quollwriter.ui.fx.components.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class SessionWordCountChart extends VBox implements QuollChart
+public class SessionTimeChart extends VBox implements QuollChart
 {
 
-    public static final String CHART_TYPE = "session-word-count";
+    public static final String CHART_TYPE = "session-time";
 
     private Node controls = null;
-    //private Region details = null;
     private VBox chartWrapper = null;
     private QuollBarChart<String, Number> chart = null;
     private CheckBox showAvg = null;
-    private CheckBox showTarget = null;
     private ComboBox<StringProperty> displayB = null;
-    private SimpleObjectProperty<Session> maxWordsSessionProp = new SimpleObjectProperty<> ();
+
+    private SimpleLongProperty zeroWordCountSessionsProp = new SimpleLongProperty ();
     private SimpleObjectProperty<Session> longestSessionProp = new SimpleObjectProperty<> ();
-    private SimpleLongProperty maxWordsProp = new SimpleLongProperty ();
-    private SimpleLongProperty maxTimeProp = new SimpleLongProperty ();
     private SimpleLongProperty longSessionsProp = new SimpleLongProperty ();
+    private SimpleLongProperty avgSessionTime = new SimpleLongProperty ();
     private SimpleLongProperty totalTimeProp = new SimpleLongProperty ();
     private SimpleLongProperty totalWordsProp = new SimpleLongProperty ();
     private SimpleLongProperty sessionsProp = new SimpleLongProperty ();
-    private SimpleLongProperty sessionsAboveTargetProp = new SimpleLongProperty ();
+    private SimpleLongProperty maxTimeProp = new SimpleLongProperty ();
 
     private AbstractViewer viewer = null;
 
-    public SessionWordCountChart (AbstractViewer viewer)
+    public SessionTimeChart (AbstractViewer viewer)
     {
 
         this.viewer = viewer;
@@ -82,9 +80,30 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         CategoryAxis xAxis = new CategoryAxis ();
         NumberAxis yAxis = new NumberAxis ();
+        yAxis.setAutoRanging (false);
+        yAxis.setTickLabelFormatter (new StringConverter<Number> ()
+        {
 
-        xAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionwordcount,labels,xaxis));
-        yAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionwordcount,labels,yaxis));
+            @Override
+            public Number fromString (String v)
+            {
+
+                return 0;
+
+            }
+
+            @Override
+            public String toString (Number v)
+            {
+
+                return Utils.formatAsDuration (v.longValue ());
+
+            }
+
+        });
+
+        xAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionlength,labels,xaxis));
+        yAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionlength,labels,yaxis));
 
         this.chart = new QuollBarChart<> (xAxis, yAxis);
 
@@ -107,6 +126,74 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         }
 
+        long minM = Constants.MIN_IN_MILLIS;
+        long hour = Constants.HOUR_IN_MILLIS;
+        long day = Constants.DAY_IN_MILLIS;
+
+        // Default 5 min tick.
+        long tick = 5 * minM;
+
+        long maxT = this.maxTimeProp.getValue ();
+
+        if (maxT > (hour))
+        {
+
+            tick = 20 * minM;
+
+        }
+
+        if (maxT > (3 * hour))
+        {
+
+            tick = 30 * minM;
+
+        }
+
+        if (maxT > (6 * hour))
+        {
+
+            tick = hour;
+
+        }
+
+        if (maxT > (12 * hour))
+        {
+
+            tick = 2 * hour;
+
+        }
+
+        if (maxT > (day))
+        {
+
+            tick = 3 * hour;
+
+        }
+
+        if (maxT > (2 * day))
+        {
+
+            tick = 6 * hour;
+
+        }
+
+        if (maxT > (3 * day))
+        {
+
+            tick = 12 * hour;
+
+        }
+
+        if (maxT > (5 * day))
+        {
+
+            tick = day;
+
+        }
+
+        yAxis.setUpperBound (((maxT+ tick - 1) / tick) * tick);
+        yAxis.setTickUnit (tick);
+
         final SimpleDateFormat dateFormat = new SimpleDateFormat ("hh:mm a, EEE, dd MMM yyyy");
 
         // Again with the stupid, have to do this AFTER the data has been added...
@@ -117,7 +204,7 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
             // TODO Maybe use a custom node?
             UIUtils.setTooltip (d.getNode (),
-                                getUILanguageStringProperty (Arrays.asList (charts,sessionwordcount,tooltip),
+                                getUILanguageStringProperty (Arrays.asList (charts,sessionlength,tooltip),
                                                              // TODO Make the date format configurable...
                                                              dateFormat.format (s.getStart ()),
                                                              Utils.formatAsDuration (s.getEnd ().getTime () - s.getStart ().getTime ())));
@@ -144,28 +231,14 @@ public class SessionWordCountChart extends VBox implements QuollChart
             String min = data.get (0).getXValue ();
             String max = data.get (data.size () - 1).getXValue ();
 
-            Integer avg = (int) (this.totalWordsProp.getValue () / this.sessionsProp.getValue ());
+            Integer avg = (int) (this.totalTimeProp.getValue () / this.sessionsProp.getValue ());
 
             this.chart.addHorizontalValueMarker (this.chart.createMarker (QuollLabel.builder ()
                                                                             .styleClassName (StyleClassNames.AVERAGE)
-                                                                            .label (new SimpleStringProperty ("Average (" + Environment.formatNumber (avg) + ")"))
+                                                                            .label (new SimpleStringProperty ("Average (" + Utils.formatAsDuration (avg) + ")"))
                                                                             .build (),
                                                                           StyleClassNames.AVERAGE,
                                                                           avg));
-
-        }
-
-        if (this.showTarget.isSelected ())
-        {
-
-            TargetsData userTargets = Environment.getUserTargets ();
-
-            this.chart.addHorizontalValueMarker (this.chart.createMarker (QuollLabel.builder ()
-                                                                            .styleClassName (StyleClassNames.TARGET)
-                                                                            .label (new SimpleStringProperty ("Target (" + userTargets.getMySessionWriting () + ")"))
-                                                                            .build (),
-                                                                          StyleClassNames.TARGET,
-                                                                          userTargets.getMySessionWriting ()));
 
         }
 
@@ -180,8 +253,6 @@ public class SessionWordCountChart extends VBox implements QuollChart
         State s = new State ();
         s.set ("showaverage",
                this.showAvg.isSelected ());
-        s.set ("showtarget",
-               this.showTarget.isSelected ());
         s.set ("for",
                this.displayB.getSelectionModel ().getSelectedIndex ());
         return s;
@@ -200,7 +271,6 @@ public class SessionWordCountChart extends VBox implements QuollChart
         }
 
         this.showAvg.setSelected (s.getAsBoolean ("showaverage", false));
-        this.showTarget.setSelected (s.getAsBoolean ("showtarget", false));
         this.displayB.getSelectionModel ().select (s.getAsInt ("for", 0));
 
         this.createChart ();
@@ -226,7 +296,7 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         //VBox b = new VBox ();
 
-        List<String> prefix = Arrays.asList (charts,sessionwordcount,labels);
+        List<String> prefix = Arrays.asList (charts,sessionlength,labels);
 
         FlowPane b = new FlowPane ();
 
@@ -238,12 +308,6 @@ public class SessionWordCountChart extends VBox implements QuollChart
                                                           Environment.formatNumber (sessions))));
                                                     //(sessions == 1 ? "" : "s"))));
 */
-
-        Node sessAboveTarget = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,sessionsovertarget),
-                                                                                   this.sessionsAboveTargetProp));
-
-        sessAboveTarget.managedProperty ().bind (sessAboveTarget.visibleProperty ());
-        sessAboveTarget.visibleProperty ().bind (this.showTarget.selectedProperty ());
 
         Node item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,sessionsover1hr),//"%s - Session%s over 1 hr",
                                                                         longSessionsProp));
@@ -366,63 +430,6 @@ public class SessionWordCountChart extends VBox implements QuollChart
         item.visibleProperty ().bind (visb);
         b.getChildren ().add (item);
 
-        StringProperty maxsesswc = new SimpleStringProperty ();
-        maxsesswc.bind (Bindings.createStringBinding (() ->
-        {
-
-            if (this.maxWordsSessionProp.getValue () == null)
-            {
-
-                return "";
-
-            }
-
-            return Environment.formatNumber (this.maxWordsSessionProp.getValue ().getWordCount ());
-
-        },
-        this.maxWordsSessionProp));
-
-        StringProperty maxsessdur = new SimpleStringProperty ();
-        maxsessdur.bind (Bindings.createStringBinding (() ->
-        {
-
-            if (this.maxWordsSessionProp.getValue () == null)
-            {
-
-                return "";
-
-            }
-
-            // TODO Change.
-            return Utils.formatAsDuration (this.maxWordsSessionProp.getValue ().getSessionDuration ());
-
-        },
-        this.maxWordsSessionProp));
-
-        StringProperty maxsesstime = new SimpleStringProperty ();
-        maxsesstime.bind (Bindings.createStringBinding (() ->
-        {
-
-            if (this.maxWordsSessionProp.getValue () == null)
-            {
-
-                return "";
-
-            }
-
-            return Environment.formatDateTime (this.maxWordsSessionProp.getValue ().getStart ());
-
-        },
-        this.maxWordsSessionProp));
-
-        item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,sessionmostwords),
-                                                                   maxsesswc,
-                                                                   maxsessdur,
-                                                                   maxsesstime));
-        item.managedProperty ().bind (item.visibleProperty ());
-        item.visibleProperty ().bind (visb);
-        b.getChildren ().add (item);
-
         return b;
 
     }
@@ -430,7 +437,7 @@ public class SessionWordCountChart extends VBox implements QuollChart
     private Node createControls ()
     {
 
-        final SessionWordCountChart _this = this;
+        final SessionTimeChart _this = this;
 
         VBox b = new VBox ();
 
@@ -500,91 +507,7 @@ public class SessionWordCountChart extends VBox implements QuollChart
             .onAction (ev -> this.createChart ())
             .build ();
 
-        this.showTarget = QuollCheckBox.builder ()
-            .label (charts,sessionwordcount,labels,showtarget)
-            .onAction (ev ->
-            {
-
-                TargetsData targets = Environment.getUserTargets ();
-
-                if ((targets.getMySessionWriting () == 0)
-                   )
-                {
-
-                    List<String> prefix = Arrays.asList (charts,sessionwordcount,notarget,popup);
-
-                    QuollPopup.questionBuilder ()
-                        .withViewer (this.viewer)
-                        .title (Utils.newList (prefix,title))
-                        .styleClassName (StyleClassNames.TARGETS)
-                        .message (Utils.newList (prefix,text))
-                        .confirmButtonLabel (Utils.newList (prefix,buttons,confirm))
-                        .cancelButtonLabel (Utils.newList (prefix,buttons,cancel))
-                        .onConfirm (eev ->
-                        {
-
-                            try
-                            {
-
-                                _this.viewer.runCommand (AbstractViewer.CommandId.viewtargets);
-
-                            } catch (Exception e) {
-
-                                Environment.logError ("Unable to show targets",
-                                                      e);
-
-                                ComponentUtils.showErrorMessage (_this.viewer,
-                                                                 getUILanguageStringProperty (charts,sessionwordcount,notarget,actionerror));
-                                                         //"Unable to show targets.");
-
-                            }
-
-                        })
-                        .build ();
-/*
-TODO Remove
-                    ComponentUtils.createQuestionPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
-                                                        StyleClassNames.TARGETS,
-                                                        getUILanguageStringProperty (Utils.newList (prefix,text)),
-                                                        //"You currently have no writing targets set up.<br /><br />Would you like to set the targets now?<br /><br />Note: Targets can be accessed at any time from the {Project} menu.",
-                                                        getUILanguageStringProperty (Utils.newList (prefix,buttons,confirm)),
-                                                        //"Yes, show me",
-                                                        getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)),
-                                                        //"No, not now",
-                                                        eev ->
-                                                        {
-
-                                                            try
-                                                            {
-
-                                                                _this.viewer.runCommand (AbstractViewer.CommandId.viewtargets);
-
-                                                            } catch (Exception e) {
-
-                                                                Environment.logError ("Unable to show targets",
-                                                                                      e);
-
-                                                                ComponentUtils.showErrorMessage (_this.viewer,
-                                                                                                 getUILanguageStringProperty (charts,sessionwordcount,notarget,actionerror));
-                                                                                         //"Unable to show targets.");
-
-                                                            }
-
-                                                        },
-                                                        _this.viewer);
-*/
-                    this.showTarget.setSelected (false);
-
-                    return;
-
-                }
-
-                this.createChart ();
-
-            })
-            .build ();
-
-        fp.getChildren ().addAll (this.displayB, this.showAvg, this.showTarget);
+        fp.getChildren ().addAll (this.displayB, this.showAvg);
 
         return fp;
 
@@ -600,7 +523,7 @@ TODO Remove
     public StringProperty getTitle ()
     {
 
-        return getUILanguageStringProperty (charts,sessionwordcount,title);
+        return getUILanguageStringProperty (charts,sessionlength,title);
 
     }
 
@@ -794,22 +717,22 @@ TODO Remove
             }
 
             XYChart.Data d = new XYChart.Data<> (Environment.formatDate (s.getStart ()),
-                                                                         wc);
+                                                 s.getEnd ().getTime () - s.getStart ().getTime ());
             d.setExtraValue (s);
 
             series.getData ().add (d);
 
         }
 
-        this.longestSessionProp.setValue (longestSession);
-        this.maxWordsSessionProp.setValue (maxWordsSession);
-        this.maxWordsProp.setValue (maxWords);
         this.maxTimeProp.setValue (maxTime);
+        this.longestSessionProp.setValue (longestSession);
+        //this.maxWordsSessionProp.setValue (maxWordsSession);
+        //this.maxWordsProp.setValue (maxWords);
+        //this.maxTimeProp.setValue (maxTime);
         this.longSessionsProp.setValue (longSessions);
         this.totalTimeProp.setValue (totalTime);
         this.totalWordsProp.setValue (totalWords);
         this.sessionsProp.setValue (sessions);
-        this.sessionsAboveTargetProp.setValue (sessionsAboveTarget);
 
         return series;
 

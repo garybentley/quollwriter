@@ -62,23 +62,24 @@ public class Form extends VBox
 
         }
 
+        this.desc = QuollTextView.builder ()
+            .styleClassName (StyleClassNames.DESCRIPTION)
+            .inViewer (b.viewer)
+            .build ();
+
+/*
+        BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
+            .styleClassName (StyleClassNames.DESCRIPTION)
+            .text (b.description)
+            .withHandler (b.viewer)
+            .build ();
+*/
+        this.getChildren ().add (this.desc);
+
         if (b.description != null)
         {
 
-            this.desc = QuollTextView.builder ()
-                .styleClassName (StyleClassNames.DESCRIPTION)
-                .text (b.description)
-                .inViewer (b.viewer)
-                .build ();
-
-/*
-            BasicHtmlTextFlow desc = BasicHtmlTextFlow.builder ()
-                .styleClassName (StyleClassNames.DESCRIPTION)
-                .text (b.description)
-                .withHandler (b.viewer)
-                .build ();
-*/
-            this.getChildren ().add (this.desc);
+            this.desc.setText (b.description);
 
         }
 

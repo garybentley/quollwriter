@@ -249,11 +249,10 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
 
                     try
                     {
-/*
-TODO
+
                         pv.runCommand (AbstractViewer.CommandId.charts,
                                        PerChapterWordCountsChart.CHART_TYPE);
-*/
+
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to show per chapter word counts",
@@ -380,12 +379,9 @@ TODO
                     try
                     {
 
-                        // TODO
-                        /*
                         pv.runCommand (AbstractViewer.CommandId.charts,
-                                       null,
                                        ReadabilityIndicesChart.CHART_TYPE);
-*/
+
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to show per chapter word counts",

@@ -1,4 +1,4 @@
-package com.quollwriter.ui.fx.popups;
+package com.quollwriter.editors.ui;
 
 import java.nio.file.*;
 import java.nio.charset.*;
@@ -17,6 +17,7 @@ import com.quollwriter.editors.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.popups.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -46,16 +47,14 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
             .confirmButton (editors,login,LanguageStrings.popup,buttons,login)
             .cancelButton (editors,login,LanguageStrings.popup,buttons,cancel);
 
-        final EditorAccount acc = EditorsEnvironment.getUserAccount ();
-
         this.emailField = QuollTextField.builder ()
-            .text (acc.getEmail ())
+            //.text (acc.getEmail ())
             .build ();
 
         String upwd = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME);
 
         this.passwordField = new PasswordField ();
-        passwordField.setText (upwd);
+        //passwordField.setText (upwd);
 
         this.savePwd = QuollCheckBox.builder ()
             .label (editors,login,LanguageStrings.popup,labels,savepassword)
@@ -205,7 +204,7 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
 
             }
 
-            EditorsEnvironment.setLoginCredentials ((this.emailField != null ? this.emailField.getText ().trim ().toLowerCase () : acc.getEmail ()),
+            EditorsEnvironment.setLoginCredentials (this.emailField.getText ().trim ().toLowerCase (),
                                                     this.passwordField.getText ());
 
             this.form.showLoading (getUILanguageStringProperty (editors,login,LanguageStrings.popup,loading));
@@ -272,7 +271,38 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
     public void showError (StringProperty v)
     {
 
+        this.form.hideLoading ();
         this.form.showError (v);
+
+    }
+
+    private void initFields ()
+    {
+
+        final EditorAccount acc = EditorsEnvironment.getUserAccount ();
+
+        if (acc != null)
+        {
+
+            this.emailField.setText (acc.getEmail ());
+
+        }
+
+        String upwd = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME);
+
+        this.passwordField.setText (upwd);
+
+        this.checkButtons ();
+
+    }
+
+    @Override
+    public void show ()
+    {
+
+        this.initFields ();
+
+        super.show ();
 
     }
 
@@ -282,10 +312,13 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
                       Runnable       onCancel)
     {
 
+        this.initFields ();
+
         this.onLogin = onLogin;
         this.onCancel = onCancel;
 
         this.form.hideError ();
+
         this.form.setDescription (loginReason);
 
         if (viewer == null)
@@ -326,7 +359,7 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
             .withClose (true)
             .content (this)
             .popupId (POPUP_ID)
-            .removeOnClose (true)
+            .removeOnClose (false)
             .build ();
 
         p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,

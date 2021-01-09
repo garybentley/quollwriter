@@ -129,7 +129,7 @@
 
 .accordion.contacts .content .contact
 {
-    -fx-padding: 0 0 0 1em;
+    -fx-padding: 0 0 0.5em 1em;
 }
 
 .hyperlink.view

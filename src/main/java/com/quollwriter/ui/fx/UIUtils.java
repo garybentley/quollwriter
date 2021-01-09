@@ -3388,6 +3388,150 @@ TODO
 
     }
 
+    public static QuollPopup createChaptersSelectableTreePopup (Project                proj,
+                                                                AbstractViewer         viewer,
+                                                                Set<Chapter>     selected,
+                                                                Set<Chapter>     exclude,
+                                                                StringProperty   title,
+                                                                StringProperty         closeButtonLabel,
+                                                                Consumer<Set<Chapter>> onClose)
+    {
+
+        QuollTreeView tree = new QuollTreeView<> ();
+        tree.setShowRoot (false);
+        tree.getStyleClass ().add (StyleClassNames.CHAPTER);
+
+        TreeItem<NamedObject> root = new TreeItem<> ();
+        root.setValue (proj);
+        tree.setRoot (root);
+
+        proj.getBook (0).getChapters ().stream ()
+            .forEach (c ->
+            {
+
+                if (exclude != null)
+                {
+
+                    if (exclude.contains (c))
+                    {
+
+                        return;
+
+                    }
+
+                }
+
+                CheckBoxTreeItem<NamedObject> ci = new CheckBoxTreeItem<> (c);
+                ci.setSelected ((selected == null ? false : selected.contains (c)));
+                ci.setIndependent (true);
+
+                root.getChildren ().add (ci);
+
+            });
+
+        Function<TreeItem<Object>, Node> cellProvider = (treeItem) ->
+        {
+
+            Object n = treeItem.getValue ();
+
+            if (n instanceof Project)
+            {
+
+                return new Label ();
+
+            }
+
+            if (n instanceof Chapter)
+            {
+
+                Chapter c = (Chapter) n;
+
+                QuollLabel l = QuollLabel.builder ()
+                    .styleClassName (c.getObjectType ())
+                    .label (c.nameProperty ())
+                    .build ();
+
+                return l;
+
+            }
+
+            throw new IllegalStateException ("How did we get here? " + n);
+
+        };
+
+        tree.setCellProvider (cellProvider);
+
+        VBox b = new VBox ();
+        VBox.setVgrow (tree,
+                       Priority.ALWAYS);
+        QuollCheckBox cb = QuollCheckBox.builder ()
+            .label (getUILanguageStringProperty (actions,selectall))
+            .styleClassName (StyleClassNames.SELECT)
+            .build ();
+        cb.setOnAction (ev ->
+        {
+
+            tree.walkTree (ti ->
+            {
+
+                if (ti instanceof CheckBoxTreeItem)
+                {
+
+                    CheckBoxTreeItem<NamedObject> cti = (CheckBoxTreeItem<NamedObject>) ti;
+
+                    cti.setSelected (cb.isSelected ());
+
+                }
+
+            });
+
+        });
+        b.getChildren ().addAll (cb, new QScrollPane (tree));
+
+        QuollPopup qp = QuollPopup.messageBuilder ()
+            .title (title)
+            .message (b)
+            .inViewer (viewer)
+            .styleSheet ("chapterselect")
+            .headerIconClassName (Chapter.OBJECT_TYPE)
+            .hideOnEscape (true)
+            .removeOnClose (true)
+            .closeButton (closeButtonLabel, null)
+            .build ();
+
+        qp.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,
+                            ev ->
+        {
+
+            Set<Chapter> sel = new LinkedHashSet<> ();
+
+            tree.walkTree (ti ->
+            {
+
+                if (ti instanceof CheckBoxTreeItem)
+                {
+
+                    CheckBoxTreeItem<NamedObject> cti = (CheckBoxTreeItem<NamedObject>) ti;
+
+                    if (cti.isSelected ())
+                    {
+
+                        sel.add ((Chapter) cti.getValue ());
+
+                    }
+
+                }
+
+            });
+
+            onClose.accept (sel);
+
+        });
+
+        return qp;
+
+    }
+
     public static void createChaptersSelectableTree (TreeItem         root,
                                                      Project          proj,
                                                      Set<NamedObject> selected,
@@ -4645,6 +4789,24 @@ TODO
             .message (new SimpleStringProperty ("This fantastic feature is coming soon!  I promise."))
             .closeButton ()
             .build ();
+
+    }
+
+    public static void setBackgroundImage (Region r,
+                                           Image  p)
+    {
+
+        Background _b = new Background (new BackgroundImage (p,
+                                                             BackgroundRepeat.NO_REPEAT,
+                                                             BackgroundRepeat.NO_REPEAT,
+                                                             null,
+                                                             new BackgroundSize (BackgroundSize.AUTO,
+                                                                                 BackgroundSize.AUTO,
+                                                                                 false,
+                                                                                 false,
+                                                                                 true,
+                                                                                 false)));
+        r.setBackground (_b);
 
     }
 

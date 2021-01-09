@@ -1,0 +1,29 @@
+.scroll-pane
+{
+    -fx-pref-height: 20em;
+}
+
+.tree .cell
+{
+    -fx-padding: 0;
+}
+
+.tree .cell .label.chapter .iconbox
+{
+    visibility: hidden;
+}
+
+.tree
+{
+    -fx-cell-indent: 0em;
+}
+
+.tree .cell .iconbox.disclosure
+{
+    visibility: hidden;
+}
+
+.select
+{
+    -fx-padding: 0 0 0.25em 0;
+}

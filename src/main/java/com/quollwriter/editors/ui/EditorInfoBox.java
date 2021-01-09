@@ -133,7 +133,10 @@ public class EditorInfoBox extends VBox
 
             }
 
-            if (ev.isPopupTrigger ())
+            if ((ev.isPopupTrigger ())
+                ||
+                (this.editor.isPending ())
+               )
             {
 
                 return;
@@ -375,6 +378,8 @@ public class EditorInfoBox extends VBox
 
         this.updateButtons ();
 
+        this.addFullPopupListener ();
+
     }
 /*
     private void updateAvatar ()
@@ -595,22 +600,32 @@ public class EditorInfoBox extends VBox
     private void updateForOnlineStatus ()
     {
 
+        if (this.editor.isPending ())
+        {
+
+            this.onlineStatus.setVisible (false);
+            return;
+
+        }
+
+        this.onlineStatus.setVisible (true);
+
         if (this.editor.getOnlineStatus () != null)
         {
 
             //this.onlineStatus.getStyleClass ().addAll (this.editor.getOnlineStatus ().getType () + "-icon");
             UIUtils.setTooltip (this.onlineStatus,
                                 this.editor.getOnlineStatus ().nameProperty ());
+            this.onlineStatus.setIconName (this.editor.getOnlineStatus ().getType ());
 
         } else {
 
             //this.onlineStatus.getStyleClass ().add (EditorEditor.OnlineStatus.offline.getType () + "-icon");
             UIUtils.setTooltip (this.onlineStatus,
                                 EditorEditor.OnlineStatus.offline.nameProperty ());
+            this.onlineStatus.setIconName (EditorEditor.OnlineStatus.offline.getType ());
 
         }
-
-        this.onlineStatus.setIconName (EditorEditor.OnlineStatus.online.getType ());
 
     }
 
@@ -1869,7 +1884,10 @@ public class EditorInfoBox extends VBox
     public void addSendOrUpdateProjectMenuItem (ContextMenu menu)
     {
 
-        if (this.editor.isPrevious ())
+        if ((this.editor.isPrevious ())
+            ||
+            (this.editor.isPending ())
+           )
         {
 
             return;

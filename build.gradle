@@ -119,11 +119,11 @@ dependencies {
     implementation 'org.jfree:jfreechart-fx:1.0.1'
 
     // Smack
-    implementation 'org.igniterealtime.smack:smack-core:4.3.3'
-    implementation 'org.igniterealtime.smack:smack-extensions:4.3.3'
-    implementation 'org.igniterealtime.smack:smack-tcp:4.3.3'
-    implementation 'org.igniterealtime.smack:smack-im:4.3.3'
-    implementation 'org.igniterealtime.smack:smack-java7:4.3.3'
+    implementation 'org.igniterealtime.smack:smack-core:4.4.0'
+    implementation 'org.igniterealtime.smack:smack-extensions:4.4.0'
+    implementation 'org.igniterealtime.smack:smack-tcp:4.4.0'
+    implementation 'org.igniterealtime.smack:smack-im:4.4.0'
+    implementation 'org.igniterealtime.smack:smack-java8:4.4.0'
 
     // RichtextFX
     //implementation 'org.fxmisc.richtext:richtextfx:0.10.5'

@@ -772,7 +772,7 @@ public class EditorsMessageHandler implements ChatMessageListener
     public void changePassword (final String              newPassword,
                                 final Runnable onComplete,
                                 final Runnable onCancel,
-                                final Consumer<Exception> onError)
+                                final java.util.function.Consumer<Exception> onError)
     {
 
         final EditorsMessageHandler _this = this;
@@ -824,7 +824,7 @@ public class EditorsMessageHandler implements ChatMessageListener
     }
 
     public void login (final Runnable            onLogin,
-                       final Consumer<Exception> onError)
+                       final java.util.function.Consumer<Exception> onError)
     {
 
         final EditorsMessageHandler _this = this;
@@ -872,6 +872,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                                                             .setServiceName (JidCreate.domainBareFrom (acc.getServiceName ()))
                                                             .setConnectTimeout (10 * 1000)
                                                             .setCompressionEnabled (true)
+                                                            .setSendPresence (true)
                                                             //.setDebuggerEnabled (true)
                                                             .setPort (port)
                                                             .build ();
@@ -1679,7 +1680,7 @@ TODO OLD Remove?
                              final EditorEditor          to,
                              final Runnable              onSend,
                              final Runnable              onLoginCancel,
-                             final Consumer<Exception>   onError)
+                             final java.util.function.Consumer<Exception>   onError)
     {
 
         final EditorsMessageHandler _this = this;

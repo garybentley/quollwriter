@@ -592,8 +592,10 @@ TODO
 
         });
 
-        // We have to do something special here for the initial counts.
-        this.schedule (() ->
+        //this.scheduleSpellingReadabilityUpdate ();
+
+        // This updates the chapter word counts.
+        this.scheduleImmediately (() ->
         {
 
             this.startWordCounts = new ChapterCounts ();
@@ -608,16 +610,6 @@ TODO
                 this.startWordCounts.add (ncc);
 
     		}
-
-        },
-        1,
-        -1);
-
-        //this.scheduleSpellingReadabilityUpdate ();
-
-        // This updates the chapter word counts.
-        this.schedule (() ->
-        {
 
     		for (Chapter c : chapters)
     		{
@@ -649,9 +641,15 @@ TODO
 
             this.updateAllChapterCounts ();
 
-        },
-        1,
-        -1);
+            UIUtils.runLater (() ->
+            {
+
+                this.checkForChaptersOverWordCountCheck ();
+
+            });
+
+
+        });
 
 	}
 
@@ -1233,16 +1231,23 @@ TODO
 
 		UIUtils.forceRunLater (onOpen);
 
-		// Check to see if any chapters have overrun the target.
-		UIUtils.forceRunLater (() ->
+        this.scheduleTargetReachedCheck ();
+
+    }
+
+    private void checkForChaptersOverWordCountCheck ()
+    {
+
+        // Check to see if any chapters have overrun the target.
+		UIUtils.runLater (() ->
 		{
 
 			try
 			{
 
-				int wc = _this.getProjectTargets ().getMaxChapterCount ();
+				int wc = this.getProjectTargets ().getMaxChapterCount ();
 
-				Set<Chapter> wchaps = _this.getChaptersOverWordTarget ();
+				Set<Chapter> wchaps = this.getChaptersOverWordTarget ();
 
 				int s = wchaps.size ();
 
@@ -1255,8 +1260,8 @@ TODO
 					for (Chapter c : wchaps)
 					{
 
-						_this.chapterWordCountTargetWarned.put (c,
-																new Date ());
+						this.chapterWordCountTargetWarned.put (c,
+															   new Date ());
 
 					}
 
@@ -1275,9 +1280,9 @@ TODO
                                                             wc))
                         .build ();
 
-					final Notification n = _this.addNotification (m,
-																  StyleClassNames.WORDCOUNTS,
-																  90);
+					final Notification n = this.addNotification (m,
+											   				     StyleClassNames.WORDCOUNTS,
+																 90);
 
                       m.setOnMouseClicked (ev ->
                       {
@@ -1306,7 +1311,7 @@ TODO
 
 				}
 
-				Set<Chapter> rchaps = _this.getChaptersOverReadabilityTarget ();
+				Set<Chapter> rchaps = this.getChaptersOverReadabilityTarget ();
 
 				s = rchaps.size ();
 
@@ -1329,7 +1334,7 @@ TODO
                         .inViewer (this)
                         .build ();
 
-					final Notification n = _this.addNotification (m,
+					final Notification n = this.addNotification (m,
 																  StyleClassNames.READABILITY,
 																  90);
 
@@ -1368,8 +1373,6 @@ TODO
 			}
 
 		});
-
-        this.scheduleTargetReachedCheck ();
 
     }
 
@@ -4376,13 +4379,28 @@ TODO REmove
         if (this.showPanel (StatisticsPanel.PANEL_ID))
         {
 
+            if (chartType != null)
+            {
+
+                Panel p = this.getPanel (StatisticsPanel.PANEL_ID);
+
+                StatisticsPanel sp = (StatisticsPanel) p.getContent ();
+
+                sp.showChart (chartType);
+
+            }
+
             return;
 
         }
 
         StatisticsPanel a = new StatisticsPanel (this,
                                                  null,
-                                                 new SessionWordCountChart (this));
+                                                 new PerChapterWordCountsChart (this),
+                                                 new AllWordCountsChart (this),
+                                                 new ReadabilityIndicesChart (this),
+                                                 new SessionWordCountChart (this),
+                                                 new SessionTimeChart (this));
         this.addPanel (a);
         this.showPanel (a.getPanelId ());
 

@@ -27,7 +27,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
     public boolean processMessage (final EditorMessage mess)
                             throws Exception
     {
-
+System.out.println ("GOT MESS: " + mess);
         boolean showPopup = EditorsEnvironment.isShowPopupWhenNewMessageReceived ();
 
         EditorEditor ed = mess.getEditor ();

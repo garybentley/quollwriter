@@ -73,9 +73,15 @@
     -fx-padding: 0;
 }
 
-.accordion .header .label.title
+.accordion .header .label.title,
+.noeditors .header.title .label.title
 {
     -fx-font-size: 1.5em;
+}
+
+.noeditors .header
+{
+    -fx-padding: 0 0.5em 0 0.5em;
 }
 
 .accordion > .content
@@ -247,3 +253,29 @@
  {
      -fx-spacing: 0.25em;
  }
+
+.statusbar.controls .button .iconbox .icon.important-icon
+{
+    -fx-background-color: red;
+    -fx-pref-width: 0.333em;
+}
+
+.noeditors .text
+{
+    -fx-padding: 0.25em 0.5em 0.5em 1em;
+}
+
+.noeditors .buttons
+{
+    -fx-alignment: center;
+}
+
+.tab.contacts .tab-label .iconbox
+{
+    -fx-border-width: 0;
+}
+
+.accordion.pendinginvites .contact
+{
+    -fx-cursor: normal;
+}

@@ -42,6 +42,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
     private QuollTextView  help = null;
     private Button         cancel = null;
     private ScheduledFuture watch = null;
+    private String          fileExt = null;
 
     public DefaultQuollWriterUpdater ()
     {
@@ -140,7 +141,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
         {
 
             tf = File.createTempFile ("QuollWriter-install-" + _this.version.getVersion () + ".",
-                                      ".exe");
+                                      this.fileExt);
 
             //tf.deleteOnExit ();
 
@@ -472,11 +473,13 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
                 this.url = (String) version.get ("url");
 
+                this.fileExt = this.url.substring (this.url.lastIndexOf ("."));
+
                 this.size = ((Number) version.get ("size")).longValue ();
 
                 this.digest = com.quollwriter.Base64.decode ((String) version.get ("digest"));
 
-                if (!Environment.getQuollWriterVersion ().isNewer (this.version))
+                if (Environment.getQuollWriterVersion ().isNewer (this.version))
                 {
 
                     UIUtils.runLater (() ->
@@ -583,6 +586,9 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
     {
 
         final DefaultQuollWriterUpdater _this = this;
+
+        Environment.getOpenViewers ().stream ()
+            .forEach (pv -> pv.close (null));
 
         // TODO Environment.doForOpenViewers -> close ()
 /*

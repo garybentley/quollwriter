@@ -95,7 +95,14 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                 }
 
-                this.tabs.getTabs ().remove (rem);
+                Tab _rem = rem;
+
+                UIUtils.runLater (() ->
+                {
+
+                    this.tabs.getTabs ().remove (_rem);
+
+                });
 
             }
 
@@ -177,9 +184,9 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
         this.noEditors.getStyleClass ().add (StyleClassNames.NOEDITORS);
         this.noEditors.managedProperty ().bind (this.noEditors.visibleProperty ());
 
-        this.noEditors.getChildren ().add (QuollLabel.builder ()
+        this.noEditors.getChildren ().add (Header.builder ()
             .styleClassName (StyleClassNames.TITLE)
-            .label (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,title)
+            .title (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,title)
             .build ());
         this.noEditors.getChildren ().add (QuollTextView.builder ()
             .styleClassName (StyleClassNames.TEXT)
@@ -187,15 +194,17 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             .inViewer (this.viewer)
             .build ());
 
-        this.noEditors.getChildren ().add (QuollButton.builder ()
-            .tooltip (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,buttons,sendinvite,tooltip)
-            .label (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,buttons,sendinvite,text)
-            .onAction (ev ->
-            {
+        this.noEditors.getChildren ().add (QuollButtonBar.builder ()
+            .button (QuollButton.builder ()
+                .tooltip (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,buttons,sendinvite,tooltip)
+                .label (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,buttons,sendinvite,text)
+                .onAction (ev ->
+                {
 
-                EditorsUIUtils.showInviteEditor (this.viewer);
+                    EditorsUIUtils.showInviteEditor (this.viewer);
 
-            })
+                })
+                .build ())
             .build ());
 
         edBox.getChildren ().add (this.noEditors);
@@ -313,7 +322,14 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                         if (rem != null)
                         {
 
-                            box.getChildren ().remove (rem);
+                            Node _rem = rem;
+
+                            UIUtils.runLater (() ->
+                            {
+
+                                box.getChildren ().remove (_rem);
+
+                            });
 
                         }
 
@@ -324,26 +340,31 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                 if (ev.wasAdded ())
                 {
 
-                    for (EditorEditor ed : ev.getAddedSubList ())
+                    UIUtils.runLater (() ->
                     {
 
-                        try
+                        for (EditorEditor ed : ev.getAddedSubList ())
                         {
 
-                            box.getChildren ().add (new EditorInfoBox (ed,
-                                                                       this.viewer,
-                                                                       false,
-                                                                       this.getBinder ()));
+                            try
+                            {
 
-                        } catch (Exception e) {
+                                box.getChildren ().add (new EditorInfoBox (ed,
+                                                                           this.viewer,
+                                                                           false,
+                                                                           this.getBinder ()));
 
-                            Environment.logError ("Unable to create editor box for: " +
-                                                  ed,
-                                                  e);
+                            } catch (Exception e) {
+
+                                Environment.logError ("Unable to create editor box for: " +
+                                                      ed,
+                                                      e);
+
+                            }
 
                         }
 
-                    }
+                    });
 
                 }
 
@@ -446,7 +467,8 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
         UIUtils.setTooltip (this.statusBut,
                             toolTip);
         this.statusBut.setIconName (this.getStatusStyleClassName (status));
-        this.loginBut.setVisible (EditorsEnvironment.isUserLoggedIn ());
+        this.loginBut.setVisible (!EditorsEnvironment.isUserLoggedIn ());
+        this.statusBut.setVisible (!this.loginBut.isVisible ());
 
     }
 
@@ -467,7 +489,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                 if (EditorsEnvironment.hasLoginCredentials ())
                 {
-
+System.out.println ("HERE");
                     np = QuollPopup.notificationBuilder ()
                         .message (editors,LanguageStrings.sidebar,headercontrols,items,onlinestatus,online,LanguageStrings.notification)
                         .styleClassName (StyleClassNames.LOADING)
@@ -504,6 +526,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                                                          .hideIn (3 * Constants.SEC_IN_MILLIS)
                                                          .build ();
 
+                                                     this.loginBut.setDisable (false);
                                                      this.loginBut.setVisible (false);
                                                      this.statusBut.setVisible (true);
 
@@ -520,28 +543,35 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                                              exp ->
                                              {
 
-                                                 if (_np != null)
-                                                 {
-
-                                                     _np.close ();
-
-                                                 }
-
                                                  Environment.logError ("Unable to go online",
                                                                        exp);
 
-                                                EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,invalidcredentials),
-                                                                                //"Unable to login, please check your email and password.",
-                                                                               () ->
-                                                                               {
+                                                 UIUtils.runLater (() ->
+                                                 {
 
-                                                                                    EditorsEnvironment.goOnline (null,
-                                                                                                                 null,
-                                                                                                                 null,
-                                                                                                                 null);
+                                                     this.loginBut.setDisable (true);
 
-                                                                               },
-                                                                               null);
+                                                     if (_np != null)
+                                                     {
+
+                                                         _np.close ();
+
+                                                     }
+
+                                                    EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,invalidcredentials),
+                                                                                    //"Unable to login, please check your email and password.",
+                                                                                   () ->
+                                                                                   {
+
+                                                                                        EditorsEnvironment.goOnline (null,
+                                                                                                                     null,
+                                                                                                                     null,
+                                                                                                                     null);
+
+                                                                                   },
+                                                                                   null);
+
+                                                });
 
                                              });
 
@@ -607,6 +637,23 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                             EditorsEnvironment.goOffline ();
                             this.statusBut.setVisible (false);
                             this.loginBut.setVisible (true);
+
+                            UIUtils.runLater (() ->
+                            {
+
+                                QuollPopup qp = QuollPopup.notificationBuilder ()
+                                    .message (getUILanguageStringProperty (Arrays.asList (editors,LanguageStrings.sidebar,headercontrols,items,onlinestatus,offline,LanguageStrings.notification),
+                                                                           EditorsEnvironment.getUserOnlineStatus ().getName ()))
+                                    .styleClassName (StyleClassNames.MESSAGE)
+                                    .inViewer (this.viewer)
+                                    .hideIn (3 * Constants.SEC_IN_MILLIS)
+                                    .build ();
+
+                                this.viewer.showPopup (qp,
+                                                       this.loginBut,
+                                                       Side.BOTTOM);
+
+                            });
 
                         })
                         .build ());

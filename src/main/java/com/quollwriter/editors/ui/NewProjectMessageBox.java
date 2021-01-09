@@ -87,6 +87,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
        this.responseBox.getStyleClass ().add (StyleClassNames.RESPONSE);
        this.responseBox.managedProperty ().bind (this.responseBox.visibleProperty ());
        this.responseBox.setVisible (false);
+       this.getChildren ().add (this.responseBox);
 /*
        if (!this.message.isSentByMe ())
        {

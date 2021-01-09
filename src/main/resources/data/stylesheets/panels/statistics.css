@@ -40,11 +40,6 @@
      -fx-padding: 0 0.5em 0 0;
  }
 
- .panel.statistics .detail .item .image-view
- {
-     -fx-image: url(/imgs/tree-branch-closed16.png);
- }
-
  .panel.statistics .chart
  {
      -fx-category-gap: 10em;
@@ -72,14 +67,42 @@
      -fx-background-color: #f5b800;
      -fx-min-width: 2em;
      -fx-pref-width: 2em;
+     -fx-min-height: 2em;
  }
 
-  .panel.statistics .header .icon
+  .scroll-pane
   {
-      -fx-image: url(/imgs/chart24.png);
+      -fx-fit-to-height: true;
+      -fx-fit-to-width: true;
+      -fx-min-height: 20em;
+      -fx-min-width: 20em;
   }
 
-  .panel.statistics .header .controls .close
-  {
-      -fx-graphic: url(/imgs/close16.png);
-  }
+.marker.average.line
+{
+    -fx-stroke: green;
+}
+
+.marker.target.line
+{
+    -fx-stroke: red;
+}
+
+.marker.average.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: green;
+    -fx-text-fill: white;
+}
+
+.marker.target.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: red;
+    -fx-text-fill: white;
+}
+
+.axis .label.axis-label
+{
+    -fx-padding: 0 0 0.5em 0;
+}

@@ -1455,7 +1455,9 @@
         "selectbackground" : "Select a background image/color",
         "viewexample" : "View an example",
         "managedictionary" : "Manage your personal Dictionary",
-        "editneeded" : "Edit Needed"
+        "editneeded" : "Edit Needed",
+        "selectall" : "Select all",
+        "select" : "Select"
     },
     "sidebars" :
     {
@@ -3446,7 +3448,7 @@
             },
             "nocontacts" :
             {
-                "title" : "<i>No current ${objectnames.plural.contact}</i>",
+                "title" : "No current ${objectnames.plural.contact}",
                 "text" : "You currently have no ${objectnames.plural.contact}.  Click on the button below to invite someone to be an ${objectnames.singular.editor} for your ${objectnames.singular.project}.",
                 "buttons" :
                 {

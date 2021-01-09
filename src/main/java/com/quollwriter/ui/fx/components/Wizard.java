@@ -30,8 +30,8 @@ public class Wizard extends VBox
     private Button                 prevBut = null;
     private Header                 title = null;
     private VBox                   stepWrapper = null;
-    private Function<String, StringProperty> nextButtonLabelProv = null;
-    private Function<String, StringProperty> prevButtonLabelProv = null;
+    private BiFunction<String, Wizard, StringProperty> nextButtonLabelProv = null;
+    private BiFunction<String, Wizard, StringProperty> prevButtonLabelProv = null;
     private Function<String, String> nextStepIdProvider = null;
     private Function<String, String> prevStepIdProvider = null;
     private Function<String, Step> stepProv = null;
@@ -362,7 +362,7 @@ public class Wizard extends VBox
 
         } else {
 
-            np = this.nextButtonLabelProv.apply (nid);
+            np = this.nextButtonLabelProv.apply (this.currentStepId, this);
 
         }
 
@@ -380,7 +380,7 @@ public class Wizard extends VBox
 
         } else {
 
-            pp = this.prevButtonLabelProv.apply (pid);
+            pp = this.prevButtonLabelProv.apply (pid, this);
 
         }
 
@@ -447,8 +447,8 @@ public class Wizard extends VBox
         private Function<String, Step> stepProv = null;
         private Function<String, String> nextStepIdProvider = null;
         private Function<String, String> prevStepIdProvider = null;
-        private Function<String, StringProperty> nextButtonLabelProv = null;
-        private Function<String, StringProperty> prevButtonLabelProv = null;
+        private BiFunction<String, Wizard, StringProperty> nextButtonLabelProv = null;
+        private BiFunction<String, Wizard, StringProperty> prevButtonLabelProv = null;
         private String styleName = null;
         private String startStepId = null;
         private EventHandler<WizardEvent> onCancel = null;
@@ -557,7 +557,7 @@ public class Wizard extends VBox
         /**
          * @param prov The first arg to the function is the next step id.
          */
-        public Builder nextButtonLabelProvider (Function<String, StringProperty> prov)
+        public Builder nextButtonLabelProvider (BiFunction<String, Wizard, StringProperty> prov)
         {
 
             this.nextButtonLabelProv = prov;
@@ -568,7 +568,7 @@ public class Wizard extends VBox
         /**
          * @param prov The first arg to the function is the previous step id.
          */
-        public Builder previousButtonLabelProvider (Function<String, StringProperty> prov)
+        public Builder previousButtonLabelProvider (BiFunction<String, Wizard, StringProperty> prov)
         {
 
             this.prevButtonLabelProv = prov;

@@ -68,6 +68,21 @@ public class IconBox extends HBox
 
     }
 
+    public void setImage (Image i)
+    {
+
+        if (i == null)
+        {
+
+            this.pane.setBackground (null);
+            return;
+
+        }
+
+        this.setBackgroundImage (i);
+
+    }
+
     public void setImage (ObjectProperty<Image> i,
                           IPropertyBinder       binder)
     {
@@ -132,7 +147,7 @@ public class IconBox extends HBox
             return;
 
         }
-
+System.out.println ("HERE: " + im);
         this.pane.setBackground (new Background (new BackgroundImage (im, //SwingFXUtils.toFXImage (im, null),
                                                                BackgroundRepeat.NO_REPEAT,
                                                                BackgroundRepeat.NO_REPEAT,

@@ -87,3 +87,36 @@
 {
     -fx-padding: 0.5em 0.5em 0.5em 1em;
 }
+
+.message:attentionrequired
+{
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-color: red;
+}
+
+.message .response
+{
+    -fx-padding: 0 0.5em 0.25em 0.5em;
+}
+
+.message .response .header .title
+{
+    -fx-padding: 0;
+}
+
+.message .response .header .iconbox
+{
+    visibility: hidden;
+}
+
+.message .response .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.message .response .buttons
+{
+    -fx-alignment: center-left;
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+}
