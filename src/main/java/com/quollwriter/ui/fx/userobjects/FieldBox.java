@@ -204,6 +204,29 @@ public class FieldBox extends VBox
 
         Set<MenuItem> its = new LinkedHashSet<> ();
 
+        Supplier<Set<MenuItem>> itMenu = this.handler.getViewContextMenuItems ();
+
+        if (itMenu != null)
+        {
+
+            Set<MenuItem> vits = itMenu.get ();
+
+            if (vits != null)
+            {
+
+                its.addAll (vits);
+
+            }
+
+            if (its.size () > 0)
+            {
+
+                its.add (new SeparatorMenuItem ());
+
+            }
+
+        }
+
         its.add (QuollMenuItem.builder ()
             .iconName (StyleClassNames.EDIT)
             .label (getUILanguageStringProperty (assets,fields,popupmenu,items,LanguageStrings.edit))

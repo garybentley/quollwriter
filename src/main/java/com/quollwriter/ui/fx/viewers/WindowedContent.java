@@ -103,7 +103,7 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
         b.getStyleClass ().add (StyleClassNames.WINDOWED);
         b.prefWidthProperty ().bind (this.widthProperty ());
         b.prefHeightProperty ().bind (this.heightProperty ());
-
+/*
         TabPane tp = new TabPane ();
         Tab tab = new Tab ();
         VBox.setVgrow (tp,
@@ -115,6 +115,7 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
             .build ()));
         tp.getTabs ().add (tab);
 //this.parentPane.setContent (tp);
+*/
         this.getChildren ().add (b);
         b.getChildren ().addAll (this.header, this.notifications, this.parentPane);
 

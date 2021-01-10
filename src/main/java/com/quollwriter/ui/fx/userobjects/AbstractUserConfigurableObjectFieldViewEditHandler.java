@@ -1,8 +1,10 @@
 package com.quollwriter.ui.fx.userobjects;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.beans.property.*;
+import javafx.scene.control.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -110,6 +112,14 @@ public abstract class AbstractUserConfigurableObjectFieldViewEditHandler<E exten
                                 .styleClassName (StyleClassNames.INFORMATION)
                                 .label (label != null ? label : getUILanguageStringProperty (form,view,novalue))
                                 .build ());
+
+    }
+
+    @Override
+    public Supplier<Set<MenuItem>> getViewContextMenuItems ()
+    {
+
+        return null;
 
     }
 

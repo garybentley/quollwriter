@@ -13,7 +13,7 @@ import com.quollwriter.ui.fx.*;
 public class IconBox extends HBox
 {
 
-    private Pane pane = null;
+    private HBox pane = null;
     private Consumer<IconBox> onNoImage = null;
     private Consumer<IconBox> onImagePresent = null;
 
@@ -23,7 +23,7 @@ public class IconBox extends HBox
         this.onNoImage = b.onNoImage;
         this.onImagePresent = b.onImagePresent;
         this.getStyleClass ().add (StyleClassNames.ICONBOX);
-        this.pane = new Pane ();
+        this.pane = new HBox ();
         this.pane.getStyleClass ().add (StyleClassNames.ICON);
 
         if (b.styleClassName != null)
@@ -70,14 +70,6 @@ public class IconBox extends HBox
 
     public void setImage (Image i)
     {
-
-        if (i == null)
-        {
-
-            this.pane.setBackground (null);
-            return;
-
-        }
 
         this.setBackgroundImage (i);
 
@@ -132,9 +124,13 @@ public class IconBox extends HBox
     private void setBackgroundImage (Image im)
     {
 
+        this.pane.getChildren ().clear ();
+
         if (im == null)
         {
 
+            this.pane.setPrefWidth (Region.USE_PREF_SIZE);
+            this.pane.setPrefHeight (Region.USE_PREF_SIZE);
             this.pane.setBackground (null);
 
             if (this.onNoImage != null)
@@ -147,12 +143,41 @@ public class IconBox extends HBox
             return;
 
         }
-System.out.println ("HERE: " + im);
+/*
+        this.pane.setPrefWidth (im.getWidth ());
+        this.pane.setPrefHeight (im.getHeight ());
+        this.pane.minWidthProperty ().unbind ();
+        this.pane.minHeightProperty ().unbind ();
+        this.pane.prefWidthProperty ().bind (this.prefWidthProperty ());
+        this.pane.prefHeightProperty ().bind (this.prefHeightProperty ());
+        this.pane.minWidthProperty ().bind (this.prefWidthProperty ());
+        this.pane.minHeightProperty ().bind (this.prefHeightProperty ());
+        //this.pane.setMinHeight (Region.USE_PREF_SIZE);
+        //this.pane.setMinWidth (Region.USE_PREF_SIZE);
         this.pane.setBackground (new Background (new BackgroundImage (im, //SwingFXUtils.toFXImage (im, null),
                                                                BackgroundRepeat.NO_REPEAT,
                                                                BackgroundRepeat.NO_REPEAT,
                                                                BackgroundPosition.CENTER,
                                                                new BackgroundSize (100, 100, true, true, false, true))));
+*/
+        ImageView iv = new ImageView ();
+        iv.setImage (im);
+        //iv.setFitWidth (im.getWidth ());
+        //iv.setFitHeight (im.getHeight ());
+        //iv.setFitWidth (100);
+        iv.setPreserveRatio (true);
+        iv.setSmooth (true);
+        iv.setCache (true);
+
+        //this.pane.setMinWidth (100);//iv.getFitWidth ());
+        //this.pane.setPrefWidth (iv.getFitWidth ());
+        //this.pane.setMinHeight (0);//iv.getFitHeight ());
+        //this.pane.setPrefHeight (iv.getFitHeight ());
+
+        iv.fitWidthProperty ().bind (this.widthProperty ());
+        iv.fitHeightProperty ().bind (this.heightProperty ());
+
+        this.pane.getChildren ().add (iv);
 
         if (this.onImagePresent != null)
         {
@@ -163,7 +188,7 @@ System.out.println ("HERE: " + im);
 
     }
 
-    public Pane getPane ()
+    public HBox getPane ()
     {
 
         return this.pane;

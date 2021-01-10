@@ -45,8 +45,8 @@ public class QuollImageView extends VBox
         this.iv.fitHeightProperty ().bind (this.prefHeightProperty ());
 */
         //iv.relocate (0, 0);
-        this.setMinWidth (100);
-        this.setMinHeight (100);
+        //this.setMinWidth (100);
+        //this.setMinHeight (100);
 
         //this.getChildren ().add (iv);
         this.getStyleClass ().add (StyleClassNames.IMAGE);
@@ -68,7 +68,7 @@ public class QuollImageView extends VBox
         this.getChildren ().add (this.overlay);
         VBox.setVgrow (this.overlay,
                        Priority.ALWAYS);
-
+/*
         this.widthProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -82,7 +82,7 @@ public class QuollImageView extends VBox
             });
 
         });
-
+*/
         this.setOnDragOver (ev ->
         {
 

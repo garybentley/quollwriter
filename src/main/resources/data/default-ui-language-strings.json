@@ -1166,7 +1166,16 @@
                     "actionerror" : "Unable to show image.",
                     "novalue" : "${form.view.novalue}",
                     "tooltip" : "Click to view the full image",
-                    "drop" : "Drop the file to set the image"
+                    "drop" : "Drop the file to set the image",
+                    "popupmenu" :
+                    {
+                        "items" :
+                        {
+                            "view" : "View",
+                            "remove" : "Remove image",
+                            "saveto" : "Save to"
+                        }
+                    }
                 },
                 "webpage" :
                 {

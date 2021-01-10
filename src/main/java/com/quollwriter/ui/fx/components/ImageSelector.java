@@ -188,7 +188,7 @@ public class ImageSelector extends QuollImageView
 
         });
 
-        this.setOnMouseClicked (ev ->
+        this.setOnMousePressed (ev ->
         {
 
             if (ev.getButton () != MouseButton.PRIMARY)

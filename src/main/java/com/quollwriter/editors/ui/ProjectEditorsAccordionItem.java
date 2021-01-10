@@ -48,6 +48,7 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
         this.currentEditors = new VBox ();
 
         this.previousEditors = new VBox ();
+        this.previousEditors.managedProperty ().bind (this.previousEditors.visibleProperty ());
         this.previousEditors.setVisible (false);
 
         this.content.getChildren ().addAll (this.currentEditors, this.previousEditors);
@@ -148,7 +149,11 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
 
             }
 
+            this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
+
         });
+
+        this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
 
     }
 

@@ -2016,7 +2016,7 @@ TODO NEeded?
 
     private static void closeDown ()
     {
-System.out.println ("CLOSE DOWN CALLED");
+
         if (Environment.getOpenViewers ().size () > 0)
         {
 

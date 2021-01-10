@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.userobjects;
 
 import java.util.*;
+import java.util.function.*;
 
 import java.io.*;
 import java.nio.file.*;
@@ -13,6 +14,7 @@ import javafx.geometry.*;
 import javafx.scene.input.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
+import javafx.scene.control.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -27,6 +29,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 {
 
     private ImageSelector editItem = null;
+    private QuollImageView icon = null;
 
     public ImageUserConfigurableObjectFieldViewEditHandler (ImageUserConfigurableObjectTypeField typeField,
                                                             UserConfigurableObject               obj,
@@ -238,13 +241,13 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 
         }
 */
-        QuollImageView icon = new QuollImageView ();
+        this.icon = new QuollImageView ();
 
         try
         {
 
-            icon.setImage (pf);
-            icon.setDragDropLabelText (getUILanguageStringProperty (form,view,types,UserConfigurableObjectTypeField.Type.image.getType (),drop));
+            this.icon.setImage (pf);
+            this.icon.setDragDropLabelText (getUILanguageStringProperty (form,view,types,UserConfigurableObjectTypeField.Type.image.getType (),drop));
 
         } catch (Exception e) {
 
@@ -256,24 +259,29 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
         icon.imagePathProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            try
+            if (this.editItem != null)
             {
 
-                this.editItem.setImage (newv);
+                try
+                {
 
-                this.updateFieldFromInput ();
+                    this.editItem.setImage (newv);
 
-            } catch (Exception e) {
+                    this.updateFieldFromInput ();
 
-                // TODO Handle properly.
-                Environment.logError ("Unable to set edit image: " + newv,
-                                      e);
+                } catch (Exception e) {
+
+                    // TODO Handle properly.
+                    Environment.logError ("Unable to set edit image: " + newv,
+                                          e);
+
+                }
 
             }
 
         });
 
-        icon.setOnMouseClicked (ev ->
+        this.icon.setOnMouseClicked (ev ->
         {
 
             if (ev.getButton () != MouseButton.PRIMARY)
@@ -294,7 +302,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
             {
 
                 UIUtils.showFile (_this.viewer,
-                                  icon.getImagePath ());
+                                  this.icon.getImagePath ());
 
             } catch (Exception e) {
 
@@ -312,13 +320,147 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 
         });
 
-        UIUtils.setTooltip (icon,
+        UIUtils.setTooltip (this.icon,
                             getUILanguageStringProperty (Utils.newList (prefix,tooltip)));
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  icon));
+                                  this.icon));
 
         return items;
+
+    }
+
+    @Override
+    public Supplier<Set<MenuItem>> getViewContextMenuItems ()
+    {
+
+        return () ->
+        {
+
+            final List<String> prefix = Arrays.asList (form,view,types,UserConfigurableObjectTypeField.Type.image.getType ());
+
+            Set<MenuItem> its = new LinkedHashSet<> ();
+
+            Path pf = null;
+
+            try
+            {
+
+                pf = this.viewer.getProjectFile (this.getFieldValue ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to show image: " +
+                                      this.field,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (Utils.newList (prefix,actionerror)));
+
+                return its;
+
+            }
+
+            if (pf != null)
+            {
+
+                Path _pf = pf;
+
+                its.add (QuollMenuItem.builder ()
+                    .iconName (StyleClassNames.VIEW)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,popupmenu,items,view)))
+                    .onAction (eev ->
+                    {
+
+                        try
+                        {
+
+                            UIUtils.showFile (this.viewer,
+                                              _pf);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to show image: " +
+                                                  _pf +
+                                                  ", for: " +
+                                                  this.field,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (Utils.newList (prefix,actionerror)));
+                                                      //"Unable to show image.");
+
+                        }
+
+                    })
+                    .build ());
+
+                its.add (QuollMenuItem.builder ()
+                    .iconName (StyleClassNames.DELETE)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,popupmenu,items,remove)))
+                    .onAction (eev ->
+                    {
+
+                        try
+                        {
+
+                            this.icon.setImage ((Path) null);
+
+                            if (this.editItem != null)
+                            {
+
+                                this.editItem.setImage ((Path) null);
+
+                            }
+
+                            this.field.setValue (null);
+
+                            // TODO Improve this...
+                            try
+                            {
+
+                                this.viewer.saveObject (this.obj,
+                                                        true);
+
+                                this.viewer.fireProjectEvent (ProjectEvent.Type.asset,
+                                                              ProjectEvent.Action.edit,
+                                                              this.obj);
+
+                            } catch (Exception e)
+                            {
+
+                                Environment.logError ("Unable to save: " +
+                                                      this.obj,
+                                                      e);
+
+                                ComponentUtils.showErrorMessage (this.viewer,
+                                                                 getUILanguageStringProperty (assets,save,actionerror));
+                                                          //"Unable to save.");
+
+                                return;
+
+                            }
+                            
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to remove image: " +
+                                                  _pf,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (Utils.newList (prefix,actionerror)));
+                                                      //"Unable to show image.");
+
+                        }
+
+                    })
+                    .build ());
+
+            }
+
+            return its;
+
+        };
 
     }
 

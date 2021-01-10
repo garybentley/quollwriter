@@ -280,47 +280,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
             this.show ();
 
         }
-/*
-        this.boundsInParentProperty ().addListener ((pr, oldv, newv) ->
-        {
-            if ((!_this.isVisible ())
-                ||
-                (_this.moving)
-               )
-            {
-System.out.println ("MOVING: " + _this.moving);
-                return;
 
-            }
-
-            if (oldv.getMinY () != newv.getMinY ())
-            {
-System.out.println ("HERE: " + oldv.getMinY () + ", " + newv.getMinY () + ", " + (oldv.getMinY () - newv.getMinY ()));
-                double diff = oldv.getMinY () - newv.getMinY ();
-                _this.moving = true;
-
-                int nh = (int) _this.prefHeight (_this.getWidth ());
-
-                if (oldv.getHeight () > 0)
-                {
-
-                    diff = (nh - oldv.getHeight ()) - diff;
-
-                }
-
-                //oldv = _this.localToScene (oldv);
-                System.out.println ("HERE2: " + oldv.getMinY () + ", " + newv.getMinY () + ", " + (oldv.getMinY () - newv.getMinY ()));
-
-                _this.resizeRelocate (oldv.getMinX (),
-                                      oldv.getMinY () + diff,
-                                      _this.getWidth (),
-                                      _this.prefHeight (_this.getWidth ()));
-
-_this.moving = false;
-            }
-
-        });
-*/
     }
 
     @Override

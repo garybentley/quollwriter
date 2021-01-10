@@ -1,8 +1,10 @@
 package com.quollwriter.ui.fx.userobjects;
 
-import java.util.Set;
+import java.util.*;
+import java.util.function.*;
 
 import javafx.beans.property.*;
+import javafx.scene.control.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -50,6 +52,8 @@ public interface UserConfigurableObjectFieldViewEditHandler<T extends UserConfig
     public T getTypeField ();
 
     public UserConfigurableObjectField getField ();
+
+    public Supplier<Set<MenuItem>> getViewContextMenuItems ();
 
     /**
      * Get the value of the field suitably formatted for text viewing.

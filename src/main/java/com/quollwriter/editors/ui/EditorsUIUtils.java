@@ -1039,6 +1039,33 @@ public class EditorsUIUtils
             })
             .build ();
 
+        VBox b = new VBox ();
+        VBox.setVgrow (chapterTree,
+                       Priority.ALWAYS);
+        QuollCheckBox cb = QuollCheckBox.builder ()
+            .label (getUILanguageStringProperty (actions,selectall))
+            .styleClassName (StyleClassNames.SELECT)
+            .build ();
+        cb.setOnAction (ev ->
+        {
+
+            chapterTree.walkTree (ti ->
+            {
+
+                if (ti instanceof CheckBoxTreeItem)
+                {
+
+                    CheckBoxTreeItem<NamedObject> cti = (CheckBoxTreeItem<NamedObject>) ti;
+
+                    cti.setSelected (cb.isSelected ());
+
+                }
+
+            });
+
+        });
+        b.getChildren ().addAll (cb, new QScrollPane (chapterTree));
+
         f.item (getUILanguageStringProperty (Utils.newList (prefix,labels,project)),
                 QuollLabel.builder ()
                     .label (new SimpleStringProperty (p.getName ()))
@@ -1054,7 +1081,7 @@ public class EditorsUIUtils
                 date);
 
         f.item (getUILanguageStringProperty (Utils.newList (prefix,labels,chapters)),
-                new ScrollPane (chapterTree));
+                b);
 
         Form form = f.build ();
 
@@ -1399,6 +1426,7 @@ public class EditorsUIUtils
         QuollPopup qp = QuollPopup.formBuilder ()
             .title (editors,user,sendproject,popup,title)
             .styleClassName (StyleClassNames.SEND)
+            .styleSheet ("sendproject")
             .form (EditorsUIUtils.createSendProjectPanel (viewer,
                                                           ed,
                                                           () ->
@@ -1434,6 +1462,7 @@ public class EditorsUIUtils
         QuollPopup qp = QuollPopup.formBuilder ()
             .title (editors,user,updateproject,popup,title)
             .styleClassName (StyleClassNames.SEND)
+            .styleSheet ("sendproject")
             .form (EditorsUIUtils.createSendProjectPanel (viewer,
                                                           ed,
                                                           () ->
