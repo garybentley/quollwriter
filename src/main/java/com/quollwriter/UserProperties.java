@@ -93,6 +93,11 @@ public class UserProperties
     private static SimpleIntegerProperty autoBackupsTimeProp = null;
     private static SimpleIntegerProperty backupsToKeepCountProp = null;
     private static SimpleBooleanProperty autoBackupsEnabledProp = null;
+    private static ObservableSet<String> fullScreenHeaderControlButtonIds = null;
+    private static ObservableSet<String> projectViewerHeaderControlButtonIds = null;
+    private static ObservableSet<String> allProjectsViewerHeaderControlButtonIds = null;
+    private static ObservableSet<String> warmupViewerHeaderControlButtonIds = null;
+    private static ObservableSet<String> languageStringsEditorHeaderControlButtonIds = null;
 
     // Just used in the map above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
@@ -603,6 +608,111 @@ public class UserProperties
 
         });
 
+         UserProperties.fullScreenHeaderControlButtonIds = FXCollections.observableSet (new LinkedHashSet<> ());
+
+         String nt = UserProperties.get (Constants.FULL_SCREEN_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME);
+
+         if (nt != null)
+         {
+
+             StringTokenizer t = new StringTokenizer (nt,
+                                                      DEFAULT_SEPARATOR);
+
+             while (t.hasMoreTokens ())
+             {
+
+                 String tok = t.nextToken ().trim ();
+
+                 UserProperties.fullScreenHeaderControlButtonIds.add (tok);
+
+             }
+
+         }
+
+         UserProperties.projectViewerHeaderControlButtonIds = FXCollections.observableSet (new LinkedHashSet<> ());
+
+         nt = UserProperties.get (Constants.PROJECT_VIEWER_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME);
+
+         if (nt != null)
+         {
+
+             StringTokenizer t = new StringTokenizer (nt,
+                                                      DEFAULT_SEPARATOR);
+
+             while (t.hasMoreTokens ())
+             {
+
+                 String tok = t.nextToken ().trim ();
+
+                 UserProperties.projectViewerHeaderControlButtonIds.add (tok);
+
+             }
+
+         }
+
+         UserProperties.warmupViewerHeaderControlButtonIds = FXCollections.observableSet (new LinkedHashSet<> ());
+
+         nt = UserProperties.get (Constants.WARMUP_VIEWER_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME);
+
+         if (nt != null)
+         {
+
+             StringTokenizer t = new StringTokenizer (nt,
+                                                      DEFAULT_SEPARATOR);
+
+             while (t.hasMoreTokens ())
+             {
+
+                 String tok = t.nextToken ().trim ();
+
+                 UserProperties.warmupViewerHeaderControlButtonIds.add (tok);
+
+             }
+
+         }
+
+         UserProperties.languageStringsEditorHeaderControlButtonIds = FXCollections.observableSet (new LinkedHashSet<> ());
+
+         nt = UserProperties.get (Constants.LANGUAGE_STRINGS_EDITOR_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME);
+
+         if (nt != null)
+         {
+
+             StringTokenizer t = new StringTokenizer (nt,
+                                                      DEFAULT_SEPARATOR);
+
+             while (t.hasMoreTokens ())
+             {
+
+                 String tok = t.nextToken ().trim ();
+
+                 UserProperties.languageStringsEditorHeaderControlButtonIds.add (tok);
+
+             }
+
+         }
+
+         UserProperties.allProjectsViewerHeaderControlButtonIds = FXCollections.observableSet (new LinkedHashSet<> ());
+
+         nt = UserProperties.get (Constants.ALL_PROJECTS_VIEWER_HEADER_CONTROL_BUTTONS_IDS_PROPERTY_NAME);
+
+         if (nt != null)
+         {
+
+             StringTokenizer t = new StringTokenizer (nt,
+                                                      DEFAULT_SEPARATOR);
+
+             while (t.hasMoreTokens ())
+             {
+
+                 String tok = t.nextToken ().trim ();
+
+                 UserProperties.allProjectsViewerHeaderControlButtonIds.add (tok);
+
+             }
+
+         }
+
         // TODO Make this configurable
         //UserProperties.uiTextDictionaryProv = new UserDictionaryProvider (Constants.ENGLISH);
 
@@ -615,6 +725,102 @@ public class UserProperties
 
     }
 */
+
+    public static ObservableSet<String> projectViewerHeaderControlButtonIds ()
+    {
+
+        return UserProperties.projectViewerHeaderControlButtonIds;
+
+    }
+
+    public static ObservableSet<String> allProjectsViewerHeaderControlButtonIds ()
+    {
+
+        return UserProperties.allProjectsViewerHeaderControlButtonIds;
+
+    }
+
+    public static ObservableSet<String> warmupViewerHeaderControlButtonIds ()
+    {
+
+        return UserProperties.warmupViewerHeaderControlButtonIds;
+
+    }
+
+    public static ObservableSet<String> fullScreenHeaderControlButtonIds ()
+    {
+
+        return UserProperties.fullScreenHeaderControlButtonIds;
+
+    }
+
+    public static ObservableSet<String> languageStringsEditorHeaderControlButtonIds ()
+    {
+
+        return UserProperties.languageStringsEditorHeaderControlButtonIds;
+
+    }
+
+    public static void setLanguageStringsEditorHeaderControlButtonIds (Set<String> ids)
+    {
+
+        UserProperties.languageStringsEditorHeaderControlButtonIds.clear ();
+        UserProperties.languageStringsEditorHeaderControlButtonIds.addAll (ids);
+
+        UserProperties.set (Constants.LANGUAGE_STRINGS_EDITOR_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME,
+                            UserProperties.languageStringsEditorHeaderControlButtonIds.stream ()
+                                .collect (Collectors.joining (DEFAULT_SEPARATOR)));
+
+    }
+
+    public static void setProjectViewerHeaderControlButtonIds (Set<String> ids)
+    {
+
+        UserProperties.projectViewerHeaderControlButtonIds.clear ();
+        UserProperties.projectViewerHeaderControlButtonIds.addAll (ids);
+
+        UserProperties.set (Constants.PROJECT_VIEWER_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME,
+                            UserProperties.projectViewerHeaderControlButtonIds.stream ()
+                                .collect (Collectors.joining (DEFAULT_SEPARATOR)));
+
+    }
+
+    public static void setAllProjectsViewerHeaderControlButtonIds (Set<String> ids)
+    {
+
+        UserProperties.allProjectsViewerHeaderControlButtonIds.clear ();
+        UserProperties.allProjectsViewerHeaderControlButtonIds.addAll (ids);
+
+        UserProperties.set (Constants.ALL_PROJECTS_VIEWER_HEADER_CONTROL_BUTTONS_IDS_PROPERTY_NAME,
+                            UserProperties.allProjectsViewerHeaderControlButtonIds.stream ()
+                                .collect (Collectors.joining (DEFAULT_SEPARATOR)));
+
+    }
+
+    public static void setWarmupViewerHeaderControlButtonIds (Set<String> ids)
+    {
+
+        UserProperties.warmupViewerHeaderControlButtonIds.clear ();
+        UserProperties.warmupViewerHeaderControlButtonIds.addAll (ids);
+
+        UserProperties.set (Constants.WARMUP_VIEWER_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME,
+                            UserProperties.warmupViewerHeaderControlButtonIds.stream ()
+                                .collect (Collectors.joining (DEFAULT_SEPARATOR)));
+
+    }
+
+    public static void setFullScreenHeaderControlButtonIds (Set<String> ids)
+    {
+
+        UserProperties.fullScreenHeaderControlButtonIds.clear ();
+        UserProperties.fullScreenHeaderControlButtonIds.addAll (ids);
+
+        UserProperties.set (Constants.FULL_SCREEN_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME,
+                            UserProperties.fullScreenHeaderControlButtonIds.stream ()
+                                .collect (Collectors.joining (DEFAULT_SEPARATOR)));
+
+    }
+
     public static void setPlaySoundOnKeyStroke (boolean v)
     {
 

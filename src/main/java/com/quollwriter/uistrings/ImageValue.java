@@ -2,13 +2,16 @@ package com.quollwriter.uistrings;
 
 import java.util.*;
 import java.io.*;
+import java.nio.file.*;
+
+import javafx.beans.property.*;
 
 public class ImageValue extends Value<ImageValue>
 {
 
     private String id = null;
     private String url = null;
-    private File file = null;
+    private ObjectProperty<Path> pathProp = null;
 
     public ImageValue (String id,
                        Node   parent,
@@ -18,6 +21,8 @@ public class ImageValue extends Value<ImageValue>
         super (id,
                parent,
                imgData);
+
+        this.pathProp = new SimpleObjectProperty<> ();
 
         if (imgData != null)
         {
@@ -45,7 +50,7 @@ public class ImageValue extends Value<ImageValue>
             if (f != null)
             {
 
-                this.file = new File (f);
+                this.pathProp.setValue (Paths.get (f));
 
             }
 
@@ -53,17 +58,24 @@ public class ImageValue extends Value<ImageValue>
 
     }
 
-    public void setImageFile (File f)
+    public ObjectProperty<Path> pathProperty ()
     {
 
-        this.file = f;
+        return this.pathProp;
 
     }
 
-    public File getImageFile ()
+    public void setImageFile (Path f)
     {
 
-        return this.file;
+        this.pathProp.setValue (f);
+
+    }
+
+    public Path getImageFile ()
+    {
+
+        return this.pathProp.getValue ();
 
     }
 
@@ -73,7 +85,9 @@ public class ImageValue extends Value<ImageValue>
 
         Set<String> errs = new LinkedHashSet<> ();
 
-        if (this.file == null)
+        Path p = this.pathProp.getValue ();
+
+        if (p == null)
         {
 
             errs.add ("No image file provided.");
@@ -82,10 +96,10 @@ public class ImageValue extends Value<ImageValue>
 
         } else {
 
-            if (!this.file.exists ())
+            if (!Files.exists (p))
             {
 
-                errs.add ("File: <b>" + this.file + "</b>, does not exist.");
+                errs.add ("File: <b>" + p + "</b>, does not exist.");
 
                 return errs;
 
@@ -93,10 +107,19 @@ public class ImageValue extends Value<ImageValue>
 
         }
 
-        if (this.file.length () > (300 * 1024))
+        try
         {
 
-            errs.add ("Image must be no larger than 300Kb in size.");
+            if (Files.size (p) > (300 * 1024))
+            {
+
+                errs.add ("Image must be no larger than 300Kb in size.");
+
+            }
+
+        } catch (Exception e) {
+
+            errs.add ("Unable to determine image file size.");
 
         }
 
@@ -136,11 +159,11 @@ public class ImageValue extends Value<ImageValue>
         m.put (":type",
                "img");
 
-        if (this.file != null)
+        if (this.pathProp.getValue () != null)
         {
 
             m.put (":file",
-                   this.file.getPath ());
+                   this.pathProp.getValue ().toString ());
 
         }
 

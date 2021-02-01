@@ -152,6 +152,13 @@ public class ShowSynonymsPopup extends PopupContent<AbstractViewer>
 
                     _this.close ();
 
+                    UIUtils.runLater (() ->
+                    {
+
+                        this.editor.requestFocus ();
+
+                    });
+
                     viewer.fireProjectEvent (ProjectEvent.Type.synonym,
                                              ProjectEvent.Action.replace,
                                              w);
@@ -193,6 +200,7 @@ public class ShowSynonymsPopup extends PopupContent<AbstractViewer>
             .title (t)
             .styleClassName (StyleClassNames.SYNONYMS)
             .styleSheet (StyleClassNames.SYNONYMS)
+            .headerIconClassName (StyleClassNames.DICTIONARY)
             .hideOnEscape (true)
             .withClose (true)
             .onClose (() ->

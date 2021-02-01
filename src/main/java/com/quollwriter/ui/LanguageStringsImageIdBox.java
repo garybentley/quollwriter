@@ -71,14 +71,14 @@ public class LanguageStringsImageIdBox extends LanguageStringsIdBox<ImageValue, 
                                                                           Environment.getQuollWriterWebsite () + this.baseValue.getUrl ()));
 
         items.add (view);
-
+/*
         this.userValue = new ImageSelector ((this.stringsValue != null ? this.stringsValue.getImageFile () : null),
                                             UIUtils.imageFileFilter,
                                             new Dimension (150,
                                                            150));
         this.userValue.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.userValue.setBorder (UIUtils.createLineBorder ());
-
+*/
         this.userValue.addChangeListener (new ChangeListener ()
         {
 
@@ -119,7 +119,7 @@ public class LanguageStringsImageIdBox extends LanguageStringsIdBox<ImageValue, 
 
             }
 
-            this.stringsValue.setImageFile (uv);
+            this.stringsValue.setImageFile (uv.toPath ());
 
         } else {
 

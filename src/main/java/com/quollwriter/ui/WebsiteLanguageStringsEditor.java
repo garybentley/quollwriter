@@ -449,7 +449,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
                            if (uls != null)
                            {
-
+/*
                                // Open these instead.
                                WebsiteLanguageStringsEditor lse = WebsiteLanguageStringsManager.editWebsiteLanguageStrings (uls);
 
@@ -476,7 +476,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
                                    return;
 
                                }
-
+*/
                                _this.removeNotification (n);
 
                                return;
@@ -631,9 +631,9 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
             WebsiteLanguageStrings uls = WebsiteLanguageStringsManager.getWebsiteLanguageStrings (this.userStrings.getId ());
 
             // Get a diff of the default to this new.
-            WebsiteLanguageStringsEditor lse = WebsiteLanguageStringsManager.editWebsiteLanguageStrings (uls);
+            //WebsiteLanguageStringsEditor lse = WebsiteLanguageStringsManager.editWebsiteLanguageStrings (uls);
 
-            lse.limitViewToPreviousVersionDiff ();
+            //lse.limitViewToPreviousVersionDiff ();
 
         } catch (Exception e) {
 

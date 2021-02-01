@@ -22,6 +22,9 @@ public class QuollButton extends Button
     private QuollButton (Builder b)
     {
 
+        UIUtils.setButtonId (this,
+                             b.buttonId);
+
         if (b.label != null)
         {
 
@@ -70,6 +73,8 @@ public class QuollButton extends Button
         this.icon.setVisible (b.iconName != null);
         this.managedProperty ().bind (this.visibleProperty ());
 
+        this.getProperties ().put ("iconName", b.iconName);
+
     }
 
     public void setIconName (String c)
@@ -101,6 +106,7 @@ public class QuollButton extends Button
         private StringProperty tooltip = null;
         private EventHandler<ActionEvent> onAction = null;
         private ButtonBar.ButtonData type = ButtonBar.ButtonData.APPLY;
+        private String buttonId = null;
 
         private Builder ()
         {
@@ -203,6 +209,14 @@ public class QuollButton extends Button
         {
 
             return this.label (getUILanguageStringProperty (ids));
+
+        }
+
+        public Builder buttonId (String id)
+        {
+
+            this.buttonId = id;
+            return this;
 
         }
 

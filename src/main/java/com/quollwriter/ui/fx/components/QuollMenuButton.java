@@ -22,6 +22,9 @@ public class QuollMenuButton extends MenuButton
     private QuollMenuButton (Builder b)
     {
 
+        UIUtils.setButtonId (this,
+                             b.buttonId);
+
         if (b.label != null)
         {
 
@@ -81,6 +84,8 @@ public class QuollMenuButton extends MenuButton
         this.icon.setVisible (b.iconName != null);
         this.setGraphic (this.icon);
 
+        this.getProperties ().put ("iconName", b.iconName);
+
     }
 
     public void setIconName (String s)
@@ -112,6 +117,7 @@ public class QuollMenuButton extends MenuButton
         private EventHandler<ActionEvent> onAction = null;
         private ButtonBar.ButtonData type = ButtonBar.ButtonData.APPLY;
         private Supplier<Set<MenuItem>> itemSupplier = null;
+        private String buttonId = null;
 
         private Builder ()
         {
@@ -130,6 +136,14 @@ public class QuollMenuButton extends MenuButton
         public Builder _this ()
         {
 
+            return this;
+
+        }
+
+        public Builder buttonId (String b)
+        {
+
+            this.buttonId = b;
             return this;
 
         }

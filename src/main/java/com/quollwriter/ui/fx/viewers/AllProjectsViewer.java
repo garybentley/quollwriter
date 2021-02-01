@@ -3,6 +3,7 @@ package com.quollwriter.ui.fx.viewers;
 import java.io.*;
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.*;
 
 import javafx.beans.property.*;
 import javafx.beans.binding.*;
@@ -27,6 +28,14 @@ import static com.quollwriter.LanguageStrings.*;
 
 public class AllProjectsViewer extends AbstractViewer
 {
+
+    public interface HeaderControlButtonIds extends AbstractViewer.HeaderControlButtonIds
+    {
+
+        String _import = "import";
+        String newproject = "newproject";
+
+    }
 
     public static final int DEFAULT_WINDOW_WIDTH = 700;
     public static final int DEFAULT_WINDOW_HEIGHT = 500;
@@ -110,7 +119,10 @@ public class AllProjectsViewer extends AbstractViewer
 
             List<File> files = ev.getDragboard ().getFiles ();
 
-            if (files != null)
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
             {
 
                 if (files.size () > 1)
@@ -169,6 +181,9 @@ public class AllProjectsViewer extends AbstractViewer
 
             }
 
+            Set<String> visItems = new LinkedHashSet<> ();
+            visItems.add (HeaderControlButtonIds.context);
+
             this.windowedContent = new WindowedContent (this,
                                                         this.getStyleClassName (),
                                                         this.getStyleClassName (),
@@ -176,6 +191,15 @@ public class AllProjectsViewer extends AbstractViewer
                                                         this.content);
             this.windowedContent.setTitle (this.titleProp);
             this.setTitle (this.titleProp);
+
+            this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.allProjectsViewerHeaderControlButtonIds ());
+
+            this.getWindowedContent ().getHeader ().getControls ().setOnConfigurePopupClosed (ev ->
+            {
+
+                UserProperties.setAllProjectsViewerHeaderControlButtonIds (this.getWindowedContent ().getHeader ().getControls ().getVisibleItemIds ());
+
+            });
 
         }
 
@@ -268,7 +292,10 @@ public class AllProjectsViewer extends AbstractViewer
 
         List<File> files = ev.getDragboard ().getFiles ();
 
-        if (files != null)
+        if ((files != null)
+            &&
+            (files.size () > 0)
+           )
         {
 
             if (files.size () > 1)
@@ -837,6 +864,7 @@ TODO Remove as not appropriate.
             controls.add (QuollButton.builder ()
                 .tooltip (prefix,add,tooltip)
                 .iconName (StyleClassNames.ADD)
+                .buttonId (HeaderControlButtonIds.newproject)
                 .onAction (ev ->
                 {
 
@@ -848,6 +876,7 @@ TODO Remove as not appropriate.
             controls.add (QuollButton.builder ()
                 .tooltip (prefix,importfile,tooltip)
                 .iconName (StyleClassNames.IMPORT)
+                .buttonId (HeaderControlButtonIds._import)
                 .onAction (ev ->
                 {
 
@@ -857,6 +886,10 @@ TODO Remove as not appropriate.
                 .build ());
 
             controls.add (_this.getTitleHeaderControl (HeaderControl.contacts));
+            controls.add (_this.getTitleHeaderControl (HeaderControl.targets));
+            controls.add (_this.getTitleHeaderControl (HeaderControl.statistics));
+            controls.add (_this.getTitleHeaderControl (HeaderControl.dowarmup));
+            controls.add (_this.getTitleHeaderControl (HeaderControl.nightmode));
 
             return controls;
 
@@ -1032,6 +1065,13 @@ TODO Remove as not appropriate.
     {
 
         // Do nothing.
+
+    }
+
+    public Set<FindResultsBox> findText (String t)
+    {
+
+        return null;
 
     }
 

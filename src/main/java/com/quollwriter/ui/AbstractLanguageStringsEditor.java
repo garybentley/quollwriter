@@ -150,7 +150,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
     }
 
-    private int getErrorCount (Node n)
+    public int getErrorCount (Node n)
     {
 
         int c = 0;

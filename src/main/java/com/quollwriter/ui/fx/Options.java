@@ -744,6 +744,7 @@ public class Options extends VBox implements Stateful
                 .title (getUILanguageStringProperty (Arrays.asList (dictionary,download,notification),
                                                      getUILanguageStringProperty (languagenames,lang)))
                 .styleClassName (StyleClassNames.DOWNLOAD)
+                .showStop (true)
                 .build ();
             langDownload.managedProperty ().bind (langDownload.visibleProperty ());
 
@@ -871,6 +872,13 @@ public class Options extends VBox implements Stateful
 
             String def = UserProperties.getDefaultSpellCheckLanguage ();
 
+            if (def == null)
+            {
+
+                def = Constants.ENGLISH;
+
+            }
+
             final String currLang = def;
 
             if (UILanguageStrings.isEnglish (def))
@@ -900,6 +908,7 @@ public class Options extends VBox implements Stateful
                 QuollPopup.messageBuilder ()
                     .message (options,editingchapters,labels,nonenglishwarning)
                     .withViewer (this.viewer)
+                    .closeButton ()
                     .build ();
 
             }
@@ -2173,6 +2182,7 @@ TODO Remove NO longer needed.
                     .withViewer (viewer)
                     .title (uilanguage,set,downloading,title)
                     .message (uilanguage,set,downloading,text)
+                    .closeButton ()
                     .build ();
 
                 UILanguageStringsManager.downloadUILanguageFile (uid,

@@ -70,10 +70,12 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
         this.fullScreenProps.setVisible (viewer.getViewer ().isFullScreen ());
 
         this.normalTextProps = new TextPropertiesPanel (viewer,
-                                                        Environment.getProjectTextProperties ());
+                                                        Environment.getProjectTextProperties (),
+                                                        getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,normal));
         this.normalTextProps.setVisible (!viewer.getViewer ().isFullScreen ());
         this.fullScreenTextProps = new TextPropertiesPanel (viewer,
-                                                            Environment.getFullScreenTextProperties ());
+                                                            Environment.getFullScreenTextProperties (),
+                                                            getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,fullscreen));
         this.fullScreenTextProps.setVisible (viewer.getViewer ().isFullScreen ());
         c.getChildren ().addAll (this.fullScreenProps,
                                     this.normalTextProps,

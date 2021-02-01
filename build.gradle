@@ -180,7 +180,7 @@ compileJava {
         //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
         //'D:/reference/java/javafx/javafx-sdk-15.0.1/lib',
         '-Xmaxerrs',
-        '3000'
+        '1000'
     ]
 }
 

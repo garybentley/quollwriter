@@ -1,0 +1,55 @@
+.content
+{
+    -fx-padding: 0;
+    /*-fx-max-height: 10em;*/
+    -fx-pref-width: 18em;
+    -fx-max-width: 18em;
+}
+
+.list-view .cell
+{
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.list-view
+{
+    -fx-fixed-cell-size: 2em;
+}
+
+.scroll-pane
+{
+    -fx-fit-to-height: true;
+}
+
+.list-view .cell:hover
+{
+    -fx-background-color: -qw-hover-bg;
+}
+
+.list-view .cell:focused:even, .list-view .cell:focused:odd
+{
+    -fx-background-color: -qw-hover-bg;
+
+}
+
+.list-view .cell:even, .list-view .cell:odd
+{
+    -fx-background-color: transparent;
+}
+
+.virtual-flow .increment-button
+{
+    visibility: hidden;
+}
+
+.qpopup.string
+{
+    -fx-effect: null;
+}
+
+.list-view .cell:empty
+{
+    visibility: hidden;
+}

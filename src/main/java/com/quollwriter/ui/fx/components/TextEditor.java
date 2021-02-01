@@ -26,6 +26,7 @@ import javafx.geometry.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.data.*;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.text.Word;
 import com.quollwriter.text.TextIterator;
@@ -53,6 +54,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     private static MySegmentOps indentOps = new MySegmentOps ();
     private boolean formattingEnabled = false;
     private StringProperty placeholder = null;
+    private PropertyBinder textPropsBinder = new PropertyBinder ();
 
         private boolean indent = true;
 
@@ -973,7 +975,7 @@ TODO
 
                                                     viewer.showPopup (qp,
                                                                       b,
-                                                                      Side.TOP);
+                                                                      Side.BOTTOM);
 
                                                 })
                                                 .build ());
@@ -1601,7 +1603,7 @@ TODO
     public void setHighlightWritingLine (boolean v)
     {
 
-        // TODO this.setLineHighlighterOn (v);
+        this.setLineHighlighterOn (v);
 
     }
 
@@ -1624,6 +1626,7 @@ TODO
     {
 
         this.props.unbindAll ();
+        this.textPropsBinder.dispose ();
         super.dispose ();
 
     }
@@ -2125,6 +2128,13 @@ System.out.println ("HEREZ: " + cb);
 
     }
 
+    public void setCaretPosition (int p)
+    {
+
+        this.getCaretSelectionBind ().moveTo (p);
+
+    }
+
     private void updateParagraphStyle (Function<ParaStyle, ParaStyle> updater)
     {
 
@@ -2167,6 +2177,7 @@ System.out.println ("HEREZ: " + cb);
     {
 
         this.props.unbindAll ();
+        this.textPropsBinder.dispose ();
 
         if (props == null)
         {
@@ -2187,15 +2198,8 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
-        //this.setIgnoreDocumentChanges (true);
-
-        //this.ts.setFontSize (props.getFontSize ());
-        //this.ts.setFontFamily (props.getFontFamily ());
-        //this.ts.setTextColor (props.getTextColor ());
-
-        //this.ps.setLineSpacing (props.getLineSpacing ());
-        //this.ps.setAlignment (props.getAlignment ());
-        this.props.highlightWritingLineProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.highlightWritingLineProperty (),
+                                                (pr, oldv, newv) ->
         {
 
             this.ignoreDocumentChange = true;
@@ -2203,14 +2207,15 @@ System.out.println ("HEREZ: " + cb);
             this.suspendUndos.suspendWhile (() ->
             {
 
-                this.setLineHighlighterOn (newv);
+                this.setHighlightWritingLine (newv);
                 this.ignoreDocumentChange = false;
 
             });
 
         });
 
-        this.props.writingLineColorProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.writingLineColorProperty (),
+                                                (pr, oldv, newv) ->
         {
 
             this.ignoreDocumentChange = true;
@@ -2225,7 +2230,8 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
-        this.props.fontSizeProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.fontSizeProperty (),
+                                                (pr, oldv, newv) ->
         {
 
             this.ignoreDocumentChange = true;
@@ -2242,7 +2248,8 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
-        this.props.fontFamilyProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.fontFamilyProperty (),
+                                                (pr, oldv, newv) ->
         {
 
             this.ignoreDocumentChange = true;
@@ -2258,7 +2265,8 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
-        this.props.alignmentProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.alignmentProperty (),
+                                                (pr, oldv, newv) ->
         {
 
 
@@ -2275,7 +2283,8 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
-        this.props.textColorProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.textColorProperty (),
+                                                (pr, oldv, newv) ->
         {
 
             this.ignoreDocumentChange = true;
@@ -2290,7 +2299,8 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
-        this.props.lineSpacingProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.lineSpacingProperty (),
+                                                (pr, oldv, newv) ->
         {
 
             this.ignoreDocumentChange = true;
@@ -2305,7 +2315,8 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
-        this.props.textBorderProperty ().addListener ((pr, oldv, newv) ->
+        this.textPropsBinder.addChangeListener (this.props.textBorderProperty (),
+                                                (pr, oldv, newv) ->
         {
 
             this.ignoreDocumentChange = true;
@@ -2341,12 +2352,12 @@ System.out.println ("HEREZ: " + cb);
         UIUtils.forceRunLater (() ->
         {
 
-            // TODO this.setLineHighlighterOn (props.isHighlightWritingLine ());
+            this.setHighlightWritingLine (props.isHighlightWritingLine ());
 
         });
 
         // TODO, Remove
-        this.setLineHighlighterOn (false);
+        //this.setLineHighlighterOn (false);
         this.setLineHighlighterFill (props.getWritingLineColor ());
 
     }

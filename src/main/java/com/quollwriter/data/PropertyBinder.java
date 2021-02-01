@@ -49,6 +49,28 @@ public class PropertyBinder implements IPropertyBinder
     }
 
     @Override
+    public <K, V> ListenerHandle addMapChangeListener (ObservableMap<K, V>     map,
+                                                       MapChangeListener<K, V> listener)
+    {
+
+        if (map == null)
+        {
+
+            return null;
+
+        }
+
+        MapChangeListenerHandle<K, V> h = new MapChangeListenerHandle<> (this,
+                                                                         map,
+                                                                         listener);
+
+        this.handles.add (h);
+
+        return h;
+
+    }
+
+    @Override
     public <T> ListenerHandle addSetChangeListener (ObservableSet<T>     set,
                                                     SetChangeListener<T> listener)
     {
@@ -175,6 +197,38 @@ public class PropertyBinder implements IPropertyBinder
         {
 
             this.set.removeListener (this.listener);
+
+            super.dispose ();
+
+        }
+
+    }
+
+    public class MapChangeListenerHandle<K, V> extends AbstractListenerHandle
+    {
+
+        private ObservableMap<K, V> map = null;
+        private MapChangeListener<K, V> listener = null;
+
+        public MapChangeListenerHandle (PropertyBinder          binder,
+                                        ObservableMap<K, V>     map,
+                                        MapChangeListener<K, V> listener)
+        {
+
+            super (binder);
+
+            this.map = map;
+            this.listener = listener;
+
+            this.map.addListener (this.listener);
+
+        }
+
+        @Override
+        public void dispose ()
+        {
+
+            this.map.removeListener (this.listener);
 
             super.dispose ();
 

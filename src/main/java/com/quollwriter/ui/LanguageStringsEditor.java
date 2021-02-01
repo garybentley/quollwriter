@@ -192,10 +192,11 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                                                           this.userStrings.getId ());
 
             // Get a diff of the default to this new.
+/*
             LanguageStringsEditor lse = UILanguageStringsManager.editUILanguageStrings (uls,
                                                                            newls.getQuollWriterVersion ());
             lse.limitViewToPreviousVersionDiff ();
-
+*/
         } catch (Exception e) {
 
             Environment.logError ("Unable to show strings editor for: " +
@@ -474,6 +475,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                            {
 
                                // Open these instead.
+                               /*
                                LanguageStringsEditor lse = UILanguageStringsManager.editUILanguageStrings (uls,
                                                                                               uls.getQuollWriterVersion ());
 
@@ -493,7 +495,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
                                    return;
 
                                }
-
+*/
                                _this.removeNotification (n);
 
                                return;

@@ -30,9 +30,6 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
     {
 
         super (viewer);
-        //this.getStyleClass ().add (StyleClassNames.NORMAL);
-
-        List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
 
         Set<Node> hc = new LinkedHashSet<> ();
 
@@ -53,16 +50,20 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
         QuollMenuButton context = viewer.createViewerMenuButton ();
         hc.add (context);
 
-        Set<Node> visItems = new LinkedHashSet<> ();
-        visItems.add (context);
+        QuollToolBar ctb = QuollToolBar.builder ()
+            .controls (hc)
+            .inViewer (viewer)
+            .configurable (true)
+            .build ();
 
+/*
         // TODO Change or make work!
         QuollToolBar ctb = QuollToolBar.builder ()
             .controls (hc)
             //.visibleItems (hc)
             //.withViewer (this.viewer)
             .build ();
-
+*/
         this.header = Header.builder ()
             //.controls (b.headerControlsSupplier.get ())
             .toolbar (ctb)
@@ -121,6 +122,13 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
 
     }
 
+    public Header getHeader ()
+    {
+
+        return this.header;
+
+    }
+
     @Override
     public void showSideBar (SideBar sb)
     {
@@ -176,6 +184,13 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
     {
 
         this.parentPane.init (s);
+
+        if (s != null)
+        {
+
+
+
+        }
 
     }
 

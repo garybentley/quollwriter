@@ -6,7 +6,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.data.*;
 
-public abstract class FindResultsBox<E extends AbstractProjectViewer> implements IPropertyBinder
+public abstract class FindResultsBox<E extends AbstractViewer> implements IPropertyBinder
 {
 
     protected E viewer = null;

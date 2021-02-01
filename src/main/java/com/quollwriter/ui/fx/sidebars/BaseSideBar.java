@@ -14,7 +14,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
 
-public abstract class BaseSideBar<E extends AbstractProjectViewer> extends SideBarContent<E>
+public abstract class BaseSideBar<E extends AbstractViewer & PanelViewer> extends SideBarContent<E>
 {
 
     private HBox toolbarBox = null;
@@ -69,7 +69,7 @@ public abstract class BaseSideBar<E extends AbstractProjectViewer> extends SideB
         super.init (s);
 
         // Add listener to toolbar location position.
-        this.addChangeListener (this.viewer.getProject ().toolbarLocationProperty (),
+        this.addChangeListener (UserProperties.toolbarLocationProperty (),
                                 (pr, oldv, newv) ->
         {
 

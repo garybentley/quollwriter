@@ -132,6 +132,16 @@ public class Constants
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
 
+    public static final String FULL_SCREEN_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME = "fullScreenHeaderControlButtonIds";
+
+    public static final String PROJECT_VIEWER_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME = "projectViewerHeaderControlButtonIds";
+
+    public static final String WARMUP_VIEWER_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME = "warmupViewerHeaderControlButtonIds";
+
+    public static final String ALL_PROJECTS_VIEWER_HEADER_CONTROL_BUTTONS_IDS_PROPERTY_NAME = "allProjectsViewerHeaderControlButtonIds";
+
+    public static final String LANGUAGE_STRINGS_EDITOR_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME = "languageStringsEditorHeaderControlButtonIds";
+
     public static final String DEFAULT_UI_BASE_FONT_SIZE_PROPERTY_NAME = "defaultUIBaseFontSIze";
 
     public static final String UI_BASE_FONT_SIZE_PROPERTY_NAME = "uiBaseFontSize";

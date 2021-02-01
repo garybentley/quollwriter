@@ -12,6 +12,15 @@ public interface IPropertyBinder
 
     IPropertyBinder getBinder ();
 
+    default <K, V> ListenerHandle addMapChangeListener (ObservableMap<K, V> value,
+                                                        MapChangeListener<K, V> listener)
+    {
+
+        return this.getBinder ().addMapChangeListener (value,
+                                                       listener);
+
+    }
+
     default <T> ListenerHandle addChangeListener (ObservableValue<T> value,
                                                   ChangeListener<T> listener)
     {

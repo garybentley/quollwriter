@@ -78,10 +78,20 @@ public class ShowObjectSelectPopup<T> extends PopupContent
     public QuollPopup createPopup ()
     {
 
+        List<String> styleSheets = new ArrayList<> ();
+        styleSheets.add (StyleClassNames.OBJECTSELECT);
+
+        if (builder.styleSheets != null)
+        {
+
+            styleSheets.addAll (builder.styleSheets);
+
+        }
+
         QuollPopup p = QuollPopup.builder ()
             .title (builder.title)
             .styleClassName (builder.styleName)
-            .styleSheet (StyleClassNames.OBJECTSELECT)
+            .styleSheets (styleSheets)
             .headerIconClassName (builder.headerIconClassName)
             .hideOnEscape (true)
             .withClose (true)
@@ -126,6 +136,7 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         private Node below = null;
         private Node showAt = null;
         private Side showWhere = null;
+        private List<String> styleSheets = new ArrayList<> ();
 
         private Builder ()
         {
@@ -145,6 +156,39 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         {
 
             return this;
+
+        }
+
+        public Builder<T> styleSheet (List<String> ss)
+        {
+
+            if (ss != null)
+            {
+
+                this.styleSheets.addAll (ss);
+
+            }
+
+            return _this ();
+
+        }
+
+        public Builder<T> styleSheet (String... s)
+        {
+
+            if (s != null)
+            {
+
+                for (String st : s)
+                {
+
+                    this.styleSheets.add (st);
+
+                }
+
+            }
+
+            return _this ();
 
         }
 

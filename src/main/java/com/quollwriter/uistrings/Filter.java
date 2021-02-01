@@ -1,5 +1,6 @@
 package com.quollwriter.uistrings;
 
+@FunctionalInterface
 public interface Filter<E extends Node>
 {
 

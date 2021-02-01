@@ -12,6 +12,15 @@ public class Id
     private String id = null;
     private List<Part> parts = null;
 
+    public Id (String id)
+    {
+
+        this (0,
+              id,
+              false);
+
+    }
+
     public Id (int     start,
                String  id,
                boolean partial)
@@ -140,6 +149,38 @@ public class Id
     {
 
         return baseStrings.getIdMatches (this.id);
+
+    }
+
+    @Override
+    public boolean equals (Object o)
+    {
+
+        if (o == null)
+        {
+
+            return false;
+
+        }
+
+        if (!(o instanceof Id))
+        {
+
+            return false;
+
+        }
+
+        Id oid = (Id) o;
+
+        return this.toString ().equals (oid.toString ());
+
+    }
+
+    @Override
+    public int hashCode ()
+    {
+
+        return this.toString ().hashCode ();
 
     }
 

@@ -409,7 +409,7 @@ xxx
 
         if (this.showRoot)
         {
-
+/*
             QuollTreeCell c = new QuollTreeCell (this.root,
                                                  this.cellProvider.apply (this.root));
 
@@ -417,7 +417,7 @@ xxx
                             c);
 
             this.getChildren ().add (c);
-
+*/
         } else {
 
             this.root.setExpanded (true);
@@ -478,6 +478,8 @@ xxx
             this.requestLayout ();
 
         });
+
+        this.requestLayout ();
 
     }
 
@@ -958,10 +960,10 @@ xxx
 
             this.setAccessibleRole (AccessibleRole.TREE_ITEM);
 
-            this.setAccessibleRoleDescription ("This is a test");
-            this.setAccessibleHelp ("This is the help");
+            //this.setAccessibleRoleDescription ("This is a test");
+            //this.setAccessibleHelp ("This is the help");
             this.setAccessibleText ("Click to open this item");
-            
+
             //UIUtils.setTooltip (this.disclosureNode, new SimpleStringProperty ("Click to open this item"));
 
             this.getStyleClass ().add (StyleClassNames.CELL);

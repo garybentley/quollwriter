@@ -496,4 +496,11 @@ public class CSSViewer extends AbstractViewer
 
     }
 
+    public Set<FindResultsBox> findText (String t)
+    {
+
+        return null;
+
+    }
+
 }

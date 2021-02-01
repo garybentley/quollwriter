@@ -6,6 +6,8 @@ import java.nio.charset.*;
 
 import org.dom4j.*;
 
+import javafx.beans.property.*;
+
 import com.quollwriter.data.*;
 import com.quollwriter.*;
 
@@ -204,6 +206,25 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     {
 
         return isEnglish (this.getId ());
+
+    }
+
+    public Section getSection (String id)
+    {
+
+        for (Section s : this.sections)
+        {
+
+            if (s.id.equals (id))
+            {
+
+                return s;
+
+            }
+
+        }
+
+        return null;
 
     }
 
@@ -1231,6 +1252,13 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
+    public StringProperty nativeNameProperty ()
+    {
+
+        return this.nameProperty ();
+
+    }
+
     public void setNativeName (String n)
     {
 
@@ -1275,6 +1303,13 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     {
 
         return this.strings.getIdMatches (id);
+
+    }
+
+    public Node getNode (Id id)
+    {
+
+        return this.getNode (id.getId ());
 
     }
 

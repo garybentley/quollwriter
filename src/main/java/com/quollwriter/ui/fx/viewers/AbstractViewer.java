@@ -52,8 +52,36 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         fullscreen,
         find,
         close,
-        wordcounttimer
+        wordcounttimer,
+        help,
+        tryout,
+        submit,
+        statistics,
+        targets,
+        openproject,
+        newproject,
+        nightmode,
+        timer
     };
+
+    public interface HeaderControlButtonIds
+    {
+
+        String help = "help";
+        String context = "context";
+        String bug = "bug";
+        String find = "find";
+        String fullscreenenter = "fullscreenenter";
+        String dowarmup = "dowarmup";
+        String close = "close";
+        String contacts = "contacts";
+        String statistics = "statistics";
+        String targets = "targets";
+        String newproject = "newproject";
+        String nightmode = "nightmode";
+        String openproject = "openproject";
+
+    }
 
     // Using an interface to reduce typing :)
     public interface CommandId
@@ -107,6 +135,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         String managenotetypes = "managenotetypes";
         String moveup = "moveup";
         String movedown = "movedown";
+        String openproject = "openproject";
 
     }
 
@@ -290,6 +319,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         QuollMenuButton context = QuollMenuButton.builder ()
             .iconName (StyleClassNames.VIEWERMENU)
             .tooltip (prefix,projectmenu,tooltip)
+            .buttonId (HeaderControlButtonIds.context)
             .items (() ->
             {
         //Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
@@ -454,45 +484,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         return context;
 
     }
-/*
-    private void createNormalContent ()
-    {
 
-        AbstractViewer _this = this;
-
-        Supplier<Set<Node>> hcsupp = this.getTitleHeaderControlsSupplier ();
-
-        Set<Node> headerCons = new LinkedHashSet<> ();
-
-        if (hcsupp != null)
-        {
-
-            headerCons.addAll (hcsupp.get ());
-
-        }
-
-        List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
-
-        QuollMenuButton context = this.createViewerMenuButton ();
-        headerCons.add (context);
-
-        Set<Node> visItems = new LinkedHashSet<> ();
-        visItems.add (context);
-
-        ConfigurableToolbar ctb = ConfigurableToolbar.builder ()
-            .items (headerCons)
-            .visibleItems (headerCons)
-            .withViewer (this)
-            .build ();
-
-        this.windowedContent = new NormalContent (this,
-                                                  this.getStyleClassName (),
-                                                  ctb);
-        this.windowedContent.prefWidthProperty ().bind (this.popupPane.widthProperty ());
-        this.windowedContent.prefHeightProperty ().bind (this.popupPane.heightProperty ());
-
-    }
-*/
     public static abstract class Content<E extends AbstractViewer> extends Pane implements Stateful,
                                                                                            NotificationViewer,
                                                                                            SideBarViewer,
@@ -975,6 +967,14 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         this.addActionMapping (() ->
         {
 
+            Environment.showAllProjectsViewer ();
+
+        },
+        CommandId.openproject);
+
+        this.addActionMapping (() ->
+        {
+
             this.fireEvent (new KeyboardNavigationEvent (KeyboardNavigationEvent.MOVE_UP_EVENT));
 
         },
@@ -1123,7 +1123,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
             // Add a notification.
             _this.addNotification (getUILanguageStringProperty (debugmode, Environment.isDebugModeEnabled () ? enabled : disabled),
-                                   Constants.BUG_ICON_NAME,
+                                   StyleClassNames.BUG,
                                    10);
 
         },
@@ -1360,6 +1360,13 @@ TODO Remove handled by the content.
         this.viewer = null;
 
         UIUtils.runLater (afterClose);
+
+    }
+
+    public boolean isClosed ()
+    {
+
+        return this.viewer == null && this.generalTimer.isShutdown ();
 
     }
 
@@ -2144,12 +2151,128 @@ TODO
 
         List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
 
+        if (control == HeaderControl.help)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,help,tooltip)
+                .iconName (StyleClassNames.HELP)
+                .buttonId (HeaderControlButtonIds.help)
+                .onAction (ev ->
+                {
+
+                    UIUtils.openURL (_this,
+                                     "help:getting-started");
+
+                })
+                .build ();
+
+        }
+
+        if (control == HeaderControl.nightmode)
+        {
+
+            QuollButton qb = QuollButton.builder ()
+                .tooltip (prefix,(Environment.isNightModeEnabled () ? disablenightmode : enablenightmode),tooltip)
+                .iconName ((Environment.isNightModeEnabled () ? StyleClassNames.SUN : StyleClassNames.MOON))
+                .buttonId (HeaderControlButtonIds.nightmode)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.nightmode);
+
+                })
+                .build ();
+
+            this.getBinder ().addChangeListener (Environment.nightModeProperty (),
+                                                 (pr, oldv, newv) ->
+            {
+
+                qb.setIconName (Environment.isNightModeEnabled () ? StyleClassNames.SUN : StyleClassNames.MOON);
+                qb.getTooltip ().textProperty ().unbind ();
+                qb.getTooltip ().textProperty ().bind (getUILanguageStringProperty (Utils.newList (prefix,(Environment.isNightModeEnabled () ? disablenightmode : enablenightmode),tooltip)));
+
+            });
+
+            return qb;
+
+        }
+
+        if (control == HeaderControl.newproject)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,newproject,tooltip)
+                .iconName (StyleClassNames.NEW)
+                .buttonId (HeaderControlButtonIds.newproject)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.newproject);
+
+                })
+                .build ();
+
+        }
+
+        if (control == HeaderControl.openproject)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,openproject,tooltip)
+                .iconName (StyleClassNames.OPEN)
+                .buttonId (HeaderControlButtonIds.openproject)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.openproject);
+
+                })
+                .build ();
+
+        }
+
+        if (control == HeaderControl.statistics)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,statistics,tooltip)
+                .iconName (StyleClassNames.STATISTICS)
+                .buttonId (HeaderControlButtonIds.statistics)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.statistics);
+
+                })
+                .build ();
+
+        }
+
+        if (control == HeaderControl.targets)
+        {
+
+            return QuollButton.builder ()
+                .tooltip (prefix,targets,tooltip)
+                .iconName (StyleClassNames.TARGETS)
+                .buttonId (HeaderControlButtonIds.targets)
+                .onAction (ev ->
+                {
+
+                    _this.runCommand (CommandId.targets);
+
+                })
+                .build ();
+
+        }
+
         if (control == HeaderControl.reportbug)
         {
 
             return QuollButton.builder ()
                 .tooltip (prefix,bug,tooltip)
                 .iconName (StyleClassNames.BUG)
+                .buttonId (HeaderControlButtonIds.bug)
                 .onAction (ev ->
                 {
 
@@ -2166,6 +2289,7 @@ TODO
             return QuollButton.builder ()
                 .tooltip (prefix,find,tooltip)
                 .iconName (StyleClassNames.FIND)
+                .buttonId (HeaderControlButtonIds.find)
                 .onAction (ev ->
                 {
 
@@ -2182,6 +2306,7 @@ TODO
             return QuollButton.builder ()
                 .tooltip (prefix,fullscreen,tooltip)
                 .iconName (StyleClassNames.FULLSCREENENTER)
+                .buttonId (HeaderControlButtonIds.fullscreenenter)
                 .onAction (ev ->
                 {
 
@@ -2198,6 +2323,7 @@ TODO
             return QuollButton.builder ()
                 .tooltip (prefix,warmup,tooltip)
                 .iconName (StyleClassNames.WARMUP)
+                .buttonId (HeaderControlButtonIds.dowarmup)
                 .onAction (ev ->
                 {
 
@@ -2214,6 +2340,7 @@ TODO
             return QuollButton.builder ()
                 .tooltip (prefix,close,tooltip)
                 .iconName (StyleClassNames.CLOSE)
+                .buttonId (HeaderControlButtonIds.close)
                 .onAction (ev ->
                 {
 
@@ -2224,64 +2351,53 @@ TODO
 
         }
 
-        if (control == HeaderControl.reportbetabug)
-        {
-
-            return null;
-
-        }
-
         if (control == HeaderControl.contacts)
         {
 
-            if (EditorsEnvironment.isEditorsServiceAvailable ())
+            String type = LanguageStrings.showcontacts;
+
+            if (!EditorsEnvironment.hasRegistered ())
             {
 
-                String type = LanguageStrings.showcontacts;
-
-                if (!EditorsEnvironment.hasRegistered ())
-                {
-
-                    type = LanguageStrings.editorsserviceregister;
-
-                }
-
-                //String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
-                return QuollButton.builder ()
-                    .tooltip (prefix,type,tooltip)
-                    .iconName (StyleClassNames.CONTACTS)
-                    .onAction (ev ->
-                    {
-
-                        if ((_this.isSideBarVisible (EditorsSideBar.SIDEBAR_ID))
-                            &&
-                            (!EditorsEnvironment.isUserLoggedIn ())
-                           )
-                        {
-
-                            EditorsEnvironment.goOnline (null,
-                                                         null,
-                                                         null,
-                                                         null);
-
-                            return;
-
-                        }
-
-                        _this.runCommand (CommandId.contacts);
-
-                    })
-                    .build ();
+                type = LanguageStrings.editorsserviceregister;
 
             }
 
-            return null;
+            //String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
+            return QuollButton.builder ()
+                .tooltip (prefix,type,tooltip)
+                .iconName (StyleClassNames.CONTACTS)
+                .buttonId (HeaderControlButtonIds.contacts)
+                .onAction (ev ->
+                {
+
+                    if ((_this.isSideBarVisible (EditorsSideBar.SIDEBAR_ID))
+                        &&
+                        (!EditorsEnvironment.isUserLoggedIn ())
+                       )
+                    {
+
+                        EditorsEnvironment.goOnline (null,
+                                                     null,
+                                                     null,
+                                                     null);
+
+                        return;
+
+                    }
+
+                    _this.runCommand (CommandId.contacts);
+
+                })
+                .build ();
 
         }
 
-        return null;
+        throw new IllegalArgumentException ("Header control: " + control + ", not supported.");
 
     }
+
+    public abstract Set<FindResultsBox> findText (String t);
 
     public abstract Content getWindowedContent ();
     public abstract Content getFullScreenContent ();
@@ -3176,192 +3292,6 @@ TODO Not needed, is a function of the sidebar itself...
 
         }
 
-        final AbstractViewer _this = this;
-
-        // Get the header controls.
-
-        Supplier<Set<Node>> hcsupp = this.getTitleHeaderControlsSupplier ();
-
-        Set<Node> headerCons = new LinkedHashSet<> ();
-
-        if (Environment.getQuollWriterVersion ().isBeta ())
-        {
-
-            headerCons.add (this.getTitleHeaderControl (HeaderControl.reportbug));
-
-        }
-
-        if (hcsupp != null)
-        {
-
-            headerCons.addAll (hcsupp.get ());
-
-        }
-
-        List<String> prefix = Arrays.asList (project, LanguageStrings.title,toolbar,buttons);
-
-        QuollMenuButton context = QuollMenuButton.builder ()
-            .iconName (StyleClassNames.VIEWERMENU)
-            .tooltip (prefix,projectmenu,tooltip)
-            .items (() ->
-            {
-
-                Supplier<Set<MenuItem>> menuItemSupp = _this.getSettingsMenuSupplier ();
-
-                Set<MenuItem> items = new LinkedHashSet<> ();
-
-                if (menuItemSupp != null)
-                {
-
-                     items.addAll (menuItemSupp.get ());
-
-                }
-
-                if (items.size () > 0)
-                {
-
-                    items.add (new SeparatorMenuItem ());
-
-                }
-
-                List<String> mprefix = Arrays.asList (LanguageStrings.project,settingsmenu,LanguageStrings.items);
-
-                items.add (QuollMenuItem.builder ()
-                    .label (mprefix,options)
-                    .iconName (StyleClassNames.OPTIONS)
-                    .onAction (ev ->
-                    {
-
-                        _this.runCommand (AbstractViewer.CommandId.options);
-
-                    })
-                    .build ());
-
-                items.add (QuollMenuItem.builder ()
-                    .label (mprefix,achievements)
-                    .iconName (StyleClassNames.ACHIEVEMENTS)
-                    .onAction (ev ->
-                    {
-
-                        _this.runCommand (AbstractViewer.CommandId.viewachievements);
-
-                    })
-                    .build ());
-
-                items.add (new SeparatorMenuItem ());
-
-                items.add (QuollMenuItem.builder ()
-                    .label (mprefix,whatsnew)
-                    .iconName (StyleClassNames.WHATSNEW)
-                    .onAction (ev ->
-                    {
-
-                        _this.runCommand (AbstractViewer.CommandId.whatsnew);
-
-                    })
-                    .build ());
-
-                QuollMenu helpMenu = QuollMenu.builder ()
-                    .label (mprefix,help)
-                    .styleClassName (StyleClassNames.HELP)
-                    .build ();
-
-                items.add (helpMenu);
-
-                // Report Bug/Problem
-                helpMenu.getItems ().add (QuollMenuItem.builder ()
-                    .label (mprefix,reportbug)
-                    .iconName (StyleClassNames.REPORTBUG)
-                    .onAction (ev ->
-                    {
-
-                        _this.runCommand (AbstractViewer.CommandId.reportbug);
-
-                    })
-                    .build ());
-
-                // Contact Support
-                helpMenu.getItems ().add (QuollMenuItem.builder ()
-                    .label (mprefix,contactsupport)
-                    .iconName (StyleClassNames.CONTACTSUPPORT)
-                    .onAction (ev ->
-                    {
-
-                        _this.runCommand (AbstractViewer.CommandId.contactsupport);
-
-                    })
-                    .build ());
-
-                // View the User Guide
-                helpMenu.getItems ().add (QuollMenuItem.builder ()
-                    .label (mprefix,viewuserguide)
-                    .iconName (StyleClassNames.VIEWUSERGUIDE)
-                    .onAction (ev ->
-                    {
-
-                        UIUtils.openURL (_this,
-                                         "help:getting-started");
-
-                    })
-                    .build ());
-
-                // Keyboard shortcuts
-                helpMenu.getItems ().add (QuollMenuItem.builder ()
-                    .label (mprefix,keyboardshortcuts)
-                    .iconName (StyleClassNames.KEYBOARDSHORTCUTS)
-                    .onAction (ev ->
-                    {
-
-                        UIUtils.openURL (_this,
-                                         "help:keyboard-shortcuts");
-
-                    })
-                    .build ());
-
-                // About Quoll Writer
-                items.add (QuollMenuItem.builder ()
-                    .label (mprefix,about)
-                    .iconName (StyleClassNames.ABOUT)
-                    .onAction (ev ->
-                    {
-
-                        _this.runCommand (AbstractViewer.CommandId.about);
-
-                    })
-                    .build ());
-
-                if (Environment.isDebugModeEnabled ())
-                {
-
-                    // Debug Console
-                    items.add (QuollMenuItem.builder ()
-                        .label ("Debug Console")
-                        .iconName (StyleClassNames.DEBUGCONSOLE)
-                        .onAction (ev ->
-                        {
-
-                            _this.runCommand (AbstractViewer.CommandId.debugconsole);
-
-                        })
-                        .build ());
-
-                }
-
-                return items;
-
-            })
-            .build ();
-        headerCons.add (context);
-
-        Set<Node> visItems = new LinkedHashSet<> ();
-        visItems.add (context);
-
-        QuollToolBar ctb = QuollToolBar.builder ()
-            .controls (headerCons)
-            //.visibleItems (headerCons)
-            //.withViewer (this)
-            .build ();
-
         Viewer v = Viewer.builder ()
             //.headerControls (headerCons)
             //.headerToolbar (ctb)
@@ -3374,7 +3304,7 @@ TODO Not needed, is a function of the sidebar itself...
         {
 
             ev.consume ();
-            _this.close (null);
+            this.close (null);
 
         });
 

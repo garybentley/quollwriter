@@ -103,6 +103,23 @@ public class WarmupProjectViewer extends AbstractProjectViewer
         // We do this last because the sidebars will be restored by the super.
         super.init (s);
 
+        this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.warmupViewerHeaderControlButtonIds ());
+
+        this.getWindowedContent ().getHeader ().getControls ().setOnConfigurePopupClosed (ev ->
+        {
+
+            UserProperties.setWarmupViewerHeaderControlButtonIds (this.getWindowedContent ().getHeader ().getControls ().getVisibleItemIds ());
+
+        });
+
+        this.getBinder ().addSetChangeListener (UserProperties.warmupViewerHeaderControlButtonIds (),
+                                                ev ->
+        {
+
+            this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.warmupViewerHeaderControlButtonIds ());
+
+        });
+
         this.setMainSideBar (this.sidebar);
 
     }
@@ -682,7 +699,7 @@ public class WarmupProjectViewer extends AbstractProjectViewer
         }
 
     }
-
+/*
     @Override
     public Supplier<Set<Node>> getTitleHeaderControlsSupplier ()
     {
@@ -697,6 +714,7 @@ public class WarmupProjectViewer extends AbstractProjectViewer
             controls.add (QuollButton.builder ()
                 .tooltip (LanguageStrings.warmups,title,toolbar,buttons,_new,tooltip)
                 .iconName (StyleClassNames.WARMUP)
+                .buttonId ("dowarmup")
                 .onAction (ev ->
                 {
 
@@ -708,6 +726,7 @@ public class WarmupProjectViewer extends AbstractProjectViewer
             this.wordCountTimerButton = WordCountTimerButton.builder ()
                 .inViewer (this)
                 .buttonTooltip (getUILanguageStringProperty (LanguageStrings.warmups,title,toolbar,buttons,wordcounttimer,tooltip))
+                .buttonId ("timer")
                 .build ();
 
             controls.add (this.wordCountTimerButton);
@@ -719,5 +738,5 @@ public class WarmupProjectViewer extends AbstractProjectViewer
         };
 
     }
-
+*/
 }

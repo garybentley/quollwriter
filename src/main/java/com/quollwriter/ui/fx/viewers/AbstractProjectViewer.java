@@ -41,10 +41,17 @@ import com.quollwriter.achievements.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public abstract class AbstractProjectViewer extends AbstractViewer implements PropertyChangedListener
+public abstract class AbstractProjectViewer extends AbstractViewer implements PropertyChangedListener, PanelViewer
 {
 
     private static final Map<String, Class> viewerTypes = new HashMap<> ();
+
+    public interface HeaderControlButtonIds extends AbstractViewer.HeaderControlButtonIds
+    {
+
+        String timer = "timer";
+
+    }
 
     public interface CommandId extends AbstractViewer.CommandId
     {
@@ -53,7 +60,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         String print = "print";
         String chaptersoverwordcounttarget = "chaptersoverwordcounttarget";
         String chaptersoverreadabilitytarget = "chaptersoverreadabilitytarget";
-        String openproject = "openproject";
         String closeproject = "closeproject";
         String closepanel = "closepanel";
         String showwordcounts = "showwordcounts";
@@ -319,6 +325,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     }
 
+    @Override
     public Panel getCurrentPanel ()
     {
 
@@ -490,7 +497,7 @@ TODO
 
         }
 
-        java.util.List<String> names = new ArrayList ();
+        java.util.List<String> names = new ArrayList<> ();
 
         boolean isEnglish = UILanguageStrings.isEnglish (lang);
 
@@ -869,14 +876,6 @@ TODO
         this.addActionMapping (() ->
         {
 
-            Environment.showAllProjectsViewer ();
-
-        },
-        CommandId.openproject);
-
-        this.addActionMapping (() ->
-        {
-
             try
             {
 
@@ -1186,7 +1185,7 @@ TODO
 
         this.handleOpenProject ();
 
-        this.init (null);
+        this.init (this.getInitState ());
 
         Environment.incrStartupProgress ();
 
@@ -1614,7 +1613,7 @@ TODO
 
         this.handleNewProject ();
 
-        this.init (null);
+        this.init (this.getInitState ());
 
         this.setIgnoreProjectEvents (false);
 
@@ -2429,42 +2428,7 @@ TODO Remove?
         }
 
 	}
-/*
-TODO Remove
-    private void updateToolbarForPanel (Panel qp)
-    {
 
-        this.toolbarWrapper.getChildren ().removeAll ();
-
-        if (qp != null)
-        {
-
-            ToolBar tb = new ToolBar ();
-            tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
-            tb.getStyleClass ().add (qp.getStyleClassName ());
-
-            Set<Node> items = qp.getToolBarItems (this.isInFullScreenMode ());
-
-            if (items != null)
-            {
-
-                tb.getItems ().addAll (items);
-
-            }
-
-            this.toolbarWrapper.getChildren ().add (tb);
-
-            this.toolbarWrapper.setVisible (tb.getItems ().size () > 0);
-
-        } else
-        {
-
-            this.toolbarWrapper.setVisible (false);
-
-        }
-
-    }
-*/
     public Panel getPanel (String panelId)
     {
 
@@ -3379,7 +3343,10 @@ TODO Remove
         try
         {
 
-            if (!DictionaryProvider.isLanguageInstalled (lang))
+            if ((!DictionaryProvider.isLanguageInstalled (lang))
+                &&
+                (lang != null)
+               )
             {
 
                 final AbstractProjectViewer _this = this;
@@ -4201,9 +4168,7 @@ TODO REmove
 
     }
 
-    @Override
-    public void init (State s)
-               throws GeneralException
+    private State getInitState ()
     {
 
         if (this.project == null)
@@ -4212,6 +4177,8 @@ TODO REmove
             throw new IllegalStateException ("No project set.");
 
         }
+
+        State s = null;
 
         // We ignore the state and use the state inside the project instead.
 
@@ -4254,10 +4221,77 @@ TODO REmove
 
         }
 
+        return s;
+
+    }
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        if (this.project == null)
+        {
+
+            throw new IllegalStateException ("No project set.");
+
+        }
+
+        if (s == null)
+        {
+
+            throw new IllegalArgumentException ("Expected some state to be passed.");
+
+        }
+
+        // We ignore the state and use the state inside the project instead.
+/*
+        // Handle the legacy properties.
+        if (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME) == null)
+        {
+
+            s = new State ();
+
+            if (this.project.getProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME) != null)
+            {
+
+                int wHeight = this.project.getPropertyAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
+                int wWidth = this.project.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
+                int wTop = this.project.getPropertyAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+                int wLeft = this.project.getPropertyAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+                s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
+                       wHeight);
+                s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
+                       wWidth);
+                s.set (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
+                       wTop);
+                s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
+                       wLeft);
+                this.project.removeProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
+                this.project.removeProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME);
+                this.project.removeProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
+                this.project.removeProperty (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
+
+            }
+
+        } else {
+
+            s = new State (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME));
+
+        }
+*/
         super.init (s);
+/*
+        this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.projectViewerHeaderControlButtonIds ());
 
-        //this.windowedContent.init (s.getAsState ("splitpane"));
+        this.getWindowedContent ().getHeader ().getControls ().setOnConfigurePopupClosed (ev ->
+        {
 
+            UserProperties.setProjectViewerHeaderControlButtonIds (this.getWindowedContent ().getHeader ().getControls ().getVisibleItemIds ());
+
+        });
+*/
         this.initProperties ();
 
         this.initChapterCounts ();
@@ -4340,15 +4374,26 @@ TODO REmove
     public Node getTitleHeaderControl (HeaderControl control)
     {
 
+        if (control == HeaderControl.timer)
+        {
+
+            return WordCountTimerButton.builder ()
+                .inViewer (this)
+                .buttonId (HeaderControlButtonIds.timer)
+                .build ();
+
+        }
+/*
         if (control == HeaderControl.wordcounttimer)
         {
 
             return WordCountTimerButton.builder ()
                 .inViewer (this)
+                //.buttonId (HeaderControlButtonIds.wordcounttimer)
                 .build ();
 
         }
-
+*/
         return super.getTitleHeaderControl (control);
 
     }
@@ -4363,8 +4408,17 @@ TODO REmove
             Set<Node> controls = new LinkedHashSet<> ();
 
             controls.add (this.getTitleHeaderControl (HeaderControl.contacts));
+            controls.add (this.getTitleHeaderControl (HeaderControl.timer));
             controls.add (this.getTitleHeaderControl (HeaderControl.find));
             controls.add (this.getTitleHeaderControl (HeaderControl.fullscreen));
+            controls.add (this.getTitleHeaderControl (HeaderControl.newproject));
+            controls.add (this.getTitleHeaderControl (HeaderControl.openproject));
+            controls.add (this.getTitleHeaderControl (HeaderControl.dowarmup));
+            controls.add (this.getTitleHeaderControl (HeaderControl.statistics));
+            controls.add (this.getTitleHeaderControl (HeaderControl.targets));
+            controls.add (this.getTitleHeaderControl (HeaderControl.nightmode));
+            controls.add (this.getTitleHeaderControl (HeaderControl.help));
+            controls.add (this.getTitleHeaderControl (HeaderControl.close));
 
             return controls;
 
@@ -4696,6 +4750,8 @@ TODO REmove
                                                                    this.getStyleClassName (),
                                                                    this.fullScreenPanelView);
 
+            this.fullScreenContent.getHeader ().getControls ().setVisibleItems (UserProperties.fullScreenHeaderControlButtonIds ());
+
         }
 
         return this.fullScreenContent;
@@ -4725,7 +4781,6 @@ TODO REmove
                                                         this.getStyleClassName (),
                                                         headerCons,
                                                         this.tabs);
-
 
         }
 
@@ -5171,6 +5226,15 @@ TODO Remove?
 
         this.showSideBar (this.findSideBar.getSideBar ().getSideBarId ());
 
+        UIUtils.forceRunLater (() ->
+        {
+
+            String sel = this.getSelectedText ();
+
+            this.findSideBar.find (sel);
+
+        });
+
     }
 
     public Map<Chapter, List<SentenceMatches>> getSentenceMatches (Set<String> s)
@@ -5436,8 +5500,6 @@ TODO Remove?
 
     public abstract void handleNewProject ()
                                     throws Exception;
-
-    public abstract Set<FindResultsBox> findText (String t);
 
     public void deleteAllObjectsForType (UserConfigurableObjectType type)
                                   throws GeneralException

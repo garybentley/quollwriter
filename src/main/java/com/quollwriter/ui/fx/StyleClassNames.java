@@ -43,6 +43,13 @@ public final class StyleClassNames
     public static final PseudoClass UNDEALTWITH_PSEUDO_CLASS  = PseudoClass.getPseudoClass (StyleClassNames.UNDEALTWITH);
     public static final PseudoClass ATTENTIONREQUIRED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.ATTENTIONREQUIRED);
 
+    public static final String STRING = "string";
+    public static final String FORWARD = "forward";
+    public static final String NODE = "node";
+    public static final String SECTION = "section";
+    public static final String LANGUAGESTRINGS = "languagestrings";
+    public static final String SUBMIT = "submit";
+    public static final String TRYOUT = "tryout";
     public static final String AVERAGEFK = "averagefk";
     public static final String AVERAGEGF = "averagegf";
     public static final String TARGETFK = "targetfk";

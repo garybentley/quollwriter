@@ -36,12 +36,20 @@ public class TextPropertiesPanel extends VBox
     private CheckBox highlightWritingLine = null;
 
     public TextPropertiesPanel (AbstractProjectViewer viewer,
-                                TextProperties        props)
+                                TextProperties        props,
+                                StringProperty        desc)
     {
 
         this.managedProperty ().bind (this.visibleProperty ());
 
         Form.Builder fb = Form.builder ();
+
+        if (desc != null)
+        {
+
+            fb.description (desc);
+
+        }
 
         this.font = new ComboBox<> ();
         this.font.getStyleClass ().add (StyleClassNames.FONTFAMILY);

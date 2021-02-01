@@ -36,6 +36,14 @@ public class WordCountTimerButton extends HBox
         this.onMinutesComplete = b.onMinutesComplete;
         this.onWordsComplete = b.onWordsComplete;
 
+        if (b.buttonId != null)
+        {
+
+            this.getProperties ().put ("buttonId",
+                                       b.buttonId);
+
+        }
+
         if (b.styleClass != null)
         {
 
@@ -105,6 +113,11 @@ public class WordCountTimerButton extends HBox
             .tooltip (b.buttonTooltip)
             .iconName (StyleClassNames.TIMER)
             .build ();
+        this.timerBut.setOnDragDetected (ev ->
+        {
+
+            this.timerBut.getParent ().fireEvent (ev);
+        });
         this.timerBut.managedProperty ().bind (this.timerBut.visibleProperty ());
         this.timerBut.setOnAction (ev ->
         {
@@ -169,8 +182,29 @@ public class WordCountTimerButton extends HBox
 
     }
 
+    public int getWords ()
+    {
+
+        return this.words;
+
+    }
+
+    public int getMins ()
+    {
+
+        return this.mins;
+
+    }
+
     public void reset ()
     {
+
+        if (this.wctimer != null)
+        {
+
+            this.wctimer.stop ();
+
+        }
 
         this.timerProgress.setVisible (false);
         this.timerBut.setVisible (true);
@@ -287,6 +321,7 @@ public class WordCountTimerButton extends HBox
         private Runnable onMinutesComplete = null;
         private Runnable onWordsComplete = null;
         private StringProperty buttonTooltip = null;
+        private String buttonId = null;
 
         private Builder ()
         {
@@ -361,6 +396,14 @@ public class WordCountTimerButton extends HBox
         {
 
             this.buttonTooltip = p;
+            return _this ();
+
+        }
+
+        public Builder buttonId (String id)
+        {
+
+            this.buttonId = id;
             return _this ();
 
         }

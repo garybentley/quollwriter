@@ -11,7 +11,6 @@ import javafx.beans.property.*;
 import javafx.beans.binding.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.WebsiteLanguageStringsEditor;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
@@ -47,7 +46,8 @@ public class WebsiteLanguageStringsManager
          {
 
              WebsiteLanguageStringsEditor _ls = new WebsiteLanguageStringsEditor (userStrings);
-             _ls.init ();
+             _ls.createViewer ();
+             _ls.init (null);
 
              return _ls;
 

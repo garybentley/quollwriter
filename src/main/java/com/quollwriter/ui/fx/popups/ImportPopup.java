@@ -72,6 +72,9 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
         super (viewer);
 
+        this.addToProject = QuollRadioButton.builder ()
+            .build ();
+
         if (viewer instanceof ProjectViewer)
         {
 
@@ -675,17 +678,20 @@ TODO?
                 .title (importproject,importcompletepopup,title)
                 .withViewer (this.pv)
                 .message (importproject,importcompletepopup,text)
+                .closeButton ()
                 .build ();
 
         } else {
 
             // Create a new project.
-            ProjectViewer pj = new ProjectViewer ();
-
             String pwd = this.newProjectPanel.getPassword ();
 
             try
             {
+
+                AbstractProjectViewer pj = AbstractProjectViewer.createProjectViewerForType (this.proj);
+
+                pj.createViewer ();
 
                 // Get the "old" files dir.
 
@@ -715,6 +721,9 @@ TODO?
                                          "Project imported from: " +
                                          this.fileFind.getFile ());
 
+                pj.fireProjectEvent (ProjectEvent.Type._import,
+                                     ProjectEvent.Action.any);
+
             } catch (Exception e)
             {
 
@@ -730,9 +739,6 @@ TODO?
                 return;
 
             }
-
-            pj.fireProjectEvent (ProjectEvent.Type._import,
-                                 ProjectEvent.Action.any);
 
         }
 
@@ -920,11 +926,20 @@ TODO Remove
         desc.textProperty ().bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
-            return getUILanguageStringProperty (Arrays.asList (importproject,stages,selectitems,LanguageStrings.text),
-                                                (this.addToProject.isSelected () ? getUILanguageStringProperty (importproject,stages,selectitems,textextra).getValue () : "")).getValue ();
+            String extra = "";
 
-        },
-        this.addToProject.selectedProperty ()));
+            if (this.addToProject.isSelected ())
+            {
+
+                extra = getUILanguageStringProperty (importproject,stages,selectitems,textextra).getValue ();
+
+            }
+
+            return getUILanguageStringProperty (Arrays.asList (importproject,stages,selectitems,LanguageStrings.text),
+                                                extra).getValue ();
+
+        }));
+        // TODO ADD? this.addToProject.selectedProperty ()));
         //"Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item." + (this.addToProject.isSelected () ? ("  Only items not already in the " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + " will be listed.") : "");
 
 /*
@@ -1707,7 +1722,6 @@ TODO Add tool tip?
                             _this.itemsTree.setRoot (_this.createTree (p));
 
                             // TODO Needed? UIUtils.expandAllNodesWithChildren (_this.itemsTree.getRoot ());
-
                             _this.proj = p;
 
                             _this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
@@ -1758,10 +1772,10 @@ TODO Add tool tip?
 
     }
 
-    private CheckBoxTreeItem<NamedObject> createTree (Project p)
+    private TreeItem<NamedObject> createTree (Project p)
     {
 
-        CheckBoxTreeItem<NamedObject> root = new CheckBoxTreeItem<> (p);
+        TreeItem<NamedObject> root = new TreeItem<> (p);
 
         if (p.getBooks ().size () > 0)
         {

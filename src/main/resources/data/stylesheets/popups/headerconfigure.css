@@ -1,0 +1,93 @@
+.controls .button
+{
+    -fx-content-display: graphic-only;
+}
+
+.controls .button .iconbox,
+.controls .button .iconbox .icon,
+.controls .menu-button .iconbox,
+.controls .menu-button .iconbox .icon
+{
+    -fx-alignment: center;
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-min-height: 2em;
+    -fx-min-width: 2em;
+    -fx-max-height: 2em;
+    -fx-max-width: 2em;
+    -fx-fill-height: false;
+}
+
+.controls
+{
+    -fx-min-height: 3.4em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0 0 0.5em 0;
+    -fx-vgap: 0.25em;
+    -fx-hgap: 0.25em;
+}
+
+.clock
+{
+    -fx-font-size: 2em;
+}
+
+.controls .iconbox .icon.ideaboard-icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+}
+
+.controls .iconbox .icon.help-icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+}
+
+.content .controls > *
+{
+    -fx-cursor: closed-hand;
+}
+
+.headerconfigure
+{
+    -fx-effect: null;
+}
+
+.headerconfigure .content
+{
+    -fx-pref-width: 27.5em;
+    -fx-min-width: 27.5em;
+}
+
+.headerconfigure .description
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+.headerconfigure .content .controls
+{
+    -fx-alignment: center-right;
+}
+
+.headerconfigure .content .controls .button:dragging,
+.headerconfigure .content .controls .menu-button:dragging
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-dragging-bg;
+    -fx-opacity: 0.5;
+
+}
+
+.headerconfigure .content .controls .button:dragover,
+.headerconfigure .content .controls .menu-button:dragover
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-dragover-bg;
+
+}

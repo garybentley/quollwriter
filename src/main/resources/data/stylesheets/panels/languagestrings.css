@@ -1,0 +1,64 @@
+.string
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.header .iconbox,
+.header .iconbox .icon
+{
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.string .header
+{
+    -fx-padding: 0 0 0.25em 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.string .header .iconbox
+{
+    visibility: hidden;
+}
+
+.string .header .title
+{
+    -fx-font-size: 1.7em;
+    -fx-content-display: text-only;
+    -fx-padding: 0;
+}
+
+.string .form .items > .label,
+.string .form .items .preview > .label
+{
+    -fx-font-style: italic;
+}
+
+.string .form
+{
+    -fx-padding: 0 0 0 0em;
+}
+
+.string .form .description
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+}
+
+.string .form .preview > .label
+{
+    -fx-padding: 0 0 0.5em -1.0em;
+}
+
+.qtextview.sectioncomment
+{
+    -fx-padding: 0.25em 0.5em 0.5em 1em;
+}
+
+.qtextarea
+{
+    -fx-pref-height: 5em;
+    -fx-min-height: 5em;
+}

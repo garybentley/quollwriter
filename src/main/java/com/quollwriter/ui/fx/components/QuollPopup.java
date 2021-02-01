@@ -39,6 +39,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
     private boolean moving = false;
     private PopupsViewer viewer = null;
     private PropertyBinder binder = null;
+    private Node content = null;
 
     private QuollPopup (Builder b)
     {
@@ -125,17 +126,35 @@ public class QuollPopup extends StackPane implements IPropertyBinder
 
         }
 
-        if (b.styleSheet != null)
+        if (b.styleSheets != null)
         {
 
-            UIUtils.addStyleSheet (this,
-                                   Constants.POPUP_STYLESHEET_TYPE,
-                                   b.styleSheet);
+            List<String> sss = new ArrayList<> ();
+
+            sss.addAll (b.styleSheets);
+
+            sss.stream ()
+                .forEach (s ->
+                {
+
+                    if (s == null)
+                    {
+
+                        return;
+
+                    }
+
+                    UIUtils.addStyleSheet (this,
+                                           Constants.POPUP_STYLESHEET_TYPE,
+                                           s);
+
+                });
 
         }
 
         VBox.setVgrow (b.content, Priority.ALWAYS);
 
+        this.content = b.content;
         this.headerProp = new SimpleObjectProperty<> ();
 
         if (b.title != null)
@@ -280,6 +299,31 @@ public class QuollPopup extends StackPane implements IPropertyBinder
             this.show ();
 
         }
+
+    }
+
+    public Region getContent ()
+    {
+
+        return (Region) this.content;
+
+    }
+
+    public void removeStyleSheet (String ss)
+    {
+
+        UIUtils.removeStyleSheet (this,
+                                  Constants.POPUP_STYLESHEET_TYPE,
+                                  ss);
+
+    }
+
+    public void addStyleSheet (String s)
+    {
+
+        UIUtils.addStyleSheet (this,
+                               Constants.POPUP_STYLESHEET_TYPE,
+                               s);
 
     }
 
@@ -581,6 +625,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
     public static class TextEntryBuilder extends FormBuilder<TextEntryBuilder>
     {
 
+        private Set<Form.Item> items = null;
         private ValueValidator<String> validator = null;
         private StringProperty description = null;
         private EventHandler<Form.FormEvent> onCancel = null;
@@ -595,6 +640,21 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         {
 
             this.text = t;
+            return _this ();
+
+        }
+
+        public TextEntryBuilder item (Form.Item i)
+        {
+
+            if (this.items == null)
+            {
+
+                this.items = new LinkedHashSet<> ();
+
+            }
+
+            this.items.add (i);
             return _this ();
 
         }
@@ -735,9 +795,18 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         public QuollPopup build ()
         {
 
+            if (this.items == null)
+            {
+
+                this.items = new LinkedHashSet<> ();
+
+            }
+
             QuollTextField tf = QuollTextField.builder ()
                 .text (this.text)
                 .build ();
+            this.items.add (new Form.Item (this.entryLabel,
+                                           tf));
             // TODO Make a constant.
             tf.setId ("text");
 
@@ -1463,6 +1532,7 @@ TODO
             {
 
                 this.styleClassName (StyleClassNames.MESSAGE);
+                this.headerIconClassName (StyleClassNames.INFORMATION);
 
             }
 
@@ -1834,7 +1904,7 @@ TODO
         private boolean removeOnClose = false;
         private Node showAt = null;
         private Side showWhere = null;
-        private String styleSheet = null;
+        private List<String> styleSheets = new ArrayList<> ();
         private String headerIconStyleName = null;
 
         protected Builder ()
@@ -1866,10 +1936,35 @@ TODO
 
         }
 
-        public X styleSheet (String s)
+        public X styleSheets (List<String> ss)
         {
 
-            this.styleSheet = s;
+            if (ss != null)
+            {
+
+                this.styleSheets.addAll (ss);
+
+            }
+
+            return _this ();
+
+        }
+
+        public X styleSheet (String... s)
+        {
+
+            if (s != null)
+            {
+
+                for (String ss : s)
+                {
+
+                    this.styleSheets.add (ss);
+
+                }
+
+            }
+
             return _this ();
 
         }

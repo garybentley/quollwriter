@@ -8091,6 +8091,13 @@
             {
                 "title" : "${names.textproperties}",
                 "fullscreentitle" : "Full Screen Properties",
+                "description" :
+                {
+                    "normal" : "Note: these settings only apply in normal, windowed mode.",
+                    "fullscreen" : "Note: the settings below only apply in Full Screen mode.",
+                    "normalnightmode" : "Note: these settings only apply when normal, windowed mode when Night Mode is enabled.",
+                    "fullscreennightmode" : "Note: these settings only apply in Full Screen mode when Night Mode is enabled."
+                },
                 "font" :
                 {
                     "text" : "Font"
@@ -8834,6 +8841,14 @@
             {
                 "buttons" :
                 {
+                    "enablenightmode" :
+                    {
+                        "tooltip" : "Click to turn on Night Mode"
+                    },
+                    "disablenightmode" :
+                    {
+                        "tooltip" : "Click to turn off Night Mode"
+                    },
                     "projectmenu" :
                     {
                         "tooltip" : "Click to view the ${objectnames.singular.project} menu"
@@ -8873,6 +8888,22 @@
                     "ideaboard" :
                     {
                         "tooltip" : "Click to open the ${names.ideaboard}"
+                    },
+                    "targets" :
+                    {
+                        "tooltip" : "Click to view the ${names.targets}"
+                    },
+                    "openproject" :
+                    {
+                        "tooltip" : "Click to open a ${objectnames.singluar.project}"
+                    },
+                    "newproject" :
+                    {
+                        "tooltip" : "Click to add a new ${objectnames.singular.project}"
+                    },
+                    "statistics" :
+                    {
+                        "tooltip" : "Click to view the ${names.statistics}"
                     }
                 }
             }

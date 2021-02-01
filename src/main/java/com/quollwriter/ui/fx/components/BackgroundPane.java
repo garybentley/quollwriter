@@ -44,7 +44,10 @@ public class BackgroundPane extends Pane implements Stateful
 
                 List<File> files = ev.getDragboard ().getFiles ();
 
-                if (files != null)
+                if ((files != null)
+                    &&
+                    (files.size () > 0)
+                   )
                 {
 
                     if (files.size () > 1)
@@ -114,7 +117,10 @@ public class BackgroundPane extends Pane implements Stateful
 
                 List<File> files = ev.getDragboard ().getFiles ();
 
-                if (files != null)
+                if ((files != null)
+                    &&
+                    (files.size () > 0)
+                   )
                 {
 
                     if (files.size () > 1)
@@ -162,7 +168,10 @@ public class BackgroundPane extends Pane implements Stateful
 
                 List<File> files = ev.getDragboard ().getFiles ();
 
-                if (files != null)
+                if ((files != null)
+                    &&
+                    (files.size () > 0)
+                   )
                 {
 
                     if (files.size () > 1)

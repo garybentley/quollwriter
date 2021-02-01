@@ -8,7 +8,7 @@
 /*
 .editproperties > .header .icon { -fx-image: url(/imgs/edit-properties16.png); }
 */
-.content { -fx-padding: 0 0.5em 1em 1em; }
+.content { -fx-padding: 0 0.5em 1em 0.5em; }
 .form .control {
     -fx-padding: 0 0 1.5em 1em;
     -fx-alignment: center-left;
@@ -20,3 +20,13 @@
 .control .spinner  { -fx-pref-width: 7em; -fx-min-width: 7em; }
 .control .slider { -fx-min-width: 15em; }
 .control .alignment.choice-box .label { -fx-padding: 0.25em 0.5em 0.25em 0.5em; }
+.form .items > .label
+{
+    -fx-font-style: italic;
+}
+
+.form .description
+{
+    -fx-font-style: italic;
+    -fx-padding: 0 0 0.25em 0;
+}

@@ -11,7 +11,7 @@ public class ChapterItemSorter implements Comparator<ChapterItem>
     public int compare (ChapterItem o1,
                         ChapterItem o2)
     {
-/*
+
         if (o1.getKey () == null)
         {
 
@@ -25,7 +25,6 @@ public class ChapterItemSorter implements Comparator<ChapterItem>
             return 1;
 
         }
-  */
 
         // The sorter may be used for contains checks in Sets and Maps so need an equality test here.
         if (o1.getKey ().equals (o2.getKey ()))

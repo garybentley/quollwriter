@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.components;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.event.*;
 import javafx.beans.value.*;
@@ -32,11 +33,16 @@ public class QuollTextArea extends VBox
     private TextEditor text = null;
     private Boolean autoGrabFocus = false;
     private boolean formattingEnabled = false;
+    private boolean spellCheckEnabled = false;
+    private Supplier<Set<MenuItem>> contextMenu = null;
 
     private QuollTextArea (Builder b)
     {
 
         final QuollTextArea _this = this;
+
+        this.spellCheckEnabled = b.spellCheckEnabled;
+        this.formattingEnabled = b.formattingEnabled;
 
         this.getStyleClass ().add (StyleClassNames.QTEXTAREA);
 
@@ -55,6 +61,8 @@ public class QuollTextArea extends VBox
             //throw new IllegalArgumentException ("Viewer must be provided.");
 
         }
+
+        this.contextMenu = b.contextMenu;
 
         this.text = new TextEditor (null,
                                     null,
@@ -174,11 +182,27 @@ public class QuollTextArea extends VBox
 
     }
 
-    private void setContextMenu (AbstractViewer viewer)
+    public void setContextMenu (AbstractViewer viewer)
     {
 
         ContextMenu cm = new ContextMenu ();
-        Set<MenuItem> its = this.text.getSpellingSynonymItemsForContextMenu (viewer);
+
+        Set<MenuItem> its = new LinkedHashSet<> ();
+
+        if (this.spellCheckEnabled)
+        {
+
+            Set<MenuItem> sits = this.text.getSpellingSynonymItemsForContextMenu (viewer);
+
+            if (sits != null)
+            {
+
+                its.addAll (sits);
+
+            }
+
+        }
+
 
         cm.getItems ().addAll (its);
 
@@ -194,7 +218,7 @@ public class QuollTextArea extends VBox
             if (its.size () > 0)
             {
 
-                //cm.getItems ().add (new SeparatorMenuItem ());
+                cm.getItems ().add (new SeparatorMenuItem ());
 
             }
 
@@ -213,11 +237,16 @@ public class QuollTextArea extends VBox
             cm.getItems ().add (fit);
 
         }
-/*
+
         boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
 
-        cm.getItems ().addAll (this.getContextMenuItems (compress));
-*/
+        if (this.contextMenu != null)
+        {
+
+            cm.getItems ().addAll (this.contextMenu.get ());
+
+        }
+
         this.text.setContextMenu (cm);
 
     }
@@ -332,9 +361,32 @@ public class QuollTextArea extends VBox
         private DictionaryProvider2 dictProv = null;
         private boolean formattingEnabled = false;
         private boolean spellCheckEnabled = false;
+        private Supplier<Set<MenuItem>> contextMenu = null;
 
         private Builder ()
         {
+
+        }
+
+        public Builder contextMenu (Set<MenuItem> cm)
+        {
+
+            this.contextMenu = () ->
+            {
+
+                return cm;
+
+            };
+
+            return this;
+
+        }
+
+        public Builder contextMenu (Supplier<Set<MenuItem>> cm)
+        {
+
+            this.contextMenu = cm;
+            return this;
 
         }
 

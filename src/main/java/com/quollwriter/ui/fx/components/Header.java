@@ -173,82 +173,6 @@ public class Header extends HBox
 
                     this.toolbar.getItems ().add (n);
 
-    /*
-                    n.setOnDragDetected (ev ->
-                    {
-
-                        Dragboard db = n.startDragAndDrop (TransferMode.ANY);
-
-                        n.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
-
-                        db.setDragView (null, null);
-
-                        // Need to add something otherwise the drag isn't registered.
-                        ClipboardContent c = new ClipboardContent ();
-                        c.put (JAVA_FORMAT, "HERE");
-                        db.setContent (c);
-
-                        ev.consume ();
-
-                    });
-
-                    n.setOnDragEntered (ev ->
-                    {
-
-                        if ((ev.getGestureSource () != n)
-                            &&
-                            (ev.getDragboard ().getContent (JAVA_FORMAT) != null)
-                           )
-                        {
-
-                            n.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, true);
-
-                        }
-
-                        ev.consume ();
-
-                    });
-
-                    n.setOnDragOver (ev ->
-                    {
-    System.out.println ("OVER");
-                        ev.acceptTransferModes (TransferMode.MOVE);
-
-                        int indexOf = this.toolbar.getItems ().indexOf (n);
-
-                        int indexOfOther = this.toolbar.getItems ().indexOf (ev.getGestureSource ());
-
-                        if (indexOf != indexOfOther)
-                        {
-
-                            this.toolbar.getItems ().remove ((Node) ev.getGestureSource ());
-                            this.toolbar.getItems ().add (indexOf,
-                                                          (Node) ev.getGestureSource ());
-
-                        }
-
-                        ev.consume ();
-
-                    });
-
-                    n.setOnDragExited (ev ->
-                    {
-    System.out.println ("EXITED");
-                        n.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
-                        ev.consume ();
-
-                    });
-
-                    n.setOnDragDropped (ev ->
-                    {
-
-                        n.setCursor (Cursor.DEFAULT);
-                        n.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
-                        n.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
-                        ev.consume ();
-
-                    });
-*/
                 }
 
             }
@@ -334,6 +258,13 @@ public class Header extends HBox
     {
 
         return this.titleLabelProp;
+
+    }
+
+    public QuollToolBar getControls ()
+    {
+
+        return this.toolbar;
 
     }
 

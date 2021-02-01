@@ -493,6 +493,11 @@ Text
     -fx-shape: "m 24.633,22.184 c -8.188,0 -14.82,-6.637 -14.82,-14.82 0,-2.695 0.773,-5.188 2.031,-7.363 C 5.02,1.969 0,8.188 0,15.645 0,24.676 7.32,32 16.352,32 23.809,32 30.032,26.977 32,20.156 c -2.18,1.254 -4.672,2.028 -7.367,2.028 z";
     -fx-background-color: -qw-icon-color;
 }
+.node-icon
+{
+    -fx-shape: "M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z m 0.031,19.934 c -2.188,0 -3.965,-1.773 -3.965,-3.965 0,-2.195 1.777,-3.969 3.965,-3.969 2.196,0 3.969,1.773 3.969,3.969 0,2.191 -1.773,3.965 -3.969,3.965 z";
+    -fx-background-color: -qw-icon-color;
+}
 .sun-icon {
     -fx-shape: "m 27.422,7.416 c -0.781,0.779 -2.047,0.779 -2.828,0 -0.781,-0.785 -0.781,-2.047 0,-2.83 0.781,-0.779 2.047,-0.781 2.828,0.002 0.789,0.781 0.789,2.049 0,2.828 z m 2.574,10.582 C 28.898,17.998 28,17.104 28,16 c 0,-1.109 0.898,-2 2.008,-2 1.098,0 2,0.893 1.988,1.998 0.012,1.107 -0.891,2.002 -2,2 z m -5.402,9.416 c -0.781,-0.781 -0.781,-2.047 0,-2.828 0.781,-0.781 2.047,-0.781 2.828,0 0.789,0.781 0.789,2.047 0,2.828 -0.781,0.781 -2.047,0.781 -2.828,0 z M 14,30 c 0,-1.109 0.891,-2 2,-2 1.109,0 2,0.891 2,2 0,1.105 -0.891,2 -2,2 -1.109,0 -2,-0.895 -2,-2 z M 8,26 A 2,2 0 0 1 6,28 2,2 0 0 1 4,26 2,2 0 0 1 6,24 2,2 0 0 1 8,26 M 2,13.998 c 1.102,0 2,0.895 2,2 0,1.107 -0.898,2 -2,2 -1.109,0 -2,-0.893 -2,-2 0,-1.105 0.891,-2 2,-2 z M 8,6 A 2,2 0 0 1 6,8 2,2 0 0 1 4,6 2,2 0 0 1 6,4 2,2 0 0 1 8,6 M 18,2 c 0,1.105 -0.898,2 -2,2 -1.109,0 -2,-0.895 -2,-2 0,-1.105 0.891,-2 2,-2 1.102,0 2,0.895 2,2 z m -2,6 c -4.422,0 -8,3.582 -8,8 0,4.418 3.578,8 8,8 4.414,0 8,-3.582 8,-8 0,-4.418 -3.586,-8 -8,-8 z";
     -fx-background-color: -qw-icon-color;
@@ -575,13 +580,15 @@ Text
      -fx-rotate: 180;
  }
  .movedown-icon,
- .moveup-icon
+ .moveup-icon,
+ .submit-icon
  {
      -fx-shape: "M 12.011719,32 20,21.333333 H 16 V 0 H 8 V 21.333333 H 4 Z";
      -fx-background-color: -qw-icon-color;
      -fx-pref-width: 0.666em;
  }
- .moveup-icon
+ .moveup-icon,
+ .submit-icon
  {
      -fx-rotate: 180;
  }
@@ -850,7 +857,8 @@ Text
     -fx-background-color: -qw-icon-color;
 }
 .warning-icon,
-.important-icon {
+.important-icon,
+.errors-icon {
     -fx-shape: "m 81.324673,119.18284 -0.165364,-2.47529 q -0.04651,-0.72347 -0.04651,-1.03869 0,-0.42892 0.222208,-0.66663 0.227376,-0.24287 0.594277,-0.24287 0.444416,0 0.594277,0.31005 0.149861,0.30489 0.149861,0.88367 0,0.34106 -0.03617,0.69246 l -0.222208,2.54764 q -0.03617,0.45475 -0.155029,0.69763 -0.118855,0.24288 -0.392739,0.24288 -0.279052,0 -0.387572,-0.23255 -0.108521,-0.23771 -0.155029,-0.7183 z m 0.573606,3.4003 q -0.315225,0 -0.552936,-0.20154 -0.232543,-0.2067 -0.232543,-0.5736 0,-0.32039 0.222208,-0.5426 0.227376,-0.22738 0.552936,-0.22738 0.325561,0 0.552936,0.22738 0.232543,0.22221 0.232543,0.5426 0,0.36173 -0.232543,0.56844 -0.232543,0.2067 -0.542601,0.2067 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-width: 0.333em;
@@ -895,7 +903,8 @@ Text
 .problemfinder-icon,
 .looks-icon,
 .view-icon,
-.readability-icon {
+.readability-icon,
+.tryout-icon {
     -fx-shape: "m 20,12.016 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 A 4,4 0 0 1 16,8.0159998 4,4 0 0 1 20,12.016 M 16,0 C 7.164,0 0,11.844 0,11.844 0,11.844 7.164,24 16,24 24.836,24 32,11.844 32,11.844 32,11.844 24.836,0 16,0 Z m 0,20 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-height: 0.888em;
@@ -905,7 +914,8 @@ Text
     -fx-background-color: -qw-icon-color;
 }
 .wordcount-icon,
-.wordcounts-icon {
+.wordcounts-icon,
+.synonyms-icon {
     -fx-shape: "M 0,16 H 8 V 32 H 0 Z M 12,8 h 8 V 32 H 12 Z M 24,0 h 8 v 32 h -8 z";
     -fx-background-color: -qw-icon-color;
 }
@@ -1633,13 +1643,15 @@ Text
 }
 
 .scroll-pane .scroll-bar:vertical,
-.virtualized-scroll-pane .scroll-bar:vertical
+.virtualized-scroll-pane .scroll-bar:vertical,
+.virtual-flow .scroll-bar:vertical
 {
     -fx-pref-width: 0.6em;
 }
 
 .scroll-pane .scroll-bar:horizontal,
-.virtualized-scroll-pane .scroll-bar:horizontal
+.virtualized-scroll-pane .scroll-bar:horizontal,
+.virtual-scroll-pane .scroll-bar:horizontal
 {
     -fx-pref-height: 0.6em;
 }
@@ -1647,7 +1659,9 @@ Text
 .scroll-pane .scroll-bar .decrement-button,
 .scroll-pane .scroll-bar .increment-button,
 .virtualized-scroll-pane .scroll-bar .decrement-button,
-.virtualized-scroll-pane .scroll-bar .increment-button
+.virtualized-scroll-pane .scroll-bar .increment-button,
+.virtual-scroll-pane .scroll-bar .decrement-button,
+.virtual-scroll-pane .scroll-bar .increment-button
 {
     -fx-padding: 0;
 }
@@ -1671,30 +1685,6 @@ Text
  {
      -fx-cursor: closed-hand;
  }
-
-.qpopup.headerconfigure
-{
-    -fx-effect: null;
-}
-
-.qpopup.headerconfigure .content
-{
-    -fx-pref-width: 20em;
-    -fx-min-width: 20em;
-}
-
-.qpopup.headerconfigure .content .tool-bar
-{
-    -fx-min-width: 18em;
-    -fx-border-width: 1px;
-    -fx-border-style: segments(0.3em, 0.3em);
-    -fx-border-color: -qw-component-border-color;
-}
-
-.qpopup.headerconfigure .description
-{
-    -fx-padding: 0.5em 0 0.5em 0;
-}
 
 .header .controls.configuring
 {
@@ -2278,12 +2268,12 @@ a
     -fx-border-color: -qw-component-border-color;
     -fx-border-width: 1px 0 0 0;
 }
-
+/*
 .root.viewer .windowed > .header .controls
 {
     -fx-padding: 0.5em;
 }
-
+*/
 .root.viewer.css .tab-pane .tab-label .iconbox
 {
     visibility: hidden;
@@ -2368,4 +2358,9 @@ a
 {
     -fx-alignment: center;
     -fx-padding: 0.5em 0 0 0;
+}
+
+WordCountTimerButton
+{
+    -fx-alignment: center;
 }

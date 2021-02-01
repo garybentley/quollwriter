@@ -1086,6 +1086,13 @@ public class UIUtils
                                        VPos pos)
     {
 
+        if (node == null)
+        {
+
+            return;
+
+        }
+
         Parent p = node.getParent ();
 
         while (p != null)
@@ -2223,6 +2230,7 @@ public class UIUtils
 
             // Get the current text instead.
             //cc = new ChapterCounts (c.getChapterText ());
+            return null;
 
         }
 
@@ -2348,6 +2356,7 @@ public class UIUtils
             .title (prefix,title)
             .description (prefix,text)
             .styleClassName (StyleClassNames.ADDNEWUILANGSTRINGS)
+            .headerIconClassName (StyleClassNames.EDIT)
             .confirmButtonLabel (prefix,buttons,create)
             .cancelButtonLabel (prefix,buttons,cancel)
             .onConfirm (ev ->
@@ -2365,7 +2374,9 @@ public class UIUtils
                  try
                  {
 
-                     // TODO new LanguageStringsEditor (ls).init ();
+                     LanguageStringsEditor lse = new LanguageStringsEditor (ls);
+                     lse.createViewer ();
+                     lse.init (null);
 
                  } catch (Exception e) {
 
@@ -2527,6 +2538,8 @@ public class UIUtils
             .withViewer (viewer)
             .title (getUILanguageStringProperty (uilanguage,edit,popup,title))
             .styleClassName (StyleClassNames.UILANGSTRINGSSELECT)
+            .styleSheet (StyleClassNames.UILANGSTRINGSSELECT)
+            .headerIconClassName (StyleClassNames.EDIT)
             .popupId (popupId)
             .objects (objs)
             .cellProvider ((obj, popupContent) ->
@@ -4780,6 +4793,42 @@ TODO
 
     }
 
+    public static void removeStyleSheet (Parent parent,
+                                         String type,
+                                         String name)
+    {
+
+        if (name != null)
+        {
+
+            try
+            {
+
+                URL u = Utils.getResourceUrl (String.format (Constants.STYLESHEET_PATH,
+                                                             type,
+                                                             name));
+
+                if (u != null)
+                {
+
+                    parent.getStylesheets ().remove (u.toExternalForm ());
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError (String.format ("Unable to remove stylesheet for: %1$s, type: %2$s, name: %3$s",
+                                                     parent,
+                                                     type,
+                                                     name),
+                                      e);
+
+            }
+
+        }
+
+    }
+
     public static void showFeatureComingSoonPopup ()
     {
 
@@ -4883,27 +4932,28 @@ TODO
 
     }
 
-/*
-    public static HBox createIconBox (String                        styleClassName)
+    public static void setButtonId (Node   n,
+                                    String id)
     {
 
-        HBox h = new HBox ();
-        h.getStyleClass ().add (StyleClassNames.ICONBOX);
-        Pane p = new Pane ();
-        p.getStyleClass ().add (StyleClassNames.ICON);
-
-        if (styleClassName != null)
-        {
-
-            p.getStyleClass ().addAll (styleClassName + StyleClassNames.ICON_SUFFIX);
-
-        }
-        h.getChildren ().add (p);
-
-        h.managedProperty ().bind (h.visibleProperty ());
-
-        return h;
+        n.getProperties ().put ("buttonId",
+                                id);
 
     }
-    */
+
+    public static String getButtonId (Node n)
+    {
+
+        Object o = n.getProperties ().get ("buttonId");
+
+        if (o != null)
+        {
+
+            return o.toString ();
+
+        }
+
+        return null;
+
+    }
 }

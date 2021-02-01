@@ -64,8 +64,10 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
     private boolean ignoreChange = false;
 
     private ControllableProgressBar timerProgress = null;
-    private WordCountProgressTimer wctimer = null;
+    //private WordCountProgressTimer wctimer = null;
     private boolean allowHeaderHide = true;
+
+    private WordCountTimerButton wcTimerBut = null;
 
     private QuollButton timerBut = null;
     private IPropertyBinder headerBinder = null;
@@ -149,18 +151,22 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         //double swidth = Screen.getPrimary ().getVisualBounds ().getWidth ();
         //double sheight = Screen.getPrimary ().getVisualBounds ().getHeight ();
 
-        QuollToolBar tb = QuollToolBar.builder ()
-            .build ();
+        Set<Node> controls = new LinkedHashSet<Node> ();
 
         this.headerClockLabel = QuollLabel.builder ()
             .styleClassName (StyleClassNames.CLOCK)
             .build ();
+        UIUtils.setButtonId (this.headerClockLabel,
+                             "clock");
         this.headerClockLabel.setMinSize (Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+
+        controls.add (this.headerClockLabel);
 
         List<String> prefix = Arrays.asList (fullscreen,title,toolbar,buttons);
 
         Button but = QuollButton.builder ()
             .iconName (StyleClassNames.DISTRACTIONFREEENTER)
+            .buttonId ("distractionfreeenter")
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,distractionfreemodeenter,tooltip)))
             .onAction (ev ->
             {
@@ -191,20 +197,19 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         });
 
-        tb.getItems ().addAll (this.headerClockLabel);
-
         if (Environment.getQuollWriterVersion ().isBeta ())
         {
 
-            tb.getItems ().add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.reportbug));
+            controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.reportbug));
 
         }
 
-        tb.getItems ().add (but);
+        controls.add (but);
 
-        tb.getItems ().add (QuollButton.builder ()
+        controls.add (QuollButton.builder ()
             .tooltip (fullscreen,title,toolbar,buttons,ideaboard,tooltip)
             .iconName (StyleClassNames.IDEABOARD)
+            .buttonId (ProjectViewer.HeaderControlButtonIds.ideaboard)
             .onAction (ev ->
             {
 
@@ -213,9 +218,34 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             })
             .build ());
 
+        this.wcTimerBut = WordCountTimerButton.builder ()
+            .inViewer (this.viewer)
+            .buttonTooltip (getUILanguageStringProperty (fullscreen,title,toolbar,buttons,timer,tooltip))
+            .buttonId ("timer")
+            .onMinutesComplete (() ->
+            {
+
+                this.viewer.showNotificationPopup (getUILanguageStringProperty (timer,complete,time,popup,title),
+                                                   getUILanguageStringProperty (Arrays.asList (timer,complete,time,popup,text),
+                                                                                Environment.formatNumber (this.wcTimerBut.getMins ())),
+                                                   30);
+
+            })
+            .onWordsComplete (() ->
+            {
+
+                this.viewer.showNotificationPopup (getUILanguageStringProperty (timer,complete,LanguageStrings.words,popup,title),
+                                                   getUILanguageStringProperty (Arrays.asList (timer,complete,LanguageStrings.words,popup,text),
+                                                                                Environment.formatNumber (this.wcTimerBut.getWords ())),
+                                                   30);
+
+            })
+            .build ();
+/*
         this.timerBut = QuollButton.builder ()
             .tooltip (fullscreen,title,toolbar,buttons,timer,tooltip)
             .iconName (StyleClassNames.TIMER)
+            .buttonId ("timer")
             .build ();
         this.timerBut.setOnAction (ev ->
         {
@@ -368,8 +398,20 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         });
         this.timerBut.managedProperty ().bind (this.timerBut.visibleProperty ());
+*/
+        controls.add (this.wcTimerBut);
 
-        tb.getItems ().add (this.timerBut);
+        controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.nightmode));
+
+        controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.help));
+
+        controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.statistics));
+
+        controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.targets));
+
+        controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.openproject));
+
+        controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.newproject));
 
         this.timerProgress = ControllableProgressBar.builder ()
             .allowStop (false)
@@ -380,7 +422,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             .build ();
         this.timerProgress.managedProperty ().bind (this.timerProgress.visibleProperty ());
         this.timerProgress.setVisible (false);
-        tb.getItems ().add (this.timerProgress);
+        // TODO tb.getItems ().add (this.timerProgress);
 
 /*
         QuollButton.builder ()
@@ -402,11 +444,12 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         }
 */
-        if (EditorsEnvironment.isEditorsServiceAvailable ())
-        {
+//        if (EditorsEnvironment.isEditorsServiceAvailable ())
+//        {
 
-            tb.getItems ().add (QuollButton.builder ()
+            controls.add (QuollButton.builder ()
                 .iconName (StyleClassNames.CONTACTS)
+                .buttonId (ProjectViewer.HeaderControlButtonIds.contacts)
                 .tooltip (EditorsEnvironment.hasRegistered () ?
                             getUILanguageStringProperty (Utils.newList (prefix,showcontacts,tooltip))
                             :
@@ -433,11 +476,12 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
                 })
                 .build ());
 
-        }
+        //}
 
-        tb.getItems ().add (QuollButton.builder ()
+        controls.add (QuollButton.builder ()
             .iconName (StyleClassNames.FIND)
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,find,tooltip)))
+            .buttonId (AbstractViewer.HeaderControlButtonIds.find)
             .onAction (ev ->
             {
 
@@ -446,9 +490,10 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             })
             .build ());
 
-        tb.getItems ().add (QuollButton.builder ()
+        controls.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,fullscreenexit,tooltip)))
             .iconName (StyleClassNames.FULLSCREENEXIT)
+            .buttonId ("fullscreenexit")
             .onAction (ev ->
             {
 
@@ -457,9 +502,10 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             })
             .build ());
 
-        tb.getItems ().add (QuollButton.builder ()
+        controls.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,editproperties,tooltip)))
             .iconName (StyleClassNames.EDITPROPERTIES)
+            .buttonId ("editproperties")
             .onAction (ev ->
             {
 
@@ -467,6 +513,27 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
             })
             .build ());
+
+        QuollToolBar tb = QuollToolBar.builder ()
+            .controls (controls)
+            .configurable (true)
+            .inViewer (viewer)
+            .build ();
+
+        tb.setOnConfigurePopupShown (ev ->
+        {
+
+            this.allowHeaderHide = false;
+
+        });
+
+        tb.setOnConfigurePopupClosed (ev ->
+        {
+
+            this.allowHeaderHide = true;
+            UserProperties.setFullScreenHeaderControlButtonIds (tb.getVisibleItemIds ());
+
+        });
 
         this.header = Header.builder ()
             .toolbar (tb)
@@ -492,7 +559,12 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         this.header.setOnMouseExited (ev ->
         {
 
-            this.hideHeader ();
+            if (!this.header.localToScreen (this.header.getBoundsInLocal ()).contains (ev.getScreenX (), ev.getScreenY ()))
+            {
+
+                this.hideHeader ();
+
+            }
 
         });
 
@@ -1100,6 +1172,13 @@ TODO
 
     }
 
+    public Header getHeader ()
+    {
+
+        return this.header;
+
+    }
+
     private double getXBorderWidth ()
     {
 
@@ -1303,19 +1382,9 @@ TODO
 
         this.updater.cancel (true);
 
-        if (this.wctimer != null)
-        {
-
-            this.wctimer.stop ();
-            this.timerProgress.setVisible (false);
-
-        }
-
-        this.timerBut.setVisible (true);
+        this.wcTimerBut.reset ();
 
         this.viewer.exitFullScreen ();
-
-        //this.viewer.removeActionMapping (AbstractViewer.CommandId.showfullscreenheader);
 
         EditorsEnvironment.fullScreenExited ();
 

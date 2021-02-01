@@ -1,0 +1,19 @@
+.tree .cell
+{
+    -fx-padding: 0 0 0 0.25em;
+    -fx-cursor: hand;
+}
+
+.tree .section
+{
+    -fx-font-size: 1.3em;
+}
+
+.tree .section .iconbox,
+.tree .section .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}

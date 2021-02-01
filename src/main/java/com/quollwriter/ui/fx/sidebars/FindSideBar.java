@@ -19,7 +19,7 @@ import com.quollwriter.ui.fx.components.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
 
-public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent<E>
+public class FindSideBar<E extends AbstractViewer> extends SideBarContent<E>
 {
 
     public static final String SIDEBAR_ID = "find";
@@ -71,15 +71,13 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
 
         this.getChildren ().add (b);
 
-        String sel = this.viewer.getSelectedText ();
+    }
 
-        if (sel != null)
-        {
+    public void find (String t)
+    {
 
-            this.text.setText (sel);
-            this.search ();
-
-        }
+        this.text.setText (t);
+        this.search ();
 
     }
 
@@ -107,7 +105,36 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
     private void search ()
     {
 
-        String t = this.text.getText ().trim ();
+        String t = this.text.getText ();
+
+        if (t != null)
+        {
+
+            t = t.trim ();
+
+        }
+
+        if ((t == null)
+            ||
+            (t.length () == 0)
+           )
+        {
+
+            if (this.results != null)
+            {
+
+                this.results.stream ()
+                    .forEach (r -> r.dispose ());
+
+            }
+
+            this.content.getChildren ().clear ();
+
+            return;
+
+        }
+
+        String _t = t;
 
         Set<FindResultsBox> results = this.viewer.findText (t);
 
@@ -116,7 +143,7 @@ public class FindSideBar<E extends AbstractProjectViewer> extends SideBarContent
 
             this.search (results);
 
-            this.currentSearch = t;
+            this.currentSearch = _t;
 
         });
 

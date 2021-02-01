@@ -14,7 +14,7 @@ import javafx.beans.property.*;
 import javafx.beans.binding.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.LanguageStringsEditor;
+//import com.quollwriter.ui.LanguageStringsEditor;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -1682,7 +1682,8 @@ public static BooleanBinding createBooleanBinding (Callable<Boolean> func,
 
              LanguageStringsEditor _ls = new LanguageStringsEditor (userStrings,
                                                                     baseQWVersion);
-             _ls.init ();
+             _ls.createViewer ();
+             _ls.init (null);
 
              return _ls;
 

@@ -136,3 +136,14 @@
 {
     -fx-padding: 0 0 0 0.5em;
 }
+
+.fullscreen .accordion.contacts .information
+{
+    -fx-border-width: 0;
+}
+
+.fullscreen .accordion.contacts .information .label
+{
+    -fx-font-size: 1em;
+    -fx-padding: 0;
+}

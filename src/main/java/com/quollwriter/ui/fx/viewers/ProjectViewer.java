@@ -2,6 +2,7 @@ package com.quollwriter.ui.fx.viewers;
 
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.*;
 
 import javafx.beans.property.*;
 import javafx.collections.*;
@@ -39,6 +40,13 @@ public class ProjectViewer extends AbstractProjectViewer
     private ProjectSideBar sidebar = null;
     private SetChangeListener<Tag> tagsListener = null;
     private ProblemFinderRuleConfigPopup problemFinderRuleConfigPopup = null;
+
+    public interface HeaderControlButtonIds extends AbstractProjectViewer.HeaderControlButtonIds
+    {
+
+        String ideaboard = "ideaboard";
+
+    }
 
     public interface CommandId extends AbstractProjectViewer.CommandId
     {
@@ -533,6 +541,44 @@ public class ProjectViewer extends AbstractProjectViewer
             }
 
         });
+/*
+        String ids = null;
+
+        if (s != null)
+        {
+
+            ids = s.getAsString ("headerControlButtonIds");
+
+        }
+
+        if (ids == null)
+        {
+
+            ids = UserProperties.get (Constants.PROJECT_VIEWER_HEADER_CONTROL_BUTTONS_IDS_PROPERTY_NAME);
+
+        }
+
+        Set<String> headerIds = new LinkedHashSet<> (Arrays.asList (ids.split (",")));
+
+        this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.getProjectViewer);
+*/
+
+        this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.projectViewerHeaderControlButtonIds ());
+
+        this.getWindowedContent ().getHeader ().getControls ().setOnConfigurePopupClosed (ev ->
+        {
+
+            UserProperties.setProjectViewerHeaderControlButtonIds (this.getWindowedContent ().getHeader ().getControls ().getVisibleItemIds ());
+
+        });
+
+        this.getBinder ().addSetChangeListener (UserProperties.projectViewerHeaderControlButtonIds (),
+                                                ev ->
+        {
+
+            this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.projectViewerHeaderControlButtonIds ());
+
+        });
 
         this.addKeyMapping (CommandId.newchapter,
                             KeyCode.H, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN);
@@ -845,6 +891,7 @@ public class ProjectViewer extends AbstractProjectViewer
             controls.add (QuollButton.builder ()
                 .tooltip (prefix,ideaboard,tooltip)
                 .iconName (StyleClassNames.IDEABOARD)
+                .buttonId (HeaderControlButtonIds.ideaboard)
                 .onAction (ev ->
                 {
 
@@ -2160,8 +2207,18 @@ TODO
     @Override
     public State getState ()
     {
+System.out.println ("CALLED");
+        State s = super.getState ();
 
-        return super.getState ();
+        Set<String> headerIds = this.getWindowedContent ().getHeader ().getControls ().getVisibleItemIds ();
+
+        String ids = headerIds.stream ()
+            .collect (Collectors.joining (","));
+
+        s.set ("headerControlButtonIds",
+               ids);
+
+        return s;
 
     }
 

@@ -61,17 +61,17 @@
 
   <property id="problemFinderIssueHighlightColor" type="string">
     <description>The color of the highlight for an issue found by the problem finder.</description>
-    <value>#ff0000</value>
+    <value>#e8deae</value>
   </property>
 
   <property id="problemFinderBlockHighlightColor" type="string">
     <description>The color of the highlight for a block of text (a paragraph or sentence) found by the problem finder.</description>
-    <value>#0000ff</value>
+    <value>#daebe4</value>
   </property>
 
   <property id="synonymHighlightColor" type="string">
     <description>The color of the highlight for a synonym.</description>
-    <value>#0000ff</value>
+    <value>#cea5e8</value>
   </property>
 
   <property id="showNotesInChapterList" type="boolean">
@@ -743,6 +743,31 @@ Removed so that the full screen properties will inherit from the standard editor
   <property id="defaultWarmupWords" type="integer">
      <description>The default number of words to write for a warm-up.</description>
      <value>500</value>
+ </property>
+
+ <property id="allProjectsViewerHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the all projects viewer header.</description>
+   <value>newproject|import|contacts|context</value>
+ </property>
+
+ <property id="projectViewerHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the project viewer header.</description>
+   <value>ideaboard|contacts|find|fullscreenenter|context</value>
+ </property>
+
+ <property id="warmupViewerHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the warmup viewer header.</description>
+   <value>timer|dowarmup|contacts|find|fullscreenenter|context</value>
+ </property>
+
+ <property id="fullScreenHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the full screen view.</description>
+   <value>clock|distractionfreeenter|ideaboard|timer|contacts|find|fullscreenexit|editproperties</value>
+ </property>
+
+ <property id="languageStringsEditorHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the full screen view.</description>
+   <value>submitstrings|find|tryoutstrings|help|context</value>
  </property>
 
 </properties>
