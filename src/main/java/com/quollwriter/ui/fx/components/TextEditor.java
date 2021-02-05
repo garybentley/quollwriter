@@ -55,6 +55,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     private boolean formattingEnabled = false;
     private StringProperty placeholder = null;
     private PropertyBinder textPropsBinder = new PropertyBinder ();
+    private Node caretNode = null;
 
         private boolean indent = true;
 
@@ -682,6 +683,21 @@ TODO
             this.setUseInitialStyleForInsertion (false);
             this.setTextInsertionStyle (null);
 
+            if (this.caretNode == null)
+            {
+
+                Node n = this.lookup (".caret");
+
+                if (n != null)
+                {
+
+                    this.caretNode = n;
+                    this.caretNode.setStyle ((n.getStyle () != null ? n.getStyle () : "") + " " + " -fx-stroke: " + UIUtils.colorToHex (props.getTextColor ()) + ";");
+
+                }
+
+            }
+
         });
 
         Nodes.addInputMap (this,
@@ -710,6 +726,9 @@ TODO
                                                   this.toggleUnderline ();
 
                                               }));
+
+        Node n = this.lookup (".caret");
+
 
     }
 
@@ -2293,6 +2312,14 @@ System.out.println ("HEREZ: " + cb);
             {
 
                 this.updateTextStyle (style -> style.updateTextColor (props.getTextColor ()));
+
+                if (this.caretNode != null)
+                {
+
+                    this.caretNode.setStyle ((this.caretNode.getStyle () != null ? this.caretNode.getStyle () : "") + " " + " -fx-stroke: " + UIUtils.colorToHex (props.getTextColor ()) + ";");
+
+                }
+
                 this.ignoreDocumentChange = false;
 
             });

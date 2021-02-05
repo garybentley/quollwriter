@@ -105,7 +105,7 @@ public class WhatsNewPopup extends PopupContent
                                                              XMLConstants.clazz,
                                                              false);
 
-                    if (!cl.equals (""))
+                    if (cl != null)
                     {
 
                         Class clz = null;
@@ -445,11 +445,11 @@ public class WhatsNewPopup extends PopupContent
 
         if (nits != null)
         {
-
+System.out.println ("HERE4");
             return n.getVersion () + ":0";
 
         }
-
+System.out.println ("HERE5");
         return null;
 
     }
@@ -478,6 +478,7 @@ public class WhatsNewPopup extends PopupContent
             .title (getUILanguageStringProperty (Arrays.asList (whatsnew,LanguageStrings.popup,title),
                                                  Environment.getQuollWriterVersion ()))
             .styleClassName (StyleClassNames.WHATSNEW)
+            .styleSheet (StyleClassNames.WHATSNEW)
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

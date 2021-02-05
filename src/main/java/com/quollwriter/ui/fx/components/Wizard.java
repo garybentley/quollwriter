@@ -388,7 +388,7 @@ public class Wizard extends VBox
         this.prevBut.textProperty ().bind (pp);
 
         this.prevBut.setDisable (pid == null);
-        this.nextBut.setDisable (nid == null);
+        //this.nextBut.setDisable (nid == null);
 
     }
 

@@ -226,6 +226,12 @@ public class Constants
 
     public static final Integer DEFAULT_CHAPTER_AUTO_SAVE_TIME = 5 * Constants.MIN_IN_MILLIS;
 
+    public static final String AUTO_NIGHT_MODE_ENABLED_PROPERTY_NAME = "autoNightModeEnabled";
+
+    public static final String AUTO_NIGHT_MODE_TO_PROPERTY_NAME = "autoNightModeTo";
+
+    public static final String AUTO_NIGHT_MODE_FROM_PROPERTY_NAME = "autoNightModeFrom";
+
     public static final String CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME = "chapterAutoSaveInterval";
 
     public static final String CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME = "chapterAutoSaveEnabled";
@@ -308,6 +314,8 @@ public class Constants
 
     public static final String EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME = "editorWritingLineColor";
 
+    public static final String EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME = "editorWritingLineColorNightMode";
+
     public static final String EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME = "editorHighlightWritingLine";
 
     public static final String EDITOR_USE_TYPEWRITER_SCROLLING_PROPERTY_NAME = "editorUseTypewriterScrolling";
@@ -315,6 +323,10 @@ public class Constants
     public static final String EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME = "editorIndentFirstLine";
 
     public static final String EDITOR_FONT_PROPERTY_NAME = "editorFont";
+
+    public static final String EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME = "editorFontColorNightMode";
+
+    public static final String EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME = "editorBGColorNightMode";
 
     public static final String EDITOR_FONT_COLOR_PROPERTY_NAME = "editorFontColor";
 
@@ -398,6 +410,8 @@ public class Constants
 
     public static final String FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME = "fullScreenEditorWritingLineColor";
 
+    public static final String FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME = "fullScreenEditorWritingLineColorNightMode";
+
     public static final String FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME = "fullScreenEditorHighlightWritingLine";
 
     public static final String FULL_SCREEN_SIDEBAR_WIDTH_PROPERTY_NAME = "fullScreenSidebarWidth";
@@ -414,9 +428,13 @@ public class Constants
 
     public static final String FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME = "fullScreenEditorIndentFirstLine";
 
+    public static final String FULL_SCREEN_EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME = "fullScreenEditorFontColorNightMode";
+
     public static final String FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME = "fullScreenEditorFontColor";
 
-    public static final String FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME = "fullScreenEditorFontBGColor";
+    public static final String FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME = "fullScreenEditorFontBGColor";
+
+    public static final String FULL_SCREEN_EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME = "fullScreenEditorFontBGColorNightMode";
 
     public static final String FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME = "fullScreenEdiorFont";
 

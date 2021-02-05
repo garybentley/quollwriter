@@ -3881,13 +3881,20 @@ TODO
 
     }
 
-    public static Node createColorSelectorSwatch (AbstractViewer  viewer,
+    public static ColorSelectorSwatch createColorSelectorSwatch (AbstractViewer  viewer,
                                                   String          popupId,
                                                   StringProperty  popupTitle,
                                                   Color           initColor,
                                                   Consumer<Color> onColorSelected)
     {
 
+        return ColorSelectorSwatch.builder ()
+            .inViewer (viewer)
+            .popupTitle (popupTitle)
+            .initialColor (initColor)
+            .onColorSelected (onColorSelected)
+            .build ();
+/*
         Region swatch = new Region ();
         swatch.setBackground (new Background (new BackgroundFill (initColor, null, null)));
         swatch.getStyleClass ().add (StyleClassNames.COLORSWATCH);
@@ -3934,7 +3941,7 @@ TODO
         });
 
         return swatch;
-
+*/
     }
 
     public static ComboBox<Font> getFontSelector (AbstractViewer viewer,

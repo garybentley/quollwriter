@@ -43,6 +43,7 @@ public final class StyleClassNames
     public static final PseudoClass UNDEALTWITH_PSEUDO_CLASS  = PseudoClass.getPseudoClass (StyleClassNames.UNDEALTWITH);
     public static final PseudoClass ATTENTIONREQUIRED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.ATTENTIONREQUIRED);
 
+    public static final String TIMESELECT = "timeselect";
     public static final String STRING = "string";
     public static final String FORWARD = "forward";
     public static final String NODE = "node";

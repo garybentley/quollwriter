@@ -62,3 +62,15 @@
     -fx-cursor: hand;
     -fx-max-width: 50em;
 }
+
+.timeselect
+{
+    -fx-alignment: center-left;
+    -fx-spacing: 0.5em;
+}
+
+.timeselect .label.colon
+{
+    -fx-font-weight: bold;
+    -fx-font-size: 1.3em;
+}

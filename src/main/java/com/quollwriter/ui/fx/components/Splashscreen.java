@@ -74,7 +74,7 @@ public class Splashscreen extends Stage
         content.setOnMouseClicked (ev ->
         {
 
-            this.close ();
+            //this.close ();
 
         });
 

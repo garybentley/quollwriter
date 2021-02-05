@@ -76,6 +76,23 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         });
 
+        UIUtils.forceRunLater (() ->
+        {
+
+            try
+            {
+
+                this.getBackgroundPane ().setBackgroundObject (props.getBackgroundColor ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to set background object to: " + props.getBackgroundColor () + " for panel: " + this.getPanel ().getPanelId (),
+                                      e);
+
+            }
+
+        });
+
         try
         {
 

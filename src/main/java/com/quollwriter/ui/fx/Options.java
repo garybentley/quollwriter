@@ -5,6 +5,9 @@ import java.net.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
+import java.time.*;
+import java.time.format.*;
+import java.text.*;
 
 import javafx.collections.*;
 import javafx.beans.value.*;
@@ -2157,12 +2160,7 @@ public class Options extends VBox implements Stateful
                 {
 
                     Environment.setUILanguage (uid);
-/*
-TODO Remove NO longer needed.
-                    ComponentUtils.showMessage (viewer,
-                                                getUILanguageStringProperty (uilanguage,set,restartwarning,title),
-                                                getUILanguageStringProperty (uilanguage,set,restartwarning,text));
-*/
+
                 } catch (Exception e) {
 
                     Environment.logError ("Unable to set ui language to: " + uid,
@@ -2447,6 +2445,42 @@ TODO Remove NO longer needed.
 
         });
 
+        QuollTimeRangeSelector timeRange = QuollTimeRangeSelector.builder ()
+            .now ()
+            .from (UserProperties.getAutoNightModeFromTime ())
+            .to (UserProperties.getAutoNightModeToTime ())
+            .build ();
+
+        QuollCheckBox autoNightMode = QuollCheckBox.builder ()
+            .label (options,lookandsound,labels,autonightmode)
+            .selected (UserProperties.autoNightModeEnabledProperty ().getValue ())
+            .build ();
+
+        timeRange.setDisable (!autoNightMode.isSelected ());
+
+        autoNightMode.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            timeRange.setDisable (!autoNightMode.isSelected ());
+
+            UserProperties.setAutoNightModeEnabled (autoNightMode.isSelected ());
+
+        });
+
+        timeRange.fromProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.setAutoNightModeFromTime (newv);
+
+        });
+
+        timeRange.toProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.setAutoNightModeToTime (newv);
+
+        });
+
         Section s = Section.builder ()
             .sectionId (Section.Id.look)
             .styleClassName (StyleClassNames.LOOKS)
@@ -2465,6 +2499,8 @@ TODO Remove NO longer needed.
                        */
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
                        this.createLayoutSelector ())
+            .mainItem (autoNightMode)
+            .subItem (timeRange)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
                        QuollComboBox.builder ()
                          .items (getUILanguageStringProperty (options,lookandsound,labels,abovesidebar),

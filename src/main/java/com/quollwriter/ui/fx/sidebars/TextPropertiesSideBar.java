@@ -71,12 +71,26 @@ public class TextPropertiesSideBar<E extends AbstractProjectViewer> extends Side
 
         this.normalTextProps = new TextPropertiesPanel (viewer,
                                                         Environment.getProjectTextProperties (),
-                                                        getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,normal));
+                                                        getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,normal),
+                                                        this.getBinder ());
         this.normalTextProps.setVisible (!viewer.getViewer ().isFullScreen ());
+/*
+        this.normalNightModeTextProps = new TextPropertiesPanel (viewer,
+                                                                 Environment.getProjectNightModeTextProperties (),
+                                                                 getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,nightmode));
+        this.normalNightModeTextProps.setVisible (!viewer.getViewer ().isFullScreen () && Environment.isNightModeEnabled ());
+*/
         this.fullScreenTextProps = new TextPropertiesPanel (viewer,
                                                             Environment.getFullScreenTextProperties (),
-                                                            getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,fullscreen));
+                                                            getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,fullscreen),
+                                                            this.getBinder ());
         this.fullScreenTextProps.setVisible (viewer.getViewer ().isFullScreen ());
+/*
+        this.fullScreenNightModeTextProps = new TextPropertiesPanel (viewer,
+                                                            Environment.getFullScreenNightModeTextProperties (),
+                                                            getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,description,fullscreennightmode));
+        this.fullScreenNightModeTextProps.setVisible (viewer.getViewer ().isFullScreen () && Environment.isNightModeEnabled ());
+*/
         c.getChildren ().addAll (this.fullScreenProps,
                                     this.normalTextProps,
                                     this.fullScreenTextProps);

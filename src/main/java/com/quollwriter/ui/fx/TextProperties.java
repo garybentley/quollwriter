@@ -504,6 +504,7 @@ TODO REmove
 
         this.bgColor = c;
         this.bgColorProp.setValue (c);
+        
 /*
 TODO Remove
         if ((this.setOn != null)
@@ -517,7 +518,7 @@ TODO Remove
         }
 */
     }
-
+/*
     public void resetToDefaults ()
     {
 
@@ -529,7 +530,7 @@ TODO Remove
         }
 
     }
-
+*/
     public void unbindAll ()
     {
 

@@ -3,6 +3,11 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String configure = "configure";
+    public static final String autonightmode = "autonightmode";
+    public static final String range = "range";
+    public static final String between = "between";
+    public static final String and = "and";
     public static final String select = "select";
     public static final String selectall = "selectall";
     public static final String sections = "sections";

@@ -16,16 +16,27 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
         super ();
 
+        boolean v = Environment.isNightModeEnabled ();
+
         this.initInternal (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
                            UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
                            UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
                            UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
-                           UIUtils.hexToColor (UserProperties.get (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)),
-                           UIUtils.hexToColor (UserProperties.get (Constants.EDITOR_BGCOLOR_PROPERTY_NAME)),
-                           UIUtils.hexToColor (UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
+                           UIUtils.hexToColor (UserProperties.get (v ? Constants.EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)),
+                           UIUtils.hexToColor (UserProperties.get (v ? Constants.EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_BGCOLOR_PROPERTY_NAME)),
+                           UIUtils.hexToColor (UserProperties.get (v ? Constants.EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
                            UserProperties.getAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
+
+        Environment.nightModeProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.setTextColor (UIUtils.hexToColor (UserProperties.get (newv ? Constants.EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)));
+            this.setBackgroundColor (UIUtils.hexToColor (UserProperties.get (newv ? Constants.EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_BGCOLOR_PROPERTY_NAME)));
+            this.setWritingLineColor (UIUtils.hexToColor (UserProperties.get (newv ? Constants.EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
+
+        });
 
     }
 
@@ -57,7 +68,7 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
         super.setBackgroundColor (c);
 
-        this.setProperty (new StringProperty (Constants.EDITOR_BGCOLOR_PROPERTY_NAME,
+        this.setProperty (new StringProperty (Environment.isNightModeEnabled () ? Constants.EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_BGCOLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getBackgroundColor ())));
 
 /*
@@ -112,7 +123,7 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
         super.setWritingLineColor (c);
 
-        this.setProperty (new StringProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+        this.setProperty (new StringProperty (Environment.isNightModeEnabled () ? Constants.EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
                                              UIUtils.colorToHex (this.getWritingLineColor ())));
 
     }
@@ -122,7 +133,7 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
         super.setTextColor (c);
 
-        this.setProperty (new StringProperty (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME,
+        this.setProperty (new StringProperty (Environment.isNightModeEnabled () ? Constants.EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_FONT_COLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getTextColor ())));
 
     }

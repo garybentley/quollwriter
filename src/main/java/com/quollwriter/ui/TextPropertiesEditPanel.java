@@ -120,7 +120,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                 }
 
-                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME))
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME))
                 {
 
                     this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());

@@ -144,14 +144,29 @@
     <value>0</value>
   </property>
 
+  <property id="editorWritingLineColorNightMode" type="string">
+    <description>The default color for the writing line for the editor in night mode.</description>
+    <value>#D3D3D3</value>
+  </property>
+
   <property id="editorWritingLineColor" type="string">
     <description>The default color for the writing line for the editor.</description>
     <value>#D3D3D3</value>
   </property>
 
+  <property id="editorFontColorNightMode" type="string">
+    <description>The default font color for the text for the editor in night mode.</description>
+    <value>#FFFFFF</value>
+  </property>
+
   <property id="editorFontColor" type="string">
     <description>The default font color for the text for the editor.</description>
     <value>#000000</value>
+  </property>
+
+  <property id="editorBGColorNightMode" type="string">
+    <description>The default background color for the text for the editor in night mode.</description>
+    <value>#D4D4D4</value>
   </property>
 
   <property id="editorBGColor" type="string">

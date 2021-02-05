@@ -32,7 +32,7 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
                                                       Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
                            UIUtils.getColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
                                                                  Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)),
-                           UIUtils.getColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
+                           UIUtils.getColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME,
                                                                  Constants.EDITOR_BGCOLOR_PROPERTY_NAME)),
                            UIUtils.getColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
                                                                  Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
@@ -93,7 +93,7 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
 
         }
 
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
+        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getBackgroundColor ())));
 
     }

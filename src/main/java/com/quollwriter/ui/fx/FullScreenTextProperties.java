@@ -15,6 +15,68 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
     public FullScreenTextProperties ()
     {
 
+        boolean v = Environment.isNightModeEnabled ();
+
+        String fontColor = null;
+        String bgColor = null;
+        String lineColor = null;
+
+        if (v)
+        {
+
+            fontColor = UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME);
+
+            if (fontColor == null)
+            {
+
+                fontColor = UserProperties.get (Constants.EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME);
+
+            }
+
+            bgColor = UserProperties.get (Constants.FULL_SCREEN_EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME);
+
+            if (bgColor == null)
+            {
+
+                bgColor = UserProperties.get (Constants.EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME);
+
+            }
+
+            lineColor = UserProperties.get (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME);
+
+            if (lineColor == null)
+            {
+
+                lineColor = UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME);
+
+            }
+
+        }
+
+        if (fontColor == null)
+        {
+
+            fontColor = UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
+                                            Constants.EDITOR_FONT_COLOR_PROPERTY_NAME);
+
+        }
+
+        if (bgColor == null)
+        {
+
+            bgColor = UserProperties.get (Constants.FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME,
+                                          Constants.EDITOR_BGCOLOR_PROPERTY_NAME);
+
+        }
+
+        if (lineColor == null)
+        {
+
+            lineColor = UserProperties.get (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                                            Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME);
+
+        }
+
         this.initInternal (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
                                                Constants.EDITOR_FONT_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
@@ -25,17 +87,55 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
                                                         Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
                            UserProperties.getAsFloat (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
                                                       Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
-                           UIUtils.hexToColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
-                                                                 Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)),
-                           UIUtils.hexToColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
-                                                                 Constants.EDITOR_BGCOLOR_PROPERTY_NAME)),
-                           UIUtils.hexToColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
-                                                                 Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
+                           UIUtils.hexToColor (fontColor),
+                           UIUtils.hexToColor (bgColor),
+                           UIUtils.hexToColor (lineColor),
                            UserProperties.getAsBoolean (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
                                                         Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
                                                     Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME)
                           );
+
+        Environment.nightModeProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            String c = UserProperties.get (newv ? Constants.FULL_SCREEN_EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME);
+
+            if (c == null)
+            {
+
+                c = UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
+                                        Constants.EDITOR_FONT_COLOR_PROPERTY_NAME);
+
+            }
+
+            this.setTextColor (UIUtils.hexToColor (c));
+
+            c = UserProperties.get (newv ? Constants.FULL_SCREEN_EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME : Constants.FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME);
+
+            if (c == null)
+            {
+
+                c = UserProperties.get (Constants.FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME,
+                                        Constants.EDITOR_BGCOLOR_PROPERTY_NAME);
+
+            }
+
+            this.setBackgroundColor (UIUtils.hexToColor (c));
+
+            c = UserProperties.get (newv ? Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME);
+
+            if (c == null)
+            {
+
+                c = UserProperties.get (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                                        Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME);
+
+            }
+
+            this.setWritingLineColor (UIUtils.hexToColor (c));
+
+        });
 
     }
 
@@ -66,7 +166,7 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
     {
 
         super.setBackgroundColor (c);
-
+/*
         if (c.equals (this.getTextColor ()))
         {
 
@@ -87,8 +187,8 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
             }
 
         }
-
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
+*/
+        this.setProperty (new StringProperty (Environment.isNightModeEnabled () ? Constants.FULL_SCREEN_EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME : Constants.FULL_SCREEN_EDITOR_BGCOLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getBackgroundColor ())));
 
     }
@@ -97,7 +197,7 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
     {
 
         super.setTextColor (c);
-
+/*
         if (c.equals (this.getBackgroundColor ()))
         {
 
@@ -117,8 +217,8 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
             }
 
         }
-
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
+*/
+        this.setProperty (new StringProperty (Environment.isNightModeEnabled () ? Constants.FULL_SCREEN_EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getTextColor ())));
 
     }
@@ -128,7 +228,7 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
 
         super.setWritingLineColor (c);
 
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+        this.setProperty (new StringProperty (Environment.isNightModeEnabled () ? Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
                                              UIUtils.colorToHex (this.getWritingLineColor ())));
 
     }
@@ -217,7 +317,7 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
                             prop);
 
     }
-
+/*
     public void resetToDefaults ()
     {
 
@@ -233,5 +333,5 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
         this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
 
     }
-
+*/
 }

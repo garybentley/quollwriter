@@ -37,7 +37,8 @@ public class TextPropertiesPanel extends VBox
 
     public TextPropertiesPanel (AbstractProjectViewer viewer,
                                 TextProperties        props,
-                                StringProperty        desc)
+                                StringProperty        desc,
+                                IPropertyBinder       binder)
     {
 
         this.managedProperty ().bind (this.visibleProperty ());
@@ -357,41 +358,65 @@ public class TextPropertiesPanel extends VBox
 
         fb.item (this.highlightWritingLine);
 
+        ColorSelectorSwatch writingLineC = ColorSelectorSwatch.builder ()
+                    .inViewer (viewer)
+                    .styleClassName ("writing-line-color-chooser")
+                    .popupTitle (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,highlightlinecolor,popup,title))
+                    .initialColor (props.getWritingLineColor ())
+                    .onColorSelected (col ->
+                    {
+
+                        props.setWritingLineColor (col);
+
+                    })
+                    .build ();
+
+        ColorSelectorSwatch textColorC = ColorSelectorSwatch.builder ()
+                    .inViewer (viewer)
+                    .styleClassName ("text-color-chooser")
+                    .popupTitle (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,textcolor,popup,title))
+                    .initialColor (props.getTextColor ())
+                    .onColorSelected (col ->
+                    {
+
+                        props.setTextColor (col);
+
+                    })
+                    .build ();
+
+        ColorSelectorSwatch bgColorC = ColorSelectorSwatch.builder ()
+                    .inViewer (viewer)
+                    .styleClassName ("bg-color-chooser")
+                    .popupTitle (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,bgcolor,popup,title))
+                    .initialColor (props.getBackgroundColor ())
+                    .onColorSelected (col ->
+                    {
+
+                        props.setBackgroundColor (col);
+
+                    })
+                    .build ();
+
+
+        binder.addChangeListener (Environment.nightModeProperty (),
+                                  (pr, oldv, newv) ->
+        {
+
+            writingLineC.setColor (props.getWritingLineColor ());
+            textColorC.setColor (props.getTextColor ());
+            System.out.println ("BG: " + props.getBackgroundColor ());
+            bgColorC.setColor (props.getBackgroundColor ());
+
+        });
+
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,highlightlinecolor,text),
-                 UIUtils.createColorSelectorSwatch (viewer,
-                                                    "writing-line-color-chooser",
-                                                    getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,highlightlinecolor,popup,title),
-                                                    props.getWritingLineColor (),
-                                                    col ->
-                                                    {
-
-                                                        props.setWritingLineColor (col);
-
-                                                    }));
+                 writingLineC);
 
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,textcolor,text),
-                 UIUtils.createColorSelectorSwatch (viewer,
-                                                    "text-color-chooser",
-                                                    getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,textcolor,popup,title),
-                                                    props.getTextColor (),
-                                                    col ->
-                                                    {
-
-                                                        props.setTextColor (col);
-
-                                                    }));
+                 textColorC);
 
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,bgcolor,text),
-                 UIUtils.createColorSelectorSwatch (viewer,
-                                                    "text-color-chooser",
-                                                    getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,bgcolor,popup,title),
-                                                    props.getBackgroundColor (),
-                                                    col ->
-                                                    {
-
-                                                        props.setBackgroundColor (col);
-
-                                                    }));
+                 bgColorC);
 
         Form ff = fb.build ();
 

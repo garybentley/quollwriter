@@ -15,6 +15,7 @@ import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 
+import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 public class QuollToolBar extends HBox implements Stateful
@@ -349,7 +350,7 @@ public class QuollToolBar extends HBox implements Stateful
                 ContextMenu cm = new ContextMenu ();
 
                 QuollMenuItem mi = QuollMenuItem.builder ()
-                    .label (new SimpleStringProperty ("Configure"))
+                    .label (getUILanguageStringProperty (actions,configure))
                     .iconName (StyleClassNames.CONFIG)
                     .onAction (eev ->
                     {

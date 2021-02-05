@@ -8,6 +8,7 @@ import java.net.*;
 
 import java.time.*;
 import java.time.format.*;
+import java.time.temporal.*;
 import java.text.*;
 import java.util.*;
 import java.util.function.*;
@@ -142,6 +143,8 @@ public class Environment
     private static HostServices hostServices = null;
 
     private static List<Runnable> doOnShutdown = new ArrayList<> ();
+
+    private static ScheduledFuture autoNightModeSchedule = null;
 
     static
     {
@@ -1171,6 +1174,175 @@ TODO
                             UserProperties.userStyleSheetProperty ().getValue ());
 
         UIUtils.runLater (onInitComplete);
+
+        UserProperties.autoNightModeEnabledProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            Environment.scheduleAutoNightMode ();
+
+        });
+
+        UserProperties.autoNightModeFromProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            Environment.scheduleAutoNightMode ();
+
+        });
+
+        UserProperties.autoNightModeToProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            Environment.scheduleAutoNightMode ();
+
+        });
+
+        Environment.scheduleAutoNightMode ();
+
+    }
+
+    private static void cancelAutoNightModeSchedule ()
+    {
+
+        if (Environment.autoNightModeSchedule != null)
+        {
+
+            Environment.autoNightModeSchedule.cancel (true);
+
+        }
+
+    }
+
+    private static void scheduleAutoNightMode ()
+    {
+
+        Environment.cancelAutoNightModeSchedule ();
+
+        if (!UserProperties.autoNightModeEnabledProperty ().getValue ())
+        {
+
+            return;
+
+        }
+
+        LocalTime now = LocalTime.now ();
+
+        LocalTime f = UserProperties.getAutoNightModeFromTime ();
+
+        if (f == null)
+        {
+
+            return;
+
+        }
+
+        LocalTime t = UserProperties.getAutoNightModeToTime ();
+
+        if (t == null)
+        {
+
+            return;
+
+        }
+
+        if (f.isAfter (t))
+        {
+
+            LocalTime _f = f;
+            f = t;
+            t = _f;
+
+            if ((now.isAfter (f))
+                &&
+                (now.isBefore (t))
+               )
+            {
+
+                // Switch off.
+                UIUtils.runLater (() ->
+                {
+
+                    Environment.nightModeProp.setValue (false);
+
+                });
+                Environment.autoNightModeSchedule = Environment.schedule (() ->
+                {
+
+                    Environment.scheduleAutoNightMode ();
+
+                },
+                Math.abs (now.until (t,
+                                     ChronoUnit.MILLIS)),
+                -1);
+
+                return;
+
+            } else {
+
+                UIUtils.runLater (() ->
+                {
+
+                    Environment.nightModeProp.setValue (true);
+
+                });
+                Environment.autoNightModeSchedule = Environment.schedule (() ->
+                {
+
+                    Environment.scheduleAutoNightMode ();
+
+                },
+                Math.abs (now.until (f,
+                                     ChronoUnit.MILLIS)),
+                -1);
+
+                return;
+
+            }
+
+        } else {
+
+            if ((now.isAfter (f))
+                &&
+                (now.isBefore (t))
+               )
+            {
+
+                UIUtils.runLater (() ->
+                {
+
+                    Environment.nightModeProp.setValue (true);
+
+                });
+                Environment.autoNightModeSchedule = Environment.schedule (() ->
+                {
+
+                    Environment.scheduleAutoNightMode ();
+
+                },
+                Math.abs (now.until (t,
+                                     ChronoUnit.MILLIS)),
+                -1);
+
+                return;
+
+            }
+
+        }
+
+        UIUtils.runLater (() ->
+        {
+
+            Environment.nightModeProp.setValue (false);
+
+        });
+        Environment.autoNightModeSchedule = Environment.schedule (() ->
+        {
+
+            Environment.scheduleAutoNightMode ();
+
+        },
+        Math.abs (now.until (f,
+                             ChronoUnit.MILLIS)),
+        -1);
 
     }
 

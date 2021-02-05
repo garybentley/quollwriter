@@ -1,0 +1,13 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.WhatsNew
+ */
+.content {
+    -fx-max-height: 30em;
+    -fx-pref-height: 30em;
+}
+.content .header { -fx-padding: 0; }
+.content .header .title { -fx-padding: 0; }
+.content .header .icon { visibility: hidden; }
+.content .wizard .header .iconbox {
+    visibility: hidden;
+}

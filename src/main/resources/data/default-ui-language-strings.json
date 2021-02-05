@@ -734,7 +734,15 @@
         "alltime" : "All time",
         "now" : "Now",
         "today" : "Today",
-        "yesterday" : "Yesterday"
+        "yesterday" : "Yesterday",
+        "range" :
+        {
+            "select" :
+            {
+                "between" : "Between (24hr clock)",
+                "and" : "and"
+            }
+        }
     },
     "words" :
     {
@@ -1466,7 +1474,8 @@
         "managedictionary" : "Manage your personal Dictionary",
         "editneeded" : "Edit Needed",
         "selectall" : "Select all",
-        "select" : "Select"
+        "select" : "Select",
+        "configure" : "Configure"
     },
     "sidebars" :
     {
@@ -5524,6 +5533,7 @@
                 "createtranslation" : "Create a translation",
                 "edittranslation" : "Edit one of your translations",
                 "feedback" : "Send feedback",
+                "autonightmode" : "Automatically turn on Night Mode",
                 "interfacelayout" :
                 {
                     "text" : "How should the interface be laid out? (Click on the image below to change)",
@@ -6081,6 +6091,22 @@
                     {
                         "title" : "Bug fixes",
                         "text" : "Removing custom object fields won't now prevent the parent object from being deleted."
+                    }
+                }
+            },
+            "3.0.0b9" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes",
+                        "text" : "Fixed a couple of issues relating to the Import.<br /><br />Fixed issues relating to accessing and downloading User Interface files.<br /><br />Fixed a couple of issues relating to the What's New popup, WhatsNewCeption!"
+                    },
+                    "newfeatures" :
+                    {
+                        "title" : "New Features",
+                        "text" : "The controls on the header bars of windows are now configurable.  Just right click on a control and select <b>Configure</b>.<br /><br />A new option has been added to the <b>How things look and sound</b> section of the options. that allows you to set the times when <b>Night Mode</b> should be automatically enabled.<br /><br />The text properties are now aware of Night Mode and will change accordingly."
                     }
                 }
             }

@@ -3,6 +3,8 @@ package com.quollwriter;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
+import java.time.*;
+import java.time.format.*;
 
 import java.util.stream.*;
 import java.util.StringTokenizer;
@@ -127,6 +129,9 @@ public class UserProperties
     private static javax.sound.sampled.Clip keyStrokeSound = null;
     private static byte[] keyStrokeSoundBytes = null;
     private static UserDictionaryProvider uiTextDictionaryProv = null;
+    private static SimpleBooleanProperty autoNightModeProp = null;
+    private static SimpleObjectProperty<LocalTime> autoNightModeToProp = null;
+    private static SimpleObjectProperty<LocalTime> autoNightModeFromProp = null;
 
     static
     {
@@ -263,6 +268,67 @@ public class UserProperties
 
             UserProperties.set (Constants.EDITOR_COMMENT_CHAPTER_HIGHLIGHT_COLOR_PROPERTY_NAME,
                                 UIUtils.colorToHex (newv));
+
+        });
+
+        UserProperties.autoNightModeProp = UserProperties.createMappedBooleanProperty (Constants.AUTO_NIGHT_MODE_ENABLED_PROPERTY_NAME);
+
+        UserProperties.autoNightModeToProp = new SimpleObjectProperty<> ();
+        UserProperties.autoNightModeFromProp = new SimpleObjectProperty<> ();
+
+        DateTimeFormatter dFormat = DateTimeFormatter.ofPattern ("kk:mm");
+
+        String v = UserProperties.get (Constants.AUTO_NIGHT_MODE_TO_PROPERTY_NAME);
+
+        if (v != null)
+        {
+
+            UserProperties.autoNightModeToProp.setValue (LocalTime.parse (v,
+                                                                          dFormat));
+
+        }
+
+        UserProperties.autoNightModeToProp.addListener ((pr, oldv, newv) ->
+        {
+
+            String _v = null;
+
+            if (newv != null)
+            {
+
+                _v = newv.format (dFormat);
+
+            }
+
+            UserProperties.set (Constants.AUTO_NIGHT_MODE_TO_PROPERTY_NAME,
+                                _v);
+
+        });
+
+        v = UserProperties.get (Constants.AUTO_NIGHT_MODE_FROM_PROPERTY_NAME);
+
+        if (v != null)
+        {
+
+            UserProperties.autoNightModeFromProp.setValue (LocalTime.parse (v,
+                                                                            dFormat));
+
+        }
+
+        UserProperties.autoNightModeFromProp.addListener ((pr, oldv, newv) ->
+        {
+
+            String _v = null;
+
+            if (newv != null)
+            {
+
+                _v = newv.format (dFormat);
+
+            }
+
+            UserProperties.set (Constants.AUTO_NIGHT_MODE_FROM_PROPERTY_NAME,
+                                _v);
 
         });
 
@@ -566,7 +632,7 @@ public class UserProperties
 
         UserProperties.fullScreenBackgroundProp = new SimpleObjectProperty<> ();
 
-        String v = UserProperties.get (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
+        v = UserProperties.get (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
 
         if (v == null)
         {
@@ -725,6 +791,63 @@ public class UserProperties
 
     }
 */
+
+    public static SimpleObjectProperty<LocalTime> autoNightModeFromProperty ()
+    {
+
+        return UserProperties.autoNightModeFromProp;
+
+    }
+
+    public static SimpleObjectProperty<LocalTime> autoNightModeToProperty ()
+    {
+
+        return UserProperties.autoNightModeToProp;
+
+    }
+
+    public static LocalTime getAutoNightModeFromTime ()
+    {
+
+        return UserProperties.autoNightModeFromProp.getValue ();
+
+    }
+
+    public static LocalTime getAutoNightModeToTime ()
+    {
+
+        return UserProperties.autoNightModeToProp.getValue ();
+
+    }
+
+    public static void setAutoNightModeFromTime (LocalTime t)
+    {
+
+        UserProperties.autoNightModeFromProp.setValue (t);
+
+    }
+
+    public static void setAutoNightModeToTime (LocalTime t)
+    {
+
+        UserProperties.autoNightModeToProp.setValue (t);
+
+    }
+
+    public static SimpleBooleanProperty autoNightModeEnabledProperty ()
+    {
+
+        return UserProperties.autoNightModeProp;
+
+    }
+
+    public static void setAutoNightModeEnabled (boolean v)
+    {
+
+        UserProperties.set (Constants.AUTO_NIGHT_MODE_ENABLED_PROPERTY_NAME,
+                            v);
+
+    }
 
     public static ObservableSet<String> projectViewerHeaderControlButtonIds ()
     {
