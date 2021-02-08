@@ -218,7 +218,8 @@ public class WhatsNewPopup extends PopupContent
 
         }
 
-        BasicHtmlTextFlow mess = BasicHtmlTextFlow.builder ()
+        QuollTextView mess = QuollTextView.builder ()
+        //BasicHtmlTextFlow mess = BasicHtmlTextFlow.builder ()
             .styleClassName (StyleClassNames.DESCRIPTION)
             .text (getUILanguageStringProperty (Arrays.asList (whatsnew,text),
                                                 Environment.getQuollWriterVersion ().getVersion (),
@@ -315,10 +316,12 @@ public class WhatsNewPopup extends PopupContent
             if (item.descriptionProp != null)
             {
 
-                BasicHtmlTextFlow text = BasicHtmlTextFlow.builder ()
+                //BasicHtmlTextFlow text = BasicHtmlTextFlow.builder ()
+                QuollTextView text = QuollTextView.builder ()
                     .text (item.descriptionProp)
                     .styleClassName (StyleClassNames.DESCRIPTION)
-                    .withHandler (this.viewer)
+                    //.withHandler (this.viewer)
+                    .inViewer (this.viewer)
                     .build ();
 
                 b.getChildren ().add (text);

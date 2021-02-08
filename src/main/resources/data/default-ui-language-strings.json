@@ -6109,6 +6109,17 @@
                         "text" : "The controls on the header bars of windows are now configurable.  Just right click on a control and select <b>Configure</b>.<br /><br />A new option has been added to the <b>How things look and sound</b> section of the options. that allows you to set the times when <b>Night Mode</b> should be automatically enabled.<br /><br />The text properties are now aware of Night Mode and will change accordingly."
                     }
                 }
+            },
+            "3.0.0b10" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes",
+                        "text" : "<li>Fixed the first use wizard so that its size is correct, it is also resizable.</li><li>Fixed the Night Mode colors for the chapter editor.</li><li>Fixed some issues relating to adding new Asset types.</li><li>Improved drag-n-drop on Linux.</li><li>Changed location of the log file(s) to be in the QuollWriter sub-folder of the home folder.</li><li>Fixed an issue that caused the Chapters to be removed from the sidebar when removing Editors.</li><li>Fixed an issue preventing Edit Needed notes from being edited.</li>"
+                    }
+                }
             }
         }
     },
