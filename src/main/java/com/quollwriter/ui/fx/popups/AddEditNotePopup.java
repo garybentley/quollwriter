@@ -100,10 +100,15 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
         if (!this.addMode)
         {
 
-            this.type.getSelectionModel ().select (UserProperties.getNoteTypes ().stream ()
-                .filter (i -> i.getValue ().equals (this.item.getType ()))
-                .findFirst ()
-                .orElse (null));
+            if (!this.item.isEditNeeded ())
+            {
+
+                this.type.getSelectionModel ().select (UserProperties.getNoteTypes ().stream ()
+                    .filter (i -> i.getValue ().equals (this.item.getType ()))
+                    .findFirst ()
+                    .orElse (null));
+
+            }
 
             if ((this.item.isEditNeeded ())
                 &&
@@ -506,12 +511,17 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
                            ev ->
         {
 
-            ProjectChapterEditorPanelContent ed = this.viewer.getEditorForChapter (this.item.getChapter ());
-
-            if (ed != null)
+            if (this.item.getChapter () != null)
             {
 
-                ed.getEditor ().removeHighlight (this.highlight);
+                ProjectChapterEditorPanelContent ed = this.viewer.getEditorForChapter (this.item.getChapter ());
+
+                if (ed != null)
+                {
+
+                    ed.getEditor ().removeHighlight (this.highlight);
+
+                }
 
             }
 

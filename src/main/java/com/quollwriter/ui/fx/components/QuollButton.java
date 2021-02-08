@@ -8,6 +8,7 @@ import javafx.beans.binding.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.event.*;
+import javafx.geometry.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -39,7 +40,16 @@ public class QuollButton extends Button
             t.textProperty ().bind (b.tooltip);
 
             this.setTooltip (t);
+/*
+            t.setOnShowing (s ->
+            {
 
+                Bounds bo = this.localToScreen (this.getBoundsInLocal ());
+                t.setX (bo.getMaxX ());
+                t.setY (bo.getMinY ());
+System.out.println ("HERE: " + t.getX ());
+            });
+*/
         }
 
         if (b.styleClassName != null)

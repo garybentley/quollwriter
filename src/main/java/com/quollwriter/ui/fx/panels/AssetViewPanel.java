@@ -148,11 +148,8 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         });
 
-        UIUtils.setBackgroundImage (header.getIcon (),
-                                    a.getUserConfigurableObjectType ().icon24x24Property (),
+        header.getIcon ().setImage (a.getUserConfigurableObjectType ().icon24x24Property (),
                                     this.getBinder ());
-
-        //header.getIcon ().imageProperty ().bind (a.getUserConfigurableObjectType ().icon24x24Property ());
 
         this.error = new VBox ();
         this.error.getStyleClass ().add (StyleClassNames.ERROR);

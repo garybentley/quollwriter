@@ -2207,7 +2207,7 @@ TODO
     @Override
     public State getState ()
     {
-System.out.println ("CALLED");
+
         State s = super.getState ();
 
         Set<String> headerIds = this.getWindowedContent ().getHeader ().getControls ().getVisibleItemIds ();

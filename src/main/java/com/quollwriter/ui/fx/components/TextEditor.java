@@ -677,26 +677,18 @@ TODO
 
         });
 
+        this.focusedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.updateCaretNode ();
+
+        });
+
         this.caretPositionProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.setUseInitialStyleForInsertion (false);
-            this.setTextInsertionStyle (null);
-
-            if (this.caretNode == null)
-            {
-
-                Node n = this.lookup (".caret");
-
-                if (n != null)
-                {
-
-                    this.caretNode = n;
-                    this.caretNode.setStyle ((n.getStyle () != null ? n.getStyle () : "") + " " + " -fx-stroke: " + UIUtils.colorToHex (props.getTextColor ()) + ";");
-
-                }
-
-            }
+            this.updateCaretNode ();
 
         });
 
@@ -727,8 +719,40 @@ TODO
 
                                               }));
 
-        Node n = this.lookup (".caret");
+    }
 
+    private void updateCaretNode ()
+    {
+
+        if (this.caretNode == null)
+        {
+
+            Node n = this.lookup (".caret");
+
+            if (n != null)
+            {
+
+                this.caretNode = n;
+
+                if (this.props.getTextColor () != null)
+                {
+
+                    this.caretNode.setStyle ((n.getStyle () != null ? n.getStyle () : "") + " " + " -fx-stroke: " + UIUtils.colorToHex (this.props.getTextColor ()) + ";");
+
+                }
+
+            }
+
+        } else {
+
+            if (this.props.getTextColor () != null)
+            {
+
+                this.caretNode.setStyle (" -fx-stroke: " + UIUtils.colorToHex (this.props.getTextColor ()) + ";");
+
+            }
+
+        }
 
     }
 
@@ -1276,7 +1300,7 @@ TODO
 
             this.clear ();
 
-            this.setUseInitialStyleForInsertion (true);
+            //this.setUseInitialStyleForInsertion (true);
 
             this.insertText (0,
                              text != null ? text.getText () : "");
@@ -2311,16 +2335,18 @@ System.out.println ("HEREZ: " + cb);
             this.suspendUndos.suspendWhile (() ->
             {
 
-                this.updateTextStyle (style -> style.updateTextColor (props.getTextColor ()));
+                this.updateTextStyle (style -> style.updateTextColor (this.props.getTextColor ()));
+                TextStyle ts = new TextStyle ();
+                ts.updateFontSize (props.getFontSize ())
+                    .updateFontFamily (props.getFontFamily ())
+                    .updateTextColor (props.getTextColor ());
 
-                if (this.caretNode != null)
-                {
-
-                    this.caretNode.setStyle ((this.caretNode.getStyle () != null ? this.caretNode.getStyle () : "") + " " + " -fx-stroke: " + UIUtils.colorToHex (props.getTextColor ()) + ";");
-
-                }
-
+                this.setTextInsertionStyle (ts);
+                this.updateCaretNode ();
+                this.setUseInitialStyleForInsertion (false);
                 this.ignoreDocumentChange = false;
+
+                this.requestLayout ();
 
             });
 
@@ -2375,6 +2401,14 @@ System.out.println ("HEREZ: " + cb);
                 .updateTextBorder (props.getTextBorder ());
 
         });
+
+        TextStyle ts = new TextStyle ();
+        ts.updateFontSize (props.getFontSize ())
+            .updateFontFamily (props.getFontFamily ())
+            .updateTextColor (props.getTextColor ());
+
+        this.setUseInitialStyleForInsertion (false);
+        this.setTextInsertionStyle (ts);
 
         UIUtils.forceRunLater (() ->
         {

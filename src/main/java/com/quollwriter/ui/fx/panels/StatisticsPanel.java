@@ -158,7 +158,7 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
         VBox b = new VBox ();
         VBox.setVgrow (b,
                        Priority.ALWAYS);
-        b.getChildren ().addAll (/*h,*/ hb, sp);
+        b.getChildren ().addAll (h, hb, sp);
 
         this.getChildren ().add (b);
 

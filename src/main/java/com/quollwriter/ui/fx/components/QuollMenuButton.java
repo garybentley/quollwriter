@@ -8,6 +8,7 @@ import javafx.beans.binding.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.event.*;
+import javafx.geometry.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -35,11 +36,24 @@ public class QuollMenuButton extends MenuButton
         if (b.tooltip != null)
         {
 
+            UIUtils.setTooltip (this,
+                                b.tooltip);
+                                /*
             Tooltip t = new Tooltip ();
             t.textProperty ().bind (b.tooltip);
 
             this.setTooltip (t);
+            */
+/*
+            t.setOnShown (s ->
+            {
 
+                Bounds bo = this.localToScreen (this.getBoundsInLocal ());
+                t.setX (bo.getMaxX ());
+                t.setY (bo.getMinY ());
+
+            });
+*/
         }
 /*
         if (b.styleName != null)

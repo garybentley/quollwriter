@@ -21,5 +21,9 @@
      -fx-border-width: 1px;
      -fx-border-color: -qw-border-color;
 }
-.item:hover .description > * { -fx-fill: black; }
-.item:selected .description .label { -fx-text-fill: #ffffff; }
+.item:hover .description > * { -fx-fill: -qw-text-base-color; }
+.item:selected .description .label { -fx-text-fill: -qw-text-base-color; }
+.root:night .item:hover .description .label
+{
+    -fx-text-fill: -qw-dark-color;
+}

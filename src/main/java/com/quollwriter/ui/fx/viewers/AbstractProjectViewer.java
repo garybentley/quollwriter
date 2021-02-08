@@ -311,7 +311,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         try
         {
 
-            viewerClass.getDeclaredConstructor ().newInstance ();
+            if (viewerClass.getDeclaredConstructor () == null)
+            {
+
+                throw new IllegalArgumentException ("No zero arg constructor.");
+
+            }
 
         } catch (Exception e) {
 
@@ -1202,7 +1207,7 @@ TODO
 
         if (f != null)
         {
-
+/*
             java.awt.Font ft = new java.awt.Font (f,
                                 java.awt.Font.PLAIN,
                                 12);
@@ -1219,7 +1224,7 @@ TODO
                     .build ();
 
             }
-
+*/
         }
 
         this.setIgnoreProjectEvents (false);

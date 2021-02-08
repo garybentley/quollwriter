@@ -230,16 +230,14 @@ public class AddEditUserConfigurableObjectType extends PopupContent<AbstractView
             .cancelButton (buttons,cancel)
             .build ();
 
-        f.addEventHandler (Form.FormEvent.CANCEL_EVENT,
-                           ev ->
+        f.setOnCancel (ev ->
         {
 
             this.close ();
 
         });
 
-        f.addEventHandler (Form.FormEvent.CONFIRM_EVENT,
-                           ev ->
+        f.setOnConfirm (ev ->
         {
 
             f.hideError ();

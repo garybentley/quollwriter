@@ -166,7 +166,7 @@
 
   <property id="editorBGColorNightMode" type="string">
     <description>The default background color for the text for the editor in night mode.</description>
-    <value>#D4D4D4</value>
+    <value>#4D4D4D</value>
   </property>
 
   <property id="editorBGColor" type="string">

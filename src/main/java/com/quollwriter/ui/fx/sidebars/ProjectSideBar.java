@@ -208,31 +208,6 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
                        Priority.ALWAYS);
         this.setContent (sp);
 
-        this.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
-                                   ch ->
-        {
-
-            if (ch.wasRemoved ())
-            {
-
-                this.removeSection (ch.getElementRemoved ());
-
-            }
-
-            if (ch.wasAdded ())
-            {
-
-                if (ch.getElementAdded ().isAssetObjectType ())
-                {
-
-                    this.addSidebarItem (this.createAssetSidebarItem (ch.getElementAdded ()));
-
-                }
-
-            }
-
-        });
-
         this.addSetChangeListener (Environment.getAllTags (),
                                    ev ->
         {
@@ -325,6 +300,31 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
             this.addSidebarItem (it);
 
         }
+
+        this.addMapChangeListener (this.viewer.getProject ().getAssets (),
+                                   ch ->
+        {
+
+            if (ch.wasRemoved ())
+            {
+
+                this.removeSection (ch.getKey ());
+
+            }
+
+            if (ch.wasAdded ())
+            {
+
+                if (ch.getKey ().isAssetObjectType ())
+                {
+
+                    this.addSidebarItem (this.createAssetSidebarItem (ch.getKey ()));
+
+                }
+
+            }
+
+        });
 
     }
 
@@ -935,9 +935,9 @@ TODO Remove
 
                         Set<MenuItem> items2 = new LinkedHashSet<> (items);
 
-                        items2.add (_this.getHideSectionMenuItem (Chapter.OBJECT_TYPE));
+                        items2.add (_this.getHideSectionMenuItem (ProjectEditor.OBJECT_TYPE));
 
-                        Set<MenuItem> its = _this.getAddSectionMenu (Chapter.OBJECT_TYPE);
+                        Set<MenuItem> its = _this.getAddSectionMenu (ProjectEditor.OBJECT_TYPE);
 
                         if (its.size () > 0)
                         {
@@ -1299,7 +1299,14 @@ TODO REmove
 
             name = utype.objectTypeNamePluralProperty ();
 
-            count = this.viewer.getProject ().getAllNamedChildObjects (utype).size ();
+            Set<NamedObject> objs = this.viewer.getProject ().getAllNamedChildObjects (utype);
+
+            if (objs != null)
+            {
+
+                count = objs.size ();
+
+            }
 
         }
 

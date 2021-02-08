@@ -26,9 +26,14 @@ public class BasicPopupsViewer extends VBox implements ViewerCreator,
         //super (StageStyle.TRANSPARENT);
         this.qp = qp;
 
+        VBox.setVgrow (this,
+                       Priority.ALWAYS);
+
         VBox popupPane = new VBox ();
         popupPane.getStyleClass ().add (StyleClassNames.POPUPVIEWER);
         popupPane.getChildren ().add (qp);
+        VBox.setVgrow (popupPane,
+                       Priority.ALWAYS);
 
         this.getChildren ().add (popupPane);
 
@@ -112,16 +117,15 @@ public class BasicPopupsViewer extends VBox implements ViewerCreator,
                throws GeneralException
     {
 
-        this.getViewer ().setResizable (false);
-
         this.getViewer ().sizeToScene ();
 
         //this.getViewer ().init (s);
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             this.getViewer ().show ();
+            //this.getViewer ().setResizable (false);
 
         });
 

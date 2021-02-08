@@ -710,6 +710,8 @@ System.out.println ("HERE2");
                        Priority.ALWAYS);
 
         VBox b = new VBox ();
+        VBox.setVgrow (b,
+                       Priority.ALWAYS);
         b.getChildren ().add (f);
 
         b.getChildren ().add (QuollHyperlink.builder ()
@@ -1996,6 +1998,11 @@ System.out.println ("HERE2");
             .removeOnClose (true)
             .withViewer (this.viewer)
             .build ();
+
+        VBox.setVgrow (this,
+                       Priority.ALWAYS);
+        VBox.setVgrow (p,
+                       Priority.ALWAYS);
 
         p.requestFocus ();
 

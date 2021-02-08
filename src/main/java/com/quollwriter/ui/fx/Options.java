@@ -220,14 +220,18 @@ public class Options extends VBox implements Stateful
 
         final Options _this = this;
 
-        Label l = new Label ();
-        l.setGraphic (this.getLayoutPanel (UserProperties.uiLayoutProperty ().getValue ()));
+        //Label l = new Label ();
+        //l.setGraphic (this.getLayoutPanel (UserProperties.uiLayoutProperty ().getValue ()));
+        VBox l = new VBox ();
+        l.getChildren ().add (this.getLayoutPanel (UserProperties.uiLayoutProperty ().getValue ()));
+        l.maxWidthProperty ().bind (((Region) l.getChildren ().get (0)).widthProperty ());
 
         this.propertyBinder.addChangeListener (UserProperties.uiLayoutProperty (),
                                          (pr, oldv, newv) ->
                                          {
 
-                                             l.setGraphic (this.getLayoutPanel (newv));
+                                             l.getChildren ().clear ();
+                                             l.getChildren ().add (this.getLayoutPanel (newv));
 
                                          });
 

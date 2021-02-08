@@ -70,7 +70,8 @@ public class Project extends NamedObject
     private List<ResearchItem> researchItems = new ArrayList ();
     */
     private ObservableSet<IdeaType>     ideaTypes = FXCollections.observableSet (new LinkedHashSet<> ());
-    private Map<UserConfigurableObjectType, ObservableSet<Asset>> assets = new HashMap<> ();
+
+    private ObservableMap<UserConfigurableObjectType, ObservableSet<Asset>> assets = FXCollections.observableMap (new HashMap<> ());
     private String             filePassword = null;
     private boolean            noCredentials = false;
     private String             type = Project.NORMAL_PROJECT_TYPE;
@@ -1001,7 +1002,7 @@ public class Project extends NamedObject
     public Set<Asset> getAssetsContaining (String  s)
     {
 
-        Set<Asset> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<Asset> ret = new TreeSet<> (NamedObjectSorter.getInstance ());
 
         for (NamedObject n : this.getAllNamedChildObjects (Asset.class))
         {
@@ -1023,7 +1024,7 @@ public class Project extends NamedObject
                                            UserConfigurableObjectType limitTo)
     {
 
-        Set<Asset> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<Asset> ret = new TreeSet<> (NamedObjectSorter.getInstance ());
 
         if (limitTo != null)
         {
@@ -1541,7 +1542,7 @@ public class Project extends NamedObject
 
     }
 
-    public Map<UserConfigurableObjectType, ObservableSet<Asset>> getAssets ()
+    public ObservableMap<UserConfigurableObjectType, ObservableSet<Asset>> getAssets ()
     {
 
         return this.assets;

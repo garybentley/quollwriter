@@ -657,13 +657,12 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
         p.requestLayout ();
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             Bounds nb = p.getLayoutBounds ();
 
             Bounds b = this.getLayoutBounds ();
-
             this.showPopup (p,
                             ((b.getWidth () - nb.getWidth ()) / 2),
                             ((b.getHeight () - nb.getHeight ()) / 2));
@@ -677,6 +676,17 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                            double     x,
                            double     y)
     {
+
+        if ((x == -1)
+            &&
+            (y == -1)
+           )
+        {
+
+            this.showPopup (p);
+            return;
+
+        }
 
         p.setVisible (false);
         this.addPopup (p);

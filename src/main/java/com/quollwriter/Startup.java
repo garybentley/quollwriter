@@ -76,20 +76,7 @@ public class Startup extends Application
 
         try
         {
-/*
-            SvgImageLoaderFactory.install (new PrimitiveDimensionProvider ()
-            {
 
-                @Override
-                public Dimension getDimension (org.w3c.dom.Document d)
-                {
-System.out.println ("CALLED: " + d);
-                    return new Dimension (64, 64);
-
-                }
-
-            });
-*/
             this.ss = Splashscreen.builder ().build ();
 
             this.ss.show ();

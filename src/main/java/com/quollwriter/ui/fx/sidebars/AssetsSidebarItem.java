@@ -47,8 +47,20 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
         ObservableSet<Asset> assts = pv.getProject ().getAssets (objType);
 
+        if (assts == null)
+        {
+
+            throw new IllegalArgumentException ("Unable to find container for type: " + objType);
+
+        }
+
         this.addSetChangeListener (assts,
-                                   ev -> this.reloadTree ());
+                                   ev ->
+        {
+
+            this.reloadTree ();
+
+        });
 
         this.countProp = new SimpleIntegerProperty (0);
 

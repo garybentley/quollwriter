@@ -253,7 +253,7 @@ public class AllProjectsViewer extends AbstractViewer
         this.fireEvent (new Panel.PanelEvent (pc.getPanel (),
                                               Panel.PanelEvent.CLOSE_EVENT));
 
-        this.showPanel (ProjectsPanel.PANEL_ID);
+        this.update ();
 
     }
 

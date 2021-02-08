@@ -715,6 +715,14 @@ xxx
 
         // Need to redetermine the bounds here otherwise the height will be wrong, for reasons...
         thisb = this.localToScreen (this.getBoundsInLocal ());
+
+        if (thisb == null)
+        {
+
+            return 0;
+
+        }
+
         double y = cb.getMinY ();
         double h = n.prefHeight (-1);
         double ny = y - thisb.getMinY () + (cb.getHeight () / 2) - (h / 2);

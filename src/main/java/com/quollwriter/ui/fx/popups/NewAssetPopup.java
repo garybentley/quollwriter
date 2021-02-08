@@ -329,18 +329,13 @@ public class NewAssetPopup extends PopupContent<ProjectViewer>
             .removeOnClose (true)
             .build ();
 
-        Pane pp = p.getHeader ().getIcon ();
-
-        //p.getHeader ().getIcon ().imageProperty ().bind (this.asset.getUserConfigurableObjectType ().icon16x16Property ());
-
-        p.requestFocus ();
-
         UIUtils.forceRunLater (() ->
         {
 
-            UIUtils.setBackgroundImage (pp,
-                                        this.asset.getUserConfigurableObjectType ().icon16x16Property (),
-                                        this.getBinder ());
+            p.requestFocus ();
+
+            p.getHeader ().getIcon ().setImage (this.asset.getUserConfigurableObjectType ().icon16x16Property (),
+                                                this.getBinder ());
 
             this.nameHandler.grabInputFocus ();
 
