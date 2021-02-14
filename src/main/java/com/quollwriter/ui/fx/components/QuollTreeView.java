@@ -431,6 +431,13 @@ xxx
         ev ->
         {
 
+            if (ev.wasPermutated ())
+            {
+
+                this.requestLayout ();
+
+            }
+
             if (ev.wasRemoved ())
             {
 

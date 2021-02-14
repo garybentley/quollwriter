@@ -72,6 +72,7 @@ public class StatisticsPanel extends PanelContent<AbstractViewer>
         Header h = Header.builder ()
             .title (title)
             .controls (headerCons)
+            .styleClassName (StyleClassNames.MAIN)
             .iconClassName (StyleClassNames.STATISTICS)
             .build ();
 

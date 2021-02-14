@@ -6,8 +6,9 @@ import javafx.beans.property.*;
 
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.text.*;
+import com.quollwriter.*;
 
-public class ChapterCounts
+public class ChapterCounts implements Stateful
 {
 
     //public Chapter chapter = null;
@@ -59,6 +60,84 @@ public class ChapterCounts
             this.wordFrequency = ti.getWordFrequency ();
 
         }
+
+    }
+
+    @Override
+    public State getState ()
+    {
+
+        State s = new State ();
+        s.set ("wordcount",
+               this.getWordCount ());
+        s.set ("sentencecount",
+               this.getSentenceCount ());
+        s.set ("paragraphcount",
+               this.getParagraphCount ());
+        s.set ("spellingerrorcount",
+               this.getSpellingErrorCount ());
+        s.set ("problemfinderproblemscount",
+               this.getProblemFinderProblemsCount ());
+        s.set ("pagecount",
+               this.getStandardPageCount ());
+        s.set ("syllablecount",
+               this.getReadabilityIndices ().getSyllableCount ());
+        s.set ("threesyllablewordcount",
+               this.getReadabilityIndices ().getThreeSyllableWordCount ());
+
+        return s;
+
+    }
+
+    @Override
+    public void init (State s)
+    {
+
+        if (s == null)
+        {
+
+            return;
+
+        }
+
+        this.setWordCount (s.getAsInt ("wordcount",
+                                       0));
+        this.setSentenceCount (s.getAsInt ("sentencecount",
+                                           0));
+        this.setParagraphCount (s.getAsInt ("paragraphcount",
+                                            0));
+        this.setStandardPageCount (s.getAsInt ("pagecount",
+                                               0));
+        this.setSpellingErrorCount (s.getAsInt ("spellingerrorcount",
+                                                0));
+        this.setProblemFinderProblemsCount (s.getAsInt ("problemfinderproblemscount",
+                                                        0));
+
+        int sylc = s.getAsInt ("syllablecount",
+                               0);
+        int thrsylc = s.getAsInt ("threesyllablewordcount",
+                                  0);
+
+        ReadabilityIndices ri = new ReadabilityIndices (this.getWordCount (),
+                                                        this.getSentenceCount (),
+                                                        thrsylc,
+                                                        sylc);
+
+        this.readabilityIndicesProp.getValue ().updateFrom (ri);
+
+    }
+
+    @Override
+    public String toString ()
+    {
+
+        return String.format ("wordcount: %1$s, sentencecount: %2$s, paragraphcount: %3$s, spellingerrorcount: %4$s, pagecount: %5$s, problemfinderproblemcount: %6$s",
+                              Environment.formatNumber (this.wordCount),
+                              Environment.formatNumber (this.sentenceCount),
+                              Environment.formatNumber (this.paragraphCount),
+                              Environment.formatNumber (this.spellingErrorCount),
+                              Environment.formatNumber (this.standardPageCount),
+                              Environment.formatNumber (this.problemFinderProblemsCount));
 
     }
 

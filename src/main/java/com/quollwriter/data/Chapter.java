@@ -1025,10 +1025,15 @@ public class Chapter extends LegacyUserConfigurableObject
     public void addNote (Note n)
     {
 
-        if (this.getNotes ().contains (n))
+        for (Note _n : this.getNotes ())
         {
 
-            return;
+            if (_n.equals (n))
+            {
+
+                return;
+
+            }
 
         }
 
@@ -1049,10 +1054,16 @@ public class Chapter extends LegacyUserConfigurableObject
     public void addScene (Scene s)
     {
 
-        if (this.scenes.contains (s))
+        // The contains call is unreliable... seems to fail sometimes...
+        for (Scene _s : this.scenes)
         {
 
-            return;
+            if (_s.equals (s))
+            {
+
+                return;
+
+            }
 
         }
 
@@ -1410,6 +1421,33 @@ public class Chapter extends LegacyUserConfigurableObject
     public Scene getLastScene (int position)
     {
 
+        List<Scene> scs = new ArrayList<> (this.getScenes ());
+
+        Collections.sort (scs,
+                          new ChapterItemSorter ());
+        Collections.reverse (scs);
+
+        for (Scene s : scs)
+        {
+
+            if (position > s.getPosition ())
+            {
+
+                return s;
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+/*
+TODO Remove
+    public Scene getLastScene (int position)
+    {
+
         Scene last = null;
 
         for (Scene s : this.getScenes ())
@@ -1432,7 +1470,7 @@ public class Chapter extends LegacyUserConfigurableObject
         return last;
 
     }
-
+*/
     public List<Note> getNotesBetween (int start,
                                        int end)
     {

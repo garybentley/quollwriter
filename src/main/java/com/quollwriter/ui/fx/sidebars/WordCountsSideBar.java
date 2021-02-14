@@ -74,12 +74,17 @@ public class WordCountsSideBar extends SideBarContent<AbstractProjectViewer>
             .openContent (this.createChapterSection ())
             .build ();
 
-        if (viewer.getCurrentPanel ().getContent () instanceof ChapterEditorPanelContent)
+        if (viewer.getCurrentPanel () != null)
         {
 
-            ChapterEditorPanelContent cp = (ChapterEditorPanelContent) viewer.getCurrentPanel ().getContent ();
-            chap.getHeader ().titleProperty ().unbind ();
-            chap.getHeader ().titleProperty ().bind (cp.getObject ().nameProperty ());
+            if (viewer.getCurrentPanel ().getContent () instanceof ChapterEditorPanelContent)
+            {
+
+                ChapterEditorPanelContent cp = (ChapterEditorPanelContent) viewer.getCurrentPanel ().getContent ();
+                chap.getHeader ().titleProperty ().unbind ();
+                chap.getHeader ().titleProperty ().bind (cp.getObject ().nameProperty ());
+
+            }
 
         }
 

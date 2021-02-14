@@ -20,6 +20,8 @@ import javafx.scene.input.*;
 import javafx.geometry.*;
 import javafx.scene.image.*;
 
+import org.dom4j.Element;
+
 import com.quollwriter.*;
 import com.quollwriter.db.*;
 import com.quollwriter.synonyms.*;
@@ -592,6 +594,7 @@ TODO
                     {
 
                         this.chapterCounts.remove (c);
+                        this.project.removeProperty ("chapter.counts." + c.getKey ());
                         this.spellingReadabilityUpdaters.remove (c);
 
                     }
@@ -605,6 +608,71 @@ TODO
         });
 
         //this.scheduleSpellingReadabilityUpdate ();
+
+        this.startWordCounts = new ChapterCounts ();
+
+        for (Chapter c : chapters)
+        {
+
+            String p = this.project.getProperty ("chapter.counts." + c.getKey ());
+
+            ChapterCounts cc = new ChapterCounts ();
+
+            if (p == null)
+            {
+
+                StringWithMarkup tt = c.getText ();
+
+                String t = "";
+
+                if (tt != null)
+                {
+
+                    t = tt.getText ();
+
+                }
+
+                final ChapterCounts ncc = new ChapterCounts (t);
+                cc.setWordCount (ncc.getWordCount ());
+
+                cc.setSentenceCount (ncc.getSentenceCount ());
+                cc.setParagraphCount (ncc.getParagraphCount ());
+                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                           t));
+
+                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
+                                                                           t));
+
+            } else {
+
+                try
+                {
+Environment.logMessage ("GOT DETAIL: " + p);
+                    State s = new State (p);
+                    cc.init (s);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to init chapter counts from: " +
+                                          p,
+                                          e);
+
+                }
+
+            }
+
+            this.scheduleSpellingReadabilityUpdate (c);
+
+            this.chapterCounts.put (c,
+                                    cc);
+
+            this.startWordCounts.add (cc);
+
+        }
+
+        this.updateAllChapterCounts ();
+
+/*
 
         // This updates the chapter word counts.
         this.scheduleImmediately (() ->
@@ -660,9 +728,8 @@ TODO
 
             });
 
-
         });
-
+*/
 	}
 
     private void initChapterCounts (Chapter c)
@@ -2033,14 +2100,15 @@ TODO
     public Tab addPanel (final Panel qp)
                   throws GeneralException
     {
-
+/*
+This causes issues for adding new assets.
         if (this.panels.containsKey (qp.getPanelId ()))
         {
 
             throw new GeneralException ("Already have a panel with id: " + qp.getPanelId ());
 
         }
-
+*/
         final AbstractProjectViewer _this = this;
 
         Tab tab = new Tab ();
@@ -3815,6 +3883,27 @@ TODO REmove
         try
         {
 
+            for (Chapter c : this.chapterCounts.keySet ())
+            {
+
+                ChapterCounts cc = this.chapterCounts.get (c);
+
+                this.project.setProperty ("chapter.counts." + c.getKey (),
+                                          cc.getState ().asString ());
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to update chapter counts for project: " +
+                                  this.project,
+                                  e);
+
+        }
+
+        try
+        {
+
             this.saveProject ();
 
         } catch (Exception e)
@@ -4299,11 +4388,20 @@ TODO REmove
 */
         this.initProperties ();
 
-        this.initChapterCounts ();
-
+        // Needs to happen before initing th echapter counts since the chapter counts may need to do a spell check count.
         this.initDictionaryProvider ();
 
+        this.initChapterCounts ();
+
         this.targets = new TargetsData (this.project.getProperties ());
+
+        UIUtils.runLater (() ->
+        {
+
+            this.checkForChaptersOverWordCountCheck ();
+
+        });
+
         this.startAutoBackups ();
 
         this.titleProp.bind (this.project.nameProperty ());

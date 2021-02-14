@@ -14,6 +14,10 @@ import javafx.css.*;
 import javafx.scene.Node;
 import javafx.css.converter.*;
 import javafx.beans.value.*;
+import javafx.scene.Cursor;
+import javafx.scene.Parent;
+
+import org.fxmisc.flowless.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -27,6 +31,8 @@ import static com.quollwriter.LanguageStrings.*;
 
 public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
 {
+
+    private static final DataFormat DRAG_FORMAT = new DataFormat("application/x-java-serialized-object");
 
     private static final CssMetaData<ParagraphIconMargin, Number> NOTE_INDENT = new CssMetaData<> ("-qw-note-item-indent", SizeConverter.getInstance (), 0d)
     {
@@ -302,6 +308,59 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
 
         });
 
+        this.setOnDragOver (ev ->
+        {
+
+            if (ev.getDragboard ().getContent (DRAG_FORMAT) != null)
+            {
+
+                ev.acceptTransferModes (TransferMode.ANY);
+
+                Point2D p = this.editor.sceneToLocal (ev.getSceneX (),
+                                                      ev.getSceneY ());
+
+                Bounds b = this.editor.getLayoutBounds ();
+
+                if (p.getY () >= b.getMaxY () - (b.getHeight () * 0.15d))
+                {
+
+                    this.scrollYBy (this.editor,
+                                    12);
+                }
+
+                if (p.getY () <= b.getMinY () + (b.getHeight () * 0.15d))
+                {
+
+                    this.scrollYBy (this.editor,
+                                    -12);
+
+                }
+
+            }
+
+        });
+
+        this.setOnDragDropped (ev ->
+        {
+
+            this.updateChapterItemPosition (ev);
+
+        });
+
+        this.setOnDragEntered (ev ->
+        {
+
+            if (ev.getDragboard ().getContent (DRAG_FORMAT) != null)
+            {
+
+                ev.acceptTransferModes (TransferMode.ANY);
+
+            }
+
+            ev.consume ();
+
+        });
+
     }
 
     private void setContextMenu (MouseEvent ev)
@@ -410,6 +469,8 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
             });
 */
             riv.setUserData (n);
+            this.makeDraggable (riv,
+                                n);
 
             this.noteNodes.add (riv);
 
@@ -446,10 +507,214 @@ xxx
             });
 */
             riv.setUserData (ci);
+            this.makeDraggable (riv,
+                                ci);
 
             this.strucNodes.add (riv);
 
         }
+
+    }
+
+    private void scrollYBy (Node riv,
+                            double amount)
+    {
+
+        VirtualizedScrollPane vsp = null;
+
+        if (riv instanceof VirtualizedScrollPane)
+        {
+
+            vsp = (VirtualizedScrollPane) riv;
+
+        } else {
+
+            Parent p = riv.getParent ();
+
+            while (p != null)
+            {
+
+                if (p instanceof VirtualizedScrollPane)
+                {
+
+                    vsp = (VirtualizedScrollPane) p;
+                    break;
+
+                }
+
+            }
+
+        }
+
+        if (vsp != null)
+        {
+
+            vsp.scrollYBy (amount);
+
+        }
+
+    }
+
+    private void makeDraggable (Node        riv,
+                                ChapterItem ci)
+    {
+
+        riv.setOnDragDetected (ev ->
+        {
+
+            Dragboard db = riv.startDragAndDrop (TransferMode.ANY);
+            db.setDragView (riv.snapshot (null, null));
+            ClipboardContent c = new ClipboardContent ();
+            c.put (DRAG_FORMAT, ci.getObjectReference ().asString ());
+            db.setContent (c);
+            riv.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
+            ev.consume ();
+
+        });
+
+        riv.setOnDragDone (ev ->
+        {
+
+            riv.setCursor (Cursor.DEFAULT);
+            riv.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+
+        });
+
+        riv.setOnDragDropped (ev ->
+        {
+
+            this.updateChapterItemPosition (ev);
+
+        });
+
+    }
+
+    private void updateChapterItemPosition (DragEvent   ev)
+    {
+
+        if (ev.getDragboard ().getContent (DRAG_FORMAT) != null)
+        {
+
+            String val = ev.getDragboard ().getContent (DRAG_FORMAT).toString ();
+//xxx handle moving item or scene...
+            try
+            {
+
+                Point2D p = this.editor.sceneToLocal (ev.getSceneX (),
+                                                      ev.getSceneY ());
+
+                int np = this.editor.getTextPositionForMousePosition (0,
+                                                                      p.getY ());
+
+                ChapterItem ci = (ChapterItem) this.viewer.getProject ().getObjectForReference (ObjectReference.parseObjectReference (val));
+
+                int oldpos = ci.getPosition ();
+
+                Chapter c = ci.getChapter ();
+
+                if (ci instanceof Note)
+                {
+
+                    ci.setPosition (np);
+
+                }
+
+                if (ci instanceof OutlineItem)
+                {
+
+                    OutlineItem oi = (OutlineItem) ci;
+
+                    Scene s = c.getLastScene (np);
+
+                    if (s == null)
+                    {
+
+                        c.addOutlineItem (oi);
+
+                    } else {
+
+                        s.addOutlineItem (oi);
+
+                    }
+
+                    ci.setPosition (np);
+
+                }
+
+                if (ci instanceof Scene)
+                {
+
+                    //Scene s = (Scene) ci;
+                    ci.setPosition (np);
+
+                    List<Scene> scs = new ArrayList<> (c.getScenes ());
+
+                    Collections.sort (scs,
+                                      new ChapterItemSorter ());
+                    Collections.reverse (scs);
+
+                    List<OutlineItem> objs = new ArrayList<> ();
+
+                    for (Scene s : c.getScenes ())
+                    {
+
+                        objs.addAll (s.getOutlineItems ());
+
+                    }
+
+                    objs.addAll (c.getOutlineItems ());
+
+                    objs.stream ()
+                        .forEach (i ->
+                        {
+
+                            Scene scene = null;
+
+                            for (Scene _s : scs)
+                            {
+
+                                if (i.getPosition () > _s.getPosition ())
+                                {
+
+                                    scene = _s;
+                                    break;
+
+                                }
+
+                            }
+
+                            if (scene != null)
+                            {
+
+                                scene.addOutlineItem (i);
+
+                            } else {
+
+                                c.addOutlineItem (i);
+
+                            }
+
+                        });
+
+                }
+
+                this.viewer.saveObject (ci,
+                                        true);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to move item: " + val,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (iconcolumn,moveitem,actionerror));
+
+            }
+
+        }
+
+        ev.setDropCompleted (true);
+        ev.consume ();
 
     }
 

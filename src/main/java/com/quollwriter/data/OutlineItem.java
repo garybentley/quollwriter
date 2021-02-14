@@ -102,6 +102,14 @@ public class OutlineItem extends ChapterItem
     }
 
     @Override
+    public void setPosition (int i)
+    {
+
+        super.setPosition (i);
+        
+    }
+
+    @Override
     public void setDescription (StringWithMarkup d)
     {
 

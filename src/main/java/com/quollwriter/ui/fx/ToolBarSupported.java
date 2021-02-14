@@ -7,5 +7,11 @@ public interface ToolBarSupported
 {
 
     Set<Node> getToolBarItems ();
+    default boolean isToolBarConfigurable ()
+    {
+
+        return false;
+
+    }
 
 }

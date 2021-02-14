@@ -805,8 +805,18 @@ public class QuollPopup extends StackPane implements IPropertyBinder
             QuollTextField tf = QuollTextField.builder ()
                 .text (this.text)
                 .build ();
-            this.items.add (new Form.Item (this.entryLabel,
-                                           tf));
+
+            if (this.entryLabel == null)
+            {
+
+                this.items.add (new Form.Item (tf));
+
+            } else {
+
+                this.items.add (new Form.Item (this.entryLabel,
+                                               tf));
+
+            }
             // TODO Make a constant.
             tf.setId ("text");
 
@@ -831,15 +841,15 @@ public class QuollPopup extends StackPane implements IPropertyBinder
 
             }
 
-            Form f = Form.builder ()
+            Form.Builder fb = Form.builder ()
                 .styleClassName (StyleClassNames.TEXTENTRY)
                 .description (this.description)
                 .inViewer (this.viewer)
-                .item (this.entryLabel,
-                       tf)
+                .items (this.items)
                 .confirmButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (buttons,confirm)))
-                .cancelButton ((this.cancelButtonLabel != null ? this.cancelButtonLabel : getUILanguageStringProperty (buttons,cancel)))
-                .build ();
+                .cancelButton ((this.cancelButtonLabel != null ? this.cancelButtonLabel : getUILanguageStringProperty (buttons,cancel)));
+
+            Form f = fb.build ();
 
             this.form (f);
 
@@ -1724,6 +1734,8 @@ TODO
 
             Set<Button> buts = new LinkedHashSet<> ();
 
+            Button confirm = null;
+
             if (this.buttons != null)
             {
 
@@ -1738,11 +1750,10 @@ TODO
 
                 }
 
-                Button confirm = QuollButton.builder ()
+                confirm = QuollButton.builder ()
                     .label ((this.confirmButtonLabel != null ? this.confirmButtonLabel : getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.confirm)))
                     .buttonType (ButtonBar.ButtonData.OK_DONE)
                     .iconName (StyleClassNames.CONFIRM)
-                    .onAction (this.onConfirm)
                     .build ();
 
                 this.button (confirm);
@@ -1755,14 +1766,9 @@ TODO
                 .label ((this.cancelButtonLabel != null ? this.cancelButtonLabel : getUILanguageStringProperty (LanguageStrings.buttons,LanguageStrings.cancel)))
                 .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
                 .iconName (StyleClassNames.CANCEL)
-                .onAction (this.onCancel)
                 .build ();
 
-            //buts.add (cancel);
-
             this.button (cancel);
-
-            //this.buttons (buts);
 
             if (this.styleName == null)
             {
@@ -1772,9 +1778,43 @@ TODO
             }
 
             QuollPopup qp = super.build ();
-
+/*
             cancel.addEventHandler (ActionEvent.ACTION,
                                     ev -> qp.close ());
+*/
+
+            if (confirm != null)
+            {
+
+                confirm.setOnAction (ev ->
+                {
+
+                    this.onConfirm.handle (ev);
+
+                    if (!ev.isConsumed ())
+                    {
+
+                        qp.close ();
+
+                    }
+
+                });
+
+            }
+
+            cancel.setOnAction (ev ->
+            {
+
+                this.onCancel.handle (ev);
+
+                if (!ev.isConsumed ())
+                {
+
+                    qp.close ();
+
+                }
+
+            });
 
             return qp;
 

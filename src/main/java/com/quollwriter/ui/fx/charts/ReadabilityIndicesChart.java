@@ -308,6 +308,7 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
         List<String> prefix = Arrays.asList (charts,readability,labels);
 
         FlowPane b = new FlowPane ();
+        b.getStyleClass ().add (StyleClassNames.DETAIL);
 
         TargetsData ptargs = this.viewer.getProjectTargets ();
 
@@ -573,6 +574,7 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
         {
 
             data.add (fkseries);
+            //fkseries.getNode ().getStyleClass ().add ("fk");
 
         }
 
@@ -580,6 +582,7 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
         {
 
             data.add (gfseries);
+            //gfseries.getNode ().getStyleClass ().add  ("gf");
 
         }
 

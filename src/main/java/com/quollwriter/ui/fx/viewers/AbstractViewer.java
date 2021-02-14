@@ -671,6 +671,15 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     }
 
+    public Point2D screenToPopupLocal (double x,
+                                       double y)
+    {
+
+        return this.popupPane.screenToLocal (x,
+                                             y);
+
+    }
+
     @Override
     public void showPopup (QuollPopup p,
                            double     x,
@@ -1215,6 +1224,17 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
             {
 
                 this.runCommand (AbstractViewer.CommandId.reportbug);
+                return;
+
+            }
+
+            if ((v.equals ("import"))
+                ||
+                (v.equals ("importfile"))
+               )
+            {
+
+                this.runCommand (AbstractViewer.CommandId.importfile);
                 return;
 
             }
@@ -3340,6 +3360,13 @@ TODO Not needed, is a function of the sidebar itself...
         v.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
                                       ev ->
         {
+
+            if (!Environment.isDebugModeEnabled ())
+            {
+
+                return;
+
+            }
 
             if (!ev.isShortcutDown ())
             {

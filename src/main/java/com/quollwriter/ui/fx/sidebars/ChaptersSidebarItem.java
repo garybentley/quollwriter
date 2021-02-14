@@ -1325,6 +1325,110 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
        {
 
            // TODO Check for position change.
+           ChapterItem ci = ev.getItem ();
+
+           int ind = 0;
+
+           TreeItem<NamedObject> pti = null;//this.tree.getTreeItemForObject (ci.getChapter ());
+           TreeItem<NamedObject> ti = this.tree.getTreeItemForObject (ci);
+
+           List<ChapterItem> objs = new ArrayList<> ();
+
+           if ((ci instanceof OutlineItem)
+               ||
+               (ci instanceof Scene)
+              )
+           {
+
+               boolean add = true;
+
+               if (ci instanceof OutlineItem)
+               {
+
+                   OutlineItem oi = (OutlineItem) ci;
+
+                   if (oi.getScene () != null)
+                   {
+
+                       objs.addAll (oi.getScene ().getOutlineItems ());
+                       add = false;
+
+                   }
+
+               }
+
+               if (add)
+               {
+
+                   objs.addAll (ci.getChapter ().getScenes ());
+                   objs.addAll (ci.getChapter ().getOutlineItems ());
+
+               }
+
+               Collections.sort (objs,
+                                 new ChapterItemSorter ());
+
+               ind = objs.indexOf (ci);
+
+               pti = ti.getParent ();
+
+               int indf = pti.getChildren ().indexOf (ti);
+
+               if (ind != indf)
+               {
+
+                   Collections.swap (pti.getChildren (),
+                                     ind,
+                                     indf);
+
+               }
+/*
+               pti.getChildren ().remove (ti);
+               pti.getChildren ().add (ind,
+                                       ti);
+*/
+               return;
+
+           }
+
+           if (ci instanceof Note)
+           {
+
+               if (!UserProperties.isShowNotesInChapterList ())
+               {
+
+                   // Don't do anything.
+                   return;
+
+               }
+
+               NoteTreeLabel l = this.noteTreeLabels.get (c);
+
+               objs.addAll (ci.getChapter ().getNotes ());
+
+               Collections.sort (objs,
+                                 new ChapterItemSorter ());
+
+               ind = objs.indexOf (ci);
+
+               pti = ti.getParent ();
+
+               int indf = pti.getChildren ().indexOf (ti);
+
+               if (ind != indf)
+               {
+
+                   Collections.swap (pti.getChildren (),
+                                     ind,
+                                     indf);
+
+               }
+/*
+               pti.getChildren ().remove (ti);
+               pti.getChildren ().add (ind,
+                                       ti);
+*/
+           }
 
        }));
 

@@ -3182,14 +3182,13 @@ System.out.println ("HEREZ: " + cb);
     {
 
         private Subscription sub = null;
-        private int pos = 0;
+        //private int pos = 0;
         private IntegerProperty posProp = new SimpleIntegerProperty ();
 
         public Position (int pos,
                          TextEditor ed)
         {
 
-            this.pos = pos;
             this.posProp.setValue (pos);
 
             this.sub = ed.getContent ().multiPlainChanges ().subscribe (changes ->
@@ -3201,37 +3200,41 @@ System.out.println ("HEREZ: " + cb);
                     if (c.getNetLength () < 0)
                     {
 
-                        if (c.getPosition () < this.pos)
+                        int p = this.posProp.getValue ();
+
+                        if (c.getPosition () < p)
                         {
 
-                            this.pos += c.getNetLength ();
+                            p += c.getNetLength ();
 
                         }
 
-                        if (this.pos < 0)
+                        if (p < 0)
                         {
 
-                            this.pos = 0;
+                            p = 0;
 
                         }
 
-                        this.posProp.setValue (this.pos);
+                        this.posProp.setValue (p);
 
                     } else {
 
-                        if (c.getPosition () <= this.pos)
+                        int p = this.posProp.getValue ();
+
+                        if (c.getPosition () <= p)
                         {
 
-                            this.pos += c.getNetLength ();
+                            p += c.getNetLength ();
 
-                            if (this.pos < 0)
+                            if (p < 0)
                             {
 
-                                this.pos = 0;
+                                p = 0;
 
                             }
 
-                            this.posProp.setValue (this.pos);
+                            this.posProp.setValue (p);
 
                         }
 

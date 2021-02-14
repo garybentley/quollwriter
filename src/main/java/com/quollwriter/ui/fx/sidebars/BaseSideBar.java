@@ -19,7 +19,7 @@ public abstract class BaseSideBar<E extends AbstractViewer & PanelViewer> extend
 
     private HBox toolbarBox = null;
     private Pane contentWrapper = null;
-    private Map<Panel, ToolBar> toolbars = null;
+    private Map<Panel, QuollToolBar> toolbars = null;
 
     public BaseSideBar (E viewer)
     {
@@ -130,17 +130,23 @@ public abstract class BaseSideBar<E extends AbstractViewer & PanelViewer> extend
         if (p.getContent () instanceof ToolBarSupported)
         {
 
-            ToolBar tb = this.toolbars.get (p);
+            QuollToolBar tb = this.toolbars.get (p);
 
             if (tb == null)
             {
 
-                tb = new ToolBar ();
-                tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
-
                 ToolBarSupported tbs = (ToolBarSupported) p.getContent ();
 
-                tb.getItems ().addAll (tbs.getToolBarItems ());
+                //tb.getItems ().addAll (tbs.getToolBarItems ());
+
+                tb = QuollToolBar.builder ()
+                    .styleClassName (StyleClassNames.TOOLBAR)
+                    .controls (tbs.getToolBarItems ())
+                    //.configurable (tbs.isToolBarConfigurable ())
+                    .inViewer (this.viewer)
+                    .build ();
+                //tb = new ToolBar ();
+                //tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
 
                 HBox.setHgrow (tb,
                                Priority.ALWAYS);

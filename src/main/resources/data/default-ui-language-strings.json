@@ -7999,6 +7999,7 @@
         "sidebar" :
         {
             "title" : "${objectnames.singular.project}",
+            "nosections" : "You currently have no sections in this sidebar.  To add a section, right click then select a section from the <b>Add Section</b> menu.",
             "headerpopupmenu" :
             {
                 ":comment" : "These items are added to all sections in the sidebar.",
@@ -8782,6 +8783,7 @@
                     "title" : "Report a Bug/Problem",
                     "text" : "Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The version of {QW} and operating system you are using will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
                     "errorlabel" : "Please enter a description of the problem/bug.",
+                    "noemail" : "Please enter an email address so you can be contacted about the problem/bug.",
                     "description" :
                     {
                         "text" : "Description",

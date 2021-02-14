@@ -179,7 +179,7 @@ public class FirstUseWizard extends PopupContent
             .onCancel (ev ->
             {
 
-                Environment.showAllProjectsViewer ();
+                //Environment.showAllProjectsViewer ();
                 this.close ();
 
             })

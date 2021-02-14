@@ -1,13 +1,25 @@
 /*
  * Styles related to the statistics panel, com.quollwriter.ui.fx.panels.StatisticsPanel
  */
+ .statistics .header.main { -fx-padding: 0.3em; }
+ .header.main .iconbox,
+ .header.main .iconbox .icon
+ {
+     -fx-pref-width: 1.7em;
+     -fx-pref-height: 1.7em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+
  .panel.statistics .controls
  {
      -fx-padding: 0.5em;
      -fx-alignment: center-left;
  }
 
- .panel.statistics .controls .label, .panel.statistics .controls .check-box
+ .panel.statistics .controls .label,
+ .panel.statistics .controls .check-box,
+ .panel.statistics .controls .hyperlink
  {
      -fx-padding: 0 0.5em 0 0.5em;
  }

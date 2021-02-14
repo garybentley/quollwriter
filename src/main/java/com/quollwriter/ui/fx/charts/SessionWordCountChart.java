@@ -229,6 +229,7 @@ public class SessionWordCountChart extends VBox implements QuollChart
         List<String> prefix = Arrays.asList (charts,sessionwordcount,labels);
 
         FlowPane b = new FlowPane ();
+        b.getStyleClass ().add (StyleClassNames.DETAIL);
 
         b.getChildren ().add (this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,numsessions),
                                                                                   this.sessionsProp)));

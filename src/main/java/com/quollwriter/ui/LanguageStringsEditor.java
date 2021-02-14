@@ -1425,10 +1425,11 @@ TODO Improve
                                          // Delete our local versions.
                                          try
                                          {
-
+/*
+TODO Remove
                                              UILanguageStringsManager.deleteUserUILanguageStrings (_this.userStrings,
                                                                                       delAll.isSelected ());
-
+*/
                                          } catch (Exception e) {
 
                                              Environment.logError ("Unable to delete user strings: " + _this.userStrings,
@@ -1497,9 +1498,11 @@ TODO Improve
                     try
                     {
 
+/*
+TODO Remove
                         UILanguageStringsManager.deleteUserUILanguageStrings (_this.userStrings,
                                                                               delAll.isSelected ());
-
+*/
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to delete user strings: " + _this.userStrings,

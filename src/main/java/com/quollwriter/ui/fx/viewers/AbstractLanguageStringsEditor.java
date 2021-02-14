@@ -1227,23 +1227,37 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
 	@Override
     public void close (Runnable afterClose)
+    {
+
+        this.close (true,
+                    afterClose);
+
+    }
+
+    public void close (boolean save,
+                       Runnable afterClose)
 	{
 
-        try
+        if (save)
         {
 
-            this.save ();
+            try
+            {
 
-        } catch (Exception e) {
+                this.save ();
 
-            Environment.logError ("Unable to save language strings: " +
-                                  this.userStrings,
-                                  e);
+            } catch (Exception e) {
 
-            ComponentUtils.showErrorMessage (this,
-                                             "Unable to save language strings.");
+                Environment.logError ("Unable to save language strings: " +
+                                      this.userStrings,
+                                      e);
 
-            return;
+                ComponentUtils.showErrorMessage (this,
+                                                 "Unable to save language strings.");
+
+                return;
+
+            }
 
         }
 

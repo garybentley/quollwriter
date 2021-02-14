@@ -624,7 +624,7 @@ public class QuollToolBar extends HBox implements Stateful
         {
 
             this.minWidthProperty ().unbind ();
-            this.minWidthProperty ().bind (qp.getContent ().widthProperty ());
+            //this.minWidthProperty ().bind (qp.getContent ().widthProperty ());
 
             this.getStyleClass ().add ("configuring");
 
@@ -661,7 +661,7 @@ public class QuollToolBar extends HBox implements Stateful
 
         VBox c = new VBox ();
 
-        this.minWidthProperty ().bind (c.widthProperty ());
+        //this.minWidthProperty ().bind (c.widthProperty ());
         //c.prefWidthProperty ().bind (this.widthProperty ());
 
         qp = QuollPopup.builder ()

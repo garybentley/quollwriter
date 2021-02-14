@@ -6,7 +6,7 @@
     -fx-fit-to-height: true;
 }
 .content {
-    -fx-min-width: 24.5em;
+    -fx-min-width: 23.3em;
     /*-fx-pref-width: 20em;*/
 }
 .accordion:dragover { -fx-background-color: -qw-dragover-bg; }
@@ -92,7 +92,7 @@
 }
 
 .items { -fx-padding: 0 0.5em 0 0; }
-.toolbar .tool-bar { -fx-padding: 0.2em; }
+.toolbar { -fx-padding: 0.2em; }
 .toolbar:bottom {
     -fx-border-width: 1px 0 0 0;
     -fx-border-color: -qw-component-border-color;
@@ -107,12 +107,24 @@
 .toolbar .menu-button > .label .iconbox .icon {
     -fx-pref-width: 1.666em;
     -fx-pref-height: 1.666em;
+    -fx-min-width: 1.666em;
+    -fx-min-height: 1.666em;
+    -fx-max-width: 1.666em;
+    -fx-max-height: 1.666em;
     -fx-fill-height: false;
     -fx-alignment: center;
 }
 .toolbar .button > .iconbox .info-icon.icon {
     -fx-pref-width: 0.833em;
+    -fx-min-width: 0.833em;
+    -fx-max-width: 0.833em;
 }
+.toolbar .button > .iconbox .more-icon.icon {
+    -fx-pref-width: 0.415em;
+    -fx-min-width: 0.415em;
+    -fx-max-width: 0.415em;
+}
+
 .toolbar .button.spellcheck > .iconbox {
     -fx-alignment: top-center;
 }
@@ -146,4 +158,9 @@
 {
     -fx-font-size: 1em;
     -fx-padding: 0;
+}
+.nosections
+{
+    -fx-font-size: 1.2em;
+    -fx-padding: 1em 2em 2em 1em;
 }

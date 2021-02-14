@@ -60,6 +60,7 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
             .build ();
 
         help.prefWidthProperty ().bind (this.content.widthProperty ());
+        help.setVisible (pv.getProject ().getProjectEditors ().size () > 0);
 
         this.currentEditors.getChildren ().add (help);
 
@@ -78,6 +79,9 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
         binder.addSetChangeListener (pv.getProject ().getProjectEditors (),
                                      ev ->
         {
+
+            this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
+            help.setVisible (pv.getProject ().getProjectEditors ().size () > 0);
 
             if (ev.wasRemoved ())
             {
@@ -148,8 +152,6 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
                 this.addProjectEditor (pe);
 
             }
-
-            this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
 
         });
 

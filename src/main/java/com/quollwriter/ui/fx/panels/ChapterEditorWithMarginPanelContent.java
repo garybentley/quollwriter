@@ -111,15 +111,23 @@ TODO
             {
 
                 ChapterItem ci = ev.getSource ();
-                ci.positionProperty ().unbind ();
-                ci.endPositionProperty ().unbind ();
-                this.textPositions.remove (ci).dispose ();
 
-                TextEditor.Position p = this.endTextPositions.remove (ci);
+                TextEditor.Position p = this.textPositions.remove (ci);
 
                 if (p != null)
                 {
 
+                    ci.positionProperty ().unbindBidirectional (p.positionProperty ());
+                    p.dispose ();
+
+                }
+
+                p = this.endTextPositions.remove (ci);
+
+                if (p != null)
+                {
+
+                    ci.endPositionProperty ().unbindBidirectional (p.positionProperty ());
                     p.dispose ();
 
                 }
@@ -303,8 +311,17 @@ TODO
         }
 
         TextEditor.Position p = this.editor.createTextPosition (ci.getPosition ());
-        ci.positionProperty ().unbind ();
-        ci.positionProperty ().bind (p.positionProperty ());
+
+        TextEditor.Position _p = this.textPositions.get (ci);
+
+        if (_p != null)
+        {
+
+            ci.positionProperty ().unbindBidirectional (_p.positionProperty ());
+
+        }
+
+        ci.positionProperty ().bindBidirectional (p.positionProperty ());
         this.textPositions.put (ci,
                                 p);
 
@@ -319,8 +336,17 @@ TODO
             }
 
             TextEditor.Position ep = this.editor.createTextPosition (ci.getEndPosition ());
-            ci.endPositionProperty ().unbind ();
-            ci.endPositionProperty ().bind (ep.positionProperty ());
+
+            TextEditor.Position _ep = this.endTextPositions.get (ci);
+
+            if (_ep != null)
+            {
+
+                ci.endPositionProperty ().unbindBidirectional (_ep.positionProperty ());
+
+            }
+
+            ci.endPositionProperty ().bindBidirectional (ep.positionProperty ());
             this.endTextPositions.put (ci,
                                        ep);
 
@@ -432,19 +458,29 @@ TODO
                 .forEach (ci ->
                 {
 
-                    ci.positionProperty ().unbind ();
-                    this.textPositions.get (ci).dispose ();
+                    TextEditor.Position p = this.textPositions.get (ci);
+
+                    if (p != null)
+                    {
+
+                        ci.positionProperty ().unbindBidirectional (p.positionProperty ());
+
+                    }
+
+                    p.dispose ();
+
                 });
+
             this.endTextPositions.keySet ().stream ()
                 .forEach (ci ->
                 {
 
-                    ci.endPositionProperty ().unbind ();
                     TextEditor.Position p = this.endTextPositions.get (ci);
 
                     if (p != null)
                     {
 
+                        ci.endPositionProperty ().unbindBidirectional (p.positionProperty ());
                         p.dispose ();
 
                     }

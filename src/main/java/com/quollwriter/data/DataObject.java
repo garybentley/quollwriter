@@ -536,6 +536,21 @@ public abstract class DataObject implements IPropertyBinder
 
     }
 
+    public void setProperty (String name,
+                             float  value)
+                      throws IOException
+    {
+
+        FloatProperty p = new FloatProperty (name,
+                                             value);
+
+        p.setDescription ("N/A");
+
+        this.props.setProperty (name,
+                                p);
+
+    }
+
     public void removeProperty (String name)
     {
 

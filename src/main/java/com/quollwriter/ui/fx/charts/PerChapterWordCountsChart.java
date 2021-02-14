@@ -234,6 +234,7 @@ public class PerChapterWordCountsChart extends VBox implements QuollChart
         List<String> prefix = Arrays.asList (charts,sessionlength,labels);
 
         FlowPane b = new FlowPane ();
+        b.getStyleClass ().add (StyleClassNames.DETAIL);
 
         return b;
 

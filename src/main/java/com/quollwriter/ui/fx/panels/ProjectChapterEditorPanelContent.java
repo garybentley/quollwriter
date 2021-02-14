@@ -454,6 +454,14 @@ TODO
     }
 
     @Override
+    public boolean isToolBarConfigurable ()
+    {
+
+        return true;
+
+    }
+
+    @Override
     public Set<Node> getToolBarItems ()
     {
 
@@ -464,6 +472,7 @@ TODO
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,save,tooltip))
             .iconName (StyleClassNames.SAVE)
+            .buttonId ("save")
             .onAction (ev ->
             {
 
@@ -475,6 +484,7 @@ TODO
         its.add (QuollMenuButton.builder ()
             .tooltip (Utils.newList (prefix,_new,tooltip))
             .iconName (StyleClassNames.NEW)
+            .buttonId ("new")
             .items (() ->
             {
 
@@ -566,6 +576,7 @@ TODO
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,showchapterinfo,tooltip))
             .iconName (StyleClassNames.INFO)
+            .buttonId ("chapterinfo")
             .onAction (ev ->
             {
 
@@ -578,6 +589,7 @@ TODO
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,wordcount,tooltip))
             .iconName (StyleClassNames.WORDCOUNT)
+            .buttonId ("wordcount")
             .onAction (ev ->
             {
 
@@ -589,6 +601,7 @@ TODO
         QuollButton sb = QuollButton.builder ()
             .tooltip (Utils.newList (prefix,this.viewer.isSpellCheckingEnabled () ? spellcheckoff : spellcheckon,tooltip))
             .iconName (StyleClassNames.SPELLCHECK)
+            .buttonId ("spellcheck")
             .onAction (ev ->
             {
 
@@ -623,6 +636,7 @@ TODO
         its.add (QuollButton.builder ()
             .tooltip (Utils.newList (prefix,delete,tooltip))
             .iconName (StyleClassNames.DELETE)
+            .buttonId ("delete")
             .onAction (ev ->
             {
 
@@ -635,6 +649,7 @@ TODO
         its.add (QuollMenuButton.builder ()
             .tooltip (Utils.newList (prefix,tools,tooltip))
             .iconName (StyleClassNames.TOOLS)
+            .buttonId ("other")
             .items (() ->
             {
 

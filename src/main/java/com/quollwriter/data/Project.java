@@ -1207,7 +1207,8 @@ public class Project extends NamedObject
         for (Book b : this.books)
         {
 
-            ret.add (b);
+            // TODO Is this correct?  YOu can't do anything with a book so probably...
+            //ret.add (b);
 
             ret.addAll (b.getAllNamedChildObjects ());
 

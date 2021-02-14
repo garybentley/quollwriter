@@ -225,6 +225,7 @@ public abstract class ChapterItem extends NamedObject
 
     }
 */
+
     public void setTextPosition (Position t)
     {
 
@@ -327,7 +328,17 @@ public abstract class ChapterItem extends NamedObject
 
         }
 
+        int op = this.positionProp.getValue ();
+
         this.positionProp.setValue (p);
+
+        if (this.endPositionProp.getValue () > -1)
+        {
+
+            this.endPositionProp.setValue (this.endPositionProp.getValue () + (p - op));
+
+        }
+
 /*
         this.textPos = null;
 

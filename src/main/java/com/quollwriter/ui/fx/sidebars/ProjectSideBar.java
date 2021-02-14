@@ -56,10 +56,22 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
 
         this.legacyAssetObjTypes = aObjTypes;
 
+        VBox bb = new VBox ();
+        VBox.setVgrow (bb,
+                       Priority.ALWAYS);
+
         this.contentBox = new VBox ();
         VBox.setVgrow (this.contentBox,
                        Priority.ALWAYS);
         this.contentBox.getStyleClass ().add (StyleClassNames.ITEMS);
+
+        QuollTextView noSections = QuollTextView.builder ()
+            .styleClassName (StyleClassNames.NOSECTIONS)
+            .text (getUILanguageStringProperty (project,LanguageStrings.sidebar,nosections))
+            .build ();
+        noSections.managedProperty ().bind (noSections.visibleProperty ());
+        noSections.setVisible (this.contentBox.getChildren ().size () == 0);
+        bb.getChildren ().add (noSections);
 
         /*
         This tooltip won't limit itself to the context box, it shows above other items as well... grrr...
@@ -68,6 +80,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
                             */
         ScrollPane sp = new ScrollPane (this.contentBox);
         UIUtils.makeDraggable (sp);
+        bb.getChildren ().add (sp);
 
         this.contentBox.getChildren ().addListener ((ListChangeListener<Node>) ch ->
         {
@@ -75,6 +88,8 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
             // We turn on/off fit to width depending upon whether we have any children otherwise
             // content box won't stretch when it's empty.
             sp.setStyle (this.contentBox.getChildren ().size () == 0 ? "-fx-fit-to-width: true; " : "-fx-fit-to-width: false;");
+
+            noSections.setVisible (this.contentBox.getChildren ().size () == 0);
 
         });
 
@@ -114,17 +129,17 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
             }
 
         });
-        this.contentBox.setOnContextMenuRequested (ev ->
+        /*this.contentBox*/bb.setOnContextMenuRequested (ev ->
         {
 
-            if (ev.getSource () != this.contentBox)
+            if (ev.getSource () != bb)//this.contentBox)
             {
 
                 return;
 
             }
 
-            UIUtils.showContextMenu (this.contentBox,
+            UIUtils.showContextMenu (bb,//this.contentBox,
                                      this.getAddSectionMenu (null),
                                      ev.getScreenX (),
                                      ev.getScreenY ());
@@ -206,7 +221,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
 
         VBox.setVgrow (sp,
                        Priority.ALWAYS);
-        this.setContent (sp);
+        this.setContent (bb);
 
         this.addSetChangeListener (Environment.getAllTags (),
                                    ev ->

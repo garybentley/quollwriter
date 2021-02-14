@@ -84,6 +84,18 @@ public class ReportBugPopup extends PopupContent<AbstractViewer>
 
             ev.getForm ().hideError ();
 
+            if ((email.getText () == null)
+                ||
+                (email.getText ().trim ().length () == 0)
+               )
+            {
+
+                ev.getForm ().showError (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.popup,noemail)));
+
+                return;
+
+            }
+
             StringProperty emErr = Utils.checkEmail (email.getText ());
 
             if (emErr != null)

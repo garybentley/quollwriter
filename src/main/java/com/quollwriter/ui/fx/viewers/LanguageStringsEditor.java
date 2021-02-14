@@ -6,6 +6,7 @@ import java.util.function.*;
 import java.util.concurrent.*;
 import java.text.*;
 import java.net.*;
+import java.nio.file.*;
 
 import org.josql.*;
 
@@ -1126,183 +1127,293 @@ TODO Improve
             .label (new SimpleStringProperty ("Delete all versions"))
             .build ();
 
-        Form f = Form.builder ()
-            .description (new SimpleStringProperty ("Please confirm you wish to delete your strings.  Enter <b>Yes</b> in the box below to confirm deletion.<br /><br />To delete <b>all</b> versions of the strings please check the box below.<br /><br /><span class='warning'>Warning!  This is an irreverisble operation and cannot be undone.  This will make your strings unavailable to {QW} users but will not remove it from anyone who has already downloaded the strings."))
-            .item (new Form.Item (delAll))
-            .confirmButton (new SimpleStringProperty ("Yes, delete them"))
-            .cancelButton (new SimpleStringProperty ("No, keep them"))
-            .build ();
-
         QuollPopup qp = QuollPopup.yesConfirmTextEntryBuilder ()
             .title (new SimpleStringProperty ("Delete the strings"))
+            .description (new SimpleStringProperty ("Please confirm you wish to delete your strings.  Enter <b>Yes</b> in the box below to confirm deletion.<br /><br />To delete <b>all</b> versions of the strings please check the box below.<br /><br /><span class='warning'>Warning!  This is an irreverisble operation and cannot be undone.  This will make your strings unavailable to {QW} users but will not remove it from anyone who has already downloaded the strings."))
+            .item (new Form.Item (delAll))
+            .inViewer (this)
             .headerIconClassName (StyleClassNames.DELETE)
-            .content (f)
-            .build ();
-
-        f.setOnCancel (ev ->
-        {
-
-            qp.close ();
-
-        });
-
-        f.setOnConfirm (ev ->
-        {
-
-            String submitterid = UserProperties.get (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
-
-            if ((submitterid != null)
-                &&
-                // Has they been submitted?
-                (this.userStrings.getStringsVersion () > 0)
-               )
+            .confirmButtonLabel (new SimpleStringProperty ("Yes, delete them"))
+            .cancelButtonLabel (new SimpleStringProperty ("No, keep them"))
+            .onConfirm (ev ->
             {
 
-                URL u = null;
+                String submitterid = UserProperties.get (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_PROPERTY_NAME);
 
-                try
+                if ((submitterid != null)
+                    &&
+                    // Has they been submitted?
+                    (this.userStrings.getStringsVersion () > 0)
+                   )
                 {
 
-                    String p = UserProperties.get (Constants.DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
+                    URL u = null;
 
-                    p = Utils.replaceString (p,
-                                             Constants.ID_TAG,
-                                             this.userStrings.getId ());
+                    try
+                    {
 
-                    p = Utils.replaceString (p,
-                                             Constants.VERSION_TAG,
-                                             this.userStrings.getQuollWriterVersion ().toString ());
+                        String p = UserProperties.get (Constants.DELETE_UI_LANGUAGE_STRINGS_URL_PROPERTY_NAME);
 
-                    p = Utils.replaceString (p,
-                                             Constants.ALL_TAG,
-                                             (delAll.isSelected () ? "true" : ""));
+                        p = Utils.replaceString (p,
+                                                 Constants.ID_TAG,
+                                                 this.userStrings.getId ());
 
-                    u = new URL (Environment.getQuollWriterWebsite () + p);
+                        p = Utils.replaceString (p,
+                                                 Constants.VERSION_TAG,
+                                                 this.userStrings.getQuollWriterVersion ().toString ());
 
-                } catch (Exception e) {
+                        p = Utils.replaceString (p,
+                                                 Constants.ALL_TAG,
+                                                 (delAll.isSelected () ? "true" : ""));
 
-                    Environment.logError ("Unable to construct the url for submitting the ui language strings.",
-                                          e);
+                        u = new URL (Environment.getQuollWriterWebsite () + p);
 
-                    ComponentUtils.showErrorMessage (this,
-                                                     new SimpleStringProperty ("Unable to upload strings."));
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to construct the url for submitting the ui language strings.",
+                                              e);
+
+                        ev.getForm ().showError (new SimpleStringProperty ("Unable to delete strings."));
+
+                        ev.consume ();
+
+                        return;
+
+                    }
+
+                    Map<String, String> headers = new HashMap<> ();
+
+                    headers.put (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
+                                 submitterid);
+
+                    Utils.postToURL (u,
+                                     headers,
+                                     "bogus",
+                                     // On success
+                                     (content, resCode) ->
+                                     {
+
+                                         String r = (String) JSONDecoder.decode (content);
+
+                                         // Delete our local versions.
+                                         try
+                                         {
+
+                                             _this.deleteStrings (delAll.isSelected ());
+
+                                         } catch (Exception e) {
+
+                                             Environment.logError ("Unable to delete user strings: " + _this.userStrings,
+                                                                   e);
+
+                                             ev.getForm ().showError (new SimpleStringProperty ("Unable to delete the strings."));
+
+                                             ev.consume ();
+
+                                              return;
+
+                                         }
+
+                                         this.close (false,
+                                                     () ->
+                                         {
+
+                                             this.showMessage ("Strings deleted",
+                                                               "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
+
+                                        });
+
+                                     },
+                                     // On error
+                                     (errContent, resCode) ->
+                                     {
+
+                                         Map m = (Map) JSONDecoder.decode (errContent);
+
+                                         String res = (String) m.get ("reason");
+
+                                         // Get the errors.
+                                         ev.getForm ().showError (new SimpleStringProperty ("Unable to delete the strings, reason:<ul class='error'><li>" + res + "</li></ul>"));
+                                         ev.consume ();
+                                         return;
+
+                                     },
+                                     eex ->
+                                     {
+
+    /*
+    TODO Improve
+                                             Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
+
+                                             String res = (String) m.get ("reason");
+
+                                             // Get the errors.
+                                             UIUtils.showErrorMessage (_this,
+                                                                       "Unable to delete the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+    */
+
+                                     },
+                                     null);
+
+                } else {
+
+                    // Not been submitted.
+                    // Delete our local versions.
+                    try
+                    {
+
+                        this.deleteStrings (delAll.isSelected ());
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to delete user strings: " + this.userStrings,
+                                              e);
+
+                        ev.getForm ().showError (new SimpleStringProperty ("Unable to delete the strings."));
+
+                        ev.consume ();
+
+                         return;
+
+                    }
+
+                    // Close without saving.
+                    this.close (false,
+                                () ->
+                    {
+
+                        this.showMessage ("Strings deleted",
+                                          "Your strings have been deleted.");
+
+                    });
+
+                }
+
+            })
+            .build ();
+
+        qp.show ();
+
+    }
+
+    private void deleteStrings (boolean allVersions)
+                         throws Exception
+    {
+
+        if (!this.userStrings.isUser ())
+        {
+
+            throw new IllegalArgumentException ("Can only delete user language strings.");
+
+        }
+
+        if (allVersions)
+        {
+
+            Set<UILanguageStrings> allLs = UILanguageStringsManager.getAllUserUILanguageStrings ();
+
+            for (UILanguageStrings _ls : allLs)
+            {
+
+                if (_ls.getId ().equals (this.userStrings.getId ()))
+                {
+
+                    this.deleteStrings (_ls);
+
+                }
+
+            }
+
+        } else {
+
+            this.deleteStrings (this.userStrings);
+
+        }
+
+    }
+
+    private void deleteStrings (final UILanguageStrings ls)
+    {
+
+        Runnable remFile = () ->
+        {
+
+            try
+            {
+
+                Path f = UILanguageStringsManager.getUserUILanguageStringsFilePath (ls.getQuollWriterVersion (),
+                                                                                    ls.getId ());
+
+                Files.deleteIfExists (f);
+
+            } catch (Exception e) {
+
+                Environment.logError (String.format ("Unable to delete user ui language strings: %s/%s",
+                                                     ls.getQuollWriterVersion (),
+                                                     ls.getId ()),
+                                      e);
+
+                ComponentUtils.showErrorMessage (new SimpleStringProperty ("Unable to delete language strings."));
+
+            }
+
+        };
+/*
+        for (AbstractViewer v : Environment.getOpenViewers ())
+        {
+
+            if (v instanceof LanguageStringsEditor)
+            {
+
+                LanguageStringsEditor lse = (LanguageStringsEditor) v;
+
+                if ((lse.getUserLanguageStrings ().getId ().equals (ls.getId ()))
+                    &&
+                    (lse.getUserLanguageStrings ().getQuollWriterVersion ().equals (ls.getQuollWriterVersion ()))
+                   )
+                {
+
+                    lse.close (remFile);
 
                     return;
 
                 }
 
-                Map<String, String> headers = new HashMap<> ();
+            }
 
-                headers.put (Constants.UI_LANGUAGE_STRINGS_SUBMITTER_ID_HEADER_NAME,
-                             submitterid);
-
-                Utils.postToURL (u,
-                                 headers,
-                                 "bogus",
-                                 // On success
-                                 (content, resCode) ->
-                                 {
-
-                                     String r = (String) JSONDecoder.decode (content);
-
-                                     // Delete our local versions.
-                                     try
-                                     {
-
-                                         UILanguageStringsManager.deleteUserUILanguageStrings (_this.userStrings,
-                                                                                  delAll.isSelected ());
-
-                                     } catch (Exception e) {
-
-                                         Environment.logError ("Unable to delete user strings: " + _this.userStrings,
-                                                               e);
-
-                                         ComponentUtils.showErrorMessage (_this,
-                                                                          new SimpleStringProperty ("Unable to delete the strings."));
-
-                                          qp.close ();
-
-                                          return;
-
-                                     }
-
-                                     this.close (() ->
-                                     {
-
-                                         this.showMessage ("Strings deleted",
-                                                           "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
-
-                                    });
-
-                                 },
-                                 // On error
-                                 (errContent, resCode) ->
-                                 {
-
-                                     Map m = (Map) JSONDecoder.decode (errContent);
-
-                                     String res = (String) m.get ("reason");
-
-                                     // Get the errors.
-                                     ComponentUtils.showErrorMessage (_this,
-                                                                      new SimpleStringProperty ("Unable to submit the strings, reason:<ul class='error'><li>" + res + "</li></ul>"));
-
-                                 },
-                                 eex ->
-                                 {
-
-/*
-TODO Improve
-                                         Map m = (Map) JSONDecoder.decode ((String) ev.getSource ());
-
-                                         String res = (String) m.get ("reason");
-
-                                         // Get the errors.
-                                         UIUtils.showErrorMessage (_this,
-                                                                   "Unable to delete the strings, reason:<ul class='error'><li>" + res + "</li></ul>");
+        }
 */
+        remFile.run ();
 
-                                 },
-                                 null);
+        if (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME).equals ("user-" + ls.getId ()))
+        {
 
-            } else {
+            try
+            {
 
-                // Not been submitted.
-                // Delete our local versions.
-                try
-                {
+                // Need to set the language back to English.
+                UILanguageStringsManager.setUILanguage (UILanguageStrings.ENGLISH_ID);
 
-                    UILanguageStringsManager.deleteUserUILanguageStrings (this.userStrings,
-                                                                          delAll.isSelected ());
+            } catch (Exception e) {
 
-                } catch (Exception e) {
+                Environment.logError ("Unable to set UI strings.",
+                                      e);
 
-                    Environment.logError ("Unable to delete user strings: " + this.userStrings,
-                                          e);
+                // TODO Check this...
+                ComponentUtils.showErrorMessage (new SimpleStringProperty ("Unable to reset user interface language to " + Constants.ENGLISH));
 
-                    ComponentUtils.showErrorMessage (this,
-                                                     new SimpleStringProperty ("Unable to delete the strings."));
-
-                     qp.close ();
-
-                     return;
-
-                }
-
-                // Close without saving.
-                this.close (() ->
-                {
-
-                    this.showMessage ("Strings deleted",
-                                      "Your strings have been deleted.");
-
-                });
+                return;
 
             }
 
-        });
+            // TODO Check this...
+            QuollPopup.messageBuilder ()
+                .withViewer (Environment.getFocusedViewer ())
+                .title (new SimpleStringProperty ("Restart recommended"))
+                .message (new SimpleStringProperty ("The user interface language has been reset to " + Constants.ENGLISH + ", a restart is recommended."))
+                .build ();
 
-        qp.show ();
+        }
 
     }
 

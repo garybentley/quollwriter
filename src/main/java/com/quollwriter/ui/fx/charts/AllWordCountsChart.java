@@ -76,6 +76,7 @@ public class AllWordCountsChart extends Pane implements QuollChart
         VBox b = new VBox ();
 
         FlowPane fp = new FlowPane ();
+        fp.getStyleClass ().add (StyleClassNames.DETAIL);
         fp.getChildren ().add (QuollLabel.builder ()
             .label (charts,allwordcounts,labels,_for)
             .build ());

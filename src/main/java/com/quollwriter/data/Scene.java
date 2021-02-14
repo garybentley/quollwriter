@@ -266,10 +266,15 @@ public class Scene extends ChapterItem
 
         }
 
-        if (this.outlineItems.contains (i))
+        for (OutlineItem _i : this.outlineItems)
         {
 
-            return;
+            if (_i.equals (i))
+            {
+
+                return;
+
+            }
 
         }
 

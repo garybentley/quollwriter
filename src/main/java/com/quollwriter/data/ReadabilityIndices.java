@@ -26,6 +26,25 @@ public class ReadabilityIndices
     private FloatProperty freProp = new SimpleFloatProperty (this.fre);
     private FloatProperty gfiProp = new SimpleFloatProperty (this.gfi);
 
+    public ReadabilityIndices ()
+    {
+
+    }
+
+    ReadabilityIndices (float wordCount,
+                        float sentenceCount,
+                        float threeSyllableWordCount,
+                        float syllableCount)
+    {
+
+        this.wordCount = wordCount;
+        this.sentenceCount = sentenceCount;
+        this.threeSyllableWordCount = threeSyllableWordCount;
+        this.syllableCount = syllableCount;
+        this.update ();
+
+    }
+
     public void add (ReadabilityIndices ri)
     {
 
@@ -153,6 +172,20 @@ public class ReadabilityIndices
     {
 
         return (int) this.wordCount;
+
+    }
+
+    public int getSyllableCount ()
+    {
+
+        return (int) this.syllableCount;
+
+    }
+
+    public int getThreeSyllableWordCount ()
+    {
+
+        return (int) this.threeSyllableWordCount;
 
     }
 

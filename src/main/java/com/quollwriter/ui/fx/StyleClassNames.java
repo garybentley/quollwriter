@@ -5,6 +5,7 @@ import javafx.css.*;
 public final class StyleClassNames
 {
 
+    public static final PseudoClass NEEDS_SAVE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NEEDSSAVE);
     public static final PseudoClass HASSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASSTYLES);
     public static final PseudoClass NOSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NOSTYLES);
     public static final PseudoClass COLUMN_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.COLUMN);
@@ -43,6 +44,8 @@ public final class StyleClassNames
     public static final PseudoClass UNDEALTWITH_PSEUDO_CLASS  = PseudoClass.getPseudoClass (StyleClassNames.UNDEALTWITH);
     public static final PseudoClass ATTENTIONREQUIRED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.ATTENTIONREQUIRED);
 
+    public static final String NEEDSSAVE = "needssave";
+    public static final String NOSECTIONS = "nosections";
     public static final String TIMESELECT = "timeselect";
     public static final String STRING = "string";
     public static final String FORWARD = "forward";

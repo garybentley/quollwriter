@@ -85,30 +85,34 @@ public class Desktop {
     private static boolean openSystemSpecific(String what) {
 
         if (SystemUtils.IS_OS_LINUX) {
-            System.out.println ("LINUX");
+
+            if (runCommand("xdg-open", "%s", what)) {
+                return true;
+            }
+
             if (isXDG()) {
-                System.out.println ("XDG");
+
                 if (runCommand("xdg-open", "%s", what)) {
                     return true;
                 }
             }
             if (isKDE()) {
-                System.out.println ("KDE");
+
                 if (runCommand("kde-open", "%s", what)) {
                     return true;
                 }
             }
             if (isGNOME()) {
-                System.out.println ("GNOME");
+
                 if (runCommand("gnome-open", "%s", what)) {
                     return true;
                 }
             }
-            System.out.println ("TRYING KDE-OPEN: " + what);
+
             if (runCommand("kde-open", "%s", what)) {
                 return true;
             }
-            System.out.println ("TRYING GNOME-OPEN: " + what);
+
             if (runCommand("gnome-open", "%s", what)) {
                 return true;
             }
@@ -125,7 +129,7 @@ public class Desktop {
                 return true;
             }
         }
-System.out.println ("RET");
+
         return false;
     }
 

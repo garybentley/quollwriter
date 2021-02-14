@@ -439,6 +439,10 @@ public class UIUtils
 
                 } else {
 // TODO Check this.
+
+                     Point2D p = viewer.screenToPopupLocal (ev.getScreenX (),
+                                                            ev.getScreenY ());
+
                      ShowObjectSelectPopup.<NamedObject>builder ()
                          .withViewer (viewer)
                          .title (getUILanguageStringProperty (selectitem,popup,title))
@@ -489,8 +493,8 @@ public class UIUtils
 
                          })
                          .build ()
-                         .show (ev.getScreenX (),
-                                ev.getScreenY ());
+                         .show (p.getX (),
+                                p.getY ());
 
                 }
 
@@ -2370,6 +2374,7 @@ public class UIUtils
                  UILanguageStrings ls = new UILanguageStrings (UILanguageStringsManager.getDefaultUILanguageStrings ());
                  ls.setNativeName (v);
                  ls.setUser (true);
+                 ls.setQuollWriterVersion (Environment.getQuollWriterVersion ());
 
                  try
                  {
@@ -3000,6 +3005,7 @@ TODO Remove
         return QuollMenuButton.builder ()
             .iconName (StyleClassNames.TAG)
             .tooltip (tooltip)
+            .buttonId ("tags")
             .items (UIUtils.createTagsMenuItemsSupplier (obj,
                                                          viewer))
             .build ();
@@ -4658,7 +4664,7 @@ TODO
                  x,
                  y);
 
-        n.addEventHandler (MouseEvent.MOUSE_PRESSED,
+        n.getScene ().addEventFilter (MouseEvent.MOUSE_PRESSED,
                            eev ->
         {
 
