@@ -3085,6 +3085,8 @@ xxx
 
         Path p = Paths.get (System.getProperty ("user.home"));
 
+        p = p.resolve ("QuollWriter");
+
         Set<Path> paths = new TreeSet<> ((p1, p2) ->
         {
 
@@ -4222,7 +4224,7 @@ TODO Remove
                                              final Runnable            onComplete)
     {
 
-        Thread t = new Thread (() ->
+        Environment.scheduleImmediately (() ->
         {
 
             try
@@ -4349,9 +4351,6 @@ TODO Remove
             }
 
         });
-
-        t.setDaemon (true);
-        t.start ();
 
     }
 
