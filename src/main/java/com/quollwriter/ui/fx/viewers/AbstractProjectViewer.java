@@ -103,9 +103,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private TargetsData targets = null;
     private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap<> ();
     private ObservableSet<Chapter> chaptersOverWordCountTarget = FXCollections.observableSet (new HashSet<> ());
-    private SetProperty<Chapter> chaptersOverWordCountTargetProp = null;
     private ObservableSet<Chapter> chaptersOverReadabilityTarget = FXCollections.observableSet (new HashSet<> ());
-    private SetProperty<Chapter> chaptersOverReadabilityTargetProp = null;
 
     private ObjectProperty<Chapter> chapterCurrentlyEditedProp = null;
     private StringProperty selectedTextProp = null;
@@ -291,9 +289,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                  });
 
         //this.toolbarWrapper = new VBox ();
-
-        this.chaptersOverWordCountTargetProp = new SimpleSetProperty<> (this.chaptersOverWordCountTarget);
-        this.chaptersOverReadabilityTargetProp = new SimpleSetProperty<> (this.chaptersOverReadabilityTarget);
 
         this.initActionMappings ();
 
@@ -4698,10 +4693,10 @@ TODO REmove
 
     }
 
-    public SetProperty<Chapter> chaptersOverWordCountTargetProperty ()
+    public ObservableSet<Chapter> chaptersOverWordCountTarget ()
     {
 
-        return this.chaptersOverWordCountTargetProp;
+        return this.chaptersOverWordCountTarget;
 
     }
 

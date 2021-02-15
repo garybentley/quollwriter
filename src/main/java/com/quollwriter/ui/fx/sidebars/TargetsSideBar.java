@@ -215,13 +215,13 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
 
             chsOver.managedProperty ().bind (chsOver.visibleProperty ());
             chsOver.setVisible (pv.getChaptersOverWordTarget ().size () > 0);
-            chsOver.visibleProperty ().bind (Bindings.createBooleanBinding (() ->
+            this.getBinder ().addSetChangeListener (pv.chaptersOverWordCountTarget (),
+                                                    ev ->
             {
 
-                return pv.getChaptersOverWordTarget ().size () > 0;
+                chsOver.setVisible (pv.chaptersOverWordCountTarget ().size () > 0);
 
-            },
-            pv.chaptersOverWordCountTargetProperty ()));
+            });
 
             chapterS.valueProperty ().addListener ((p, oldv, newv) ->
             {
