@@ -985,8 +985,6 @@ TODO
                             if (Environment.getPastSessionsWordCount (diff) >= Environment.targets.getMyMonthlyWriting ())
                             {
 
-                                AbstractViewer viewer = Environment.getFocusedViewer ();
-
                                 met.add (getUILanguageStringProperty (Utils.newList (prefix,monthly)));
                                          //"Monthly");
 
@@ -1025,13 +1023,18 @@ TODO
 
                             AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                            QuollPopup.messageBuilder ()
-                                .withViewer (viewer)
-                                .title (LanguageStrings.targets,writingtargetreachedpopup,title)
-                                .message (getUILanguageStringProperty (Arrays.asList(LanguageStrings.targets,writingtargetreachedpopup,text),
-                        //"You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
-                                                                       repVals))
-                                .build ();
+                            UIUtils.runLater (() ->
+                            {
+
+                                QuollPopup.messageBuilder ()
+                                    .withViewer (viewer)
+                                    .title (LanguageStrings.targets,writingtargetreachedpopup,title)
+                                    .message (getUILanguageStringProperty (Arrays.asList(LanguageStrings.targets,writingtargetreachedpopup,text),
+                            //"You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
+                                                                           repVals))
+                                    .build ();
+
+                            });
 
                         }
 
