@@ -324,14 +324,6 @@ public class ProjectViewer extends AbstractProjectViewer
         },
         CommandId.renameproject);
 
-        this.addActionMapping (() ->
-        {
-
-            this.toggleSpellChecking ();
-
-        },
-        CommandId.togglespellchecking);
-
         this.addActionMapping (new CommandWithArgs<NamedObject> (objs ->
         {
 

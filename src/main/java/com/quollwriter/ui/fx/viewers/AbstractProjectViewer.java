@@ -902,6 +902,14 @@ Environment.logMessage ("GOT DETAIL: " + p);
         this.addActionMapping (() ->
         {
 
+            this.toggleSpellChecking ();
+
+        },
+        CommandId.togglespellchecking);
+
+        this.addActionMapping (() ->
+        {
+
             this.showFind ();
 
         },
