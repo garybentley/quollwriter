@@ -606,10 +606,15 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
                     Chapter c = (Chapter) n;
 
-                    b.addChapter (c);
-
                     try
                     {
+
+                        c.setBook (b);
+
+                        this.pv.saveObject (c,
+                                            true);
+
+                        b.addChapter (c);
 
                         this.pv.saveObject (c,
                                             true);
@@ -776,6 +781,11 @@ TODO?
         }
 
         this.filePathToImport = p;
+        this.addToProject.setSelected (true);
+        this.wizard.showStep (SELECT_FILE_STAGE);
+        this.handleStepChange (SELECT_FILE_STAGE,
+                               SELECT_ITEMS_STAGE);
+        this.wizard.showStep (SELECT_ITEMS_STAGE);
 
     }
 

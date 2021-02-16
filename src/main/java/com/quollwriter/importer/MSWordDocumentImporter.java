@@ -146,6 +146,18 @@ public class MSWordDocumentImporter implements DocumentImporter
                     this.addItem (s,
                                   text);
 
+                } else {
+
+                    StringWriter sw = new StringWriter ();
+
+                    org.docx4j.TextUtils.extractText (o,
+                                                      sw);
+
+                    String text = sw.toString ();
+
+                    this.addItem (null,
+                                  text);
+
                 }
 
             }
@@ -187,7 +199,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
             this.p.getBooks ().get (0).addChapter (c);
             c.setText (new StringWithMarkup (chapterText.toString ()));
-
+System.out.println ("HERE CHAP TEXT: " + chapterText);
         }
 
         if (this.n instanceof Asset)
@@ -413,7 +425,7 @@ public class MSWordDocumentImporter implements DocumentImporter
         if (chapterText.length () > 0)
         {
 
-            chapterText.append ("\n\n");
+            chapterText.append ("\n");
 
         }
 
