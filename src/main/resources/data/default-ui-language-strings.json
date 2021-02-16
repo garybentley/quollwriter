@@ -92,6 +92,7 @@
     "websiteuilanguage" :
     {
         ":title" : "UI Language",
+        ":section" : "General",
         "new" :
         {
             "popup" :
@@ -110,6 +111,7 @@
     {
 
         ":title" : "UI Language",
+        ":section" : "General",
         "set" :
         {
             "item" : "%1$s (%2$s, %3$s%% complete%4$s)",
@@ -458,6 +460,7 @@
     {
         ":title" : "First Use Wizard",
         "title" : "Welcome to {QW}",
+        ":section" : "General",
         "text" : "Welcome to {QW}, this page will help you get started.  Don't worry, there are only a couple of questions and then you can get started on your first ${objectnames.singular.project}.",
         "stages" :
         {
@@ -5926,7 +5929,8 @@
     },
     "websiteuilanguage":
     {
-       ":title": "UI Language",
+       ":title": "Website UI Language",
+       ":section" : "General",
        "new": {
            "popup": {
                "buttons": {
