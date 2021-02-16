@@ -96,7 +96,12 @@ public class EditUserConfigurableTypeFieldPanel extends VBox
 
            Set<StringProperty> errs2 = handler.getExtraFormItemErrors (field.getUserConfigurableObjectType ());
 
-           errs.addAll (errs2);
+           if (errs2 != null)
+           {
+
+               errs.addAll (errs2);
+
+           }
 
            if (errs.size () > 0)
            {

@@ -48,7 +48,7 @@ public class LinkedToUserConfigurableObjectTypeFieldConfigHandler implements Use
     public Set<StringProperty> getExtraFormItemErrors (UserConfigurableObjectType objType)
     {
 
-        return null;
+        return new LinkedHashSet<> ();
 
     }
 

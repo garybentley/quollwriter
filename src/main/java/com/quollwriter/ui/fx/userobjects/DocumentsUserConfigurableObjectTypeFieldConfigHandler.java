@@ -48,7 +48,7 @@ public class DocumentsUserConfigurableObjectTypeFieldConfigHandler implements Us
     public Set<StringProperty> getExtraFormItemErrors (UserConfigurableObjectType objType)
     {
 
-        return null;
+        return new LinkedHashSet<> ();
 
     }
 
