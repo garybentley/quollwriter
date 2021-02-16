@@ -4957,6 +4957,13 @@ TODO
     public static String getButtonId (Node n)
     {
 
+        if (n == null)
+        {
+
+            return null;
+
+        }
+
         Object o = n.getProperties ().get ("buttonId");
 
         if (o != null)

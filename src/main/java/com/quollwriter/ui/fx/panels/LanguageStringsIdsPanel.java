@@ -79,6 +79,15 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
         v ->
         {
 
+            LanguageStringsIdBox idb = this.idBoxes.get (v);
+
+            if (idb != null)
+            {
+
+                return idb;
+
+            }
+
             if (v instanceof ImageValue)
             {
 
@@ -102,7 +111,7 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
                                                                            this);
 
                 b.init ();
-                
+
                 this.idBoxes.put (v,
                                   b);
 
