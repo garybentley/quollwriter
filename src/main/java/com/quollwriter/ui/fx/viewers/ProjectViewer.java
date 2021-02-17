@@ -1,5 +1,6 @@
 package com.quollwriter.ui.fx.viewers;
 
+import java.io.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -58,7 +59,6 @@ public class ProjectViewer extends AbstractProjectViewer
         String newasset = "newasset";
         String deleteasset = "deleteasset";
         String ideaboard = "ideaboard";
-        String togglespellchecking = "togglespellchecking";
         String newchapter = "newchapter";
         String deletechapter = "deletechapter";
         String renamechapter = "renamechapter";
@@ -73,6 +73,80 @@ public class ProjectViewer extends AbstractProjectViewer
         this.sidebar = new ProjectSideBar (this);
 
         this.initActionMappings ();
+
+        this.setOnDragDropped (ev ->
+        {
+
+            try
+            {
+
+                Dragboard db = ev.getDragboard ();
+
+                if (db.hasFiles ())
+                {
+
+                    if ((db.getFiles () != null)
+                        &&
+                        (db.getFiles ().size () > 0)
+                       )
+                    {
+
+                        File f = db.getFiles ().get (0);
+
+                        if (f.getName ().toLowerCase ().endsWith (".docx"))
+                        {
+
+                            ImportPopup p = new ImportPopup (this);
+
+                            p.setFilePathToImport (f.toPath ());
+                            p.show ();
+                            ev.setDropCompleted (true);
+                            ev.consume ();
+
+                        }
+
+                    }
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to import",
+                                      e);
+
+            }
+
+        });
+
+        this.setOnDragOver (ev ->
+        {
+
+            Dragboard db = ev.getDragboard ();
+
+            if (db.hasFiles ())
+            {
+
+                if ((db.getFiles () != null)
+                    &&
+                    (db.getFiles ().size () > 0)
+                   )
+                {
+
+                    File f = db.getFiles ().get (0);
+
+                    if (f.getName ().toLowerCase ().endsWith (".docx"))
+
+                    {
+
+                        ev.acceptTransferModes (TransferMode.MOVE);
+
+                    }
+
+                }
+
+            }
+
+        });
 
     }
 
