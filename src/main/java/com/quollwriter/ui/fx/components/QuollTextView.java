@@ -79,10 +79,14 @@ public class QuollTextView extends VBox
             b.text.addListener ((pr, oldv, newv) ->
             {
 
-                newv = Utils.replaceString (newv,
-                                         "{QW}",
-                                         Constants.QUOLL_WRITER_NAME);
+                if (newv != null)
+                {
 
+                    newv = Utils.replaceString (newv,
+                                             "{QW}",
+                                             Constants.QUOLL_WRITER_NAME);
+
+                }
 
                 this.text.setContent (newv);
 
@@ -90,9 +94,14 @@ public class QuollTextView extends VBox
 
             String v = b.text.getValue ();
 
-            v = Utils.replaceString (v,
-                                     "{QW}",
-                                     Constants.QUOLL_WRITER_NAME);
+            if (v != null)
+            {
+
+                v = Utils.replaceString (v,
+                                         "{QW}",
+                                         Constants.QUOLL_WRITER_NAME);
+
+            }
 
             this.text.setContent (v);
 

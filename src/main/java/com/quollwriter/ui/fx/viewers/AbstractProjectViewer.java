@@ -3891,7 +3891,7 @@ TODO REmove
             {
 
                 ChapterCounts cc = this.chapterCounts.get (c);
-System.out.println ("CC: " + cc + ", " + c.getKey ());
+
                 this.project.setProperty ("chapter.counts." + c.getKey (),
                                           cc.getState ().asString ());
 
