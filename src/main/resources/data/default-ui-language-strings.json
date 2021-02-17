@@ -501,7 +501,7 @@
             "decide" :
             {
                 "title" : "Your first ${objectnames.singular.project}",
-                "text" : "If you already have your story in a .docx or .doc file then use the import option below, otherwise use the create option.",
+                "text" : "If you already have your story in a .docx file then use the import option below, otherwise use the create option.",
                 "labels" :
                 {
                     "newproject" : "Create a ${objectnames.singular.project}",
@@ -3223,7 +3223,7 @@
             "selectfile" :
             {
                 "title" : "Select a file to import",
-                "text" : "Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help:importing-a-file'>the import guide</a> to ensure your file has the correct format.",
+                "text" : "Microsoft Word files (.docx) are supported.  Please check <a href='help:importing-a-file'>the import guide</a> to ensure your file has the correct format.",
                 "finder" :
                 {
                     "title" : "Select a file to import",
@@ -7646,7 +7646,7 @@
             },
             "save" :
             {
-                "actionerror" : "Unable to save ${objectnames.singluar.warmup}."
+                "actionerror" : "Unable to save ${objectnames.singular.warmup}."
             }
         }
     },
@@ -8938,7 +8938,7 @@
                     },
                     "openproject" :
                     {
-                        "tooltip" : "Click to open a ${objectnames.singluar.project}"
+                        "tooltip" : "Click to open a ${objectnames.singular.project}"
                     },
                     "newproject" :
                     {
