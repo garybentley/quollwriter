@@ -97,8 +97,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
             .limitTo (QuollFileField.Type.file)
             .withViewer (viewer)
             .fileExtensionFilter (getUILanguageStringProperty (importproject,supportedfiletypesdescription),
-                                  "docx",
-                                  "doc")
+                                  "docx")
             .build ();
 
         this.fileFind.fileProperty ().addListener ((p, oldv, newv) ->
@@ -764,8 +763,11 @@ TODO?
         String fn = p.getFileName ().toString ().toLowerCase ();
 
         if ((!fn.endsWith (".docx"))
+/*
+TODO Remove
             &&
             (!fn.endsWith (".doc"))
+*/
            )
         {
 
