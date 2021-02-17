@@ -1188,6 +1188,18 @@ public class Chapter extends LegacyUserConfigurableObject
 
         i.setChapter (this);
 
+        for (OutlineItem oi : this.outlineItems)
+        {
+
+            if (oi.equals (i))
+            {
+
+                return;
+
+            }
+
+        }
+
         this.outlineItems.add (i);
 
     }
