@@ -44,6 +44,13 @@ public class MSWordDocumentImporter implements DocumentImporter
         if (fileExt.equals (Constants.DOC_FILE_EXTENSION))
         {
 
+            if (true)
+            {
+
+                throw new UnsupportedOperationException (".doc files no longer supported.");
+
+            }
+
             this.importFromDOC (in);
 
         }
@@ -69,7 +76,20 @@ public class MSWordDocumentImporter implements DocumentImporter
 
         Range r = doc.getRange ();
 
+        for (int i = 0; i < r.numParagraphs (); i++)
+        {
+
+            Paragraph p = r.getParagraph (i);
+
+            String style = doc.getStyleSheet ().getStyleDescription (p.getStyleIndex ()).getName ();
+
+            this.addItem (style,
+                          p.text ());
+
+        }
+/*
         List<PAPX> paras = parasT.getParagraphs ();
+        int pi = 0;
 
         for (int i = 0; i < paras.size (); i++)
         {
@@ -93,7 +113,7 @@ public class MSWordDocumentImporter implements DocumentImporter
             }
 
         }
-
+*/
         this.addLastItem ();
 
     }
@@ -199,7 +219,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
             this.p.getBooks ().get (0).addChapter (c);
             c.setText (new StringWithMarkup (chapterText.toString ()));
-System.out.println ("HERE CHAP TEXT: " + chapterText);
+
         }
 
         if (this.n instanceof Asset)

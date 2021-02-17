@@ -37,9 +37,10 @@ public class Importer
                HTMLDocumentImporter.class);
          */
         m = Importer.initDocs;
-
+/*
         m.put (Constants.DOC_FILE_EXTENSION,
                Constants.DATA_DIR + "doc-import-init.doc");
+*/
         m.put (Constants.DOCX_FILE_EXTENSION,
                Constants.DATA_DIR + "docx-import-init.docx");
 
