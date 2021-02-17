@@ -6145,6 +6145,17 @@
                         "text" : "Removed support for .doc files to be imported.  It has never worked properly and I can't get it to work properly."
                     }
                 }
+            },
+            "3.0.0b12" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes",
+                        "text" : "<ul><li>Fixed an issue in the First Use wizard that stopped users progressing past the license agreement.</li></ul>"
+                    }
+                }
             }
         }
     },

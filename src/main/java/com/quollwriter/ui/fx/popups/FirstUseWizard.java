@@ -1046,6 +1046,7 @@ System.out.println ("HERE2");
         -1);
 
         StringProperty title = new SimpleStringProperty ();
+        title.setValue (Constants.ENGLISH);
         title.addListener ((pr, oldv, newv) ->
         {
 
