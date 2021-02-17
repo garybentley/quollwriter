@@ -110,7 +110,7 @@ dependencies {
     implementation 'nl.siegmann.epublib:epublib-core:3.1'
 
     // POI hwpf (.doc file reading)
-    implementation 'org.apache.poi:poi-scratchpad:4.1.0'
+    //implementation 'org.apache.poi:poi-scratchpad:4.1.0'
 
     // JFreeChart
     implementation 'org.jfree:jfreechart:1.5.0'
