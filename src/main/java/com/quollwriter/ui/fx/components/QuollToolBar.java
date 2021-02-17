@@ -388,6 +388,111 @@ public class QuollToolBar extends HBox implements Stateful
 
     }
 
+    public void addControl (Node n,
+                            String insertAt,
+                            HPos   side)
+    {
+
+        if (this.getChildren ().contains (n))
+        {
+
+            return;
+
+        }
+
+        Node in = this.getControlByButtonId (insertAt);
+
+        if (in == null)
+        {
+
+            throw new IllegalArgumentException ("Unable to find control for: " + insertAt);
+
+        }
+
+        int ind = this.getChildren ().indexOf (in);
+
+        if (side == HPos.LEFT)
+        {
+
+            ind--;
+
+            if (ind < 0)
+            {
+
+                ind = 0;
+
+            }
+
+            this.getChildren ().add (ind,
+                                     n);
+            return;
+
+        }
+
+        if (side == HPos.RIGHT)
+        {
+
+            ind++;
+
+            if (ind >= this.getChildren ().size () - 1)
+            {
+
+                this.getChildren ().add (n);
+
+            } else {
+
+                this.getChildren ().add (ind,
+                                         n);
+
+            }
+
+            return;
+
+        }
+
+        throw new IllegalArgumentException ("Side: " + side + ", not supported.");
+
+    }
+
+    public void addControl (Node n,
+                            HPos side)
+    {
+
+        if (this.getChildren ().contains (n))
+        {
+
+            return;
+
+        }
+
+        if (side == HPos.LEFT)
+        {
+
+            this.getChildren ().add (0,
+                                     n);
+            return;
+
+        }
+
+        if (side == HPos.RIGHT)
+        {
+
+            this.getChildren ().add (n);
+            return;
+
+        }
+
+        throw new IllegalArgumentException ("Side: " + side + ", not supported.");
+
+    }
+
+    public Node getControlByButtonId (String id)
+    {
+
+        return this.controls.get (id);
+
+    }
+
     public Set<String> getVisibleItemIds ()
     {
 
