@@ -1744,16 +1744,18 @@ System.out.println ("PI: " + pi + ", " + proj.getName ());
 
             Environment.startupComplete ();
 
-            UIUtils.askForPasswordForProject (p,
-                                              null,
-                                              open,
-                                              () ->
-                                              {
+            Environment.showAllProjectsViewer ();
 
-                                                  Environment.showAllProjectsViewer ();
+            UIUtils.forceRunLater (() ->
+            {
 
-                                              },
-                                              Environment.allProjectsViewer.isVisible () ? Environment.allProjectsViewer : null);
+                UIUtils.askForPasswordForProject (p,
+                                                  null,
+                                                  open,
+                                                  null,
+                                                  Environment.getFocusedViewer ());
+
+            });
 
         } else {
 
