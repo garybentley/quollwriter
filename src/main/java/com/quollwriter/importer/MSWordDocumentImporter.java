@@ -8,10 +8,11 @@ import com.quollwriter.*;
 import com.quollwriter.text.TextUtilities;
 import com.quollwriter.data.*;
 
-import org.apache.poi.hwpf.*;
-import org.apache.poi.hwpf.extractor.*;
-import org.apache.poi.hwpf.model.*;
-import org.apache.poi.hwpf.usermodel.*;
+// TODO Removed support for .doc files.
+//import org.apache.poi.hwpf.*;
+//import org.apache.poi.hwpf.extractor.*;
+//import org.apache.poi.hwpf.model.*;
+//import org.apache.poi.hwpf.usermodel.*;
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.*;
@@ -69,7 +70,8 @@ public class MSWordDocumentImporter implements DocumentImporter
     private void importFromDOC (InputStream in)
                          throws Exception
     {
-
+/*
+TODO Remove
         HWPFDocument doc = new HWPFDocument (in);
 
         PAPBinTable parasT = doc.getParagraphTable ();
@@ -87,6 +89,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                           p.text ());
 
         }
+        */
 /*
         List<PAPX> paras = parasT.getParagraphs ();
         int pi = 0;
@@ -114,7 +117,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
         }
 */
-        this.addLastItem ();
+        //this.addLastItem ();
 
     }
 
