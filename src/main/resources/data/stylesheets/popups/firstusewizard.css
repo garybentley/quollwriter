@@ -5,6 +5,7 @@
  {
      -fx-pref-width: 50em;
      -fx-pref-height: 40em;
+     -fx-min-height: 40em;
      -fx-border-width: 0;
      -fx-border-color: transparent;
  }
