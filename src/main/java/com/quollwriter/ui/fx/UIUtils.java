@@ -1497,7 +1497,12 @@ public class UIUtils
                 .onCancel (ev ->
                 {
 
-                    onCancel.run ();
+                    if (onCancel != null)
+                    {
+
+                        onCancel.run ();
+
+                    }
 
                 })
                 .build ();
