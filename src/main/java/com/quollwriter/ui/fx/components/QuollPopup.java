@@ -1125,10 +1125,16 @@ public class QuollPopup extends StackPane implements IPropertyBinder
 
             });
 
-            UIUtils.runLater (() ->
+            qp.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                                ev ->
             {
 
-                tf.requestFocus ();
+                UIUtils.forceRunLater (() ->
+                {
+
+                    tf.requestFocus ();
+
+                });
 
             });
 

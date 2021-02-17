@@ -53,26 +53,10 @@ public class BasicPopupsViewer extends VBox implements ViewerCreator,
 
         });
 
-        popupPane.boundsInParentProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            //this.setHeight (popupPane.getHeight ());
-            //this.getViewer ().sizeToScene ();
-
-        });
-
         popupPane.prefHeightProperty ().addListener ((pr, oldv, newv) ->
         {
 
             this.getViewer ().setHeight (popupPane.getHeight ());
-            //this.getViewer ().sizeToScene ();
-
-        });
-
-        popupPane.prefWidthProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            //this.setWidth (popupPane.getWidth ());
             //this.getViewer ().sizeToScene ();
 
         });
@@ -173,6 +157,13 @@ public class BasicPopupsViewer extends VBox implements ViewerCreator,
         v.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
                                       ev ->
         {
+
+            if (!Environment.isDebugModeEnabled ())
+            {
+
+                return;
+
+            }
 
             if (!ev.isShortcutDown ())
             {

@@ -68,6 +68,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         String renameproject = "renameproject";
         String createbackup = "createbackup";
         String deleteproject = "deleteproject";
+        String togglespellchecking = "togglespellchecking";
 
     }
 
@@ -642,7 +643,7 @@ TODO
 
                 try
                 {
-Environment.logMessage ("GOT DETAIL: " + p);
+
                     State s = new State (p);
                     cc.init (s);
 
@@ -3890,7 +3891,7 @@ TODO REmove
             {
 
                 ChapterCounts cc = this.chapterCounts.get (c);
-
+System.out.println ("CC: " + cc + ", " + c.getKey ());
                 this.project.setProperty ("chapter.counts." + c.getKey (),
                                           cc.getState ().asString ());
 
@@ -4861,6 +4862,45 @@ TODO REmove
         }
 
         return this.fullScreenContent;
+
+    }
+
+    public Node getTitleHeaderControlByButtonId (String id)
+    {
+
+        WindowedContent wc = this.getWindowedContent ();
+
+        QuollToolBar tb = wc.getHeader ().getToolbar ();
+
+        return tb.getControlByButtonId (id);
+
+    }
+
+    public void addTitleHeaderControl (Node n,
+                                       HPos side)
+    {
+
+        WindowedContent wc = this.getWindowedContent ();
+
+        QuollToolBar tb = wc.getHeader ().getToolbar ();
+
+        tb.addControl (n,
+                       side);
+
+    }
+
+    public void addTitleHeaderControl (Node   n,
+                                       String insertAt,
+                                       HPos   side)
+    {
+
+        WindowedContent wc = this.getWindowedContent ();
+
+        QuollToolBar tb = wc.getHeader ().getToolbar ();
+
+        tb.addControl (n,
+                       insertAt,
+                       side);
 
     }
 

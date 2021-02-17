@@ -218,6 +218,13 @@ public class Header extends HBox
 
     }
 
+    public QuollToolBar getToolbar ()
+    {
+
+        return this.toolbar;
+
+    }
+
     public Label getTitle ()
     {
 
