@@ -6156,6 +6156,17 @@
                         "text" : "<ul><li>Fixed an issue in the First Use wizard that stopped users progressing past the license agreement.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b13" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes",
+                        "text" : "<ul><li>Fixed an issue that caused an error when replacing special values in text areas.</li></ul>"
+                    }
+                }
             }
         }
     },

@@ -16,7 +16,7 @@ plugins {
     //id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
-version '3.0.0b12'
+version '3.0.0b13'
 //version '2.6.14'
 
 sourceSets {
