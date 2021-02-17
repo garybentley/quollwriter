@@ -9,6 +9,7 @@ import javafx.beans.property.*;
 import javafx.collections.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.geometry.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
@@ -27,7 +28,6 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
     private SimpleDateFormat sdf = null;
     private ObservableList<Warmup> warmups = null;
-    private WordCountTimerButton wordCountTimerButton = null;
     private WarmupsSideBar sidebar = null;
     private ObjectProperty<Warmup> currentWarmupProp = new SimpleObjectProperty<> ();
 
@@ -82,8 +82,27 @@ public class WarmupProjectViewer extends AbstractProjectViewer
     public void showTimer (Warmup w)
     {
 
-        this.wordCountTimerButton.start (w.getMins (),
-                                         w.getWords ());
+        Node n = this.getTitleHeaderControlByButtonId (HeaderControlButtonIds.timer);
+
+        if ((n == null)
+            ||
+            (!(n instanceof WordCountTimerButton))
+           )
+        {
+
+            Environment.logError ("Unable to find word count timer button.");
+
+            return;
+
+        }
+
+        WordCountTimerButton b = (WordCountTimerButton) n;
+
+        this.addTitleHeaderControl (b,
+                                    HPos.LEFT);
+
+        b.start (w.getMins (),
+                 w.getWords ());
 
     }
 
