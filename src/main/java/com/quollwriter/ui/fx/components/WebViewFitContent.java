@@ -400,6 +400,8 @@ System.out.println ("ADDING: " + r);
                                  this.getPaintAsCssString (this.label.getTextFill ())));
         b.append (String.format ("a{color:%1$s;}",
                                  this.getPaintAsCssString (this.hyperlink.getTextFill ())));
+        b.append ("li{list-style-position:outside;margin-left:1em;}");
+        b.append ("ul{margin:0 0 0 0.5em;padding:0;}");
 /*
         b.append (".b{font-weight: bold;}.i{font-style: italic;}");
         b.append (".u{text-decoration: underline;}");

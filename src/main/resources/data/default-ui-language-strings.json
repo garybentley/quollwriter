@@ -6121,7 +6121,28 @@
                     "bugs" :
                     {
                         "title" : "Bug fixes",
-                        "text" : "<li>Fixed the first use wizard so that its size is correct, it is also resizable.</li><li>Fixed the Night Mode colors for the chapter editor.</li><li>Fixed some issues relating to adding new Asset types.</li><li>Improved drag-n-drop on Linux.</li><li>Changed location of the log file(s) to be in the QuollWriter sub-folder of the home folder.</li><li>Fixed an issue that caused the Chapters to be removed from the sidebar when removing Editors.</li><li>Fixed an issue preventing Edit Needed notes from being edited.</li>"
+                        "text" : "<ul><li>Fixed the first use wizard so that its size is correct, it is also resizable.</li><li>Fixed the Night Mode colors for the chapter editor.</li><li>Fixed some issues relating to adding new Asset types.</li><li>Improved drag-n-drop on Linux.</li><li>Changed location of the log file(s) to be in the QuollWriter sub-folder of the home folder.</li><li>Fixed an issue that caused the Chapters to be removed from the sidebar when removing Editors.</li><li>Fixed an issue preventing Edit Needed notes from being edited.</li></ul>"
+                    }
+                }
+            },
+            "3.0.0b11" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes",
+                        "text" : "<ul><li>Fixed an issue that prevented the UI language strings from being tried out.</li><li>The User UI language strings can now be deleted.</li><li>When reporting a bug the email address is now mandatory, I've lost count of the times I've needed to contact someone about an issue but don't have their email.</li><li>Fixed an issue with the Word Count sidebar.</li><li>The special QW value should now be replaced with Quoll Writer in text areas.</li><li>Cancelling out of the first use wizard will no longer show the All Projects window, instead QW will close.</li><li>Updated the file opener to try <b>xdg-open</b> first before trying to determine what flavor of Linux we are running on.</li><li>The chapter counts are now saved in the project and set up at startup time.  This can lead to a delay in the project window appearing the first time but will be faster at all other times.</li><li>The help text in the Project Editors section of the sidebar will now only display when you have one or more Editors for the project.</li><li>Fixed an issue with the Targets sidebar not displaying the relevant link when a chapter goes over a limit.</li><li>Fixed an issue with the writing target reached popup not displayed.</li><li>Fixed an issue with the spell checker not being able to be enabled when editing a Warm-up.</li><li>Fixed an issue that prevented Warm-ups from being started due to the timer control not being present on the header.</li><li>Fixed a number of issues with the UI Language Strings Editor.</li><li>Fixed an issue preventing some Asset fields from being added.</li><li>Fixed the .docx import so that chapter text is found and imported correctly.</li><li>Fixed an issue with the import so that imported chapters are correctly added to the Project.</li><li>Fixed an issue that prevented encrypted Projects from being opened when QW first starts.</li><li>Finally, the What's New should appear when you start QW after upgrading, if it doesn't please let me know!</li></ul>"
+                    },
+                    "newfeatures" :
+                    {
+                        "title" : "New Features",
+                        "text" : "<ul><li>Scenes, Outline Items and Notes can now be dragged-n-dropped in the margin.</li><li>Added a help message to the Project sidebar that will be displayed if the user has no sections in the sidebar, hopefully this helps prevent confusion when it is empty.</li><li>.docx files can be dropped onto the Project window to being the import.</li><li>When opening an encrypted Project when QW starts, the All Projects window will now be displayed first and the popup asking for the password will be displayed within it.</li></ul>"
+                    },
+                    "changes" :
+                    {
+                        "title" : "Changed/Removed Features",
+                        "text" : "Removed support for .doc files to be imported.  It has never worked properly and I can't get it to work properly."
                     }
                 }
             }

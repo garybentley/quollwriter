@@ -1646,15 +1646,9 @@ TODO Remove handled by the content.
     {
 
         // TODO
-        if (true)
-        {
-                return;
-        }
-
         boolean showWhatsNew = false;
 
         String whatsNewVersion = UserProperties.get (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
-        //Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
 
         if (whatsNewVersion != null)
         {

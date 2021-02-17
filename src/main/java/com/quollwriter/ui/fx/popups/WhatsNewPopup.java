@@ -89,7 +89,6 @@ public class WhatsNewPopup extends PopupContent
 
                 }
   */
-
                 if ((lastWhatsNewVersion.isNewer (v))
                     ||
                     ((onlyShowCurrentVersion)
@@ -324,7 +323,7 @@ public class WhatsNewPopup extends PopupContent
                     .inViewer (this.viewer)
                     .build ();
 
-                b.getChildren ().add (text);
+                b.getChildren ().add (new ScrollPane (text));
 
             }
 
@@ -448,11 +447,11 @@ public class WhatsNewPopup extends PopupContent
 
         if (nits != null)
         {
-System.out.println ("HERE4");
+
             return n.getVersion () + ":0";
 
         }
-System.out.println ("HERE5");
+
         return null;
 
     }
