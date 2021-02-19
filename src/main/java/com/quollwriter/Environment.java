@@ -3125,6 +3125,14 @@ xxx
                         if (path.getFileName ().toString ().startsWith ("QuollWriter.log"))
                         {
 
+                            if (path.getFileName ().toString ().endsWith (".lck"))
+                            {
+
+                                // Just ignore the lock file.
+                                return FileVisitResult.CONTINUE;
+
+                            }
+
                             paths.add (path);
 
                         }
