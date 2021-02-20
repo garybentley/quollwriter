@@ -3434,7 +3434,7 @@ TODO Remove?
                 // TODO Change to use UIUtils.downloadDictionaryFiles instead...
 
                 // Download them.
-                DictionaryProvider.downloadDictionaryFiles (this.getProjectSpellCheckLanguage (),
+                DictionaryProvider.downloadDictionaryFiles (lang,
                                                             this,
                                                             () ->
                                                             {
