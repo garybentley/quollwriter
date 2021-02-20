@@ -3408,6 +3408,17 @@ TODO Remove?
 
         }
 
+        // Handle legacy language values.
+        if (("US English".equals (c))
+            ||
+            ("UK English".equals (c))
+           )
+        {
+
+            c = Constants.ENGLISH;
+
+        }
+
         this.projectSpellCheckLanguageProp.setValue (c);
 
     }
