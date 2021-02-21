@@ -5329,7 +5329,12 @@ TODO: IS THIS NEEDED?
 
         String lang = UserProperties.get (Constants.DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
 
-        if (lang == null)
+        if ((lang == null)
+            ||
+            ("US English".equals (lang))
+            ||
+            ("UK English".equals (lang))
+           )
         {
 
             lang = Constants.ENGLISH;

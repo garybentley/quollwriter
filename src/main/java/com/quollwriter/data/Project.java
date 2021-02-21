@@ -2498,7 +2498,12 @@ public class Project extends NamedObject
 
         }
 
-        if (lang.equals ("English"))
+        if ((lang.equals ("English"))
+            ||
+            (lang.equals ("US English"))
+            ||
+            (lang.equals ("UK English"))
+           )
         {
 
             lang = "en";

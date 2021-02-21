@@ -155,6 +155,10 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
 
         return (id.equals (ENGLISH_ID))
                 ||
+                "UK English".equals (id)
+                ||
+                "US English".equals (id)
+                ||
                ((":" + id).equals (ENGLISH_ID));
 
     }
@@ -162,7 +166,7 @@ public class UILanguageStrings extends AbstractLanguageStrings<UILanguageStrings
     public boolean isEnglish ()
     {
 
-        return isEnglish (this.getId ());
+        return this.isEnglish (this.getId ());
 
     }
 

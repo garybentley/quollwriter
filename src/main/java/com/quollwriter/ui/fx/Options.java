@@ -1096,7 +1096,7 @@ public class Options extends VBox implements Stateful
 
                     AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
 
-                    spellcheckLang.getSelectionModel ().select (pv.getProject ().getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME));
+                    spellcheckLang.getSelectionModel ().select (pv.getProjectSpellCheckLanguage ());
 
                 } else {
 

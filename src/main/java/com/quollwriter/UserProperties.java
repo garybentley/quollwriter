@@ -1373,7 +1373,19 @@ public class UserProperties
     public static String getDefaultSpellCheckLanguage ()
     {
 
-        return UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+        String v = UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+
+        if (("UK English".equals (v))
+            ||
+            ("UK English".equals (v))
+           )
+        {
+
+            v = Constants.ENGLISH;
+
+        }
+
+        return v;
 
     }
 

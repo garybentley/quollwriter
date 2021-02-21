@@ -155,7 +155,7 @@ public class RenameProjectPopup extends PopupContent<AbstractProjectViewer>
             }
 
             final Path newDir = this.project.getProjectDirectory ().getParentFile ().toPath ().resolve (Utils.sanitizeForFilename (newName));
-System.out.println ("NEWDIR: " + newDir);
+
             try
             {
 
@@ -179,6 +179,7 @@ System.out.println ("NEWDIR: " + newDir);
                                           ProjectEvent.Action.rename);
 
             QuollPopup.messageBuilder ()
+                .inViewer (this.viewer)
                 .headerIconClassName (StyleClassNames.EDIT)
                 .title (LanguageStrings.project,actions,renameproject,title)
                 .message (LanguageStrings.project,actions,renameproject,complete)
