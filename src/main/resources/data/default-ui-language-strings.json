@@ -6167,6 +6167,17 @@
                         "text" : "<ul><li>Fixed an issue that caused an error when replacing special values in text areas.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b14" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes",
+                        "text" : "<ul><li>Fixed an issue that caused the Project viewer to be put into a zombie state when the Project was renamed.</li><li>Changing where the Project is stored no longer requires the Project to be closed.</li><li>Fixed an issue related to legacy English dictionary names that caused the spellchecker to not work.</li></ul>"
+                    }
+                }
             }
         }
     },
@@ -8610,16 +8621,10 @@
                 },
                 "confirmpopup" :
                 {
-                    "title" : "Confirm change to ${objectnames.singular.project} folder?",
-                    "text" : "To change the folder of a ${objectnames.singular.project} it must first be saved and closed.  Once the folder has been changed the ${objectnames.singular.project} will be reopened.<br /><br />%1$sDo you wish to continue?",
-                    ":comment.text" : "%1$s is extra information about the change, usually it is about the backups folder also behing moved.",
-                    ":scount.text" : 1,
-                    "backupdirchangewarning" : "<span class='error'>Warning!  The backups folders for this ${objectnames.singular.project} will also be changed.</span><br /><br />",
-                    "buttons" :
-                    {
-                        "confirm" : "Yes, change it",
-                        "cancel" : "${buttons.cancel}"
-                    }
+                    "title" : "${objectnames.singular.project} folder changed",
+                    "text" : "To ${objectnames.singular.project} has been changed to %1$s.",
+                    ":comment.text" : "%1$s is the folder the project has been moved to.",
+                    ":scount.text" : 1
                 }
             },
             "deletetag" :

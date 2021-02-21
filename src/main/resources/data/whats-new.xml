@@ -1,5 +1,9 @@
 <whatsnew>
 
+    <version id="3.0.0b14">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
     <version id="3.0.0b13">
           <item id="bugs" onlyIfCurrentVersion="true" />
     </version>

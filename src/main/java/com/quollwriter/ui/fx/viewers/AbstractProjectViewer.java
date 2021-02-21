@@ -1200,6 +1200,23 @@ TODO
 
         }
 
+        if (backupsIsSubDir)
+        {
+
+            try
+            {
+
+                Utils.deleteDir (oldBackupsPath);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to delete old backup dir: " + oldBackupsPath,
+                                      e);
+
+            }
+
+        }
+
     }
 
     public void openProject (ProjectInfo    p,
