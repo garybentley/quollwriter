@@ -22,6 +22,8 @@ import javafx.scene.image.*;
 
 import org.dom4j.Element;
 
+import org.apache.commons.io.file.*;
+
 import com.quollwriter.*;
 import com.quollwriter.db.*;
 import com.quollwriter.synonyms.*;
@@ -1104,19 +1106,44 @@ TODO
                                  throws GeneralException
     {
 
+        if (Files.exists (to))
+        {
+
+            throw new GeneralException ("To directory already exists: " + to);
+
+        }
+
         this.saveObject (this.project,
                          true);
 
         this.dBMan.closeConnectionPool ();
 
+        Path oldPath = this.project.getProjectDirectory ().toPath ();
+        Path oldBackupsPath = this.project.getBackupDirectory ().toPath ();
+
+        String backupsDir = null;
+        boolean backupsIsSubDir = Utils.isSubDir (oldPath.toFile (), oldBackupsPath.toFile ());
+
+        if (backupsIsSubDir)
+        {
+
+            backupsDir = oldBackupsPath.toString ().substring (oldPath.toString ().length () + 1);
+
+        }
+
         // Rename the dir.
         try
         {
 
-            Files.move (this.project.getProjectDirectory ().toPath (),
-                        to);
+            PathUtils.copyDirectory (oldPath,
+                                     to,
+                                     StandardCopyOption.COPY_ATTRIBUTES);
 
         } catch (Exception e) {
+
+            // Delete the to path, something has gone wrong.
+            //delete to
+            //reopen project.
 
             throw new GeneralException ("Unable to move project directory from: " +
                                         this.project.getProjectDirectory () +
@@ -1126,8 +1153,6 @@ TODO
 
         }
 
-        this.project.setProjectDirectory (to.toFile ());
-
         String username = UserProperties.get (Constants.DB_USERNAME_PROPERTY_NAME);
         String password = UserProperties.get (Constants.DB_PASSWORD_PROPERTY_NAME);
 
@@ -1135,7 +1160,7 @@ TODO
         {
 
             // TODO Fix this!
-            this.dBMan.init (this.project.getProjectDirectory ().toPath ().resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
+            this.dBMan.init (to.resolve (Constants.PROJECT_DB_FILE_NAME_PREFIX).toFile (),
                              username,
                              password,
                              this.project.getFilePassword (),
@@ -1150,8 +1175,30 @@ TODO
 
         this.dBMan.setProject (this.project);
 
+        this.project.setProjectDirectory (to.toFile ());
+
+        if (backupsIsSubDir)
+        {
+
+            // Need to resolve the backups against the new dir.
+            this.project.setBackupDirectory (to.resolve (backupsDir).toFile ());
+
+        }
+
         this.saveObject (this.project,
                          true);
+
+        try
+        {
+
+            Utils.deleteDir (oldPath);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to delete old project dir: " + oldPath,
+                                  e);
+
+        }
 
     }
 

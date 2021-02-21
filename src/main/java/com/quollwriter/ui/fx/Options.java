@@ -22,6 +22,8 @@ import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import javafx.scene.input.*;
 
+import org.apache.commons.io.file.*;
+
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
@@ -1854,6 +1856,8 @@ public class Options extends VBox implements Stateful
 
             }
 
+            projBackupDirF.setFile (newv.toPath ());
+
             projBackupDirChangeB.setDisable (newv.toPath ().equals (projBackupDirF.fileProperty ().getValue ()));
 
         });
@@ -3343,37 +3347,19 @@ public class Options extends VBox implements Stateful
 
             }
 
-            // Just rename it.
             try
             {
 
-                // Need the try(){} to auto close the underlying resources.
-                try (Stream<Path> ls = Files.list (oldDir))
+                if (Files.exists (oldDir))
                 {
 
-                    ls.forEach (f ->
-                    {
+                    PathUtils.copyDirectory (oldDir,
+                                             newDir,
+                                             StandardCopyOption.COPY_ATTRIBUTES);
 
-                        try
-                        {
-
-                            Files.move (f,
-                                        newDir.resolve (f.getFileName ()));
-
-                        } catch (Exception e) {
-
-                            throw new RuntimeException (String.format ("Unable to move file: %1$s to: %2$s",
-                                                                       f,
-                                                                       newDir.resolve (f.getFileName ())),
-                                                        e);
-
-                        }
-
-                    });
+                    Utils.deleteDir (oldDir);
 
                 }
-
-                Files.delete (oldDir);
 
             } catch (Exception e) {
 
@@ -3385,10 +3371,6 @@ public class Options extends VBox implements Stateful
 
                 ComponentUtils.showErrorMessage (viewer,
                                                  getUILanguageStringProperty (project,actions,changebackupdir,actionerror));
-                                          //"Unable to change backup directory to: " +
-                                          //newDir);
-
-                return;
 
             }
 
@@ -3439,7 +3421,7 @@ public class Options extends VBox implements Stateful
         {
 
             backupIsSubDir = true;
-            _newBackupDir = newProjDir.resolve (proj.getBackupDirectory ().toPath ().getFileName ());
+            _newBackupDir = newProjDir.resolve (proj.getBackupDirectory ().toPath ().toString ().substring (proj.getProjectDirectory ().toPath ().toString ().length () + 1));
 
             if (!Utils.isDirectoryEmpty (_newBackupDir))
             {
@@ -3460,12 +3442,62 @@ public class Options extends VBox implements Stateful
         if (!newProjDir.equals (oldProjDir))
         {
 
-            if (!Utils.isDirectoryEmpty (newProjDir))
+            if (Files.exists (newProjDir))
             {
 
                 error.accept (getUILanguageStringProperty (project,actions,changeprojectdir,errors,dirnotempty));
                 return;
 
+            }
+
+            try
+            {
+
+                viewer.changeProjectDirectory (newProjDir);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to rename project directory: " +
+                                      proj.getProjectDirectory () +
+                                      " to: " +
+                                      newProjDir,
+                                      e);
+
+                ComponentUtils.showErrorMessage (viewer,
+                                                 getUILanguageStringProperty (project,actions,changeprojectdir,actionerror));
+
+                //Environment.showAllProjectsViewer ();
+
+            }
+
+            viewer.fireProjectEvent (ProjectEvent.Type.projectobject,
+                                     ProjectEvent.Action.changeddirectory,
+                                     proj.getObjectType ());
+
+            String pid = "projectdirchange";
+
+            QuollPopup.messageBuilder ()
+                .removeOnClose (true)
+                .popupId (pid)
+                .withViewer (viewer)
+                .title (project,actions,changeprojectdir,confirmpopup,title)
+                .message (getUILanguageStringProperty (Arrays.asList (project,actions,changeprojectdir,confirmpopup,text),
+                                                       newProjDir.toString ()))
+                .button (QuollButton.builder ()
+                    .label (buttons,confirm)
+                    .buttonType (ButtonBar.ButtonData.APPLY)
+                    .onAction (eev ->
+                    {
+
+                       this.viewer.getPopupById (pid).close ();
+
+                    })
+                    .build ())
+                .build ();
+
+            if (true)
+            {
+                return;
             }
 
             StringProperty extra = new SimpleStringProperty ("");
@@ -3489,6 +3521,33 @@ public class Options extends VBox implements Stateful
                 .onConfirm (ev ->
                 {
 
+                    try
+                    {
+
+                        viewer.changeProjectDirectory (newProjDir);
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to rename project directory: " +
+                                              proj.getProjectDirectory () +
+                                              " to: " +
+                                              newProjDir,
+                                              e);
+
+                        ComponentUtils.showErrorMessage (viewer,
+                                                         getUILanguageStringProperty (project,actions,changeprojectdir,actionerror));
+
+                        //Environment.showAllProjectsViewer ();
+
+                    }
+
+                    Environment.getProjectViewer (proj).fireProjectEvent (ProjectEvent.Type.projectobject,
+                                                                          ProjectEvent.Action.changeddirectory,
+                                                                          proj.getObjectType ());
+
+
+
+/*
                     if (newBackupDir != null)
                     {
 
@@ -3555,7 +3614,7 @@ public class Options extends VBox implements Stateful
                         }
 
                    });
-
+*/
                 })
                 .onCancel (ev ->
                 {

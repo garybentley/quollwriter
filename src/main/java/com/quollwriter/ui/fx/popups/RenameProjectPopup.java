@@ -155,7 +155,7 @@ public class RenameProjectPopup extends PopupContent<AbstractProjectViewer>
             }
 
             final Path newDir = this.project.getProjectDirectory ().getParentFile ().toPath ().resolve (Utils.sanitizeForFilename (newName));
-
+System.out.println ("NEWDIR: " + newDir);
             try
             {
 
@@ -166,7 +166,8 @@ public class RenameProjectPopup extends PopupContent<AbstractProjectViewer>
                 Environment.logError ("Unable to rename project directory: " +
                                       this.project.getProjectDirectory () +
                                       " to: " +
-                                      newDir);
+                                      newDir,
+                                      e);
 
                 ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.project,actions,renameproject,actionerror));
 
