@@ -3113,35 +3113,22 @@ xxx
             try
             {
 
-                Files.walkFileTree (p,
-                                    new SimpleFileVisitor<Path> ()
-                {
-
-                    @Override
-                    public FileVisitResult visitFile (Path                path,
-                                                      BasicFileAttributes attrs)
+                Files.list (p)
+                    .filter (path ->
                     {
 
-                        if (path.getFileName ().toString ().startsWith ("QuollWriter.log"))
-                        {
+                        return ((path.getFileName ().toString ().startsWith ("QuollWriter.log"))
+                                &&
+                                (!path.getFileName ().toString ().endsWith (".lck"))
+                               );
 
-                            if (path.getFileName ().toString ().endsWith (".lck"))
-                            {
+                    })
+                    .forEach (path ->
+                    {
 
-                                // Just ignore the lock file.
-                                return FileVisitResult.CONTINUE;
+                        paths.add (path);
 
-                            }
-
-                            paths.add (path);
-
-                        }
-
-                        return FileVisitResult.CONTINUE;
-
-                    }
-
-                });
+                    });
 
             } catch (Exception e) {
 
