@@ -1795,7 +1795,12 @@ TODO
                 confirm.setOnAction (ev ->
                 {
 
-                    this.onConfirm.handle (ev);
+                    if (this.onConfirm != null)
+                    {
+
+                        this.onConfirm.handle (ev);
+
+                    }
 
                     if (!ev.isConsumed ())
                     {
@@ -1811,7 +1816,12 @@ TODO
             cancel.setOnAction (ev ->
             {
 
-                this.onCancel.handle (ev);
+                if (this.onCancel != null)
+                {
+
+                    this.onCancel.handle (ev);
+
+                }
 
                 if (!ev.isConsumed ())
                 {
