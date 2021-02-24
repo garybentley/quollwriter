@@ -5139,14 +5139,14 @@ TODO: IS THIS NEEDED?
     public static Map<String, StringProperty> getObjectTypeNamePlurals ()
     {
 
-        return new HashMap (Environment.objectTypeNamesPlural);
+        return new HashMap<> (Environment.objectTypeNamesPlural);
 
     }
 
     public static Map<String, StringProperty> getObjectTypeNames ()
     {
 
-        return new HashMap (Environment.objectTypeNamesSingular);
+        return new HashMap<> (Environment.objectTypeNamesSingular);
 
     }
 

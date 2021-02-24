@@ -1573,7 +1573,17 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
     public StringProperty getTitle ()
     {
 
-        return Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE);
+        StringBinding b = Bindings.createStringBinding (() ->
+        {
+
+            return getUILanguageStringProperty (objectnames,plural, Chapter.OBJECT_TYPE).getValue ();
+
+        },
+        Environment.objectTypeNameChangedProperty ());
+
+        StringProperty p = new SimpleStringProperty ();
+        p.bind (b);
+        return p;
 
     }
 
