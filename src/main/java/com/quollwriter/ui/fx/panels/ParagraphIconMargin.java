@@ -233,7 +233,7 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
             ev.consume ();
 
         });
-
+/*
         this.addEventHandler (MouseEvent.MOUSE_RELEASED,
                               ev ->
         {
@@ -252,11 +252,13 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
             }
 
         });
-
+*/
         this.setOnContextMenuRequested (ev ->
         {
 
             ev.consume ();
+
+            this.setContextMenu (ev);
 
         });
 
@@ -266,9 +268,10 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
 
             ev.consume ();
 
-            this.editor.hideContextMenu ();
-
-            if (ev.getClickCount () == 2)
+            if ((!ev.isPopupTrigger ())
+                &&
+                (ev.getClickCount () == 2)
+               )
             {
 
                 this.setContextMenu (ev);
@@ -282,29 +285,6 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
         {
 
             ev.consume ();
-
-            this.editor.hideContextMenu ();
-
-            if (ev.isPopupTrigger ())
-            {
-
-                this.clearContextMenu ();
-                this.setContextMenu (ev);
-
-/*
-                ContextMenu _cm = _this.contextMenus.get ("iconcolumn");
-
-                if (_cm != null)
-                {
-
-                    _cm.hide ();
-                    _this.contextMenus.remove ("iconcolumn");
-
-                }
-
-                _this.contextMenus.put ("iconcolumn", cm);
-*/
-            }
 
         });
 
@@ -366,10 +346,33 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
     private void setContextMenu (MouseEvent ev)
     {
 
+        this.setContextMenu (ev.getY (),
+                             ev.getScreenX (),
+                             ev.getScreenY ());
+
+    }
+
+    private void setContextMenu (ContextMenuEvent ev)
+    {
+
+        this.setContextMenu (ev.getY (),
+                             ev.getScreenX (),
+                             ev.getScreenY ());
+
+    }
+
+    private void setContextMenu (double editorY,
+                                 double screenX,
+                                 double screenY)
+    {
+
+        this.editor.hideContextMenu ();
+        this.clearContextMenu ();
+
         ContextMenu cm = new ContextMenu ();
 
         int pos = this.editor.getTextPositionForMousePosition (0,
-                                                               ev.getY ());
+                                                               editorY);
         pos = this.editor.getTextPositionForCurrentMousePosition ();
 
         int cpos = (pos > -1 ? pos : this.editor.getCaretPosition ());
@@ -383,12 +386,12 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
 
         }
 
-        //cm.getItems ().addAll (items);
+        cm.getItems ().addAll (items);
 
         this.getProperties ().put ("context-menu", cm);
         cm.setAutoFix (true);
         cm.setAutoHide (true);
-        cm.show (this.viewer.getViewer (), ev.getScreenX (), ev.getScreenY ());
+        cm.show (this.viewer.getViewer (), screenX, screenY);
 
     }
 
