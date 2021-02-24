@@ -1226,6 +1226,7 @@ TODO: Not really needed?
 
             tb.getItems ().add (QuollButton.builder ()
                 .iconName (StyleClassNames.DELETE)
+                .styleClassName (StyleClassNames.DELETE)
                 .tooltip (getUILanguageStringProperty (Utils.newList (prefix,buttons,delete,tooltip)))
                 .onAction (ev ->
                 {
