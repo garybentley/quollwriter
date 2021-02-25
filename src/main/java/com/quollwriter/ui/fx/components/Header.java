@@ -87,7 +87,6 @@ public class Header extends HBox
                     m.setAutoFix (true);
                     m.setAutoHide (true);
                     m.setHideOnEscape (true);
-                    m.setAutoHide (true);
 
 					m.show (_this, ev.getScreenX (), ev.getScreenY ());
 

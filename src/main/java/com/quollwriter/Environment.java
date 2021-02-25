@@ -6446,8 +6446,8 @@ TODO
 
     }
 
-    public static void showCSSViewer (javafx.stage.Stage             v,
-                                      javafx.scene.Node n)
+    public static void showCSSViewer (javafx.stage.Window v,
+                                      javafx.scene.Node   n)
                                throws GeneralException
     {
 

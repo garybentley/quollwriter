@@ -28,8 +28,9 @@ public class CSSViewer extends AbstractViewer
     private WindowedContent windowedContent = null;
     private Map<Node, Panel> panels = new HashMap<> ();
     private ObjectProperty<Panel> currentPanelProp = null;
-    private Stage viewer = null;
+    private Window viewer = null;
     private CSSSideBar sidebar = null;
+    private StringProperty titleProp = new SimpleStringProperty ();
 
     public CSSViewer (AbstractViewer forViewer)
     {
@@ -49,7 +50,23 @@ public class CSSViewer extends AbstractViewer
     public CSSViewer (Stage forViewer)
     {
 
+        this ((Window) forViewer);
+        this.titleProp.bind (forViewer.titleProperty ());
+
+    }
+
+    public CSSViewer (Window forViewer)
+    {
+
         this.viewer = forViewer;
+
+        if (this.titleProp.getValue () == null)
+        {
+
+            this.titleProp.unbind ();
+            this.titleProp.setValue (forViewer.getClass ().getName ());
+
+        }
 
         this.currentPanelProp = new SimpleObjectProperty<> ();
 
@@ -307,7 +324,7 @@ public class CSSViewer extends AbstractViewer
                                                         //new TextArea ());
                                                         this.tabs);
 
-            this.windowedContent.setTitle (this.viewer.titleProperty ());
+            this.windowedContent.setTitle (this.titleProp);
 
 
         }
@@ -344,7 +361,7 @@ public class CSSViewer extends AbstractViewer
     public StringProperty titleProperty ()
     {
 
-        return this.viewer.titleProperty ();
+        return this.titleProp;
 
     }
 
