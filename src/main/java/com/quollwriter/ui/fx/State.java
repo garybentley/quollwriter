@@ -410,7 +410,8 @@ public class State
         if (!(expect.isAssignableFrom (v.getClass ())))
         {
 
-            throw new IllegalStateException ("Value for name: " + name + ", is type: " + v.getClass ().getName ());
+            //throw new IllegalStateException ("Value for name: " + name + ", is type: " + v.getClass ().getName ());
+            return null;
 
         }
 
