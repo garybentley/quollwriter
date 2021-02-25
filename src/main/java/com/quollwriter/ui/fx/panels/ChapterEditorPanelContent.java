@@ -230,6 +230,15 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         });
 
         Nodes.addInputMap (this.editor,
+                           InputMap.consume (EventPattern.keyPressed (KeyCode.E, KeyCombination.SHORTCUT_DOWN),
+                                             ev ->
+                                             {
+
+                                                this.viewer.runCommand (AbstractProjectViewer.CommandId.textproperties);
+
+                                             }));
+
+        Nodes.addInputMap (this.editor,
                            InputMap.consume (EventPattern.keyPressed (KeyCode.S, KeyCombination.SHORTCUT_DOWN),
                                              ev ->
                                              {
