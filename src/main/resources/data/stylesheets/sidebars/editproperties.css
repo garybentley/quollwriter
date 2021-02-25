@@ -13,7 +13,7 @@
     -fx-padding: 0 0 1.5em 1em;
     -fx-alignment: center-left;
 }
-.fontsize, .linespacing, .textborder {
+.fontsize, .linespacing, .textborder, .paragraphspacing {
     -fx-alignment: center-left;
     -fx-spacing: 0.5em;
 }

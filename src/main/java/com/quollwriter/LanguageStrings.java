@@ -717,6 +717,7 @@ public class LanguageStrings
     public static final String fontsize = "fontsize";
     public static final String alignment = "alignment";
     public static final String linespacing = "linespacing";
+    public static final String paragraphspacing = "paragraphspacing";
     public static final String textborder = "textborder";
     public static final String indentfirstline = "indentfirstline";
     public static final String highlightwritingline = "highlightwritingline";

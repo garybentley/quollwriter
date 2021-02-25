@@ -245,6 +245,7 @@ public final class StyleClassNames
     public static final String TEXTEDITOR = "texteditor";
     public static final String LEFT = "left";
     public static final String LINESPACING = "linespacing";
+    public static final String PARAGRAPHSPACING = "paragraphspacing";
     public static final String TEXTBORDER = "textborder";
     public static final String FONTSIZE = "fontsize";
     public static final String FONTFAMILY = "fontfamily";

@@ -390,9 +390,9 @@ Text
     -fx-pref-width: 0.888em;
 }
 
-.accordion.chapter .header .iconbox .icon,
-.accordion .header .iconbox .editing-icon.icon,
-.accordion.character .header .iconbox .icon {
+.accordion.chapter .header > .iconbox .icon,
+.accordion .header > .iconbox .editing-icon.icon,
+.accordion.character .header > .iconbox .icon {
     -fx-pref-width: 1em;
 }
 
@@ -1367,8 +1367,17 @@ Text
 .choice-box
 {
     -fx-background-color: -qw-bg-color;
-    -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
+}
+
+.context-menu
+{
+    -fx-padding: 0;
+}
+
+.context-menu .menu-item .label
+{
+    -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
 }
 
 .root:night .context-menu

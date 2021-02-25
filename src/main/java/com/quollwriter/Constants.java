@@ -336,6 +336,8 @@ public class Constants
 
     public static final String EDITOR_LINE_SPACING_PROPERTY_NAME = "editorLineSpacing";
 
+    public static final String EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME = "editorParagraphSpacing";
+
     public static final String EDITOR_ALIGNMENT_PROPERTY_NAME = "editorAlignment";
 
     public static final String EDITOR_TEXT_BORDER_PROPERTY_NAME = "editorTextBorder";
@@ -441,6 +443,8 @@ public class Constants
     public static final String FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME = "fullScreenEditorFontSize";
 
     public static final String FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME = "fullScreenEditorLineSpacing";
+
+    public static final String FULL_SCREEN_EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME = "fullScreenEditorParagraphSpacing";
 
     public static final String FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME = "fullScreenEditorAlignment";
 

@@ -568,6 +568,7 @@ TODO
 
             ParaStyle ps = new ParaStyle ();
             ps.updateLineSpacing (props.getLineSpacing ())
+                .updateParagraphSpacing (props.getParagraphSpacing ())
                 .updateTextBorder (props.getTextBorder ())
                 .updateAlignment (props.getAlignment ())
                 .updateFontSize (props.getFontSize ());
@@ -2368,6 +2369,22 @@ System.out.println ("HEREZ: " + cb);
 
         });
 
+        this.textPropsBinder.addChangeListener (this.props.paragraphSpacingProperty (),
+                                                (pr, oldv, newv) ->
+        {
+
+            this.ignoreDocumentChange = true;
+
+            this.suspendUndos.suspendWhile (() ->
+            {
+
+                this.updateParagraphStyle (style -> style.updateParagraphSpacing (props.getParagraphSpacing ()));
+                this.ignoreDocumentChange = false;
+
+            });
+
+        });
+
         this.textPropsBinder.addChangeListener (this.props.textBorderProperty (),
                                                 (pr, oldv, newv) ->
         {
@@ -2397,6 +2414,7 @@ System.out.println ("HEREZ: " + cb);
         {
 
             return style.updateLineSpacing (props.getLineSpacing ())
+                .updateParagraphSpacing (props.getParagraphSpacing ())
                 .updateAlignment (props.getAlignment ())
                 .updateTextBorder (props.getTextBorder ());
 
@@ -2852,6 +2870,7 @@ System.out.println ("HEREZ: " + cb);
     {
 
         private Optional<Float> lineSpacing = Optional.empty ();
+        private Optional<Float> paraSpacing = Optional.empty ();
         private Optional<String> alignment = Optional.empty ();
         private Optional<Integer> textBorder = Optional.empty ();
         private int fontSize = 12;
@@ -2885,7 +2904,7 @@ System.out.println ("HEREZ: " + cb);
         @Override
         public int hashCode() {
             return Objects.hash (
-                    lineSpacing, alignment, textBorder, fontSize);
+                    lineSpacing, paraSpacing, alignment, textBorder, fontSize);
         }
 
         @Override
@@ -2895,6 +2914,7 @@ System.out.println ("HEREZ: " + cb);
                 return Objects.equals(this.lineSpacing,  that.lineSpacing) &&
                        Objects.equals(this.alignment,    that.alignment) &&
                        Objects.equals(this.textBorder,   that.textBorder) &&
+                       Objects.equals(this.paraSpacing,   that.paraSpacing) &&
                        Objects.equals(this.fontSize,     that.fontSize);
             }
 
@@ -2936,16 +2956,42 @@ System.out.println ("HEREZ: " + cb);
 
             }
 
-            if (this.textBorder.isPresent ())
+            float ps = 0f;
+
+            if (this.paraSpacing.isPresent ())
             {
 
-                float s = (this.lineSpacing.get ()) * this.fontSize;
+                ps = this.paraSpacing.get () * this.fontSize;
 
-                sb.append (String.format ("-fx-padding: 0 %1$spx %2$spt %1$spx;",
-                                          this.textBorder.get () + 3,
-                                          s));
+                if (this.lineSpacing.isPresent ())
+                {
+
+                    ps *= this.lineSpacing.get ();
+
+                }
+
+            } else {
+
+                if (this.lineSpacing.isPresent ())
+                {
+
+                    ps = this.lineSpacing.get () * this.fontSize;
+
+                } else {
+
+                    ps = 1 * this.fontSize;
+
+                }
 
             }
+
+            int tb = this.textBorder.isPresent () ? this.textBorder.get () : 0;
+
+            tb += 3;
+
+            sb.append (String.format ("-fx-padding: 0 %1$spx %2$spt %1$spx;",
+                                      tb,
+                                      ps));
 
             return sb.toString ();
         }
@@ -2969,6 +3015,21 @@ System.out.println ("HEREZ: " + cb);
         {
 
             this.setLineSpacing (l);
+            return this;
+
+        }
+
+        public void setParagraphSpacing (Float f)
+        {
+
+            this.paraSpacing = Optional.of (f);
+
+        }
+
+        public ParaStyle updateParagraphSpacing (float l)
+        {
+
+            this.setParagraphSpacing (l);
             return this;
 
         }

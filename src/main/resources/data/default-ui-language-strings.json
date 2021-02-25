@@ -8212,6 +8212,11 @@
                     "text" : "Line Spacing",
                     "tooltip" : "Enter a value to set a spacing that is not already in the list."
                 },
+                "paragraphspacing" :
+                {
+                    "text" : "Paragraph Spacing",
+                    "tooltip" : "Enter a value to set a spacing that is not already in the list."
+                },
                 "textborder" :
                 {
                     "text" : "Text Border Width",

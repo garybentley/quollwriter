@@ -23,6 +23,7 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
                            UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
                            UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
                            UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
+                           UserProperties.getAsFloat (Constants.EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME),
                            UIUtils.hexToColor (UserProperties.get (v ? Constants.EDITOR_FONT_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)),
                            UIUtils.hexToColor (UserProperties.get (v ? Constants.EDITOR_BGCOLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_BGCOLOR_PROPERTY_NAME)),
                            UIUtils.hexToColor (UserProperties.get (v ? Constants.EDITOR_WRITING_LINE_COLOR_NIGHT_MODE_PROPERTY_NAME : Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
@@ -148,6 +149,16 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
     }
 
+    public void setParagraphSpacing (float v)
+    {
+
+        super.setParagraphSpacing (v);
+
+        this.setProperty (new FloatProperty (Constants.EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME,
+                                             this.getParagraphSpacing ()));
+
+    }
+
     public void setFirstLineIndent (boolean v)
     {
 
@@ -212,7 +223,7 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
                             prop);
 
     }
-
+/*
     public void resetToDefaults ()
     {
 
@@ -224,9 +235,10 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
         this.setAlignment (Environment.getDefaultTextAlignment ());
         this.setFirstLineIndent (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
         this.setLineSpacing (UserProperties.getAsFloat (Constants.DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME));
+        this.setParagraphSpacing (UserProperties.getAsFloat (Constants.DEFAULT_EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME));
         this.setWritingLineColor (UIUtils.hexToColor (UserProperties.get (Constants.DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
         this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
 
     }
-
+*/
 }

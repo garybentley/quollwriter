@@ -28,6 +28,8 @@ public class TextProperties implements TextStylable
     private int textBorder = 0;
     private IntegerProperty textBorderProp = null;
 
+    private FloatProperty paragraphSpacingProp = null;
+
     public TextProperties ()
     {
 
@@ -41,6 +43,7 @@ public class TextProperties implements TextStylable
         this.writingLineColorProp = new SimpleObjectProperty<> ();
         this.highlightWritingLineProp = new SimpleBooleanProperty ();
         this.textBorderProp = new SimpleIntegerProperty ();
+        this.paragraphSpacingProp = new SimpleFloatProperty (1f);
 
     }
 /*
@@ -60,6 +63,7 @@ public class TextProperties implements TextStylable
               props.alignment,
               props.firstLineIndent,
               props.lineSpacing,
+              props.paragraphSpacingProp.getValue (),
               props.textColor,
               props.bgColor,
               props.writingLineColor,
@@ -74,6 +78,7 @@ public class TextProperties implements TextStylable
                            String       alignment,
                            boolean      firstLineIndent,
                            float        lineSpacing,
+                           float        paraSpacing,
                            Color        writingLineColor,
                            boolean      highlightWritingLine,
                            int          textBorder)
@@ -85,6 +90,7 @@ public class TextProperties implements TextStylable
               alignment,
               firstLineIndent,
               lineSpacing,
+              paraSpacing,
               null,
               null,
               writingLineColor,
@@ -99,6 +105,7 @@ public class TextProperties implements TextStylable
                            String       alignment,
                            boolean      firstLineIndent,
                            float        lineSpacing,
+                           float        paraSpacing,
                            Color        textColor,
                            Color        bgColor,
                            Color        writingLineColor,
@@ -115,6 +122,7 @@ public class TextProperties implements TextStylable
                            alignment,
                            firstLineIndent,
                            lineSpacing,
+                           paraSpacing,
                            textColor,
                            bgColor,
                            writingLineColor,
@@ -133,6 +141,7 @@ public class TextProperties implements TextStylable
                            props.alignment,
                            props.firstLineIndent,
                            props.lineSpacing,
+                           props.paragraphSpacingProp.getValue (),
                            props.textColor,
                            props.bgColor,
                            props.writingLineColor,
@@ -146,6 +155,7 @@ public class TextProperties implements TextStylable
                                   String       alignment,
                                   boolean      firstLineIndent,
                                   float        lineSpacing,
+                                  float        paraSpacing,
                                   Color        textColor,
                                   Color        bgColor,
                                   Color        writingLineColor,
@@ -159,6 +169,7 @@ public class TextProperties implements TextStylable
         this.setAlignment (alignment);
         this.setFirstLineIndent (firstLineIndent);
         this.setLineSpacing (lineSpacing);
+        this.setParagraphSpacing (paraSpacing);
         this.setTextColor (textColor);
         this.setBackgroundColor (bgColor);
         this.setWritingLineColor (writingLineColor);
@@ -181,6 +192,7 @@ public class TextProperties implements TextStylable
             this.setAlignment (this.alignment);
             this.setFirstLineIndent (this.firstLineIndent);
             this.setLineSpacing (this.lineSpacing);
+            this.setParagraphSpacing (this.paragraphSpacingProp.getValue ());
             this.setTextColor (this.textColor);
             this.setBackgroundColor (this.bgColor);
             this.setWritingLineColor (this.writingLineColor);
@@ -452,6 +464,27 @@ TODO Remove
 */
     }
 
+    public float getParagraphSpacing ()
+    {
+
+        return this.paragraphSpacingProp.getValue ();
+
+    }
+
+    public FloatProperty paragraphSpacingProperty ()
+    {
+
+        return this.paragraphSpacingProp;
+
+    }
+
+    public void setParagraphSpacing (float v)
+    {
+
+        this.paragraphSpacingProp.setValue (v);
+
+    }
+
     public Color getTextColor ()
     {
 
@@ -504,7 +537,7 @@ TODO REmove
 
         this.bgColor = c;
         this.bgColorProp.setValue (c);
-        
+
 /*
 TODO Remove
         if ((this.setOn != null)
@@ -544,6 +577,7 @@ TODO Remove
         this.writingLineColorProp.unbind ();
         this.highlightWritingLineProp.unbind ();
         this.textBorderProp.unbind ();
+        this.paragraphSpacingProp.unbind ();
 
     }
 
@@ -609,6 +643,16 @@ TODO Remove
         });
         this.lineSpacing = props.getLineSpacing ();
 
+        this.paragraphSpacingProp.bind (props.paragraphSpacingProperty ());
+/*
+        this.pargraphSpacingProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.lineSpacing = newv.floatValue ();
+
+        });
+        this.lineSpacing = props.getLineSpacing ();
+*/
         this.textColorProp.bind (props.textColorProperty ());
 
         this.textColorProp.addListener ((pr, oldv, newv) ->

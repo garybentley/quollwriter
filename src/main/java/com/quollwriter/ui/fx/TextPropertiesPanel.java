@@ -30,6 +30,8 @@ public class TextPropertiesPanel extends VBox
     private ChoiceBox<StringProperty> alignment = null;
     private Spinner<Double> lineSpacing = null;
     private Slider lineSpacingSlider = null;
+    private Spinner<Double> paragraphSpacing = null;
+    private Slider paragraphSpacingSlider = null;
     private Slider textBorderSlider = null;
     private Spinner<Integer> textBorder = null;
     private CheckBox indentFirstLine = null;
@@ -285,6 +287,47 @@ public class TextPropertiesPanel extends VBox
 
         // Add the line spacing.
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,linespacing,text),
+                 b);
+
+        double minPS = 0.5;
+        double maxPS = 3.5;
+        double psStepBy = 0.1;
+
+        // Paragraph spacing
+        this.paragraphSpacingSlider = new Slider (minPS, maxPS, props.getParagraphSpacing ());
+        this.paragraphSpacingSlider.setBlockIncrement (1);
+        this.paragraphSpacingSlider.setMajorTickUnit (0.1f);
+        this.paragraphSpacingSlider.setMinorTickCount (0);
+        this.paragraphSpacingSlider.setSnapToTicks (true);
+        HBox.setHgrow (this.paragraphSpacingSlider,
+                       Priority.ALWAYS);
+        this.paragraphSpacing = new Spinner<> (new SpinnerValueFactory.DoubleSpinnerValueFactory (minPS, maxPS, props.getParagraphSpacing (), psStepBy));
+        this.paragraphSpacing.setEditable (true);
+        this.paragraphSpacing.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
+        HBox.setHgrow (this.paragraphSpacing,
+                       Priority.NEVER);
+
+        this.paragraphSpacing.valueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.paragraphSpacingSlider.setValue (newv.doubleValue ());
+            props.setParagraphSpacing (newv.floatValue ());
+
+        });
+
+        this.paragraphSpacingSlider.valueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.paragraphSpacing.getValueFactory ().setValue ((double) Math.round ((newv.doubleValue () * 10f)) / 10f);
+
+        });
+
+        b = new HBox ();
+        b.getStyleClass ().add (StyleClassNames.PARAGRAPHSPACING);
+        b.getChildren ().addAll (this.paragraphSpacingSlider, this.paragraphSpacing);
+
+        // Add the line spacing.
+        fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,paragraphspacing,text),
                  b);
 
         // Text border.

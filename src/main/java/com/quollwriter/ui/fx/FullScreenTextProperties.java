@@ -87,6 +87,8 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
                                                         Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
                            UserProperties.getAsFloat (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
                                                       Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
+                           UserProperties.getAsFloat (Constants.FULL_SCREEN_EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME,
+                                                      Constants.EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME),
                            UIUtils.hexToColor (fontColor),
                            UIUtils.hexToColor (bgColor),
                            UIUtils.hexToColor (lineColor),
@@ -249,6 +251,16 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
         super.setLineSpacing (v);
 
         this.setProperty (new FloatProperty (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
+                                             this.getLineSpacing ()));
+
+    }
+
+    public void setParagraphSpacing (float v)
+    {
+
+        super.setParagraphSpacing (v);
+
+        this.setProperty (new FloatProperty (Constants.FULL_SCREEN_EDITOR_PARAGRAPH_SPACING_PROPERTY_NAME,
                                              this.getLineSpacing ()));
 
     }

@@ -189,6 +189,11 @@
     <value>1.3</value>
   </property>
 
+  <property id="editorParagraphSpacing" type="number">
+    <description>The default text paragraph spacing for the editor.</description>
+    <value>1.0</value>
+  </property>
+
   <property id="editorIndentFirstLine" type="boolean">
     <description>Whether the first line of each paragraph should be indented in the editor.</description>
     <value>false</value>
