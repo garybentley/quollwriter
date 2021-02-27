@@ -1803,7 +1803,7 @@ Text
 
 .tab-pane:top > .tab-header-area
 {
-    -fx-padding: 0.5em 0.1em 0 0.1em;
+    -fx-padding: 0.7em 0.1em 0 0.1em;
 }
 
 .tab-pane:bottom > .tab-header-area > .tab-header-background

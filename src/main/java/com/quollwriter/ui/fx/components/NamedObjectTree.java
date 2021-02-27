@@ -183,6 +183,7 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
                          ev.getScreenX (),
                          ev.getScreenY ());
                 ev.consume ();
+                UIUtils.addShowCSSViewerFilter (cm);
 
             });
 

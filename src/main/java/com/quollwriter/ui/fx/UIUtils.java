@@ -4981,4 +4981,44 @@ TODO
         return null;
 
     }
+
+    public static void addShowCSSViewerFilter (Window s)
+    {
+
+        s.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
+                                      eev ->
+        {
+
+            if (!Environment.isDebugModeEnabled ())
+            {
+
+                return;
+
+            }
+
+            if (!eev.isShortcutDown ())
+            {
+
+                return;
+
+            }
+
+            try
+            {
+
+                eev.consume ();
+
+                Environment.showCSSViewer (s,
+                                           (Node) eev.getTarget ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to show css viewer for node: " + eev.getTarget (),
+                                      e);
+
+            }
+
+        });
+
+    }
 }
