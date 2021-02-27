@@ -6178,6 +6178,17 @@
                         "text" : "<ul><li>Fixed an issue that caused the Project viewer to be put into a zombie state when the Project was renamed.</li><li>Changing where the Project is stored no longer requires the Project to be closed.</li><li>Fixed an issue related to legacy English dictionary names that caused the spellchecker to not work.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b15" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes/New Features",
+                        "text" : "<ul><li>Fixed an issue that prevented Ideas from being deleted.</li><li>Ensured that the Chapters section name is updated when the user changes the name of the section.</li><li>Shortcut+E now properly displays the Text Properties sidebar.</li><li>Added the ability to specify the paragraph spacing in the Text Properties.</li><li>Made a number of style changes, including cleaning up some of the menus and standardizing the spacing in menus.  This has the effect of each menu item having a little more room to <i>breathe</i> making them easier to use.</li></ul>"
+                    }
+                }
             }
         }
     },

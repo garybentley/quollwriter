@@ -2221,7 +2221,7 @@ TODO NEeded?
         }
 
         Environment.projectInfoManager.closeConnectionPool ();
-System.out.println ("SIZE: " + Environment.doOnShutdown);
+
         if (Environment.doOnShutdown.size () > 0)
         {
 
@@ -2230,7 +2230,7 @@ System.out.println ("SIZE: " + Environment.doOnShutdown);
 
                 try
                 {
-System.out.println ("RUNNING: " + r);
+
                     r.run ();
 
                 } catch (Exception e) {
