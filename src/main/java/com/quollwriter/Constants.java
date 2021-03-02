@@ -156,6 +156,10 @@ public class Constants
 
     public static final String GOFUNDME_WEBSITE_PROPERTY_NAME = "gofundmeWebsite";
 
+    public static final String SEEN_ASKED_NIGHT_MODE_ENABLE_PERMANENT_PROPERTY_NAME = "seenAskedNightModeEnablePermanent";
+
+    public static final String NIGHT_MODE_ENABLE_PERMENANTLY_PROPERTY_NAME = "nightModeEnabledPermanently";
+
     public static final String DEFAULT_UI_LANGUAGE_PROPERTY_NAME = "defaultUILanguage";
 
     public static final String USER_UI_LANGUAGE_PROPERTY_NAME = "userUILanguage";

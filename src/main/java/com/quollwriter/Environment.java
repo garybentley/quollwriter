@@ -1178,6 +1178,13 @@ TODO
 
         UIUtils.runLater (onInitComplete);
 
+        UserProperties.permanentNightModeEnabledProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            Environment.scheduleAutoNightMode ();
+
+        });
+
         UserProperties.autoNightModeEnabledProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -1201,6 +1208,13 @@ TODO
 
         Environment.scheduleAutoNightMode ();
 
+        if (UserProperties.permanentNightModeEnabledProperty ().getValue ())
+        {
+
+            Environment.setNightModeEnabled (true);
+
+        }
+
     }
 
     private static void cancelAutoNightModeSchedule ()
@@ -1220,7 +1234,10 @@ TODO
 
         Environment.cancelAutoNightModeSchedule ();
 
-        if (!UserProperties.autoNightModeEnabledProperty ().getValue ())
+        if (!(UserProperties.autoNightModeEnabledProperty ().getValue ())
+            ||
+            (UserProperties.getAsBoolean (Constants.NIGHT_MODE_ENABLE_PERMENANTLY_PROPERTY_NAME))
+           )
         {
 
             return;

@@ -1018,6 +1018,33 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         this.addActionMapping (() ->
         {
 
+            if ((!UserProperties.getAsBoolean (Constants.SEEN_ASKED_NIGHT_MODE_ENABLE_PERMANENT_PROPERTY_NAME))
+                &&
+                (!Environment.nightModeProperty ().get ())
+               )
+            {
+
+                QuollPopup.questionBuilder ()
+                    .inViewer (this)
+                    .title (getUILanguageStringProperty (nightmode,popup,title))
+                    .message (getUILanguageStringProperty (nightmode,popup,description))
+                    .confirmButtonLabel (getUILanguageStringProperty (nightmode,popup,buttons,confirm))
+                    .cancelButtonLabel (getUILanguageStringProperty (nightmode,popup,buttons,cancel))
+                    .headerIconClassName (StyleClassNames.MOON)
+                    .onConfirm (ev ->
+                    {
+
+                        UserProperties.set (Constants.NIGHT_MODE_ENABLE_PERMENANTLY_PROPERTY_NAME,
+                                            true);
+
+                    })
+                    .build ();
+
+                UserProperties.set (Constants.SEEN_ASKED_NIGHT_MODE_ENABLE_PERMANENT_PROPERTY_NAME,
+                                    true);
+
+            }
+
             Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
 
         },
@@ -2894,6 +2921,14 @@ TODO Clean up?
         this.sideBars.remove (sb.getSideBarId ());
 
         this.activeSideBars.remove (sb);
+
+        if (sb == this.mainSideBar)
+        {
+
+            this.mainSideBar = null;
+            this.updateLayout ();
+
+        }
 
         if (this.currentOtherSideBarProp.getValue () == sb)
         {

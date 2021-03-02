@@ -132,6 +132,7 @@ public class UserProperties
     private static SimpleBooleanProperty autoNightModeProp = null;
     private static SimpleObjectProperty<LocalTime> autoNightModeToProp = null;
     private static SimpleObjectProperty<LocalTime> autoNightModeFromProp = null;
+    private static SimpleBooleanProperty permanentNightModeEnabledProp = null;
 
     static
     {
@@ -270,6 +271,8 @@ public class UserProperties
                                 UIUtils.colorToHex (newv));
 
         });
+
+        UserProperties.permanentNightModeEnabledProp = UserProperties.createMappedBooleanProperty (Constants.NIGHT_MODE_ENABLE_PERMENANTLY_PROPERTY_NAME);
 
         UserProperties.autoNightModeProp = UserProperties.createMappedBooleanProperty (Constants.AUTO_NIGHT_MODE_ENABLED_PROPERTY_NAME);
 
@@ -834,10 +837,25 @@ public class UserProperties
 
     }
 
+    public static SimpleBooleanProperty permanentNightModeEnabledProperty ()
+    {
+
+        return UserProperties.permanentNightModeEnabledProp;
+
+    }
+
     public static SimpleBooleanProperty autoNightModeEnabledProperty ()
     {
 
         return UserProperties.autoNightModeProp;
+
+    }
+
+    public static void setPermanentlyEnableNightMode (boolean v)
+    {
+
+        UserProperties.set (Constants.NIGHT_MODE_ENABLE_PERMENANTLY_PROPERTY_NAME,
+                            v);
 
     }
 

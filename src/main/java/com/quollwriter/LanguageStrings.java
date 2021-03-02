@@ -3,6 +3,8 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String permanentnightmode = "permanentnightmode";
+    public static final String nightmode = "nightmode";
     public static final String configure = "configure";
     public static final String autonightmode = "autonightmode";
     public static final String range = "range";

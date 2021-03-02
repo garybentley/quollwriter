@@ -2489,6 +2489,32 @@ public class Options extends VBox implements Stateful
 
         });
 
+        QuollCheckBox permNightMode = QuollCheckBox.builder ()
+            .label (options,lookandsound,labels,permanentnightmode)
+            .selected (UserProperties.permanentNightModeEnabledProperty ().getValue ())
+            .build ();
+
+        permNightMode.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (!newv)
+            {
+
+                timeRange.setDisable (false);
+                autoNightMode.setDisable (false);
+
+            } else {
+
+                timeRange.setDisable (true);
+                autoNightMode.setDisable (true);
+                Environment.setNightModeEnabled (true);
+
+            }
+
+            UserProperties.setPermanentlyEnableNightMode (newv);
+
+        });
+
         Section s = Section.builder ()
             .sectionId (Section.Id.look)
             .styleClassName (StyleClassNames.LOOKS)
@@ -2507,6 +2533,7 @@ public class Options extends VBox implements Stateful
                        */
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
                        this.createLayoutSelector ())
+            .mainItem (permNightMode)
             .mainItem (autoNightMode)
             .subItem (timeRange)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
