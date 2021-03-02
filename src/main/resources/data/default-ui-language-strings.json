@@ -246,7 +246,6 @@
             "managestatuses" : "Manage Statuses",
             "enablenightmode" : "Turn on Night Mode",
             "disablenightmode" : "Turn off Night Mode"
-
         }
     },
     "objectnames" :
@@ -373,6 +372,21 @@
         "button" :
         {
             "tooltip" : "Click to view the help"
+        }
+    },
+    "nightmode" :
+    {
+        ":title" : "Auto-Enable of Night Mode",
+        ":section" : "General",
+        "popup" :
+        {
+            "title" : "Enable Night Mode permanently?",
+            "description" : "Do you want to enable Night Mode permanently?  You can change this setting in the Options panel.",
+            "buttons" :
+            {
+                "confirm" : "Yes, make it permanent",
+                "cancel" : "No, it's just temporary"
+            }
         }
     },
     "iconcolumn" :
@@ -5537,6 +5551,7 @@
                 "edittranslation" : "Edit one of your translations",
                 "feedback" : "Send feedback",
                 "autonightmode" : "Automatically turn on Night Mode",
+                "permanentnightmode" : "Enable Night Mode permanently",
                 "interfacelayout" :
                 {
                     "text" : "How should the interface be laid out? (Click on the image below to change)",
@@ -8201,9 +8216,7 @@
                 "description" :
                 {
                     "normal" : "Note: these settings only apply in normal, windowed mode.",
-                    "fullscreen" : "Note: the settings below only apply in Full Screen mode.",
-                    "normalnightmode" : "Note: these settings only apply when normal, windowed mode when Night Mode is enabled.",
-                    "fullscreennightmode" : "Note: these settings only apply in Full Screen mode when Night Mode is enabled."
+                    "fullscreen" : "Note: the settings below only apply in Full Screen mode."
                 },
                 "font" :
                 {

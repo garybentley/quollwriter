@@ -10,10 +10,17 @@
 .projectversioninfo .label
 {
     -fx-font-style: italic;
+    -fx-min-width: 5em;
 }
 
 .projectversioninfo .control .label
 {
     -fx-padding: 0;
     -fx-font-style: normal;
+    -fx-min-width: -1;
+}
+
+.hyperlink.comment
+{
+    -fx-padding: 0 0 0 0.5em;
 }

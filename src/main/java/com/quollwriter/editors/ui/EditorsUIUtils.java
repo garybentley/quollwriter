@@ -2793,7 +2793,7 @@ public class EditorsUIUtils
                 if (pv.isLatest ())
                 {
 
-                    v += getUILanguageStringProperty (prefix,LanguageStrings.latest).getValue ();
+                    v += getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.latest)).getValue ();
 
                 }
 

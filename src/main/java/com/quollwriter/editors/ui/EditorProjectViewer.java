@@ -291,34 +291,6 @@ TODO
 
         this.project.setProjectVersion (pv);
 
-        EditorProjectSideBar epb = null;
-
-        try
-        {
-
-            epb = new EditorProjectSideBar (this);
-
-            epb.init (null);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to init new editor project side bar",
-                                  e);
-
-            ComponentUtils.showErrorMessage (this,
-                                             getUILanguageStringProperty (editors,LanguageStrings.project,actions,switchtoversion,actionerror));
-                                      //"Unable to open project at that version, please contact Quoll Writer support for assistance.");
-
-            // Need to close and reopen the project?
-
-            return;
-
-        }
-
-        this.sideBar = epb;
-
-        this.setMainSideBar (this.sideBar);
-
         this.restoreTabs ();
 
     }

@@ -41,6 +41,7 @@ public abstract class BaseSideBar<E extends AbstractViewer & PanelViewer> extend
         {
 
             this.toolbars.remove (ev.getPanel ());
+            this.updateToolbar ();
 
         });
 
@@ -86,6 +87,9 @@ public abstract class BaseSideBar<E extends AbstractViewer & PanelViewer> extend
     private void updateToolbar ()
     {
 
+        this.toolbarBox.setVisible (false);
+        this.toolbarBox.getChildren ().clear ();
+
         Panel p = this.viewer.getCurrentPanel ();
 
         if (p == null)
@@ -97,9 +101,6 @@ public abstract class BaseSideBar<E extends AbstractViewer & PanelViewer> extend
 
         this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.TOP), false);
         this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.BOTTOM), false);
-
-        this.toolbarBox.setVisible (false);
-        this.toolbarBox.getChildren ().clear ();
 
         String loc = UserProperties.toolbarLocationProperty ().getValue ();
 

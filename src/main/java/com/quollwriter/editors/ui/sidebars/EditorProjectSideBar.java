@@ -35,6 +35,7 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
     private VBox content = null;
     private QuollHyperlink unsentLabel = null;
     private QuollHyperlink otherVersionsLabel = null;
+    private ScrollPane sp = null;
 
     public EditorProjectSideBar (EditorProjectViewer v)
                           //throws GeneralException
@@ -74,6 +75,9 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 
         this.content.getChildren ().add (this.editorInfoBox);
 
+        VBox b = new VBox ();
+        this.content.getChildren ().add (b);
+
         ProjectVersion projVer = this.viewer.getProject ().getProjectVersion ();
 
         if (projVer != null)
@@ -81,9 +85,26 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 
             Node pvp = EditorsUIUtils.getProjectVersionPanel (projVer,
                                                               this.viewer);
-            this.content.getChildren ().add (pvp);
+            b.getChildren ().add (pvp);
 
         }
+
+        this.getBinder ().addChangeListener (this.viewer.getProject ().projectVersionProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            b.getChildren ().clear ();
+
+            if (newv != null)
+            {
+
+                Node pvp = EditorsUIUtils.getProjectVersionPanel (newv,
+                                                                  this.viewer);
+                b.getChildren ().add (pvp);
+
+            }
+
+        });
 
         //Get the due by/response message (properties from the project)
         //Get the project description (sent by editor)
@@ -101,6 +122,14 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
             .build ();
 
         this.showUnsentNotification ();
+
+        this.getBinder ().addChangeListener (this.viewer.getProject ().projectVersionProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            this.showUnsentNotification ();
+
+        });
 
         this.content.getChildren ().add (this.unsentLabel);
 
@@ -140,11 +169,22 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
         this.chapters = new EditorChaptersSidebarItem (this.viewer,
                                                        this.getBinder ());
 
-        ScrollPane sp = new QScrollPane (this.chapters.getAccordionItem ());
+        this.sp = new QScrollPane (this.chapters.getAccordionItem ());
 
         VBox.setVgrow (sp,
                        Priority.ALWAYS);
         this.content.getChildren ().add (sp);
+
+        this.getBinder ().addChangeListener (this.viewer.getProject ().projectVersionProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            this.chapters = new EditorChaptersSidebarItem (this.viewer,
+                                                           this.getBinder ());
+
+            this.sp.setContent (this.chapters.getAccordionItem ());
+
+        });
 
     }
 
@@ -296,7 +336,8 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
             ShowObjectSelectPopup.<ProjectVersion>builder ()
                 .withViewer (viewer)
                 .title (editors,project,LanguageStrings.sidebar,comments,otherversions,popup,title)
-                .styleClassName (StyleClassNames.VIEW)
+                .headerIconClassName (StyleClassNames.VIEW)
+                .styleClassName ("versionselect")
                 .popupId (popupId)
                 .objects (others)
                 .cellProvider ((obj, popupContent) ->
@@ -341,7 +382,7 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 
                         s.append (getUILanguageStringProperty (Utils.newList (prefix,dueby),
                                                 //"Due by: %s.  ",
-                                                               Environment.formatDate (obj.getDueDate ())));
+                                                               Environment.formatDate (obj.getDueDate ())).getValue ());
 
                     }
 
@@ -374,11 +415,11 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 
                             t += getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.unsent),
                                                 //", <span style='color: red;'><b>%s</b> unsent</span>",
-                                                              Environment.formatNumber (unsent));
+                                                              Environment.formatNumber (unsent)).getValue ();
 
                         } else {
 
-                            t += getUILanguageStringProperty (Utils.newList (prefix,sent));
+                            t += getUILanguageStringProperty (Utils.newList (prefix,sent)).getValue ();
                             //", all sent";
 
                         }
@@ -403,7 +444,8 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
                 })
                 .showAt (this.otherVersionsLabel,
                          Side.BOTTOM)
-                .build ();
+                .build ()
+                .show ();
 
         }
 

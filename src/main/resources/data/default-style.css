@@ -76,11 +76,15 @@
 
     -qw-button-text-color: -fx-text-base-color;
 
+    -qw-text-hover-color: -qw-text-base-color;
+
 }
 
 .root:night
 {
     -fx-text-base-color: #ffffff;
+
+    -qw-text-hover-color: #4d4d4d;
 
     -qw-bg-color: #4d4d4d;
 

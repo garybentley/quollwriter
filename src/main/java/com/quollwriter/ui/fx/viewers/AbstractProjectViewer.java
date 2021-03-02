@@ -3782,6 +3782,70 @@ TODO REmove
 
     }
 
+    protected void saveTabsState ()
+    {
+
+        // Save it.
+        try
+        {
+
+            Panel vqp = this.currentPanelProp.getValue ();
+
+            String panelId = null;
+
+            if (vqp != null)
+            {
+
+                panelId = vqp.getPanelId ();
+
+            }
+
+            // See if we have a project version.
+            ProjectVersion pv = this.project.getProjectVersion ();
+
+            String suffix = "";
+
+            if (pv != null)
+            {
+
+                suffix = ":" + pv.getKey ();
+
+            }
+
+            this.project.setProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME + suffix,
+                                      panelId);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save open tab id for project: " +
+                                  this.project,
+                                  e);
+
+        }
+
+        try
+        {
+
+            String s = this.tabs.getTabs ().stream ()
+                .filter (t -> t.getContent () instanceof Panel)
+                .map (t -> ((Panel) t.getContent ()).getPanelId ())
+                .collect (Collectors.joining (","));
+
+            this.project.setProperty (this.getOpenTabsPropertyName (),
+                                      s);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to save open tab ids for project: " +
+                                  this.project,
+                                  e);
+
+        }
+
+    }
+
     private boolean closeInternal (boolean  saveUnsavedChanges,
                                    Runnable afterClose)
     {
@@ -3889,64 +3953,7 @@ TODO REmove
 
         }
 
-        // Save it.
-        try
-        {
-
-            Panel vqp = this.currentPanelProp.getValue ();
-
-            String panelId = null;
-
-            if (vqp != null)
-            {
-
-                panelId = vqp.getPanelId ();
-
-            }
-
-            // See if we have a project version.
-            ProjectVersion pv = this.project.getProjectVersion ();
-
-            String suffix = "";
-
-            if (pv != null)
-            {
-
-                suffix = ":" + pv.getKey ();
-
-            }
-
-            this.project.setProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME + suffix,
-                                      panelId);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to save open tab id for project: " +
-                                  this.project,
-                                  e);
-
-        }
-
-        try
-        {
-
-            String s = this.tabs.getTabs ().stream ()
-                .filter (t -> t.getContent () instanceof Panel)
-                .map (t -> ((Panel) t.getContent ()).getPanelId ())
-                .collect (Collectors.joining (","));
-
-            this.project.setProperty (this.getOpenTabsPropertyName (),
-                                      s);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to save open tab ids for project: " +
-                                  this.project,
-                                  e);
-
-        }
+        this.saveTabsState ();
 
         for (Panel qp : new LinkedHashSet<> (this.panels.values ()))
         {
@@ -5910,6 +5917,8 @@ TODO Remove?
 
     protected void closeAllTabs ()
     {
+
+        this.saveTabsState ();
 
         // Regardless of whether it should be saved call the close method
         // for the panel to allow it to close itself nicely.

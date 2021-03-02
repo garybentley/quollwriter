@@ -390,7 +390,16 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
             .onAction (ev ->
             {
 
-                this.showAddNewComment (this.editor.getSelection ().getStart ());
+                int s = 0;
+
+                if (this.editor.getSelection () != null)
+                {
+
+                    s = this.editor.getSelection ().getStart ();
+
+                }
+
+                this.showAddNewComment (s);
 
             })
             .build ());

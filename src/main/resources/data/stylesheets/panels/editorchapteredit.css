@@ -4,9 +4,9 @@
  */
  .texteditor .margin, .margin-bg
  {
-     -fx-pref-width: 2.266em;
-     -fx-max-width: 2.266em;
-     -fx-min-width: 2.266em;
+     -fx-pref-width: 2.532em;
+     -fx-max-width: 2.532em;
+     -fx-min-width: 2.532em;
      /*
       * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
       * for the note ident.  So you can have a margin that is too small to display the item.

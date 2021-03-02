@@ -23,6 +23,11 @@
     -fx-cursor: hand;
 }
 
+.items .label.info
+{
+    -fx-font-size: 1em;
+}
+
 .items .label:hover
 {
     -fx-background-color: -qw-hover-bg;
@@ -79,4 +84,46 @@
 .hyperlink
 {
     -fx-padding: 0.5em 0 0.25em 0;
+}
+
+.versionselect .label.title .iconbox
+{
+    visibility: hidden;
+}
+
+.versionselect .label.title
+{
+    -fx-border-width: 0;
+    -fx-padding: 0.25em 0 0.25em 0.25em;
+}
+
+.versionselect .label.info
+{
+    -fx-padding: 0 0 0.25em 0.75em;
+}
+
+.versionselect .label.info .iconbox
+{
+    visibility: hidden;
+}
+
+.versionselect .label:hover
+{
+    -fx-background-color: transparent;
+}
+
+.versionselect .items > VBox:hover
+{
+    -fx-background-color: -qw-hover-bg;
+}
+
+.versionselect .items > VBox:hover .label
+{
+    -fx-fill: -qw-text-hover-color;
+    -fx-text-fill: -qw-text-hover-color;
+}
+
+.items > *:last
+{
+    -fx-border-width: 0;
 }

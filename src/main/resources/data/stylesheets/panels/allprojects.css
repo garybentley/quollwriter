@@ -27,7 +27,7 @@
     -fx-pref-width: 1.666em;
     -fx-pref-height: 1.666em;
     -fx-fill-height: false;
-    -fx-alignment: center;
+    -fx-alignment: top-center;
     -fx-min-width: 1.666em;
 }
 /* This is a copy of the .project-icon */
@@ -101,4 +101,30 @@
     -fx-font-size: 1em;
     -fx-padding: 0em 0 0 2.1em;
     -fx-text-fill: -fx-text-base-color;
+}
+
+.projectslist .project:hover .header .title,
+.projectslist .project:hover .info Text,
+.projectslist .project:hover .info .b,
+.projectslist .project:hover .info .i
+{
+    -fx-text-fill: -qw-text-hover-color;
+    -fx-fill: -qw-text-hover-color;
+}
+
+.projectslist .project:hover .header .iconbox .icon
+{
+    -fx-background-color: -qw-text-hover-color;
+}
+
+.projectslist .project:hover .header .iconbox .error-icon.icon
+{
+    -fx-background-color: -qw-error-color;
+}
+
+.projectslist .project .header .iconbox .editor-icon.icon
+{
+    -fx-pref-width: 1.24em;
+    -fx-min-width: 1.24em;
+    -fx-max-width: 1.24em;
 }
