@@ -193,9 +193,9 @@ public class QuollPopup extends StackPane implements IPropertyBinder
                 _this.mx = _this.mx + diffx;
                 _this.my = _this.my + diffy;
 
-                Point2D p = _this.localToScene (ev.getX (), ev.getY ());
+                //Point2D p = _this.localToScene (ev.getX (), ev.getY ());
 
-                Bounds _b = vb.localToScene (vb.getBoundsInLocal ());
+                //Bounds _b = vb.localToScene (vb.getBoundsInLocal ());
     /*
                 if ((diffx < 1)
                     &&
@@ -233,6 +233,36 @@ public class QuollPopup extends StackPane implements IPropertyBinder
     */
 
                 _this.moving = true;
+
+                Bounds _b = _this.getParent ().getLayoutBounds ();
+
+                if (_this.mx < (_b.getMinX () - _this.getWidth () + 20))
+                {
+
+                    _this.mx = _b.getMinX () - _this.getWidth () + 20;
+
+                }
+
+                if (_this.my < (_b.getMinY () - _this.getHeight () + 20))
+                {
+
+                    _this.my = _b.getMinY () - _this.getHeight () + 20;
+
+                }
+
+                if (_this.mx > (_b.getMaxX () - 20))
+                {
+
+                    _this.mx = _b.getMaxX () - 20;
+
+                }
+
+                if (_this.my < 0)
+                {
+
+                    _this.my = 0;
+
+                }
 
                 _this.relocate (_this.mx, _this.my);
 
