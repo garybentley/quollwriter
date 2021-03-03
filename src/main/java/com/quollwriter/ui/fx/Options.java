@@ -2381,7 +2381,9 @@ public class Options extends VBox implements Stateful
             .build ();
         thb.getChildren ().addAll (less, textSize, more);
 
-        textSize.setValue (UserProperties.getUIBaseFontSize ());
+        double f = UserProperties.getUIBaseFontSize ();
+
+        textSize.setValue (f);
         textSize.valueChangingProperty ().addListener ((pr, oldv, newv) ->
         {
 

@@ -66,7 +66,7 @@
     -fx-background-color: -qw-bg-color;
     -fx-text-base-color: #333333;
     -qw-text-base-color: -fx-text-base-color;
-    -fx-font-size: 9pt;
+    -fx-font-size: 10pt;
     -fx-font-family: serif;
 
     -qw-popup-header-font-size: 2em;

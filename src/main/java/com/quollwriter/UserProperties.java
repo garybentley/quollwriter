@@ -25,6 +25,7 @@ import javafx.collections.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.scene.media.*;
+import javafx.scene.control.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -517,7 +518,15 @@ public class UserProperties
         });
 
         UserProperties.uiBaseFontSizeProp = new SimpleFloatProperty ();
-        UserProperties.uiBaseFontSizeProp.setValue (UserProperties.getAsFloat (Constants.UI_BASE_FONT_SIZE_PROPERTY_NAME));
+
+        AbstractProperty a = UserProperties.props.getPropertyObj (Constants.UI_BASE_FONT_SIZE_PROPERTY_NAME);
+
+        if (a != null)
+        {
+
+            UserProperties.uiBaseFontSizeProp.setValue (UserProperties.getAsFloat (Constants.UI_BASE_FONT_SIZE_PROPERTY_NAME));
+
+        }
 
         UserProperties.uiBaseFontSizeProp.addListener ((pr, oldv, newv) ->
         {
@@ -531,24 +540,23 @@ public class UserProperties
 
         String f = UserProperties.get (Constants.UI_BASE_FONT_PROPERTY_NAME);
 
-        Font font = Font.getDefault ();
+        //Font font = Font.getDefault ();
 
         if (f != null)
         {
 
-            font = Font.font (f);
+            //font = Font.font (f);
+            UserProperties.uiBaseFontProp.setValue (Font.font (f));
 
         }
-
+/*
         if (font == null)
         {
 
             font = Font.getDefault ();
 
         }
-
-        UserProperties.uiBaseFontProp.setValue (font);
-
+*/
         UserProperties.uiBaseFontProp.addListener ((pr, oldv, newv) ->
         {
 
@@ -1355,7 +1363,18 @@ public class UserProperties
     public static float getUIBaseFontSize ()
     {
 
-        return UserProperties.uiBaseFontSizeProp.getValue ();
+        float v = UserProperties.uiBaseFontSizeProp.getValue ();
+
+        if (v == 0)
+        {
+
+            Label l = new Label ();
+            // This is an assumption that may not hold.
+            v = (float) l.getFont ().getSize () * (float) (72f/96f);
+
+        }
+
+        return v;
 
     }
 
@@ -1376,7 +1395,16 @@ public class UserProperties
     public static Font getUIBaseFont ()
     {
 
-        return UserProperties.uiBaseFontProp.getValue ();
+        Font f = UserProperties.uiBaseFontProp.getValue ();
+
+        if (f == null)
+        {
+
+            f = Font.getDefault ();
+
+        }
+
+        return f;
 
     }
 

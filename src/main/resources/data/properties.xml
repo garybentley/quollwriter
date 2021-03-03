@@ -736,7 +736,7 @@ Removed so that the full screen properties will inherit from the standard editor
     <description>Whether the achievement sound in normal mode is enabled.</description>
     <value>true</value>
   </property>
-
+<!--
   <property id="defaultUIBaseFontSIze" type="integer">
     <description>The default base font size of the UI.</description>
     <value>9</value>
@@ -746,7 +746,7 @@ Removed so that the full screen properties will inherit from the standard editor
     <description>The base font size of the UI.</description>
     <value>9</value>
   </property>
-
+-->
   <property id="autoSnapshotsTime" type="integer"><value><![CDATA[43200000]]></value></property>
   <property id="enableAutoSnapshots" type="boolean"><value><![CDATA[true]]></value></property>
   <property id="splitPaneDividerLocation" type="integer"><description><![CDATA[The default split pane position.]]></description><value><![CDATA[250]]></value></property>

@@ -22,7 +22,7 @@
      -fx-border-color: -qw-border-color;
 }
 .item:hover .description > * { -fx-fill: -qw-text-base-color; }
-.item:selected .description .label { -fx-text-fill: -qw-text-base-color; }
+.item:selected .description .label { -fx-text-fill: #ffffff; }
 .root:night .item:hover .description .label
 {
     -fx-text-fill: -qw-dark-color;

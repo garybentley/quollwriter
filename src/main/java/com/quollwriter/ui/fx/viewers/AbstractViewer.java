@@ -1009,8 +1009,9 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
         this.addActionMapping (() ->
         {
-
-            UserProperties.setUIBaseFontSize (UserProperties.getAsFloat (Constants.DEFAULT_UI_BASE_FONT_SIZE_PROPERTY_NAME));
+            Label l = new Label ();
+            // This is an assumption that may not hold.
+            UserProperties.setUIBaseFontSize ((double) l.getFont ().getSize () * (double) (72d/96d));
 
         },
         CommandId.resetfontsize);

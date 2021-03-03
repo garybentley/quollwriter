@@ -17,6 +17,7 @@
     -fx-max-height: 1.333em;
 }
 .notification > .iconbox .icon.tips-icon {
+    -fx-min-width: 1em;
     -fx-pref-width: 1em;
     -fx-max-width: 1em;
 }
