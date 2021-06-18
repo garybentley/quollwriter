@@ -62,6 +62,9 @@ public class Environment
     private static Logger errorLog = null;
     private static Logger sqlLog = null;
 */
+
+    private static boolean closeDownAllowed = true;
+
     private static Logger sqlLog = null;
     private static Logger logger = null;
     private static Version appVersion = null;
@@ -578,7 +581,17 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
                 if (sp != null)
                 {
 
-                    return sp.getValue ();
+                    try
+                    {
+
+                        return sp.getValue ();
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to get user string for: " + ids,
+                                              e);
+
+                    }
 
                 }
 
@@ -3636,7 +3649,12 @@ xxx
 
                     }
 
-                    Environment.closeDown ();
+                    if (Environment.closeDownAllowed)
+                    {
+
+                        Environment.closeDown ();
+
+                    }
 
                     return;
 
@@ -3645,7 +3663,12 @@ xxx
                 if (Environment.openViewers.size () == 0)
                 {
 
-                    Environment.closeDown ();
+                    if (Environment.closeDownAllowed)
+                    {
+
+                        Environment.closeDown ();
+
+                    }
 
                 }
 
@@ -6526,6 +6549,13 @@ TODO
 
         Environment.cssViewer.updateForNode (n);
         Environment.cssViewer.toFront ();
+
+    }
+
+    public static void setCloseDownAllowed (boolean v)
+    {
+
+        Environment.closeDownAllowed = v;
 
     }
 
