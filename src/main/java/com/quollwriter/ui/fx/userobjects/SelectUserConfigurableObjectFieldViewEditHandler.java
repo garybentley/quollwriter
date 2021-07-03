@@ -42,6 +42,14 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
     }
 
     @Override
+    public String getStyleClassName ()
+    {
+
+        return "list";
+
+    }
+
+    @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
                                       throws GeneralException

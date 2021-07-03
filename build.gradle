@@ -137,9 +137,9 @@ dependencies {
 
      implementation fileTree('d:/reference/java/richtextfx/RichTextFX/richtextfx/build/libs/') {
         include 'richtextfx-1.0.0-SNAPSHOT.jar'
-        include 'flowless-0.6.2.jar'
+        include 'flowless-0.6.3.jar'
         include 'reactfx-2.0-M5.jar'
-        include 'undofx-2.1.0.jar'
+        include 'undofx-2.1.1.jar'
         include 'wellbehavedfx-0.3.3.jar'
     }
 
@@ -168,7 +168,8 @@ compileJava {
 
     options.compilerArgs =
     [
-        '--add-modules=java.base,javafx.swing,javafx.controls,javafx.media,javafx.web,java.instrument,jdk.attach',
+        '--add-modules',
+        'java.base,javafx.swing,javafx.controls,javafx.media,javafx.web,java.instrument,jdk.attach',
         '--add-exports',
         'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
         '--add-exports',

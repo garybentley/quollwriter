@@ -148,4 +148,12 @@ public class WebpageUserConfigurableObjectFieldViewEditHandler extends AbstractU
 
     }
 
+    @Override
+    public String getStyleClassName ()
+    {
+
+        return "webpage";
+
+    }
+
 }

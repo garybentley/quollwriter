@@ -58,3 +58,9 @@
 }
 .information { -fx-font-style: italic; }
 HBox { -fx-spacing: 0.5em; }
+
+.edit .qtextarea
+{
+    -fx-min-height: 5em;
+    -fx-pref-height: 10em;
+}

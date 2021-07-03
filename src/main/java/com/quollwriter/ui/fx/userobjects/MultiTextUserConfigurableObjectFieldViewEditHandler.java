@@ -239,4 +239,12 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
     }
 
+    @Override
+    public String getStyleClassName ()
+    {
+
+        return "textarea";
+
+    }
+
 }

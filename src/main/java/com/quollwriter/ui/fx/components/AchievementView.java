@@ -39,7 +39,10 @@ public class AchievementView extends HBox
 
             UserConfigurableObjectType t = Environment.getUserConfigurableObjectType (ar.getIcon ());
 
-            if (t != null)
+            if ((t != null)
+                &&
+                (!Chapter.OBJECT_TYPE.equals (ar.getIcon ()))
+               )
             {
 
                 h = IconBox.builder ()

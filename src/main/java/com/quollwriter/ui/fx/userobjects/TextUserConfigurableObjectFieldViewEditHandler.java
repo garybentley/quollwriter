@@ -208,4 +208,12 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
     }
 
+    @Override
+    public String getStyleClassName ()
+    {
+
+        return "textfield";
+
+    }
+
 }

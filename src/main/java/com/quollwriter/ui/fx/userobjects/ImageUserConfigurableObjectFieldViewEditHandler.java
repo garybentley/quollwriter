@@ -440,7 +440,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
                                 return;
 
                             }
-                            
+
                         } catch (Exception e) {
 
                             Environment.logError ("Unable to remove image: " +
@@ -461,6 +461,14 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
             return its;
 
         };
+
+    }
+
+    @Override
+    public String getStyleClassName ()
+    {
+
+        return StyleClassNames.IMAGE;
 
     }
 

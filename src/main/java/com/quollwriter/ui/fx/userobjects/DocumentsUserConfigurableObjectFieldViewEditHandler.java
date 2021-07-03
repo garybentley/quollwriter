@@ -47,6 +47,14 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
     }
 
     @Override
+    public String getStyleClassName ()
+    {
+
+        return "documents";
+
+    }
+
+    @Override
     public void grabInputFocus ()
     {
 

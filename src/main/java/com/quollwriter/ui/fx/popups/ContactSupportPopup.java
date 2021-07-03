@@ -109,6 +109,7 @@ public class ContactSupportPopup extends PopupContent
                         .withViewer (_this.getViewer ())
                         .title (prefix,confirmpopup,title)
                         .message (prefix,confirmpopup,text)
+                        .closeButton ()
                         .build ();
 
                     _this.getViewer ().fireProjectEvent (ProjectEvent.Type.contact,

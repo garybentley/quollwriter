@@ -34,6 +34,10 @@ public class LinkedToPanel extends StackPane
 
         this.getStyleClass ().add (StyleClassNames.LINKEDTO);
 
+        UIUtils.addStyleSheet (this,
+                               Constants.COMPONENT_STYLESHEET_TYPE,
+                               StyleClassNames.LINKEDTO);
+
         binder.addSetChangeListener (obj.getLinks (),
                                      ev ->
         {

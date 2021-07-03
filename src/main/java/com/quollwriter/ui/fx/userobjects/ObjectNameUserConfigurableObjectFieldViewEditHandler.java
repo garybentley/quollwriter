@@ -39,6 +39,15 @@ TODO?
 
     }
 */
+
+    @Override
+    public String getStyleClassName ()
+    {
+
+        return StyleClassNames.OBJECTNAME;
+
+    }
+
     @Override
     public void grabInputFocus ()
     {

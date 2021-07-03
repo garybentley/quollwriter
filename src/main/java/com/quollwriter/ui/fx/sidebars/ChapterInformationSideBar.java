@@ -139,6 +139,7 @@ public class ChapterInformationSideBar extends NamedObjectSideBarContent<Project
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.CHAPTERINFO)
+            .styleSheet (StyleClassNames.CHAPTERINFO)            
             .headerIconClassName (StyleClassNames.CHAPTERINFO)
             .withScrollPane (true)
             .canClose (true)

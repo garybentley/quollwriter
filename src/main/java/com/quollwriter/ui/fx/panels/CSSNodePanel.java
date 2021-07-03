@@ -251,12 +251,6 @@ public class CSSNodePanel extends PanelContent<CSSViewer>
 
                         pv = this.getValue (root);
 
-                        if (pv.length () == 0)
-                        {
-System.out.println ("VAL : " + d.getProperty () + " - "+ d.getParsedValue ());
-
-                        }
-
                     } catch (Exception e) {
 
                         Environment.logError ("Unable to parse value: " + d.getParsedValue (),

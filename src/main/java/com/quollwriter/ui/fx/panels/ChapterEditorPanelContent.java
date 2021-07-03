@@ -370,6 +370,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         cm.setAutoFix (true);
         cm.setAutoHide (true);
         cm.setHideOnEscape (true);
+        UIUtils.addShowCSSViewerFilter (cm);        
 
     }
 

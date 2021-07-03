@@ -289,7 +289,7 @@ public class TextPropertiesPanel extends VBox
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,linespacing,text),
                  b);
 
-        double minPS = 0.5;
+        double minPS = 0;
         double maxPS = 3.5;
         double psStepBy = 0.1;
 

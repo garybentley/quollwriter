@@ -125,4 +125,13 @@ public class ObjectImageUserConfigurableObjectFieldViewEditHandler extends Image
 
     }
 */
+
+    @Override
+    public String getStyleClassName ()
+    {
+
+        return StyleClassNames.OBJECTIMAGE;
+
+    }
+
 }

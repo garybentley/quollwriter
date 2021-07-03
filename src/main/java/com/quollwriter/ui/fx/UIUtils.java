@@ -4668,6 +4668,7 @@ TODO
         cm.show (n,
                  x,
                  y);
+        UIUtils.addShowCSSViewerFilter (cm);
 
         n.getScene ().addEventFilter (MouseEvent.MOUSE_PRESSED,
                            eev ->

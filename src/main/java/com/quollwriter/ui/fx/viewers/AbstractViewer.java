@@ -3590,6 +3590,14 @@ TODO Not needed, is a function of the sidebar itself...
     public void enterFullScreen ()
     {
 
+        if (this.isInFullScreenMode ())
+        {
+
+            this.exitFullScreen ();
+            return;
+
+        }
+
         if (this.fullScreenContent == null)
         {
 

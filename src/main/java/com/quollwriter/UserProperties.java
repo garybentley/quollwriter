@@ -79,8 +79,7 @@ public class UserProperties
     private static SimpleStringProperty sortProjectsByProp = null;
     private static ObservableSet<Path> userBGImagePaths = null;
     private static SimpleSetProperty<Path> userBGImagePathsProp = null;
-    private static ObservableList<Color> userColors = null;
-    private static SimpleListProperty<Color> userColorsProp = null;
+    private static ObservableSet<Color> userColors = null;
     private static ObservableSet<javafx.beans.property.StringProperty> projectStatuses = null;
     private static SetProperty<javafx.beans.property.StringProperty> projectStatusesProp = null;
     private static SimpleStringProperty noProjectStatusProp = null;
@@ -106,7 +105,7 @@ public class UserProperties
     private static final Object listenerFillObj = new Object ();
 
     private static SetChangeListener projectStatusesListener = null;
-    private static ListChangeListener<Color> userColorsListener = null;
+    private static SetChangeListener<Color> userColorsListener = null;
 
     private static ObservableSet<javafx.beans.property.StringProperty> noteTypes = null;
 
@@ -1570,10 +1569,10 @@ public class UserProperties
 
     }
 
-    public static Set<Color> getUserColors ()
+    public static ObservableSet<Color> getUserColors ()
     {
 
-        return new LinkedHashSet<> (UserProperties.userColors);
+        return UserProperties.userColors;
 
     }
 
@@ -1731,13 +1730,13 @@ public class UserProperties
                                  throws Exception
     {
 
-        UserProperties.userColors = FXCollections.observableList (new ArrayList<> ());
+        UserProperties.userColors = FXCollections.observableSet (new LinkedHashSet<> ());
 
         // TODO Use a stream?
         String colors = UserProperties.get (Constants.COLOR_SWATCHES_PROPERTY_NAME);
 
         StringTokenizer t = new StringTokenizer (colors,
-                                                 ";");
+                                                 ",");
 
         while (t.hasMoreTokens ())
         {
@@ -1769,20 +1768,17 @@ public class UserProperties
 
         }
 
-        UserProperties.userColorsProp = new SimpleListProperty<> (UserProperties.userColors);
-
         UserProperties.userColorsListener = ev ->
         {
 
             UserProperties.set (Constants.COLOR_SWATCHES_PROPERTY_NAME,
                                 UserProperties.userColors.stream ()
                                     .map (c -> UIUtils.colorToHex (c))
-                                    .collect (Collectors.joining (";")));
+                                    .collect (Collectors.joining (",")));
 
         };
 
-        // Casting to help out the compiler.
-        UserProperties.userColorsProp.addListener (new WeakListChangeListener (UserProperties.userColorsListener));
+        UserProperties.userColors.addListener (UserProperties.userColorsListener);
 
     }
 
@@ -1877,8 +1873,7 @@ public class UserProperties
     public static void addUserColor (Color c)
     {
 
-        UserProperties.userColors.add (0,
-                                       c);
+        UserProperties.userColors.add (c);
 
     }
 
@@ -1889,10 +1884,10 @@ public class UserProperties
 
     }
 
-    public static ListProperty<Color> userColorsProperty ()
+    public static ObservableSet<Color> userColorsProperty ()
     {
 
-        return UserProperties.userColorsProp;
+        return UserProperties.userColors;
 
     }
 

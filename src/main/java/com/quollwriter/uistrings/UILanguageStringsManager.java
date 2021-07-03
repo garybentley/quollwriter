@@ -1170,7 +1170,7 @@ TODO Remove
                                       String...    ids)
     {
 
-        List<String> _ids = new ArrayList (prefix);
+        List<String> _ids = new ArrayList<> (prefix);
 
         for (String s : ids)
         {
@@ -1264,6 +1264,13 @@ public static BooleanBinding createBooleanBinding (Callable<Boolean> func,
     public static StringProperty getUILanguageStringProperty (List<String> ids,
                                                               Object...    reps)
     {
+
+        if (ids == null)
+        {
+
+            throw new IllegalArgumentException ("Ids cannot be null.");
+
+        }
 
         List<Observable> listen = new ArrayList<> ();
         listen.add (UILanguageStringsManager.uilangProp);

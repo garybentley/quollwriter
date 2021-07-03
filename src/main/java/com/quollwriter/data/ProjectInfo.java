@@ -102,6 +102,83 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         this.backupDirPathProp = new SimpleObjectProperty<> ();
         this.projectDirectoryProp = new SimpleObjectProperty<> ();
 
+        this.backupPaths = FXCollections.observableSet (new TreeSet<> ((p1, p2) ->
+        {
+
+            try
+            {
+
+                FileTime l1 = null;
+                FileTime l2 = null;
+
+                if (Files.exists (p1))
+                {
+
+                    l1 = Files.getLastModifiedTime (p1);
+
+                }
+
+                if (Files.exists (p2))
+                {
+
+                    l2 = Files.getLastModifiedTime (p2);
+
+                }
+
+                if ((l1 == null)
+                    &&
+                    (l2 == null)
+                   )
+                {
+
+                    return 0;
+
+                }
+
+                int ret = 0;
+
+                if (l1 == null)
+                {
+
+                    ret = 1;
+
+                }
+
+                if (l2 == null)
+                {
+
+                    ret = -1;
+
+                }
+
+                if ((l1 != null)
+                    &&
+                    (l2 != null)
+                   )
+                {
+
+                    ret = l1.compareTo (l2);
+
+                }
+
+                return -1 * ret;//Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
+
+            } catch (Exception e) {
+
+                throw new RuntimeException (e);
+
+            }
+
+        }));
+
+        this.binder.addChangeListener (this.backupDirPathProp,
+                                       (oldv, newv, pr) ->
+        {
+
+            this.initBackupPaths ();
+
+        });
+
     }
 
     public ProjectInfo (Project from)
@@ -137,164 +214,100 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     }
 
     private void initBackupPaths ()
-                           throws GeneralException
     {
 
-        Path p = this.getBackupDirPath ();
+        this.backupPaths.clear ();
 
-        if ((p != null)
-            &&
-            (Files.exists (p))
-           )
+        try
         {
 
-            try
+            Path p = this.getBackupDirPath ();
+
+            if ((p != null)
+                &&
+                (Files.exists (p))
+               )
             {
 
-                // Need this to auto close the underlying resources.
-                try (Stream<Path> ls = Files.list (p))
+                try
                 {
 
-                    this.backupPaths.addAll (ls.filter (path ->
+                    List<Path> ps = new ArrayList<> ();
+
+                    // Need this to auto close the underlying resources.
+                    try (Stream<Path> ls = Files.list (p))
                     {
 
-                        try
+                        this.backupPaths.addAll (ls.filter (path ->
                         {
 
-                            return Utils.isBackupFile (path);
+                            try
+                            {
 
-                        } catch (Exception e) {
+                                return Utils.isBackupFile (path);
 
-                            Environment.logError ("Unable to determine if path: " + path + " is a backup file.",
-                                                  e);
+                            } catch (Exception e) {
 
-                            return false;
+                                // Ignore this for now, producing too many errors that I can't do anything about.
+                                /*
+                                Environment.logError ("Unable to determine if path: " + path + " is a backup file.",
+                                                      e);
+                                */
+                                return false;
 
-                        }
+                            }
 
-                    })
-                    .collect (Collectors.toList ()));
+                        })
+                        .collect (Collectors.toList ()));
+
+                    }
+
+                } catch (Exception e) {
+
+                    throw new GeneralException ("Unable to get backup paths from: " + p,
+                                                e);
 
                 }
 
-            } catch (Exception e) {
-
-                throw new GeneralException ("Unable to get backup paths from: " + p,
-                                            e);
-
             }
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to init backup paths",
+                                  e);
 
         }
 
     }
 
     public ObservableSet<Path> getBackupPaths ()
-                                        throws GeneralException
     {
-
-        if (this.backupPaths == null)
-        {
-
-            try
-            {
-
-                this.backupPaths = FXCollections.observableSet (new TreeSet<> ((p1, p2) ->
-                {
-
-                    try
-                    {
-
-                        FileTime l1 = null;
-                        FileTime l2 = null;
-
-                        if (Files.exists (p1))
-                        {
-
-                            l1 = Files.getLastModifiedTime (p1);
-
-                        }
-
-                        if (Files.exists (p2))
-                        {
-
-                            l2 = Files.getLastModifiedTime (p2);
-
-                        }
-
-                        if ((l1 == null)
-                            &&
-                            (l2 == null)
-                           )
-                        {
-
-                            return 0;
-
-                        }
-
-                        int ret = 0;
-
-                        if (l1 == null)
-                        {
-
-                            ret = 1;
-
-                        }
-
-                        if (l2 == null)
-                        {
-
-                            ret = -1;
-
-                        }
-
-                        if ((l1 != null)
-                            &&
-                            (l2 != null)
-                           )
-                        {
-
-                            ret = l1.compareTo (l2);
-
-                        }
-
-                        return -1 * ret;//Files.getLastModifiedTime (p1).compareTo (Files.getLastModifiedTime (p2));
-
-                    } catch (Exception e) {
-
-                        throw new RuntimeException (e);
-
-                    }
-
-                }));
-
-            } catch (Exception e) {
-
-                throw new GeneralException ("Unable to init backup paths",
-                                            e);
-
-            }
-
-        }
-
-        this.initBackupPaths ();
 
         return this.backupPaths;
 
     }
 
     public void addBackupPath (Path p)
-                        throws GeneralException
     {
 
-        this.getBackupPaths ().add (p);
+        com.quollwriter.ui.fx.UIUtils.runLater (() ->
+        {
+
+            this.getBackupPaths ().add (p);
+
+        });
 
     }
 
     public void removeBackupPath (Path p)
-                           throws GeneralException
     {
 
-        this.getBackupPaths ().remove (p);
+        com.quollwriter.ui.fx.UIUtils.runLater (() ->
+        {
+
+            this.getBackupPaths ().remove (p);
+
+        });
 
     }
 

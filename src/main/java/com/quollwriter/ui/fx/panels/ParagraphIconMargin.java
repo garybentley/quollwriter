@@ -8,6 +8,8 @@ import javafx.collections.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.paint.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.css.*;
@@ -565,8 +567,12 @@ xxx
         riv.setOnDragDetected (ev ->
         {
 
+            SnapshotParameters sp = new SnapshotParameters ();
+            // Transparent bg.
+            sp.setFill (new Color (0, 0, 0, 0));
+
             Dragboard db = riv.startDragAndDrop (TransferMode.ANY);
-            db.setDragView (riv.snapshot (null, null));
+            db.setDragView (riv.snapshot (sp, null));
             ClipboardContent c = new ClipboardContent ();
             c.put (DRAG_FORMAT, ci.getObjectReference ().asString ());
             db.setContent (c);

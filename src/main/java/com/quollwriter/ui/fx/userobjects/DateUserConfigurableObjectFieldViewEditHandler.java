@@ -48,6 +48,14 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     }
 
     @Override
+    public String getStyleClassName ()
+    {
+
+        return StyleClassNames.DATE;
+
+    }
+
+    @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
                                       throws GeneralException

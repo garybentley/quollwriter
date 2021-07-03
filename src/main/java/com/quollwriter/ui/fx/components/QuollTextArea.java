@@ -63,7 +63,22 @@ public class QuollTextArea extends VBox
         }
 
         this.contextMenu = b.contextMenu;
+/*
+TODO, need property to listen for changes.
+        DictionaryProvider2 dp = b.dictProv;
 
+        if (dp == null)
+        {
+
+            if (UserProperties.isUIMultilineTextboxesSpellCheckEnabled ())
+            {
+
+                dp = UserProperties.getUIMultilineTextboxesSpellCheckLanguage ();
+
+            }
+
+        }
+*/
         this.text = new TextEditor (null,
                                     null,
                                     b.dictProv);
@@ -304,6 +319,13 @@ public class QuollTextArea extends VBox
             }
 
         });
+
+        if (this.text.isReadyForUse ())
+        {
+
+            this.text.setText (text);
+
+        }
 
     }
 

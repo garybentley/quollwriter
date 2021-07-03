@@ -2601,7 +2601,7 @@ public class Options extends VBox implements Stateful
                                                                 false);
 
                                         })
-                                        .selected (UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
+                                        .selected (!UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
                                         .build ())
                             .build ())
                             /*

@@ -760,64 +760,23 @@ TODO
     public void setPlaceholder (StringProperty p)
     {
 
-        // TODO, Fix this.
-        if(true)
+        if (p == null)
         {
+
             return;
+
         }
 
         this.placeholder = p;
-        QuollTextView te = QuollTextView.builder ()
-            .styleClassName (StyleClassNames.PLACEHOLDER)
-            .text (p)
-            .build ();
-        //this.setPlaceholder (te);
-        te.prefWidthProperty ().bind (this.widthProperty ());
 
         TextFlow tf = new TextFlow (new Text (p.getValue ()));
         tf.getStyleClass ().add (StyleClassNames.PLACEHOLDER);
         tf.prefWidthProperty ().bind (this.widthProperty ());
+        tf.maxHeightProperty ().bind (tf.heightProperty ());
+        tf.minHeightProperty ().bind (tf.heightProperty ());
+        tf.setCenterShape (false);
 
         this.setPlaceholder (tf);
-
-        this.plainTextChanges ().subscribe (ev ->
-        {
-
-            if (this.getStyleClass ().contains ("placeholder"))
-            {
-
-                this.ignoreDocumentChange = true;
-
-                this.getStyleClass ().remove ("placeholder");
-
-                this.ignoreDocumentChange = false;
-
-            } else {
-
-                if (this.getText ().length () == 0)
-                {
-
-                    this.ignoreDocumentChange = true;
-
-                    this.getStyleClass ().add ("placeholder");
-
-                    this.ignoreDocumentChange = false;
-
-                }
-
-            }
-
-        });
-
-        if (this.getText ().length () == 0)
-        {
-
-            this.ignoreDocumentChange = true;
-
-            this.getStyleClass ().add ("placeholder");
-            this.ignoreDocumentChange = false;
-
-        }
 
     }
 
@@ -2172,6 +2131,18 @@ System.out.println ("HEREZ: " + cb);
 
     }
 
+    @Override
+    protected void configurePlaceholder (Node placeholder)
+    {
+
+        Region r = (Region) placeholder;
+
+        r.prefWidthProperty().bind( this.widthProperty() );
+        r.maxHeightProperty().bind(r.heightProperty() );
+        r.minHeightProperty().bind(r.heightProperty() );
+        r.setCenterShape( false );
+    }
+
     public void setCaretPosition (int p)
     {
 
@@ -2286,6 +2257,14 @@ System.out.println ("HEREZ: " + cb);
                 this.updateTextStyle (style -> style.updateFontSize (props.getFontSize ()));
                 this.updateParagraphStyle (style -> style.updateFontSize (props.getFontSize ()));
 
+                TextStyle ts = new TextStyle ();
+                ts.updateFontSize (props.getFontSize ())
+                    .updateFontFamily (props.getFontFamily ())
+                    .updateTextColor (props.getTextColor ());
+
+                this.setTextInsertionStyle (ts);
+                this.updateCaretNode ();
+
                 this.ignoreDocumentChange = false;
 
             });
@@ -2302,6 +2281,13 @@ System.out.println ("HEREZ: " + cb);
             {
 
                 this.updateTextStyle (style -> style.updateFontFamily (props.getFontFamily ()));
+                TextStyle ts = new TextStyle ();
+                ts.updateFontSize (props.getFontSize ())
+                    .updateFontFamily (props.getFontFamily ())
+                    .updateTextColor (props.getTextColor ());
+
+                this.setTextInsertionStyle (ts);
+                this.updateCaretNode ();
 
                 this.ignoreDocumentChange = false;
 

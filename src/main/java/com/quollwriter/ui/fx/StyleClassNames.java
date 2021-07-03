@@ -5,6 +5,7 @@ import javafx.css.*;
 public final class StyleClassNames
 {
 
+    public static final PseudoClass HASPARENT_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASPARENT);
     public static final PseudoClass NEEDS_SAVE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NEEDSSAVE);
     public static final PseudoClass HASSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASSTYLES);
     public static final PseudoClass NOSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NOSTYLES);
@@ -22,6 +23,7 @@ public final class StyleClassNames
     public static final PseudoClass ACHIEVED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.ACHIEVED);
     public static final PseudoClass EXPANDED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.EXPANDED);
     public static final PseudoClass LEAF_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.LEAF);
+    public static final PseudoClass BRANCH_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.BRANCH);
     public static final PseudoClass OPEN_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.OPEN);
     public static final PseudoClass CLOSED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.CLOSED);
     public static final PseudoClass SCROLLING_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.SCROLLING);
@@ -499,5 +501,7 @@ public final class StyleClassNames
     public static final String TREE = "tree";
     public static final String CELL = "cell";
     public static final String LEAF = "leaf";
+    public static final String BRANCH = "branch";
+    public static final String HASPARENT = "hasparent";
 
 }

@@ -90,6 +90,7 @@ public class FieldBox extends VBox
 
         this.managedProperty ().bind (this.visibleProperty ());
         this.getStyleClass ().add (StyleClassNames.FIELD);
+        this.getStyleClass ().add (this.handler.getStyleClassName ());
 
         if (handler instanceof ObjectNameUserConfigurableObjectFieldViewEditHandler)
         {
@@ -323,16 +324,21 @@ public class FieldBox extends VBox
             })
             .build ());
 
-        its.add (QuollMenuItem.builder ()
-            .iconName (StyleClassNames.DELETE)
-            .label (getUILanguageStringProperty (assets,fields,popupmenu,items,removecolumn))
-            .onAction (eev ->
-            {
+        if (this.column.getPanel ().getLayoutColumns ().size () > 1)
+        {
 
-                this.column.showDeleteColumn ();
+            its.add (QuollMenuItem.builder ()
+                .iconName (StyleClassNames.DELETE)
+                .label (getUILanguageStringProperty (assets,fields,popupmenu,items,removecolumn))
+                .onAction (eev ->
+                {
 
-            })
-            .build ());
+                    this.column.showDeleteColumn ();
+
+                })
+                .build ());
+
+        }
 
         return its;
 

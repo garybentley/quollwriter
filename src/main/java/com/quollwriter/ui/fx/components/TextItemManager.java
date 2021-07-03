@@ -70,6 +70,13 @@ public class TextItemManager extends VBox
         Runnable addItems = () ->
         {
 
+            if (addText.getText () == null)
+            {
+
+                return;
+
+            }
+
             this.newError.setVisible (false);
 
             StringTokenizer t = new StringTokenizer (addText.getText (),

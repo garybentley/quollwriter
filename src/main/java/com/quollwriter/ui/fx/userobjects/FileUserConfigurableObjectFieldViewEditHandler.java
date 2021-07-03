@@ -32,6 +32,14 @@ public class FileUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     }
 
     @Override
+    public String getStyleClassName ()
+    {
+
+        return "file";
+
+    }
+
+    @Override
     public void grabInputFocus ()
     {
 

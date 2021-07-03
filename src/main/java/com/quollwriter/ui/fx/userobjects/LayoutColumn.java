@@ -59,7 +59,7 @@ public class LayoutColumn extends VBox
            .title (col.titleProperty ())
            .build ();
         this.title.managedProperty ().bind (this.title.visibleProperty ());
-        this.title.setVisible (col.titleProperty ().getValue () != null);
+        this.title.setVisible ((col.titleProperty ().getValue () != null && !col.titleProperty ().getValue ().trim ().equals ("")));
 
         this.binder.addChangeListener (col.showFieldLabelsProperty (),
                                        (pr, oldv, newv) ->
@@ -160,16 +160,21 @@ public class LayoutColumn extends VBox
                })
                .build ());
 
-           cm.getItems ().add (QuollMenuItem.builder ()
-               .iconName (StyleClassNames.DELETE)
-               .label (assets,view,column,popupmenu,LanguageStrings.items,delete)
-               .onAction (eev ->
-               {
+           if (this.panel.getLayoutColumns ().size () > 1)
+           {
 
-                   this.showDeleteColumn ();
+               cm.getItems ().add (QuollMenuItem.builder ()
+                   .iconName (StyleClassNames.DELETE)
+                   .label (assets,view,column,popupmenu,LanguageStrings.items,delete)
+                   .onAction (eev ->
+                   {
 
-               })
-               .build ());
+                       this.showDeleteColumn ();
+
+                   })
+                   .build ());
+
+           }
 
            this.getProperties ().put ("context-menu", cm);
 
@@ -361,6 +366,13 @@ public class LayoutColumn extends VBox
     {
 
         return this.panel.getDragItem ();
+
+    }
+
+    public SortableColumnsPanel getPanel ()
+    {
+
+        return this.panel;
 
     }
 

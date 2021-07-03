@@ -196,29 +196,10 @@ public class BackupsManager extends PopupContent
                         Runnable doRestore = () ->
                         {
 
+                            Environment.setCloseDownAllowed (true);
+
                             Runnable _doRestore = () ->
                             {
-
-                                try
-                                {
-
-                                    // Create a backup.
-                                    Path f = BackupsManager.createBackupForProject (_this.proj,
-                                                                                    true);
-
-                                } catch (Exception e) {
-
-                                    Environment.logError ("Unable to create backup for project: " +
-                                                          _this.proj,
-                                                          e);
-
-                                    ComponentUtils.showErrorMessage (_this.viewer,
-                                                                     getUILanguageStringProperty (backups,_new,actionerror));
-                                                              //"Unable to create a backup of the {project} in its current state.");
-
-                                    return;
-
-                                }
 
                                 // Restore using our file.
                                 try
@@ -330,6 +311,8 @@ public class BackupsManager extends PopupContent
 
                                                                   } catch (Exception e) {
 
+                                                                      Environment.setCloseDownAllowed (true);
+
                                                                       Environment.logError ("Unable to reopen project: " +
                                                                                             _this.proj,
                                                                                             e);
@@ -347,8 +330,31 @@ public class BackupsManager extends PopupContent
 
                         };
 
+                        try
+                        {
+
+                            // Create a backup.
+                            Path f = BackupsManager.createBackupForProject (_this.proj,
+                                                                            true);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to create backup for project: " +
+                                                  _this.proj,
+                                                  e);
+
+                            ComponentUtils.showErrorMessage (_this.viewer,
+                                                             getUILanguageStringProperty (backups,_new,actionerror));
+                                                      //"Unable to create a backup of the {project} in its current state.");
+
+                            return;
+
+                        }
+
                         if (pv != null)
                         {
+
+                            Environment.setCloseDownAllowed (false);
 
                             // Close the project.
                             pv.close (true,

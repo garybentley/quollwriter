@@ -5,6 +5,7 @@
  .texteditor
  {
      -fx-background-color: transparent;
+     -fx-padding: 2px 0 0 0;
  }
 
  .texteditor .margin, .margin-bg
@@ -38,7 +39,7 @@
 {
     -fx-opacity: 0.5;
     -fx-background-color: transparent;
-    -fx-background-color: #4d4d4d;
+    /*-fx-background-color: #4d4d4d;*/
 }
 
  .texteditor .margin .outlineitem,

@@ -2136,7 +2136,12 @@ TODO
             this.saveObject (chapter,
                              false);
 
-            p.recreateVisibleParagraphs ();
+            if (p != null)
+            {
+
+                p.recreateVisibleParagraphs ();
+
+            }
 
         } catch (Exception e) {
 

@@ -113,43 +113,6 @@ public class UserConfigurableObjectType extends NamedObject
 
             }
 
-            // TODO
-            while (ch.next ())
-            {
-/*
-                if (ch.wasRemoved ())
-                {
-
-                    int newfc = 0;
-
-                    if (this.sortableFieldsColumns.size () == 0)
-                    {
-
-                        // Add a new column.
-                        this.sortableFieldsColumns.add (new FieldsColumn ());
-
-                    } else {
-
-                        if (ch.getFrom () < this.sortableFieldsColumns.size () - 1)
-                        {
-
-                            newfc = newfc + 1;
-
-                        }
-
-                    }
-
-                    for (FieldsColumn fc : ch.getRemoved ())
-                    {
-
-                        this.sortableFieldsColumns.get (newfc).fields ().addAll (fc.fields ());
-
-                    }
-
-                }
-*/
-            }
-
         });
 
     }

@@ -88,6 +88,14 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
     }
 
     @Override
+    public String getStyleClassName ()
+    {
+
+        return StyleClassNames.OBJECTDESCRIPTION;
+
+    }
+
+    @Override
     public Set<StringProperty> getInputFormItemErrors ()
     {
 

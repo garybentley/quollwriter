@@ -326,3 +326,32 @@
 {
     -fx-max-width: 10em;
 }
+
+.linkedto .tree .cell:leaf .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.linkedto .tree .cell:leaf .label.note .iconbox .icon.note-icon
+{
+    -fx-shape: "m 106.60139,138.8493 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4.000003,-4 4,4 0 0 1 4.000003,-4 4,4 0 0 1 4,4 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 0.666em;
+    -fx-pref-height: 0.666em;
+    -fx-max-width: 0.666em;
+    -fx-min-width: 0.666em;
+}
+
+.linkedto .tree .cell:leaf .label.chapter > .iconbox
+{
+    -fx-content-display: text-only;
+    visibility: hidden;
+}
+
+.field.linkedto .view
+{
+    -fx-padding: 0 0.5em 0.25em 0;
+}

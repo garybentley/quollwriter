@@ -365,4 +365,12 @@ TODO Remove?
 
     }
 
+    @Override
+    public String getStyleClassName ()
+    {
+
+        return "number";
+
+    }
+
 }

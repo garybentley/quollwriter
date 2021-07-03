@@ -1,0 +1,66 @@
+/**
+ * Used by com.quollwriter.ui.fx.components.LinkedToPanel
+ * Will override styles defined in the default style sheet.
+ */
+.linkedto .tree.view .cell:leaf .label .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.linkedto .tree.view .cell:leaf .label.note .iconbox .icon
+{
+    -fx-pref-width: 0.666em;
+    -fx-pref-height: 0.666em;
+    -fx-background-color: -qw-icon-color;
+    -fx-shape: "m 106.60139,138.8493 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4.000003,-4 4,4 0 0 1 4.000003,-4 4,4 0 0 1 4,4 z";
+}
+
+.linkedto .tree.view .cell .label .iconbox .chapter-icon.icon
+{
+    -fx-pref-width: 1em;
+    -fx-min-width: 1em;
+    -fx-max-width: 1em;
+}
+
+.linkedto .tree.view .cell .chapter.label.header .iconbox
+{
+    visibility: visible;
+}
+
+
+.linkedto .tree.view .cell .chapter.label .iconbox,
+.linkedto .tree.view .cell .object.label .iconbox
+{
+    visibility: hidden;
+}
+/*
+.linkedto .tree.view .cell:leaf .object.label
+{
+    -fx-padding: 0 0 0 -1.3em;
+}
+*/
+
+.linkedto .tree .cell
+{
+    -fx-cursor: hand;
+}
+
+.linkedto .tree .cell .label .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1em;
+    -fx-min-width: 1em;
+    -fx-max-width: 1em;
+}
+
+.linkedto .tree .cell .label.scene .iconbox,
+.linkedto .tree .cell .label.scene .iconbox .icon,
+.linkedto .tree .cell .label.outlineitem .iconbox,
+.linkedto .tree .cell .label.outlineitem .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}

@@ -3496,7 +3496,7 @@
             },
             "firstlogin" :
             {
-                "title" : "<i>Checked your email?</i>",
+                "title" : "Checked your email?",
                 "text" : "Once you've validated your email address click on the button below to login.",
                 "buttons" :
                 {
@@ -3624,14 +3624,14 @@
                 "sent" :
                 {
                     "title" : "Removed as a ${objectnames.singular.contact}",
-                    "text" : "<i>You removed <b>%1$s</b> as a ${objectnames.singular.contact}.  You will no longer receive any messages from them or be able to send them messages.</i>",
+                    "text" : "You removed <b>%1$s</b> as a ${objectnames.singular.contact}.  You will no longer receive any messages from them or be able to send them messages.",
                     ":comment.text" : "%1$s is the name/email of the contact.",
                     ":scount.text" : 1
                 },
                 "received" :
                 {
                     "title" : "Removed you as a ${objectnames.singular.contact}",
-                    "text" : "<i><b>%1$s</b> has removed you as a ${objectnames.singular.contact}.  You will no longer receive any messages from them or be able to send them messages.</i>",
+                    "text" : "<b>%1$s</b> has removed you as a ${objectnames.singular.contact}.  You will no longer receive any messages from them or be able to send them messages.",
                     ":comment.text" : "%1$s is the name/email of the contact.",
                     ":scount.text" : 1,
                     "undealtwith" :
@@ -8879,7 +8879,7 @@
                     "description" :
                     {
                         "text" : "Description",
-                        "tooltip" : "<i>Enter the bug/problem description here.  The more information you can provide the better.</i>"
+                        "tooltip" : "Enter the bug/problem description here.  The more information you can provide the better."
                     },
                     "email" :
                     {

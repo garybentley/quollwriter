@@ -16,7 +16,7 @@ public class UserConfigurableObject extends NamedObject
 {
 
     protected UserConfigurableObjectType userConfigObjType = null;
-    protected Set<UserConfigurableObjectField> fields = new LinkedHashSet ();
+    protected Set<UserConfigurableObjectField> fields = new LinkedHashSet<> ();
 
     public UserConfigurableObject (UserConfigurableObjectType objType)
     {

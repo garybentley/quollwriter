@@ -61,7 +61,12 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
             this.setDividerPositions (pos);
 
-            SplitPane.setResizableWithParent (last, true);
+            if (last != null)
+            {
+
+                SplitPane.setResizableWithParent (last, true);
+
+            }
 
             this.removeEventHandler (MouseEvent.MOUSE_MOVED,
                                      this.handler);
@@ -114,6 +119,16 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
         for (UserConfigurableObjectType.FieldsColumn col : sortableColumns)
         {
+
+            this.addColumn (col,
+                            -1);
+
+        }
+
+        if (sortableColumns.size () == 0)
+        {
+
+            UserConfigurableObjectType.FieldsColumn col = obj.getUserConfigurableObjectType ().addNewColumn (null);
 
             this.addColumn (col,
                             -1);
@@ -344,6 +359,7 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
         QuollPopup.textEntryBuilder ()
          .withViewer (this.viewer)
+         .headerIconClassName (StyleClassNames.ADD)
          .title (assets,view,column,title,edit,popup,title)
          .description (assets,view,column,title,edit,popup,text)
          .confirmButtonLabel (assets,view,column,title,edit,popup,buttons,confirm)

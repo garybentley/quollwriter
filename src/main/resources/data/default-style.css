@@ -1,3 +1,13 @@
+/**
+ * A note on icon size.  It's better to set all three properties, i.e. pref/min/max to ensure that you get the
+ * size you desire.
+ * e.g.
+ *  -fx-pref-height: 1.3333em;
+ *  -fx-min-height: 1.3333em;
+ *  -fx-max-height: 1.3333em;
+ * This will lock the size to a particular height.  It seems that sometimes the pref-* values are ignored by JavaFX and the
+ * sizes in certain circumstances can change so locking all three properties will prevent this.
+ */
 .root
 {
 
@@ -379,8 +389,24 @@ Text
 .filefind .button .iconbox .icon {
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-max-height: 1.333em;
     -fx-alignment: center;
     -fx-fill-height: false;
+}
+
+.menu-item .iconbox > .icon.view-icon
+{
+    -fx-pref-height: 0.888em;
+    -fx-min-height: 0.888em;
+    -fx-max-height: 0.888em;
+}
+
+.menu-item .iconbox > .chapter-icon.icon
+{
+    -fx-pref-width: 1em;
 }
 
 .menu-item .iconbox .ideaboard-icon.icon
@@ -422,6 +448,10 @@ Text
 .accordion .header .iconbox .icon {
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-max-height: 1.333em;
     -fx-fill-height: false;
     -fx-alignment: center;
 }
@@ -434,6 +464,8 @@ Text
 .button .iconbox .view-icon.icon,
 .header.title .iconbox .problemfinder-icon.icon {
     -fx-pref-height: 0.888em;
+    -fx-min-height: 0.888em;
+    -fx-max-height: 0.888em;
 }
 
 .null-icon {
@@ -657,6 +689,14 @@ Text
     -fx-background-color: -qw-icon-color;
     -fx-pref-width: 0.666em;
 }
+
+.accordion .header .iconbox .icon.description-icon
+{
+    -fx-pref-width: 0.666em;
+    -fx-min-width: 0.666em;
+    -fx-max-width: 0.666em;
+}
+
 .sidebars-icon,
 .other-icon {
     -fx-shape: "M 7.14375,0 H 8.4666667 V 8.4666662 H 7.14375 Z M 4.7625001,0 H 6.0854168 V 8.4666662 H 4.7625001 Z M 2.3812499,0 H 3.7041666 V 8.4666662 H 2.3812499 Z M 0,0 H 1.3229167 V 8.4666662 H 0 Z";
@@ -983,14 +1023,13 @@ Text
 
 .tree .cell
 {
-    -fx-padding: 0 0 0 0.8em;
     -fx-alignment: center-left;
+    -fx-padding: 0 0 0 0.6em;
 }
 
 .tree .cell .label
 {
-    -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
-
+    -fx-label-padding: 0.1em 0.2em 0.1em 0.4em;
 }
 
 .tree .cell:selected > .label
@@ -1899,31 +1938,6 @@ Text
     -fx-max-height: 20em;
 }
 
-.linkedto .tree .cell
-{
-    -fx-cursor: hand;
-}
-
-.linkedto .tree .cell .label
-{
-    -fx-padding: 0.1em;
-}
-
-.linkedto .tree .cell .label .iconbox .chapter-icon.icon {
-    -fx-pref-width: 1em;
-}
-
-.linkedto .tree .cell .label.scene .iconbox,
-.linkedto .tree .cell .label.scene .iconbox .icon,
-.linkedto .tree .cell .label.outlineitem .iconbox,
-.linkedto .tree .cell .label.outlineitem .iconbox .icon
-{
-    -fx-pref-width: 1.333em;
-    -fx-pref-height: 1.333em;
-    -fx-fill-height: false;
-    -fx-alignment: center;
-}
-
 .sidebar.chapterinfo .accordion .header
 {
     -fx-border-width: 0 0 1px 0;
@@ -1968,6 +1982,11 @@ Text
 .sidebar.chapterinfo .accordion .placeholder
 {
     -fx-font-style: italic;
+}
+
+.sidebar.chapterinfo .accordion .placeholder .iconbox
+{
+    visibility: hidden;
 }
 
 .sidebar .tool-bar.buttons .button .iconbox,
@@ -2027,9 +2046,11 @@ Text
 
 .compressedmenutitle.label
 {
-    -fx-padding: 0.5em 1em 0.5em 1.6em;
+    -fx-padding: 0.5em 0.5em 0.5em 0.6em;
     -fx-font-style: italic;
-    -fx-pref-width: 7em;
+    -fx-pref-width: 8em;
+    -fx-text-alignment: right;
+    -fx-alignment: center-right;
 }
 
 .compressedmenu:focused .compressedmenutitle
@@ -2045,6 +2066,11 @@ Text
 .compressedmenu .button
 {
     -fx-content-display: graphic-only;
+}
+
+.menu-item.compressedmenu:hover
+{
+    -fx-background-color: transparent;
 }
 
 .viewer.project .tab-pane:top .tab-content-area
@@ -2115,7 +2141,7 @@ Text
 
 .spinner .increment-arrow-button
 {
-    -fx-border-width: 0 0 0 1px;
+    -fx-border-width: 0 1px 0 1px;
 }
 
 .date-picker .arrow-button .arrow,
@@ -2304,6 +2330,7 @@ a
 {
     -fx-text-fill: -qw-dark-color;
 }
+
 .scroll-pane
 {
     -fx-border-color: transparent;
@@ -2375,6 +2402,11 @@ a
     -fx-pref-height: 1.333em;
 }
 
+.tab-pane > .tab-header-area > .control-buttons-tab
+{
+    /*-fx-padding: 0 0 1em 0;*/
+}
+
 .tab-pane > .tab-header-area > .control-buttons-tab > .container > .tab-down-button
 {
     -fx-background-color: transparent;
@@ -2383,30 +2415,53 @@ a
     -fx-padding: 0.5em;
 }
 
-.tab-pane:bottom > .tab-header-area > .control-buttons-tab > .container > .tab-down-button
-{
-    -fx-padding: -0.5em 0 0 0;
-    -fx-padding: 0.5em;
-}
-
 .tab-pane > .tab-header-area > .control-buttons-tab > .container > .tab-down-button > .arrow
 {
     -fx-pref-height: 0.888em;
     -fx-pref-width: 0.5em;
-    /*-fx-shape: "M 12.011719,32 20,21.333333 H 16 V 0 H 8 V 21.333333 H 4 Z";*/
     -fx-shape: "M 0,32 V 0 l 24,16 z";
     -fx-background-color: -qw-icon-color;
     -fx-rotate: -90;
-    -fx-padding: 0;
+}
+
+.tab-pane:top > .tab-header-area > .control-buttons-tab > .container > .tab-down-button > .arrow
+{
+    -fx-rotate: 90;
+}
+
+.tab-pane:bottom > .tab-header-area > .control-buttons-tab > .container > .tab-down-button > .arrow
+{
+    -fx-rotate: -270;
 }
 
 .tab-pane > .tab-header-area > .control-buttons-tab .container
 {
     -fx-alignment: center;
-    -fx-padding: 0.5em 0 0 0;
 }
 
 WordCountTimerButton
 {
     -fx-alignment: center;
+}
+
+.qtextarea .placeholder
+{
+    -fx-alignment: top-center;
+    -fx-padding: 3px;
+
+}
+
+.qtextarea .placeholder Text
+{
+    -fx-fill: grey;
+}
+
+.tree .cell:hasparent:branch > StackPane .disclosure
+{
+    -fx-padding: 0 0 0 0.25em;
+}
+
+.tree
+{
+    -fx-cell-indent: 1.6em;
 }

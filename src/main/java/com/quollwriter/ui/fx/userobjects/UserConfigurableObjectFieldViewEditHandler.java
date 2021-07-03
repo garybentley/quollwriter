@@ -51,6 +51,8 @@ public interface UserConfigurableObjectFieldViewEditHandler<T extends UserConfig
 
     public T getTypeField ();
 
+    public String getStyleClassName ();
+
     public UserConfigurableObjectField getField ();
 
     public Supplier<Set<MenuItem>> getViewContextMenuItems ();

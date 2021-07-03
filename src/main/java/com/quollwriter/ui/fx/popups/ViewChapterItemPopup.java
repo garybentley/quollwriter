@@ -122,6 +122,7 @@ public class ViewChapterItemPopup extends PopupContent<ProjectViewer>
         QuollPopup p = QuollPopup.builder ()
             .title (form.getPopupTitle ())
             .styleClassName (form.getStyleClassName ())
+            .styleSheet ("viewchapteritem")
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

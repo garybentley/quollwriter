@@ -53,3 +53,11 @@
  {
      -fx-fill: -qw-error-text-color;
  }
+
+.form:stacked .label.max
+{
+    -fx-padding: 0.25em;
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-focus-color;;
+    -fx-font-style: italic;
+}

@@ -6,8 +6,8 @@
     -fx-fit-to-height: true;
 }
 .content {
-    -fx-min-width: 23.3em;
-    /*-fx-pref-width: 20em;*/
+    -fx-min-width: 23.7em;
+    /*-fx-pref-width: 22em;*/
 }
 .accordion:dragover { -fx-background-color: -qw-dragover-bg; }
 .accordion:dragging {
@@ -37,6 +37,8 @@
 .accordion.chapter .header.chapter > .iconbox .icon,
 .accordion.character .header.chapter > .iconbox .icon {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 
 .label.chapter > .iconbox {
@@ -63,7 +65,9 @@
     -fx-shape: "m 10.836,26.832 c 1.562,-1.562 1.562,-4.094 0,-5.656 -1.562,-1.562 -4.094,-1.562 -5.656,0 L 0,32 Z M 30.828,1.172 c -1.562,-1.562 -4.094,-1.562 -5.656,0 L 10.047,16.301 c 1.352,0.352 2.602,1.031 3.617,2.047 1.031,1.031 1.688,2.289 2.039,3.609 L 30.828,6.828 c 1.563,-1.562 1.563,-4.094 0,-5.656 z";
     -fx-background-color: -qw-icon-color;
 }
-.accordion.chapter .tree .cell .label.note .iconbox .note-icon.icon {
+
+.accordion.chapter .tree .cell .label.note .iconbox .note-icon.icon,
+.accordion.notes .tree .cell .label.note .iconbox .note-icon.icon {
     -fx-shape: "m 106.60139,138.8493 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4.000003,-4 4,4 0 0 1 4.000003,-4 4,4 0 0 1 4,4 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-width: 0.666em;
@@ -83,7 +87,9 @@
 .accordion.chapter .tree .cell > .label.chapter:editposition .iconbox,
 .accordion.chapter .tree .cell > .label.chapter:editposition .iconbox .editposition-icon,
 .accordion.chapter .tree .cell > .label.note .iconbox,
-.accordion.chapter .tree .cell > .label.note .iconbox .icon {
+.accordion.chapter .tree .cell > .label.note .iconbox .icon,
+.accordion.notes .tree .cell > .label.note .iconbox
+{
     visibility: true;
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;

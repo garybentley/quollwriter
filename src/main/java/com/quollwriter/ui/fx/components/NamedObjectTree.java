@@ -153,6 +153,8 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
                 ContextMenu cm = new ContextMenu ();
 
+                UIUtils.addShowCSSViewerFilter (cm);
+
                 Set<MenuItem> its = new LinkedHashSet<> ();
 
                 if (b.contextMenuItemSupplier != null)

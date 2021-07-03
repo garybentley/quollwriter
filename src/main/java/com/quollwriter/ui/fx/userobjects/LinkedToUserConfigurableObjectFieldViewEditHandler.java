@@ -40,6 +40,14 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
     }
 
     @Override
+    public String getStyleClassName ()
+    {
+
+        return "linkedto";
+
+    }
+
+    @Override
     public void grabInputFocus ()
     {
 

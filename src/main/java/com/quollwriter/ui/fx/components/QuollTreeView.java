@@ -903,18 +903,36 @@ xxx
         private TreeItem item = null;
         private Node disclosureNode = null;
         private StackPane disclosureNodeWrapper = null;
+        private TreeItem root = null;
 
         public QuollTreeCell (TreeItem      ti,
                               Node          content)
         {
+
+            TreeItem p = ti.getParent ();
+
+            while (true)
+            {
+
+                if (p == null)
+                {
+
+                    break;
+
+                }
+
+                this.root = p;
+
+                p = p.getParent ();
+
+            }
 
             this.item = ti;
 
             this.managedProperty ().bind (this.visibleProperty ());
             //this.disclosureNode = new ImageView ();
             this.disclosureNodeWrapper = new StackPane ();
-            //this.disclosureNodeWrapper.getChildren ().add (this.disclosureNode);
-            //this.disclosureNode.getStyleClass ().add ("disclosure");
+            //this.disclosureNodeWrapper.managedProperty ().bind (this.disclosureNodeWrapper.visibleProperty ());
 
             HBox h = new HBox ();
             h.getStyleClass ().add (StyleClassNames.ICONBOX);
@@ -924,7 +942,7 @@ xxx
 
                 @Override
                 public void executeAccessibleAction (AccessibleAction act,
-                                                     Object... params)
+                                                     Object...        params)
                 {
 
                     if (act == AccessibleAction.EXPAND)
@@ -1063,6 +1081,14 @@ xxx
         {
 
             this.pseudoClassStateChanged (StyleClassNames.LEAF_PSEUDO_CLASS, this.item.isLeaf ());
+            this.pseudoClassStateChanged (StyleClassNames.BRANCH_PSEUDO_CLASS, !this.item.isLeaf ());
+
+            if (this.item.getParent () != null)
+            {
+
+                this.pseudoClassStateChanged (StyleClassNames.HASPARENT_PSEUDO_CLASS, !this.item.getParent ().equals (this.root));
+
+            }
 
             this.disclosureNode.pseudoClassStateChanged (StyleClassNames.EXPANDED_PSEUDO_CLASS, this.item.isExpanded ());
             this.disclosureNodeWrapper.setVisible (!this.item.isLeaf ());
