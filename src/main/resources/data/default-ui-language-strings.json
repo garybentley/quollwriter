@@ -6215,6 +6215,17 @@
                         "text" : "<ul><li>Removed the base UI font size.  QW will now try and use the window manager default.  This may lead to some funny size issues though, let me know.</li><li>Popups can not be dragged outside of the window.</li><li>A number of issues relating to Editor Projects have been fixed.</li><li>Added the ability to permanently turn on Night Mode.  When you turn it on the first time you will be asked if you want to make it permanent.</li><li>Fixed a number of style issues, mostly relating to Night Mode.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b17" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes/Minor Improvements",
+                        "text" : "<ul><li>A number of bug fixes and minor changes, mostly style related.</li></ul>"
+                    }
+                }
             }
         }
     },
