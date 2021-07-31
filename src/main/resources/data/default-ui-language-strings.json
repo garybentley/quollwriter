@@ -6227,6 +6227,17 @@
                         "text" : "<ul><li>A number of bug fixes and minor changes, mostly style related.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b18" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes/Minor Improvements",
+                        "text" : "<ul><li>A number of bug fixes relating to the User Interface strings and the editor.</li></ul>"
+                    }
+                }
             }
         }
     },

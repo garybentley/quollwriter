@@ -87,6 +87,22 @@ public class Version implements Comparable<Version>
 
     }
 
+    public String getVersionNoBeta ()
+    {
+
+        int bind = this._version.indexOf ("b");
+
+        if (bind > 0)
+        {
+
+            return  this._version.substring (0, bind);
+
+        }
+
+        return this._version;
+        
+    }
+
     public String getVersion ()
     {
 
@@ -235,6 +251,35 @@ public class Version implements Comparable<Version>
         Version v = (Version) o;
 
         return this._version.equals (v._version);
+
+    }
+
+    public boolean equalsIgnoreBeta (Version v)
+    {
+
+        if (v == null)
+        {
+
+            return false;
+
+        }
+
+        for (int i = 0; i < v.getPartsCount (); i++)
+        {
+
+            int op = v.getPart (i);
+            int tp = this.getPart (i);
+
+            if (op != tp)
+            {
+
+                return false;
+
+            }
+
+        }
+
+        return true;
 
     }
 

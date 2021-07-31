@@ -966,7 +966,7 @@ TODO Improve
     public void tryOut ()
     {
 
-        if (!this.userStrings.getQuollWriterVersion ().equals (Environment.getQuollWriterVersion ()))
+        if (!this.userStrings.getQuollWriterVersion ().equalsIgnoreBeta (Environment.getQuollWriterVersion ()))
         {
 
             this.showMessage ("Unable to try out",

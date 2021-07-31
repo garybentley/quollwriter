@@ -882,7 +882,8 @@ TODO Remove
                                                   throws IOException
     {
 
-        Path p = Environment.getUserPath (Constants.USER_UI_LANGUAGES_DIR_NAME).resolve (v.toString ());
+        Path p = Environment.getUserPath (Constants.USER_UI_LANGUAGES_DIR_NAME).resolve (v.getVersionNoBeta ());
+        //toString ());
 
         Files.createDirectories (p);
 
