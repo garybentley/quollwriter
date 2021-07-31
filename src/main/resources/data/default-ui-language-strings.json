@@ -224,7 +224,7 @@
             "newproject" : "${actions.new} ${objectnames.singular.project}",
             "renameproject" : "${actions.rename} this ${objectnames.singular.project}",
             "showcontacts" : "Show your ${objectnames.plural.contact}",
-            "statistics" : "Statistics",
+            "statistics" : "${names.statistics}",
             "targets" : "${names.targets}",
             "createbackup" : "${actions.createbackup}",
             "closeproject" : "${actions.close} ${objectnames.singular.project}",
@@ -803,7 +803,8 @@
         "targets" : "Targets",
         "textproperties" : "Text Properties",
         "editorsservice" : "${objectnames.plural.editor} Service",
-        "example" : "Example"
+        "example" : "Example",
+        "statistics" : "Statistics"
     },
     "buttons" :
     {
@@ -8637,7 +8638,7 @@
                 "errors" :
                 {
                     "novalue" : "Please enter a new name.",
-                    "valueexists" : "A $1%s with that name already exists.",
+                    "valueexists" : "A %1$s with that name already exists.",
                     ":comment.valueexists" : "%1$s is the asset type name.",
                     ":scount.valueexists" : 1
                 }
