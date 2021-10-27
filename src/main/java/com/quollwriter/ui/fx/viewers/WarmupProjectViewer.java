@@ -47,6 +47,8 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
         this.sidebar = new WarmupsSideBar (this);
 
+        this.initActionMappings ();
+
         this.sdf = new SimpleDateFormat ("dd MMM yyyy");
 
         this.addChangeListener (this.currentPanelProperty (),
@@ -718,6 +720,51 @@ public class WarmupProjectViewer extends AbstractProjectViewer
         }
 
     }
+
+    private void initActionMappings ()
+    {
+
+        this.addActionMapping (new CommandWithArgs<DataObject> (objs ->
+        {
+
+            DataObject o = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                o = objs[0];
+
+            }
+
+            if (o == null)
+            {
+
+                throw new IllegalArgumentException ("No object provided.");
+
+            }
+
+            Warmup w = null;
+
+            if (!(o instanceof Warmup))
+            {
+
+                throw new IllegalArgumentException ("Object is not a warmup is: " +
+                                                    o.getClass ().getName ());
+
+            }
+
+            w = (Warmup) o;
+
+            this.deleteWarmup (w);
+
+        },
+        CommandId.deletewarmup));
+
+    }
+
 /*
     @Override
     public Supplier<Set<Node>> getTitleHeaderControlsSupplier ()
