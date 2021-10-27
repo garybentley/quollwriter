@@ -1156,6 +1156,24 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         },
         CommandId.exitfullscreen);
 
+        this.addActionMapping (() ->
+        {
+
+            try
+            {
+
+                this.showOptions (null);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to show the options.",
+                                      e);
+
+            }
+
+        },
+        CommandId.options);
+
         this.addActionMapping (() -> this.showWarmupPromptSelect (),
                                CommandId.dowarmup,
                                CommandId.warmup);
