@@ -144,6 +144,15 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
         items.add (new Form.Item (new SimpleStringProperty ("English"),
                                   QuollTextView.builder ()
                                     .text (this.baseValue.getRawText ())
+                                    .formatter (s ->
+                                    {
+
+                                        s = Utils.replaceString (s,
+                                                                 "<",
+                                                                 "&lt;");
+                                        return s;
+
+                                    })                                    
                                     .build ()));
 
         this.previewWrapper = new VBox ();
