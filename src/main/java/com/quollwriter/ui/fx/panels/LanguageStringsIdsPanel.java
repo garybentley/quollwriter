@@ -37,6 +37,7 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
     private String limitType = "";
     private boolean showingErrors = false;
     private boolean showOnlyNoValue = false;
+    private VirtualFlow<?, ?> virtualFlow = null;
 
     public LanguageStringsIdsPanel (AbstractLanguageStringsEditor ed,
                                     Node                          parent,
@@ -75,7 +76,7 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
 
         }
 
-        this.content.getChildren ().add (new VirtualizedScrollPane<> (VirtualFlow.createVertical (this.values,
+        this.virtualFlow = VirtualFlow.createVertical (this.values,
         v ->
         {
 
@@ -121,7 +122,9 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
 
             return null;
 
-        })));
+        });
+
+        this.content.getChildren ().add (new VirtualizedScrollPane<> (this.virtualFlow));
 
         VBox.setVgrow (this.content.getChildren ().get (this.content.getChildren ().size () - 1),
                        Priority.ALWAYS);
@@ -339,6 +342,108 @@ TODO ?
     {
 
         return this.parent;
+
+    }
+
+    public void moveToNextBox (Value curr)
+    {
+
+        int ind = -1;
+
+        for (int i = 0; i < this.values.size (); i++)
+        {
+
+            Value v = this.values.get (i);
+
+            if (v.getId ().equals (curr.getId ()))
+            {
+
+                ind = i;
+
+                break;
+
+            }
+
+        }
+
+        if (ind > -1)
+        {
+
+            ind++;
+
+            if (ind > (this.values.size () - 1))
+            {
+
+                ind = 0;
+
+            }
+
+            this.virtualFlow.showAsFirst (ind);
+
+            int _ind = ind;
+
+            UIUtils.forceRunLater (() ->
+            {
+
+                LanguageStringsIdBox id = (LanguageStringsIdBox) this.virtualFlow.getCell (_ind);
+
+                id.requestFocus ();
+
+            });
+
+        }
+
+    }
+
+    public void moveToPreviousBox (Value curr)
+    {
+
+        int ind = -1;
+
+        for (int i = 0; i < this.values.size (); i++)
+        {
+
+            Value v = this.values.get (i);
+
+            if (v.getId ().equals (curr.getId ()))
+            {
+
+                ind = i;
+
+                break;
+
+            }
+
+        }
+
+        if (ind > -1)
+        {
+
+            ind--;
+
+            if (ind < 0)
+            {
+
+                ind = this.values.size () - 1;
+
+            }
+
+            LanguageStringsIdBox id = (LanguageStringsIdBox) this.virtualFlow.getCell (ind);
+
+            this.virtualFlow.showAsFirst (ind);
+
+            int _ind = ind;
+
+            UIUtils.forceRunLater (() ->
+            {
+
+                //LanguageStringsIdBox id = (LanguageStringsIdBox) this.virtualFlow.getCell (_ind);
+
+                id.requestFocus ();
+
+            });
+
+        }
 
     }
 
@@ -807,19 +912,43 @@ TODO
             .onAction (ev ->
             {
 
-                try
+                if (this.showOnlyNoValue)
                 {
 
-                    this.showOnlyNoValue = true;
-                    this.showOnlyNoValue ();
+                    try
+                    {
 
-                } catch (Exception e) {
+                        this.showOnlyNoValue = false;
+                        this.showAll ();
 
-                    Environment.logError ("Unable to show items with no value",
-                                          e);
+                    } catch (Exception e) {
 
-                    ComponentUtils.showErrorMessage (this.viewer,
-                                                     "Unable to show items with no value.");
+                        Environment.logError ("Unable to show only no value",
+                                              e);
+
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         "Unable to show all items.");
+
+                    }
+
+
+                } else {
+
+                    try
+                    {
+
+                        this.showOnlyNoValue = true;
+                        this.showOnlyNoValue ();
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to show items with no value",
+                                              e);
+
+                        ComponentUtils.showErrorMessage (this.viewer,
+                                                         "Unable to show items with no value.");
+
+                    }
 
                 }
 

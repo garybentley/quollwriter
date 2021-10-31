@@ -43,6 +43,13 @@ public abstract class LanguageStringsIdBox<E extends Value, T extends Object> ex
 
     }
 
+    public E getBaseValue ()
+    {
+
+        return this.baseValue;
+
+    }
+
     @Override
     public boolean isReusable ()
     {

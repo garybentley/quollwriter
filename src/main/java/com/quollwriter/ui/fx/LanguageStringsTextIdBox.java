@@ -126,6 +126,14 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
     }
 
     @Override
+    public void requestFocus ()
+    {
+
+        this.userValue.requestFocus ();
+
+    }
+
+    @Override
     public String getStyleClassName ()
     {
 
@@ -152,7 +160,7 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
                                                                  "&lt;");
                                         return s;
 
-                                    })                                    
+                                    })
                                     .build ()));
 
         this.previewWrapper = new VBox ();
@@ -394,6 +402,17 @@ TODO ?
                                                       } else {
 
                                                           this.showMatches (false);
+
+                                                      }
+
+                                                      if (ev.isShiftDown ())
+                                                      {
+
+                                                          panel.moveToPreviousBox (stringsValue);
+
+                                                      } else {
+
+                                                          panel.moveToNextBox (stringsValue);
 
                                                       }
 
