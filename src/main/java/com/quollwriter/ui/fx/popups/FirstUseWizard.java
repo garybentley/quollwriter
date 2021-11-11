@@ -52,6 +52,7 @@ public class FirstUseWizard extends PopupContent
     private static final String IMPORT_STAGE = "import";
     private static final String SELECT_PROJECT_DB_STAGE = "select-project-db";
     private static final String SPELL_CHECK_LANG_STAGE = "spell-check-lang";
+    public static final String IS_FIRST_USE_STAGE = "is-first-use";
 
     private Wizard wizard = null;
     private Form fileFindForm = null;
@@ -65,6 +66,9 @@ public class FirstUseWizard extends PopupContent
 
     private QuollRadioButton findProjects = null;
     private QuollRadioButton selectProjectDB = null;
+
+    private QuollRadioButton isFirstUse = null;
+    private QuollRadioButton notFirstUse = null;
 
     private QuollCheckBox licenseAccept = null;
 
@@ -615,6 +619,37 @@ System.out.println ("HERE2");
             .build ();
 
         ws.content = this.projDBFindForm;
+
+        return ws;
+
+    }
+
+    private Wizard.Step createIsFirstUseStep ()
+    {
+
+        Wizard.Step ws = new Wizard.Step ();
+
+        ws.title = getUILanguageStringProperty (firstusewizard,stages,isfirstuse,title);
+
+        this.isFirstUse = QuollRadioButton.builder ()
+            .label (firstusewizard,stages,isfirstuse,labels,first)
+            .build ();
+
+        this.notFirstUse = QuollRadioButton.builder ()
+            .label (firstusewizard,stages,isfirstuse,labels,notfirst)
+            .build ();
+
+        ToggleGroup g = new ToggleGroup ();
+        this.isFirstUse.setToggleGroup (g);
+        this.notFirstUse.setToggleGroup (g);
+
+        Form f = Form.builder ()
+            .description (firstusewizard,stages,isfirstuse,text)
+            .item (this.isFirstUse)
+            .item (this.notFirstUse)
+            .build ();
+
+        ws.content = f;
 
         return ws;
 
@@ -1785,6 +1820,13 @@ System.out.println ("HERE2");
 
         }
 
+        if (IS_FIRST_USE_STAGE.equals (stage))
+        {
+
+            return this.createIsFirstUseStep ();
+
+        }
+
         if (EXISTING_STAGE.equals (stage))
         {
 
@@ -1848,17 +1890,24 @@ System.out.println ("HERE2");
 
         }
 
+        if (IS_FIRST_USE_STAGE.equals (currStage))
+        {
+
+            return LICENSE_STAGE;
+
+        }
+
         if (SELECT_PROJECT_DB_STAGE.equals (currStage))
         {
 
-            return EXISTING_STAGE;
+            return IS_FIRST_USE_STAGE;
 
         }
 
         if (SPELL_CHECK_LANG_STAGE.equals (currStage))
         {
 
-            return LICENSE_STAGE;
+            return IS_FIRST_USE_STAGE;
 
         }
 
@@ -1886,7 +1935,7 @@ System.out.println ("HERE2");
         if (EXISTING_STAGE.equals (currStage))
         {
 
-            return START_STAGE;
+            return IS_FIRST_USE_STAGE;
 
         }
 
@@ -1925,10 +1974,38 @@ System.out.println ("HERE2");
 
         }
 
+        if (IS_FIRST_USE_STAGE.equals (currStage))
+        {
+
+            if (this.isFirstUse.isSelected ())
+            {
+
+                return SPELL_CHECK_LANG_STAGE;
+
+            }
+
+            if (this.notFirstUse.isSelected ())
+            {
+
+                return EXISTING_STAGE;
+
+            }
+
+            return EXISTING_STAGE;
+
+        }
+
         if (LICENSE_STAGE.equals (currStage))
         {
 
-            return SPELL_CHECK_LANG_STAGE;
+            return IS_FIRST_USE_STAGE;
+
+        }
+
+        if (LICENSE_STAGE.equals (currStage))
+        {
+
+            return EXISTING_STAGE;//SPELL_CHECK_LANG_STAGE;
 
         }
 

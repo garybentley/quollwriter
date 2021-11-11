@@ -19,6 +19,15 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class WordCountProgressTimer
 {
 
+    public enum State
+    {
+        paused,
+        stopped,
+        playing,
+        reset,
+        canceled
+    }
+
     private static final double MIN_VALUE = 0.0001d;
 
     private int                                    initWordCount = 0;
@@ -36,61 +45,80 @@ public class WordCountProgressTimer
     private int totalWords = 0;
     private int startWords = 0;
 
-    private IntegerProperty progressProp = null;
+    private DoubleProperty progressProp = null;
+    private StringProperty tooltipProp = null;
+    private ObjectProperty<State> stateProp = null;
     private ScheduledFuture timer = null;
-    private ProgressBar progress = null;
-    private boolean paused = false;
 
-    public WordCountProgressTimer (AbstractProjectViewer pv,
-                                   int                   mins,
-                                   int                   words,
-                                   ProgressBar           progress)
+    public WordCountProgressTimer (AbstractProjectViewer pv)
     {
 
         this.viewer = pv;
-        this.wordCount = words;
-        this.minsCount = mins;
-        this.progress = progress;
 
-        this.progressProp = new SimpleIntegerProperty (0);
-
-        this.startTimer ();
+        this.progressProp = new SimpleDoubleProperty (0);
+        this.tooltipProp = new SimpleStringProperty ("");
+        this.stateProp = new SimpleObjectProperty<> (State.stopped);
 
     }
 
-    public IntegerProperty progressProperty ()
+    public ObjectProperty<State> stateProperty ()
+    {
+
+        return this.stateProp;
+
+    }
+
+    public DoubleProperty progressProperty ()
     {
 
         return this.progressProp;
 
     }
 
+    public StringProperty tooltipProperty ()
+    {
+
+        return this.tooltipProp;
+
+    }
+
     public void unpauseTimer ()
     {
 
-        this.paused = false;
-        //this.startTimer ();
+        this.startTimer ();
 
     }
 
     public void pauseTimer ()
     {
 
-        this.paused = true;
+        this.stateProp.setValue (State.paused);
 
     }
 
-    private void startTimer ()
+    public void startTimer (int mins,
+                            int words)
+    {
+
+        this.wordCount = words;
+        this.minsCount = mins;
+        this.startTimer ();
+
+    }
+
+    public void startTimer ()
     {
 
         if (this.timer != null)
         {
 
-            this.timer.cancel (true);
+            this.viewer.unschedule (this.timer);
             this.timer = null;
+            //this.stateProp.setValue (State.canceled);
 
         }
 
+        this.stateProp.setValue (State.playing);
         this.startTime = System.currentTimeMillis ();
         this.percentComplete = 0;
         this.wordsRemaining = this.wordCount;
@@ -99,13 +127,12 @@ public class WordCountProgressTimer
         this.initWordCount = this.viewer.getAllChapterCounts ().getWordCount ();
         this.startWords = this.viewer.getAllChapterCounts ().getWordCount ();
 
-        this.progress.setProgress (MIN_VALUE);
         this.progressProp.setValue (MIN_VALUE);
 
-        this.timer = viewer.schedule (() ->
+        this.timer = this.viewer.schedule (() ->
         {
 
-            if (this.paused)
+            if (this.stateProp.getValue () == State.paused)
             {
 
                 return;
@@ -139,10 +166,19 @@ public class WordCountProgressTimer
 
     public void stopTimer ()
     {
+System.out.println ("STOP CALLED");
+        if (this.timer != null)
+        {
 
-        this.timer.cancel (true);
-        this.progress.setProgress (0);
+            this.viewer.unschedule (this.timer);
+            this.timer = null;
+            System.out.println ("STOPPED");
+
+        }
+
+        this.progressProp.setValue (0);
         this.ticks = 0;
+        this.stateProp.setValue (State.stopped);
 
     }
 
@@ -213,18 +249,15 @@ public class WordCountProgressTimer
             perc = MIN_VALUE;
 
         }
+System.out.println ("RUNNING: " + perc);
+        this.progressProp.setValue (perc);
 
-        this.progress.setProgress (perc);
-
-        UIUtils.setTooltip (this.progress,
-                            new SimpleStringProperty (b.toString ()));
-
-        //this.progressProp.setValue (this.percentComplete);
+        this.tooltipProp.setValue (b.toString ());
 
         if (perc >= 1)
         {
 
-            this.timer.cancel (true);
+            this.viewer.unschedule (this.timer);
 
             this.viewer.fireProjectEvent (ProjectEvent.Type.warmup,
                                           ProjectEvent.Action.timereached);
@@ -233,12 +266,7 @@ public class WordCountProgressTimer
 
         }
 
-
-            if (true)
-            {
-                return;
-            }
-
+/*
         int mp = 0;
 
         int remM = 0;
@@ -323,7 +351,7 @@ public class WordCountProgressTimer
                                           ProjectEvent.Action.timereached);
 
         }
-
+*/
     }
 
     public int getStartCount ()
@@ -367,7 +395,7 @@ public class WordCountProgressTimer
         return this.wordCount;
 
     }
-
+/*
     public void stop ()
     {
 
@@ -376,11 +404,13 @@ public class WordCountProgressTimer
 
             this.timer.cancel (true);
             this.timer = null;
+            this.stateProp.setValue (State.stopped);
 
         }
 
     }
-
+*/
+/*
     public void start (int mins,
                        int words)
     {
@@ -418,5 +448,5 @@ public class WordCountProgressTimer
         }
 
     }
-
+*/
 }

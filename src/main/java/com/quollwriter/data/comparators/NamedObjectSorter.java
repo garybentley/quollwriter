@@ -142,8 +142,25 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
         if (!o1.getObjectType ().equals (o2.getObjectType ()))
         {
 
-            int o1k = this.objectTypeOrder.get (o1.getObjectType ());
-            int o2k = this.objectTypeOrder.get (o2.getObjectType ());
+            Integer _o1k = this.objectTypeOrder.get (o1.getObjectType ());
+            Integer _o2k = this.objectTypeOrder.get (o2.getObjectType ());
+
+            int o1k = 0;
+            int o2k = 0;
+
+            if (_o1k != null)
+            {
+
+                o1k = _o1k.intValue ();
+
+            }
+
+            if (_o2k != null)
+            {
+
+                o2k = _o2k.intValue ();
+
+            }
 
             return o1k - o2k;
 

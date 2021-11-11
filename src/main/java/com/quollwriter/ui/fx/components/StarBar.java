@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.*;
 import javafx.scene.image.*;
+import javafx.geometry.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -46,6 +47,15 @@ public class StarBar extends HBox
 
         });
 
+        this.addEventHandler (MouseEvent.MOUSE_EXITED,
+                              ev ->
+        {
+
+            this.setTempValue (0);
+            this.setValue (this.valueProp.getValue ());
+
+        });
+
         this.setValue (b.value);
 
     }
@@ -76,8 +86,8 @@ public class StarBar extends HBox
                              ev ->
         {
 
-            this.setTempValue (0);
-            this.setValue (this.valueProp.getValue ());
+            //this.setTempValue (0);
+            //this.setValue (this.valueProp.getValue ());
 
         });
 

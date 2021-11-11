@@ -53,6 +53,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
         public static final String objectType = "objectType";
         public static final String count = "count";
         public static final String match = "match";
+        public static final String asset = "asset";
 
     }
 
@@ -61,12 +62,17 @@ public class ItemAchievementRule extends AbstractAchievementRule
     private ObjectMatch match = null;
     private int count = 0;
     private Class objClass = null;
+    private boolean asset = false;
 
     public ItemAchievementRule (Element root)
                                 throws  GeneralException
     {
 
         super (root);
+
+        this.asset = DOM4JUtils.attributeValueAsBoolean (root,
+                                                         XMLConstants.asset,
+                                                         false);
 
         this.objType = DOM4JUtils.attributeValue (root,
                                                     XMLConstants.objectType,
@@ -92,7 +98,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
         if (act != null)
         {
 
-            this.eventIds.add (this.objType + "." + act.toLowerCase ());
+            this.eventIds.add ((this.asset ? "asset" : this.objType) + "." + act.toLowerCase ());
 
         }
 
@@ -109,7 +115,7 @@ public class ItemAchievementRule extends AbstractAchievementRule
             while (t.hasMoreTokens ())
             {
 
-                this.eventIds.add (this.objType + t.nextToken ().toLowerCase ());
+                this.eventIds.add ((this.asset ? "asset" : this.objType) + t.nextToken ().toLowerCase ());
 
             }
 
@@ -160,8 +166,49 @@ public class ItemAchievementRule extends AbstractAchievementRule
                              throws                Exception
     {
 
-        // Get all the objects of the required type.
-        Set<NamedObject> objs = viewer.getProject ().getAllNamedChildObjects (this.objClass);
+        Set<NamedObject> objs = new HashSet<> ();
+
+        if (this.asset)
+        {
+
+            Set<UserConfigurableObjectType> types = viewer.getProject ().getAssetTypes ();
+
+            for (UserConfigurableObjectType t : types)
+            {
+
+                // This only applies to legacy types.
+                if ((t.isAssetObjectType ())
+                    &&
+                    (t.isLegacyObjectType ())
+                    &&
+                    (t.getUserObjectType ().equals (this.objType))
+                   )
+                {
+
+                    viewer.getProject ().getAssets (t).stream ()
+                        .forEach (o ->
+                        {
+
+                            objs.add (o);
+
+                        });
+                    break;
+
+                }
+            }
+
+        } else {
+
+            // Get all the objects of the required type.
+            viewer.getProject ().getAllNamedChildObjects (this.objClass).stream ()
+                .forEach (o ->
+                {
+
+                    objs.add (o);
+
+                });
+
+        }
 
         int c = objs.size ();
 

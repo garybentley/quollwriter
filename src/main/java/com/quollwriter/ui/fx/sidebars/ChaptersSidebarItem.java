@@ -462,35 +462,35 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         l.setIconClassName (StyleClassNames.CHAPTER);
 
-                        if (c.getEditPosition () > 0)
+                        l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
+                        l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, false);
+
+                        if ((c.getEditPosition () > 0)
+                            &&
+                            (UserProperties.showEditPositionIconInChapterListProperty ().getValue ())
+                            &&
+                            (!c.isEditComplete ())
+                           )
                         {
 
                             l.setIconClassName (StyleClassNames.EDITPOSITION);
+                            l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, true);
 
                         }
 
-                        if (c.isEditComplete ())
+                        if ((c.isEditComplete ())
+                            &&
+                            (UserProperties.showEditCompleteIconInChapterListProperty ().getValue ())
+                           )
                         {
 
                             l.setIconClassName (StyleClassNames.EDITCOMPLETE);
+                            l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, true);
+                            l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
 
                         }
 
                     };
-
-                    if (!c.isEditComplete () && c.getEditPosition () > 0)
-                    {
-
-                        l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, true);
-
-                    }
-
-                    if (c.isEditComplete ())
-                    {
-
-                        l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, true);
-
-                    }
 
                     UIUtils.runLater (setIcon);
 
@@ -498,90 +498,24 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                                             (pr, oldv, newv) ->
                     {
 
-                        l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
-
-                        if ((newv)
-                            &&
-                            (c.getEditPosition () > -1)
-                           )
-                        {
-
-                            l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, true);
-
-                        }
-
                         UIUtils.runLater (setIcon);
 
                     });
 
                     this.addChangeListener (c.editPositionProperty (),
-                                            (pr, oldv, newv) ->
-                    {
-
-                        if (UserProperties.getAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME))
-                        {
-
-                            if (!c.isEditComplete ())
-                            {
-
-                                l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, newv.intValue () > 0);
-
-
-                            }
-
-                        } else {
-
-                            l.pseudoClassStateChanged (StyleClassNames.EDITPOSITION_PSEUDO_CLASS, false);
-
-                        }
-
-                        UIUtils.runLater (setIcon);
-
-                    });
+                                            (pr, oldv, newv) -> UIUtils.runLater (setIcon));
 
                     this.addChangeListener (UserProperties.showEditCompleteIconInChapterListProperty (),
                                             (pr, oldv, newv) ->
                     {
 
-                        l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, false);
-
-                        if ((newv)
-                            &&
-                            (c.isEditComplete ())
-                           )
-                        {
-
-                            l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, true);
-
-                        }
-
-                        if (newv)
-                        {
-
-                            UIUtils.runLater (setIcon);
-
-                        } else {
-
-                            l.setIconClassName (StyleClassNames.CHAPTER);
-
-                        }
+                        UIUtils.runLater (setIcon);
 
                     });
 
                     this.addChangeListener (c.editCompleteProperty (),
                                             (pr, oldv, newv) ->
                     {
-
-                        if (UserProperties.getAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME))
-                        {
-
-                            l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, newv);
-
-                        } else {
-
-                            l.pseudoClassStateChanged (StyleClassNames.EDITCOMPLETE_PSEUDO_CLASS, false);
-
-                        }
 
                         UIUtils.runLater (setIcon);
 

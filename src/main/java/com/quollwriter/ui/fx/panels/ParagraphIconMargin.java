@@ -867,7 +867,10 @@ xxx
 
             ChapterItem ci = (ChapterItem) t.getUserData ();
 
-            if (ci.getKey () < 0)
+            if ((ci == null)
+                ||
+                (ci.getKey () < 0)
+               )
             {
 
                 continue;

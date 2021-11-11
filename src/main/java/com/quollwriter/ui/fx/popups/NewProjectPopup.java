@@ -58,11 +58,17 @@ public class NewProjectPopup extends PopupContent
             .removeOnClose (true)
             .build ();
 
-        UIUtils.forceRunLater (() ->
+        p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
+                           ev ->
         {
 
-            this.projPanel.requestFocus ();
+            UIUtils.forceRunLater (() ->
+            {
 
+                this.projPanel.requestFocus ();
+
+            });
+            
         });
 
         return p;

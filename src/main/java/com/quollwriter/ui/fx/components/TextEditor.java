@@ -2965,7 +2965,7 @@ System.out.println ("HEREZ: " + cb);
 
                 } else {
 
-                    ps = 1 * this.fontSize;
+                    //ps = 1 * this.fontSize;
 
                 }
 

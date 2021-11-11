@@ -205,7 +205,7 @@
     <description>Add 5 {Scenes}.</description>
   </item>
 
-  <item id="addplotoutlineitem1" category="project" type="item" icon="outlineitem" objectType="outlineitem" count="1" action="new">
+  <item id="addplotoutlineitem1" category="project" type="item" icon="outlineitem" objectType="outlineitem" action="new">
     <name>So that's where it is</name>
     <description>Add a {Outlineitem}.</description>
   </item>
@@ -215,7 +215,7 @@
     <description>Add 5 {Outlineitems}.</description>
   </item>
 
-  <item id="addidea" category="project" type="item" icon="idea" objectType="idea" count="1" action="new">
+  <item id="addidea" category="project" type="item" icon="idea" objectType="idea" action="new">
     <name>The Apple falls</name>
     <description>Add an {Idea}.</description>
   </item>
@@ -235,7 +235,7 @@
     <description>Add 20 {Ideas}.</description>
   </item>
 
-  <item id="addideatype" category="project" type="item" icon="idea" objectType="ideatype" count="1" action="new">
+  <item id="addideatype" category="project" type="item" icon="idea" objectType="ideatype" action="new">
     <name>Call the Patent Office</name>
     <description>Add a new type of {Idea}.</description>
   </item>
@@ -250,47 +250,47 @@
     <description>Rate your ideas.</description>
   </item>
 
-  <item id="addlocation" category="project" type="item" icon="location" objectType="location" count="1" action="new">
+  <item id="addlocation" category="project" type="item" icon="location" count="1" asset="true" objectType="location" action="new">
     <name>Home sweet home</name>
     <description>Add {Location}.</description>
   </item>
 
-  <item id="addlocation5" category="project" type="item" icon="location" objectType="location" count="5" action="new">
+  <item id="addlocation5" category="project" type="item" icon="location" asset="true" objectType="location" count="5" action="new">
     <name>Building the world</name>
     <description>Add 5 {Locations}.</description>
   </item>
 
-  <item id="addlocation10" category="project" type="item" icon="location" objectType="location" count="10" action="new">
+  <item id="addlocation10" category="project" type="item" icon="location" asset="true" objectType="location" count="10" action="new">
     <name>Gonna need a map</name>
     <description>Add 10 {Locations}.</description>
   </item>
 
-  <item id="addlocation20" category="project" type="item" icon="location" objectType="location" count="20" action="new">
+  <item id="addlocation20" category="project" type="item" icon="location" asset="true" objectType="location" count="20" action="new">
     <name>All your base are belong to us</name>
     <description>Add 20 {Locations}.</description>
   </item>
 
-  <item id="addcharacter" category="project" type="item" icon="character" objectType="character" count="1" action="new">
+  <item id="addcharacter" category="project" type="item" icon="character" asset="true" objectType="character" action="new">
     <name>The name's Smith, probably</name>
     <description>Add a {Character}.</description>
   </item>
 
-  <item id="addcharacter5" category="project" type="item" icon="character" objectType="character" count="5" action="new">
+  <item id="addcharacter5" category="project" type="item" icon="character" asset="true" objectType="character" count="5" action="new">
     <name>Quartet plus one</name>
     <description>Add 5 {Characters}.</description>
   </item>
 
-  <item id="addcharacter10" category="project" type="item" icon="character" objectType="character" count="10" action="new">
+  <item id="addcharacter10" category="project" type="item" icon="character" asset="true" objectType="character" count="10" action="new">
     <name>I'm sorry I've completely forgotten your name</name>
     <description>Add 10 {Characters}.</description>
   </item>
 
-  <item id="addobject5" category="project" type="item" icon="object" objectType="object" count="5" action="new">
+  <item id="addobject5" category="project" type="item" icon="object" asset="true" objectType="object" count="5" action="new">
     <name>Itemized</name>
     <description>Add 5 {Objects}.</description>
   </item>
 
-  <item id="addobject10" category="project" type="item" icon="object" objectType="object" count="10" action="new">
+  <item id="addobject10" category="project" type="item" icon="object" asset="true" objectType="object" count="10" action="new">
     <name>All the things</name>
     <description>Add 10 {Characters}.</description>
   </item>
@@ -380,7 +380,7 @@
     <description>Write in full screen mode.</description>
   </item>
 
-  <item id="addnote" category="project" type="item" icon="note" objectType="note" count="1" action="new">
+  <item id="addnote" category="project" type="item" icon="note" objectType="note" action="new">
     <name>So noted</name>
     <description>Add a note.</description>
     <match accessor="editNeeded"
@@ -462,7 +462,7 @@
            value="To Do" />
   </item>
 
-  <item id="addresearchitem" category="project" icon="researchitem" type="item" objectType="researchitem" action="new">
+  <item id="addresearchitem" category="project" icon="researchitem" type="item" asset="true" objectType="researchitem" action="new">
     <name>Backed up with facts</name>
     <description>Create a {Research Item}.</description>
   </item>

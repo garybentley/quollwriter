@@ -1720,7 +1720,14 @@ TODO
             //this.getParagraphIconMargin (item).removeItem (item);
             this.newItems.remove (item);
 
-            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+            int ind = this.editor.getParagraphForOffset (item.getPosition ());
+
+            if (ind > -1)
+            {
+
+                this.editor.recreateParagraphGraphic (ind);
+
+            }
 
         });
 

@@ -1214,12 +1214,17 @@ TODO Improve
 
                                          }
 
-                                         this.close (false,
-                                                     () ->
+                                         UIUtils.runLater (() ->
                                          {
 
-                                             this.showMessage ("Strings deleted",
-                                                               "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
+                                             this.close (false,
+                                                         () ->
+                                             {
+
+                                                 this.showMessage ("Strings deleted",
+                                                                   "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
+
+                                            });
 
                                         });
 

@@ -3600,6 +3600,8 @@ TODO Not needed, is a function of the sidebar itself...
 
         this.getViewer ().setFullScreen (false);
         this.inFullScreenModeProp.setValue (false);
+
+        EditorsEnvironment.fullScreenExited ();        
         this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
                                     ProjectEvent.Action.exit);
 
@@ -3655,6 +3657,8 @@ TODO Not needed, is a function of the sidebar itself...
 
         this.fullScreenContent.setVisible (true);
         this.inFullScreenModeProp.setValue (true);
+
+        EditorsEnvironment.fullScreenEntered ();
 
         this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
                                     ProjectEvent.Action.enter);

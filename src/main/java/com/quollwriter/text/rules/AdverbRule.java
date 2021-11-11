@@ -208,7 +208,8 @@ public class AdverbRule extends AbstractSentenceRule
 
                         Environment.logError ("Unable to check for word: " +
                                               nw +
-                                              " being an adverb.");
+                                              " being an adverb.",
+                                              e);
 
                     }
 

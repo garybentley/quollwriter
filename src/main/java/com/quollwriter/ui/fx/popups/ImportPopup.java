@@ -719,8 +719,6 @@ TODO?
 
                 }
 
-                pj.init (null);
-
                 pj.createActionLogEntry (pj.getProject (),
                                          "Project imported from: " +
                                          this.fileFind.getFile ());

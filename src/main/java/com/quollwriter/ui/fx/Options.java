@@ -897,7 +897,7 @@ public class Options extends VBox implements Stateful
 
             }
 
-            defLang.setSelected (def.equals (lang));
+            //defLang.setSelected (def.equals (lang));
 
             if (this.viewer instanceof AbstractProjectViewer)
             {
@@ -905,6 +905,17 @@ public class Options extends VBox implements Stateful
                 AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
 
                 def = pv.getProjectSpellCheckLanguage ();
+
+            }
+
+            if (!def.equals (lang))
+            {
+
+                defLang.setSelected (false);
+
+            } else {
+
+                defLang.setSelected (true);
 
             }
 
@@ -1108,7 +1119,7 @@ public class Options extends VBox implements Stateful
 
                 boolean isDef = def.equals (spellcheckLang.valueProperty ().getValue ());
 
-                defLang.setSelected (isDef);
+                //defLang.setSelected (isDef);
 
             });
 
@@ -1474,29 +1485,31 @@ public class Options extends VBox implements Stateful
 
         QuollButton projDirChangeB = QuollButton.builder ()
             .label (options,projectandbackup,labels,selectprojectdir,finder,label)
-            .onAction (ev ->
+            .build ();
+        projDirChangeB.setOnAction (ev ->
+        {
+
+            this.handleProjectDirChange (projDirF.getFile (),
+                                         pv,
+                                         err ->
             {
 
-                this.handleProjectDirChange (projDirF.getFile (),
-                                             pv,
-                                             err ->
+                if (err != null)
                 {
 
-                    if (err != null)
-                    {
+                    projDirErr.setErrors (err);
+                    projDirErr.setVisible (true);
 
-                        projDirErr.setErrors (err);
-                        projDirErr.setVisible (true);
+                }
 
-                    }
+                // Reset the project dir, something went wrong.
+                projDirF.setFile (proj.getProjectDirectory ().getParentFile ().toPath ());
 
-                    // Reset the project dir, something went wrong.
-                    projDirF.setFile (proj.getProjectDirectory ().getParentFile ().toPath ());
+            });
 
-                });
+            projDirChangeB.setDisable (true);
 
-            })
-            .build ();
+        });
         projDirChangeB.setDisable (true);
 
         projDirF.fileProperty ().addListener ((pr, oldv, newv) ->
@@ -1798,7 +1811,7 @@ public class Options extends VBox implements Stateful
         QuollFileField projBackupDirF = QuollFileField.builder ()
             .chooserTitle (getUILanguageStringProperty (options,projectandbackup,labels,selectbackupdir,finder,title))
             .limitTo (QuollFileField.Type.directory)
-            .initialFile (backupDir.getParent ())
+            .initialFile (backupDir)
             .withViewer (viewer)
             .build ();
 
@@ -2837,8 +2850,13 @@ public class Options extends VBox implements Stateful
 
                         String iconName = item.getType ();
 
+                        IconBox ib = IconBox.builder ()
+                            .iconName (iconName)
+                            .build ();
+                        this.setGraphic (ib);
+
                         this.textProperty ().bind (getUILanguageStringProperty (editors,LanguageStrings.statuses,item.getType ()));
-                        this.getStyleClass ().add (Constants.ONLINE_STATUS_ICON_NAME_PREFIX + iconName);
+                        //this.getStyleClass ().add (Constants.ONLINE_STATUS_ICON_NAME_PREFIX + iconName);
 
                     }
 

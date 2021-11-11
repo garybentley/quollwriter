@@ -259,17 +259,28 @@ public class BackgroundObject
 
         Image im = new Image (s);
         this.bgImage = id;
-        this.bg = new Background (new BackgroundImage (im,
-                                                       BackgroundRepeat.NO_REPEAT,
-                                                       BackgroundRepeat.NO_REPEAT,
-                                                       null,
-                                                       new BackgroundSize (100, 100, true, true, true, true)));
-/*
-                                                       null,
-                                                       null,
-                                                       null,
-                                                       null));
-*/
+
+        // These shouldn't be stretched.
+        if (id.startsWith ("_1-"))
+        {
+
+            this.bg = new Background (new BackgroundImage (im,
+                                                           BackgroundRepeat.NO_REPEAT,
+                                                           BackgroundRepeat.NO_REPEAT,
+                                                           null,
+                                                           new BackgroundSize (100, 100, true, true, true, true)));
+
+        } else {
+
+            this.bg = new Background (new BackgroundImage (im,
+                                                           BackgroundRepeat.REPEAT,
+                                                           BackgroundRepeat.REPEAT,
+                                                           null,
+                                                           BackgroundSize.DEFAULT));
+                                                           //new BackgroundSize (100, 100, true, true, true, true)));
+
+        }
+
         this.bgProp.setValue (this.bg);
 
     }
@@ -319,6 +330,28 @@ public class BackgroundObject
 
             }
 
+        }
+
+        if (id.equals ("file:"))
+        {
+
+            return null;
+
+        }
+
+        if (id.startsWith ("file:"))
+        {
+
+            id = id.substring ("file:".length ());
+/*
+            StringBuffer _id = new StringBuffer (id);
+
+            _id = _id.replace (0,
+                             "file:C:\\".length (),
+                             "file:\\\\:C:\\");
+
+            id = _id.toString ();
+*/
         }
 
         Path path = Paths.get (id);

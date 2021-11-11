@@ -26,13 +26,12 @@ public class WordCountTimerButton extends HBox
     private AbstractProjectViewer viewer = null;
     private Runnable onMinutesComplete = null;
     private Runnable onWordsComplete = null;
-    private int words = 0;
-    private int mins = 0;
 
     private WordCountTimerButton (Builder b)
     {
 
         this.viewer = b.viewer;
+        this.wctimer = b.timer;
         this.onMinutesComplete = b.onMinutesComplete;
         this.onWordsComplete = b.onWordsComplete;
 
@@ -51,12 +50,37 @@ public class WordCountTimerButton extends HBox
 
         }
 
+        ControllableProgressBar.State ps = ControllableProgressBar.State.stopped;
+
+        if (this.wctimer.stateProperty ().getValue () == WordCountProgressTimer.State.playing)
+        {
+
+            ps = ControllableProgressBar.State.playing;
+
+        }
+
+        if (this.wctimer.stateProperty ().getValue () == WordCountProgressTimer.State.paused)
+        {
+
+            ps = ControllableProgressBar.State.paused;
+
+        }
+
+        if (this.wctimer.stateProperty ().getValue () == WordCountProgressTimer.State.canceled)
+        {
+
+            ps = ControllableProgressBar.State.canceled;
+
+        }
+
         this.timerProgress = ControllableProgressBar.builder ()
             .allowStop (false)
             .allowPause (true)
             .allowReset (false)
             .allowPlay (true)
             .styleClassName (StyleClassNames.PROGRESS)
+            .initState (ps)
+            .timer (this.wctimer)
             .build ();
         this.timerProgress.managedProperty ().bind (this.timerProgress.visibleProperty ());
         this.timerProgress.setVisible (false);
@@ -72,12 +96,12 @@ public class WordCountTimerButton extends HBox
 
                    UIUtils.runLater (() ->
                    {
-
+/*
                        this.viewer.showNotificationPopup (getUILanguageStringProperty (timer,complete,time,popup,title),
                                                           getUILanguageStringProperty (Arrays.asList (timer,complete,time,popup,text),
-                                                                                       Environment.formatNumber (mins)),
+                                                                                       Environment.formatNumber (this.wctimer.getMinutes ())),
                                                           30);
-
+*/
                        UIUtils.runLater (this.onMinutesComplete);
 
                        this.reset ();
@@ -91,12 +115,12 @@ public class WordCountTimerButton extends HBox
 
                    UIUtils.runLater (() ->
                    {
-
+/*
                        this.viewer.showNotificationPopup (getUILanguageStringProperty (timer,complete,LanguageStrings.words,popup,title),
                                                           getUILanguageStringProperty (Arrays.asList (timer,complete,LanguageStrings.words,popup,text),
-                                                                                       Environment.formatNumber (words)),
+                                                                                       Environment.formatNumber (this.wctimer.getWords ())),
                                                           30);
-
+*/
                        UIUtils.runLater (this.onWordsComplete);
 
                        this.reset ();
@@ -106,6 +130,71 @@ public class WordCountTimerButton extends HBox
                }
 
           }
+
+        });
+
+        this.wctimer.progressProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UIUtils.runLater (() ->
+            {
+
+                if (newv.doubleValue () > 0)
+                {
+
+                    this.timerProgress.setVisible (true);
+                    this.timerBut.setVisible (false);
+
+                }
+
+                this.timerProgress.getProgressBar ().setProgress (newv.doubleValue ());
+
+            });
+
+        });
+
+        this.wctimer.tooltipProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            UIUtils.runLater (() ->
+            {
+
+                UIUtils.setTooltip (this.timerProgress,
+                                    new SimpleStringProperty (newv));
+
+            });
+
+        });
+
+
+        this.wctimer.stateProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            ControllableProgressBar.State _ps = ControllableProgressBar.State.stopped;
+
+            if (newv == WordCountProgressTimer.State.playing)
+            {
+
+                _ps = ControllableProgressBar.State.playing;
+
+            }
+
+            if (newv == WordCountProgressTimer.State.paused)
+            {
+
+                _ps = ControllableProgressBar.State.paused;
+
+            }
+
+            if (newv == WordCountProgressTimer.State.canceled)
+            {
+
+                _ps = ControllableProgressBar.State.canceled;
+
+            }
+
+            // TODO Fix.
+            this.timerProgress.stateProperty ().setValue (_ps);
 
         });
 
@@ -180,19 +269,27 @@ public class WordCountTimerButton extends HBox
 
         this.getChildren ().addAll (this.timerBut, this.timerProgress);
 
+        if (this.wctimer.stateProperty ().getValue () == WordCountProgressTimer.State.playing)
+        {
+
+            this.timerBut.setVisible (false);
+            this.timerProgress.setVisible (true);
+
+        }
+
     }
 
     public int getWords ()
     {
 
-        return this.words;
+        return this.wctimer.getWords ();
 
     }
 
     public int getMins ()
     {
 
-        return this.mins;
+        return this.wctimer.getMinutes ();
 
     }
 
@@ -202,7 +299,7 @@ public class WordCountTimerButton extends HBox
         if (this.wctimer != null)
         {
 
-            this.wctimer.stop ();
+            this.wctimer.stopTimer ();
 
         }
 
@@ -217,23 +314,27 @@ public class WordCountTimerButton extends HBox
 
         this.timerProgress.setVisible (true);
         this.timerBut.setVisible (false);
-        this.mins = mins;
-        this.words = words;
 
         if (this.wctimer != null)
         {
 
-            this.wctimer.stop ();
+            this.wctimer.stopTimer ();
 
         }
 
         this.timerProgress.stateProperty ().setValue (ControllableProgressBar.State.playing);
         this.timerProgress.setProgress (0.1d);
 
+        this.wctimer.startTimer (mins,
+                                 words);
+
+/*
         this.wctimer = new WordCountProgressTimer (this.viewer,
                                                    mins,
                                                    words,
                                                    this.timerProgress.getProgressBar ());
+*/
+
 
 /*
         this.timerProgress.getProgressBar ().addEventHandler (ContextMenuEvent.CONTEXT_MENU_REQUESTED,
@@ -253,13 +354,14 @@ public class WordCountTimerButton extends HBox
 
         });
 */
+
         this.timerProgress.stateProperty ().addListener ((pr, oldv, newv) ->
         {
 
             if (newv == ControllableProgressBar.State.canceled)
             {
 
-                this.wctimer.stopTimer ();
+                //this.wctimer.stopTimer ();
                 this.timerBut.setVisible (true);
                 this.timerProgress.setVisible (false);
                 return;
@@ -279,7 +381,7 @@ public class WordCountTimerButton extends HBox
             if (newv == ControllableProgressBar.State.stopped)
             {
 
-                this.wctimer.stopTimer ();
+                //this.wctimer.stopTimer ();
                 return;
 
             }
@@ -287,7 +389,8 @@ public class WordCountTimerButton extends HBox
             if (newv == ControllableProgressBar.State.paused)
             {
 
-                this.wctimer.pauseTimer ();
+                //this.wctimer.pauseTimer ();
+                System.out.println ("PAUSED CALLED");
                 return;
 
             }
@@ -295,7 +398,7 @@ public class WordCountTimerButton extends HBox
             if (newv == ControllableProgressBar.State.playing)
             {
 
-                this.wctimer.unpauseTimer ();
+                //this.wctimer.unpauseTimer ();
                 return;
 
             }
@@ -322,6 +425,7 @@ public class WordCountTimerButton extends HBox
         private Runnable onWordsComplete = null;
         private StringProperty buttonTooltip = null;
         private String buttonId = null;
+        private WordCountProgressTimer timer = null;
 
         private Builder ()
         {
@@ -348,6 +452,14 @@ public class WordCountTimerButton extends HBox
         {
 
             this.styleClass = s;
+            return _this ();
+
+        }
+
+        public Builder timer (WordCountProgressTimer t)
+        {
+
+            this.timer = t;
             return _this ();
 
         }

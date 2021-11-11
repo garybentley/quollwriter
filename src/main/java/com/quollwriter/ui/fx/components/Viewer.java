@@ -273,7 +273,11 @@ public class Viewer extends Stage implements Stateful
             });
 
         this.updateUIBaseFontAndSize ();
-
+        /*
+try{
+        this.addStyleSheet (java.nio.file.Paths.get ("d:/development/github/quollwriterv3/test.css").toUri ().toURL ());
+}catch (Exception e) {e.printStackTrace ();}
+*/
         this.setMinWidth (300);
         this.setMinHeight (300);
 

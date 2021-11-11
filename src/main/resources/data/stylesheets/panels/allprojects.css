@@ -128,3 +128,7 @@
     -fx-min-width: 1.24em;
     -fx-max-width: 1.24em;
 }
+.projectslist .menu .noimage-icon
+{
+    visibility: hidden;
+}

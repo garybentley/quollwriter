@@ -116,6 +116,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     private FindSideBar findSideBar = null;
     private Pane fullScreenPanelView = null;
 
+    private WordCountProgressTimer wcTimer = null;
+
     public AbstractProjectViewer ()
     {
 
@@ -151,6 +153,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             }
 
         });
+
+        this.wcTimer = new WordCountProgressTimer (this);
 
         this.spellCheckingEnabledProp = new SimpleBooleanProperty (false);
 
@@ -294,6 +298,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         //this.toolbarWrapper = new VBox ();
 
         this.initActionMappings ();
+
+    }
+
+    public WordCountProgressTimer getWordCountTimer ()
+    {
+
+        return this.wcTimer;
 
     }
 
@@ -1549,6 +1560,13 @@ TODO
 					{
 
 					    ChapterCounts cc = _this.getChapterCounts (c);
+
+                        if (cc == null)
+                        {
+
+                            continue;
+
+                        }
 
 						final Chapter _c = c;
 
@@ -3974,8 +3992,13 @@ TODO REmove
 
                 ChapterCounts cc = this.chapterCounts.get (c);
 
-                this.project.setProperty ("chapter.counts." + c.getKey (),
-                                          cc.getState ().asString ());
+                if (cc != null)
+                {
+
+                    this.project.setProperty ("chapter.counts." + c.getKey (),
+                                              cc.getState ().asString ());
+
+                }
 
             }
 
@@ -4512,6 +4535,8 @@ TODO REmove
                             KeyCode.F1);
         this.addKeyMapping (CommandId.find,
                             KeyCode.F, KeyCombination.SHORTCUT_DOWN);
+        this.addKeyMapping (CommandId.newproject,
+                            KeyCode.N, KeyCombination.SHORTCUT_DOWN);
 
         this.setTitle (this.titleProp);
         this.windowedContent.setTitle (this.titleProp);
@@ -4569,20 +4594,11 @@ TODO REmove
             return WordCountTimerButton.builder ()
                 .inViewer (this)
                 .buttonId (HeaderControlButtonIds.timer)
+                .timer (this.wcTimer)
                 .build ();
 
         }
-/*
-        if (control == HeaderControl.wordcounttimer)
-        {
 
-            return WordCountTimerButton.builder ()
-                .inViewer (this)
-                //.buttonId (HeaderControlButtonIds.wordcounttimer)
-                .build ();
-
-        }
-*/
         return super.getTitleHeaderControl (control);
 
     }

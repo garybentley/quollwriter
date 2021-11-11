@@ -40,6 +40,7 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
 
         String showMain = "showMain";
         String openproject = "openproject";
+        String textproperties = "textproperties";
 
     }
 
@@ -357,6 +358,8 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
         this.addSideBar (this.finder);
 */
 
+        this.initActionMappings ();
+
     }
 
     public AbstractLanguageStringsEditor (U userStrings,
@@ -376,6 +379,29 @@ public abstract class AbstractLanguageStringsEditor<B extends AbstractLanguageSt
                                                        this.baseStrings);
 
         this.cards = new StackPane ();
+
+        this.initActionMappings ();
+
+    }
+
+    private void initActionMappings ()
+    {
+
+        this.addActionMapping (() ->
+        {
+
+            // Just ignore...
+
+        },
+        CommandId.fullscreen);
+
+        this.addActionMapping (() ->
+        {
+
+            // Just ignore...
+
+        },
+        CommandId.textproperties);
 
     }
 

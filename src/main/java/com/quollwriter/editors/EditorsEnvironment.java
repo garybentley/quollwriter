@@ -3243,7 +3243,6 @@ TODO Remove
             if (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_SET_BUSY_ON_FULL_SCREEN_ENTERED_PROPERTY_NAME))
             {
 
-
                 // Get the current status, if it's not "busy" then change it to busy.
                 if (EditorsEnvironment.getUserOnlineStatus () != EditorEditor.OnlineStatus.busy)
                 {

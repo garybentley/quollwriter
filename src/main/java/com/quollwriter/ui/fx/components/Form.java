@@ -329,9 +329,14 @@ public class Form extends VBox
     public void showLoading (StringProperty l)
     {
 
-        this.loading.textProperty ().unbind ();
-        this.loading.textProperty ().bind (l);
-        this.loading.setVisible (true);
+        UIUtils.runLater (() ->
+        {
+
+            this.loading.textProperty ().unbind ();
+            this.loading.textProperty ().bind (l);
+            this.loading.setVisible (true);
+
+        });
 
     }
 
@@ -345,8 +350,13 @@ public class Form extends VBox
     public void showErrors (Set<StringProperty> errs)
     {
 
-        this.errorBox.setErrors (errs);
-        this.errorBox.setVisible (true);
+        UIUtils.runLater (() ->
+        {
+
+            this.errorBox.setErrors (errs);
+            this.errorBox.setVisible (true);
+
+        });
 
     }
 

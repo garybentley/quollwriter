@@ -810,6 +810,9 @@ TODO
             .iconName (StyleClassNames.STATISTICS)
             .build ());
 
+        this.viewer.fireProjectEvent (ProjectEvent.Type.wordcounts,
+                                      ProjectEvent.Action.show);
+
         return SideBar.builder ()
             .title (title)
             .activeTitle (title)

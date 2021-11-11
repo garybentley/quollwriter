@@ -1688,26 +1688,6 @@ TODO
             try
             {
 
-/*
-REMOVE
-                fpv.addEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                                    (ev ->
-                                    {
-xxx
-                                        Project proj = fpv.getProject ();
-
-                                        ProjectInfo pi = Environment.getProjectInfo (fpv.getProject ().getId (),
-                                                                                     fpv.getProject ().getType ());
-System.out.println ("PI: " + pi + ", " + proj.getName ());
-                                        if (pi != null)
-                                        {
-
-                                            Environment.openProjects.remove (pi);
-
-                                        }
-
-                                    }));
-*/
                 Viewer v = fpv.createViewer ();
 
                 fpv.openProject (p,
@@ -1715,6 +1695,18 @@ System.out.println ("PI: " + pi + ", " + proj.getName ());
                                  onProjectOpen);
 
                 Environment.addOpenedProject (fpv);
+
+                if (!UserProperties.keepProjectsWindowWhenProjectOpenedProperty ().getValue ())
+                {
+
+                    if (Environment.allProjectsViewer != null)
+                    {
+
+                        Environment.allProjectsViewer.close (null);
+
+                    }
+
+                }
 
             } catch (Exception e) {
 
@@ -1749,8 +1741,6 @@ System.out.println ("PI: " + pi + ", " + proj.getName ());
 
                 Environment.logError ("Unable to open project: " + p,
                                       e);
-
-                Environment.showAllProjectsViewer ();
 
                 ComponentUtils.showErrorMessage (Environment.getFocusedViewer (),
                                                  getUILanguageStringProperty (Arrays.asList (project,actions,openproject,openerrors,general),
@@ -2849,6 +2839,10 @@ TODO NEeded?
 
     }
 
+    /**
+     * TODO: Remove, causes an inifinite loop since it is asking for the names from the user file anyway...
+     */
+    @Deprecated
     public static void resetObjectTypeNamesToDefaults ()
                                                 throws IOException
     {
@@ -2877,7 +2871,6 @@ TODO NEeded?
         otf = Environment.getUserPath (Constants.LEGACY_OBJECT_TYPE_NAMES_FILE_NAME);
 
         Files.deleteIfExists (otf);
-
         Environment.loadUserConfigurableObjectTypeNames ();
 
         // Load the
@@ -3526,8 +3519,6 @@ xxx
             try
             {
 
-
-
                 prov.init (language);
 
             } catch (Exception e) {
@@ -3556,51 +3547,7 @@ xxx
                                          Runnable       afterUnregister)
     {
 
-        Environment.openViewers.remove (v);
-
-        if (Environment.openProjects.size () == 0)
-        {
-
-            if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
-            {
-
-                Environment.showAllProjectsViewer ();
-
-                return;
-
-            }
-
-            if ((Environment.allProjectsViewer != null)
-                &&
-                (Environment.allProjectsViewer.isVisible ())
-               )
-            {
-
-                return;
-
-            }
-
-            Environment.closeDown ();
-
-            return;
-
-        }
-
-        if (afterUnregister != null)
-        {
-
-            UIUtils.runLater (afterUnregister);
-
-            return;
-
-        }
-
-        if (Environment.openViewers.size () == 0)
-        {
-
-            Environment.closeDown ();
-
-        }
+        // TODO Remove
 
     }
 
@@ -3621,7 +3568,17 @@ xxx
 
                 Environment.openViewers.remove (v);
 
-                if (Environment.openProjects.size () == 0)
+                int ops = Environment.openProjects.size ();
+
+                // Have to do it this way because we can't predict the ordering that event handlers are called.
+                if (Environment.openProjects.values ().contains (v))
+                {
+
+                    ops--;
+
+                }
+
+                if (ops <= 0)
                 {
 
                     if ((v != Environment.allProjectsViewer)
@@ -5625,7 +5582,18 @@ TODO: IS THIS NEEDED?
     public static boolean isInFullScreen ()
     {
 
-        // TODO
+        for (AbstractViewer v : Environment.openViewers)
+        {
+
+            if (v.isInFullScreenMode ())
+            {
+
+                return true;
+
+            }
+
+        }
+
         return false;
 
     }

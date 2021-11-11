@@ -63,7 +63,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
     private IPropertyBinder propertyBinder = null;
     private boolean ignoreChange = false;
 
-    private ControllableProgressBar timerProgress = null;
+    //private ControllableProgressBar timerProgress = null;
     //private WordCountProgressTimer wctimer = null;
     private boolean allowHeaderHide = true;
 
@@ -222,6 +222,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             .inViewer (this.viewer)
             .buttonTooltip (getUILanguageStringProperty (fullscreen,title,toolbar,buttons,timer,tooltip))
             .buttonId ("timer")
+            .timer (this.viewer.getWordCountTimer ())
             .onMinutesComplete (() ->
             {
 
@@ -412,7 +413,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.openproject));
 
         controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.newproject));
-
+/*
         this.timerProgress = ControllableProgressBar.builder ()
             .allowStop (false)
             .allowPause (true)
@@ -422,6 +423,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             .build ();
         this.timerProgress.managedProperty ().bind (this.timerProgress.visibleProperty ());
         this.timerProgress.setVisible (false);
+*/
         // TODO tb.getItems ().add (this.timerProgress);
 
 /*
@@ -1382,7 +1384,7 @@ TODO
 
         this.updater.cancel (true);
 
-        this.wcTimerBut.reset ();
+        //this.wcTimerBut.reset ();
 
         this.viewer.exitFullScreen ();
 

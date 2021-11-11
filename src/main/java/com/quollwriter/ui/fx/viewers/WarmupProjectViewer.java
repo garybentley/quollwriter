@@ -37,6 +37,7 @@ public class WarmupProjectViewer extends AbstractProjectViewer
         String convertwarmuptoproject = "convertwarmuptoproject";
         String renamewarmup = "renamewarmup";
         String deletewarmup = "deletewarmup";
+        String deletechapter = "deletechapter";
 
     }
 
@@ -761,7 +762,8 @@ public class WarmupProjectViewer extends AbstractProjectViewer
             this.deleteWarmup (w);
 
         },
-        CommandId.deletewarmup));
+        CommandId.deletewarmup,
+        CommandId.deletechapter));
 
     }
 

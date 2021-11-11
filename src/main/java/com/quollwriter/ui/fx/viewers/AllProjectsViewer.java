@@ -631,6 +631,9 @@ public class AllProjectsViewer extends AbstractViewer
 
         super.init (s);
 
+        this.addKeyMapping (CommandId.newproject,
+                            KeyCode.N, KeyCombination.SHORTCUT_DOWN);
+
         this.state = s;
 
     }

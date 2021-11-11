@@ -93,7 +93,7 @@ public abstract class ProjectObjectsSidebarItem<E extends AbstractProjectViewer>
             IntegerProperty itemCount = this.getItemCount ();
 
             SimpleStringProperty t = new SimpleStringProperty ();
-            t.bind (Bindings.createStringBinding (() ->
+            t.bind (UILanguageStringsManager.createStringBinding (() ->
             {
 
                 return String.format (tt,

@@ -413,52 +413,27 @@ public class ProjectsPanel<E extends AbstractViewer> extends PanelContent<E>
     private void showDeleteProject (final ProjectInfo    p)
     {
 
-        // TODO
-/*
-        final Landing _this = this;
-
-        final AbstractProjectViewer viewer = null; // TODO Environment.getProjectViewer (p);
+        final AbstractProjectViewer viewer = Environment.getProjectViewer (p);
 
         if (viewer != null)
         {
 
-            java.util.List<String> prefix = new ArrayList<> ();
-            prefix.add (LanguageStrings.project);
-            prefix.add (LanguageStrings.actions);
-            prefix.add (LanguageStrings.deleteproject);
-            prefix.add (LanguageStrings.projectopen);
-
-			UIUtils.showMessage (this,
-								 Environment.getUIString (prefix,
-                                                          LanguageStrings.title),
-                                //"{Project} already open",
-								 String.format (Environment.getUIString (prefix,
-                                                                         LanguageStrings.text),
-                                                //"<b>%s</b> is currently already open in a window.  Please delete the {project} from that window or close the {project} then delete it from here.",
-												p.getName ()),
-								 null,
-								 new ActionListener ()
-								 {
-
-									@Override
-									public void actionPerformed (ActionEvent ev)
-									{
-
-										viewer.setExtendedState (JFrame.NORMAL);
-										viewer.toFront ();
-
-									}
-
-								 });
+            QuollPopup.messageBuilder ()
+                .title (project,actions,deleteproject,projectopen,title)
+                .message (getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,projectopen,text),
+                                                       p.getName ()))
+                .withViewer (this.viewer)
+                .closeButton ()
+                .build ();
 
 			return;
 
         }
 
-		new DeleteProjectActionHandler (this,
-										p,
-										onDelete).actionPerformed (new ActionEvent (this, 0, "delete"));
-*/
+        UIUtils.showDeleteProjectPopup (p,
+                                        null,
+                                        this.getViewer ());
+
     }
 
     private void deleteProject (ProjectInfo p)
@@ -1184,10 +1159,13 @@ TODO
                         .onAction (ev ->
                         {
 
+                            _this.parent.showDeleteProject (_this.project);
+/*
+TODO Remove
                             UIUtils.showDeleteProjectPopup (_this.project,
                                                             null,
                                                             _this.parent.getViewer ());
-
+*/
                         })
                         .build ());
 

@@ -287,10 +287,21 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         try
         {
 
-            this.proj.setProperty (Constants.AUTHOR_NAME_PROPERTY_NAME,
-                                   this.author2.getText ().trim ());
-            this.proj.setProperty (Constants.BOOK_ID_PROPERTY_NAME,
-                                   this.id2.getText ().trim ());
+            if (this.author2.getText () != null)
+            {
+
+                this.proj.setProperty (Constants.AUTHOR_NAME_PROPERTY_NAME,
+                                       this.author2.getText ().trim ());
+
+            }
+
+            if (this.id2.getText () != null)
+            {
+
+                this.proj.setProperty (Constants.BOOK_ID_PROPERTY_NAME,
+                                       this.id2.getText ().trim ());
+
+            }
 
             // Create new Book
             nl.siegmann.epublib.domain.Book book = new nl.siegmann.epublib.domain.Book ();

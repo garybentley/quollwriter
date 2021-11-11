@@ -145,7 +145,7 @@ public class ReportBugPopup extends PopupContent<AbstractViewer>
                 if (sendLogFiles.isSelected ())
                 {
 
-                    details.put ("log",
+                    details.put ("errorLog",
                                  this.getLogFilesAsSingleString (Environment.getLogPaths ()));
                     details.put ("editorsMessageLog",
                                  new String (Files.readAllBytes (EditorsEnvironment.getEditorsMessageLogFile ().toPath ()),

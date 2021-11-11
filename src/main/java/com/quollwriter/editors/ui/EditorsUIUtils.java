@@ -71,8 +71,6 @@ public class EditorsUIUtils
     static
     {
 
-        EditorsUIUtils.editorLogin = new EditorLoginPopup ();
-
         // Defines the messages that can be "viewed" by the user.
         Project np = null;
 
@@ -525,13 +523,18 @@ public class EditorsUIUtils
 
             List<String> prefix = Arrays.asList (editors,editor,remove,confirmpopup);
 
-            QuollPopup.messageBuilder ()
-                .withViewer (viewer)
-                .styleClassName (StyleClassNames.DELETE)
-                .title (Utils.newList (prefix,title))
-                .message (getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                       ed.getMainName ()))
-                .build ();
+            UIUtils.runLater (() ->
+            {
+
+                QuollPopup.messageBuilder ()
+                    .withViewer (viewer)
+                    .styleClassName (StyleClassNames.DELETE)
+                    .title (Utils.newList (prefix,title))
+                    .message (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                           ed.getMainName ()))
+                    .build ();
+
+            });
 
         };
 
@@ -2087,6 +2090,13 @@ public class EditorsUIUtils
 
         UIUtils.runLater (() ->
         {
+
+            if (EditorsUIUtils.editorLogin == null)
+            {
+
+                EditorsUIUtils.editorLogin = new EditorLoginPopup ();
+
+            }
 
             EditorsUIUtils.editorLogin.setVisible (true);
 

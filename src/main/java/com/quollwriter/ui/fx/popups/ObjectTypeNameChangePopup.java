@@ -156,6 +156,8 @@ public class ObjectTypeNameChangePopup extends PopupContent
 
                         })
                         .build ())
+            /*
+            TODO: remove, causes infinite loop with chapters
             .button (QuollButton.builder ()
                         .buttonType (ButtonBar.ButtonData.OTHER)
                         .label (objectnames,changer,LanguageStrings.popup,buttons,reset)
@@ -166,6 +168,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
 
                         })
                         .build ())
+            */
             .build ());
         this.getChildren ().add (content);
 

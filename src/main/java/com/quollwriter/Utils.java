@@ -913,14 +913,19 @@ TODO Remove
                 out.flush ();
                 out.close ();
 
-                Environment.scheduleImmediately (() ->
+                if (progressListener != null)
                 {
 
-                    progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
-                                                                            contentLength,
-                                                                            contentLength));
+                    Environment.scheduleImmediately (() ->
+                    {
 
-                });
+                        progressListener.valueUpdated (new UploadProgressEvent (Environment.class,
+                                                                                contentLength,
+                                                                                contentLength));
+
+                    });
+
+                }
 
                 // Try and get input stream, not all responses allow it.
                 InputStream in = null;

@@ -3,6 +3,8 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String isfirstuse = "isfirstuse";
+    public static final String first = "first";
     public static final String permanentnightmode = "permanentnightmode";
     public static final String nightmode = "nightmode";
     public static final String configure = "configure";

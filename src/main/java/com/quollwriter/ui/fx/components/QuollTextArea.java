@@ -82,6 +82,7 @@ TODO, need property to listen for changes.
         this.text = new TextEditor (null,
                                     null,
                                     b.dictProv);
+        //this.text.setNodeOrientation (javafx.geometry.NodeOrientation.RIGHT_TO_LEFT);
         this.text.setFormattingEnabled (b.formattingEnabled);
         this.text.setSpellCheckEnabled (b.spellCheckEnabled);
         this.text.setPlaceholder (b.placeHolder);

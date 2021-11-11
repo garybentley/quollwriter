@@ -1537,25 +1537,26 @@ TODO Remove
 
         this.editPosition = p;
 
-        this.textEditPos = null;
+        //this.textEditPos = null;
 
         this.firePropertyChangedEvent (EDIT_POSITION,
                                        oldPos,
-                                       this.editPosition);
+                                       p);
+                                       //this.editPosition);
 
     }
 
     public int getEditPosition ()
     {
-
+/*
         if (this.textEditPos != null)
         {
 
             return this.textEditPos.getOffset ();
 
         }
-
-        return this.editPosition;
+*/
+        return this.editPositionProp.getValue ();
 
     }
 

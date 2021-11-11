@@ -31,6 +31,7 @@ public class IdeaBoard extends PanelContent<ProjectViewer> //implements ToolBarS
 
     private VerticalLayout categories = null;
     private Map<IdeaType, TypeBox> ideaTypeBoxes = new HashMap<> ();
+    private ScrollPane scrollpane = null;
 
     public IdeaBoard (ProjectViewer viewer)
     {
@@ -88,18 +89,11 @@ System.out.println ("HERE");
 
         });
 */
-        ScrollPane sp = new ScrollPane (this.categories);
+        this.scrollpane = new ScrollPane (this.categories);
 
-        sp.setOnContextMenuRequested (ev ->
+        this.scrollpane.setOnContextMenuRequested (ev ->
         {
-/*
-            if (ev.getTarget () != this.categories)
-            {
 
-                return;
-
-            }
-*/
             Set<MenuItem> its = new LinkedHashSet<> ();
 
             its.add (QuollMenuItem.builder ()
@@ -133,10 +127,10 @@ System.out.println ("HERE");
 
         });
 
-        VBox.setVgrow (sp,
+        VBox.setVgrow (this.scrollpane,
                        Priority.ALWAYS);
 
-        b.getChildren ().add (sp);
+        b.getChildren ().add (this.scrollpane);
 
         this.getChildren ().add (b);
 
@@ -195,13 +189,6 @@ System.out.println ("HERE");
 
         }
 
-        for (IdeaType it : its)
-        {
-
-            this.addType (it);
-
-        }
-
         this.getBinder ().addSetChangeListener (this.viewer.getProject ().getIdeaTypes (),
                                                 ev ->
         {
@@ -209,7 +196,8 @@ System.out.println ("HERE");
             if (ev.wasAdded ())
             {
 
-                this.addType (ev.getElementAdded ());
+                this.addType (ev.getElementAdded (),
+                              0);
 
             }
 
@@ -222,6 +210,133 @@ System.out.println ("HERE");
             }
 
         });
+
+    }
+
+    @Override
+    public State getState ()
+    {
+
+        State s = super.getState ();
+
+        if (s == null)
+        {
+
+            s = new State ();
+
+        }
+
+        s.set (State.Key.scrollpanev,
+               this.scrollpane.getVvalue ());
+
+        List<String> refs = new ArrayList<> ();
+
+        for (Node n : this.categories.getChildren ())
+        {
+
+            if (n instanceof TypeBox)
+            {
+
+                TypeBox b = (TypeBox) n;
+
+                IdeaType t = b.getIdeaType ();
+
+                ObjectReference ref = t.getObjectReference ();
+
+                refs.add (ref.asString ());
+
+                s.set (ref.asString (),
+                       b.getState ());
+
+            }
+
+        }
+
+        s.set ("ideatypes",
+               refs);
+
+        return s;
+
+    }
+
+    @Override
+    public void init (State state)
+               throws GeneralException
+    {
+
+        super.init (state);
+
+        ObservableSet<IdeaType> its = this.viewer.getProject ().getIdeaTypes ();
+
+        Map<String, IdeaType> trefs = new HashMap<> ();
+
+        for (IdeaType it : its)
+        {
+
+            trefs.put (it.getObjectReference ().asString (),
+                       it);
+
+        }
+
+        List<String> refs = null;
+
+        if (state == null)
+        {
+
+            state = new State ();
+
+        } else {
+
+            refs = state.getAsList ("ideatypes",
+                                    String.class);
+
+        }
+
+        // Legacy
+        if (refs == null)
+        {
+
+            refs = new ArrayList<> ();
+
+            for (IdeaType it : its)
+            {
+
+                refs.add (it.getObjectReference ().asString ());
+
+            }
+
+        }
+
+        for (String r : refs)
+        {
+
+            IdeaType it = trefs.get (r);
+
+            if (it != null)
+            {
+
+                TypeBox b = this.addType (it,
+                                          -1);
+                b.init (state.getAsState (r));
+
+            }
+
+        }
+
+        if (this.scrollpane != null)
+        {
+
+            double v = state.getAsFloat (State.Key.scrollpanev,
+                                         0f);
+
+            UIUtils.runLater (() ->
+            {
+
+                this.scrollpane.setVvalue (v);
+
+            });
+
+        }
 
     }
 
@@ -299,7 +414,8 @@ System.out.println ("HERE");
 
     }
 
-    private TypeBox addType (IdeaType type)
+    private TypeBox addType (IdeaType type,
+                             int      addAt)
     {
 
         TypeBox ic = new TypeBox (type,
@@ -308,51 +424,22 @@ System.out.println ("HERE");
         this.ideaTypeBoxes.put (type,
                                 ic);
 
-        this.categories.getChildren ().add (0,
-                                            ic);
+        if (addAt > -1)
+        {
+
+            this.categories.getChildren ().add (addAt,
+                                                ic);
+
+        } else {
+
+            this.categories.getChildren ().add (ic);
+
+        }
 
         return ic;
 
     }
 
-/*
-TODO: Not really needed?
-    @Override
-    public Set<Node> getToolBarItems ()
-    {
-
-        Set<Node> its = new LinkedHashSet<> ();
-
-        its.add (QuollButton.builder ()
-            .tooltip (ideaboard,LanguageStrings.toolbar,buttons,_new,tooltip)
-            .styleClassName (StyleClassNames.ADD)
-            .onAction (ev ->
-            {
-
-                this.showAddNewIdeaType ();
-
-            })
-            .build ());
-
-            t.getItems ().add (QuollButton.builder ()
-                .tooltip (ideaboard,LanguageStrings.toolbar,buttons,selectbackground,tooltip)
-                .styleClassName (StyleClassNames.SELECTBG)
-                .onAction (ev ->
-                {
-
-                    this.runCommand (CommandIds.selectbackground);
-
-                })
-                .build ());
-
-        its.add (UIUtils.createHelpPageButton (this.viewer,
-                                               "idea-board/overview",
-                                               getUILanguageStringProperty (ideaboard,LanguageStrings.toolbar,buttons,selectbackground,tooltip)));
-
-        return its;
-
-    }
-*/
     public void showAddNewIdeaType ()
     {
 
@@ -455,7 +542,7 @@ TODO: Not really needed?
 
     }
 
-    private static class TypeBox extends VBox
+    private static class TypeBox extends VBox implements Stateful
     {
 
         private VBox view = null;
@@ -841,10 +928,13 @@ TODO: Not really needed?
                 if (t != null)
                 {
 
+                    h.getIcon ().setImage (t.icon16x16Property (),
+                                           board.getBinder ());
+/*
                     UIUtils.setBackgroundImage (h.getIcon (),
                                                 t.icon16x16Property (),
                                                 board.getBinder ());
-
+*/
                 } else {
 
                     h.setIconClassName (type.getIconType ());
@@ -967,6 +1057,36 @@ TODO: Not really needed?
 
         }
 
+        @Override
+        public State getState ()
+        {
+
+            State s = new State ();
+
+            s.set ("visible",
+                   this.view.isVisible ());
+
+            return s;
+
+        }
+
+        @Override
+        public void init (State state)
+                   throws GeneralException
+        {
+
+            // Todo... XXX
+            if (state == null)
+            {
+
+                return;
+
+            }
+
+            this.showIdeas (state.getAsBoolean ("visible"));
+
+        }
+
         public void sortIdeas (String sortBy)
         {
 
@@ -996,11 +1116,6 @@ TODO: Not really needed?
         private void addIdeasToView ()
         {
 
-            this.view.getChildren ().clear ();
-            this.ideaBoxes.values ().stream ()
-                .forEach (ib -> ib.dispose ());
-            this.ideaBoxes.clear ();
-
             String sb = this.type.getSortBy ();
 
             if (sb == null)
@@ -1010,7 +1125,43 @@ TODO: Not really needed?
 
             }
 
-            List<Idea> ideas = new ArrayList (this.type.getIdeas ());
+            List<Idea> ideas = new ArrayList<> (this.type.getIdeas ());
+
+            Collections.sort (ideas,
+                              new IdeaTypeComparator (sb));
+
+            List<Node> children = this.view.getChildren ();
+
+            if (children.size () == 0)
+            {
+
+                for (Idea i : ideas)
+                {
+
+                    this.ideaBoxes.put (i,
+                                        new IdeaBox (i,
+                                                     this.board.getViewer (),
+                                                     false));
+
+                }
+
+            }
+
+            this.view.getChildren ().clear ();
+
+            for (Idea i : ideas)
+            {
+
+                this.view.getChildren ().add (this.ideaBoxes.get (i));
+
+            }
+
+            /*
+            this.ideaBoxes.values ().stream ()
+                .forEach (ib -> ib.dispose ());
+            this.ideaBoxes.clear ();
+
+            List<Idea> ideas = new ArrayList<> (this.type.getIdeas ());
 
             Collections.sort (ideas,
                               new IdeaTypeComparator (sb));
@@ -1030,6 +1181,15 @@ TODO: Not really needed?
 
                 })
                 .collect (Collectors.toList ()));
+*/
+
+            this.view.getChildren ().stream ()
+                .forEach (el ->
+                {
+
+                    el.pseudoClassStateChanged (StyleClassNames.LAST_PSEUDO_CLASS, false);
+
+                });
 
             if (this.view.getChildren ().size () > 0)
             {
@@ -1039,6 +1199,13 @@ TODO: Not really needed?
             }
 
             this.view.setVisible (ideas.size () > 0);
+
+        }
+
+        public IdeaType getIdeaType ()
+        {
+
+            return this.type;
 
         }
 
@@ -1113,8 +1280,10 @@ TODO: Not really needed?
 
                 StringWithMarkup sm = this.idea.getDescription ();
 
-                //fullDesc.setText (sm.getMarkedUpText ());
-                fullDescP.setValue (sm.getMarkedUpText ());
+                fullDescP.setValue (UIUtils.markupText (sm,
+                                                        viewer,
+                                                        null));
+                //fullDescP.setValue (sm.getMarkedUpText ());
 
             };
 
@@ -1123,7 +1292,12 @@ TODO: Not really needed?
 
                 StringWithMarkup sm = this.idea.getDescription ();
 
-                Paragraph p = new Paragraph (sm.getText (),
+                String tt = UIUtils.markupText (sm,
+                                                viewer,
+                                                null);
+
+                Paragraph p = new Paragraph (tt,
+                //sm.getText (),
                                              0);
 
                 String firstSent = "";
@@ -1398,6 +1572,13 @@ TODO: Not really needed?
         {
 
             this.binder.dispose ();
+
+        }
+
+        public Idea getIdea ()
+        {
+
+            return this.idea;
 
         }
 

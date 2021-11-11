@@ -168,6 +168,8 @@ public class TextViewEditBox extends StackPane
 
         this.view.getChildren ().clear ();
 
+        this.editText.setText (t);
+
         if ((t == null)
             ||
             (!t.hasText ())

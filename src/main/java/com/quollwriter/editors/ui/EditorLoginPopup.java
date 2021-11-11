@@ -256,13 +256,22 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
 
         String pwd = this.passwordField.getText ();
 
-        if ((pwd.length () == 0)
-            ||
-            (pwd.length () < 8)
-           )
+        if (pwd == null)
         {
 
             this.form.getConfirmButton ().setDisable (true);
+
+        } else {
+
+            if ((pwd.length () == 0)
+                ||
+                (pwd.length () < 8)
+               )
+            {
+
+                this.form.getConfirmButton ().setDisable (true);
+
+            }
 
         }
 

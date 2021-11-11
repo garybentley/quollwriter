@@ -29,6 +29,7 @@ public class ControllableProgressBar extends HBox
     private QuollButton resetBut = null;
     private ProgressBar progressBar = null;
     private ObjectProperty<State> stateProp = null;
+    private WordCountProgressTimer wctimer = null;
 
     private ControllableProgressBar (Builder b)
     {
@@ -36,6 +37,8 @@ public class ControllableProgressBar extends HBox
         this.getStyleClass ().add (b.styleClassName);
 
         this.stateProp = new SimpleObjectProperty<> (State.stopped);
+
+        this.wctimer = b.timer;
 
         this.progressBar = new ProgressBar ();
 
@@ -54,7 +57,8 @@ public class ControllableProgressBar extends HBox
                     .onAction (eev ->
                     {
 
-                        this.stateProp.setValue (State.paused);
+                        this.wctimer.pauseTimer ();
+                        //this.stateProp.setValue (State.paused);
 
                     })
                     .build ());
@@ -65,7 +69,8 @@ public class ControllableProgressBar extends HBox
                     .onAction (eev ->
                     {
 
-                        this.stateProp.setValue (State.stopped);
+                        this.wctimer.stopTimer ();
+                        //this.stateProp.setValue (State.stopped);
 
                     })
                     .build ());
@@ -81,7 +86,8 @@ public class ControllableProgressBar extends HBox
                     .onAction (eev ->
                     {
 
-                        this.stateProp.setValue (State.playing);
+                        this.wctimer.unpauseTimer ();
+                        //this.stateProp.setValue (State.playing);
 
                     })
                     .build ());
@@ -97,7 +103,8 @@ public class ControllableProgressBar extends HBox
                     .onAction (eev ->
                     {
 
-                        this.stateProp.setValue (State.playing);
+                        this.wctimer.unpauseTimer ();
+                        //this.stateProp.setValue (State.playing);
 
                     })
                     .build ());
@@ -108,7 +115,8 @@ public class ControllableProgressBar extends HBox
                     .onAction (eev ->
                     {
 
-                        this.stateProp.setValue (State.stopped);
+                        this.wctimer.stopTimer ();
+                        //this.stateProp.setValue (State.stopped);
 
                     })
                     .build ());
@@ -121,6 +129,7 @@ public class ControllableProgressBar extends HBox
                 .onAction (eev ->
                 {
 
+                    this.wctimer.stopTimer ();
                     this.stateProp.setValue (State.stopped);
                     this.stateProp.setValue (State.reset);
 
@@ -167,7 +176,8 @@ public class ControllableProgressBar extends HBox
             .onAction (ev ->
             {
 
-                this.stateProp.setValue (State.playing);
+                this.wctimer.startTimer ();
+                //this.stateProp.setValue (State.playing);
                 /*
                 this.stopBut.setDisable (false);
                 this.stopBut.setVisible (b.allowStop);
@@ -186,7 +196,8 @@ public class ControllableProgressBar extends HBox
             .onAction (ev ->
             {
 
-                this.stateProp.setValue (State.stopped);
+                this.wctimer.stopTimer ();
+                //this.stateProp.setValue (State.stopped);
                 /*
                 this.stopBut.setDisable (true);
                 this.playBut.setVisible (b.allowPlay);
@@ -206,7 +217,8 @@ public class ControllableProgressBar extends HBox
             .onAction (ev ->
             {
 
-                this.stateProp.setValue (State.paused);
+                //this.stateProp.setValue (State.paused);
+                this.wctimer.pauseTimer ();
                 /*
                 this.playBut.setVisible (b.allowPlay);
                 this.pauseBut.setVisible (false);
@@ -229,6 +241,7 @@ public class ControllableProgressBar extends HBox
                 this.resetBut.setVisible (false);
                 this.pauseBut.setVisible (false);
 */
+                this.wctimer.stopTimer ();
                 this.progressBar.setProgress (0);
                 this.fireEvent (new ProgressButtonEvent (this.progressBar,
                                                          ProgressButtonEvent.RESET_EVENT));
@@ -269,6 +282,52 @@ public class ControllableProgressBar extends HBox
 
         });
 
+        this.wctimer.stateProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (newv == WordCountProgressTimer.State.playing)
+            {
+
+                this.fireEvent (new ProgressButtonEvent (this.progressBar,
+                                                         ProgressButtonEvent.PLAY_EVENT));
+
+                this.stopBut.setVisible (b.allowStop);
+                this.stopBut.setDisable (false);
+                this.resetBut.setVisible (false);
+                this.pauseBut.setVisible (b.allowPause);
+                this.playBut.setVisible (false);
+
+            }
+
+            if (newv == WordCountProgressTimer.State.stopped)
+            {
+
+                this.fireEvent (new ProgressButtonEvent (this.progressBar,
+                                                         ProgressButtonEvent.STOP_EVENT));
+
+                this.stopBut.setDisable (b.allowStop);
+                this.resetBut.setVisible (b.allowReset);
+                this.playBut.setVisible (b.allowPlay);
+                this.pauseBut.setVisible (false);
+
+            }
+
+            if (newv == WordCountProgressTimer.State.paused)
+            {
+
+                this.fireEvent (new ProgressButtonEvent (this.progressBar,
+                                                         ProgressButtonEvent.PAUSE_EVENT));
+
+                this.playBut.setVisible (b.allowPlay);
+                this.stopBut.setVisible (b.allowStop);
+                this.stopBut.setDisable (false);
+                this.resetBut.setVisible (false);
+                this.pauseBut.setVisible (false);
+
+            }
+
+        });
+/*
         this.stateProp.addListener ((pr, oldv, newv) ->
         {
 
@@ -315,8 +374,8 @@ public class ControllableProgressBar extends HBox
 
         });
 
-        this.stateProp.setValue (State.playing);
-
+        this.stateProp.setValue (b.initState);
+*/
     }
 
     public ObjectProperty<State> stateProperty ()
@@ -369,6 +428,8 @@ public class ControllableProgressBar extends HBox
         private boolean allowPlay = false;
         private boolean allowReset = false;
         private String styleClassName = null;
+        private ControllableProgressBar.State initState = ControllableProgressBar.State.stopped;
+        private WordCountProgressTimer timer = null;
 
         private Builder ()
         {
@@ -388,6 +449,22 @@ public class ControllableProgressBar extends HBox
         {
 
             return this;
+
+        }
+
+        public Builder timer (WordCountProgressTimer t)
+        {
+
+            this.timer = t;
+            return _this ();
+
+        }
+
+        public Builder initState (ControllableProgressBar.State s)
+        {
+
+            this.initState = s;
+            return _this ();
 
         }
 

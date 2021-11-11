@@ -258,7 +258,7 @@ public class ImageSelector extends QuollImageView
                                       e);
 
                 ComponentUtils.showErrorMessage (_this.viewer,
-                                                 getUILanguageStringProperty (imageselector,init,actionerror));
+                                                 getUILanguageStringProperty (imageselector,view,actionerror));
 
             }
 

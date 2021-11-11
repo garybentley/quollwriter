@@ -4,6 +4,7 @@ import java.util.*;
 
 import javafx.scene.Node;
 import javafx.scene.layout.*;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.IndexRange;
 
 import javafx.beans.property.*;

@@ -95,6 +95,7 @@ public class UserProperties
     private static SimpleIntegerProperty autoBackupsTimeProp = null;
     private static SimpleIntegerProperty backupsToKeepCountProp = null;
     private static SimpleBooleanProperty autoBackupsEnabledProp = null;
+    private static SimpleBooleanProperty keepProjectsWindowWhenProjectOpenedProp = null;
     private static ObservableSet<String> fullScreenHeaderControlButtonIds = null;
     private static ObservableSet<String> projectViewerHeaderControlButtonIds = null;
     private static ObservableSet<String> allProjectsViewerHeaderControlButtonIds = null;
@@ -395,6 +396,8 @@ public class UserProperties
 
         UserProperties.autoBackupsEnabledProp = UserProperties.createMappedBooleanProperty (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
 
+        UserProperties.keepProjectsWindowWhenProjectOpenedProp = UserProperties.createMappedBooleanProperty (Constants.KEEP_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME);
+
         UserProperties.userBGImagePaths = FXCollections.observableSet (new LinkedHashSet<> ());
 
         try
@@ -651,7 +654,18 @@ public class UserProperties
 
         }
 
-        UserProperties.fullScreenBackgroundProp.setValue (BackgroundObject.createBackgroundObjectForId (v));
+        try
+        {
+
+            UserProperties.fullScreenBackgroundProp.setValue (BackgroundObject.createBackgroundObjectForId (v));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set background object to: " +
+                                  v);
+
+        }
+
         UserProperties.fullScreenBackgroundProp.addListener ((pr, oldv, newv) ->
         {
 
@@ -801,6 +815,13 @@ public class UserProperties
 
     }
 */
+
+    public static SimpleBooleanProperty keepProjectsWindowWhenProjectOpenedProperty ()
+    {
+
+        return UserProperties.keepProjectsWindowWhenProjectOpenedProp;
+
+    }
 
     public static SimpleObjectProperty<LocalTime> autoNightModeFromProperty ()
     {

@@ -126,7 +126,7 @@
                 "text" : "{QW} is downloading the selected User Interface language, please wait...",
                 "redownload" :
                 {
-                    "actionerror" : "Warning!  {QW} has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the {QW} server is unavailable.<br /><br />It is recommended that you either restart Quoll Writer to try again or try downloading the strings from the Options panel.<br /><br />In the interim {QW} has fallen back to using <b>English</b>.",
+                    "actionerror" : "Warning!  {QW} has been unable to re-download the User Interface strings for your selected language.  There may be multiple reasons for this, such as a connection error to the internet or that the {QW} server is unavailable.<br /><br />It is recommended that you either restart {QW} to try again or try downloading the strings from the Options panel.<br /><br />In the interim {QW} has fallen back to using <b>English</b>.",
                     "confirmpopup" :
                     {
                         "title" : "Language strings re-downloaded",
@@ -556,6 +556,16 @@
                 "text" : "First, select the language you would like to use for the user interface.  You can download additional languages in the Options panel later.",
                 "downloading" : "The user interface files are being downloaded... please wait...",
                 "actionerror" : "Unable to download user interface language strings."
+            },
+            "isfirstuse" :
+            {
+                "title" : "First time using {QW}?",
+                "text" : "If this isn't your first time using {QW} you can use the option below to let {QW} find your existing ${objectnames.plural.project} or ${objectnames.singular.project} database.",
+                "labels" :
+                {
+                    "first" : "This is my first time using {QW}",
+                    "notfirst" : "I want {QW} to find my ${objectnames.plural.project}/${objectnames.singular.project} database"
+                }
             },
             "license" :
             {
@@ -3132,8 +3142,8 @@
                 "shorttext" :
                 {
                     "tooltip" : "Click to show the full text",
-                    "more" : " <b><i>more...</i></b>",
-                    ":comment.more" : "This is shown after the first sentence of the idea to indicate that there is more text in the idea, i.e. Hero goes on journey. more..."
+                    "more" : " <more>more...</more>",
+                    ":comment.more" : "This is shown after the first sentence of the idea to indicate that there is more text in the idea, i.e. Hero goes on journey. more...  The <more> element is a custom HTML element designed to mimic the way that the <a> tag behaves but without being a real link."
                 },
                 "buttons" :
                 {
@@ -3155,7 +3165,7 @@
                     },
                     "rating" :
                     {
-                        "tooltip" : "Rate this ${objectnames.singular.idea}"
+                        "tooltip" : "Click to confirm/clear the rating for this ${objectnames.singular.idea}"
                     }
                 }
             },
@@ -5426,7 +5436,7 @@
             {
                 "autologin" : "Automatically login/go online whenever {QW} starts",
                 "defaultstatus" : "My default status when I go online is",
-                "fullscreenbusystatus" : "Set my status to <b>${editors.statuses.busy}</b> when I enter full screen mode",
+                "fullscreenbusystatus" : "Set my status to ${editors.statuses.busy} when I enter full screen mode",
                 "logmessages" :
                 {
                     "text" : "Log messages I send/receive (debug only)",
@@ -6391,10 +6401,6 @@
         "view" :
         {
             "actionerror" : "Unable to show file."
-        },
-        "init" :
-        {
-            "actionerror" : "Unable to init file."
         },
         "restore" :
         {
@@ -7894,6 +7900,11 @@
                         {
                             "text" : "Set as Edit Complete",
                             "tooltip" : "Set as Edit Complete"
+                        },
+                        "seteditneeded" :
+                        {
+                            "text" : "Set as Edit Needed",
+                            "tooltip" : "Set as Edit Needed"
                         }
                     }
                 },
@@ -8896,7 +8907,7 @@
                 "popup" :
                 {
                     "title" : "Report a Bug/Problem",
-                    "text" : "Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The version of {QW} and operating system you are using will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
+                    "text" : "Complete the form below to report a bug/problem.  An email address is required.<br /><br />The version of {QW} and operating system you are using will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
                     "errorlabel" : "Please enter a description of the problem/bug.",
                     "noemail" : "Please enter an email address so you can be contacted about the problem/bug.",
                     "description" :

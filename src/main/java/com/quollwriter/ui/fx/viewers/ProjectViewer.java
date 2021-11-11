@@ -2179,26 +2179,11 @@ TODO
                     l = Utils.stripEnd (p.getEditor ().getText ()).length ();
 
                     _textPos = Math.min (textPos, l);
-/*
-TODO
+
                     // See if we are on the last line (it may be that the user is in the icon
                     // column).
-                    Rectangle2D pp = p.getEditor ().modelToView2D (_textPos);
+                    //Rectangle2D pp = p.getEditor ().modelToView2D (_textPos);
 
-                    if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
-                    {
-
-                        if (_textPos <= l)
-                        {
-
-                            Rectangle2D ep = p.getEditor ().modelToView2D (l);
-
-                            chapter.setEditComplete ((Math.round (ep.getY ()) == Math.round (pp.getY ())));
-
-                        }
-
-                    }
-*/
                 } else {
 
                     String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
@@ -2209,7 +2194,17 @@ TODO
 
                 _textPos = Math.min (_textPos, l);
 
-                chapter.setEditComplete (false);
+                if (_textPos <= l)
+                {
+
+                    chapter.setEditComplete (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME));
+
+                } else {
+
+                    chapter.setEditComplete (false);
+
+                }
+
                 chapter.setEditPosition (_textPos);
 
                 this.saveObject (chapter,
