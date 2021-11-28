@@ -6,12 +6,14 @@ import java.math.*;
 
 import javafx.beans.property.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.data.*;
+import com.quollwriter.uistrings.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -140,16 +142,68 @@ TODO Remove?
 
         }
 
+        VBox b = new VBox ();
+
         this.editItem = new Spinner<> (min,
                                        max,
                                        _v);
         this.editItem.setEditable (true);
+        this.editItem.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);
+        b.getChildren ().add (this.editItem);
+        this.editItem.prefWidthProperty ().bind (b.widthProperty ());
+
+        if ((fMin != null)
+            ||
+            (fMax != null)
+           )
+        {
+
+            StringProperty t = UILanguageStringsManager.createStringPropertyWithBinding (() ->
+            {
+
+                StringBuilder _b = new StringBuilder ();
+
+                if (fMin != null)
+                {
+
+                    _b.append (getUILanguageStringProperty (Arrays.asList (form,config,types,UserConfigurableObjectTypeField.Type.number.getType (),LanguageStrings.min,description),
+                                                           Environment.formatNumber (fMin)).getValue ());
+
+                }
+
+                if (fMax != null)
+                {
+
+                    if (_b.length () > 0)
+                    {
+
+                        _b.append (" ");
+
+                    }
+
+                    _b.append (getUILanguageStringProperty (Arrays.asList (form,config,types,UserConfigurableObjectTypeField.Type.number.getType (),LanguageStrings.max,description),
+                                                           Environment.formatNumber (fMax)).getValue ());
+
+                }
+
+                return _b.toString ();
+
+            });
+
+            QuollLabel l = QuollLabel.builder ()
+                .label (t)
+                .styleClassName (StyleClassNames.INFORMATION)
+                .build ();
+
+            b.getChildren ().add (l);
+
+        }
 
         UIUtils.addDoOnReturnPressed (this.editItem.getEditor (),
                                       formSave);
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  this.editItem));
+                                  b));
 
         return items;
 
@@ -164,6 +218,7 @@ TODO Remove?
         Set<StringProperty> errors = new LinkedHashSet<> ();
 
         Double val = this.editItem.getValue ();
+
 /*
 TODO Needed ?
         Double v = null;
@@ -339,7 +394,7 @@ TODO Remove?
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 

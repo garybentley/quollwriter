@@ -33,6 +33,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
     private Button headerCancelBut = null;
     private VBox error = null;
     private BooleanProperty layoutModeEnabled = null;
+    private FieldBox nameFieldBox = null;
 
     public AssetViewPanel (ProjectViewer pv,
                            Asset         a)
@@ -80,7 +81,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
                 }
 
-                this.save ();
+                this.saveFull ();
 
             })
             .build ();
@@ -151,6 +152,17 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         header.getIcon ().setImage (a.getUserConfigurableObjectType ().icon24x24Property (),
                                     this.getBinder ());
 
+        ObjectNameUserConfigurableObjectTypeField nameTypeField = this.object.getUserConfigurableObjectType ().getPrimaryNameField ();
+
+        this.nameFieldBox = new FieldBox (nameTypeField,
+                                          this.object,
+                                          null,
+                                          this.getBinder (),
+                                          this.viewer);
+
+        this.nameFieldBox.showEditFull ();
+        this.nameFieldBox.setVisible (false);
+
         this.error = new VBox ();
         this.error.getStyleClass ().add (StyleClassNames.ERROR);
         this.error.managedProperty ().bind (this.error.visibleProperty ());
@@ -163,15 +175,6 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
                        Priority.ALWAYS);
 
         ScrollPane sp = new ScrollPane (this.layout);
-        /*
-        sp.viewportBoundsProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            this.layout.setMinWidth (newv.getWidth ());
-
-        });
-        */
-        //this.layout.minWidthProperty ().bind (sp.widthProperty ());
         sp.setPannable (true);
         sp.setOnDragOver (ev ->
         {
@@ -218,7 +221,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         });
 
-        view.getChildren ().addAll (header, this.error, sp);
+        view.getChildren ().addAll (header, this.error, this.nameFieldBox, sp);
 
         this.getChildren ().add (view);
 
@@ -242,7 +245,21 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         });
 
-        this.addEventHandler (FieldBox.SAVE_EVENT,
+        this.addEventHandler (FieldBox.SAVE_SINGLE_EVENT,
+                              ev ->
+        {
+
+            if (ev.getTarget () instanceof FieldBox)
+            {
+
+                this.saveSingle ((FieldBox) ev.getTarget ());
+                this.setHasUnsavedChanges (this.layout.areFieldsBeingEdited ());
+
+            }
+
+        });
+
+        this.addEventHandler (FieldBox.SAVE_FULL_EVENT,
                               ev ->
         {
 
@@ -250,7 +267,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
             this.setHasUnsavedChanges (this.layout.areFieldsBeingEdited ());
 
             // Get all fields that are visible and save them.
-            this.save ();
+            this.saveFull ();
 
         });
 
@@ -360,7 +377,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
                   () ->
                   {
 
-                      this.save ();
+                      this.saveFull ();
 
                   });
 
@@ -397,7 +414,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         s.set ("layout",
                this.layout.getState ());
-
+System.out.println ("STATE: " + s);
         return s;
 
     }
@@ -408,6 +425,20 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
         this.headerEditBut.setVisible (true);
         this.headerSaveBut.setVisible (false);
         this.headerCancelBut.setVisible (false);
+        this.nameFieldBox.setVisible (false);
+
+        try
+        {
+
+            this.nameFieldBox.showView ();
+
+        } catch (Exception e) {
+
+            // Will this EVER happen?
+            Environment.logError ("Unable to show view",
+                                  e);
+
+        }
 
         this.setHasUnsavedChanges (false);
 
@@ -508,6 +539,8 @@ TODO Remove
         this.headerEditBut.setVisible (false);
         this.headerSaveBut.setVisible (true);
         this.headerCancelBut.setVisible (true);
+        this.nameFieldBox.setVisible (true);
+        this.nameFieldBox.showEditFull ();
 
         this.setHasUnsavedChanges (true);
 
@@ -515,17 +548,71 @@ TODO Remove
 
     }
 
-    private void save ()
+    private void saveSingle (FieldBox fb)
     {
 
         Set<String> oldNames = this.object.getAllNames ();
 
+        if (fb.save ())
+        {
+
+            try
+            {
+
+                this.viewer.saveObject (this.object,
+                                        true);
+
+                this.viewer.fireProjectEvent (ProjectEvent.Type.asset,
+                                              ProjectEvent.Action.edit,
+                                              this.object);
+
+                fb.showView ();
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to save: " +
+                                      this.object,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (assets,save,actionerror));
+                                          //"Unable to save.");
+
+                return;
+
+            }
+
+            this.viewer.updateProjectDictionaryForNames (oldNames,
+                                                         this.object);
+
+        }
+
+    }
+
+    private void saveFull ()
+    {
+
+        Set<String> oldNames = this.object.getAllNames ();
+
+        boolean hasErrors = false;
+
+        if (!this.nameFieldBox.save ())
+        {
+
+            hasErrors = true;
+
+        }
+
         if (!this.layout.updateFields ())
         {
 
-            ComponentUtils.showErrorMessage (this.viewer,
-                                             getUILanguageStringProperty (assets,save,actionerror));
-                                      //"Unable to save.");
+            hasErrors = true;
+
+        }
+
+        if (hasErrors)
+        {
 
             return;
 

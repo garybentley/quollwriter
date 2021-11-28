@@ -76,6 +76,8 @@ public class Header extends HBox
 
                 ContextMenu m = new ContextMenu ();
 
+                UIUtils.addShowCSSViewerFilter (m);
+
                 Set<MenuItem> items = b.contextMenuItemSupplier.get ();
 
                 if (items != null)

@@ -3,6 +3,7 @@ package com.quollwriter.ui.fx.popups;
 import java.nio.file.*;
 import java.nio.charset.*;
 import java.net.*;
+import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
@@ -15,6 +16,7 @@ import javafx.scene.layout.*;
 import javafx.scene.image.*;
 import javafx.scene.control.*;
 import javafx.geometry.*;
+import javafx.scene.input.*;
 
 import com.quollwriter.*;
 import com.quollwriter.db.*;
@@ -41,6 +43,8 @@ public class SelectBGPopup extends PopupContent
     private FlowPane colorsPane = null;
     private TilePane imagesPane = null;
     private BackgroundObject bgObj = null;
+    private StackPane imagesStack = null;
+    private HBox overlay = null;
 
     public SelectBGPopup (AbstractViewer viewer,
                           Object         selected)
@@ -54,8 +58,23 @@ public class SelectBGPopup extends PopupContent
         final SelectBGPopup _this = this;
 
         this.imagesPane = new TilePane ();
+        this.imagesStack = new StackPane ();
 
-        Set<Path> userImages = UserProperties.userBGImagePathsProperty ().getValue ();
+        this.imagesStack.prefHeightProperty ().bind (this.imagesPane.heightProperty ());
+        this.imagesStack.prefWidthProperty ().bind (this.imagesPane.widthProperty ());
+
+        this.imagesStack.getChildren ().addAll (this.imagesPane);
+
+        this.overlay = new HBox ();
+        this.overlay.managedProperty ().bind (this.overlay.visibleProperty ());
+        this.overlay.setVisible (false);
+        this.overlay.getStyleClass ().add (StyleClassNames.OVERLAY);
+        Label l = QuollLabel.builder ()
+            .label (getUILanguageStringProperty (selectbackground,drop))
+            .build ();
+        this.overlay.getChildren ().add (l);
+
+        Set<Path> userImages = UserProperties.userBGImagePathsProperty ();
 
         for (Path s : userImages)
         {
@@ -190,7 +209,7 @@ public class SelectBGPopup extends PopupContent
             .title (selectbackground,types,image,title)
             .styleClassName (StyleClassNames.IMAGES)
             .headerControls (imgsHeaderCons)
-            .openContent (this.imagesPane)
+            .openContent (this.imagesStack)//this.imagesPane)
             .build ();
 
         this.colorsPane = new FlowPane ();
@@ -365,6 +384,272 @@ public class SelectBGPopup extends PopupContent
 
         }
 
+        this.imagesPane.setOnDragDropped (ev ->
+        {
+
+            this.overlay.setVisible (false);
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
+            {
+
+                for (File f : files)
+                {
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        if (UserProperties.userBGImagePathsProperty ().contains (f.toPath ()))
+                        {
+
+                            ev.consume ();
+                            return;
+
+                        }
+
+                        try
+                        {
+
+                            UserProperties.addUserBGImagePath (f.toPath ());
+                            this.createUserBGImageSwatch (f.toPath (),
+                                                          0,
+                                                          this.imagesPane);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to add image: " + f,
+                                                  e);
+
+                        }
+
+                    }
+
+                }
+
+                ev.consume ();
+
+            }
+
+        });
+
+        this.overlay.setOnDragDropped (ev ->
+        {
+
+            this.overlay.setVisible (false);
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
+            {
+
+                for (File f : files)
+                {
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        if (UserProperties.userBGImagePathsProperty ().contains (f.toPath ()))
+                        {
+
+                            ev.consume ();
+                            return;
+
+                        }
+
+                        try
+                        {
+
+                            UserProperties.addUserBGImagePath (f.toPath ());
+                            this.createUserBGImageSwatch (f.toPath (),
+                                                          0,
+                                                          this.imagesPane);
+
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to add image: " + f,
+                                                  e);
+
+                        }
+
+                    }
+
+                }
+
+                ev.consume ();
+
+            }
+
+        });
+
+        this.setOnDragExited (ev ->
+        {
+
+            if (this.localToScene (this.getBoundsInLocal ()).contains (ev.getSceneX (),
+                                                                       ev.getSceneY ()))
+            {
+
+                return;
+
+            }
+
+            this.overlay.setVisible (false);
+
+        });
+
+        this.setOnDragEntered (ev ->
+        {
+
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
+            {
+
+                // Show the overlay.
+                for (File f : files)
+                {
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        if (UserProperties.userBGImagePathsProperty ().contains (f.toPath ()))
+                        {
+
+                            ev.consume ();
+                            return;
+
+                        }
+
+                        this.overlay.setVisible (true);
+                        this.overlay.setPrefWidth (sp.getViewportBounds ().getWidth ());
+                        this.overlay.setMinWidth (sp.getViewportBounds ().getWidth ());
+                        this.requestLayout ();
+
+                    }
+
+                }
+
+            }
+
+        });
+
+        this.overlay.setOnDragEntered (ev ->
+        {
+
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
+            {
+
+                // Show the overlay.
+                for (File f : files)
+                {
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        if (UserProperties.userBGImagePathsProperty ().contains (f.toPath ()))
+                        {
+
+                            ev.consume ();
+                            return;
+
+                        }
+
+                        ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
+
+                    }
+
+                }
+
+            }
+
+        });
+
+        this.setOnDragOver (ev ->
+        {
+
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
+            {
+
+                for (File f : files)
+                {
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        if (UserProperties.userBGImagePathsProperty ().contains (f.toPath ()))
+                        {
+
+                            ev.consume ();
+                            return;
+
+                        }
+
+                        ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
+
+                        ev.consume ();
+
+                    }
+
+                }
+
+            }
+
+        });
+
+        this.overlay.setOnDragOver (ev ->
+        {
+
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
+            {
+
+                for (File f : files)
+                {
+
+                    if (UIUtils.isImageFile (f))
+                    {
+
+                        if (UserProperties.userBGImagePathsProperty ().contains (f.toPath ()))
+                        {
+
+                            ev.consume ();
+                            return;
+
+                        }
+
+                        ev.acceptTransferModes (TransferMode.COPY_OR_MOVE);
+
+                        ev.consume ();
+
+                    }
+
+                }
+
+            }
+
+        });
+
     }
 
     private void createUserBGImageSwatch (Path p,
@@ -513,7 +798,7 @@ public class SelectBGPopup extends PopupContent
         if (this.origBG instanceof Path)
         {
 
-            if (!UserProperties.userBGImagePathsProperty ().getValue ().contains (this.origBG))
+            if (!UserProperties.userBGImagePathsProperty ().contains (this.origBG))
             {
 
                 this.createUserBGImageSwatch ((Path) this.origBG,
@@ -604,6 +889,9 @@ public class SelectBGPopup extends PopupContent
             .build ();
 
         p.requestFocus ();
+
+        this.overlay.setVisible (false);
+        p.getChildren ().add (this.overlay);
 
         p.addEventHandler (QuollPopup.PopupEvent.SHOWN_EVENT,
                            ev ->

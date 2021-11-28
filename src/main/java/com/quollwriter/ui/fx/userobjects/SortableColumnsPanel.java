@@ -254,6 +254,7 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
                 {
 
                     ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue () - 1);
+                    ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue () - 1);
 
                 }
 
@@ -261,20 +262,38 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
         };
 
+//        UIUtils.runLater (r);
+
+        List<Number> widths = s.getAsList ("widths",
+                                           Number.class);
+
+        if (widths != null)
+        {
+
+            for (int i = 0; i < widths.size (); i++)
+            {
+
+                ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue () - 1);
+                ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue () - 1);
+
+            }
+
+        }
+
         if (this.getScene () != null)
         {
 
             if (this.viewer.getViewer ().isShowing ())
             {
 
-                UIUtils.runLater (r);
+                UIUtils.forceRunLater (r);
 
             } else {
 
                 this.viewer.getViewer ().showingProperty ().addListener ((xpr, xoldv, xnewv) ->
                 {
 
-                    UIUtils.runLater (r);
+                    UIUtils.forceRunLater (r);
 
                 });
 
@@ -297,14 +316,14 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
             if (this.viewer.getViewer ().isShowing ())
             {
 
-                UIUtils.runLater (r);
+                UIUtils.forceRunLater (r);
 
             } else {
 
                 this.viewer.getViewer ().showingProperty ().addListener ((xpr, xoldv, xnewv) ->
                 {
 
-                    UIUtils.runLater (r);
+                    UIUtils.forceRunLater (r);
 
                 });
 

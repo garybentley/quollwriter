@@ -40,7 +40,7 @@ public interface UserConfigurableObjectFieldViewEditHandler<T extends UserConfig
     public E getInputSaveValue ()
                          throws GeneralException;
 
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException;
 
     public E getFieldValue ()

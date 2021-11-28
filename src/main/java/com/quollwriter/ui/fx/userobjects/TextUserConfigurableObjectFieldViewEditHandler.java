@@ -3,6 +3,8 @@ package com.quollwriter.ui.fx.userobjects;
 import java.util.*;
 
 import javafx.beans.property.*;
+import javafx.scene.layout.*;
+import javafx.scene.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -87,8 +89,31 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
+        Node item = null;
+
         this.editItem = QuollTextField.builder ()
             .build ();
+
+        if (this.typeField.isNameField ())
+        {
+
+            this.editItem.getStyleClass ().add (StyleClassNames.NAME);
+
+            VBox b = new VBox ();
+            b.getChildren ().add (this.editItem);
+
+            b.getChildren ().add (QuollLabel.builder ()
+                .label (getUILanguageStringProperty (form,addedit,types,UserConfigurableObjectTypeField.Type.text.getType (),othernames,tooltip))
+                .styleClassName (StyleClassNames.INFORMATION)
+                .build ());
+
+            item = b;
+
+        } else {
+
+            item = this.editItem;
+
+        }
 
         UIUtils.addDoOnReturnPressed (this.editItem,
                                       formSave);
@@ -124,7 +149,7 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
         }
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  this.editItem));
+                                  item));
 
         return items;
 
@@ -174,7 +199,7 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 

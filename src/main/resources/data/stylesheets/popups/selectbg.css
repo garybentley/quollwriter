@@ -532,3 +532,29 @@
      -fx-background-image: url(/imgs/bgs/yellow-squares-3.png);
      -fx-background-size: 12em 4em;
  }
+
+.overlay
+{
+    -fx-alignment: center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: #ffffff;
+    -fx-opacity: 1;
+    -fx-padding: 1em;
+    -fx-max-height: 4em;
+}
+
+.overlay .label
+{
+    -fx-alignment: center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+
+    -fx-border-width: 0;
+    -fx-font-size: 1.3em;
+    -fx-text-alignment: center;
+
+    -fx-wrap-text: true;
+}

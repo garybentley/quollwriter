@@ -279,3 +279,50 @@
     -fx-alignment: center;
     visibility: true;
 }
+
+.control .image:noimage,
+.control .image:noimage .iconbox
+{
+    -fx-min-width: 10em;
+    -fx-max-width: 10em;
+    -fx-pref-width: 10em;
+    -fx-min-height: 10em;
+    -fx-max-height: 10em;
+    -fx-pref-height: 10em;
+    -fx-alignment: center;
+}
+
+.edit .control .image:noimage .iconbox .icon
+{
+    -fx-shape:"m 20.133,0 c -6.539,0 -11.86,5.32 -11.86,11.863 0,1.566 0.32,3.051 0.871,4.418 L 0,25.426 6.57,32 15.718,22.848 c 1.367,0.555 2.852,0.875 4.414,0.875 6.543,0 11.867,-5.32 11.867,-11.859 C 32,5.32 26.676,0 20.133,0 Z m 0,19.727 c -4.332,0 -7.863,-3.531 -7.863,-7.863 0,-4.336 3.531,-7.867 7.863,-7.867 4.34,0 7.871,3.531 7.871,7.867 0,4.331 -3.531,7.863 -7.871,7.863 z m -8.797,0.011 c -1.855,1.852 -4.414,4.418 -5.688,5.688 0.43,0.43 0.488,0.484 0.922,0.922 1.27,-1.273 3.832,-3.836 5.684,-5.688 -0.32,-0.289 -0.625,-0.594 -0.918,-0.922 z";
+    -fx-max-width: 8em;
+    -fx-pref-width: 8em;
+    -fx-max-height: 8em;
+    -fx-pref-height: 8em;
+    -fx-background-color: #dfdfdf;
+}
+
+.asset.new .objectname
+{
+    -fx-padding: 0.5em;
+}
+
+.asset.new .objectname .label
+{
+    -fx-font-size: 1.5em;
+    -fx-font-style: italic;
+}
+
+/*
+ This is to override the previous label definition, qtextview (WebViewFitContent) uses its
+ own label to track the size of the text it should use.
+ */
+.asset.new .objectname .errors .qtextview .label
+{
+    -fx-font-size: 1em;
+}
+
+.asset.new .objectname .control
+{
+    -fx-padding: 0.25em 0 0 0.5em;
+}

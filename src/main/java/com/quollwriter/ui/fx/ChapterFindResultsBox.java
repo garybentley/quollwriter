@@ -220,6 +220,14 @@ public class ChapterFindResultsBox extends FindResultsBox<AbstractProjectViewer>
 
             List<SentenceMatches> segs = this.snippets.get (c);
 
+            Collections.sort (segs,
+                              (o1, o2) ->
+            {
+
+                return o1.getSentence ().getAllTextStartOffset () - o2.getSentence ().getAllTextStartOffset ();
+
+            });
+
             for (SentenceMatches s : segs)
             {
 

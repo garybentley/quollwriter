@@ -112,6 +112,17 @@ public class BackgroundPane extends Pane implements Stateful
         this.setOnDragEntered (ev ->
         {
 
+            // This is a bounds check because we don't know what container we are inside.
+            if (((this.localToScene (this.getBoundsInLocal ()).contains (ev.getSceneX (), ev.getSceneY ())))
+                &&
+                (this.origBgObject != null)
+               )
+            {
+
+                return;
+
+            }
+
             if (this.dragImportAllowed)
             {
 

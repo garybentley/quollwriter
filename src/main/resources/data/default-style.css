@@ -621,7 +621,8 @@ Text
      -fx-pref-width: 0.888em;
  }
  .convert-icon,
- .sortmenu-icon {
+ .sortmenu-icon,
+ .sort-icon {
      -fx-shape: "m 20,16.035 v 4 h 4.703 l -5.336,5.34 c -3.389,3.391 -9.309,3.391 -12.701,0 l -2.83,2.82 C 6.287,30.648 9.551,32 13.02,32 c 3.471,0 6.727,-1.352 9.176,-3.805 L 28,22.395 v 5.637 h 4 V 16.035 Z M 9.805,3.677 4,9.479 V 3.841 H 0 V 15.84 h 12 v -4 H 7.299 l 5.334,-5.334 c 3.389,-3.392 9.309,-3.392 12.703,0 l 2.828,-2.829 c -4.902,-4.906 -13.457,-4.899 -18.359,0 z";
      -fx-background-color: -qw-icon-color;
  }
@@ -958,6 +959,7 @@ Text
 .finish-icon,
 .novalue-icon,
 .cancel-icon,
+.hide-icon,
 .tab-pane .tab-close-button {
     -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
     -fx-background-color: -qw-icon-color;
@@ -987,12 +989,14 @@ Text
 .view-icon,
 .showfolder-icon,
 .readability-icon,
+.show-icon,
 .tryout-icon {
     -fx-shape: "m 20,12.016 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 A 4,4 0 0 1 16,8.0159998 4,4 0 0 1 20,12.016 M 16,0 C 7.164,0 0,11.844 0,11.844 0,11.844 7.164,24 16,24 24.836,24 32,11.844 32,11.844 32,11.844 24.836,0 16,0 Z m 0,20 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-height: 0.888em;
 }
-.assets-icon {
+.assets-icon,
+.addasset-icon {
     -fx-shape: "M 0,8 H 14 V 0 H 4 Z M 28,0 H 18 V 8 H 32 Z M 0,12 H 32 V 32 H 0 Z";
     -fx-background-color: -qw-icon-color;
 }
@@ -2127,14 +2131,18 @@ Text
 
 .date-picker .arrow-button
 {
-    -fx-padding: 0.75em;
+    -fx-padding: 0.5em;
     -fx-background-radius: 0;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
     -fx-background-color: transparent;
     -fx-cursor: hand;
     -fx-border-width: 0 0 0 1px;
-    -fx-border-color: transparent;
+    -fx-border-color: -qw-component-border-color;
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
 }
 
 .date-picker .arrow-button:hover,
@@ -2164,6 +2172,15 @@ Text
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-cursor: hand;
+}
+
+.date-picker .arrow-button .arrow
+{
+    -fx-background-color: -qw-dark-color;
+    -fx-shape: "M 20,6 V 2 c 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 V 6 C 24,7.105 23.105,8 22,8 20.895,8 20,7.105 20,6 Z M 8,6 V 2 c 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 V 6 C 12,7.105 11.105,8 10,8 8.895,8 8,7.105 8,6 Z M 26,4 v 2.047 c 0,2.211 -1.789,4 -4,4 -2.211,0 -4,-1.789 -4,-4 V 4 h -4 v 2.047 c 0,2.211 -1.789,4 -4,4 -2.211,0 -4,-1.789 -4,-4 V 4 H 0 V 32 H 32 V 4 Z M 10,28 H 6 v -4 h 4 z m 0,-8 H 6 v -4 h 4 z m 8,8 h -4 v -4 h 4 z m 0,-7.992 h -4 v -4 h 4 z M 22,28 v -4 h 4 z m 4,-8 h -4 v -4 h 4 z";
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-padding: 0;
 }
 
 .date-picker .text-input, .spinner .text-input
@@ -2238,31 +2255,6 @@ a
     -fx-wrap-text: true;
 }
 
-.panel.asset.new .objectname
-{
-    -fx-padding: 0.5em;
-}
-
-.panel.asset.new .objectname .label
-{
-    -fx-font-size: 1.5em;
-    -fx-font-style: italic;
-}
-
-/*
- This is to override the previous label definition, qtextview (WebViewFitContent) uses its
- own label to track the size of the text it should use.
- */
-.panel.asset.new .objectname .errors .qtextview .label
-{
-    -fx-font-size: 1em;
-}
-
-.panel.asset.new .objectname .control
-{
-    -fx-padding: 0.25em 0 0 0.5em;
-    -fx-max-width: 70em;
-}
 .root.popupviewer .qpopup.question
 {
     /*-fx-padding: 0.5em 0.75em 0.5em 0.75em;*/

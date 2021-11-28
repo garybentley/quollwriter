@@ -473,7 +473,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
 
         items.add (QuollMenuItem.builder ()
             .label (getUILanguageStringProperty (Utils.newList (prefix,newobject)))
-            .iconName (StyleClassNames.ASSET)
+            .iconName (StyleClassNames.ADD + StyleClassNames.ASSET)
             .onAction (ev ->
             {
 
@@ -771,68 +771,9 @@ TODO Remove
                         {
 
                             this.viewer.showDeleteUserConfigurableType (type);
-/*
-                            String pid = "deleteall" + type.getObjectReference ().asString ();
 
-                            QuollPopup.yesConfirmTextEntryBuilder ()
-                                .withViewer (_this.viewer)
-                                .title (getUILanguageStringProperty (Arrays.asList (assets,deleteall,title),
-                                                                     type.objectTypeNamePluralProperty ()))
-                                .popupId (pid)
-                                .styleClassName (StyleClassNames.DELETE)
-                                .description (getUILanguageStringProperty (Arrays.asList (assets,deleteall,text),
-                                                                       type.objectTypeNamePluralProperty ()))
-                                .confirmButtonLabel (assets,deleteall,buttons,confirm)
-                                .cancelButtonLabel (assets,deleteall,buttons,cancel)
-                                .onConfirm (eev ->
-                                {
-
-                                    try
-                                    {
-
-                                        _this.viewer.deleteAllAssetsOfType (type);
-
-                                    } catch (Exception e) {
-
-                                        Environment.logError ("Unable to remove all: " +
-                                                              type,
-                                                              e);
-
-                                        ComponentUtils.showErrorMessage (_this.viewer,
-                                                                         getUILanguageStringProperty (assets,deleteall,actionerror));
-                                                                  //String.format ("Unable to remove all %1$s.",
-                                                                    //             type.getObjectTypeNamePlural ()));
-
-                                        return;
-
-                                    }
-
-                                    try
-                                    {
-
-                                        Environment.removeUserConfigurableObjectType (type);
-
-                                    } catch (Exception e) {
-
-                                        Environment.logError ("Unable to remove user object type: " +
-                                                              type,
-                                                              e);
-
-                                        ComponentUtils.showErrorMessage (_this.viewer,
-                                                                         getUILanguageStringProperty (assets,deleteall,actionerror));
-                                                                  //"Unable to remove object.");
-
-                                        return;
-
-                                    }
-
-                                    _this.viewer.getPopupById (pid).close ();
-
-                                })
-                                .build ();
-*/
-                            })
-                            .build ());
+                        })
+                        .build ());
 
                     return items2;
 

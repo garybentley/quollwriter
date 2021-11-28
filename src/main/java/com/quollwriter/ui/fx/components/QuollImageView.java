@@ -5,6 +5,7 @@ import java.nio.file.*;
 import java.util.*;
 
 import javafx.beans.property.*;
+import javafx.beans.binding.*;
 import javafx.geometry.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
@@ -18,7 +19,7 @@ import com.quollwriter.ui.fx.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class QuollImageView extends VBox
+public class QuollImageView extends StackPane
 {
 
     //private ImageView iv = null;
@@ -36,28 +37,67 @@ public class QuollImageView extends VBox
         this.imagePathProp = new SimpleObjectProperty<> ();
         this.imageProp = new SimpleObjectProperty<> ();
 
-/*
-        this.iv = new ImageView ();
-        this.iv.setPreserveRatio (true);
-        this.iv.managedProperty ().bind (this.iv.visibleProperty ());
-        this.managedProperty ().bind (this.visibleProperty ());
-        this.iv.fitWidthProperty ().bind (this.prefWidthProperty ());
-        this.iv.fitHeightProperty ().bind (this.prefHeightProperty ());
-*/
-        //iv.relocate (0, 0);
-        //this.setMinWidth (100);
-        //this.setMinHeight (100);
+        this.setOnDragDetected (ev ->
+        {
 
-        //this.getChildren ().add (iv);
+            if (this.imagePathProp.getValue () != null)
+            {
+
+                Dragboard db = this.startDragAndDrop (TransferMode.MOVE);
+
+                ClipboardContent c = new ClipboardContent ();
+                List<File> files = new ArrayList<> ();
+                files.add (this.imagePathProp.getValue ().toFile ());
+                c.putFiles (files);
+
+                db.setContent (c);
+                db.setDragView (UIUtils.getImageOfNode (this));
+                this.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
+                ev.consume ();
+
+            }
+
+        });
+
+        this.setOnDragDone (ev ->
+        {
+
+            this.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+            ev.consume ();
+
+        });
+
+
+        this.setOnDragExited (ev ->
+        {
+
+            this.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+            ev.consume ();
+
+        });
+
         this.getStyleClass ().add (StyleClassNames.IMAGE);
+
+        final QuollImageView _this = this;
+
+        StackPane sp = new StackPane ();
+        this.getChildren ().add (sp);
 
         this.ib = IconBox.builder ()
             .build ();
+        VBox bb = new VBox ();
+        VBox.setVgrow (bb,
+                       Priority.NEVER);
+        bb.getChildren ().add (this.ib);
+        //bb.maxHeightProperty ().bind (this.ib.heightProperty ());
+        //bb.prefHeightProperty ().bind (this.ib.heightProperty ());
+        this.ib.heightProperty ().addListener ((pr, oldv, newv) ->
+        {
 
-        this.getChildren ().add (this.ib);
-        //h.relocate (0, 0);
+            UIUtils.forceRunLater (() -> bb.requestLayout ());
 
-        //this.getChildren ().add (h);
+        });
+        this.getChildren ().add (bb);//this.ib);
 
         this.overlay = new VBox ();
         this.overlay.getStyleClass ().add (StyleClassNames.OVERLAY);
@@ -66,22 +106,13 @@ public class QuollImageView extends VBox
         this.overlay.getChildren ().add (this.dropLabel);
         this.overlay.setVisible (false);
         this.getChildren ().add (this.overlay);
+        this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, false);
+        this.ib.setImage (null);
+        this.imageProp.setValue (null);
+        
+        /*
         VBox.setVgrow (this.overlay,
                        Priority.ALWAYS);
-/*
-        this.widthProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            //this.iv.setFitWidth (Math.round (newv.doubleValue ()) - this.getInsets ().getLeft () - this.getInsets ().getRight ());
-
-            UIUtils.runLater (() ->
-            {
-
-                this.requestLayout ();
-
-            });
-
-        });
 */
         this.setOnDragOver (ev ->
         {

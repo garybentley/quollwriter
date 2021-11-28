@@ -47,7 +47,7 @@ public class LayoutColumn extends VBox
         this.fieldsBox = new VBox ();
         this.fieldsBox.getStyleClass ().add (StyleClassNames.FIELDS);
         this.fieldsBox.pseudoClassStateChanged (StyleClassNames.HIDELABELS_PSUEDO_CLASS, !col.isShowFieldLabels ());
-        //this.maxWidthProperty ().bind (this.prefWidthProperty ());
+
         VBox.setVgrow (this.fieldsBox,
                        Priority.ALWAYS);
 
@@ -99,6 +99,8 @@ public class LayoutColumn extends VBox
         {
 
            ContextMenu cm = new ContextMenu ();
+
+           UIUtils.addShowCSSViewerFilter (cm);
 
            cm.getItems ().add (QuollMenuItem.builder ()
                .iconName (StyleClassNames.EDIT)
@@ -483,14 +485,7 @@ public class LayoutColumn extends VBox
                                            vb);
         vb.getLabel ().setOnDragDetected (ev ->
         {
-/*
-            if (this.areFieldsBeingEdited ())
-            {
 
-                return;
-
-            }
-*/
             this.setDragItem (vb);
 
             Dragboard db = vb.startDragAndDrop (TransferMode.MOVE);
@@ -591,7 +586,7 @@ public class LayoutColumn extends VBox
     {
 
         FieldBox last = null;
-
+/*
         for (FieldBox f : this.getFieldBoxes ())
         {
 
@@ -609,6 +604,13 @@ public class LayoutColumn extends VBox
 
         }
 
+        UIUtils.forceRunLater (() ->
+        {
+
+            this.requestLayout ();
+
+        });
+*/
     }
 
     public FieldBox getFieldBoxAt (double x,

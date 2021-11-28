@@ -607,27 +607,19 @@ public class ProjectViewer extends AbstractProjectViewer
             }
 
         });
-/*
-        String ids = null;
 
-        if (s != null)
+        this.addMapChangeListener (this.getProject ().getAssets (),
+                                   ch ->
         {
 
-            ids = s.getAsString ("headerControlButtonIds");
+            if (ch.wasRemoved ())
+            {
 
-        }
+                this.deleteAllAssetsOfType (ch.getKey ());
 
-        if (ids == null)
-        {
+            }
 
-            ids = UserProperties.get (Constants.PROJECT_VIEWER_HEADER_CONTROL_BUTTONS_IDS_PROPERTY_NAME);
-
-        }
-
-        Set<String> headerIds = new LinkedHashSet<> (Arrays.asList (ids.split (",")));
-
-        this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.getProjectViewer);
-*/
+        });
 
         this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.projectViewerHeaderControlButtonIds ());
 
@@ -1952,6 +1944,28 @@ TODO
     public void deleteAllAssetsOfType (UserConfigurableObjectType type)
     {
 
+        // Due to the async nature of removing types it may be that the type has already been removed
+        // from the project but there may be tabs open for assets of the type.
+        for (Panel p : this.getPanels ().values ())
+        {
+
+            if (p.getContent () instanceof AssetViewPanel)
+            {
+
+                AssetViewPanel avp = (AssetViewPanel) p.getContent ();
+
+                if (avp.getObject ().getUserConfigurableObjectType ().equals (type))
+                {
+
+                    this.removePanel (p,
+                                      null);
+
+                }
+
+            }
+
+        }
+
         Set<Asset> assets = this.project.getAssets (type);
 
         if (assets == null)
@@ -1996,6 +2010,13 @@ TODO
 
             // TODO this.refreshObjectPanels (otherObjects);
 
+            for (NamedObject n : otherObjects)
+            {
+
+                n.removeLinkFor (a);
+
+            }
+
             this.fireProjectEvent (ProjectEvent.Type.asset,
                                    ProjectEvent.Action.delete,
                                    a);
@@ -2003,7 +2024,7 @@ TODO
         } catch (Exception e)
         {
 
-            Environment.logError ("Unable to remove links: " +
+            Environment.logError ("Unable to remove asset: " +
                                   a,
                                   e);
 

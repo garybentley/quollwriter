@@ -8,6 +8,10 @@
     -fx-border-color: -qw-border-color;
     -fx-background-color: -qw-bg-color;
 }
+.qpopup.overlay
+{
+    -fx-effect: null;    
+}
 .header.title .controls
 {
     -fx-padding: 0.5em;
@@ -124,5 +128,5 @@
 {
     -fx-pref-height: 0.888em;
     -fx-shape: "m 20,12.016 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 A 4,4 0 0 1 16,8.0159998 4,4 0 0 1 20,12.016 M 16,0 C 7.164,0 0,11.844 0,11.844 0,11.844 7.164,24 16,24 24.836,24 32,11.844 32,11.844 32,11.844 24.836,0 16,0 Z m 0,20 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z";
-    -fx-background-color: -qw-icon-color;    
+    -fx-background-color: -qw-icon-color;
 }

@@ -25,7 +25,8 @@ import static com.quollwriter.LanguageStrings.*;
 public class FieldBox extends VBox
 {
 
-    public static final EventType<Event> SAVE_EVENT = new EventType<> ("fieldbox.save");
+    public static final EventType<Event> SAVE_SINGLE_EVENT = new EventType<> ("fieldbox.save-single");
+    public static final EventType<Event> SAVE_FULL_EVENT = new EventType<> ("fieldbox.save-full");
     public static final EventType<Event> EDIT_EVENT = new EventType<> ("fieldbox.edit");
     public static final EventType<Event> CANCEL_EVENT = new EventType<> ("fieldbox.cancel");
 
@@ -41,6 +42,7 @@ public class FieldBox extends VBox
     private VBox config = null;
     private boolean saveObject = false;
     private Header label = null;
+    private Node viewBox = null;
 
     public FieldBox (UserConfigurableObjectTypeField         field,
                      UserConfigurableObject                  object,
@@ -851,6 +853,9 @@ xxx
                    throws GeneralException
     {
 
+        this.inputItems = null;
+        this.errors.setVisible (false);
+        this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, false);
         this.edit.setVisible (false);
         this.config.setVisible (false);
 
@@ -862,22 +867,16 @@ xxx
 
         }
 
-        this.view.setVisible (true);
-        this.view.getChildren ().clear ();
+        Set<Form.Item> its = this.handler.getViewFormItems (() ->
+                                                            {
 
-        Set<Form.Item> its = this.handler.getViewFormItems ();
+                                                                this.fireEvent (new Event (this, this, SAVE_SINGLE_EVENT));
+
+                                                            });
 
         for (Form.Item it : its)
         {
-/*
-            if (it.label != null)
-            {
 
-                it.label.getStyleClass ().add (StyleClassNames.LABEL);
-                this.view.getChildren ().add (it.label);
-
-            }
-*/
             VBox b = new VBox ();
             b.getStyleClass ().add (StyleClassNames.CONTROL);
             b.getChildren ().add (it.control);
@@ -895,33 +894,17 @@ xxx
                 b.prefHeightProperty ().bind (((Region) it.control).heightProperty ());
 
             }
-/*
-            if (it.control instanceof BackgroundPane)
-            {
 
-                //it.control.prefWidthProperty
+            this.view.getChildren ().remove (this.viewBox);
 
-            }
+            this.viewBox = b;
 
-            if (it.control instanceof ImageView)
-            {
-
-                //ImageView iv = (ImageView) it.control;
-                //iv.fitWidthProperty ().bind (b.widthProperty ());
-                //iv.setImage ()
-                b.widthProperty ().addListener ((pr, oldv, newv) ->
-                {
-
-                    //iv.setScaleX (newv.doubleValue () / iv.getImage ().getWidth ());
-
-                });
-
-            }
-*/
             this.view.getChildren ().add (b);
+
         }
 
-        this.view.requestLayout ();
+        this.view.setVisible (true);
+        //this.view.requestLayout ();
 
     }
 
@@ -1037,7 +1020,7 @@ xxx
                                                                   () ->
                                                                   {
 
-                                                                      this.fireEvent (new Event (this, this, SAVE_EVENT));
+                                                                      this.fireEvent (new Event (this, this, SAVE_FULL_EVENT));
 
                                                                   });
 
@@ -1119,7 +1102,7 @@ xxx
                                                                   () ->
                                                                   {
 
-                                                                      this.fireEvent (new Event (this, this, SAVE_EVENT));
+                                                                      this.fireEvent (new Event (this, this, SAVE_SINGLE_EVENT));
 
                                                                   });
 
@@ -1152,19 +1135,19 @@ xxx
         this.edit.getChildren ().add (b);
 
         QuollButton saveB = QuollButton.builder ()
-            .tooltip (new SimpleStringProperty ("Click to save this field"))
+            .tooltip (getUILanguageStringProperty (form,addedit,buttons,save,tooltip))
             .iconName (StyleClassNames.SAVE)
             .buttonType (ButtonBar.ButtonData.APPLY)
             .onAction (ev ->
             {
 
-                this.fireEvent (new Event (this, this, SAVE_EVENT));
+                this.fireEvent (new Event (this, this, SAVE_SINGLE_EVENT));
 
             })
             .build ();
 
         QuollButton cancelB = QuollButton.builder ()
-            .tooltip (new SimpleStringProperty ("Click to cancel the changes"))
+            .tooltip (getUILanguageStringProperty (form,addedit,buttons,cancel,tooltip))
             .iconName (StyleClassNames.CANCEL)
             .buttonType (ButtonBar.ButtonData.CANCEL_CLOSE)
             .onAction (ev ->
@@ -1218,6 +1201,9 @@ xxx
            }
 
            tb.getChildren ().add (cb);
+
+           bb.maxWidthProperty ().bind (((Region) it.control).widthProperty ());
+           bb.prefWidthProperty ().bind (((Region) it.control).widthProperty ());
 
         }
 

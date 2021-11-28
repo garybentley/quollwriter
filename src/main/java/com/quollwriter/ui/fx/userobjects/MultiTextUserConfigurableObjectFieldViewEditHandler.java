@@ -191,7 +191,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 

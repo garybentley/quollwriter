@@ -1249,8 +1249,30 @@
         },
         "addedit" :
         {
+            "buttons" :
+            {
+                "save" :
+                {
+                    "tooltip" : "Click to save this field"
+                },
+                "cancel" :
+                {
+                    "tooltip" : "Click to cancel the changes"
+                }
+            },
             "types" :
             {
+                "image" :
+                {
+                    "drop" : "Drop the file to set the image"
+                },
+                "documents" :
+                {
+                    "add" :
+                    {
+                        "label" : "Click to find a file or files to add"
+                    }
+                },
                 "multitext" :
                 {
                     "othernames" :
@@ -2966,6 +2988,7 @@
         ":section" : "General",
         ":comment" : "These items relate to selecting a background color/image.",
         "title" : "${actions.selectbackground}",
+        "drop" : "Drop the file to add the image",
         "popupmenu" :
         {
             "items" :

@@ -2617,12 +2617,6 @@ public class Options extends VBox implements Stateful
                                         .selected (!UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME))
                                         .build ())
                             .build ())
-                            /*
-            .mainItem (playSoundCB)
-            .subItem (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,selectownwavfile),
-                      ownSoundF)
-            .subItem (playSoundB)
-            */
             .build ();
 
         return s;

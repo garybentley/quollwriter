@@ -3,6 +3,7 @@ package com.quollwriter.ui.fx.userobjects;
 import java.time.*;
 import java.io.*;
 import java.util.*;
+import java.nio.file.*;
 
 import javafx.beans.property.*;
 import javafx.scene.control.*;
@@ -23,6 +24,8 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
     private DocumentsPanel editPanel = null;
     private DocumentsPanel viewPanel = null;
+    private IPropertyBinder binder = null;
+    private Runnable formSave = null;
 
     public DocumentsUserConfigurableObjectFieldViewEditHandler (DocumentsUserConfigurableObjectTypeField typeField,
                                                                 UserConfigurableObject                   obj,
@@ -36,13 +39,15 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
                field,
                viewer);
 
-        this.editPanel = new DocumentsPanel (this.obj,
+        this.editPanel = new DocumentsPanel (this.obj.getFiles (),
                                              binder,
                                              this.viewer);
 
-       this.viewPanel = new DocumentsPanel (this.obj,
+       this.viewPanel = new DocumentsPanel (this.obj.getFiles (),
                                             binder,
                                             this.viewer);
+
+       this.binder = new PropertyBinder ();
 
     }
 
@@ -61,6 +66,19 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
     }
 
     @Override
+    public void updateFieldFromInput ()
+                               throws GeneralException
+    {
+
+        this.obj.getFiles ().clear ();
+        this.obj.getFiles ().addAll (this.editPanel.pathsProperty ());
+
+        this.viewPanel.setPaths (this.obj.getFiles ());
+        this.editPanel.setPaths (this.obj.getFiles ());
+
+    }
+
+    @Override
     public Set<Form.Item> getInputFormItems (String   initValue,
                                              Runnable formSave)
     {
@@ -69,7 +87,8 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
                                   this.editPanel));
-
+        this.editPanel.setPaths (this.obj.getFiles ());
+        this.formSave = null;
         return items;
 
     }
@@ -107,13 +126,32 @@ public class DocumentsUserConfigurableObjectFieldViewEditHandler extends Abstrac
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
     {
+
+        this.binder.dispose ();
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
                                   this.viewPanel));
+        this.viewPanel.setPaths (this.obj.getFiles ());
+        this.formSave = formSave;
+
+        this.binder.addSetChangeListener (this.viewPanel.pathsProperty (),
+                                          ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                Path f = ev.getElementAdded ();
+                this.obj.getFiles ().add (f);
+
+            }
+            UIUtils.runLater (this.formSave);
+
+        });
 
         return items;
 

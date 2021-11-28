@@ -156,7 +156,7 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
     {
 
         StringWithMarkup text = this.obj.getDescription ();
@@ -206,7 +206,7 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
         return items;
 
     }
-
+/*
     public Node getInputTextNode (Runnable formSave)
     {
 
@@ -220,8 +220,8 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
     public Node getViewTextNode ()
     {
 
-        return this.getViewFormItems ().iterator ().next ().control;
+        return this.getViewFormItems (null).iterator ().next ().control;
 
     }
-
+*/
 }

@@ -99,7 +99,7 @@ public class WebpageUserConfigurableObjectFieldViewEditHandler extends AbstractU
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 

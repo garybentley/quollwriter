@@ -3175,8 +3175,6 @@ TODO
     public void showDeleteUserConfigurableType (UserConfigurableObjectType type)
     {
 
-        // TODO Fix to be more "generic", rather than asset focused.
-
         String pid = "deleteall" + type.getObjectReference ().asString ();
 
         QuollPopup.yesConfirmTextEntryBuilder ()
@@ -3601,7 +3599,7 @@ TODO Not needed, is a function of the sidebar itself...
         this.getViewer ().setFullScreen (false);
         this.inFullScreenModeProp.setValue (false);
 
-        EditorsEnvironment.fullScreenExited ();        
+        EditorsEnvironment.fullScreenExited ();
         this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
                                     ProjectEvent.Action.exit);
 

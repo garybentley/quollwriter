@@ -44,7 +44,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
     protected TextEditor editor = null;
     private VirtualizedScrollPane<TextEditor> scrollPane = null;
     protected javafx.beans.property.StringProperty selectedTextProp = null;
-    private long textLastModifiedTime = 0;
+    private LongProperty textLastModifiedTimeProp = null;
 
     public ChapterEditorPanelContent (E              viewer,
                                       Chapter        chapter,
@@ -55,7 +55,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         super (viewer,
                chapter);
 
-        this.textLastModifiedTime = System.currentTimeMillis ();
+        this.textLastModifiedTimeProp = new SimpleLongProperty (System.currentTimeMillis ());
 
         this.selectedTextProp = new SimpleStringProperty ();
 
@@ -184,7 +184,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
             }
 
-            this.textLastModifiedTime = System.currentTimeMillis ();
+            this.textLastModifiedTimeProp.setValue (System.currentTimeMillis ());
 
             this.setHasUnsavedChanges (true);
 
@@ -370,7 +370,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
         cm.setAutoFix (true);
         cm.setAutoHide (true);
         cm.setHideOnEscape (true);
-        UIUtils.addShowCSSViewerFilter (cm);        
+        UIUtils.addShowCSSViewerFilter (cm);
 
     }
 
@@ -436,10 +436,10 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
     }
 
-    public long getTextLastModifiedTime ()
+    public LongProperty textLastModifiedTimeProperty ()
     {
 
-        return this.textLastModifiedTime;
+        return this.textLastModifiedTimeProp;
 
     }
 

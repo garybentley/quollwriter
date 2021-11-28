@@ -310,7 +310,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 
         }
 
-        NavigableSet<Integer> ret = new TreeSet ();
+        NavigableSet<Integer> ret = new TreeSet<> ();
 
         for (Integer ind : TextUtilities.find (this.words,
                                                findWords,

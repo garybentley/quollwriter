@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.WeakHashMap;
 import java.util.LinkedHashSet;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -78,7 +79,7 @@ public class UserProperties
     private static SimpleObjectProperty<Color> editMarkerColorProp = null;
     private static SimpleStringProperty sortProjectsByProp = null;
     private static ObservableSet<Path> userBGImagePaths = null;
-    private static SimpleSetProperty<Path> userBGImagePathsProp = null;
+    //private static SimpleSetProperty<Path> userBGImagePathsProp = null;
     private static ObservableSet<Color> userColors = null;
     private static ObservableSet<javafx.beans.property.StringProperty> projectStatuses = null;
     private static SetProperty<javafx.beans.property.StringProperty> projectStatusesProp = null;
@@ -412,14 +413,19 @@ public class UserProperties
 
         }
 
-        UserProperties.userBGImagePathsProp = new SimpleSetProperty<> (UserProperties.userBGImagePaths);
+        //UserProperties.userBGImagePathsProp = new SimpleSetProperty<> (UserProperties.userBGImagePaths);
 
-        UserProperties.userBGImagePathsProp.addListener ((pr, oldv, newv) ->
+        UserProperties.userBGImagePaths.addListener ((SetChangeListener<Path>) (ev) ->
         {
 
             // TODO Is this the best palce for this?  The exception gets sort of lost.
             try
             {
+
+                // Encode as json...
+                String data = JSONEncoder.encode (UserProperties.userBGImagePaths);
+
+                /*
 
                 Element root = new DefaultElement ("files");
 
@@ -435,7 +441,7 @@ public class UserProperties
 
                 // Get as a string.
                 String data = DOM4JUtils.elementAsString (root);
-
+*/
                 UserProperties.set (Constants.BG_IMAGE_FILES_PROPERTY_NAME,
                                     data);
 
@@ -1875,19 +1881,49 @@ public class UserProperties
         }
 
         // Will be xml.
-        Element root = DOM4JUtils.stringAsElement (bgFiles);
+        // Legacy, if starts with <files then assume XML.
+        if (bgFiles.startsWith ("<files"))
+        {
 
-        UserProperties.userBGImagePaths.addAll (root.elements ("f").stream ()
-            .map (el -> Paths.get (el.getTextTrim ()))
-            .filter (p ->
+            Element root = DOM4JUtils.stringAsElement (bgFiles);
+
+            UserProperties.userBGImagePaths.addAll (root.elements ("f").stream ()
+                .map (el -> Paths.get (el.getTextTrim ()))
+                .filter (p ->
+                {
+
+                    return ((Files.exists (p))
+                            &&
+                            (!Files.isDirectory (p)));
+
+                })
+                .collect (Collectors.toList ()));
+
+        } else {
+
+            // Post v3, JSON.
+            Object o = JSONDecoder.decode (bgFiles);
+
+            if (o instanceof Collection)
             {
 
-                return ((Files.exists (p))
-                        &&
-                        (!Files.isDirectory (p)));
+                Collection<?> c = (Collection<?>) o;
 
-            })
-            .collect (Collectors.toList ()));
+                UserProperties.userBGImagePaths.addAll (c.stream ()
+                    .map (i -> Paths.get (i.toString ()))
+                    .filter (i ->
+                    {
+
+                        return ((Files.exists (i))
+                                &&
+                                (!Files.isDirectory (i)));
+
+                    })
+                    .collect (Collectors.toList ()));
+
+            }
+
+        }
 
     }
 
@@ -1912,10 +1948,10 @@ public class UserProperties
 
     }
 
-    public static SetProperty<Path> userBGImagePathsProperty ()
+    public static ObservableSet<Path> userBGImagePathsProperty ()
     {
 
-        return UserProperties.userBGImagePathsProp;
+        return UserProperties.userBGImagePaths;
 
     }
 

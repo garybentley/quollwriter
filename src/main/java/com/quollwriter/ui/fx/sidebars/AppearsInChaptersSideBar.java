@@ -30,6 +30,8 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
     private VBox content = null;
     private ChapterFindResultsBox results = null;
     private NamedObject obj = null;
+    private long start = 0;
+    private ScheduledFuture updateCheck = null;
 
     public AppearsInChaptersSideBar (E           viewer,
                                      NamedObject obj)
@@ -37,6 +39,7 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
 
         super (viewer);
 
+        this.start = System.currentTimeMillis ();
         this.obj = obj;
         VBox b = new VBox ();
 
@@ -87,6 +90,30 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
             this.search (snippets);
 
         });
+
+        if (this.updateCheck != null)
+        {
+
+            this.updateCheck.cancel (true);
+            this.updateCheck = null;
+
+        }
+
+        this.updateCheck = Environment.schedule (() ->
+        {
+
+            if (this.viewer.getEditorsTextModifiedSince (this.start).size () > 0)
+            {
+
+                this.search ();
+
+            }
+
+            this.start = System.currentTimeMillis ();
+
+        },
+        2 * Constants.SEC_IN_MILLIS,
+        5 * Constants.SEC_IN_MILLIS);
 
     }
 
@@ -180,6 +207,7 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
 
     }
 
+    @Override
     public void dispose ()
     {
 
@@ -189,6 +217,14 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
         {
 
             this.results.dispose ();
+
+        }
+
+        if (this.updateCheck != null)
+        {
+
+            this.updateCheck.cancel (true);
+            this.updateCheck = null;
 
         }
 

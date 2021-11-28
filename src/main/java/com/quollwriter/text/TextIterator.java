@@ -146,7 +146,7 @@ public class TextIterator
                                                                  DialogueConstraints constraints)
     {
 
-        Map<Sentence, NavigableSet<Integer>> matches = new LinkedHashMap ();
+        Map<Sentence, NavigableSet<Integer>> matches = new LinkedHashMap<> ();
 
         for (Paragraph p : this.paragraphs)
         {

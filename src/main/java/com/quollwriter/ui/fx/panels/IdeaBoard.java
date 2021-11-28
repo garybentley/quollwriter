@@ -2,6 +2,7 @@ package com.quollwriter.ui.fx.panels;
 
 import java.util.*;
 import java.util.stream.*;
+import java.io.*;
 
 import javafx.beans.property.*;
 import javafx.collections.*;
@@ -38,7 +39,7 @@ public class IdeaBoard extends PanelContent<ProjectViewer> //implements ToolBarS
 
         super (viewer);
 
-        // TODO this.getBackgroundPane ().setDragImportAllowed (true);
+        this.getBackgroundPane ().setDragImportAllowed (true);
 
         Set<Node> controls = new LinkedHashSet<> ();
 
@@ -67,6 +68,7 @@ public class IdeaBoard extends PanelContent<ProjectViewer> //implements ToolBarS
 
         this.categories = new VerticalLayout ();
         this.categories.getStyleClass ().add (StyleClassNames.CATEGORIES);
+
 /*
         this.categories.setOnMouseClicked (ev ->
         {
@@ -90,6 +92,39 @@ System.out.println ("HERE");
         });
 */
         this.scrollpane = new ScrollPane (this.categories);
+
+        this.scrollpane.addEventFilter (DragEvent.ANY,
+                                        ev ->
+        {
+
+            List<File> files = ev.getDragboard ().getFiles ();
+
+            if ((files != null)
+                &&
+                (files.size () > 0)
+               )
+            {
+
+                if (files.size () > 1)
+                {
+
+                    return;
+
+                }
+
+                File f = files.get (0);
+
+                if (UIUtils.isImageFile (f))
+                {
+
+                    // Forward the event to the bg pane.
+                    this.getBackgroundPane ().fireEvent (ev);
+
+                }
+
+            }
+
+        });
 
         this.scrollpane.setOnContextMenuRequested (ev ->
         {

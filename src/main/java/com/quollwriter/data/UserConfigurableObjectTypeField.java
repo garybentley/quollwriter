@@ -231,6 +231,20 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     public static String formatDate (LocalDate d)
     {
 
+        if (DATE_FORMATTER == null)
+        {
+
+            DATE_FORMATTER = DateTimeFormatter.ofPattern ("d-MM-yyyy");
+
+        }
+
+        if (d == null)
+        {
+
+            return null;
+
+        }
+
         return d.format (DATE_FORMATTER);
 
     }

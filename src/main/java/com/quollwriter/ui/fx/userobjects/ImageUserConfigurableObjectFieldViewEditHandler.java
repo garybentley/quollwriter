@@ -70,6 +70,8 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
             .withViewer (this.viewer)
             .build ();
 
+        this.editItem.setDragDropLabelText (getUILanguageStringProperty (form,addedit,types,UserConfigurableObjectTypeField.Type.image.getType (),drop));
+
         items.add (new Form.Item (this.typeField.formNameProperty (),
                                   this.editItem));
 
@@ -85,12 +87,9 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 
     }
 
-    @Override
-    public String getInputSaveValue ()
-                              throws GeneralException
+    private String updateForPath (Path f)
+                             throws GeneralException
     {
-
-        Path f = this.editItem.getImagePath ();
 
         if (f == null)
         {
@@ -165,6 +164,17 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
     }
 
     @Override
+    public String getInputSaveValue ()
+                              throws GeneralException
+    {
+
+        Path f = this.editItem.getImagePath ();
+
+        return this.updateForPath (f);
+
+    }
+
+    @Override
     public String stringToValue (String s)
     {
 
@@ -217,7 +227,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 
@@ -256,7 +266,12 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 
         }
 
-        icon.imagePathProperty ().addListener ((pr, oldv, newv) ->
+        this.icon.widthProperty ().addListener ((pr, oldv, newv) ->
+        {
+            UIUtils.forceRunLater (() -> this.icon.requestLayout ());
+        });
+
+        this.icon.imagePathProperty ().addListener ((pr, oldv, newv) ->
         {
 
             if (this.editItem != null)
@@ -269,10 +284,30 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
 
                     this.updateFieldFromInput ();
 
+                    UIUtils.runLater (formSave);
+
                 } catch (Exception e) {
 
                     // TODO Handle properly.
                     Environment.logError ("Unable to set edit image: " + newv,
+                                          e);
+
+                }
+
+            } else {
+
+                try
+                {
+
+                    String f = this.updateForPath (newv);
+                    this.field.setValue (this.valueToString (f));
+
+                    UIUtils.runLater (formSave);
+
+                } catch (Exception e) {
+
+                    // TODO Handle properly.
+                    Environment.logError ("Unable to set image: " + newv,
                                           e);
 
                 }

@@ -75,7 +75,7 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
         this.editPanel.showEdit ();
 
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  new ScrollPane (this.editPanel)));
+                                  this.editPanel));
 
         return items;
 
@@ -114,7 +114,7 @@ public class LinkedToUserConfigurableObjectFieldViewEditHandler extends Abstract
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();

@@ -73,7 +73,7 @@ public class DOM4JUtils
 
             Document doc = DocumentHelper.createDocument ();
             doc.setRootElement (el);
-            return doc.asXML ();
+            return el.asXML ();
 
         } catch (Exception e) {
 

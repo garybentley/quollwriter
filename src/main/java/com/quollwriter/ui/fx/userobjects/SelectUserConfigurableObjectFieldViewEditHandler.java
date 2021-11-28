@@ -167,7 +167,7 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 

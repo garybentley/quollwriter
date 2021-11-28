@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 
+import javafx.collections.*;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.geometry.*;
@@ -26,18 +27,19 @@ public class DocumentsPanel extends StackPane
 {
 
     private AbstractProjectViewer viewer = null;
-    private NamedObject obj = null;
     private VBox fileBoxes = null;
     private VBox overlay = null;
     private Path lastFile = null;
     private Label addLabel = null;
+    private ObservableSet<Path> paths = null;
 
-    public DocumentsPanel (NamedObject           obj,
+    public DocumentsPanel (ObservableSet<Path>   opaths,
                            IPropertyBinder       binder,
                            AbstractProjectViewer viewer)
     {
 
-        this.obj = obj;
+        this.paths = FXCollections.observableSet ();
+
         this.viewer = viewer;
         this.getStyleClass ().add (StyleClassNames.DOCUMENTS);
 
@@ -49,7 +51,7 @@ public class DocumentsPanel extends StackPane
                        Priority.ALWAYS);
 
         this.addLabel = QuollLabel.builder ()
-            .label (new SimpleStringProperty ("Click to find a file or files to add"))
+            .label (getUILanguageStringProperty (form,addedit,types,documents,add,label))
             .styleClassName (StyleClassNames.ADD)
             .build ();
 
@@ -87,7 +89,7 @@ public class DocumentsPanel extends StackPane
                 for (File f : files)
                 {
 
-                    this.obj.addFile (f.toPath ());
+                    this.paths.add (f.toPath ());
                     this.lastFile = f.toPath ();
 
                 }
@@ -111,8 +113,8 @@ public class DocumentsPanel extends StackPane
         this.getChildren ().add (this.overlay);
         VBox.setVgrow (this.overlay,
                        Priority.ALWAYS);
-
-        List<Path> files = new ArrayList<> (this.obj.getFiles ());
+/*
+        List<Path> files = new ArrayList<> (this.paths);
         Collections.sort (files);
 
         for (Path f : files)
@@ -122,15 +124,15 @@ public class DocumentsPanel extends StackPane
                              -1);
 
         }
-
-        binder.addSetChangeListener (this.obj.getFiles (),
+*/
+        binder.addSetChangeListener (this.paths,
                                      ch ->
         {
 
             if (ch.wasAdded ())
             {
 
-                List<Path> paths = new ArrayList<> (this.obj.getFiles ());
+                List<Path> paths = new ArrayList<> (this.paths);
 
                 Collections.sort (paths);
 
@@ -151,6 +153,8 @@ public class DocumentsPanel extends StackPane
             }
 
         });
+
+        this.setPaths (opaths);
 
         this.setOnDragDropped (ev ->
         {
@@ -177,7 +181,7 @@ public class DocumentsPanel extends StackPane
                     for (Path f : pfs)
                     {
 
-                        this.obj.addFile (f);
+                        this.paths.add (f);
                         this.lastFile = f;
 
                     }
@@ -258,70 +262,23 @@ public class DocumentsPanel extends StackPane
         });
 
     }
-/*
-    @Override
-    protected double computeMinHeight (double w)
+
+    public void setPaths (Set<Path> paths)
     {
 
-        double h = 0;
+        this.paths.clear ();
 
-        if (this.addLabel.isVisible ())
-        {
-
-            h += this.addLabel.prefHeight (w);
-
-        }
-
-        List<Node> ns = null;
-
-        if (this.fileBoxes.getChildren ().size () > 5)
-        {
-
-            ns = this.fileBoxes.getChildren ().subList (0, 5);
-
-        } else {
-
-            ns = this.fileBoxes.getChildren ();
-
-        }
-
-        for (Node n : ns)
-        {
-
-            Region r = (Region) n;
-
-            h += r.prefHeight (w);
-
-        }
-
-        return h;
+        this.paths.addAll (paths);
 
     }
-*/
-/*
-    @Override
 
-    public void layoutChildren ()
+    public ObservableSet<Path> pathsProperty ()
     {
 
-        super.layoutChildren ();
-
-        Insets ins = this.getInsets ();
-
-        for (Node n : this.getManagedChildren ())
-        {
-
-            Region r = (Region) n;
-System.out.println ("REG: " + r);
-            r.resizeRelocate (ins.getLeft (),
-                              ins.getTop (),
-                              this.getWidth () - ins.getLeft () - ins.getRight (),
-                              this.getHeight () - ins.getTop () - ins.getBottom ());
-
-        }
+        return this.paths;
 
     }
-*/
+
     private boolean canHandleDragEvent (DragEvent ev)
     {
 
@@ -341,6 +298,15 @@ System.out.println ("REG: " + r);
         {
 
             if (Files.isDirectory (f.toPath ()))
+            {
+
+                return false;
+
+            }
+
+            Path p = f.toPath ();
+
+            if (this.paths.contains (p))
             {
 
                 return false;
@@ -431,7 +397,7 @@ System.out.println ("REG: " + r);
     {
 
         FileBox fb = new FileBox (f,
-                                  this.obj,
+                                  this,
                                   this.viewer);
 
         if (addAt == -1)
@@ -449,80 +415,59 @@ System.out.println ("REG: " + r);
         this.fileBoxes.setVisible (this.fileBoxes.getChildren ().size () != 0);
 
     }
-/*
-    private void addFile (final Path    f,
-                          int addAt,
-                          final boolean noCheck)
-    {
-
-        if (addAt == -1)
-        {
-
-            List<Path> paths = new ArrayList<> (this.obj.getFiles ());
-
-            Collections.sort (paths);
-
-            addAt = paths.indexOf (f);
-
-        }
-
-        if (!noCheck)
-        {
-
-            if (this.obj.getFiles ().contains (f))
-            {
-
-                return;
-
-            }
-
-            try
-            {
-
-                this.obj.addFile (f);
-
-                this.viewer.saveObject (this.obj,
-                                        false);
-
-            } catch (Exception e) {
-
-                this.obj.removeFile (f);
-
-                //this.obj.getFiles ().remove (f);
-
-                Environment.logError ("Unable to add file to: " +
-                                      this.obj,
-                                      e);
-
-                ComponentUtils.showErrorMessage (this.viewer,
-                                                 getUILanguageStringProperty (assets,document,add,actionerror));
-
-                return;
-
-            }
-
-        }
-*/
 
     private class FileBox extends HBox
     {
 
         private Path file = null;
         private AbstractProjectViewer viewer = null;
-        private NamedObject obj = null;
+        private DocumentsPanel docPanel = null;
 
         public FileBox (Path                     f,
-                        NamedObject              obj,
+                        DocumentsPanel           docPanel,
                         AbstractProjectViewer    viewer)
         {
 
+            this.docPanel = docPanel;
             List<String> prefix = Arrays.asList (assets,documents,viewitem);
 
             this.file = f;
             this.viewer = viewer;
-            this.obj = obj;
             this.getStyleClass ().add (StyleClassNames.FILE);
 
+            this.setOnDragDetected (ev ->
+            {
+
+                Dragboard db = this.startDragAndDrop (TransferMode.MOVE);
+
+                ClipboardContent c = new ClipboardContent ();
+                List<File> files = new ArrayList<> ();
+                files.add (f.toFile ());
+                c.putFiles (files);
+
+                db.setContent (c);
+                db.setDragView (UIUtils.getImageOfNode (this));
+                this.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
+                ev.consume ();
+
+            });
+
+            this.setOnDragDone (ev ->
+            {
+
+                this.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+                ev.consume ();
+
+            });
+
+
+            this.setOnDragExited (ev ->
+            {
+
+                this.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, false);
+                ev.consume ();
+
+            });
             if (!this.isValidFile ())
             {
 
@@ -650,7 +595,7 @@ System.out.println ("REG: " + r);
 
                     cm.getItems ().add (QuollMenuItem.builder ()
                         .label (assets,documents,viewitem,popupmenu,items,showfolder)
-                        .iconName (StyleClassNames.FOLDER)
+                        .iconName (StyleClassNames.SHOWFOLDER)
                         .onAction (eev ->
                         {
 
@@ -664,11 +609,11 @@ System.out.println ("REG: " + r);
 
                 cm.getItems ().add (QuollMenuItem.builder ()
                     .label (assets,documents,viewitem,popupmenu,items,remove)
-                    .iconName (StyleClassNames.REMOVE)
+                    .iconName (StyleClassNames.CLEAR)
                     .onAction (eev ->
                     {
 
-                        this.obj.removeFile (this.file);
+                        this.docPanel.paths.remove (this.file);
 
                     })
                     .build ());

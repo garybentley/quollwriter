@@ -180,7 +180,7 @@ public class FileUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 

@@ -470,7 +470,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
                                                                  DialogueConstraints constraints)
     {
 
-        Map<Sentence, NavigableSet<Integer>> matches = new LinkedHashMap ();
+        Map<Sentence, NavigableSet<Integer>> matches = new LinkedHashMap<> ();
 
         for (Sentence s : this.sentences)
         {
@@ -521,5 +521,5 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         return pm.markupAsHTML (this.paragraph);
 
     }
-        
+
 }

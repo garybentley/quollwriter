@@ -831,7 +831,7 @@ TODO
             {
 
                 // This operation may take a while, so check to see if the text has changed since we started.
-                if (ed.getTextLastModifiedTime () > s)
+                if (ed.textLastModifiedTimeProperty ().getValue () > s)
                 {
 
                     // Reschedule ourselves.
@@ -1961,6 +1961,38 @@ TODO Needed?
 
     }
 */
+
+    public Set<ChapterEditorPanelContent> getEditorsTextModifiedSince (long t)
+    {
+
+        return this.panels.values ().stream ()
+            .map (p ->
+            {
+
+                Node c = p.getContent ();
+
+                if (c instanceof ChapterEditorPanelContent)
+                {
+
+                    return (ChapterEditorPanelContent) c;
+
+                }
+
+                return null;
+
+            })
+            .filter (p ->
+            {
+
+                return (p != null)
+                        &&
+                       (p.textLastModifiedTimeProperty ().getValue () > t);
+
+            })
+            .collect (Collectors.toSet ());
+
+    }
+
     public ChapterEditorPanelContent getEditorForChapter (Chapter c)
     {
 

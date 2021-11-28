@@ -6,12 +6,14 @@ import java.util.*;
 
 import javafx.beans.property.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.data.*;
+import com.quollwriter.uistrings.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -61,20 +63,67 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
                                       throws GeneralException
     {
 
-        Set<Form.Item> items = new LinkedHashSet<> ();
-
         this.editItem = new DatePicker (this.getFieldValue () != null ? this.getFieldValue () : this.typeField.getDefault ());
 
-/*
-        if (initValue != null)
+        VBox b = new VBox ();
+        b.getChildren ().add (this.editItem);
+
+        this.editItem.prefWidthProperty ().bind (b.widthProperty ());
+
+        LocalDate min = this.typeField.getMinimum ();
+        LocalDate max = this.typeField.getMaximum ();
+
+        if ((min != null)
+            ||
+            (max != null)
+           )
         {
 
-            this.editItem.setDate (this.stringToValue (initValue));
+            StringProperty t = UILanguageStringsManager.createStringPropertyWithBinding (() ->
+            {
+
+                StringBuilder _b = new StringBuilder ();
+
+                if (min != null)
+                {
+
+                    _b.append (getUILanguageStringProperty (Arrays.asList (form,config,types,UserConfigurableObjectTypeField.Type.date.getType (),LanguageStrings.min,description),
+                                                           Environment.formatLocalDate (min)).getValue ());
+
+                }
+
+                if (max != null)
+                {
+
+                    if (_b.length () > 0)
+                    {
+
+                        _b.append (" ");
+
+                    }
+
+                    _b.append (getUILanguageStringProperty (Arrays.asList (form,config,types,UserConfigurableObjectTypeField.Type.date.getType (),LanguageStrings.max,description),
+                                                           Environment.formatLocalDate (max)).getValue ());
+
+                }
+
+                return _b.toString ();
+
+            });
+
+            QuollLabel l = QuollLabel.builder ()
+                .label (t)
+                .styleClassName (StyleClassNames.INFORMATION)
+                .build ();
+
+            b.getChildren ().add (l);
 
         }
-*/
+
+        Set<Form.Item> items = new LinkedHashSet<> ();
+
         items.add (new Form.Item (this.typeField.formNameProperty (),
-                                  this.editItem));
+                                  b));
 
         return items;
 
@@ -94,16 +143,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     public LocalDate getInputSaveValue ()
     {
 
-        //LocalDate l = this.editItem.getValue ();
-        //Instant i = (Instant) l.adjustInto (Instant.ofEpochMilli (0));
-
-        //return Utils.localDateToDate (l);
-
         return this.editItem.getValue ();
-
-        //return Date.from (l.atStartOfDay (ZoneId.systemDefault ()).toInstant ());
-
-        //return new Date (i.toEpochMilli ());
 
     }
 
@@ -131,7 +171,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     }
 
     @Override
-    public Set<Form.Item> getViewFormItems ()
+    public Set<Form.Item> getViewFormItems (Runnable formSave)
                                      throws GeneralException
     {
 
