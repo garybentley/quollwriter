@@ -561,8 +561,6 @@ public class QuollPopup extends StackPane implements IPropertyBinder
                                   x,
                                   y);
 
-                this.fireEvent (new PopupEvent (this,
-                                                PopupEvent.SHOWN_EVENT));
                 return;
 
             }
@@ -594,6 +592,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
 
             this.fireEvent (new PopupEvent (this,
                                             PopupEvent.SHOWN_EVENT));
+
             return;
 
         }
@@ -601,9 +600,6 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         this.viewer.showPopup (this,
                                x,
                                y);
-
-        this.fireEvent (new PopupEvent (this,
-                                        PopupEvent.SHOWN_EVENT));
 
     }
 

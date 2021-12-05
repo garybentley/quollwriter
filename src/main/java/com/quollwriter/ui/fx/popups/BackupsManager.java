@@ -921,7 +921,7 @@ TODO Remove
                     QuollPopup.messageBuilder ()
                         .message (b)
                         .title (backups,_new,confirmpopup,title)
-                        .styleClassName (StyleClassNames.BACKUPCREATED)
+                        .styleClassName (StyleClassNames.CREATEBACKUP)
                         .withViewer (viewer)
                         .closeButton ()
                         .build ();

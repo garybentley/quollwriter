@@ -840,6 +840,8 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
 
         this.backupDirPathProp.setValue (f);
 
+        this.initBackupPaths ();
+
     }
 
     public Path getFilesDirectory ()

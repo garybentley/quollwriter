@@ -29,13 +29,14 @@ public class BackgroundPane extends Pane implements Stateful
         this.viewer = viewer;
         this.getStyleClass ().add (StyleClassNames.BACKGROUND);
         this.backgroundObject = new BackgroundObject ();
+
         this.backgroundObject.backgroundProperty ().addListener ((p, oldv, newv) ->
         {
 
             this.updateBackground ();
 
         });
-
+        
         this.setOnDragDropped (ev ->
         {
 
@@ -67,6 +68,7 @@ public class BackgroundPane extends Pane implements Stateful
 
                             this.origBgObject = null;
                             this.backgroundObject.update (f.toPath ());
+                            UserProperties.addUserBGImagePath (f.toPath ());
 
                         } catch (Exception e) {
 

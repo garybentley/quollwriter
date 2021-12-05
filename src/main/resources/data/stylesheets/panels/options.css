@@ -44,7 +44,7 @@
 */
 .editing .hyperlink {
     -fx-graphic-text-gap: 0.5em;
-} 
+}
 .header:scrolling {
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
@@ -73,4 +73,9 @@
 {
     -fx-font-weight: bold;
     -fx-font-size: 1.3em;
+}
+
+.sub .errors
+{
+    -fx-padding: 0.25em 0 0.25em 0.5em;
 }

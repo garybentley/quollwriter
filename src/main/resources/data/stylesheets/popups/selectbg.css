@@ -47,8 +47,12 @@
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
     -fx-cursor: hand;
-    -fx-pref-width: 6.25em;
-    -fx-pref-height: 6.25em;
+    -fx-pref-width: 6.4em;
+    -fx-pref-height: 6.4em;
+    -fx-min-width: 6.4em;
+    -fx-min-height: 6.4em;
+    -fx-max-width: 6.4em;
+    -fx-max-height: 6.4em;
     -fx-effect: -qw-no-effect-spacer;
 }
 .accordion .content :selected .item {
@@ -557,4 +561,9 @@
     -fx-text-alignment: center;
 
     -fx-wrap-text: true;
+}
+
+.accordion .header .qtoolbar.controls
+{
+    -fx-padding: 0 0.25em 0 0;
 }

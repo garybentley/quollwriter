@@ -41,9 +41,8 @@ public class SelectBGPopup extends PopupContent
     private Object origBG = null;
     private Object origSwatchSel = null;
     private FlowPane colorsPane = null;
-    private TilePane imagesPane = null;
+    private FlowPane imagesPane = null;
     private BackgroundObject bgObj = null;
-    private StackPane imagesStack = null;
     private HBox overlay = null;
 
     public SelectBGPopup (AbstractViewer viewer,
@@ -57,13 +56,7 @@ public class SelectBGPopup extends PopupContent
 
         final SelectBGPopup _this = this;
 
-        this.imagesPane = new TilePane ();
-        this.imagesStack = new StackPane ();
-
-        this.imagesStack.prefHeightProperty ().bind (this.imagesPane.heightProperty ());
-        this.imagesStack.prefWidthProperty ().bind (this.imagesPane.widthProperty ());
-
-        this.imagesStack.getChildren ().addAll (this.imagesPane);
+        this.imagesPane = new FlowPane ();
 
         this.overlay = new HBox ();
         this.overlay.managedProperty ().bind (this.overlay.visibleProperty ());
@@ -209,7 +202,7 @@ public class SelectBGPopup extends PopupContent
             .title (selectbackground,types,image,title)
             .styleClassName (StyleClassNames.IMAGES)
             .headerControls (imgsHeaderCons)
-            .openContent (this.imagesStack)//this.imagesPane)
+            .openContent (this.imagesPane)
             .build ();
 
         this.colorsPane = new FlowPane ();
@@ -221,19 +214,9 @@ public class SelectBGPopup extends PopupContent
             .forEach (col ->
             {
 
-                Region swatch = _this.getColorSwatch (col);
-
-                if (swatch == null)
-                {
-
-                    return;
-
-                }
-
-                Group g = new Group ();
-                g.setUserData (col);
-                g.getChildren ().add (swatch);
-                _this.colorsPane.getChildren ().add (g);
+                this.createUserColorSwatch (col,
+                                            -1,
+                                            this.colorsPane);
 
             });
 
@@ -347,33 +330,7 @@ public class SelectBGPopup extends PopupContent
         this.selectedProp.addListener ((pr, oldv, newv) ->
         {
 
-            UIUtils.setSelected (_this.imagesPane,
-                                 newv);
-            UIUtils.setSelected (_this.colorsPane,
-                                 newv);
-
-            List<Node> ns = UIUtils.getSelected (_this.imagesPane);
-
-            if (ns.size () == 0)
-            {
-
-                ns = UIUtils.getSelected (_this.colorsPane);
-
-            }
-
-            if (ns.size () > 0)
-            {
-
-                Node n = ns.iterator ().next ();
-
-                javafx.application.Platform.runLater (() ->
-                {
-
-                    sp.scrollIntoView (n);
-
-                });
-
-            }
+            this.updateForNewBG (newv);
 
         });
 
@@ -487,6 +444,22 @@ public class SelectBGPopup extends PopupContent
         });
 
         this.setOnDragExited (ev ->
+        {
+
+            if (this.localToScene (this.getBoundsInLocal ()).contains (ev.getSceneX (),
+                                                                       ev.getSceneY ()))
+            {
+
+                return;
+
+            }
+
+            this.overlay.setVisible (false);
+
+        });
+
+
+        this.overlay.setOnDragExited (ev ->
         {
 
             if (this.localToScene (this.getBoundsInLocal ()).contains (ev.getSceneX (),
@@ -652,6 +625,35 @@ public class SelectBGPopup extends PopupContent
 
     }
 
+    private void updateForNewBG (Object newv)
+    {
+
+        UIUtils.setSelected (this.imagesPane,
+                             newv);
+        UIUtils.setSelected (this.colorsPane,
+                             newv);
+
+        List<Node> ns = UIUtils.getSelected (this.imagesPane);
+
+        if (ns.size () == 0)
+        {
+
+            ns = UIUtils.getSelected (this.colorsPane);
+
+        }
+
+        if (ns.size () > 0)
+        {
+
+            Node n = ns.iterator ().next ();
+
+            UIUtils.scrollIntoView (n,
+                                    VPos.CENTER);
+
+        }
+
+    }
+
     private void createUserBGImageSwatch (Path p,
                                           int  addAt,
                                           Pane parent)
@@ -724,10 +726,89 @@ public class SelectBGPopup extends PopupContent
 
         UserProperties.addUserColor (col);
 
-        this.colorsPane.getChildren ().add (1,
-                                            this.getColorSwatch (col));
+        this.createUserColorSwatch (col,
+                                    1,
+                                    this.colorsPane);
 
         this.selectedProp.setValue (col);
+
+        this.updateForNewBG (col);
+
+    }
+
+    private void createUserColorSwatch (Color col,
+                                        int   addAt,
+                                        Pane  parent)
+    {
+
+        final SelectBGPopup _this = this;
+
+        Background bg = this.createBackground (col);
+
+        if (bg == null)
+        {
+
+            return;
+
+        }
+
+        Label swatch = this.getSwatch (bg);
+        swatch.setUserData (col);
+
+        Group g = new Group ();
+        g.setUserData (col);
+        g.getChildren ().add (swatch);
+
+        if ((col != Color.WHITE)
+            &&
+            (col != Color.BLACK)
+           )
+        {
+
+            ContextMenu cm = new ContextMenu ();
+
+            Set<MenuItem> items = new LinkedHashSet<> ();
+
+            items.add (QuollMenuItem.builder ()
+                .label (colorchooser,LanguageStrings.swatch,popupmenu,LanguageStrings.items,remove)
+                .iconName (StyleClassNames.DELETE)
+                .onAction (eev ->
+                {
+
+                    UserProperties.removeUserColor (col);
+
+                    _this.colorsPane.getChildren ().remove (g);
+
+                    if (col.equals (_this.selectedProp.getValue ()))
+                    {
+
+                        _this.selectedProp.setValue (null);
+
+                    }
+
+                })
+                .build ());
+
+            cm.getItems ().addAll (items);
+
+            swatch.setContextMenu (cm);
+
+        }
+
+        UIUtils.setTooltip (swatch,
+                            getUILanguageStringProperty (selectbackground,types,color,tooltip));
+
+        if (addAt < 0)
+        {
+
+            parent.getChildren ().add (g);
+
+        } else {
+
+            parent.getChildren ().add (addAt,
+                                       g);
+
+        }
 
     }
 
@@ -764,7 +845,6 @@ public class SelectBGPopup extends PopupContent
                 .onAction (eev ->
                 {
 
-                    //UserProperties.removeUserImagePath (s);
                     UserProperties.removeUserColor (col);
 
                     _this.colorsPane.getChildren ().remove (swatch);
@@ -904,6 +984,21 @@ public class SelectBGPopup extends PopupContent
 
             }
 
+            this.getBinder ().addSetChangeListener (UserProperties.userBGImagePathsProperty (),
+                                                    eev ->
+            {
+
+                if (eev.wasAdded ())
+                {
+
+                    this.createUserBGImageSwatch (eev.getElementAdded (),
+                                                  0,
+                                                  this.imagesPane);
+
+                }
+
+            });
+
         });
 
         return p;
@@ -1016,8 +1111,8 @@ public class SelectBGPopup extends PopupContent
                                                                             BackgroundSize.AUTO,
                                                                             false,
                                                                             false,
-                                                                            true,
-                                                                            false)));
+                                                                            false, //true,
+                                                                            true /*false*/)));
 
         } catch (Exception e) {
 

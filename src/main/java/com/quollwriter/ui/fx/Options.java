@@ -1822,6 +1822,8 @@ public class Options extends VBox implements Stateful
             .onAction (ev ->
             {
 
+                projBackupDirErr.setVisible (false);
+
                 this.handleBackupsDirChange (projBackupDirF.getFile (),
                                              pv,
                                              err ->
@@ -3416,6 +3418,15 @@ public class Options extends VBox implements Stateful
             }
 
             proj.setBackupDirectory (newDir.toFile ());
+
+            ProjectInfo pi = Environment.getProjectInfo (proj);
+
+            if (pi != null)
+            {
+
+                pi.setBackupDirPath (newDir);
+
+            }
 
             String pid = "backupdirchange";
 
