@@ -179,10 +179,8 @@ compileJava {
         '--add-exports',
         'javafx.web/com.sun.webkit=ALL-UNNAMED',
         '--module-path',
-        //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib',
-        'D:/reference/java/javafx/javafx-sdk-12/lib',
-        //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
-        //'D:/reference/java/javafx/javafx-sdk-15.0.1/lib',
+        // This is a property that should be defined (usually) in gradle.prpoerties, i.e. module_path=/usr/share/lib/javafx-sdk-12/lib
+        module_path,
         '-Xmaxerrs',
         '1000'
     ]
@@ -196,7 +194,7 @@ jar {
 
 javadoc {
     doFirst {
-        options.addStringOption ('-module-path', 'D:/reference/java/javafx/javafx-sdk-14.0.1/lib')
+        options.addStringOption ('-module-path', module_path)
         options.addStringOption ('-add-modules', 'javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach')
     }
 }
@@ -206,10 +204,8 @@ application {
     [
         '-Djava.locale.providers=COMPAT',
         '--module-path',
-        //'D:/reference/java/javafx/javafx-sdk-13.0.2/lib'
-        'D:/reference/java/javafx/javafx-sdk-12/lib',
-        //'D:/reference/java/javafx/javafx-sdk-14.0.1/lib',
-        //'D:/reference/java/javafx/javafx-sdk-15.0.1/lib',
+        // This is a property that should be defined (usually) in gradle.prpoerties, i.e. module_path=/usr/share/lib/javafx-sdk-12/lib
+        module_path,
         '--add-modules=javafx.controls,javafx.swing,javafx.media,javafx.web,java.instrument,jdk.attach',
         '--add-exports',
         'javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
@@ -233,7 +229,6 @@ application {
         'javafx.web/com.sun.javafx.webkit=ALL-UNNAMED',
         '--add-exports',
         'javafx.web/com.sun.webkit=ALL-UNNAMED'
-        //'-agentpath:C:\\Program Files\\jprofiler11\\bin\\windows-x64\\jprofilerti.dll,nowait'
     ]
 
     // Define the main class for the application
