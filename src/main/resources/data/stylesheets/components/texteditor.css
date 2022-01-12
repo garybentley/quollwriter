@@ -12,14 +12,6 @@
      -fx-fill: black;
      -fx-font-size: 1em;
  }
-/*
- .texteditor .selection
- {
-     -fx-fill: -qw-component-border-color;
-     /*-fx-fill: white;*/
-
- }
-*/
 
  .paragraph-box .first-line-indent
  {

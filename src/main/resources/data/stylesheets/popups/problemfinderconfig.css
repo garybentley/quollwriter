@@ -9,7 +9,7 @@
 }
 .rule {
     -fx-padding: 0.25em;
-    -fx-border-width: 1px 0 0 0;
+    -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
 }
 .rule .details { -fx-alignment: top-left; }
@@ -18,7 +18,12 @@
     -fx-content-display: graphic-only;
 }
 .tab-pane .tool-bar.buttons .button .iconbox,
-.tab-pane .tool-bar.buttons .button .iconbox .icon {
+.tab-pane .tool-bar.buttons .button .iconbox .icon,
+.tab-pane .tool-bar.buttons .menu-button .iconbox,
+.tab-pane .tool-bar.buttons .menu-button .iconbox .icon,
+.tab-pane .edit .form .items .control .button .iconbox,
+.tab-pane .edit .form .items .control .button .iconbox .icon
+{
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
     -fx-padding: 0;
@@ -27,6 +32,11 @@
 }
 .tab-pane .tool-bar.buttons .button .iconbox .information-icon.icon {
     -fx-pref-width: 0.666em;
+}
+.tab-pane .view > .tool-bar.buttons
+{
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
 }
 .rule .summary {
     -fx-max-width: 23em;
@@ -63,4 +73,19 @@ HBox { -fx-spacing: 0.5em; }
 {
     -fx-min-height: 5em;
     -fx-pref-height: 10em;
+}
+
+.menu .menu-item
+{
+    -fx-padding: 0.5em;
+}
+
+.tab-pane .edit .form .items .control .button
+{
+    -fx-content-display: graphic-only;
+}
+
+.tab-pane .edit .form .items .control .label.information .iconbox
+{
+    visibility: hidden;
 }

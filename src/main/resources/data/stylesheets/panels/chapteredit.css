@@ -121,3 +121,10 @@
 {
     -fx-padding: 0;
 }
+
+.menu-item .iconbox > .chapter-icon.icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}

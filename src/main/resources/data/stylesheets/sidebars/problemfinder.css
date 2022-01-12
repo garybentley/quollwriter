@@ -21,3 +21,8 @@
     -fx-cursor: hand;
     -fx-padding: 0 0 0 0.5em;
 }
+
+.scroll-pane
+{
+    -fx-fit-to-width: false;
+}
