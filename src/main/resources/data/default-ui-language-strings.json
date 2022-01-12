@@ -1525,7 +1525,11 @@
         "editneeded" : "Edit Needed",
         "selectall" : "Select all",
         "select" : "Select",
-        "configure" : "Configure"
+        "configure" : "Configure",
+        "moveup" : "Move up",
+        "movedown" : "Move down",
+        "movetop" : "Move to top",
+        "movebottom" : "Move to bottom"
     },
     "sidebars" :
     {
@@ -7667,6 +7671,11 @@
                 "title" : "${objectnames.singular.warmup}",
                 "items" :
                 {
+                    "warmup" :
+                    {
+                        "text" : "Start a new ${objectnames.singular.warmup}",
+                        "tooltip" : "${warmups.editorpanel.popupmenu.items.warmup.text}"
+                    },
                     "save" :
                     {
                         "text" : "Save ${objectnames.singular.warmup}",
@@ -7679,7 +7688,7 @@
                     },
                     "convert" :
                     {
-                        "text" : "${objectnames.singular.warmup} to a ${objectnames.singular.project}",
+                        "text" : "Convert the ${objectnames.singular.warmup} to a ${objectnames.singular.project}",
                         "tooltip" : "${warmups.editorpanel.popupmenu.items.convert.text}"
                     },
                     "find" :
@@ -7711,7 +7720,12 @@
                         "converttoproject" : "Convert to a ${objectnames.singular.project}",
                         "rename" : "${actions.rename} ${objectnames.singular.warmup}",
                         "close" : "${actions.close} ${objectnames.singular.warmup}",
-                        "delete" : "${actions.delete} ${objectnames.singular.warmup}"
+                        "delete" : "${actions.delete} ${objectnames.singular.warmup}",
+                        "move" : "Move ${objectnames.singular.warmup}",
+                        "top" : "${actions.movetop}",
+                        "bottom" : "${actions.movebottom}",
+                        "up" : "${actions.moveup}",
+                        "down" : "${actions.movedown}"
                     }
                 }
             }
@@ -7778,7 +7792,12 @@
                 "actionerror" : "Unable to rename ${objectnames.singular.warmup}.",
                 "title" : "Rename ${objectnames.singular.warmup}",
                 "text" : "Enter the new ${objectnames.singular.warmup} name below.",
-                "confirm" : "${actions.rename}"
+                "confirm" : "${actions.rename}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a ${objectnames.singular.warmup} name.",
+                    "valueexists" : "A ${objectnames.singular.warmup} with that name already exists."
+                }
             },
             "deletewarmup" :
             {
@@ -8320,7 +8339,7 @@
                 },
                 "highlightlinecolor" :
                 {
-                    "text" : "Highlight line",
+                    "text" : "Highlight line color",
                     "popup" :
                     {
                         "title" : "Select the highlight line color"
