@@ -336,4 +336,29 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
+    @Override
+    public int hashCode ()
+    {
+
+        return this.id.hashCode ();
+
+    }
+
+    @Override
+    public boolean equals (Object o)
+    {
+
+        if ((o == null) || (!(o instanceof AbstractRule)))
+        {
+
+            return false;
+
+        }
+
+        AbstractRule r = (AbstractRule) o;
+
+        return this.id.equals (r.id);
+
+    }
+
 }

@@ -176,8 +176,8 @@ public class WarmupEditorPanelContent extends ChapterEditorPanelContent<WarmupPr
             .onAction (ev ->
             {
 
-                this.viewer.runCommand (ProjectViewer.CommandId.deletechapter,
-                                        this.object);
+                this.viewer.runCommand (WarmupProjectViewer.CommandId.deletewarmup,
+                                        this.viewer.getWarmupForChapter (this.object));
 
             })
             .build ());
@@ -321,6 +321,17 @@ TODO
                 })
                 .build ());
 
+            row1.add (QuollButton.builder ()
+                .tooltip (getUILanguageStringProperty (Utils.newList (prefix, Warmup.OBJECT_TYPE,tooltip)))
+                .iconName (Warmup.OBJECT_TYPE)
+                .onAction (eev ->
+                {
+
+                    this.viewer.runCommand (WarmupProjectViewer.CommandId.dowarmup);
+
+                })
+                .build ());
+
             CustomMenuItem n = UIUtils.createCompressedMenuItem (getUILanguageStringProperty (project,editorpanel,popupmenu,Chapter.OBJECT_TYPE,compresstext),
                                                                  row1);
 
@@ -336,8 +347,6 @@ TODO
                 (emi != null)
                )
             {
-
-                ret.add (new SeparatorMenuItem ());
 
                 if (fmi != null)
                 {
@@ -382,11 +391,7 @@ TODO
                 })
                 .build ());
 
-            Set<MenuItem> citems = new LinkedHashSet<> ();
-
-            // Add the new items.
-            // TODO
-            citems.add (QuollMenuItem.builder ()
+            ret.add (QuollMenuItem.builder ()
                 .iconName (StyleClassNames.EDITPROPERTIES)
                 .label (getUILanguageStringProperty (Utils.newList (prefix,textproperties,text)))
                 .accelerator (new KeyCodeCombination (KeyCode.E,
@@ -399,7 +404,7 @@ TODO
                 })
                 .build ());
 
-            citems.add (QuollMenuItem.builder ()
+            ret.add (QuollMenuItem.builder ()
                 .iconName (StyleClassNames.FIND)
                 .label (getUILanguageStringProperty (Utils.newList (prefix,find,text)))
                 .accelerator (new KeyCodeCombination (KeyCode.F,
@@ -412,39 +417,17 @@ TODO
                 })
                 .build ());
 
-            QuollMenu m = QuollMenu.builder ()
-                .styleClassName (StyleClassNames.EDIT)
-                .label (project,editorpanel,popupmenu,Chapter.OBJECT_TYPE,text)
-                .items (citems)
-                .build ();
-
-            ret.add (m);
-
-            citems = new LinkedHashSet<> ();
-
-            List<String> mprefix = Arrays.asList (project,editorpanel,popupmenu,_new,items);
-
-            citems.add (QuollMenuItem.builder ()
-                .label (getUILanguageStringProperty (Utils.newList (mprefix, Chapter.OBJECT_TYPE,text)))
-                .iconName (Chapter.OBJECT_TYPE)
+            ret.add (QuollMenuItem.builder ()
+                .label (getUILanguageStringProperty (Utils.newList (prefix, Warmup.OBJECT_TYPE,text)))
+                .iconName (Warmup.OBJECT_TYPE)
                 .accelerator (Environment.getNewObjectTypeKeyCombination (Chapter.OBJECT_TYPE))
                 .onAction (eev ->
                 {
 
-                    this.viewer.runCommand (ProjectViewer.CommandId.newchapter,
-                                            null,
-                                            this.object);
+                    this.viewer.runCommand (WarmupProjectViewer.CommandId.dowarmup);
 
                 })
                 .build ());
-
-            m = QuollMenu.builder ()
-                .styleClassName (StyleClassNames.NEW)
-                .label (project,editorpanel,popupmenu,_new,text)
-                .items (citems)
-                .build ();
-
-            ret.add (m);
 
             String sel = this.editor.getSelectedText ();
 

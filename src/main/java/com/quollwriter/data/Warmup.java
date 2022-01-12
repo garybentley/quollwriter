@@ -83,6 +83,7 @@ public class Warmup extends NamedObject
     {
 
         this.chapter = c;
+        this.nameProperty ().bind (c.nameProperty ());
 
         this.setParent (c);
 

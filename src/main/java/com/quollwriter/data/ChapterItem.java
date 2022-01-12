@@ -62,11 +62,11 @@ public abstract class ChapterItem extends NamedObject
 
     }
 
-    public void dispose ()
-    {
+    //public void dispose ()
+    //{
 
-        this.positionProp.unbind ();
-        this.endPositionProp.unbind ();
+        //this.positionProp.unbind ();
+        //this.endPositionProp.unbind ();
 /*
         if (this.textPos2 != null)
         {
@@ -82,7 +82,7 @@ public abstract class ChapterItem extends NamedObject
 
         }
 */
-    }
+    //}
 
     public SimpleIntegerProperty positionProperty ()
     {
@@ -339,18 +339,6 @@ public abstract class ChapterItem extends NamedObject
 
         }
 
-/*
-        this.textPos = null;
-
-        if (this.textPos2 != null)
-        {
-
-            this.textPos2.dispose ();
-
-        }
-
-        this.textPos2 = null;
-*/
     }
 
     public void shiftPositionBy (int p)

@@ -1093,7 +1093,11 @@ public class Chapter extends LegacyUserConfigurableObject
     public void removeScene (Scene s)
     {
 
+        s.getOutlineItems ().clear ();
+
         this.scenes.remove (s);
+
+        s.dispose ();
 
     }
 

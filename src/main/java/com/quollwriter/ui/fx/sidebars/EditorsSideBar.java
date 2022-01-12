@@ -489,7 +489,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                 if (EditorsEnvironment.hasLoginCredentials ())
                 {
-System.out.println ("HERE");
+
                     np = QuollPopup.notificationBuilder ()
                         .message (editors,LanguageStrings.sidebar,headercontrols,items,onlinestatus,online,LanguageStrings.notification)
                         .styleClassName (StyleClassNames.LOADING)

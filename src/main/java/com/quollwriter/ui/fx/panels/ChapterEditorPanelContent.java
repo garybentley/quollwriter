@@ -20,7 +20,7 @@ import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
-import com.quollwriter.ui.fx.swing.*;
+//import com.quollwriter.ui.fx.swing.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -59,7 +59,26 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         this.selectedTextProp = new SimpleStringProperty ();
 
-        props.backgroundColorProperty ().addListener ((pr, oldv, newv) ->
+        try
+        {
+
+            this.editor = TextEditor.builder ()
+                //.text (chapter.getText ())
+                .textProperties (props)
+                .dictionaryProvider (viewer.getDictionaryProvider ())
+                .synonymProvider (viewer.getSynonymProvider ())
+                .formattingEnabled (true)
+                .build ();
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to create editor panel for chapter: " +
+                                        chapter,
+                                        e);
+
+        }
+
+        this.editor.backgroundColorProperty ().addListener ((pr, oldv, newv) ->
         {
 
             try
@@ -92,25 +111,6 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
             }
 
         });
-
-        try
-        {
-
-            this.editor = TextEditor.builder ()
-                //.text (chapter.getText ())
-                .textProperties (props)
-                .dictionaryProvider (viewer.getDictionaryProvider ())
-                .synonymProvider (viewer.getSynonymProvider ())
-                .formattingEnabled (true)
-                .build ();
-
-        } catch (Exception e) {
-
-            throw new GeneralException ("Unable to create editor panel for chapter: " +
-                                        chapter,
-                                        e);
-
-        }
 
         Nodes.addInputMap (this.editor,
                            InputMap.process (EventPattern.mousePressed (),
@@ -360,6 +360,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         ContextMenu cm = new ContextMenu ();
 
+        UIUtils.addShowCSSViewerFilter (cm);
         boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
 
         cm.getItems ().addAll (this.getContextMenuItems (compress));

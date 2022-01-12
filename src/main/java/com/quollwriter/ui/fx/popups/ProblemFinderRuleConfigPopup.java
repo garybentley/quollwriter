@@ -48,6 +48,11 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
     private VBox allSents = null;
     private ToolBar sentButs = null;
 
+    private Tab wordsTab = null;
+    private Tab sentTab = null;
+    private Tab paraTab = null;
+    private TabPane tabPane = null;
+
     public ProblemFinderRuleConfigPopup (ProjectViewer viewer)
     {
 
@@ -55,31 +60,31 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
         VBox content = new VBox ();
 
-        TabPane tp = new TabPane ();
+        this.tabPane = new TabPane ();
 
         List<String> pref = Arrays.asList (problemfinder,config,tabtitles);
 
-        Tab wordsTab = new Tab ();
+        this.wordsTab = new Tab ();
         wordsTab.setClosable (false);
         wordsTab.textProperty ().bind (getUILanguageStringProperty (Utils.newList (pref, words)));
         wordsTab.setContent (this.createWordsPanel ());
         wordsTab.getStyleClass ().add (StyleClassNames.WORDS);
 
-        Tab sentTab = new Tab ();
+        this.sentTab = new Tab ();
         sentTab.setClosable (false);
         sentTab.textProperty ().bind (getUILanguageStringProperty (Utils.newList (pref, sentence)));
         sentTab.getStyleClass ().add (StyleClassNames.SENTENCES);
         sentTab.setContent (this.createSentencesPanel ());
 
-        Tab paraTab = new Tab ();
+        this.paraTab = new Tab ();
         paraTab.setClosable (false);
         paraTab.textProperty ().bind (getUILanguageStringProperty (Utils.newList (pref, paragraph)));
         paraTab.setContent (this.createParagraphsPanel ());
         paraTab.getStyleClass ().add (StyleClassNames.PARAGRAPHS);
 
-        tp.getTabs ().addAll (wordsTab, sentTab, paraTab);
+        this.tabPane.getTabs ().addAll (this.wordsTab, this.sentTab, this.paraTab);
 
-        content.getChildren ().add (tp);
+        content.getChildren ().add (this.tabPane);
 
         content.getChildren ().add (QuollButtonBar.builder ()
             .styleClassName (StyleClassNames.BUTTONS)
@@ -95,6 +100,179 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             .build ());
 
         this.getChildren ().add (content);
+
+        this.getBinder ().addSetChangeListener (this.viewer.projectProblemFinderRules (),
+                                                ev ->
+        {
+
+            if (ev.wasRemoved ())
+            {
+
+                this.removeRule (ev.getElementRemoved ());
+
+            }
+
+            if (ev.wasAdded ())
+            {
+
+                Pane addTo = null;
+
+                Rule r = ev.getElementAdded ();
+
+                if (r.getCategory ().equals (Rule.WORD_CATEGORY))
+                {
+
+                    addTo = this.allWords;
+
+                }
+
+                if (r.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
+                {
+
+                    addTo = this.allParas;
+
+                }
+
+                if (r.getCategory ().equals (Rule.SENTENCE_CATEGORY))
+                {
+
+                    addTo = this.allSents;
+
+                }
+
+                RuleViewBox rb = new RuleViewBox (r,
+                                                  this,
+                                                  this.viewer);
+
+                addTo.getChildren ().add (0,
+                                          rb);
+
+                RuleFactory.removeIgnore (r,
+                                          RuleFactory.ALL,
+                                          viewer.getProject ().getProperties ());
+
+                RuleFactory.removeIgnore (r,
+                                          RuleFactory.PROJECT,
+                                          viewer.getProject ().getProperties ());
+
+            }
+
+        });
+
+    }
+
+    private void removeRule (Rule r)
+    {
+
+        if (r instanceof WordFinder)
+        {
+
+            Node n = null;
+
+            for (Node c : this.allWords.getChildren ())
+            {
+
+                if (c instanceof RuleViewBox)
+                {
+
+                    RuleViewBox b = (RuleViewBox) c;
+
+                    if (b.getRule ().equals (r))
+                    {
+
+                        n = b;
+                        break;
+
+                    }
+
+                }
+
+            }
+
+            if (n != null)
+            {
+
+                this.allWords.getChildren ().remove (n);
+
+            }
+
+            return;
+
+        }
+
+        if (r instanceof ParagraphRule)
+        {
+
+            Node n = null;
+
+            for (Node c : this.allParas.getChildren ())
+            {
+
+                if (c instanceof RuleViewBox)
+                {
+
+                    RuleViewBox b = (RuleViewBox) c;
+
+                    if (b.getRule ().equals (r))
+                    {
+
+                        n = b;
+                        break;
+
+                    }
+
+                }
+
+            }
+
+            if (n != null)
+            {
+
+                this.allParas.getChildren ().remove (n);
+                this.paraButs.setVisible (this.getParagraphIgnores ().size () > 0);
+
+            }
+
+            return;
+
+        }
+
+        if (r instanceof SentenceRule)
+        {
+
+            Node n = null;
+
+            for (Node c : this.allSents.getChildren ())
+            {
+
+                if (c instanceof RuleViewBox)
+                {
+
+                    RuleViewBox b = (RuleViewBox) c;
+
+                    if (b.getRule ().equals (r))
+                    {
+
+                        n = b;
+                        break;
+
+                    }
+
+                }
+
+            }
+
+            if (n != null)
+            {
+
+                this.allSents.getChildren ().remove (n);
+                this.sentButs.setVisible (this.getParagraphIgnores ().size () > 0);
+
+            }
+
+            return;
+
+        }
 
     }
 
@@ -149,6 +327,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         Pane edit = null;
         Pane view = null;
         Pane addTo = null;
+        Tab visTab = null;
 
         if (r instanceof SentenceRule)
         {
@@ -156,6 +335,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             edit = this.sentEdit;
             view = this.sentView;
             addTo = this.allSents;
+            visTab = this.sentTab;
 
         }
 
@@ -165,6 +345,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             edit = this.paraEdit;
             view = this.paraView;
             addTo = this.allParas;
+            visTab = this.paraTab;
 
         }
 
@@ -175,7 +356,12 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             edit = this.wordsEdit;
             view = this.wordsView;
             addTo = this.allWords;
+            visTab = this.wordsTab;
+
         }
+
+        Tab _visTab = visTab;
+        this.tabPane.getSelectionModel ().select (visTab);
 
         Pane _edit = edit;
         Pane _view = view;
@@ -294,8 +480,19 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             if (add)
             {
 
+                this.viewer.addProjectFinderRule (r);
+                /*
                 _addTo.getChildren ().add (0,
                                            rb);
+*/
+               RuleFactory.removeIgnore (r,
+                                         RuleFactory.ALL,
+                                         viewer.getProject ().getProperties ());
+
+               RuleFactory.removeIgnore (r,
+                                         RuleFactory.PROJECT,
+                                         viewer.getProject ().getProperties ());
+
 
             } else {
 
@@ -322,6 +519,15 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             _view.setVisible (true);
             _view.toFront ();
 
+            this.tabPane.getSelectionModel ().select (0);
+            UIUtils.forceRunLater (() ->
+            {
+
+                this.tabPane.getSelectionModel ().select (_visTab);
+                this.tabPane.requestLayout ();
+
+            });
+
         });
 
         form.setOnCancel (ev ->
@@ -330,6 +536,14 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
             _edit.setVisible (false);
             _view.setVisible (true);
             _view.toFront ();
+            this.tabPane.getSelectionModel ().select (0);
+            UIUtils.forceRunLater (() ->
+            {
+
+                this.tabPane.getSelectionModel ().select (_visTab);
+                this.tabPane.requestLayout ();
+
+            });
 
         });
 
@@ -456,6 +670,20 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         this.sentView.toFront ();
 
         return sentWrapper;
+
+    }
+
+    private void showSentenceRuleAddButton ()
+    {
+
+        this.sentButs.setVisible (true);
+
+    }
+
+    private void showParagraphRuleAddButton ()
+    {
+
+        this.paraButs.setVisible (true);
 
     }
 
@@ -670,11 +898,92 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
     }
 
-    public void confirmRuleRemoval (Rule     rule,
-                                    Runnable onRemove)
+    public static void confirmRuleRemoval (Rule          rule,
+                                           ProjectViewer viewer,
+                                           Runnable      onRemove)
     {
 
-        // TODO
+        String id = "problemfinder" + rule.getId () + "delete";
+
+        if (viewer.getPopupById (id) != null)
+        {
+
+            viewer.getPopupById (id).toFront ();
+
+            return;
+
+        }
+
+        QuollPopup qp = QuollPopup.messageBuilder ()
+            .withViewer (viewer)
+            .styleClassName (StyleClassNames.DELETE)
+            .title (problemfinder,config,removerule,title)
+            .removeOnClose (true)
+            .popupId (id)
+            .message (getUILanguageStringProperty (Arrays.asList (problemfinder,config,removerule,text),
+                                                   rule.getSummary ()))
+            .button (QuollButton.builder ()
+                .label (problemfinder,config,removerule,buttons,thisproject)
+                .buttonType (ButtonBar.ButtonData.APPLY)
+                .onAction (eev ->
+                {
+
+                    RuleFactory.addIgnore (rule,
+                                           RuleFactory.PROJECT,
+                                           viewer.getProject ().getProperties ());
+
+                    viewer.removeProjectFinderRule (rule);
+
+                    //this.removeRule (rule);
+
+                    Environment.fireUserProjectEvent (viewer,
+                                                      ProjectEvent.Type.problemfinder,
+                                                      ProjectEvent.Action.removerule,
+                                                      rule);
+
+                    viewer.getPopupById (id).close ();
+
+                    UIUtils.runLater (onRemove);
+
+                })
+                .build ())
+            .button (QuollButton.builder ()
+                .label (problemfinder,config,removerule,buttons,allprojects)
+                .buttonType (ButtonBar.ButtonData.APPLY)
+                .onAction (eev ->
+                {
+
+                    RuleFactory.addIgnore (rule,
+                                           RuleFactory.USER,
+                                           viewer.getProject ().getProperties ());
+
+                    viewer.removeProjectFinderRule (rule);
+
+                    //this.removeRule (rule);
+
+                    Environment.fireUserProjectEvent (viewer,
+                                                      ProjectEvent.Type.problemfinder,
+                                                      ProjectEvent.Action.removerule,
+                                                      rule);
+
+                    viewer.getPopupById (id).close ();
+
+                    UIUtils.runLater (onRemove);
+
+                })
+                .build ())
+            .button (QuollButton.builder ()
+                .label (buttons,cancel)
+                .onAction (eev ->
+                {
+
+                    viewer.getPopupById (id).close ();
+
+                })
+                .build ())
+            .build ();
+
+        viewer.showPopup (qp);
 
     }
 
@@ -809,6 +1118,8 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
                             ProjectViewer                viewer)
         {
 
+            RuleViewBox _this = this;
+
             this.rule = r;
             this.setUserData (r);
             this.getStyleClass ().add (StyleClassNames.RULE);
@@ -879,77 +1190,36 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
                 .onAction (ev ->
                 {
 
-                    String id = "problemfinder" + this.rule.getId () + "delete";
-
-                    if (viewer.getPopupById (id) == null)
+                    ProblemFinderRuleConfigPopup.confirmRuleRemoval (r,
+                                                                     viewer,
+                                                                     () ->
                     {
 
-                        QuollPopup qp = QuollPopup.messageBuilder ()
-                            .withViewer (viewer)
-                            .styleClassName (StyleClassNames.DELETE)
-                            .title (problemfinder,config,removerule,title)
-                            .removeOnClose (true)
-                            .popupId (id)
-                            .message (getUILanguageStringProperty (Arrays.asList (problemfinder,config,removerule,text),
-                                                                   this.rule.getSummary ()))
-                            .button (QuollButton.builder ()
-                                .label (problemfinder,config,removerule,buttons,thisproject)
-                                .buttonType (ButtonBar.ButtonData.APPLY)
-                                .onAction (eev ->
-                                {
+                        if (_this.getParent () == null)
+                        {
 
-                                    RuleFactory.addIgnore (r,
-                                                           RuleFactory.PROJECT,
-                                                           viewer.getProject ().getProperties ());
+                            return;
 
-                                    conf.removeRuleBox (this);
+                        }
 
-                                    Environment.fireUserProjectEvent (conf,
-                                                                      ProjectEvent.Type.problemfinder,
-                                                                      ProjectEvent.Action.removerule,
-                                                                      this.rule);
+                        ((Pane) _this.getParent ()).getChildren ().remove (_this);
 
-                                    viewer.getPopupById (id).close ();
+                        // TODO Change to listen...
+                        if (r.getCategory ().equals (Rule.SENTENCE_CATEGORY))
+                        {
 
-                                })
-                                .build ())
-                            .button (QuollButton.builder ()
-                                .label (problemfinder,config,removerule,buttons,allprojects)
-                                .buttonType (ButtonBar.ButtonData.APPLY)
-                                .onAction (eev ->
-                                {
+                            conf.showSentenceRuleAddButton ();
 
-                                    RuleFactory.addIgnore (r,
-                                                           RuleFactory.USER,
-                                                           viewer.getProject ().getProperties ());
+                        }
 
-                                    conf.removeRuleBox (this);
+                        if (r.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
+                        {
 
-                                    Environment.fireUserProjectEvent (conf,
-                                                                      ProjectEvent.Type.problemfinder,
-                                                                      ProjectEvent.Action.removerule,
-                                                                      this.rule);
+                            conf.showParagraphRuleAddButton ();
 
-                                    viewer.getPopupById (id).close ();
+                        }
 
-                                })
-                                .build ())
-                            .button (QuollButton.builder ()
-                                .label (buttons,cancel)
-                                .onAction (eev ->
-                                {
-
-                                    viewer.getPopupById (id).close ();
-
-                                })
-                                .build ())
-                            .build ();
-
-                        viewer.showPopup (qp,
-                                               this,
-                                               Side.BOTTOM);
-
-                    }
+                    });
 
                 })
                 .build ());

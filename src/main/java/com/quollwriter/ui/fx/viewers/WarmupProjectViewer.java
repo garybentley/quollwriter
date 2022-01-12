@@ -19,6 +19,7 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.sidebars.*;
+import com.quollwriter.ui.fx.popups.*;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;
@@ -369,7 +370,8 @@ public class WarmupProjectViewer extends AbstractProjectViewer
                                  // Default to todays date.
                                  name);
 
-        b.addChapter (c);
+        b.addChapter (c,
+                      0);
 
         // Create a new warmup.
         w.setChapter (c);
@@ -703,6 +705,10 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
             b.removeChapter (c);
 
+            this.removeAllPanelsForObject (c);
+
+            this.removeAllPanelsForObject (w);
+
             this.fireProjectEvent (ProjectEvent.Type.warmup,
                                    ProjectEvent.Action.delete,
                                    w);
@@ -747,6 +753,53 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
             }
 
+            this.viewObject (o);
+
+        },
+        CommandId.viewobject));
+
+        this.addActionMapping (new CommandWithArgs<Warmup> (objs ->
+        {
+
+            if ((objs == null)
+                ||
+                (objs.length == 0)
+               )
+            {
+
+                throw new IllegalArgumentException ("No warmup provided.");
+
+            }
+
+            Warmup c = objs[0];
+
+            this.renameWarmup (c);
+
+        },
+        CommandId.renamewarmup));
+
+        this.addActionMapping (new CommandWithArgs<DataObject> (objs ->
+        {
+
+            DataObject o = null;
+
+            if ((objs != null)
+                &&
+                (objs.length > 0)
+               )
+            {
+
+                o = objs[0];
+
+            }
+
+            if (o == null)
+            {
+
+                throw new IllegalArgumentException ("No object provided.");
+
+            }
+
             Warmup w = null;
 
             if (!(o instanceof Warmup))
@@ -759,11 +812,70 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
             w = (Warmup) o;
 
-            this.deleteWarmup (w);
+            String pid = "warmupdelete" + w.getObjectReference ().asString ();
+
+            if (this.getPopupById (pid) != null)
+            {
+
+                return;
+
+            }
+
+            Warmup _w = w;
+
+            QuollPopup qp = UIUtils.showDeleteObjectPopup (getUILanguageStringProperty (LanguageStrings.warmups,actions,deletewarmup,deletetype),
+                                                           w.getChapter ().nameProperty (),
+                                                           StyleClassNames.DELETE,
+                                                           getUILanguageStringProperty (LanguageStrings.warmups,actions,deletewarmup,warning),
+                                                           ev ->
+                                                           {
+
+                                                               this.deleteWarmup (_w);
+
+                                                           },
+                                                           null,
+                                                           this);
+
+            qp.setPopupId (pid);
+
+            //this.deleteWarmup (w);
 
         },
         CommandId.deletewarmup,
         CommandId.deletechapter));
+
+    }
+
+    public void renameWarmup (Warmup w)
+    {
+
+        QuollPopup qp = this.getPopupById (RenameWarmupPopup.getPopupIdForWarmup (w));
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        new RenameWarmupPopup (this,
+                               w).show ();
+
+    }
+
+    public void viewObject (DataObject d)
+    {
+
+        if (d == null)
+        {
+
+            return;
+
+        }
+
+        this.viewObject (d,
+                         null);
 
     }
 

@@ -627,12 +627,14 @@ TODO
 
             int paraNo = this.editor.getParagraphForOffset (item.getPosition ());
             this.editor.showParagraphAtTop (paraNo);
+System.out.println ("HEREX");
+            this.showPopupForItem (item,
+                                   popup);
 
             UIUtils.forceRunLater (() ->
             {
 
-                this.showPopupForItem (item,
-                                       popup);
+                //this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
 
             });
 
@@ -654,15 +656,9 @@ TODO
 
         this.hidePopups ();
 
-        UIUtils.forceRunLater (() ->
-        {
-
-            this.viewer.showPopup (popup,
-                                   this.getNodeForChapterItem (item),
-                                   Side.BOTTOM);
-
-        });
-
+        this.viewer.showPopup (popup,
+                               this.getNodeForChapterItem (item),
+                               Side.RIGHT);
         this.popupsToCloseOnClick.add (popup);
 
         popup.addEventHandler (QuollPopup.PopupEvent.CLOSED_EVENT,

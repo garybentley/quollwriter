@@ -188,6 +188,25 @@ TODO
                 .iconName (((ci instanceof com.quollwriter.data.Scene) ? StyleClassNames.SCENE : StyleClassNames.OUTLINEITEM))
                 .build ();
 
+            SimpleStringProperty prop =  new SimpleStringProperty ();
+            prop.bind (javafx.beans.binding.Bindings.createStringBinding (() ->
+            {
+
+                if (ci.getDescription () == null)
+                {
+
+                    return null;
+
+                }
+
+                return ci.getDescription ().getMarkedUpText ();
+
+            },
+            ci.descriptionProperty ()));
+
+            UIUtils.setTooltip (riv,
+                                prop);
+
             riv.setOnMouseClicked (ev ->
             {
 
@@ -427,7 +446,7 @@ TODO
 
     }
 
-    private void updateParagraphForItem (ChapterItem i)
+    public void updateParagraphForItem (ChapterItem i)
     {
 
         if (i != null)
@@ -896,19 +915,24 @@ TODO
 
             List<Node> row2 = new ArrayList<> ();
 
-            row2.add (QuollButton.builder ()
-                .iconName (StyleClassNames.SETEDITPOSITION)
-                .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,tooltip)))
-                .onAction (ev ->
-                {
+            if (this.viewer.getCurrentChapterText (this.object).length () > 0)
+            {
 
-                    this.viewer.setChapterEditPosition (this.object,
-                                                        pos);
+                row2.add (QuollButton.builder ()
+                    .iconName (StyleClassNames.SETEDITPOSITION)
+                    .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,tooltip)))
+                    .onAction (ev ->
+                    {
 
-                    this.recreateVisibleParagraphs ();
+                        this.viewer.setChapterEditPosition (this.object,
+                                                            pos);
 
-                })
-                .build ());
+                        this.recreateVisibleParagraphs ();
+
+                    })
+                    .build ());
+
+            }
 
             if (this.object.getEditPosition () > 0)
             {
@@ -940,43 +964,48 @@ TODO
 
             }
 
-            if (!this.object.isEditComplete ())
+            if (this.viewer.getCurrentChapterText (this.object).length () > 0)
             {
 
-                row2.add (QuollButton.builder ()
-                    .iconName (StyleClassNames.EDITCOMPLETE)
-                    .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,tooltip)))
-                    .onAction (ev ->
-                    {
+                if (!this.object.isEditComplete ())
+                {
 
-                        this.viewer.setChapterEditComplete (this.object,
-                                                            true);
+                    row2.add (QuollButton.builder ()
+                        .iconName (StyleClassNames.EDITCOMPLETE)
+                        .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,tooltip)))
+                        .onAction (ev ->
+                        {
 
-                        IntStream.range (0,
-                                         this.editor.getVisibleParagraphs ().size ())
-                            .forEach (i ->
-                            {
+                            this.viewer.setChapterEditComplete (this.object,
+                                                                true);
 
-                                this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+                            IntStream.range (0,
+                                             this.editor.getVisibleParagraphs ().size ())
+                                .forEach (i ->
+                                {
 
-                            });
+                                    this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
 
-                    })
-                    .build ());
+                                });
 
-            } else {
+                        })
+                        .build ());
 
-                row2.add (QuollButton.builder ()
-                    .iconName (StyleClassNames.EDITNEEDED)
-                    .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,tooltip)))
-                    .onAction (ev ->
-                    {
+                } else {
 
-                        this.viewer.setChapterEditComplete (this.object,
-                                                            false);
+                    row2.add (QuollButton.builder ()
+                        .iconName (StyleClassNames.EDITNEEDED)
+                        .tooltip (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,tooltip)))
+                        .onAction (ev ->
+                        {
 
-                    })
-                    .build ());
+                            this.viewer.setChapterEditComplete (this.object,
+                                                                false);
+
+                        })
+                        .build ());
+
+                }
 
             }
 
@@ -1061,26 +1090,31 @@ TODO
 
             }
 
-            citems.add (QuollMenuItem.builder ()
-                .iconName (StyleClassNames.SETEDITPOSITION)
-                .label (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,text)))
-                .onAction (ev ->
-                {
+            if (this.viewer.getCurrentChapterText (this.object).length () > 0)
+            {
 
-                    this.viewer.setChapterEditPosition (this.object,
-                                                        pos);
+                citems.add (QuollMenuItem.builder ()
+                    .iconName (StyleClassNames.SETEDITPOSITION)
+                    .label (getUILanguageStringProperty (Utils.newList (prefix,seteditposition,text)))
+                    .onAction (ev ->
+                    {
 
-                    IntStream.range (0,
-                                     this.editor.getVisibleParagraphs ().size ())
-                        .forEach (i ->
-                        {
+                        this.viewer.setChapterEditPosition (this.object,
+                                                            pos);
 
-                            this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
+                        IntStream.range (0,
+                                         this.editor.getVisibleParagraphs ().size ())
+                            .forEach (i ->
+                            {
 
-                        });
+                                this.editor.recreateParagraphGraphic (this.editor.visibleParToAllParIndex (i));
 
-                })
-                .build ());
+                            });
+
+                    })
+                    .build ());
+
+            }
 
             if (this.object.getEditPosition () > 0)
             {
@@ -1119,34 +1153,39 @@ TODO
 
             }
 
-            if (!this.object.isEditComplete ())
+            if (this.viewer.getCurrentChapterText (this.object).length () > 0)
             {
 
-                citems.add (QuollMenuItem.builder ()
-                    .iconName (StyleClassNames.EDITCOMPLETE)
-                    .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,text)))
-                    .onAction (ev ->
-                    {
+                if (!this.object.isEditComplete ())
+                {
 
-                        this.viewer.setChapterEditComplete (this.object,
-                                                            true);
+                    citems.add (QuollMenuItem.builder ()
+                        .iconName (StyleClassNames.EDITCOMPLETE)
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete,text)))
+                        .onAction (ev ->
+                        {
 
-                    })
-                    .build ());
+                            this.viewer.setChapterEditComplete (this.object,
+                                                                true);
 
-            } else {
+                        })
+                        .build ());
 
-                citems.add (QuollMenuItem.builder ()
-                    .iconName (StyleClassNames.EDITNEEDED)
-                    .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,text)))
-                    .onAction (ev ->
-                    {
+                } else {
 
-                        this.viewer.setChapterEditComplete (this.object,
-                                                            false);
+                    citems.add (QuollMenuItem.builder ()
+                        .iconName (StyleClassNames.EDITNEEDED)
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded,text)))
+                        .onAction (ev ->
+                        {
 
-                    })
-                    .build ());
+                            this.viewer.setChapterEditComplete (this.object,
+                                                                false);
+
+                        })
+                        .build ());
+
+                }
 
             }
 
@@ -1674,14 +1713,11 @@ TODO
 
         });
 
-        UIUtils.forceRunLater (() ->
-        {
-
-            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
-
-        });
-
         QuollPopup qp = p.getPopup ();
+
+        int ind = this.editor.getParagraphForOffset (item.getPosition ());
+
+        this.editor.recreateParagraphGraphic (ind);
 
         UIUtils.forceRunLater (() ->
         {
@@ -1731,14 +1767,11 @@ TODO
 
         });
 
-        UIUtils.forceRunLater (() ->
-        {
-
-            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
-
-        });
-
         QuollPopup qp = p.getPopup ();
+
+        int ind = this.editor.getParagraphForOffset (item.getPosition ());
+
+        this.editor.recreateParagraphGraphic (ind);
 
         UIUtils.forceRunLater (() ->
         {

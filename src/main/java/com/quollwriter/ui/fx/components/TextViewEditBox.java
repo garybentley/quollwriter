@@ -33,6 +33,7 @@ public class TextViewEditBox extends StackPane
     private EventHandler<ActionEvent> onEdit = null;
     private StringProperty viewPlaceHolder = null;
     private boolean editOnly = false;
+    private Function<StringWithMarkup, String> formatTextForView = null;
 
     private TextViewEditBox (Builder b)
     {
@@ -46,10 +47,9 @@ public class TextViewEditBox extends StackPane
 
         }
 
-        //TODO Add? this.textProp = new SimpleStringProperty ();
-
         this.onView = b.onView;
         this.onEdit = b.onEdit;
+        this.formatTextForView = b.formatTextForView;
 
         this.editOnly = b.editOnly;
 
@@ -193,11 +193,29 @@ public class TextViewEditBox extends StackPane
 
         } else {
 
+            String tt = null;
+
+            if (this.formatTextForView != null)
+            {
+
+                tt = this.formatTextForView.apply (t);
+
+            } else {
+
+                tt = t.getMarkedUpText ();
+
+            }
+
             // Handle bulleted.
-            this.view.getChildren ().add (BasicHtmlTextFlow.builder ()
-                .text (t.getMarkedUpText ())
+            this.view.getChildren ().add (QuollTextView.builder ()
+                .text (tt)
                 .build ());
 
+                /*
+            BasicHtmlTextFlow.builder ()
+                .text (t.getMarkedUpText ())
+                .build ());
+xxx*/
         }
 
         this.text = t;
@@ -281,6 +299,7 @@ public class TextViewEditBox extends StackPane
         private boolean formattingEnabled = false;
         private AbstractViewer viewer = null;
         private boolean editOnly = false;
+        private Function<StringWithMarkup, String> formatTextForView = null;
 
         private Builder ()
         {
@@ -300,6 +319,14 @@ public class TextViewEditBox extends StackPane
         {
 
             return this;
+
+        }
+
+        public Builder formatTextForView (Function<StringWithMarkup, String> f)
+        {
+
+            this.formatTextForView = f;
+            return _this ();
 
         }
 

@@ -415,8 +415,8 @@ TODO Remove
 
     }
 
-    private void addChapter (Chapter c,
-                             int     where)
+    public void addChapter (Chapter c,
+                            int     where)
     {
 
         if (this.chapters.contains (c))

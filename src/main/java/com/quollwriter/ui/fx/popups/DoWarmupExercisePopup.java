@@ -201,7 +201,16 @@ public class DoWarmupExercisePopup extends PopupContent
             .withViewer (viewer)
             .build ();
 
-        ob.getChildren ().add (ownprompt);
+        UIUtils.addDoOnReturnPressed (this.ownprompt,
+                                      () ->
+        {
+
+            this.addWarmupToProject ();
+            this.close ();
+            
+        });
+
+        ob.getChildren ().add (this.ownprompt);
 
         VBox cb = new VBox ();
         cb.getStyleClass ().add (StyleClassNames.CONFIG);

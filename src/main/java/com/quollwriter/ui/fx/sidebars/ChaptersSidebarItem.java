@@ -634,34 +634,39 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                         })
                         .build ());
 
-                    if (!c.isEditComplete ())
+                    if (this.viewer.getCurrentChapterText (c).length () > 0)
                     {
 
-                        its.add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete)))
-                            .iconName (StyleClassNames.EDITCOMPLETE)
-                            .onAction (ev ->
-                            {
+                        if (!c.isEditComplete ())
+                        {
 
-                                this.viewer.setChapterEditComplete (c,
-                                                                    true);
+                            its.add (QuollMenuItem.builder ()
+                                .label (getUILanguageStringProperty (Utils.newList (prefix,seteditcomplete)))
+                                .iconName (StyleClassNames.EDITCOMPLETE)
+                                .onAction (ev ->
+                                {
 
-                            })
-                            .build ());
+                                    this.viewer.setChapterEditComplete (c,
+                                                                        true);
 
-                    } else {
+                                })
+                                .build ());
 
-                        its.add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded)))
-                            .iconName (StyleClassNames.EDITNEEDED)
-                            .onAction (ev ->
-                            {
+                        } else {
 
-                                this.viewer.setChapterEditComplete (c,
-                                                                    false);
+                            its.add (QuollMenuItem.builder ()
+                                .label (getUILanguageStringProperty (Utils.newList (prefix,seteditneeded)))
+                                .iconName (StyleClassNames.EDITNEEDED)
+                                .onAction (ev ->
+                                {
 
-                            })
-                            .build ());
+                                    this.viewer.setChapterEditComplete (c,
+                                                                        false);
+
+                                })
+                                .build ());
+
+                        }
 
                     }
 
@@ -1159,6 +1164,26 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                 // Remove the item.
                 this.tree.removeObject (ev.getSource ());
 
+                if (ev.getSource () instanceof Note)
+                {
+
+                    Note n = (Note) ev.getSource ();
+
+                    NoteTreeLabel l = this.noteTreeLabels.get (n.getChapter ());
+
+                    if ((l != null)
+                        &&
+                        (this.tree.getTreeItemForObject (l).getChildren ().size () == 0)
+                       )
+                    {
+
+                        this.noteTreeLabels.remove (n.getChapter ());
+                        this.tree.removeObject (l);
+
+                    }
+
+                }
+
             }
 
             if (ev.getType () == CollectionEvent.Type.add)
@@ -1214,6 +1239,7 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                         // Notes always go at the bottom.
                         this.tree.getTreeItemForObject (c).getChildren ().add (noteLabel);
+                        noteLabel.setExpanded (true);
                         // createNotesItem will already have created the items for the notes.
                         return;
 
@@ -1251,6 +1277,8 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                 pti.getChildren ().add (ind,
                                         ti);
 
+                ti.setExpanded (true);
+
             }
 
         }));
@@ -1258,13 +1286,19 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
        subs.add (c.chapterItemsPositionEvents ().subscribe (ev ->
        {
 
-           // TODO Check for position change.
            ChapterItem ci = ev.getItem ();
 
            int ind = 0;
 
            TreeItem<NamedObject> pti = null;//this.tree.getTreeItemForObject (ci.getChapter ());
            TreeItem<NamedObject> ti = this.tree.getTreeItemForObject (ci);
+
+           if (ti == null)
+           {
+
+               return;
+
+           }
 
            List<ChapterItem> objs = new ArrayList<> ();
 
@@ -1311,16 +1345,25 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
                if (ind != indf)
                {
 
-                   Collections.swap (pti.getChildren (),
-                                     ind,
-                                     indf);
+                    pti.getChildren ().remove (indf);
+
+                    TreeItem<NamedObject> nti = this.createTreeItem (ci);
+
+                    if (ind >= pti.getChildren ().size ())
+                    {
+
+                        pti.getChildren ().add (nti);
+
+                    } else {
+
+                        pti.getChildren ().add (ind,
+                                                nti);
+
+                    }
 
                }
-/*
-               pti.getChildren ().remove (ti);
-               pti.getChildren ().add (ind,
-                                       ti);
-*/
+
+               ti.setExpanded (true);
                return;
 
            }

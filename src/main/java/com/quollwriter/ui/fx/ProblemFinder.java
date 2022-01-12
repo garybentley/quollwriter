@@ -14,6 +14,7 @@ import javafx.collections.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.panels.*;
+import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.text.*;
 import com.quollwriter.text.rules.*;
@@ -47,6 +48,14 @@ public class ProblemFinder extends VBox
 
         this.panel = panel;
         this.viewer = panel.getViewer ();
+
+        panel.getEditor ().caretPositionProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.lastCaret = newv;
+            this.init (newv, -1);
+
+        });
 
         this.ignoredIssues = panel.getObject ().getProblemFinderIgnores ();
 
@@ -630,10 +639,20 @@ public class ProblemFinder extends VBox
 
             String d = iss.getRule ().getDescription ();
 
-            if (d.length () > 0)
+            if ((d != null)
+                &&
+                (d.length () > 0)
+               )
             {
 
                 d = d + "<br /><br />";
+
+            }
+
+            if (d == null)
+            {
+
+                d = "";
 
             }
 
@@ -693,16 +712,13 @@ public class ProblemFinder extends VBox
             .onAction (ev ->
             {
 
-                this.viewer.showProblemFinderRuleConfig (config ->
+                ProblemFinderRuleConfigPopup.confirmRuleRemoval (iss.getRule (),
+                                                                 this.viewer,
+                                                                 () ->
                 {
 
-                    config.confirmRuleRemoval (iss.getRule (),
-                                               () ->
-                    {
-
-                        _this.removeCheckboxesForRule (iss.getRule ());
-
-                    });
+                    _this.removeCheckboxesForRule (iss.getRule ());
+                    _this.next ();
 
                 });
 

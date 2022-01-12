@@ -249,7 +249,7 @@ System.out.println ("STOP CALLED");
             perc = MIN_VALUE;
 
         }
-System.out.println ("RUNNING: " + perc);
+
         this.progressProp.setValue (perc);
 
         this.tooltipProp.setValue (b.toString ());

@@ -502,16 +502,23 @@ xxx
 
         }
 
-        TreeItem<T> parent = ti.getParent ();
-        parent.getChildren ().remove (ti);
-        this.requestLayout ();
+        ti.getParent ().getChildren ().remove (ti);
+        this.removeBranch (ti);
 
     }
 
-    public void removeBranch (TreeItem<T> ti)
+    private void removeBranch (TreeItem<T> ti)
     {
 
+        if (!this.cells.containsKey (ti))
+        {
+
+            return;
+
+        }
+
         QuollTreeCell tc = this.cells.remove (ti);
+
         this.getChildren ().remove (tc);
 
         for (TreeItem<T> ci : ti.getChildren ())
@@ -520,6 +527,8 @@ xxx
             this.removeBranch (ci);
 
         }
+
+        this.requestLayout ();
 
     }
 

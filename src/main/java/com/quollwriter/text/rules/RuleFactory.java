@@ -62,7 +62,7 @@ public class RuleFactory
             if (l == null)
             {
 
-                l = new HashMap ();
+                l = new HashMap<> ();
                 RuleFactory.rules.put (r.getCategory (),
                                        l);
 
@@ -170,6 +170,41 @@ TODO
 
         }
 */
+    }
+
+    public static Set<Rule> getProjectRules (com.gentlyweb.properties.Properties projProps)
+    {
+
+        Map<String, String> ignores = RuleFactory.getIgnores (ALL,
+                                                              projProps);
+
+        Set<String> iids = ignores.keySet ();
+
+        Set<Rule> rs = new HashSet<> ();
+
+        for (String t : RuleFactory.rules.keySet ())
+        {
+
+            Map<String, Rule> rrs = RuleFactory.rules.get (t);
+
+            for (Rule r : rrs.values ())
+            {
+
+                if (iids.contains (r.getId ()))
+                {
+
+                    continue;
+
+                }
+
+                rs.add (r);
+
+            }
+
+        }
+
+        return rs;
+
     }
 
     public static Map<String, String> getIgnores (int                                 type,
@@ -491,7 +526,7 @@ TODO Clean up
                                          com.gentlyweb.properties.Properties projProps)
     {
 
-        List<Issue> issues = new ArrayList ();
+        List<Issue> issues = new ArrayList<> ();
 
         if ((rule == null)
             ||
@@ -815,7 +850,7 @@ TODO Clean up
     public static List<Rule> getRules (String category)
     {
 
-        return new ArrayList (RuleFactory.rules.get (category).values ());
+        return new ArrayList<> (RuleFactory.rules.get (category).values ());
 
     }
 

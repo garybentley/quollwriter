@@ -301,6 +301,9 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
                 Point2D p = this.editor.sceneToLocal (ev.getSceneX (),
                                                       ev.getSceneY ());
 
+                                                      int np = this.editor.getTextPositionForMousePosition (0,
+                                                                                                            p.getY ());
+
                 Bounds b = this.editor.getLayoutBounds ();
 
                 if (p.getY () >= b.getMaxY () - (b.getHeight () * 0.15d))
@@ -570,6 +573,11 @@ xxx
             SnapshotParameters sp = new SnapshotParameters ();
             // Transparent bg.
             sp.setFill (new Color (0, 0, 0, 0));
+            Point2D p = this.editor.sceneToLocal (ev.getSceneX (),
+                                                  ev.getSceneY ());
+
+                                                  int np = this.editor.getTextPositionForMousePosition (0,
+                                                                                                        p.getY ());
 
             Dragboard db = riv.startDragAndDrop (TransferMode.ANY);
             db.setDragView (riv.snapshot (sp, null));
@@ -593,6 +601,9 @@ xxx
         {
 
             this.updateChapterItemPosition (ev);
+            riv.relocate (riv.getBoundsInParent ().getMinX (),
+                          riv.getBoundsInParent ().getMinY () + 0.0001);
+            this.requestLayout ();
 
         });
 
@@ -605,9 +616,11 @@ xxx
         {
 
             String val = ev.getDragboard ().getContent (DRAG_FORMAT).toString ();
-//xxx handle moving item or scene...
+
             try
             {
+
+                Set<NamedObject> toUpdate = new HashSet<> ();
 
                 Point2D p = this.editor.sceneToLocal (ev.getSceneX (),
                                                       ev.getSceneY ());
@@ -628,6 +641,9 @@ xxx
 
                 }
 
+                ci.setPosition (np);
+                toUpdate.add (ci);
+
                 if (ci instanceof OutlineItem)
                 {
 
@@ -643,6 +659,7 @@ xxx
                     } else {
 
                         s.addOutlineItem (oi);
+                        toUpdate.add (s);
 
                     }
 
@@ -682,7 +699,7 @@ xxx
                             for (Scene _s : scs)
                             {
 
-                                if (i.getPosition () > _s.getPosition ())
+                                if (i.getPosition () >= _s.getPosition ())
                                 {
 
                                     scene = _s;
@@ -692,10 +709,13 @@ xxx
 
                             }
 
+                            toUpdate.add (i);
+
                             if (scene != null)
                             {
 
                                 scene.addOutlineItem (i);
+                                toUpdate.add (scene);
 
                             } else {
 
@@ -707,8 +727,8 @@ xxx
 
                 }
 
-                this.viewer.saveObject (ci,
-                                        true);
+                this.viewer.saveObjects (new ArrayList<> (toUpdate),
+                                         true);
 
             } catch (Exception e) {
 

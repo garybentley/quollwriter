@@ -3872,6 +3872,16 @@ TODO
         for (List<Node> r : rows)
         {
 
+            if ((r == null)
+                ||
+                (r.size () == 0)
+               )
+            {
+
+                continue;
+
+            }
+
             ToolBar tb = new ToolBar ();
             tb.getStyleClass ().add (StyleClassNames.TOOLBAR);
 
@@ -4093,6 +4103,35 @@ TODO
 
     }
 
+    public static String formatAsHtmlBulletPoints (StringWithMarkup      text,
+                                                   AbstractProjectViewer viewer,
+                                                   NamedObject           ignore)
+    {
+
+        Markup m = text.getMarkup ();
+        TextIterator iter = new TextIterator (text.getText ());
+
+        return iter.getParagraphs ().stream ()
+                .map (p ->
+                {
+
+                    StringWithMarkup sm = new StringWithMarkup (p.getText (),
+                                                                new Markup (m,
+                                                                            p.getAllTextStartOffset (),
+                                                                            p.getAllTextEndOffset ()));
+
+                    String t = UIUtils.markupText (sm,
+                                                   viewer,
+                                                   ignore);
+
+                    return String.format ("<li>%1$s</li>",
+                                          t);
+
+                })
+                .collect (Collectors.joining (""));
+
+    }
+
     public static QuollTextView getAsBulletPoints (StringWithMarkup      text,
                                                    AbstractProjectViewer viewer,
                                                    NamedObject           ignore)
@@ -4103,24 +4142,9 @@ TODO
 
         QuollTextView tv = QuollTextView.builder ()
             //.withViewer (viewer)
-            .text (iter.getParagraphs ().stream ()
-                    .map (p ->
-                    {
-
-                        StringWithMarkup sm = new StringWithMarkup (p.getText (),
-                                                                    new Markup (m,
-                                                                                p.getAllTextStartOffset (),
-                                                                                p.getAllTextEndOffset ()));
-
-                        String t = UIUtils.markupText (sm,
-                                                       viewer,
-                                                       ignore);
-
-                        return String.format ("<li>%1$s</li>",
-                                              t);
-
-                    })
-                    .collect (Collectors.joining ("")))
+            .text (UIUtils.formatAsHtmlBulletPoints (text,
+                                                     viewer,
+                                                     ignore))
             .build ();
 
         return tv;

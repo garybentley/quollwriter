@@ -38,6 +38,29 @@ public class ColorSelectorSwatch extends Region
 
         }
 
+        this.chooser = new ColorChooserPopup (b.viewer,
+                                              b.initialColor,
+                                              true);
+        this.chooser.getPopup ().setTitle (b.popupTitle);
+        this.chooser.getPopup ().setPopupId (this.popupId);
+        this.chooser.getChooser ().setOnColorSelected (eev ->
+        {
+
+            Color c = this.chooser.getChooser ().colorProperty ().getValue ();
+
+            this.setThisColor (c);
+            this.chooser.close ();
+
+            if (b.onColorSelected != null)
+            {
+
+                b.onColorSelected.accept (c);
+
+            }
+
+        });
+        this.chooser.setVisible (false);
+
         this.setOnMouseClicked (ev ->
         {
 
@@ -48,38 +71,18 @@ public class ColorSelectorSwatch extends Region
 
             }
 
-            if (this.chooser == null)
-            {
-
-                this.chooser = new ColorChooserPopup (b.viewer,
-                                                      b.initialColor,
-                                                      true);
-                this.chooser.getPopup ().setTitle (b.popupTitle);
-                this.chooser.getPopup ().setPopupId (this.popupId);
-                this.chooser.getChooser ().setOnColorSelected (eev ->
-                {
-
-                    Color c = this.chooser.getChooser ().colorProperty ().getValue ();
-
-                    this.setThisColor (c);
-                    this.chooser.close ();
-
-                    if (b.onColorSelected != null)
-                    {
-
-                        b.onColorSelected.accept (c);
-
-                    }
-
-                });
-
-            }
-
             this.chooser.setVisible (true);
             this.chooser.toFront ();
             this.chooser.show ();
 
         });
+
+    }
+
+    public ObjectProperty<Color> colorProperty ()
+    {
+
+        return this.chooser.getChooser ().colorProperty ();
 
     }
 

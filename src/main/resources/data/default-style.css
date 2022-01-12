@@ -43,6 +43,9 @@
     -qw-component-inner-border-color: #cccccc;
 
     -qw-icon-color: -qw-dark-color;
+
+    -qw-icon-hover-color: -qw-dark-color;
+
     -qw-error-color: red;
 
     -qw-hyperlink-color: blue;
@@ -116,6 +119,8 @@
     -qw-border-color: -qw-dark-color;
 
     -qw-icon-color: -qw-dark-color;
+
+    -qw-icon-hover-color: -qw-bg-color;
 
     /*
      * The color used when items have focus.
@@ -624,6 +629,7 @@ Text
  }
  .convert-icon,
  .sortmenu-icon,
+ .refresh-icon,
  .sort-icon {
      -fx-shape: "m 20,16.035 v 4 h 4.703 l -5.336,5.34 c -3.389,3.391 -9.309,3.391 -12.701,0 l -2.83,2.82 C 6.287,30.648 9.551,32 13.02,32 c 3.471,0 6.727,-1.352 9.176,-3.805 L 28,22.395 v 5.637 h 4 V 16.035 Z M 9.805,3.677 4,9.479 V 3.841 H 0 V 15.84 h 12 v -4 H 7.299 l 5.334,-5.334 c 3.389,-3.392 9.309,-3.392 12.703,0 l 2.828,-2.829 c -4.902,-4.906 -13.457,-4.899 -18.359,0 z";
      -fx-background-color: -qw-icon-color;
@@ -962,6 +968,7 @@ Text
 .novalue-icon,
 .cancel-icon,
 .hide-icon,
+.ignore-icon,
 .tab-pane .tab-close-button {
     -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
     -fx-background-color: -qw-icon-color;
@@ -1164,6 +1171,11 @@ Text
      -fx-background-color: -qw-hover-bg;
  }
 
+.root:night .button .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
 .root:night .menu-button:hover .iconbox .icon,
 .root:night .menu-button:armed .iconbox .icon,
 .root:night .menu-button:focused .iconbox .icon,
@@ -1174,7 +1186,7 @@ Text
 .root:night .menu-button:armed .arrow-button .arrow,
 .root:night .menu-button:focused .arrow-button .arrow
 {
-    -fx-background-color: -qw-bg-color;
+    -fx-background-color: -qw-icon-hover-color;
 }
 
 .controls .button:armed,

@@ -165,7 +165,7 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
                         this.saveIgnores (issues,
                                           c);
 
-                        this.tree.removeBranch (treeItem);
+                        this.tree.removeObject (treeItem);
 
                     })
                     .build ());
@@ -214,8 +214,15 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
                 QuollLabel l = QuollLabel.builder ()
                     .styleClassName (StyleClassNames.ISSUE)
                     .label (new SimpleStringProperty (value))
-                    .tooltip (new SimpleStringProperty (i.getDescription ()))
+                    //.tooltip (new SimpleStringProperty (i.getDescription ()))
                     .build ();
+
+                Tooltip t = new Tooltip ();
+                t.setGraphic (QuollTextView.builder ()
+                    .text (i.getDescription ())
+                    .build ());
+
+                l.setTooltip (t);
 
                 List<String> mprefix = Arrays.asList (project,LanguageStrings.sidebar,problemfinder,results,treepopupmenu,items);
 
@@ -233,7 +240,9 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
 
                         issues.add (i);
 
-                        this.tree.removeBranch (treeItem);
+                        this.tree.removeObject (treeItem.getValue ());
+
+                        this.clearHighlight ();
 
                         this.saveIgnores (issues,
                                           c);
@@ -279,9 +288,17 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
 
             Set<Issue> issues = this.problems.get (c);
 
+//            Set<Issue> ignores = c.getProblemFinderIgnores ();
             for (Issue iss : issues)
             {
+/*
+                if (ignores.contains (iss))
+                {
 
+                    continue;
+
+                }
+*/
                 TreeItem<Object> ii = new TreeItem<> ();
                 ii.setValue (iss);
                 ci.getChildren ().add (ii);

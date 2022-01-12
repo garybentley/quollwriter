@@ -500,7 +500,7 @@ TODO?
                         {
 
                             this.viewer.runCommand (WarmupProjectViewer.CommandId.renamewarmup,
-                                                    c);
+                                                    this.viewer.getWarmupForChapter (c));
 
                         })
                         .build ());
@@ -636,7 +636,7 @@ TODO?
                         {
 
                             this.viewer.runCommand (WarmupProjectViewer.CommandId.deletewarmup,
-                                                    c);
+                                                    this.viewer.getWarmupForChapter (c));
 
                         })
                         .build ());

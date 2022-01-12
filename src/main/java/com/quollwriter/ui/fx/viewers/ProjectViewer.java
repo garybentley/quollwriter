@@ -41,6 +41,7 @@ public class ProjectViewer extends AbstractProjectViewer
     private ProjectSideBar sidebar = null;
     private SetChangeListener<Tag> tagsListener = null;
     private ProblemFinderRuleConfigPopup problemFinderRuleConfigPopup = null;
+    private ObservableSet<Rule> projectProblemFinderRules = null;
 
     public interface HeaderControlButtonIds extends AbstractProjectViewer.HeaderControlButtonIds
     {
@@ -640,6 +641,45 @@ public class ProjectViewer extends AbstractProjectViewer
 
         this.addKeyMapping (CommandId.newchapter,
                             KeyCode.H, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN);
+
+        // Init the problem finder rules that apply to this project.
+        this.projectProblemFinderRules = FXCollections.observableSet (RuleFactory.getProjectRules (this.project.getProperties ()));
+
+        this.getBinder ().addSetChangeListener (this.projectProblemFinderRules,
+                                                ev ->
+        {
+
+            if (ev.wasRemoved ())
+            {
+
+                RuleFactory.addIgnore (ev.getElementRemoved (),
+                                       RuleFactory.PROJECT,
+                                       this.getProject ().getProperties ());
+
+            }
+
+        });
+
+    }
+
+    public void addProjectFinderRule (Rule r)
+    {
+
+        this.projectProblemFinderRules.add (r);
+
+    }
+
+    public void removeProjectFinderRule (Rule r)
+    {
+
+        this.projectProblemFinderRules.remove (r);
+
+    }
+
+    public ObservableSet<Rule> projectProblemFinderRules ()
+    {
+
+        return this.projectProblemFinderRules;
 
     }
 
@@ -2152,7 +2192,7 @@ TODO
 
             }
 
-            chapter.setEditPosition (pos);
+            chapter.setEditPosition (pos - 1);
 
             this.saveObject (chapter,
                              false);
@@ -2215,14 +2255,14 @@ TODO
 
                 _textPos = Math.min (_textPos, l);
 
-                if (_textPos <= l)
+                if (_textPos < l)
                 {
 
-                    chapter.setEditComplete (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME));
+                    chapter.setEditComplete (false);
 
                 } else {
 
-                    chapter.setEditComplete (false);
+                    chapter.setEditComplete (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME));
 
                 }
 

@@ -608,14 +608,51 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
         }
 
+        n.applyCss ();
+
+        ((Region) n).requestLayout ();
+
         Bounds b = n.localToScreen (n.getBoundsInLocal ());
         b = this.popupPane.screenToLocal (b);
 
-        p.setVisible (false);
-        this.addPopup (p);
+        double x = b.getMinX ();
+        double y = b.getMinY ();
+        if (s == Side.BOTTOM)
+        {
+
+            //y = y + ((Region) n).getHeight ();
+            //y = y + ((Region) n).getPrefHeight ();
+            y += b.getHeight () + 2;
+
+        }
+
+        if (s == Side.TOP)
+        {
+
+            //y -= ((Region) n).getPrefHeight () - p.getHeight ();
+            y -= b.getHeight () - p.getHeight () - 2;
+
+        }
+
+        if (s == Side.LEFT)
+        {
+
+            //x -= ((Region) n).getPrefWidth () - p.getWidth ();
+            x -= b.getWidth () - p.getWidth () - 2;
+
+        }
+
+        if (s == Side.RIGHT)
+        {
+
+            //x += ((Region) n).getPrefWidth ();
+            x += b.getWidth () + 2;
+
+        }
+
         this.showPopup (p,
-                        b.getMinX (),
-                        b.getMaxY ());
+                        x,
+                        y);
 
     }
 

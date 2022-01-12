@@ -110,6 +110,46 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
                                                    ev ->
         {
 
+            List<String> prefix = Arrays.asList (project,LanguageStrings.sidebar,problemfinder,unignore);
+
+            Set<Chapter> chaps = new HashSet<> ();
+
+            for (Issue ig : this.ignored)
+            {
+
+                ig.getChapter ().getProblemFinderIgnores ().remove (ig);
+
+                chaps.add (ig.getChapter ());
+
+            }
+
+            try
+            {
+
+                for (Chapter c : chaps)
+                {
+
+                    this.viewer.saveProblemFinderIgnores (c);
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to update problem finder ignores",
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (Utils.newList (prefix,actionerror)));
+                                          //"Unable to update problem finder ignores.");
+
+            }
+
+            this.viewer.fireProjectEvent (ProjectEvent.Type.problemfinder,
+                                          ProjectEvent.Action.unignore);
+
+            this.find ();
+/*
+TODO Remove - popup not needed
             String id = ProblemFinderSideBar.getSideBarId (this.rule) + "ignored";
 
             QuollPopup qp = this.viewer.getPopupById (id);
@@ -177,7 +217,7 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
             this.viewer.showPopup (qp,
                                    this.ignoredProblemsLabel,
                                    Side.BOTTOM);
-
+*/
         });
 
         VBox content = new VBox ();
@@ -245,8 +285,9 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
             .activeTitle (title)
             //.contextMenu ()?
             .styleClassName (StyleClassNames.PROBLEMFINDER)
+            .headerIconClassName (StyleClassNames.PROBLEMFINDER)
             .styleSheet (StyleClassNames.PROBLEMFINDER)
-            .withScrollPane (false)
+            .withScrollPane (true)
             .canClose (true)
             .headerControls (cons)
             .withViewer (this.viewer)
@@ -261,8 +302,28 @@ public class ProblemFinderSideBar extends SideBarContent<ProjectViewer>
             this.updateTimer.cancel (true);
             this.updateTimer = null;
 
+            if (this.results != null)
+            {
+
+                this.results.dispose ();
+
+            }
+
         });
 
+
+        sb.addEventHandler (SideBar.SideBarEvent.HIDE_EVENT,
+                            ev ->
+        {
+
+            if (this.results != null)
+            {
+
+                this.results.clearHighlight ();
+
+            }
+
+        });
         return sb;
 
     }

@@ -399,8 +399,6 @@ public class TextPropertiesPanel extends VBox
 
         });
 
-        fb.item (this.highlightWritingLine);
-
         ColorSelectorSwatch writingLineC = ColorSelectorSwatch.builder ()
                     .inViewer (viewer)
                     .styleClassName ("writing-line-color-chooser")
@@ -413,6 +411,14 @@ public class TextPropertiesPanel extends VBox
 
                     })
                     .build ();
+
+        binder.addChangeListener (writingLineC.colorProperty (),
+                                  (pr, oldv, newv) ->
+        {
+
+            props.setWritingLineColor (newv);
+
+        });
 
         ColorSelectorSwatch textColorC = ColorSelectorSwatch.builder ()
                     .inViewer (viewer)
@@ -427,6 +433,14 @@ public class TextPropertiesPanel extends VBox
                     })
                     .build ();
 
+        binder.addChangeListener (textColorC.colorProperty (),
+                                  (pr, oldv, newv) ->
+        {
+
+            props.setTextColor (newv);
+
+        });
+
         ColorSelectorSwatch bgColorC = ColorSelectorSwatch.builder ()
                     .inViewer (viewer)
                     .styleClassName ("bg-color-chooser")
@@ -440,6 +454,13 @@ public class TextPropertiesPanel extends VBox
                     })
                     .build ();
 
+        binder.addChangeListener (bgColorC.colorProperty (),
+                                  (pr, oldv, newv) ->
+        {
+
+            props.setBackgroundColor (newv);
+
+        });
 
         binder.addChangeListener (Environment.nightModeProperty (),
                                   (pr, oldv, newv) ->
@@ -447,13 +468,14 @@ public class TextPropertiesPanel extends VBox
 
             writingLineC.setColor (props.getWritingLineColor ());
             textColorC.setColor (props.getTextColor ());
-            System.out.println ("BG: " + props.getBackgroundColor ());
             bgColorC.setColor (props.getBackgroundColor ());
 
         });
 
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,highlightlinecolor,text),
                  writingLineC);
+
+        fb.item (this.highlightWritingLine);
 
         fb.item (getUILanguageStringProperty (project,LanguageStrings.sidebar,textproperties,textcolor,text),
                  textColorC);

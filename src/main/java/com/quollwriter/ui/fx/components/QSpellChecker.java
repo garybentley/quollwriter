@@ -110,6 +110,13 @@ public class QSpellChecker implements DictionaryChangedListener
     public void checkAll ()
     {
 
+        if (!this.isEnabled ())
+        {
+
+            return;
+
+        }
+
         Environment.schedule (() ->
         {
 
@@ -662,6 +669,13 @@ TODO Remove?
 
             this.text.caretPositionProperty ().addListener ((pr, oldv, newv) ->
             {
+
+                if (!this.isEnabled ())
+                {
+
+                    return;
+
+                }
 
                 Environment.schedule (() ->
                 {

@@ -9,6 +9,7 @@ import org.fxmisc.undo.*;
 import org.fxmisc.wellbehaved.event.*;
 import org.fxmisc.richtext.Selection.Direction;
 
+import java.io.*;
 import java.text.*;
 import java.util.*;
 import java.util.function.*;
@@ -56,6 +57,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     private StringProperty placeholder = null;
     private PropertyBinder textPropsBinder = new PropertyBinder ();
     private Node caretNode = null;
+    private ObjectProperty<Color> backgroundColorProp = new SimpleObjectProperty (null);
 
         private boolean indent = true;
 
@@ -63,6 +65,38 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
         {
         	protected final Object  data;
             protected Collection<String> styleClassNames = null;
+
+            public static final Codec<AbstractSegment> CODEC = new Codec<> ()
+            {
+
+                @Override
+                public String getName ()
+                {
+
+                    return "segment";
+
+                }
+
+                @Override
+                public void encode (DataOutputStream os,
+                                    AbstractSegment  s)
+                             throws IOException
+                {
+
+                    os.writeUTF (s.getText ());
+
+                }
+
+                @Override
+                public AbstractSegment decode (DataInputStream is)
+                                        throws IOException
+                {
+
+                    return new TextSegment (is.readUTF ());
+
+                }
+
+            };
 
         	private AbstractSegment() { data = null; }
 
@@ -528,6 +562,13 @@ TODO
         // Build a custom undo manager that is suspendable, see: https://github.com/FXMisc/RichTextFX/issues/735
         this.suspendUndos = new SuspendableYes ();
 
+        // Needed for encoding style information during copy and paste.
+        this.setStyleCodecs (
+            ParaStyle.CODEC,
+            Codec.styledSegmentCodec (AbstractSegment.CODEC,
+                                      TextStyle.CODEC)
+        );
+
         this.setUseInitialStyleForInsertion (false);//true);
         this.props = new TextProperties ();
         this.bindTo (props);
@@ -719,6 +760,13 @@ TODO
                                                   this.toggleUnderline ();
 
                                               }));
+
+    }
+
+    public ObjectProperty<Color> backgroundColorProperty ()
+    {
+
+        return this.backgroundColorProp;
 
     }
 
@@ -1118,6 +1166,66 @@ TODO
         }
 
         return null;
+
+    }
+
+    @Override
+    public void paste ()
+    {
+
+        // Copied from richtext/ClipboardActions.paste.
+        // Here we need to update/set the correct styles for the current text.
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if(getStyleCodecs().isPresent()) {
+            Tuple2<Codec<ParaStyle>, Codec<StyledSegment<AbstractSegment, TextStyle>>> codecs = getStyleCodecs().get();
+            Codec<StyledDocument<ParaStyle, AbstractSegment, TextStyle>> codec = ReadOnlyStyledDocument.codec(codecs._1, codecs._2, getSegOps());
+            DataFormat format = DataFormat.lookupMimeType(codec.getName ());
+            if(format == null) {
+                format = new DataFormat(codec.getName ());
+            }
+            if(clipboard.hasContent(format)) {
+                byte[] bytes = (byte[]) clipboard.getContent(format);
+                ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+                DataInputStream dis = new DataInputStream(is);
+                StyledDocument<ParaStyle, AbstractSegment, TextStyle> doc = null;
+                try {
+                    doc = codec.decode(dis);
+                } catch (IOException e) {
+                    System.err.println("Codec error: Failed to decode '" + codec.getName() + "':");
+                    e.printStackTrace();
+                }
+                if(doc != null) {
+
+                    TextStyle ts = this.getTextInsertionStyle ();
+                    ReadOnlyStyledDocumentBuilder b = new ReadOnlyStyledDocumentBuilder (getSegOps (),
+                                                                                         this.getParagraphInsertionStyle ());
+
+                    for (Paragraph<ParaStyle, AbstractSegment, TextStyle> p : doc.getParagraphs ())
+                    {
+
+                        b.addParagraph (p.getSegments (),
+                                        p.getStyleSpans ().mapStyles (ss ->
+                                        {
+
+                                            TextStyle s = new TextStyle (ss);
+                                            ss.setFontSize (ts.getFontSize ());
+                                            ss.setFontFamily (ts.getFontFamily ());
+                                            ss.setTextColor (ts.getTextColor ());
+                                            return ss;
+
+                                        }));
+
+                    }
+
+                    replaceSelection(b.build ());
+                    return;
+                }
+            }
+            return;
+        }
+
+        super.paste ();
 
     }
 
@@ -1719,7 +1827,7 @@ TODO
                                   cb.getMinY (),
                                   cb.getMinZ (),
                                   cb.getWidth (),
-                                  cb.getHeight () - (this.props.getLineSpacing () * this.props.getFontSize ()),
+                                  ((this.props.getLineSpacing () * 2) + this.props.getFontSize ()),//cb.getHeight () - ((this.props.getLineSpacing () - 1) * this.props.getFontSize ()),
                                   cb.getDepth ());
 
             return cb;
@@ -1746,7 +1854,20 @@ TODO
 
                 } else {
 
-                    Bounds cb = this.getCharacterBoundsOnScreen (pos - 1, pos).orElse (null);
+                    if ((pos == ir.getEnd ())
+                        &&
+                        (pos > 0)
+                       )
+                    {
+
+                        Bounds cb = this.getCharacterBoundsOnScreen (pos - 1, pos).orElse (null);
+
+                        return cb;
+
+                    }
+
+                    // TODO Check to see if this makes a difference?
+                    Bounds cb = this.getCharacterBoundsOnScreen (pos, pos + 1).orElse (null);
 
                     return cb;
 
@@ -2163,21 +2284,14 @@ System.out.println ("HEREZ: " + cb);
 
         }
 
-        this.setParagraphInsertionStyle (new ParaStyle (this.getParagraphs ().get (0).getParagraphStyle ()));
+        ParaStyle ps = new ParaStyle ();
+        ps.updateLineSpacing (props.getLineSpacing ())
+            .updateParagraphSpacing (props.getParagraphSpacing ())
+            .updateTextBorder (props.getTextBorder ())
+            .updateAlignment (props.getAlignment ())
+            .updateFontSize (props.getFontSize ());
 
-    }
-
-    private void updateParagraphStyleInSelectionX(Function<ParaStyle, ParaStyle> updater)
-    {
-/*
-        IndexRange selection = this.getSelection ();
-        int startPar = this.offsetToPosition(selection.getStart(), TwoDimensional.Bias.Forward).getMajor();
-        int endPar = this.offsetToPosition(selection.getEnd(), TwoDimensional.Bias.Backward).getMajor();
-        for(int i = startPar; i <= endPar; ++i) {
-            Paragraph<ParaStyle, String, TextStyle> paragraph = this.getParagraph(i);
-            this.setParagraphStyle(i, updater.apply(paragraph.getParagraphStyle()));
-        }
-*/
+        this.setParagraphInsertionStyle (ps);
 
     }
 
@@ -2210,6 +2324,14 @@ System.out.println ("HEREZ: " + cb);
 
             this.ignoreDocumentChange = false;
 
+
+        });
+
+        this.textPropsBinder.addChangeListener (this.props.backgroundColorProperty (),
+                                                (pr, oldv, newv) ->
+        {
+
+            this.backgroundColorProp.setValue (newv);
 
         });
 
@@ -2263,6 +2385,16 @@ System.out.println ("HEREZ: " + cb);
                     .updateTextColor (props.getTextColor ());
 
                 this.setTextInsertionStyle (ts);
+
+                ParaStyle ps = new ParaStyle ();
+                ps.updateLineSpacing (props.getLineSpacing ())
+                    .updateParagraphSpacing (props.getParagraphSpacing ())
+                    .updateTextBorder (props.getTextBorder ())
+                    .updateAlignment (props.getAlignment ())
+                    .updateFontSize (props.getFontSize ());
+
+                this.setParagraphInsertionStyle (ps);
+
                 this.updateCaretNode ();
 
                 this.ignoreDocumentChange = false;
@@ -2348,7 +2480,24 @@ System.out.println ("HEREZ: " + cb);
             this.suspendUndos.suspendWhile (() ->
             {
 
-                this.updateParagraphStyle (style -> style.updateLineSpacing (props.getLineSpacing ()));
+                this.updateParagraphStyle (style ->
+                {
+
+                    style.updateParagraphSpacing (props.getParagraphSpacing ());
+                    style.updateFontSize (props.getFontSize ());
+                    style.updateLineSpacing (props.getLineSpacing ());
+                    return style;
+                });
+
+                ParaStyle ps = new ParaStyle ();
+                ps.updateLineSpacing (props.getLineSpacing ())
+                    .updateParagraphSpacing (props.getParagraphSpacing ())
+                    .updateTextBorder (props.getTextBorder ())
+                    .updateAlignment (props.getAlignment ())
+                    .updateFontSize (props.getFontSize ());
+
+                this.setParagraphInsertionStyle (ps);
+
                 this.ignoreDocumentChange = false;
 
             });
@@ -2364,7 +2513,25 @@ System.out.println ("HEREZ: " + cb);
             this.suspendUndos.suspendWhile (() ->
             {
 
-                this.updateParagraphStyle (style -> style.updateParagraphSpacing (props.getParagraphSpacing ()));
+                this.updateParagraphStyle (style ->
+                {
+
+                    style.updateParagraphSpacing (props.getParagraphSpacing ());
+                    style.updateFontSize (props.getFontSize ());
+                    style.updateLineSpacing (props.getLineSpacing ());
+                    return style;
+
+                });
+
+                ParaStyle ps = new ParaStyle ();
+                ps.updateLineSpacing (props.getLineSpacing ())
+                    .updateParagraphSpacing (props.getParagraphSpacing ())
+                    .updateTextBorder (props.getTextBorder ())
+                    .updateAlignment (props.getAlignment ())
+                    .updateFontSize (props.getFontSize ());
+
+                this.setParagraphInsertionStyle (ps);
+
                 this.ignoreDocumentChange = false;
 
             });
@@ -2382,6 +2549,15 @@ System.out.println ("HEREZ: " + cb);
 
                 this.updateParagraphStyle (style -> style.updateTextBorder (props.getTextBorder ()));
                 this.ignoreDocumentChange = false;
+
+                ParaStyle ps = new ParaStyle ();
+                ps.updateLineSpacing (props.getLineSpacing ())
+                    .updateParagraphSpacing (props.getParagraphSpacing ())
+                    .updateTextBorder (props.getTextBorder ())
+                    .updateAlignment (props.getAlignment ())
+                    .updateFontSize (props.getFontSize ());
+
+                this.setParagraphInsertionStyle (ps);
 
             });
 
@@ -2402,7 +2578,8 @@ System.out.println ("HEREZ: " + cb);
             return style.updateLineSpacing (props.getLineSpacing ())
                 .updateParagraphSpacing (props.getParagraphSpacing ())
                 .updateAlignment (props.getAlignment ())
-                .updateTextBorder (props.getTextBorder ());
+                .updateTextBorder (props.getTextBorder ())
+                .updateFontSize (props.getFontSize ());
 
         });
 
@@ -2414,6 +2591,15 @@ System.out.println ("HEREZ: " + cb);
         this.setUseInitialStyleForInsertion (false);
         this.setTextInsertionStyle (ts);
 
+        ParaStyle ps = new ParaStyle ();
+        ps.updateLineSpacing (props.getLineSpacing ())
+            .updateParagraphSpacing (props.getParagraphSpacing ())
+            .updateTextBorder (props.getTextBorder ())
+            .updateAlignment (props.getAlignment ())
+            .updateFontSize (props.getFontSize ());
+
+        this.setParagraphInsertionStyle (ps);
+
         UIUtils.forceRunLater (() ->
         {
 
@@ -2424,6 +2610,7 @@ System.out.println ("HEREZ: " + cb);
         // TODO, Remove
         //this.setLineHighlighterOn (false);
         this.setLineHighlighterFill (props.getWritingLineColor ());
+        this.backgroundColorProp.setValue (props.getBackgroundColor ());
 
     }
 
@@ -2454,6 +2641,58 @@ System.out.println ("HEREZ: " + cb);
         Optional<Boolean> spellingError = null;
         Map<Object, Color> backgroundColors = new LinkedHashMap<> ();
 
+        /*
+         * Here we encode the style information about a text segment.
+         * We write/read 3 booleans, one each for (and in this order):
+         *     bold
+         *     italic
+         *     underline
+         * If a value isn't present we write false.
+         * On a read, the rest of the style information we grab from the insertion style.
+         */
+        public static final Codec<TextStyle> CODEC = new Codec<TextStyle> ()
+        {
+
+            @Override
+            public String getName ()
+            {
+
+                return "qw-text-style";
+
+            }
+
+            @Override
+            public void encode (DataOutputStream os,
+                                TextStyle        ts)
+                         throws IOException
+            {
+
+                os.writeBoolean (ts.bold.orElse (false));
+                os.writeBoolean (ts.italic.orElse (false));
+                os.writeBoolean (ts.underline.orElse (false));
+
+            }
+
+            @Override
+            public TextStyle decode (DataInputStream is)
+                              throws IOException
+            {
+
+                TextStyle ts = new TextStyle (Optional.of (is.readBoolean ()),
+                                              Optional.of (is.readBoolean ()),
+                                              Optional.of (is.readBoolean ()),
+                                              Optional.of (false),
+                                              Optional.of (12),
+                                              Optional.of ("Arial"),
+                                              Optional.empty (),
+                                              null,
+                                              Optional.empty ());
+
+                return ts;
+
+            }
+
+        };
 
         static String cssColor(Color color) {
             int red = (int) (color.getRed() * 255);
@@ -2571,6 +2810,13 @@ System.out.println ("HEREZ: " + cb);
 
         }
 
+        public Integer getFontSize ()
+        {
+
+            return this.fontSize.orElse (12);
+
+        }
+
         public void setFontSize (Integer i)
         {
 
@@ -2586,6 +2832,13 @@ System.out.println ("HEREZ: " + cb);
 
         }
 
+        public String getFontFamily ()
+        {
+
+            return this.fontFamily.orElse ("Georgia");
+
+        }
+
         public void setFontFamily (String i)
         {
 
@@ -2598,6 +2851,13 @@ System.out.println ("HEREZ: " + cb);
 
             this.setTextColor (i);
             return this;
+
+        }
+
+        public Color getTextColor ()
+        {
+
+            return this.textColor.orElse (Color.BLACK);
 
         }
 
@@ -2855,11 +3115,41 @@ System.out.println ("HEREZ: " + cb);
     public static class ParaStyle extends Styleable
     {
 
-        private Optional<Float> lineSpacing = Optional.empty ();
-        private Optional<Float> paraSpacing = Optional.empty ();
-        private Optional<String> alignment = Optional.empty ();
-        private Optional<Integer> textBorder = Optional.empty ();
+        private Optional<Float> lineSpacing = Optional.of (1f);//empty ();
+        private Optional<Float> paraSpacing = Optional.of (0f);//empty ();
+        private Optional<String> alignment = Optional.of ("left");//empty ();
+        private Optional<Integer> textBorder = Optional.of (0);//empty ();
         private int fontSize = 12;
+
+        public static final Codec<ParaStyle> CODEC = new Codec<> ()
+        {
+
+            @Override
+            public String getName ()
+            {
+
+                return "para-style";
+
+            }
+
+            @Override
+            public void encode (DataOutputStream os,
+                                ParaStyle        ps)
+                         throws IOException
+            {
+
+            }
+
+            @Override
+            public ParaStyle decode (DataInputStream is)
+                              throws IOException
+            {
+
+                return new ParaStyle ();
+
+            }
+
+        };
 
         public ParaStyle ()
         {
@@ -2871,19 +3161,25 @@ System.out.println ("HEREZ: " + cb);
 
             this (ps.lineSpacing,
                   ps.alignment,
-                  ps.textBorder);
+                  ps.textBorder,
+                  ps.paraSpacing,
+                  ps.fontSize);
 
         }
 
         public ParaStyle(
                 Optional<Float> lineSpacing,
                 Optional<String> alignment,
-                Optional<Integer> textBorder)
+                Optional<Integer> textBorder,
+                Optional<Float>   paraSpacing,
+                int               fontSize)
         {
 
             this.lineSpacing = lineSpacing;
             this.alignment = alignment;
             this.textBorder = textBorder;
+            this.paraSpacing = paraSpacing;
+            this.fontSize = fontSize;
 
         }
 
@@ -2949,26 +3245,6 @@ System.out.println ("HEREZ: " + cb);
 
                 ps = this.paraSpacing.get () * this.fontSize;
 
-                if (this.lineSpacing.isPresent ())
-                {
-
-                    ps *= this.lineSpacing.get ();
-
-                }
-
-            } else {
-
-                if (this.lineSpacing.isPresent ())
-                {
-
-                    ps = this.lineSpacing.get () * this.fontSize;
-
-                } else {
-
-                    //ps = 1 * this.fontSize;
-
-                }
-
             }
 
             int tb = this.textBorder.isPresent () ? this.textBorder.get () : 0;
@@ -2980,6 +3256,7 @@ System.out.println ("HEREZ: " + cb);
                                       ps));
 
             return sb.toString ();
+
         }
 
         public ParaStyle updateFontSize (int s)
