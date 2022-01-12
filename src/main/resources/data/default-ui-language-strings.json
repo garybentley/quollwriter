@@ -6275,6 +6275,17 @@
                         "text" : "<ul><li>A number of bug fixes relating to the User Interface strings and the editor.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b19" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes/Minor Improvements",
+                        "text" : "<ul><li>Numerous fixes and minor improvements as a result of the formal testing.</li></ul>"
+                    }
+                }
             }
         }
     },
