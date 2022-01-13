@@ -334,6 +334,22 @@ public class Wizard extends VBox
 
     }
 
+    public void setNextButtonLabelAsFinish ()
+    {
+
+        this.setNextButtonLabel (getUILanguageStringProperty (wizard,buttons,finish));
+
+    }
+
+    public void setNextButtonLabel (StringProperty t)
+    {
+
+        this.nextBut.textProperty ().unbind ();
+
+        this.nextBut.textProperty ().setValue (t.getValue ());
+
+    }
+
     public StringProperty getNextButtonLabel (String nid)
     {
 

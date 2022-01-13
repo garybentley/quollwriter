@@ -58,6 +58,8 @@
 .windowed > .header .controls .button .iconbox .warmup-icon,
 .windowed > .header.title .iconbox .warmup-icon {
     -fx-pref-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-min-width: 1.5em;
 }
 .windowed > .header .controls .button .iconbox .help-icon {
     -fx-pref-width: 1.333em;
@@ -132,4 +134,23 @@
 .windowed > .header .controls > *
 {
     -fx-padding: 0.25em;
+}
+
+.windowed > .header .controls > .wordcounttimer
+{
+    -fx-padding: 0;
+}
+
+.windowed > .header .controls .button .iconbox .icon.start-icon
+{
+    -fx-pref-width: 1.332em;
+    -fx-max-width: 1.332em;
+    -fx-min-width: 1.332em;
+}
+
+.windowed > .header .controls .button .iconbox .icon.pause-icon
+{
+    -fx-pref-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-min-width: 1.5em;    
 }

@@ -37,9 +37,12 @@ public class QuollButton extends Button
         {
 
             Tooltip t = new Tooltip ();
-            t.textProperty ().bind (b.tooltip);
+            //t.textProperty ().bind (b.tooltip);
 
-            this.setTooltip (t);
+            //this.setTooltip (t);
+
+            UIUtils.setTooltip (this, b.tooltip);
+            
 /*
             t.setOnShowing (s ->
             {

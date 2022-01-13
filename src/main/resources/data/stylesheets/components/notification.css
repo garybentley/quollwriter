@@ -57,10 +57,14 @@
  }
  .controls .button > .iconbox .next-icon.icon {
      -fx-pref-width: 0.888em;
+     -fx-max-width: 0.888em;
+     -fx-min-width: 0.888em;
  }
  .controls .button > .iconbox .information-icon.icon
  {
      -fx-pref-width: 1.766em;
+     -fx-max-width: 1.766em;
+     -fx-min-width: 1.766em;
  }
 
 /*

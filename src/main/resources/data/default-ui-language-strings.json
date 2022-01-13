@@ -564,7 +564,7 @@
                 "labels" :
                 {
                     "first" : "This is my first time using {QW}",
-                    "notfirst" : "I want {QW} to find my ${objectnames.plural.project}/${objectnames.singular.project} database"
+                    "notfirst" : "I want {QW} to find my ${objectnames.plural.project}"
                 }
             },
             "license" :

@@ -36,43 +36,14 @@ public class WordCountTimerSelectPopup extends PopupContent
 
         HBox b = new HBox ();
 
-        ChoiceBox<StringProperty> words = UIUtils.getWordsOptions (() ->
-        {
+        ChoiceBox<StringProperty> words = UIUtils.getWordsOptions (() -> UIUtils.getDefaultWarmupWords (),
+                                                                   (v) -> { this.wordCount = v; });
+        ChoiceBox<StringProperty> times = UIUtils.getTimeOptions (() -> UIUtils.getDefaultWarmupMinutes (),
+                                                                  (v) -> { this.mins = v; });
 
-            String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+        this.mins = UIUtils.getDefaultWarmupMinutes ();
+        this.wordCount = UIUtils.getDefaultWarmupWords ();
 
-            try
-            {
-
-                return Integer.parseInt (v);
-
-            } catch (Exception e)
-            {
-
-                return Constants.DEFAULT_WORDS;
-
-            }
-
-        },
-        (v) -> { this.wordCount = v; });
-        ChoiceBox<StringProperty> times = UIUtils.getTimeOptions (() ->
-        {
-
-            String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
-
-            int minsC = Constants.DEFAULT_MINS;
-
-            if (minsDef != null)
-            {
-
-                minsC = Integer.parseInt (minsDef);
-
-            }
-
-            return minsC;
-
-        },
-        (v) -> { this.mins = v; });
         QuollLabel l = QuollLabel.builder ()
             .label (timer,labels,andor)
             .build ();

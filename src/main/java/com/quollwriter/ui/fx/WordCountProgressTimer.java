@@ -109,6 +109,14 @@ public class WordCountProgressTimer
     public void startTimer ()
     {
 
+        if (this.stateProp.getValue () == State.paused)
+        {
+
+            this.stateProp.setValue (State.playing);
+            return;
+
+        }
+
         if (this.timer != null)
         {
 
@@ -126,6 +134,7 @@ public class WordCountProgressTimer
 
         this.initWordCount = this.viewer.getAllChapterCounts ().getWordCount ();
         this.startWords = this.viewer.getAllChapterCounts ().getWordCount ();
+        this.totalWords = 0;
 
         this.progressProp.setValue (MIN_VALUE);
 
@@ -159,20 +168,19 @@ public class WordCountProgressTimer
             }
 
         },
-        5 * Constants.SEC_IN_MILLIS,
-        5 * Constants.SEC_IN_MILLIS);
+        2 * Constants.SEC_IN_MILLIS,
+        2 * Constants.SEC_IN_MILLIS);
 
     }
 
     public void stopTimer ()
     {
-System.out.println ("STOP CALLED");
+
         if (this.timer != null)
         {
 
             this.viewer.unschedule (this.timer);
             this.timer = null;
-            System.out.println ("STOPPED");
 
         }
 
@@ -223,7 +231,7 @@ System.out.println ("STOP CALLED");
         if (this.wordCount > 0)
         {
 
-            wordsPerc = this.totalWords / this.wordCount;
+            wordsPerc = (double) this.totalWords / (double) this.wordCount;
             this.wordsRemaining = this.wordCount - this.totalWords;
 
             StringProperty wordsVal = getUILanguageStringProperty (Arrays.asList (LanguageStrings.timer,remaining,words),
@@ -266,98 +274,19 @@ System.out.println ("STOP CALLED");
 
         }
 
-/*
-        int mp = 0;
-
-        int remM = 0;
-
-        if (this.minsCount > 0)
-        {
-
-            long diff = System.currentTimeMillis () - this.startTime;
-
-            int ms = (int) (diff / (60 * 1000));
-
-            if (ms > 0)
-            {
-
-                mp = (int) (((float) ms / (float) this.minsCount) * 100);
-
-            }
-
-            this.minsRemaining = this.minsCount - ms;
-
-        }
-
-        int wp = 0;
-
-        int wc = 0;
-
-        if (this.wordCount > 0)
-        {
-
-            // Get the word count.
-            ChapterCounts cc = this.viewer.getAllChapterCounts ();
-
-            // Can happen if shutting down.
-            if (cc == null)
-            {
-
-                return;
-
-            }
-
-            wc = cc.getWordCount ();
-
-            wc -= this.initWordCount;
-
-            if (wc > 0)
-            {
-
-                wp = (int) (((float) wc / (float) this.wordCount) * 100);
-
-            }
-
-            this.wordsRemaining = this.wordCount - wc;
-
-        }
-
-        int max = Math.max (mp,
-                            wp);
-
-        this.percentComplete = max;
-
-        double v = (double) this.percentComplete / 100d;
-
-        if (v < MIN_VALUE)
-        {
-
-            v = MIN_VALUE;
-
-        }
-
-        this.progress.setProgress (v);
-
-        this.progressProp.setValue (this.percentComplete);
-
-        if (max >= 100)
-        {
-
-            this.timer.cancel (true);
-
-            this.viewer.fireProjectEvent (ProjectEvent.Type.warmup,
-                                          ProjectEvent.Action.timereached);
-            this.viewer.fireProjectEvent (ProjectEvent.Type.chapter,
-                                          ProjectEvent.Action.timereached);
-
-        }
-*/
     }
 
     public int getStartCount ()
     {
 
         return this.startCount;
+
+    }
+
+    public int getTotalWords ()
+    {
+
+        return this.totalWords;
 
     }
 

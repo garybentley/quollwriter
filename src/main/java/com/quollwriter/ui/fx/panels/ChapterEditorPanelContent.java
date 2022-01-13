@@ -604,7 +604,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                 Integer i = s.getAsInt (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
                                         0);
 
-                //this.editor.getCaretSelectionBind ().moveTo (i);
+                this.editor.getCaretSelectionBind ().moveTo (i);
 
                 //this.editor.requestFollowCaret ();
 

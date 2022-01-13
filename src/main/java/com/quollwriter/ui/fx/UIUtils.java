@@ -5010,6 +5010,20 @@ TODO
     public static void addShowCSSViewerFilter (Window s)
     {
 
+        if (s == null)
+        {
+
+            return;
+
+        }
+
+        if (s.getProperties ().containsKey ("qw-css-event-filter"))
+        {
+
+            return;
+
+        }
+
         s.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
                                       eev ->
         {
@@ -5045,5 +5059,45 @@ TODO
 
         });
 
+        s.getProperties ().put ("qw-css-event-filter", "added");
+
     }
+
+    public static int getDefaultWarmupMinutes ()
+    {
+
+        String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+
+        int minsC = Constants.DEFAULT_MINS;
+
+        if (minsDef != null)
+        {
+
+            minsC = Integer.parseInt (minsDef);
+
+        }
+
+        return minsC;
+
+    }
+
+    public static int getDefaultWarmupWords ()
+    {
+
+        String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+
+        try
+        {
+
+            return Integer.parseInt (v);
+
+        } catch (Exception e)
+        {
+
+            return Constants.DEFAULT_WORDS;
+
+        }
+
+    }
+
 }

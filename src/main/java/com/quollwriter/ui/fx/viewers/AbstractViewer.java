@@ -481,6 +481,13 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
             })
             .build ();
 
+        context.setOnShown (ev ->
+        {
+
+            UIUtils.addShowCSSViewerFilter (context.getContextMenu ());
+
+        });
+
         return context;
 
     }
@@ -1683,6 +1690,7 @@ TODO Remove handled by the content.
             .closeButton ()
             .withClose (true)
             .removeOnClose (true)
+            .noAutoShow ()
             .build ();
 
         if (m != null)

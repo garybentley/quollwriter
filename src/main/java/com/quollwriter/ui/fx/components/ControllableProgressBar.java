@@ -177,15 +177,7 @@ public class ControllableProgressBar extends HBox
             {
 
                 this.wctimer.startTimer ();
-                //this.stateProp.setValue (State.playing);
-                /*
-                this.stopBut.setDisable (false);
-                this.stopBut.setVisible (b.allowStop);
-                this.playBut.setVisible (false);
-                this.pauseBut.setVisible (b.allowPause);
-                this.fireEvent (new ProgressButtonEvent (this.progressBar,
-                                                         ProgressButtonEvent.PLAY_EVENT));
-*/
+
             })
             .build ();
         this.playBut.managedProperty ().bind (this.playBut.visibleProperty ());
@@ -197,15 +189,7 @@ public class ControllableProgressBar extends HBox
             {
 
                 this.wctimer.stopTimer ();
-                //this.stateProp.setValue (State.stopped);
-                /*
-                this.stopBut.setDisable (true);
-                this.playBut.setVisible (b.allowPlay);
-                this.resetBut.setVisible (false);
-                this.pauseBut.setVisible (false);
-                this.fireEvent (new ProgressButtonEvent (this.progressBar,
-                                                         ProgressButtonEvent.STOP_EVENT));
-*/
+
             })
             .build ();
         this.stopBut.managedProperty ().bind (this.stopBut.visibleProperty ());

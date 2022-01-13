@@ -417,17 +417,23 @@ Text
 .menu-item .iconbox > .chapter-icon.icon
 {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 
 .menu-item .iconbox .ideaboard-icon.icon
 {
     -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
 }
 
 .menu-item .iconbox .achievements-icon.icon,
 .accordion .header .iconbox .achievements-icon.icon
 {
     -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
 }
 
 .accordion.chapter .header > .iconbox .icon,
@@ -442,6 +448,8 @@ Text
 .accordion .header .iconbox .warmup-icon.icon
 {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 
 .menu-item .iconbox .contactsupport-icon.icon
@@ -454,6 +462,8 @@ Text
 .menu-item .iconbox .info-icon.icon
 {
     -fx-pref-width: 0.666em;
+    -fx-min-width: 0.666em;
+    -fx-max-width: 0.666em;
 }
 
 .accordion .header .iconbox,
@@ -686,6 +696,8 @@ Text
      -fx-shape: "M 0,32 V 0 l 24,16 z";
      -fx-background-color: -qw-icon-color;
      -fx-pref-width: 0.888em;
+     -fx-max-width: 0.888em;
+     -fx-min-width: 0.888em;
  }
  .previous-icon
  {
@@ -1892,11 +1904,15 @@ Text
 
 .tab.chapter .tab-label .iconbox .chapter-icon.icon {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 
 .tab.ideaboard .tab-label .iconbox .ideaboard-icon.icon,
 .tab.achievements .tab-label .iconbox .achievements-icon.icon {
     -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
 }
 
 .menu-button .label

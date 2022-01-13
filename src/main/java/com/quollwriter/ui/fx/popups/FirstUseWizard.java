@@ -462,6 +462,26 @@ System.out.println ("HERE2");
 
         }
 
+        if ((IS_FIRST_USE_STAGE.equals (oldStage))
+            &&
+            (newStage == null)
+           )
+        {
+
+            Environment.showAllProjectsViewer ();
+            this.close ();
+
+            UIUtils.forceRunLater (() ->
+            {
+
+                Environment.getAllProjectsViewer ().runCommand (AllProjectsViewer.CommandId.findprojects);
+
+            });
+            return false;
+
+        }
+
+
         return true;
 
     }
@@ -545,6 +565,14 @@ System.out.println ("HERE2");
 
         }
 
+        if (IS_FIRST_USE_STAGE.equals (currentStage))
+        {
+
+            wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                 (this.isFirstUse.isSelected () || this.notFirstUse.isSelected ()));
+
+        }
+
         if (EXISTING_STAGE.equals (currentStage))
         {
 
@@ -607,16 +635,42 @@ System.out.println ("HERE2");
 
             this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
                                       true);
+/*
+            Path p = newv.resolve (Constants.PROJECT_INFO_DB_FILE_NAME_PREFIX);
 
+            if (Files.exists (p))
+            {
+
+                // Try and open it.
+                String username = UserProperties.get (Constants.DB_USERNAME_PROPERTY_NAME);
+                String password = UserProperties.get (Constants.DB_PASSWORD_PROPERTY_NAME);
+
+                ProjectInfoObjectManager pim = new ProjectInfoObjectManager ();
+
+                pim.init (p.toFile (),
+                                                     username,
+                                                     password,
+                                                     null,
+                                                     Environment.getProjectInfoSchemaVersion ());
+
+                // Get a count of the projects.
+                Set<ProjectInfo> all = new LinkedHashSet<> (pim.getObjects (ProjectInfo.class,
+                                                                            null,
+                                                                            null,
+                                                                            true));
+
+            }
+*/
         });
 
         this.projDBFindForm = Form.builder ()
             .description (getUILanguageStringProperty (Arrays.asList (firstusewizard,stages,selectprojectdb,text),
                                         //"Use the finder below to find the directory where your {projects} database file is stored.  The file is called <b>%s%s</b>",
                                                        Environment.getProjectInfoDBPath ().getFileName ().toString () + Constants.H2_DB_FILE_SUFFIX))
-            .item (getUILanguageStringProperty (firstusewizard,stages,selectprojectdb,finder,label),
-                   this.projDBFind)
+            .item (this.projDBFind)
             .build ();
+
+
 
         ws.content = this.projDBFindForm;
 
@@ -642,6 +696,24 @@ System.out.println ("HERE2");
         ToggleGroup g = new ToggleGroup ();
         this.isFirstUse.setToggleGroup (g);
         this.notFirstUse.setToggleGroup (g);
+
+        this.isFirstUse.setOnAction (ev ->
+        {
+
+            this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                      true);
+            this.wizard.setNextButtonLabel (this.wizard.getNextButtonLabel (IS_FIRST_USE_STAGE));
+
+        });
+
+        this.notFirstUse.setOnAction (ev ->
+        {
+
+            this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                      true);
+            this.wizard.setNextButtonLabelAsFinish ();
+
+        });
 
         Form f = Form.builder ()
             .description (firstusewizard,stages,isfirstuse,text)
@@ -1900,7 +1972,7 @@ System.out.println ("HERE2");
         if (SELECT_PROJECT_DB_STAGE.equals (currStage))
         {
 
-            return IS_FIRST_USE_STAGE;
+            return EXISTING_STAGE;
 
         }
 
@@ -1987,11 +2059,13 @@ System.out.println ("HERE2");
             if (this.notFirstUse.isSelected ())
             {
 
-                return EXISTING_STAGE;
+                return null;//EXISTING_STAGE;
 
             }
 
-            return EXISTING_STAGE;
+            return null;
+
+            //return EXISTING_STAGE;
 
         }
 

@@ -1382,6 +1382,9 @@ TODO
 
     }
 
+    /**
+     * Note will automatically show the popup, switch off with "noAutoShow".
+     */
     public static class MessageBuilder<X extends MessageBuilder<X>> extends Builder<X>
     {
 
@@ -1389,6 +1392,7 @@ TODO
         private Node messageNode = null;
         protected Set<Button> buttons = null;
         private Button closeButton = null;
+        private boolean noAutoShow = false;
         //private AbstractViewer viewer = null;
 
         public X message (Node n)
@@ -1428,6 +1432,14 @@ TODO
         {
 
             return this.message (getUILanguageStringProperty (Utils.newList (prefix, m)));
+
+        }
+
+        public X noAutoShow ()
+        {
+
+            this.noAutoShow = true;
+            return _this ();
 
         }
 
@@ -1526,7 +1538,13 @@ TODO
             this.withClose (true);
             this.hideOnEscape (true);
             this.removeOnClose (true);
-            this.show ();
+
+            if (!this.noAutoShow)
+            {
+
+                this.show ();
+
+            }
 
             VBox b = new VBox ();
 

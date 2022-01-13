@@ -4625,8 +4625,27 @@ TODO REmove
 
             return WordCountTimerButton.builder ()
                 .inViewer (this)
+                .styleClassName ("wordcounttimer")
                 .buttonId (HeaderControlButtonIds.timer)
                 .timer (this.wcTimer)
+                .onMinutesComplete (() ->
+                {
+
+                    this.showNotificationPopup (getUILanguageStringProperty (timer,complete,time,popup,title),
+                                                getUILanguageStringProperty (Arrays.asList (timer,complete,time,popup,text),
+                                                                             Environment.formatNumber (this.wcTimer.getMinutes ())),
+                                                30);
+
+                })
+                .onWordsComplete (() ->
+                {
+
+                    this.showNotificationPopup (getUILanguageStringProperty (timer,complete,LanguageStrings.words,popup,title),
+                                                getUILanguageStringProperty (Arrays.asList (timer,complete,LanguageStrings.words,popup,text),
+                                                                             Environment.formatNumber (this.wcTimer.getTotalWords ())),
+                                                30);
+
+                })
                 .build ();
 
         }

@@ -10,6 +10,8 @@
 }
 .dowarmup.header.title > .iconbox .icon {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 .chooseprompt .header .iconbox,
 .ownprompt .header .iconbox,

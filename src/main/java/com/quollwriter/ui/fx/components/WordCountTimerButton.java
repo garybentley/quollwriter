@@ -390,7 +390,6 @@ public class WordCountTimerButton extends HBox
             {
 
                 //this.wctimer.pauseTimer ();
-                System.out.println ("PAUSED CALLED");
                 return;
 
             }
