@@ -304,38 +304,47 @@ public class WarmupProjectViewer extends AbstractProjectViewer
             {
 
                 // See if there is a number at the end.
-                int ind = c.getName ().indexOf ("(",
-                                                name.length ());
+                int ind = c.getName ().lastIndexOf ("(");
 
                 if (ind != -1)
                 {
 
-                    // Get the number (if present)
-                    String n = c.getName ().substring (ind + 1);
+                    int ind2 = c.getName ().indexOf (")",
+                                                     ind + 1);
 
+                    if (ind2 != -1)
+                    {
+
+                        // Get the number (if present)
+                        String n = c.getName ().substring (ind + 1,
+                                                           ind2);
+                                                           System.out.println ("N: " + n);
+/*
                     n = Utils.replaceString (n,
                                                    "(",
                                                    "");
                     n = Utils.replaceString (n,
                                                    ")",
                                                    "");
-
-                    try
-                    {
-
-                        int m = Integer.parseInt (n);
-
-                        if (m > max)
+*/
+                        try
                         {
 
-                            max = m;
+                            int m = Integer.parseInt (n);
+
+                            if (m > max)
+                            {
+
+                                max = m;
+
+                            }
+
+                        } catch (Exception e)
+                        {
+
+                            // Ignore.
 
                         }
-
-                    } catch (Exception e)
-                    {
-
-                        // Ignore.
 
                     }
 
