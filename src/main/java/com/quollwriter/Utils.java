@@ -1583,6 +1583,34 @@ TODO Remove
 
     }
 
+    public static String sanitizeForFilenameKeepCase (String n)
+    {
+
+        char[] chars = n.toCharArray ();
+
+        StringBuilder b = new StringBuilder ();
+
+        for (int i = 0; i < chars.length; i++)
+        {
+
+            if ((Character.isLetterOrDigit (chars[i]))
+                ||
+                (chars[i] == ' ')
+                ||
+                (chars[i] == '-')
+               )
+            {
+
+                b.append (chars[i]);
+
+            }
+
+        }
+
+        return b.toString ().trim ();
+
+    }
+
     public static String sanitizeForFilename (String n)
     {
 
