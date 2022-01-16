@@ -75,8 +75,11 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
         m.put ("PDF (.pdf)",
                Constants.PDF_FILE_EXTENSION);
                */
+               /*
+               Why are you so bad???
         m.put ("HTML (.html)",
                Constants.HTML_FILE_EXTENSION);
+               */
         /*
         m.put ("PDF",
                "pdf");

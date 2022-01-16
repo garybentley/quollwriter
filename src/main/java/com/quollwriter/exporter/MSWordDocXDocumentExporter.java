@@ -670,7 +670,10 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
             Object val = h.getFieldValue ();
 
-            if (val == null)
+            if ((val == null)
+                ||
+                ((val instanceof StringWithMarkup) && (!((StringWithMarkup) val).hasText ()))
+               )
             {
 
                 continue;
@@ -981,7 +984,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         name = name.replace ('\\',
                              '_');
 
-        name = Utils.sanitizeForFilename (name);
+        name = Utils.sanitizeForFilenameKeepCase (name);
 
         File f = new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.DOCX_FILE_EXTENSION);
 
@@ -1071,86 +1074,91 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 boolean hasChapInf = false;
 
-                List<Chapter> chapters = p.getBooks ().get (0).getChapters ();
-
-                for (Chapter c : chapters)
+                if (p.getBooks ().size () > 0)
                 {
 
-                    this.addTo (mp,
-                                wordMLPackage,
-                                c);
+                    List<Chapter> chapters = p.getBooks ().get (0).getChapters ();
 
-                    notesmp.addStyledParagraphOfText (HEADING1,
-                                                      c.getName ());
-                    outlinemp.addStyledParagraphOfText (HEADING1,
-                                                        c.getName ());
-                    chapinfmp.addStyledParagraphOfText (HEADING1,
-                                                        c.getName ());
-
-                    this.addChapterItems (c,
-                                          notesmp,
-                                          outlinemp,
-                                          chapinfmp);
-
-                    if ((c.getGoals () != null)
-                        ||
-                        (c.getPlan () != null)
-                       )
+                    for (Chapter c : chapters)
                     {
 
-                        hasChapInf = true;
+                        this.addTo (mp,
+                                    wordMLPackage,
+                                    c);
+
+                        notesmp.addStyledParagraphOfText (HEADING1,
+                                                          c.getName ());
+                        outlinemp.addStyledParagraphOfText (HEADING1,
+                                                            c.getName ());
+                        chapinfmp.addStyledParagraphOfText (HEADING1,
+                                                            c.getName ());
+
+                        this.addChapterItems (c,
+                                              notesmp,
+                                              outlinemp,
+                                              chapinfmp);
+
+                        if ((c.getGoals () != null)
+                            ||
+                            (c.getPlan () != null)
+                           )
+                        {
+
+                            hasChapInf = true;
+
+                        }
+
+                        if (c.getNotes ().size () > 0)
+                        {
+
+                            hasNotes = true;
+
+                        }
+
+                        if ((c.getOutlineItems ().size () > 0)
+                            ||
+                            (c.getScenes ().size () > 0)
+                           )
+                        {
+
+                            hasOutline = true;
+
+                        }
 
                     }
 
-                    if (c.getNotes ().size () > 0)
+                    this.save (wordMLPackage,
+                               p.getName ());
+
+                    if (hasNotes)
                     {
 
-                        hasNotes = true;
+                        this.save (notesWordMLPackage,
+                                   String.format (getUIString (exportproject,sectiontitles,notes),
+                                                  p.getName ()));
+                                   //p.getName () + " - Notes");
 
                     }
 
-                    if ((c.getOutlineItems ().size () > 0)
-                        ||
-                        (c.getScenes ().size () > 0)
-                       )
+                    if (hasOutline)
                     {
 
-                        hasOutline = true;
+                        this.save (outlineWordMLPackage,
+                                   String.format (getUIString (exportproject,sectiontitles,scenesoutlineitems),
+                                                  p.getName ()));
+                                   //p.getName () + " - Scenes and Plot Outline");
 
                     }
 
-                }
+                    if (hasChapInf)
+                    {
 
-                this.save (wordMLPackage,
-                           p.getName ());
+                        this.save (chapterInfoWordMLPackage,
+                                   String.format (getUIString (exportproject,sectiontitles,chapterinfo),
+                                                  p.getName ()));
+                                   //p.getName () + " - Chapter Information");
 
-                if (hasNotes)
-                {
-
-                    this.save (notesWordMLPackage,
-                               String.format (getUIString (exportproject,sectiontitles,notes),
-                                              p.getName ()));
-                               //p.getName () + " - Notes");
-
-                }
-
-                if (hasOutline)
-                {
-
-                    this.save (outlineWordMLPackage,
-                               String.format (getUIString (exportproject,sectiontitles,scenesoutlineitems),
-                                              p.getName ()));
-                               //p.getName () + " - Scenes and Plot Outline");
-
-                }
-
-                if (hasChapInf)
-                {
-
-                    this.save (chapterInfoWordMLPackage,
-                               String.format (getUIString (exportproject,sectiontitles,chapterinfo),
-                                              p.getName ()));
-                               //p.getName () + " - Chapter Information");
+                    }
 
                 }
 

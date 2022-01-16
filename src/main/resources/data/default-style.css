@@ -437,8 +437,8 @@ Text
 }
 
 .accordion.chapter .header > .iconbox .icon,
-.accordion .header > .iconbox .editing-icon.icon,
-.accordion.character .header > .iconbox .icon {
+.accordion .header > .iconbox .editing-icon.icon
+{
     -fx-pref-width: 1em;
     -fx-max-width: 1em;
     -fx-min-width: 1em;
@@ -1092,6 +1092,8 @@ Text
 
 .tree .cell .disclosure.iconbox .tree-disclosure-icon.icon {
     -fx-pref-width: 0.5em;
+    -fx-max-width: 0.5em;
+    -fx-min-width: 0.5em;
     -fx-pref-height: 0.666em;
 }
 .tree .cell .disclosure.iconbox .tree-disclosure-icon.icon:expanded

@@ -550,13 +550,87 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
                     Asset a = (Asset) n;
 
+                    int max = 0;
+
+                    String name = a.getName ();
+
                     // See if we should merge.
-                    Asset oa = this.pv.getProject ().getAssetByName (a.getName (),
+                    Asset oa = this.pv.getProject ().getAssetByName (name,
                                                                      a.getUserConfigurableObjectType ());
 
                     if (oa != null)
                     {
 
+                        for (Asset pa : this.pv.getProject ().getAssets (a.getUserConfigurableObjectType ()))
+                        {
+
+                             if (pa.getName ().toLowerCase ().startsWith (name.toLowerCase ()))
+                             {
+
+                                 // See if there is a number at the end.
+                                 int ind = pa.getName ().lastIndexOf ("(");
+
+                                 if (ind != -1)
+                                 {
+
+                                     int ind2 = pa.getName ().indexOf (")",
+                                                                       ind + 1);
+
+                                     if (ind2 != -1)
+                                     {
+
+                                         String nn = pa.getName ().substring (ind + 1,
+                                                                              ind2);
+
+                                         try
+                                         {
+
+                                             int m = Integer.parseInt (nn);
+
+                                             if (m > max)
+                                             {
+
+                                                 max = m;
+
+                                             }
+
+                                         } catch (Exception e)
+                                         {
+
+                                             // Ignore.
+
+                                         }
+
+                                     }
+
+                                 } else
+                                 {
+
+                                     if (max == 0)
+                                     {
+
+                                         max = 1;
+
+                                     }
+
+                                 }
+
+                             }
+
+                         }
+
+                         if (max > 0)
+                         {
+
+                             max++;
+
+                             name = name + " (" + max + ")";
+
+                         }
+
+                         a.setName (name);
+
+                        //continue;
                         // Don't merge but don't add either, merging is no longer viable.
                         /*
                         // Merge.
@@ -567,11 +641,11 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                         prefix = "Merged";
                         */
 
-                    } else {
+                    } //else {
 
                         this.pv.getProject ().addAsset (a);
 
-                    }
+                    //}
 
                     try
                     {

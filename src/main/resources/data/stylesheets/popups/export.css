@@ -26,10 +26,29 @@
 .content .tree .cell {
     -fx-padding: 0;
 }
-.content .tree .cell .label.chapter .iconbox,
+
+.content .tree .cell .label .iconbox
+{
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+
+}
+
 .content .tree .cell .label.chapter .iconbox .icon {
     -fx-pref-width: 1em;
     -fx-pref-height: 1.333em;
     -fx-fill-height: false;
     -fx-alignment: center;
+}
+
+.content .tree .cell:leaf .label .iconbox
+{
+    visibility: hidden;
+}
+
+.content .tree .cell .label
+{
+    -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
 }

@@ -347,48 +347,53 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ("utf-8")),
                                                     "main.css"));
 
-            Book b = itemsToExport.getBook (0);
-
-            String cTemp = Utils.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
-
-            List<Chapter> chapters = b.getChapters ();
-
-            int count = 0;
-
-            for (Chapter c : chapters)
+            if (itemsToExport.getBooks ().size () > 0)
             {
 
-                count++;
+                Book b = itemsToExport.getBook (0);
 
-                String chapterText = Utils.replaceString (cTemp,
-                                                                "[[TITLE]]",
-                                                                c.getName ());
+                String cTemp = Utils.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
 
-                StringWithMarkup v = c.getText ();
+                List<Chapter> chapters = b.getChapters ();
 
-                String t = (v != null ? v.getText () : null);
+                int count = 0;
 
-                TextIterator iter = new TextIterator (t);
-
-                Markup m = (c != null ? v.getMarkup () : null);
-
-                StringBuilder ct = new StringBuilder ();
-
-                for (Paragraph para : iter.getParagraphs ())
+                for (Chapter c : chapters)
                 {
 
-                    ct.append (String.format ("<p>%s</p>",
-                                              para.markupAsHTML (m)));
+                    count++;
+
+                    String chapterText = Utils.replaceString (cTemp,
+                                                                    "[[TITLE]]",
+                                                                    c.getName ());
+
+                    StringWithMarkup v = c.getText ();
+
+                    String t = (v != null ? v.getText () : null);
+
+                    TextIterator iter = new TextIterator (t);
+
+                    Markup m = (c != null ? v.getMarkup () : null);
+
+                    StringBuilder ct = new StringBuilder ();
+
+                    for (Paragraph para : iter.getParagraphs ())
+                    {
+
+                        ct.append (String.format ("<p>%s</p>",
+                                                  para.markupAsHTML (m)));
+
+                    }
+
+                    chapterText = Utils.replaceString (chapterText,
+                                                             "[[CONTENT]]",
+                                                             ct.toString ());
+
+                    book.addSection (c.getName (),
+                                     new Resource (new ByteArrayInputStream (chapterText.getBytes ("utf-8")),
+                                                   "chapter" + count + ".html"));
 
                 }
-
-                chapterText = Utils.replaceString (chapterText,
-                                                         "[[CONTENT]]",
-                                                         ct.toString ());
-
-                book.addSection (c.getName (),
-                                 new Resource (new ByteArrayInputStream (chapterText.getBytes ("utf-8")),
-                                               "chapter" + count + ".html"));
 
             }
 
@@ -558,7 +563,10 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 Object val = h.getFieldValue ();
 
-                if (val == null)
+                if ((val == null)
+                    ||
+                    ((val instanceof StringWithMarkup) && (!((StringWithMarkup) val).hasText ()))
+                   )
                 {
 
                     continue;
@@ -599,7 +607,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                     buf.append ("<p><img src=\"");
                     buf.append (f.getName ());
-                    buf.append (" /></p>");
+                    buf.append ("\" /></p>");
 
                     continue;
 

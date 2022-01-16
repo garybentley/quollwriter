@@ -192,8 +192,18 @@ public class QuollFileField extends HBox
                 if (Files.exists (this.fileProp.getValue ()))
                 {
 
-                    f.setInitialDirectory (this.fileProp.getValue ().getParent ().toFile ());
-                    f.setInitialFileName (this.fileProp.getValue ().getFileName ().toString ());
+                    if (Files.isDirectory (this.fileProp.getValue ()))
+                    {
+
+                        f.setInitialDirectory (this.fileProp.getValue ().toFile ());
+
+                    } else {
+
+                        f.setInitialDirectory (this.fileProp.getValue ().getParent ().toFile ());
+
+                        f.setInitialFileName (this.fileProp.getValue ().getFileName ().toString ());
+
+                    }
 
                 }
 
