@@ -414,7 +414,7 @@ public class AssetViewPanel extends NamedObjectPanelContent<ProjectViewer, Asset
 
         s.set ("layout",
                this.layout.getState ());
-System.out.println ("STATE: " + s);
+
         return s;
 
     }
