@@ -73,21 +73,7 @@ public class PerChapterWordCountsChart extends VBox implements QuollChart
     private void createChart ()
     {
 
-        if (this.displayB.getSelectionModel ().getSelectedIndex () == 0)
-        {
-
-            this.createCurrentChart ();
-
-            return;
-
-        }
-
-        this.createHistoryChart ();
-
-    }
-
-    private void createHistoryChart ()
-    {
+        this.createCurrentChart ();
 
     }
 

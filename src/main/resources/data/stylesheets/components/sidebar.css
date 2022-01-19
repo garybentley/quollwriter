@@ -28,7 +28,7 @@
      -fx-graphic: url(/imgs/help16.png);
  }
 */
-.sidebar > .header .button.help .iconbox .help-icon.icon {
+.sidebar > .header .button .iconbox .help-icon.icon {
     -fx-pref-width: 0.666em;
     -fx-max-width: 0.666em;
     -fx-min-width: 0.666em;

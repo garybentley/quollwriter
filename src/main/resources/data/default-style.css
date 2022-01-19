@@ -2185,16 +2185,6 @@ Text
     -fx-border-color: -qw-component-border-color;
 }
 
-.spinner .decrement-arrow-button
-{
-    -fx-border-width: 0 1px 0 1px;
-}
-
-.spinner .increment-arrow-button
-{
-    -fx-border-width: 0 1px 0 1px;
-}
-
 .date-picker .arrow-button .arrow,
 .spinner .increment-arrow-button,
 .spinner .decrement-arrow-button
@@ -2223,33 +2213,55 @@ Text
 .spinner .increment-arrow-button .increment-arrow, .spinner .decrement-arrow-button .decrement-arrow
 {
     -fx-cursor: hand;
+}
+
+/* TODO Clean these styles up */
+.spinner .decrement-arrow-button .decrement-arrow,
+.spinner .increment-arrow-button .increment-arrow
+{
+    -fx-pref-height: 1em;
     -fx-pref-width: 0.5em;
-    -fx-pref-height: 0.888em;
+    -fx-max-width: 0.5em;
+    -fx-max-height: 1em;
+    -fx-min-width: 0.5em;
+    -fx-min-height: 1em;
+    -fx-padding: 0;
 }
 
 .spinner .increment-arrow-button .increment-arrow
 {
-    -fx-rotate: 0;
+    -fx-rotate: -90;
 }
 
 .spinner .decrement-arrow-button .decrement-arrow
 {
-    -fx-rotate: -180;
-
+    -fx-rotate: 90;
 }
 
-/*
+.spinner .increment-arrow-button:hover
+{
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-color: transparent transparent -qw-component-border-color -qw-component-border-color;
+}
+
+.spinner .decrement-arrow-button:hover
+{
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-color: -qw-component-border-color transparent transparent -qw-component-border-color;
+}
+
 .spinner .increment-arrow-button
 {
-    -fx-background-image: url(/imgs/more12.png);
+    -fx-border-width: 1px 1px 1px 1px;
+    -fx-border-color: transparent;
 }
 
 .spinner .decrement-arrow-button
 {
-    -fx-background-image: url(/imgs/less12.png);
-    -fx-border-width: 1px 0 0px 1px;
+    -fx-border-width: 1px 1px 1px 1px;
+    -fx-border-color: transparent;
 }
-*/
+
 body
 {
     overflow-x: hidden;

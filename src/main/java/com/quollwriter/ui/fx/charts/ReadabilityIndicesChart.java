@@ -30,6 +30,7 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
 
     private Node controls = null;
     private VBox chartWrapper = null;
+    private VBox detailsWrapper = null;
     private QuollVerticalBarChart<Number, String> chart = null;
     private CheckBox showAvg = null;
     private CheckBox showTargets = null;
@@ -56,7 +57,10 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
         this.chartWrapper = new VBox ();
         VBox.setVgrow (this.chartWrapper,
                        Priority.ALWAYS);
-        this.getChildren ().addAll (this.chartWrapper, this.createDetails ());
+        this.detailsWrapper = new VBox ();
+        VBox.setVgrow (this.detailsWrapper,
+                       Priority.NEVER);
+        this.getChildren ().addAll (this.chartWrapper, this.detailsWrapper);
 
     }
 
@@ -247,6 +251,8 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
 
         this.chartWrapper.getChildren ().add (this.chart);
 
+        this.createDetails ();
+
     }
 
     @Override
@@ -307,8 +313,7 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
 
         List<String> prefix = Arrays.asList (charts,readability,labels);
 
-        FlowPane b = new FlowPane ();
-        b.getStyleClass ().add (StyleClassNames.DETAIL);
+        StringBuilder v = new StringBuilder ();
 
         TargetsData ptargs = this.viewer.getProjectTargets ();
 
@@ -345,6 +350,8 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
 
         }
 
+        List<String> strs = new ArrayList<> ();
+
         if ((targetFK > 0)
             &&
             (overFK > 0)
@@ -353,18 +360,9 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
            )
         {
 
-            b.getChildren ().add (this.createDetailItem (QuollHyperlink.builder ()
-                .tooltip (getUILanguageStringProperty (charts,readability,labels,clicktoview))
-                .label (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,overtargetfk),
+            strs.add (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,overtargetfk),
                                          //"%s {Chapter%s} over target Flesch-Kincaid",
-                                          Environment.formatNumber (overFK)))
-                .onAction (ev ->
-                {
-
-                    this.viewer.showChaptersOverReadabilityTarget ();
-
-                })
-                .build ()));
+                                          Environment.formatNumber (overFK)).getValue ());
 
         }
 
@@ -376,48 +374,47 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
            )
         {
 
-            b.getChildren ().add (this.createDetailItem (QuollHyperlink.builder ()
-                .tooltip (getUILanguageStringProperty (charts,readability,labels,clicktoview))
-                .label (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,overtargetgf),
-                                         //"%s {Chapter%s} over target Flesch-Kincaid",
-                                          Environment.formatNumber (overGF)))
-                .onAction (ev ->
-                {
-
-                    this.viewer.showChaptersOverReadabilityTarget ();
-
-                })
-                .build ()));
+            strs.add (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,overtargetgf),
+                                                   Environment.formatNumber (overGF)).getValue ());
 
         }
 
         if (this.filteredCountProp.getValue () > 0)
         {
 
-            b.getChildren ().add (this.createDetailItem (getUILanguageStringProperty (Arrays.asList (charts,readability,excluded,plural,text),
+            strs.add (getUILanguageStringProperty (Arrays.asList (charts,readability,excluded,plural,text),
                                                 //"%s {chapters} have less than %s words and have been excluded",
-                                                                        Environment.formatNumber (this.filteredCountProp.getValue ()))));
-                                                //Environment.formatNumber (Constants.MIN_READABILITY_WORD_COUNT))));
+                                                                        Environment.formatNumber (this.filteredCountProp.getValue ())).getValue ());
 
         }
 
         if (showFK)
         {
 
-            b.getChildren ().add (this.createDetailItem (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,averagefk),
+            strs.add (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,averagefk),
                                                             //"%s - Average Flesch-Kincaid",
-                                                                                      Environment.formatNumber (this.avgFKProp.getValue ()))));
+                                                   Environment.formatNumber (this.avgFKProp.getValue ())).getValue ());
 
         }
 
         if (showGF)
         {
 
-            b.getChildren ().add (this.createDetailItem (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,averagegf),
-                                                            //"%s - Average Gunning Fog",
-                                                                    Environment.formatNumber (this.avgGFProp.getValue ()))));
+            strs.add (getUILanguageStringProperty (Arrays.asList (charts,readability,labels,averagegf),
+                                                   Environment.formatNumber (this.avgGFProp.getValue ())).getValue ());
 
         }
+
+        FlowPane b = new FlowPane ();
+        QuollTextView info = QuollTextView.builder ()
+            .text (String.join (getUILanguageStringProperty (Utils.newList (prefix,valueseparator)).getValue (),
+                                strs))
+            .build ();
+        b.getStyleClass ().add (StyleClassNames.DETAIL);
+        b.getChildren ().add (info);
+
+        this.detailsWrapper.getChildren ().clear ();
+        this.detailsWrapper.getChildren ().add (b);
 
         return b;
 
@@ -541,7 +538,7 @@ public class ReadabilityIndicesChart extends VBox implements QuollChart
             })
             .build ();
 
-        fp.getChildren ().addAll (this.showFK, this.showGF, this.showAvg, this.showTargets, forChapters);
+        fp.getChildren ().addAll (forChapters, this.showFK, this.showGF, this.showAvg, this.showTargets);
 
         return fp;
 

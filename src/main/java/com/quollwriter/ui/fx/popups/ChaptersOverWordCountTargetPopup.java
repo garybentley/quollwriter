@@ -59,7 +59,13 @@ public class ChaptersOverWordCountTargetPopup extends PopupContent<AbstractProje
         for (Chapter c : chaps)
         {
 
-            gp.add (QuollHyperlink.builder ()
+            ChapterCounts count = viewer.getChapterCounts (c);
+
+            int diff = count.getWordCount () - tcc;
+
+            int perc = Utils.getPercent (diff, tcc);
+
+            QuollHyperlink l = QuollHyperlink.builder ()
                 .label (c.nameProperty ())
                 .styleClassName (StyleClassNames.CHAPTER)
                 .tooltip (getUILanguageStringProperty (actions,clicktoview))
@@ -69,19 +75,22 @@ public class ChaptersOverWordCountTargetPopup extends PopupContent<AbstractProje
                     viewer.viewObject (c);
 
                 })
-                .build (),
+                .build ();
+
+            gp.add (l,
                 0,
                 row);
 
-            ChapterCounts count = viewer.getChapterCounts (c);
+            if (perc >= 25)
+            {
 
-            int diff = count.getWordCount () - tcc;
+                l.getStyleClass ().add (StyleClassNames.OVER);
 
-            int perc = Utils.getPercent (diff, tcc);
+            }
 
             gp.add (QuollLabel.builder ()
                 .label (new SimpleStringProperty (String.format ("%1$s",
-                                                                 count.getWordCount ())))
+                                                                 Environment.formatNumber (count.getWordCount ()))))
                 .build (),
                 1,
                 row);

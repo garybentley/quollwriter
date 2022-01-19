@@ -1539,10 +1539,7 @@ TODO
 
 				int wc = _this.getProjectTargets ().getMaxChapterCount ();
 
-				if ((wc > 0)
-					&&
-					(_this.getProjectTargets ().isShowMessageWhenMaxChapterCountExceeded ())
-				   )
+				if (wc > 0)
 				{
 
 					Book b = _this.project.getBooks ().get (0);
@@ -1609,7 +1606,10 @@ TODO
 
 					}
 
-					if (over.size () > 0)
+					if ((over.size () > 0)
+                        &&
+					    (_this.getProjectTargets ().isShowMessageWhenMaxChapterCountExceeded ())
+                       )
 					{
 
 						// Show a message.
@@ -1640,10 +1640,6 @@ TODO
 
                             }
 
-                            Text t = new Text ();
-                            t.textProperty ().bind (getUILanguageStringProperty (messIds,
-                                                                                 reps));
-
                             Set<Button> buttons = new LinkedHashSet<> ();
                             Button showDetail = QuollButton.builder ()
                                 .label (LanguageStrings.buttons,showdetail)
@@ -1655,12 +1651,22 @@ TODO
                                 .withViewer (_this)
                                 .styleClassName (StyleClassNames.WORDCOUNTS)
                                 .title (LanguageStrings.targets,popup,title)
-                                .message (t)
+                                .message (getUILanguageStringProperty (messIds,
+                                                                       reps))
                                 .buttons (buttons)
                                 .build ();
 
                             showDetail.setOnAction (ev ->
                             {
+
+                                if (over.size () == 1)
+                                {
+
+                                    _this.viewObject (over.iterator ().next ());
+                                    qp.close ();
+                                    return;
+
+                                }
 
                                 this.showChaptersOverWordCountTarget ();
                                 qp.close ();

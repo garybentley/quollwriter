@@ -6,6 +6,9 @@ import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.beans.property.*;
 import javafx.scene.control.*;
+import javafx.util.converter.*;
+import java.text.*;
+import java.util.function.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -27,8 +30,37 @@ public class QuollSpinner extends Spinner<Integer>
 
         }
 
-        this.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
+        //this.getStyleClass ().add (Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
+        this.getStyleClass ().add ("arrows-on-right-vertical");
         this.setEditable (b.editable);
+
+        // Taken from: https://stackoverflow.com/a/29561005/1784362
+        NumberFormat format = NumberFormat.getIntegerInstance();
+        UnaryOperator<TextFormatter.Change> filter = c ->
+        {
+            if (c.isContentChange())
+            {
+                if (c.getControlNewText ().equals (""))
+                {
+
+                    return c;
+
+                }
+                ParsePosition parsePosition = new ParsePosition(0);
+                // NumberFormat evaluates the beginning of the text
+                format.parse(c.getControlNewText(), parsePosition);
+                if (parsePosition.getIndex() == 0 ||
+                        parsePosition.getIndex() < c.getControlNewText().length()) {
+                    // reject parsing the complete text failed
+                    return null;
+                }
+            }
+            return c;
+        };
+        TextFormatter<Integer> formatter = new TextFormatter<Integer>(
+                new IntegerStringConverter(), 0, filter);
+
+        this.getEditor().setTextFormatter(formatter);
 
         this.setValueFactory (new SpinnerValueFactory.IntegerSpinnerValueFactory (b.min,
                                                               b.max,

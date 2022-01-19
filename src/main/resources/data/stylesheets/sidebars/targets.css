@@ -43,5 +43,5 @@ HBox {
 }
 .scroll-pane
 {
-    -fx-fit-to-width: false;
+    -fx-fit-to-width: true;
 }

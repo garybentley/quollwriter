@@ -12,12 +12,12 @@ import javafx.scene.shape.*;
 import javafx.scene.chart.*;
 
 // Adapted from: https://stackoverflow.com/questions/24232931/adding-a-line-in-a-javafx-chart/24403761#24403761
-public class QuollBarChart extends BarChart<String, Number>
+public class QuollLineChart<X> extends LineChart<X, Number>
 {
 
     private ObservableList<Marker> horizontalMarkers;
 
-    public QuollBarChart (CategoryAxis xAxis, ValueAxis<Number> yAxis)
+    public QuollLineChart (Axis<X> xAxis, ValueAxis yAxis)
     {
 
         super(xAxis, yAxis);

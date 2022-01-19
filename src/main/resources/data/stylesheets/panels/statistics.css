@@ -42,7 +42,8 @@
      -fx-opacity: 0;
  }
 
- .panel.statistics .detail > *
+ .panel.statistics .detail > *,
+  .panel.statistics .detail
  {
      -fx-alignment: center;
  }
@@ -80,6 +81,16 @@
      -fx-min-width: 2em;
      -fx-pref-width: 2em;
      -fx-min-height: 2em;
+     -fx-max-width: 2em;
+ }
+
+ .panel.statistics .chart-bar.series1
+ {
+     -fx-background-color: lightblue;
+     -fx-min-width: 2em;
+     -fx-pref-width: 2em;
+     -fx-min-height: 2em;
+     -fx-max-width: 2em;
  }
 
   .scroll-pane
@@ -98,6 +109,54 @@
 .marker.target.line
 {
     -fx-stroke: red;
+}
+
+.marker.targetfk.line
+{
+    -fx-stroke: green;
+}
+
+.marker.averagefk.line
+{
+    -fx-stroke: red;
+}
+
+.marker.targetgf.line
+{
+    -fx-stroke: blue;
+}
+
+.marker.averagegf.line
+{
+    -fx-stroke: purple;
+}
+
+.marker.averagefk.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: red;
+    -fx-text-fill: white;
+}
+
+.marker.averagegf.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: purple;
+    -fx-text-fill: white;
+}
+
+.marker.targetfk.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: green;
+    -fx-text-fill: white;
+}
+
+.marker.targetgf.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: blue;
+    -fx-text-fill: white;
 }
 
 .marker.average.label

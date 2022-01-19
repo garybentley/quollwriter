@@ -874,6 +874,7 @@ TODO
 
                     Set<StringProperty> met = new LinkedHashSet<> ();
                     int sessWC = 0;
+                    int wc = 0;
 
                     try
                     {
@@ -894,6 +895,7 @@ TODO
                            )
                         {
 
+                            wc = sessWC;
                             met.add (getUILanguageStringProperty (Utils.newList (prefix,session)));
                                      //"Session");
 
@@ -913,13 +915,17 @@ TODO
                     try
                     {
 
+                        int dWC = Environment.getPastSessionsWordCount (0);
+
                         // The order is important here, the userSession check is cheaper
                         // than the past sessions check since it doesn't require a db lookup.
                         if ((Environment.userSession.shouldShowDailyTargetReachedPopup ())
                             &&
-                            (Environment.getPastSessionsWordCount (0) >= Environment.targets.getMyDailyWriting ())
+                            (dWC >= Environment.targets.getMyDailyWriting ())
                            )
                         {
+
+                            wc = dWC;
 
                             met.add (getUILanguageStringProperty (Utils.newList (prefix,daily)));
                             //"Daily");
@@ -959,8 +965,12 @@ TODO
 
                             }
 
-                            if (Environment.getPastSessionsWordCount (diff) >= Environment.targets.getMyWeeklyWriting ())
+                            int wWC = Environment.getPastSessionsWordCount (diff);
+
+                            if (wWC >= Environment.targets.getMyWeeklyWriting ())
                             {
+
+                                wc = wWC;
 
                                 met.add (getUILanguageStringProperty (Utils.newList (prefix,weekly)));
                                          //"Weekly");
@@ -995,9 +1005,12 @@ TODO
 
                             int diff = cd - fd;
 
-                            if (Environment.getPastSessionsWordCount (diff) >= Environment.targets.getMyMonthlyWriting ())
+                            int mWC = Environment.getPastSessionsWordCount (diff);
+
+                            if (mWC >= Environment.targets.getMyMonthlyWriting ())
                             {
 
+                                wc = mWC;
                                 met.add (getUILanguageStringProperty (Utils.newList (prefix,monthly)));
                                          //"Monthly");
 
@@ -1026,13 +1039,13 @@ TODO
                             {
 
                                 b.append (String.format ("<li>%s</li>",
-                                                         m));
+                                                         m.getValue ()));
 
                             }
 
                             List<Object> repVals = new ArrayList<> ();
-                            repVals.add (sessWC);
-                            repVals.addAll (met);
+                            repVals.add (Environment.formatNumber (wc));
+                            repVals.add (b.toString ());
 
                             AbstractViewer viewer = Environment.getFocusedViewer ();
 
@@ -1041,10 +1054,12 @@ TODO
 
                                 QuollPopup.messageBuilder ()
                                     .withViewer (viewer)
+                                    .closeButton ()
+                                    .styleClassName (StyleClassNames.WORDCOUNT)
                                     .title (LanguageStrings.targets,writingtargetreachedpopup,title)
                                     .message (getUILanguageStringProperty (Arrays.asList(LanguageStrings.targets,writingtargetreachedpopup,text),
                             //"You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
-                                                                           repVals))
+                                                                            repVals.toArray ()))
                                     .build ();
 
                             });

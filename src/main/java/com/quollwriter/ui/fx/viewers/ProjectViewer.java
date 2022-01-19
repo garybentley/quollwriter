@@ -151,6 +151,35 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
+    @Override
+    public void handleURLAction (String     v,
+                                 MouseEvent ev)
+    {
+
+        try
+        {
+
+            if (v.equals ("chaptersoverreadabilitytarget"))
+            {
+
+                this.showChaptersOverReadabilityTarget ();
+                return;
+
+            }
+
+            super.handleURLAction (v,
+                                   ev);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to perform action: " +
+                                  v,
+                                  e);
+
+        }
+
+    }
+
     private void initActionMappings ()
     {
 

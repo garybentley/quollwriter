@@ -6952,7 +6952,9 @@
                 ":scount.longestsession" : 3,
                 "sessionmostwords" : "%1$s words, %2$s, %3$s - Session with most words",
                 ":comment.sessionmostwords" : "%1$s is the number of words, %2$s is the session duration, %3$s is the session start date/time",
-                ":scount.sessionmostwords" : 3
+                ":scount.sessionmostwords" : 3,
+                "valueseparator" : "&nbsp;&nbsp;&bullet;&nbsp;&nbsp;",
+                ":comment.separator" : "A separator that is used between the various items of data in the summary."
             },
             "notarget" :
             {
@@ -6980,6 +6982,9 @@
                 "for" : "for",
                 "showaverage" : "Show Average",
                 "showzero" : "Show zero word count sessions",
+                "average" : "Average (%1$s)",
+                ":scount.average" : 1,
+                ":comment.average" : "$1%s is the average duration of the sessions.",
                 "xaxis" : "Date",
                 "yaxis" : "Duration",
                 "sessions" : "Sessions",
@@ -6998,12 +7003,14 @@
                 "averagesessionlength" : "%1$s - Average session length",
                 ":comment.averagesessionlength" : "%1$s is the average session time across all sessions.",
                 ":scount.averagesessionlength" : 1,
-                "longestsession" : "%1$s, %2$s - Longest session",
-                ":comment.longestsession" : "%1$s is the duration of the session, %2$s is the date/time of the session.",
-                ":scount.longestsession" : 2,
+                "longestsession" : "%1$s words, %2$s, %3$s - Longest session",
+                ":comment.longestsession" : "%1$s is the number of words written in the session, %2$s is the duration of the session, %2$s is the date/time of the session.",
+                ":scount.longestsession" : 3,
                 "numzerowordsessions" : "%1$s, %2$s - Zero word count sessions",
                 ":comment.numzerowordsessions" : "%1$s is the number of sessions, %2$s is the duration of the sessions.",
-                ":scount.numzerowordsessions" : 2
+                ":scount.numzerowordsessions" : 2,
+                "valueseparator" : "&nbsp;&nbsp;&bullet;&nbsp;&nbsp;",
+                ":comment.separator" : "A separator that is used between the various items of data in the summary."
             },
             "markers" :
             {
@@ -7028,10 +7035,10 @@
                 "gf" : "${names.gf}",
                 "yaxis" : "${objectnames.plural.chapter}",
                 "xaxis" : "Reading Level",
-                "overtargetfk" : "%1$s ${objectnames.plural.chapter} over target ${names.fk}",
+                "overtargetfk" : "<a href='action:chaptersoverreadabilitytarget'>%1$s ${objectnames.plural.chapter} over target ${names.fk}</a>",
                 ":comment.overtargetfk" : "%1$s is the number of chapters over the target FK value.",
                 ":scount.overtargetfk" : 1,
-                "overtargetgf" : "%1$s ${objectnames.plural.chapter} over target ${names.gf}",
+                "overtargetgf" : "<a href='action:chaptersoverreadabilitytarget'>%1$s ${objectnames.plural.chapter} over target ${names.gf}</a>",
                 ":comment.overtargetgf" : "%1$s is the number of chapters over the target GF value.",
                 ":scount.overtargetgf" : 1,
                 "averagefk" : "%1$s - Average ${names.fk}",
@@ -7040,7 +7047,9 @@
                 "averagegf" : "%1$s - Average ${names.fk}",
                 ":comment.averagegf" : "%1$s is the average GF value.",
                 ":scount.averagegf" : 1,
-                "clicktoview" : "Click to view the ${objectnames.plural.chapter}"
+                "clicktoview" : "Click to view the ${objectnames.plural.chapter}",
+                "valueseparator" : "&nbsp;&nbsp;&bullet;&nbsp;&nbsp;",
+                ":comment.separator" : "A separator that is used between the various items of data in the summary."
             },
             "markers" :
             {

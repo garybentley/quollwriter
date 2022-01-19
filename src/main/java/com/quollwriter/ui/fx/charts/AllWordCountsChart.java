@@ -76,7 +76,7 @@ public class AllWordCountsChart extends Pane implements QuollChart
         VBox b = new VBox ();
 
         FlowPane fp = new FlowPane ();
-        fp.getStyleClass ().add (StyleClassNames.DETAIL);
+        //fp.getStyleClass ().add (StyleClassNames.DETAIL);
         fp.getChildren ().add (QuollLabel.builder ()
             .label (charts,allwordcounts,labels,_for)
             .build ());
@@ -150,7 +150,7 @@ public class AllWordCountsChart extends Pane implements QuollChart
         xAxis.labelProperty ().bind (getUILanguageStringProperty (charts,allwordcounts,labels,xaxis));
         yAxis.labelProperty ().bind (getUILanguageStringProperty (charts,allwordcounts,labels,yaxis));
 
-        QuollBarChart<String, Number> chart = new QuollBarChart<> (xAxis, yAxis);
+        QuollBarChart chart = new QuollBarChart (xAxis, yAxis);
 
         this.getChildren ().add (chart);
 

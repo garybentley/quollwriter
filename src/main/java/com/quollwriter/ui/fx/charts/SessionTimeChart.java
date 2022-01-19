@@ -30,7 +30,8 @@ public class SessionTimeChart extends VBox implements QuollChart
 
     private Node controls = null;
     private VBox chartWrapper = null;
-    private QuollBarChart<String, Number> chart = null;
+    private VBox detailsWrapper = null;
+    private QuollLineChart<Number> chart = null;
     private CheckBox showAvg = null;
     private ComboBox<StringProperty> displayB = null;
 
@@ -53,7 +54,10 @@ public class SessionTimeChart extends VBox implements QuollChart
         this.chartWrapper = new VBox ();
         VBox.setVgrow (this.chartWrapper,
                        Priority.ALWAYS);
-        this.getChildren ().addAll (this.chartWrapper, this.createDetails ());
+        this.detailsWrapper = new VBox ();
+        VBox.setVgrow (this.detailsWrapper,
+                       Priority.NEVER);
+        this.getChildren ().addAll (this.chartWrapper, this.detailsWrapper);
 
     }
 
@@ -78,7 +82,68 @@ public class SessionTimeChart extends VBox implements QuollChart
 
         this.chartWrapper.getChildren ().clear ();
 
-        CategoryAxis xAxis = new CategoryAxis ();
+        NumberAxis xAxis = new NumberAxis ();
+        //xAxis.setLowerBound (System.currentTimeMillis () - (Constants.DAY_IN_MILLIS * 7));
+        xAxis.setMinorTickVisible (false);
+        xAxis.setForceZeroInRange (false);
+
+
+        int selInd = this.displayB.getSelectionModel ().getSelectedIndex ();
+
+        xAxis.setTickUnit (Constants.DAY_IN_MILLIS);
+/*
+        // This month.
+        if (selInd == 2)
+        {
+
+            // Work out how many days there are currently in the month.
+            GregorianCalendar gc = new GregorianCalendar ();
+            int d = gc.get (Calendar.DATE);
+
+            xAxis.setTickUnit (Constants.DAY_IN_MILLIS * (d % 5));
+
+        }
+
+        // Last month
+        if (selInd == 3)
+        {
+
+            xAxis.setTickUnit (Constants.DAY_IN_MILLIS * 4);
+
+        }
+
+        // All time.
+        if (selInd == 4)
+        {
+
+            xAxis.setTickUnit (Constants.DAY_IN_MILLIS * 10);
+System.out.println ("HERE");
+        }
+*/
+        //xAxis.setTickUnit (Constants.DAY_IN_MILLIS);
+
+        xAxis.setTickLabelFormatter (new StringConverter<Number> ()
+        {
+
+            @Override
+            public Number fromString (String s)
+            {
+
+                return 0l;
+
+            }
+
+            @Override
+            public String toString (Number l)
+            {
+
+                return Environment.formatDate (new Date (l.longValue ()));
+
+            }
+
+        });
+
+        //CategoryAxis xAxis = new CategoryAxis ();
         NumberAxis yAxis = new NumberAxis ();
         yAxis.setAutoRanging (false);
         yAxis.setTickLabelFormatter (new StringConverter<Number> ()
@@ -105,7 +170,7 @@ public class SessionTimeChart extends VBox implements QuollChart
         xAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionlength,labels,xaxis));
         yAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionlength,labels,yaxis));
 
-        this.chart = new QuollBarChart<> (xAxis, yAxis);
+        this.chart = new QuollLineChart (xAxis, yAxis);
 
         this.chart.prefWidthProperty ().bind (this.widthProperty ());
         this.chart.prefHeightProperty ().bind (this.heightProperty ());
@@ -197,7 +262,7 @@ public class SessionTimeChart extends VBox implements QuollChart
         final SimpleDateFormat dateFormat = new SimpleDateFormat ("hh:mm a, EEE, dd MMM yyyy");
 
         // Again with the stupid, have to do this AFTER the data has been added...
-        for (XYChart.Data<String, Number> d : this.chart.getData ().get (0).getData ())
+        for (XYChart.Data<Number, Number> d : this.chart.getData ().get (0).getData ())
         {
 
             Session s = (Session) d.getExtraValue ();
@@ -216,7 +281,7 @@ public class SessionTimeChart extends VBox implements QuollChart
 
             //this.getChildren ().add (this.avgLine);
 
-            List<XYChart.Data<String, Number>> data = this.chart.getData ().get (0).getData ();
+            List<XYChart.Data<Number, Number>> data = this.chart.getData ().get (0).getData ();
 
             if ((data == null)
                 ||
@@ -228,14 +293,15 @@ public class SessionTimeChart extends VBox implements QuollChart
 
             }
 
-            String min = data.get (0).getXValue ();
-            String max = data.get (data.size () - 1).getXValue ();
+            Number min = data.get (0).getXValue ();
+            Number max = data.get (data.size () - 1).getXValue ();
 
             Integer avg = (int) (this.totalTimeProp.getValue () / this.sessionsProp.getValue ());
 
             this.chart.addHorizontalValueMarker (this.chart.createMarker (QuollLabel.builder ()
                                                                             .styleClassName (StyleClassNames.AVERAGE)
-                                                                            .label (new SimpleStringProperty ("Average (" + Utils.formatAsDuration (avg) + ")"))
+                                                                            .label (getUILanguageStringProperty (Arrays.asList (charts,sessionlength,labels,average),
+                                                                                                                 Utils.formatAsDuration (avg)))
                                                                             .build (),
                                                                           StyleClassNames.AVERAGE,
                                                                           avg));
@@ -243,6 +309,8 @@ public class SessionTimeChart extends VBox implements QuollChart
         }
 
         this.chartWrapper.getChildren ().add (this.chart);
+
+        this.createDetails ();
 
     }
 
@@ -294,142 +362,46 @@ public class SessionTimeChart extends VBox implements QuollChart
     private Node createDetails ()
     {
 
-        //VBox b = new VBox ();
-
         List<String> prefix = Arrays.asList (charts,sessionlength,labels);
+        StringBuilder v = new StringBuilder ();
+        v.append (getUILanguageStringProperty (Utils.newList (prefix,numsessions),
+                                               this.sessionsProp).getValue ());
+        v.append (getUILanguageStringProperty (Utils.newList (prefix,valueseparator)).getValue ());
+        v.append (getUILanguageStringProperty (Utils.newList (prefix,sessionsover1hr),//"%s - Session%s over 1 hr",
+                                               this.longSessionsProp).getValue ());
+
+        if ((this.totalTimeProp.getValue () != null)
+            &&
+            (this.sessionsProp.getValue () > 0)
+           )
+        {
+
+            v.append (getUILanguageStringProperty (Utils.newList (prefix,valueseparator)).getValue ());
+            v.append (getUILanguageStringProperty (Utils.newList (prefix,averagesessionlength),//"%s words, %s - Average session",
+                                                   //Environment.formatNumber (this.totalWordsProp.getValue () / this.sessionsProp.getValue ()),
+                                                   Utils.formatAsDuration (this.totalTimeProp.getValue () / this.sessionsProp.getValue ())).getValue ());
+
+        }
+
+        if (this.longestSessionProp.getValue () != null)
+        {
+
+            v.append (getUILanguageStringProperty (Utils.newList (prefix,valueseparator)).getValue ());
+            v.append (getUILanguageStringProperty (Utils.newList (prefix,longestsession),
+                                                   Environment.formatNumber (this.longestSessionProp.getValue ().getWordCount ()),
+                                                   Utils.formatAsDuration (this.longestSessionProp.getValue ().getSessionDuration ()),
+                                                   Environment.formatDateTime (this.longestSessionProp.getValue ().getStart ())).getValue ());
+
+        }
 
         FlowPane b = new FlowPane ();
         b.getStyleClass ().add (StyleClassNames.DETAIL);
+        b.getChildren ().add (QuollTextView.builder ()
+            .text (v.toString ())
+            .build ());
 
-        b.getChildren ().add (this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,numsessions),
-                                                                                  this.sessionsProp)));
-
-/*
-        items.add (this.createDetailLabel (String.format (getUIString (prefix,numsessions),//"%s - Session%s",
-                                                          Environment.formatNumber (sessions))));
-                                                    //(sessions == 1 ? "" : "s"))));
-*/
-
-        Node item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,sessionsover1hr),//"%s - Session%s over 1 hr",
-                                                                        longSessionsProp));
-        item.managedProperty ().bind (item.visibleProperty ());
-
-        BooleanBinding visb = Bindings.createBooleanBinding (() ->
-        {
-
-            return this.sessionsProp.getValue () > 0;
-
-        },
-        this.sessionsProp);
-
-        item.visibleProperty ().bind (visb);
-
-        b.getChildren ().add (item);
-
-        StringProperty dur = new SimpleStringProperty ();
-        dur.bind (Bindings.createStringBinding (() ->
-        {
-
-            if ((this.totalTimeProp.getValue () == null)
-                ||
-                (this.sessionsProp.getValue () == 0)
-               )
-            {
-
-                return "";
-
-            }
-
-            // TODO Change to use strings.
-            return Utils.formatAsDuration (this.totalTimeProp.getValue () / this.sessionsProp.getValue ());
-
-        },
-        this.totalTimeProp,
-        this.sessionsProp));
-
-        StringProperty avgwords = new SimpleStringProperty ();
-        avgwords.bind (Bindings.createStringBinding (() ->
-        {
-
-            if ((this.totalWordsProp.getValue () == null)
-                ||
-                (this.sessionsProp.getValue () == 0)
-               )
-            {
-
-                return "";
-
-            }
-
-            return Environment.formatNumber (this.totalWordsProp.getValue () / this.sessionsProp.getValue ());
-
-        },
-        this.totalWordsProp,
-        this.sessionsProp));
-
-        item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,averagesession),//"%s words, %s - Average session",
-                                                                   avgwords,
-                                                                   dur));
-        item.managedProperty ().bind (item.visibleProperty ());
-        item.visibleProperty ().bind (visb);
-        b.getChildren ().add (item);
-
-        StringProperty longsesswc = new SimpleStringProperty ();
-        longsesswc.bind (Bindings.createStringBinding (() ->
-        {
-
-            if (this.longestSessionProp.getValue () == null)
-            {
-
-                return "";
-
-            }
-
-            return Environment.formatNumber (this.longestSessionProp.getValue ().getWordCount ());
-
-        },
-        this.longestSessionProp));
-
-        StringProperty longsessdur = new SimpleStringProperty ();
-        longsessdur.bind (Bindings.createStringBinding (() ->
-        {
-
-            if (this.longestSessionProp.getValue () == null)
-            {
-
-                return "";
-
-            }
-
-            // TODO Change.
-            return Utils.formatAsDuration (this.longestSessionProp.getValue ().getSessionDuration ());
-
-        },
-        this.longestSessionProp));
-
-        StringProperty longsesstime = new SimpleStringProperty ();
-        longsesstime.bind (Bindings.createStringBinding (() ->
-        {
-
-            if (this.longestSessionProp.getValue () == null)
-            {
-
-                return "";
-
-            }
-
-            return Environment.formatDateTime (this.longestSessionProp.getValue ().getStart ());
-
-        },
-        this.longestSessionProp));
-
-        item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,longestsession),
-                                                                   longsesswc,
-                                                                   longsessdur,
-                                                                   longsesstime));
-        item.managedProperty ().bind (item.visibleProperty ());
-        item.visibleProperty ().bind (visb);
-        b.getChildren ().add (item);
+        this.detailsWrapper.getChildren ().clear ();
+        this.detailsWrapper.getChildren ().add (b);
 
         return b;
 
@@ -528,11 +500,11 @@ public class SessionTimeChart extends VBox implements QuollChart
 
     }
 
-    private XYChart.Series<String, Number> getData ()
+    private XYChart.Series<Number, Number> getData ()
                                              throws Exception
     {
 
-        XYChart.Series<String, Number> series = new XYChart.Series<> ();
+        XYChart.Series<Number, Number> series = new XYChart.Series<> ();
 
         int days = -1;
 
@@ -654,6 +626,7 @@ public class SessionTimeChart extends VBox implements QuollChart
         {
 
             int wc = s.getWordCount ();
+            long time = s.getEnd ().getTime () - s.getStart ().getTime ();
 
             if (wc == 0)
             {
@@ -688,7 +661,7 @@ public class SessionTimeChart extends VBox implements QuollChart
 
             }
 
-            long time = s.getEnd ().getTime () - s.getStart ().getTime ();
+            //long time = s.getEnd ().getTime () - s.getStart ().getTime ();
 
             totalTime += time;
             totalWords += wc;
@@ -717,7 +690,7 @@ public class SessionTimeChart extends VBox implements QuollChart
 
             }
 
-            XYChart.Data d = new XYChart.Data<> (Environment.formatDate (s.getStart ()),
+            XYChart.Data d = new XYChart.Data<> (s.getStart ().getTime (),//Environment.formatDate (s.getStart ()),
                                                  s.getEnd ().getTime () - s.getStart ().getTime ());
             d.setExtraValue (s);
 

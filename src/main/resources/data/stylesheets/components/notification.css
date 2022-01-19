@@ -15,6 +15,7 @@
 .notification > .iconbox .icon.readability-icon {
     -fx-pref-height: 1.333em;
     -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
 }
 .notification > .iconbox .icon.tips-icon {
     -fx-min-width: 1em;

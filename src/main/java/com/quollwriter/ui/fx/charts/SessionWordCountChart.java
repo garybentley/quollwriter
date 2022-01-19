@@ -31,7 +31,9 @@ public class SessionWordCountChart extends VBox implements QuollChart
     private Node controls = null;
     //private Region details = null;
     private VBox chartWrapper = null;
-    private QuollBarChart<String, Number> chart = null;
+    private VBox detailsWrapper = null;
+    //private QuollBarChart<String, Number> chart = null;
+    private QuollLineChart<Number> chart = null;
     private CheckBox showAvg = null;
     private CheckBox showTarget = null;
     private ComboBox<StringProperty> displayB = null;
@@ -55,7 +57,11 @@ public class SessionWordCountChart extends VBox implements QuollChart
         this.chartWrapper = new VBox ();
         VBox.setVgrow (this.chartWrapper,
                        Priority.ALWAYS);
-        this.getChildren ().addAll (this.chartWrapper, this.createDetails ());
+        this.detailsWrapper = new VBox ();
+        VBox.setVgrow (this.detailsWrapper,
+                       Priority.NEVER);
+
+        this.getChildren ().addAll (this.chartWrapper, this.detailsWrapper);
 
     }
 
@@ -80,13 +86,41 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         this.chartWrapper.getChildren ().clear ();
 
-        CategoryAxis xAxis = new CategoryAxis ();
+        //CategoryAxis xAxis = new CategoryAxis ();
+
+        NumberAxis xAxis = new NumberAxis ();
+        //xAxis.setLowerBound (System.currentTimeMillis () - (Constants.DAY_IN_MILLIS * 7));
+        xAxis.setMinorTickVisible (false);
+        xAxis.setForceZeroInRange (false);
+        xAxis.setTickUnit (Constants.DAY_IN_MILLIS);
+        xAxis.setTickLabelFormatter (new StringConverter<Number> ()
+        {
+
+            @Override
+            public Number fromString (String s)
+            {
+
+                return 0l;
+
+            }
+
+            @Override
+            public String toString (Number l)
+            {
+
+                return Environment.formatDate (new Date (l.longValue ()));
+
+            }
+
+        });
+
         NumberAxis yAxis = new NumberAxis ();
 
         xAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionwordcount,labels,xaxis));
         yAxis.labelProperty ().bind (getUILanguageStringProperty (charts,sessionwordcount,labels,yaxis));
 
-        this.chart = new QuollBarChart<> (xAxis, yAxis);
+        //this.chart = new QuollBarChart (xAxis, yAxis);
+        this.chart = new QuollLineChart<Number> (xAxis, yAxis);
 
         this.chart.prefWidthProperty ().bind (this.widthProperty ());
         this.chart.prefHeightProperty ().bind (this.heightProperty ());
@@ -110,7 +144,7 @@ public class SessionWordCountChart extends VBox implements QuollChart
         final SimpleDateFormat dateFormat = new SimpleDateFormat ("hh:mm a, EEE, dd MMM yyyy");
 
         // Again with the stupid, have to do this AFTER the data has been added...
-        for (XYChart.Data<String, Number> d : this.chart.getData ().get (0).getData ())
+        for (XYChart.Data<Number, Number> d : this.chart.getData ().get (0).getData ())
         {
 
             Session s = (Session) d.getExtraValue ();
@@ -124,12 +158,14 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         }
 
+        int target = Environment.getUserTargets ().getMySessionWriting ();
+
         if (this.showAvg.isSelected ())
         {
 
             //this.getChildren ().add (this.avgLine);
 
-            List<XYChart.Data<String, Number>> data = this.chart.getData ().get (0).getData ();
+            List<XYChart.Data<Number, Number>> data = this.chart.getData ().get (0).getData ();
 
             if ((data == null)
                 ||
@@ -141,14 +177,28 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
             }
 
-            String min = data.get (0).getXValue ();
-            String max = data.get (data.size () - 1).getXValue ();
+            Number min = data.get (0).getXValue ();
+            Number max = data.get (data.size () - 1).getXValue ();
 
             Integer avg = (int) (this.totalWordsProp.getValue () / this.sessionsProp.getValue ());
 
+            StringProperty t = null;
+
+            if (target > 0)
+            {
+
+                long diffAvg = avg - target;
+
+                t = getUILanguageStringProperty (Arrays.asList (charts,sessionwordcount,labels,averagesuffix),//", %s%s target",
+                                                 (diffAvg < 0 ? "" : "+") + Environment.formatNumber ((long) diffAvg));
+
+            }
+
             this.chart.addHorizontalValueMarker (this.chart.createMarker (QuollLabel.builder ()
                                                                             .styleClassName (StyleClassNames.AVERAGE)
-                                                                            .label (new SimpleStringProperty ("Average (" + Environment.formatNumber (avg) + ")"))
+                                                                            .label (getUILanguageStringProperty (Arrays.asList (charts,sessionwordcount,labels,average),
+                                                                                                                 Environment.formatNumber (avg),
+                                                                                                                 t))
                                                                             .build (),
                                                                           StyleClassNames.AVERAGE,
                                                                           avg));
@@ -162,7 +212,8 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
             this.chart.addHorizontalValueMarker (this.chart.createMarker (QuollLabel.builder ()
                                                                             .styleClassName (StyleClassNames.TARGET)
-                                                                            .label (new SimpleStringProperty ("Target (" + userTargets.getMySessionWriting () + ")"))
+                                                                            .label (getUILanguageStringProperty (Arrays.asList (charts,sessionwordcount,labels,LanguageStrings.target),
+                                                                                                                 Environment.formatNumber (userTargets.getMySessionWriting ())))
                                                                             .build (),
                                                                           StyleClassNames.TARGET,
                                                                           userTargets.getMySessionWriting ()));
@@ -170,6 +221,8 @@ public class SessionWordCountChart extends VBox implements QuollChart
         }
 
         this.chartWrapper.getChildren ().add (this.chart);
+
+        this.createDetails ();
 
     }
 
@@ -231,6 +284,11 @@ public class SessionWordCountChart extends VBox implements QuollChart
         FlowPane b = new FlowPane ();
         b.getStyleClass ().add (StyleClassNames.DETAIL);
 
+        List<String> strs = new ArrayList<> ();
+
+        strs.add (getUILanguageStringProperty (Utils.newList (prefix,numsessions),
+                                               this.sessionsProp).getValue ());
+
         b.getChildren ().add (this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,numsessions),
                                                                                   this.sessionsProp)));
 
@@ -245,6 +303,9 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         sessAboveTarget.managedProperty ().bind (sessAboveTarget.visibleProperty ());
         sessAboveTarget.visibleProperty ().bind (this.showTarget.selectedProperty ());
+
+        strs.add (getUILanguageStringProperty (Utils.newList (prefix,sessionsover1hr),//"%s - Session%s over 1 hr",
+                                               longSessionsProp).getValue ());
 
         Node item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,sessionsover1hr),//"%s - Session%s over 1 hr",
                                                                         longSessionsProp));
@@ -303,6 +364,18 @@ public class SessionWordCountChart extends VBox implements QuollChart
         this.totalWordsProp,
         this.sessionsProp));
 
+        if ((this.totalTimeProp.getValue () != null)
+            &&
+            (this.sessionsProp.getValue () > 0)
+           )
+        {
+
+            strs.add (getUILanguageStringProperty (Utils.newList (prefix,averagesession),//"%s words, %s - Average session",
+                                                   Environment.formatNumber (this.totalWordsProp.getValue () / this.sessionsProp.getValue ()),
+                                                   Utils.formatAsDuration (this.totalTimeProp.getValue () / this.sessionsProp.getValue ())).getValue ());
+
+        }
+
         item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,averagesession),//"%s words, %s - Average session",
                                                                    avgwords,
                                                                    dur));
@@ -358,6 +431,16 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         },
         this.longestSessionProp));
+
+        if (this.longestSessionProp.getValue () != null)
+        {
+
+            strs.add (getUILanguageStringProperty (Utils.newList (prefix,longestsession),
+                                                   Environment.formatNumber (this.longestSessionProp.getValue ().getWordCount ()),
+                                                   Utils.formatAsDuration (this.longestSessionProp.getValue ().getSessionDuration ()),
+                                                   Environment.formatDateTime (this.longestSessionProp.getValue ().getStart ())).getValue ());
+
+        }
 
         item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,longestsession),
                                                                    longsesswc,
@@ -416,13 +499,35 @@ public class SessionWordCountChart extends VBox implements QuollChart
         },
         this.maxWordsSessionProp));
 
+        if (this.maxWordsSessionProp.getValue () != null)
+        {
+
+            strs.add (getUILanguageStringProperty (Utils.newList (prefix,sessionmostwords),
+                                                   Environment.formatNumber (this.maxWordsSessionProp.getValue ().getWordCount ()),
+                                                   Utils.formatAsDuration (this.maxWordsSessionProp.getValue ().getSessionDuration ()),
+                                                   Environment.formatDateTime (this.maxWordsSessionProp.getValue ().getStart ())).getValue ());
+
+        }
+
         item = this.createDetailItem (getUILanguageStringProperty (Utils.newList (prefix,sessionmostwords),
                                                                    maxsesswc,
                                                                    maxsessdur,
                                                                    maxsesstime));
         item.managedProperty ().bind (item.visibleProperty ());
         item.visibleProperty ().bind (visb);
-        b.getChildren ().add (item);
+        //b.getChildren ().add (item);
+
+        //FlowPane b = new FlowPane ();
+        QuollTextView info = QuollTextView.builder ()
+            .text (String.join (getUILanguageStringProperty (Utils.newList (prefix,valueseparator)).getValue (),
+                                strs))
+            .build ();
+        b.getChildren ().clear ();
+        b.getStyleClass ().add (StyleClassNames.DETAIL);
+        b.getChildren ().add (info);
+
+        this.detailsWrapper.getChildren ().clear ();
+        this.detailsWrapper.getChildren ().add (b);
 
         return b;
 
@@ -605,11 +710,11 @@ TODO Remove
 
     }
 
-    private XYChart.Series<String, Number> getData ()
+    private XYChart.Series<Number, Number> getData ()
                                              throws Exception
     {
 
-        XYChart.Series<String, Number> series = new XYChart.Series<> ();
+        XYChart.Series<Number, Number> series = new XYChart.Series<> ();
 
         int days = -1;
 
@@ -794,7 +899,8 @@ TODO Remove
 
             }
 
-            XYChart.Data d = new XYChart.Data<> (Environment.formatDate (s.getStart ()),
+            XYChart.Data d = new XYChart.Data<> (//Environment.formatDateTime (s.getStart ()),
+                                                 s.getStart ().getTime (),
                                                                          wc);
             d.setExtraValue (s);
 

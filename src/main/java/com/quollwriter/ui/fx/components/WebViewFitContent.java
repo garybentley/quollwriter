@@ -401,7 +401,7 @@ System.out.println ("ADDING: " + r);
         b.append (String.format ("a{color:%1$s;}",
                                  this.getPaintAsCssString (this.hyperlink.getTextFill ())));
         b.append ("li{list-style-position:outside;margin-left:1em;}");
-        b.append ("ul{margin:0 0 0 0.5em;padding:0;}");
+        b.append ("ul{margin:0 0 0 0.5em;padding:0.5em;}");
         b.append (String.format ("more{color:%1$s;font-style:italic;cursor:hand;}",
                                  this.getPaintAsCssString (this.hyperlink.getTextFill ())));
         b.append ("more:hover{text-decoration:underline;}");

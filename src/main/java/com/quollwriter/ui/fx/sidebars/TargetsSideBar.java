@@ -219,7 +219,15 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
                                                     ev ->
             {
 
-                chsOver.setVisible (pv.chaptersOverWordCountTarget ().size () > 0);
+                UIUtils.runLater (() ->
+                {
+
+                    chsOver.setVisible (pv.chaptersOverWordCountTarget ().size () > 0);
+                    chsOver.textProperty ().unbind ();
+                    chsOver.textProperty ().bind (getUILanguageStringProperty (Arrays.asList (project,LanguageStrings.sidebar,targets,labels,chaptersovermaxtarget),
+                                                                               Environment.formatNumber (pv.chaptersOverWordCountTarget ().size ())));
+
+                });
 
             });
 
