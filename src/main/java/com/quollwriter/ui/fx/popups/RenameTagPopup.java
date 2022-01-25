@@ -75,7 +75,7 @@ public class RenameTagPopup extends PopupContent<AbstractProjectViewer>
 
             if ((t != null)
                 &&
-                (this.tag.equals (t))
+                (!this.tag.equals (t))
                )
             {
 

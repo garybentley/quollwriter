@@ -175,6 +175,15 @@ public class TextItemManager extends VBox
 
                     newVal = newVal.trim ();
 
+                    if (newVal.equals (""))
+                    {
+
+                        this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, true);
+                        _this.showExistingError (b.noValueError != null ? b.noValueError : getUILanguageStringProperty (manageitems,table,edit,errors,novalue));
+                        return;
+
+                    }
+
                     for (int i = 0; i < b.items.size (); i++)
                     {
 
@@ -197,6 +206,8 @@ public class TextItemManager extends VBox
                         this.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, true);
                         UIUtils.setTooltip (this,
                                             getUILanguageStringProperty (manageitems,table,edit,errors,valueexists));
+
+                        _this.showExistingError (b.valueExistsError != null ? b.valueExistsError : getUILanguageStringProperty (manageitems,table,edit,errors,valueexists));
 
                         return;
 
@@ -387,6 +398,8 @@ public class TextItemManager extends VBox
         private StringProperty removeButtonLabel = null;
         private String sep = null;
         private StringProperty currentItemsTooltip = null;
+        private StringProperty noValueError = null;
+        private StringProperty valueExistsError = null;
 
         private Builder ()
         {
@@ -406,6 +419,22 @@ public class TextItemManager extends VBox
         {
 
             return this;
+
+        }
+
+        public Builder valueExistsError (StringProperty v)
+        {
+
+            this.valueExistsError = v;
+            return _this ();
+
+        }
+
+        public Builder noValueError (StringProperty v)
+        {
+
+            this.noValueError = v;
+            return _this ();
 
         }
 

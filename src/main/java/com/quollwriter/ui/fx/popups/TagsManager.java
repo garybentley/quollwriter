@@ -35,6 +35,8 @@ public class TagsManager extends PopupContent
             .addDescription (getUILanguageStringProperty (tags,actions,manage,newtag,text))
             .currentItemsTitle (getUILanguageStringProperty (tags,actions,manage,table,title))
             .currentItemsDescription (getUILanguageStringProperty (tags,actions,manage,table,text))
+            .valueExistsError (getUILanguageStringProperty (tags,actions,manage,table,edit,errors,valueexists))
+            .noValueError (getUILanguageStringProperty (tags,actions,manage,table,edit,errors,novalue))
             .items (FXCollections.observableList (Environment.getAllTags ().stream ()
                         .map (p -> p.getName ())
                         .collect (Collectors.toList ())))
@@ -85,6 +87,7 @@ public class TagsManager extends PopupContent
 
             }
 
+            // TODO Remove... Won't ever be hit.
             if (Environment.getTagByName (v) != null)
             {
 
@@ -128,6 +131,7 @@ public class TagsManager extends PopupContent
 
             }
 
+            // TODO Remove won't ever be hit.
             if ((v == null)
                 ||
                 (v.trim ().length () == 0)
@@ -142,6 +146,7 @@ public class TagsManager extends PopupContent
             Tag ot = Environment.getTagByName (n);
             Tag nt = Environment.getTagByName (v);
 
+            // TODO Remove check, won't ever be hit.
             if (nt != null)
             {
 

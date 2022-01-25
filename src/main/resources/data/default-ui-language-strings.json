@@ -5584,7 +5584,7 @@
                     "find" : "Find"
                 },
                 "changenames" : "Change names",
-                "tags" : "Edit the Tags",
+                "tags" : "Add/Manage the ${objectnames.plural.tag}",
                 "keepprojectswindowsopen" : "Keep the ${objectnames.plural.project} window open when a ${objectnames.singular.project} is opened",
                 "showprojectswindownoopenproject" : "Show the ${objectnames.plural.project} window when I have no open ${objectnames.plural.project}",
                 "uilanguage" : "Use the following language for the User Interface",
@@ -6868,9 +6868,9 @@
                 },
                 "table" :
                 {
-                    "tooltip" : "Double click to edit, press Enter when done.",
-                    "title" : "${objectnames.plural.tag}",
-                    "text" : "Note: removing a tag will remove it from <b>all</b> ${objectnames.plural.project}.  You can change the tag name by editing the values below, double click on a type to edit it.",
+                    "tooltip" : "Double click to edit, press Enter/Return when done.",
+                    "title" : "Current ${objectnames.plural.tag}",
+                    "text" : "Note: removing a tag will remove it from <b>all</b> ${objectnames.plural.project}.  You can change the tag name by editing the values below, double click on a type to edit it and press Enter/Return to save the change.",
                     "remove" : "Remove Selected",
                     "loadallerror" : "Unable to get the ${objectnames.plural.tag}.",
                     "popupmenu" :
@@ -8214,7 +8214,7 @@
                 ":comment" : "These items are added to all sections in the sidebar.",
                 "items" :
                 {
-                    "addtag" : "Add/Manage the Tag(s)",
+                    "addtag" : "Add/Manage the ${objectnames.plural.tag}",
                     "newobject" : "Add new Type of ${objectnames.singular.asset}",
                     "addsection" :
                     {
