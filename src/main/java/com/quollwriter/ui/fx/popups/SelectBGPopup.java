@@ -946,8 +946,7 @@ public class SelectBGPopup extends PopupContent
             })
             .build ();
 
-        Tooltip t = b.getTooltip ();
-
+        Tooltip t = UIUtils.getTooltip (b);
         Region r = new Region ();
 
         r.setBackground (_this.createBackground (_this.origBG));

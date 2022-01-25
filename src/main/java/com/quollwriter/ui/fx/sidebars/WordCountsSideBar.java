@@ -57,7 +57,7 @@ public class WordCountsSideBar extends SideBarContent<AbstractProjectViewer>
         selText.visibleProperty ().bind (Bindings.createBooleanBinding (() ->
         {
 
-            return viewer.selectedTextProperty ().getValue () != null;
+            return (viewer.selectedTextProperty ().getValue () != null) && (viewer.selectedTextProperty ().getValue ().trim ().length () > 0);
 
         },
         viewer.selectedTextProperty ()));
@@ -706,13 +706,14 @@ TODO
 
         content.getChildren ().add (r);
 
-        content.getChildren ().add (QuollLabel.builder ()
+        // Now the readability.
+        VBox readB = new VBox ();
+
+        readB.getChildren ().add (QuollLabel.builder ()
             .styleClassName (StyleClassNames.SUBTITLE)
             .label (project,LanguageStrings.sidebar,wordcount,labels,readability)
             .build ());
 
-        // Now the readability.
-        VBox readB = new VBox ();
         content.getChildren ().add (readB);
         readB.managedProperty ().bind (readB.visibleProperty ());
 
@@ -808,6 +809,13 @@ TODO
         headerCons.add (QuollButton.builder ()
             .tooltip (getUILanguageStringProperty (project,LanguageStrings.sidebar,wordcount,headercontrols,items,statistics,tooltip))
             .iconName (StyleClassNames.STATISTICS)
+            .onAction (ev ->
+            {
+
+                this.viewer.runCommand (ProjectViewer.CommandId.statistics,
+                                        AllWordCountsChart.CHART_TYPE);
+
+            })
             .build ());
 
         this.viewer.fireProjectEvent (ProjectEvent.Type.wordcounts,

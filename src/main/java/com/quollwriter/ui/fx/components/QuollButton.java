@@ -36,23 +36,8 @@ public class QuollButton extends Button
         if (b.tooltip != null)
         {
 
-            Tooltip t = new Tooltip ();
-            //t.textProperty ().bind (b.tooltip);
-
-            //this.setTooltip (t);
-
             UIUtils.setTooltip (this, b.tooltip);
-            
-/*
-            t.setOnShowing (s ->
-            {
 
-                Bounds bo = this.localToScreen (this.getBoundsInLocal ());
-                t.setX (bo.getMaxX ());
-                t.setY (bo.getMinY ());
-System.out.println ("HERE: " + t.getX ());
-            });
-*/
         }
 
         if (b.styleClassName != null)

@@ -1208,6 +1208,20 @@ TODO
                                         p.getStyleSpans ().mapStyles (ss ->
                                         {
 
+                                            if (ss == null)
+                                            {
+
+                                                return ss;
+
+                                            }
+
+                                            if (ts == null)
+                                            {
+
+                                                return ss;
+
+                                            }
+
                                             TextStyle s = new TextStyle (ss);
                                             ss.setFontSize (ts.getFontSize ());
                                             ss.setFontFamily (ts.getFontFamily ());
