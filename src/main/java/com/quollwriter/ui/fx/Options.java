@@ -47,6 +47,11 @@ public class Options extends VBox implements Stateful
 
     private AbstractViewer viewer = null;
     private IPropertyBinder propertyBinder = null;
+    private VBox contentWrapper = null;
+    private VBox sections = null;
+    private Section currSect = null;
+    private Map<Section.Id, Section> sects = new HashMap<> ();
+    private Set<Node> headerControls = null;
 
     public void dispose ()
     {
@@ -57,26 +62,129 @@ public class Options extends VBox implements Stateful
 
     public Options (AbstractViewer  viewer,
                     IPropertyBinder binder,
+                    Set<Node>             headerControls,
                     Section.Id...   sects)
     {
 
         this.propertyBinder = binder;
         this.viewer = viewer;
+        this.headerControls = headerControls;
+
+        HBox sp = new HBox ();
+        this.getChildren ().add (sp);
+
+        VBox left = new VBox ();
+        left.getStyleClass ().add ("left");
+
+        Header h_ = Header.builder ()
+            .title (getUILanguageStringProperty (LanguageStrings.options,title))
+            .styleClassName (StyleClassNames.MAIN)
+            .iconClassName (StyleClassNames.OPTIONS)
+            //.controls (headerControls)
+            .build ();
+
+        left.getChildren ().add (h_);
+
+        this.sections = new VBox ();
+        this.sections.getStyleClass ().add (StyleClassNames.SECTIONS);
+        left.getChildren ().add (new ScrollPane (this.sections));
+        VBox.setVgrow (this.sections,
+                       Priority.ALWAYS);
+
+        this.contentWrapper = new VBox ();
+        this.contentWrapper.getStyleClass ().add (StyleClassNames.ITEMS);
+
+        sp.getChildren ().addAll (left, this.contentWrapper);
+        HBox.setHgrow (this.contentWrapper,
+                       Priority.ALWAYS);
+
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
 
         for (Section.Id id : sects)
         {
 
-            Section s = this.createSection (id,
-                                            viewer);
-
-            if (s != null)
+            Header h = this.createSectionLabel (id,
+                                                viewer);
+            if (h == null)
             {
 
-                this.getChildren ().add (s);
+                continue;
 
             }
 
+            h.setUserData (id);
+
+            h.setOnMouseClicked (ev ->
+            {
+
+                this.showSection (id);
+
+            });
+
+            this.sections.getChildren ().add (h);
+
         }
+
+        UIUtils.setFirstLastPseudoClasses (this.sections);
+
+    }
+
+    public void showSection (Section.Id id)
+    {
+
+        this.contentWrapper.getChildren ().clear ();
+
+        Section s = this.sects.get (id);
+
+        if (s == null)
+        {
+
+            s = this.createSection (id,
+                                    this.viewer);
+
+            if (s == null)
+            {
+
+                return;
+
+            }
+
+            this.sects.put (id,
+                            s);
+
+        }
+
+        if (this.currSect != null)
+        {
+
+            this.currSect.getHeader ().getControls ().getItems ().clear ();
+
+        }
+
+        Node c = s.getContent ();
+        Header ch = s.getHeader ();
+        ch.managedProperty ().bind (ch.visibleProperty ());
+
+        if (headerControls != null)
+        {
+
+            ch.getControls ().getItems ().addAll (headerControls);
+
+        }
+
+        VBox.setVgrow (c,
+                       Priority.ALWAYS);
+        ScrollPane csp = new ScrollPane (c);
+        VBox.setVgrow (csp,
+                       Priority.ALWAYS);
+        this.contentWrapper.getChildren ().addAll (ch, csp);
+        this.currSect = s;
+        UIUtils.setSelected (sections,
+                             id);
+
+        UIUtils.setFirstLastPseudoClasses ((Parent) c,
+                                           "." + StyleClassNames.SUBTITLE);
 
     }
 
@@ -86,20 +194,8 @@ public class Options extends VBox implements Stateful
 
         State s = new State ();
 
-        for (Node n : this.getChildren ())
-        {
-
-            if (n instanceof Section)
-            {
-
-                Section sect = (Section) n;
-
-                s.set (sect.getSectionId ().getType (),
-                          sect.getState ());
-
-            }
-
-        }
+        s.set ("selected",
+               this.currSect.getSectionId ().getType ());
 
         return s;
 
@@ -112,23 +208,146 @@ public class Options extends VBox implements Stateful
         if (s == null)
         {
 
+            this.showSection ((Section.Id) this.sections.getChildren ().get (0).getUserData ());
             return;
 
         }
 
-        for (Node n : this.getChildren ())
+        String sel = s.getAsString ("selected");
+
+        if (sel == null)
         {
 
-            if (n instanceof Section)
-            {
-
-                Section sect = (Section) n;
-
-                sect.init (s.getAsState (sect.getSectionId ().getType ()));
-
-            }
+            this.showSection ((Section.Id) this.sections.getChildren ().get (0).getUserData ());
+            return;
 
         }
+
+        Section.Id id = Section.Id.valueOf (sel);
+
+        if (id != null)
+        {
+
+            this.showSection (id);
+
+        }
+
+    }
+
+    private Header createSectionLabel (Section.Id     id,
+                                       AbstractViewer viewer)
+    {
+
+        String idp = "";
+        String scn = "";
+
+
+        if (Section.Id.assets == id)
+        {
+
+            idp = assets;
+            scn = StyleClassNames.ASSETS;
+
+        }
+
+        if (Section.Id.look == id)
+        {
+
+            idp = lookandsound;
+            scn = StyleClassNames.LOOKS;
+
+        }
+
+/*
+TODO Remove, rolled into the looks section.
+        if (Section.Id.naming == id)
+        {
+
+            idp = naming;
+            scn = StyleClassNames.NAMING;
+
+        }
+*/
+        if (Section.Id.editing == id)
+        {
+
+            idp = editingchapters;
+            scn = StyleClassNames.EDITING;
+
+        }
+
+        if (Section.Id.project == id)
+        {
+
+            scn = StyleClassNames.PROJECT;
+            idp = projectandbackup;
+
+        }
+
+        if (Section.Id.start == id)
+        {
+
+            scn = StyleClassNames.START;
+            idp = qwstart;
+
+        }
+
+/*
+TODO Remove, rolled into start section
+        if (Section.Id.warmups == id)
+        {
+
+            scn = Warmup.OBJECT_TYPE;
+            idp = warmups;
+
+        }
+*/
+        if (Section.Id.editors == id)
+        {
+
+            scn = StyleClassNames.CONTACTS;
+            idp = editors;
+
+        }
+
+/*
+ TODO Remove, rolled into edit section
+        if (Section.Id.itemsAndRules == id)
+        {
+
+            scn = StyleClassNames.EDIT;
+            idp = itemsandrules;
+
+        }
+*/
+        if (Section.Id.achievements == id)
+        {
+
+            scn = StyleClassNames.ACHIEVEMENTS;
+            idp = achievements;
+
+        }
+
+        if (Section.Id.problems == id)
+        {
+
+            scn = StyleClassNames.BUG;
+            idp = errors;
+
+        }
+
+        if (idp.equals (""))
+        {
+
+            return null;
+
+        }
+
+        return Header.builder ()
+            .styleClassName (scn)
+            .title (options,idp,title)
+            //.tooltip (options,idp,text)
+            .build ();
 
     }
 
@@ -624,6 +843,18 @@ public class Options extends VBox implements Stateful
 
         box.add (c);
 */
+
+        HBox hcb = new HBox ();
+        hcb.getStyleClass ().add (StyleClassNames.ITEM);
+        hcb.getChildren ().addAll (DoWarmupExercisePopup.createWordsOptions (),
+                                   QuollLabel.builder ()
+                                        .label (options,warmups,labels,andor)
+                                        .build (),
+                                   DoWarmupExercisePopup.createTimeOptions (),
+                                   QuollLabel.builder ()
+                                        .label (options,warmups,labels,whicheverfirst)
+                                        .build ());
+
         Section s = Section.builder ()
             .sectionId (Section.Id.start)
             .styleClassName (StyleClassNames.START)
@@ -632,6 +863,9 @@ public class Options extends VBox implements Stateful
             .mainItem (showTips)
             .mainItem (lastCB)
             .mainItem (showCB)
+            .mainItem (DoWarmupExercisePopup.createDoWarmupOnStartupCheckbox ())
+            .subItem (getUILanguageStringProperty (dowarmup,dofor,title),
+                      hcb)
             .build ();
 
         return s;
@@ -1180,7 +1414,7 @@ public class Options extends VBox implements Stateful
         boolean soundSel = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
 
         QuollButton playSoundB = QuollButton.builder ()
-            .label (options,lookandsound,labels,playtypewritersound,buttons,playsound)
+            .label (options,editingchapters,labels,playtypewritersound,buttons,playsound)
             .onAction (ev ->
             {
 
@@ -1191,7 +1425,7 @@ public class Options extends VBox implements Stateful
 
         QuollCheckBox playSoundCB = QuollCheckBox.builder ()
             .selected (soundSel)
-            .label (options,lookandsound,labels,playtypewritersound,text)
+            .label (options,editingchapters,labels,playtypewritersound,text)
             .build ();
 
         playSoundCB.selectedProperty ().addListener ((pr, oldv, newv) ->
@@ -1217,10 +1451,10 @@ public class Options extends VBox implements Stateful
             .limitTo (QuollFileField.Type.file)
             .styleClassName (StyleClassNames.OWNSOUND)
             .withViewer (this.viewer)
-            .fileExtensionFilter (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,filter),
+            .fileExtensionFilter (getUILanguageStringProperty (options,editingchapters,labels,playtypewritersound,finder,filter),
                                   "wav")
-            .chooserTitle (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,title))
-            .findButtonTooltip (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,finder,tooltip))
+            .chooserTitle (getUILanguageStringProperty (options,editingchapters,labels,playtypewritersound,finder,title))
+            .findButtonTooltip (getUILanguageStringProperty (options,editingchapters,labels,playtypewritersound,finder,tooltip))
             .initialFile (kp)
             .build ();
 
@@ -1243,12 +1477,12 @@ public class Options extends VBox implements Stateful
         });
 
         QuollCheckBox showPreviewCB = QuollCheckBox.builder ()
-            .label (options,lookandsound,labels,showpreview)
+            .label (options,editingchapters,labels,showpreview)
             .userProperty (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME)
             .build ();
 
         QuollButton changeDisplayBut = QuollButton.builder ()
-            .label (options,lookandsound,labels,changedisplay)
+            .label (options,editingchapters,labels,changedisplay)
             .onAction (ev ->
             {
 
@@ -1276,14 +1510,16 @@ public class Options extends VBox implements Stateful
 
         });
 
-        Section s = Section.builder ()
+        Section.Builder s = Section.builder ()
             .styleClassName (StyleClassNames.EDITING)
             .sectionId (Section.Id.editing)
             .title (options,editingchapters,title)
             .description (options,editingchapters,text)
+            .subtitle (getUILanguageStringProperty (options,editingchapters,labels,subtitles,autosave))
             .mainItem (enableAutosave)
             .subItem (getUILanguageStringProperty (options,editingchapters,labels,autosavewhen),
                       autosaveAmount)
+            .subtitle (getUILanguageStringProperty (options,editingchapters,labels,subtitles,editposition))
             .mainItem (getUILanguageStringProperty (options,editingchapters,labels,showicon),
                        QuollCheckBox.builder ()
                             .label (options,editingchapters,labels,haseditposition)
@@ -1322,10 +1558,6 @@ public class Options extends VBox implements Stateful
                            })
                            .build ())
             .mainItem (QuollCheckBox.builder ()
-                .label (options,lookandsound,labels,shownotes)
-                .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
-                .build ())
-            .mainItem (QuollCheckBox.builder ()
                 .label (options,editingchapters,labels,showeditposition)
                 .userProperty (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME)
                 .build ())
@@ -1359,11 +1591,16 @@ public class Options extends VBox implements Stateful
 
                           })
                           .build ())
-            .mainItem (showPreviewCB)
-            .subItem (changeDisplayBut)
             .mainItem (QuollCheckBox.builder ()
                 .label (options,editingchapters,labels,seteditcompleteatchapterend)
                 .userProperty (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME)
+                .build ())
+            .subtitle (getUILanguageStringProperty (options,editingchapters,labels,subtitles,sidebar))
+            .mainItem (showPreviewCB)
+            .subItem (changeDisplayBut)
+            .mainItem (QuollCheckBox.builder ()
+                .label (options,editingchapters,labels,shownotes)
+                .userProperty (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME)
                 .build ())
             .mainItem (compressChapterContextMenu)
             .subItem (QuollHyperlink.builder ()
@@ -1396,11 +1633,41 @@ public class Options extends VBox implements Stateful
                         .build ();
 
                 })
-                .build ())
+                .build ());
+
+        boolean isAPV = (viewer instanceof ProjectViewer);
+
+        if (isAPV)
+        {
+
+            s.subtitle (getUILanguageStringProperty (options,editingchapters,labels,subtitles,problemfinder))
+                .mainItem (QuollButton.builder ()
+                    .label (options,editingchapters,labels,problemfinderrules)
+                    .onAction (ev ->
+                    {
+
+                        ((ProjectViewer) viewer).showProblemFinderRuleConfig ();
+
+                    })
+                    .build ());
+
+        }
+
+        s.subtitle (getUILanguageStringProperty (options,editingchapters,labels,subtitles,notetypes))
+            .mainItem (QuollButton.builder ()
+                .label (options,editingchapters,labels,editnotetypes)
+                .onAction (ev ->
+                {
+
+                    viewer.showManageNoteTypes ();
+
+                })
+                .build ());
+
+        s.subtitle (getUILanguageStringProperty (options,editingchapters,labels,subtitles,spellcheck))
             .mainItem (getUILanguageStringProperty (options,editingchapters,labels,setspellcheckerlanguage),
                        spellcheckLang)
             .subItem (defLang)
-            // TODO Is this still needed? .subItem (downloadFiles)
             .mainItem (QuollButton.builder ()
                 .label (getUILanguageStringProperty (options,editingchapters,labels,managedictionary))
                 .onAction (ev ->
@@ -1410,13 +1677,14 @@ public class Options extends VBox implements Stateful
 
                 })
                 .build ())
+            // TODO Is this still needed? .subItem (downloadFiles)
+            .subtitle (getUILanguageStringProperty (options,editingchapters,labels,subtitles,keypress))
             .mainItem (playSoundCB)
-            .subItem (getUILanguageStringProperty (options,lookandsound,labels,playtypewritersound,selectownwavfile),
+            .subItem (getUILanguageStringProperty (options,editingchapters,labels,playtypewritersound,selectownwavfile),
                       ownSoundF)
-            .subItem (playSoundB)
-            .build ();
+            .subItem (playSoundB);
 
-        return s;
+        return s.build ();
 
     }
 
@@ -1909,9 +2177,11 @@ public class Options extends VBox implements Stateful
             .styleClassName (StyleClassNames.PROJECT)
             .title (options,projectandbackup,title)
             .description (options,projectandbackup,text)
+            .subtitle (getUILanguageStringProperty (options,projectandbackup,labels,subtitles,projectdir))
             .mainItem (getUILanguageStringProperty (options,projectandbackup,labels,selectprojectdir,text),
                        b)
             .subItem (projDirChangeB)
+            .subtitle (getUILanguageStringProperty (options,projectandbackup,labels,subtitles,backups))
             .mainItem (autoBackupEnb)
             .subItem (getUILanguageStringProperty (options,projectandbackup,labels,createbackupafter),
                       backupTimeB)
@@ -2083,10 +2353,13 @@ public class Options extends VBox implements Stateful
             .styleClassName (StyleClassNames.ASSETS)
             .title (options,assets,title)
             .description (options,assets,text)
+            .subtitle (getUILanguageStringProperty (options,assets,labels,subtitles,newasset))
             .mainItem (getUILanguageStringProperty (options,assets,labels,newasset,text),
                        rbuts)
+            .subtitle (getUILanguageStringProperty (options,assets,labels,subtitles,existing))
             .mainItem (getUILanguageStringProperty (options,assets,labels,editassetconfig),
                        b)
+            .subtitle (getUILanguageStringProperty (options,assets,labels,subtitles,newtype))
             .mainItem (QuollButton.builder ()
                 .label (options,assets,labels,addtype)
                 .onAction (ev ->
@@ -2537,8 +2810,10 @@ public class Options extends VBox implements Stateful
             .styleClassName (StyleClassNames.LOOKS)
             .title (options,lookandsound,title)
             .description (options,lookandsound,text)
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,language))
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,uilanguage),
                        uilangb)
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,font))
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefont),
                        uiFont)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,basefontsize),
@@ -2548,11 +2823,9 @@ public class Options extends VBox implements Stateful
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,stylesheet,text),
                        styleSheet)
                        */
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,layout))
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,interfacelayout,text),
                        this.createLayoutSelector ())
-            .mainItem (permNightMode)
-            .mainItem (autoNightMode)
-            .subItem (timeRange)
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,showtoolbar),
                        QuollComboBox.builder ()
                          .items (getUILanguageStringProperty (options,lookandsound,labels,abovesidebar),
@@ -2586,6 +2859,41 @@ public class Options extends VBox implements Stateful
 
                           })
                           .build ())
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,naming))
+            .mainItem (QuollButton.builder ()
+                        .label (options,lookandsound,labels,changenames)
+                        .onAction (ev ->
+                        {
+
+                            QuollPopup qp = this.viewer.getPopupById (ObjectTypeNameChangePopup.POPUP_ID);
+
+                            if (qp != null)
+                            {
+
+                                qp.toFront ();
+                                return;
+
+                            }
+
+                            new ObjectTypeNameChangePopup (this.viewer).show ();
+
+                        })
+                        .build ())
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,tags))
+            .mainItem (QuollButton.builder ()
+                .label (options,lookandsound,labels,tags)
+                .onAction (ev ->
+                {
+
+                    viewer.runCommand (AbstractViewer.CommandId.edittags);
+
+                })
+                .build ())
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,nightmode))
+            .mainItem (permNightMode)
+            .mainItem (autoNightMode)
+            .subItem (timeRange)
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,projectswindow))
             .mainItem (QuollCheckBox.builder ()
                 .label (options,lookandsound,labels,keepprojectswindowsopen)
                 .userProperty (Constants.KEEP_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME)
@@ -2594,6 +2902,7 @@ public class Options extends VBox implements Stateful
                 .label (options,lookandsound,labels,showprojectswindownoopenproject)
                 .userProperty (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME)
                 .build ())
+            .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,find))
             .mainItem (getUILanguageStringProperty (options,lookandsound,labels,whenfind),
                        QuollRadioButtons.builder ()
                             .button (QuollRadioButton.builder ()
@@ -2980,6 +3289,8 @@ public class Options extends VBox implements Stateful
 
         private AccordionItem acc = null;
         private Section.Id id = null;
+        private VBox openContent = null;
+        private Header header = null;
 
         private Section (Builder b)
         {
@@ -3021,10 +3332,25 @@ public class Options extends VBox implements Stateful
 
             VBox c = new VBox ();
             c.managedProperty ().bind (c.visibleProperty ());
+            c.getStyleClass ().add (StyleClassNames.CONTENT);
+
+            this.openContent = c;
 
             // Build the section.
             for (Item it : b.items)
             {
+
+                if (it.type == Item.Type.subtitle)
+                {
+
+                    QuollLabel l = QuollLabel.builder ()
+                        .label (it.description)
+                        .styleClassName (StyleClassNames.SUBTITLE)
+                        .build ();
+                    c.getChildren ().add (l);
+                    continue;
+
+                }
 
                 String style = it.type == Item.Type.main ? StyleClassNames.MAIN : StyleClassNames.SUB;
 
@@ -3059,16 +3385,43 @@ public class Options extends VBox implements Stateful
                     });
 
             }
-
+/*
             this.acc = AccordionItem.builder ()
                 .title (b.title)
                 .openContent (c)
-                .open (false)
+                .open (true)
                 .closedContent (desc)
                 .styleClassName (b.styleName)
                 .build ();
+*/
+            VBox.setVgrow (c,
+                           Priority.ALWAYS);
 
-            this.getChildren ().add (this.acc);
+            this.header = Header.builder ()
+                .title (b.title)
+                .styleClassName (b.styleName)
+                .build ();
+
+        }
+
+        public Node getContent ()
+        {
+
+            return this.openContent;
+
+        }
+
+        public Header getHeader ()
+        {
+
+            return this.header;
+
+        }
+
+        public Node getOpenContent ()
+        {
+
+            return this.openContent;
 
         }
 
@@ -3113,7 +3466,8 @@ public class Options extends VBox implements Stateful
             public enum Type
             {
                 main,
-                sub
+                sub,
+                subtitle
             }
 
             public StringProperty description = null;
@@ -3196,6 +3550,15 @@ public class Options extends VBox implements Stateful
 
                 this.styleName = name;
                 return this;
+
+            }
+
+            public Builder subtitle (StringProperty p)
+            {
+
+                return this.item (p,
+                                  (Node) null,
+                                  Item.Type.subtitle);
 
             }
 
