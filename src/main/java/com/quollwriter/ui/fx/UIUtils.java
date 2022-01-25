@@ -257,6 +257,32 @@ public class UIUtils
 
     }
 
+    public static Tooltip getTooltip (Node node)
+    {
+
+        Object o = node.getProperties ().get ("tooltip");
+
+        if ((o != null)
+            &&
+            (o instanceof Tooltip)
+           )
+        {
+
+            return (Tooltip) o;
+
+        }
+
+        if (node instanceof Control)
+        {
+
+            return ((Control) node).getTooltip ();
+
+        }
+
+        return null;
+
+    }
+
     /**
      * Set a bound tooltip on the control using the uistring ids.
      *
@@ -5095,6 +5121,56 @@ TODO
         {
 
             return Constants.DEFAULT_WORDS;
+
+        }
+
+    }
+
+    public static void setFirstLastPseudoClasses (Parent p,
+                                                  String selector)
+    {
+
+        Set<Node> nodes = p.lookupAll (selector);
+
+        Node _n = null;
+
+        for (Node n : nodes)
+        {
+
+            if (_n == null)
+            {
+
+                _n = n;
+                _n.pseudoClassStateChanged (StyleClassNames.FIRST_PSEUDO_CLASS, true);
+
+            }
+
+        }
+
+        if (_n != null)
+        {
+
+            _n.pseudoClassStateChanged (StyleClassNames.LAST_PSEUDO_CLASS, true);
+
+        }
+
+    }
+
+    public static void setFirstLastPseudoClasses (Parent p)
+    {
+
+        List<Node> nodes = p.getChildrenUnmodifiable ();
+
+        if (nodes.size () > 0)
+        {
+
+            Node n = nodes.get (0);
+
+            n.pseudoClassStateChanged (StyleClassNames.FIRST_PSEUDO_CLASS, true);
+
+            n = nodes.get (nodes.size () - 1);
+
+            n.pseudoClassStateChanged (StyleClassNames.LAST_PSEUDO_CLASS, true);
 
         }
 
