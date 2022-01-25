@@ -1292,104 +1292,29 @@ TODO
 
         }
 
-        if (f.isAfter (t))
-        {
-
-            LocalTime _f = f;
-            f = t;
-            t = _f;
-
-            if ((now.isAfter (f))
-                &&
-                (now.isBefore (t))
-               )
-            {
-
-                // Switch off.
-                UIUtils.runLater (() ->
-                {
-
-                    Environment.nightModeProp.setValue (false);
-
-                });
-                Environment.autoNightModeSchedule = Environment.schedule (() ->
-                {
-
-                    Environment.scheduleAutoNightMode ();
-
-                },
-                Math.abs (now.until (t,
-                                     ChronoUnit.MILLIS)),
-                -1);
-
-                return;
-
-            } else {
-
-                UIUtils.runLater (() ->
-                {
-
-                    Environment.nightModeProp.setValue (true);
-
-                });
-                Environment.autoNightModeSchedule = Environment.schedule (() ->
-                {
-
-                    Environment.scheduleAutoNightMode ();
-
-                },
-                Math.abs (now.until (f,
-                                     ChronoUnit.MILLIS)),
-                -1);
-
-                return;
-
-            }
-
-        } else {
-
-            if ((now.isAfter (f))
-                &&
-                (now.isBefore (t))
-               )
-            {
-
-                UIUtils.runLater (() ->
-                {
-
-                    Environment.nightModeProp.setValue (true);
-
-                });
-                Environment.autoNightModeSchedule = Environment.schedule (() ->
-                {
-
-                    Environment.scheduleAutoNightMode ();
-
-                },
-                Math.abs (now.until (t,
-                                     ChronoUnit.MILLIS)),
-                -1);
-
-                return;
-
-            }
-
-        }
-
         UIUtils.runLater (() ->
         {
 
-            Environment.nightModeProp.setValue (false);
+            Environment.nightModeProp.setValue (Utils.isNowBetween (f, t));
 
         });
-        Environment.autoNightModeSchedule = Environment.schedule (() ->
+
+        // We schedule this a second later to ensure we don't go into a loop
+        // because the diff will be zero millis.
+        Environment.schedule (() ->
         {
 
-            Environment.scheduleAutoNightMode ();
+            Environment.autoNightModeSchedule = Environment.schedule (() ->
+            {
+
+                Environment.scheduleAutoNightMode ();
+
+            },
+            Math.abs (Utils.getMillisFromNowToNearestNextTime (f, t)),
+            -1);
 
         },
-        Math.abs (now.until (f,
-                             ChronoUnit.MILLIS)),
+        1 * Constants.SEC_IN_MILLIS,
         -1);
 
     }

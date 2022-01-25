@@ -3,6 +3,7 @@ package com.quollwriter;
 import java.io.*;
 import java.awt.event.*;
 import java.time.*;
+import java.time.temporal.*;
 import java.nio.file.*;
 import java.text.*;
 import java.net.*;
@@ -2895,6 +2896,107 @@ TODO REmove
                   "?");
 
         return b.toString ();
+
+    }
+
+    /**
+     * Determines if LocalTime.now is between the from and to.
+     * If to > from then now is between if now.isAfter (from) && now.isBefore (to)
+     * If from > to then now is between if now.isAfter (from) || now.isBefore (to)
+        from 20:00, to 10:00, now 21:00 = true
+        from 20:00, to 10:00, now 11:00 = false
+        from 20:00, to 10:00, now 9:00 = true
+    */
+    public static boolean isNowBetween (LocalTime from,
+                                        LocalTime to)
+    {
+
+        LocalTime now = LocalTime.now ();
+
+        if (from.isBefore (to))
+        {
+
+            return (now.isAfter (from) && (now.isBefore (to)));
+
+        } else {
+
+            return (now.isAfter (from) || (now.isBefore (to)));
+
+        }
+
+    }
+
+    public static long getMillisFromNowToNearestNextTime (LocalTime from,
+                                                          LocalTime to)
+    {
+
+        LocalDateTime now = LocalDateTime.now ();
+        now = now.with (ChronoField.MILLI_OF_SECOND, 0);
+
+        if (from.isBefore (to))
+        {
+
+            if (now.toLocalTime ().isAfter (to))
+            {
+
+                // Get the next day with the from time.
+                LocalDateTime f = LocalDateTime.now ();
+                f = f.with (from);
+                f = f.plusDays (1);
+                return Math.abs (ChronoUnit.MILLIS.between (now, f));
+
+            }
+
+            if (now.toLocalTime ().isAfter (from))
+            {
+
+                // Get to with current date.
+                LocalDateTime t = LocalDateTime.now ();
+                t = t.with (to);
+                return Math.abs (ChronoUnit.MILLIS.between (now, t));
+
+            }
+
+            // Get the from time with current date.
+            LocalDateTime f = LocalDateTime.now ();
+            f = f.with (from);
+            return Math.abs (ChronoUnit.MILLIS.between (now, f));
+
+        }
+
+        // From is after the to.
+        if (now.toLocalTime ().isAfter (from))
+        {
+
+            // Need to on next day.
+            LocalDateTime t = LocalDateTime.now ();
+            t = t.with (to);
+            t = t.plusDays (1);
+            return Math.abs (ChronoUnit.MILLIS.between (now, t));
+
+        }
+
+        if (now.toLocalTime ().isAfter (to))
+        {
+
+            // Need from on current date.
+            LocalDateTime f = LocalDateTime.now ();
+            f = f.with (from);
+            return Math.abs (ChronoUnit.MILLIS.between (now, f));
+
+        }
+
+        if (now.toLocalTime ().isBefore (to))
+        {
+
+            // Need to on current date.
+            LocalDateTime t = LocalDateTime.now ();
+            t = t.with (to);
+            return Math.abs (ChronoUnit.MILLIS.between (now, t));
+
+        }
+
+        throw new IllegalStateException ("Unable to find the least.");
 
     }
 
