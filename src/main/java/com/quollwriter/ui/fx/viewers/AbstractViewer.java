@@ -526,6 +526,16 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     }
 
+    public void closeAllPopups ()
+    {
+
+        Set<QuollPopup> ps = new HashSet<> (this.popups);
+
+        ps.stream ()
+            .forEach (p -> p.close ());
+
+    }
+
     @Override
     public QuollPopup getPopupById (String id)
     {
@@ -2304,8 +2314,8 @@ TODO
             {
 
                 qb.setIconName (Environment.isNightModeEnabled () ? StyleClassNames.SUN : StyleClassNames.MOON);
-                qb.getTooltip ().textProperty ().unbind ();
-                qb.getTooltip ().textProperty ().bind (getUILanguageStringProperty (Utils.newList (prefix,(Environment.isNightModeEnabled () ? disablenightmode : enablenightmode),tooltip)));
+                UIUtils.setTooltip (qb,
+                                    getUILanguageStringProperty (Utils.newList (prefix,(Environment.isNightModeEnabled () ? disablenightmode : enablenightmode),tooltip)));
 
             });
 
@@ -3635,6 +3645,7 @@ TODO Not needed, is a function of the sidebar itself...
 
         }
 
+        this.closeAllPopups ();
         this.fullScreenState = this.fullScreenContent.getState ();
         this.fullScreenContent.setVisible (false);
         this.windowedContent.setVisible (true);

@@ -164,10 +164,15 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
     public void addNotification (Notification n)
     {
 
-        this.notifications.getChildren ().add (0,
-                                               n);
+        UIUtils.runLater (() ->
+        {
 
-        this.notifications.setVisible (true);
+            this.notifications.getChildren ().add (0,
+                                                   n);
+
+            this.notifications.setVisible (true);
+
+        });
 
     }
 

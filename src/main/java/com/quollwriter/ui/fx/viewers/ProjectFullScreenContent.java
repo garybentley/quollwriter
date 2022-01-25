@@ -58,7 +58,6 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
     private SideBar currentSideBar = null;
 
     private SimpleDateFormat     clockFormat = null;
-    private Set<QuollPopup> popups = new HashSet<> ();
 
     private IPropertyBinder propertyBinder = null;
     private boolean ignoreChange = false;
@@ -1383,8 +1382,6 @@ TODO
     {
 
         this.updater.cancel (true);
-
-        //this.wcTimerBut.reset ();
 
         this.viewer.exitFullScreen ();
 
