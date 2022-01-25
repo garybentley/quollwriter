@@ -39,12 +39,12 @@
     -fx-max-width: 2em;
     -fx-fill-height: false;
 }
-
+/*
 .windowed > .header .controls .button .iconbox .icon
 {
     -fx-background-color: -qw-icon-color;
 }
-
+*/
 .windowed > .header .controls .menu-button .iconbox .more-icon.icon {
     -fx-pref-width: 0.5em;
     -fx-max-width: 0.5em;
@@ -152,5 +152,5 @@
 {
     -fx-pref-width: 1.5em;
     -fx-max-width: 1.5em;
-    -fx-min-width: 1.5em;    
+    -fx-min-width: 1.5em;
 }

@@ -16,6 +16,16 @@
      -fx-fill-height: false;
      -fx-alignment: center;
  }
+
+.sidebar > .header > .controls .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+
+.sidebar > .header > .controls .iconbox:hover .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
 /*
  .sidebar > .header .close.button
  {

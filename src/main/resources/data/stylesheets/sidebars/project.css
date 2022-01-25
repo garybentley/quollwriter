@@ -131,6 +131,16 @@
     -fx-max-width: 0.415em;
 }
 
+.toolbar > .button > .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+
+.toolbar > .button > .controls .iconbox:hover .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
 .toolbar .button.spellcheck > .iconbox {
     -fx-alignment: top-center;
 }
