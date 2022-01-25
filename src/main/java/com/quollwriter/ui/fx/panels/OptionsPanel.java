@@ -21,7 +21,6 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 
     public static final String PANEL_ID = "options";
     private Options options = null;
-    private ScrollPane scrollPane = null;
 
     public OptionsPanel (AbstractViewer        viewer,
                          Set<Node>             headerControls,
@@ -29,33 +28,14 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
     {
 
         super (viewer);
-
-        Header h = Header.builder ()
-            .title (getUILanguageStringProperty (LanguageStrings.options,title))
-            .styleClassName (StyleClassNames.MAIN)
-            .iconClassName (StyleClassNames.OPTIONS)
-            .controls (headerControls)
-            .build ();
-
-        VBox b = new VBox ();
-        b.getChildren ().add (h);
-
-        VBox bb = new VBox ();
-        bb.getStyleClass ().add (StyleClassNames.SECTIONS);
-        VBox.setVgrow (bb,
-                       Priority.ALWAYS);
         this.options = new Options (viewer,
                                     this.getBinder (),
+                                    headerControls,
                                     sects);
-
-        bb.getChildren ().add (this.options);
-
-        this.scrollPane = new QScrollPane (bb);
-        VBox.setVgrow (this.scrollPane,
+        VBox.setVgrow (this.options,
                        Priority.ALWAYS);
-        b.getChildren ().add (this.scrollPane);
 
-        this.getChildren ().add (b);
+        this.getChildren ().add (this.options);
 
     }
 
@@ -71,9 +51,6 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
             s = new State ();
 
         }
-
-        s.set (State.Key.scrollpanev,
-               this.scrollPane.getVvalue ());
 
         s.set (State.Key.content,
                this.options.getState ());
@@ -108,32 +85,42 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 
         }
 
-        if (this.scrollPane != null)
-        {
-
-            double v = state.getAsFloat (State.Key.scrollpanev,
-                                         0f);
-
-            UIUtils.runLater (() ->
-            {
-
-                this.scrollPane.setVvalue (v);
-
-            });
-
-        }
-
     }
 
     public void showSection (String sectId)
     {
 
-        // TODO
+        if (sectId == null)
+        {
+
+            return;
+
+        }
+
+        Options.Section.Id id = Options.Section.Id.valueOf (sectId);
+
+        if (id == null)
+        {
+
+            throw new IllegalArgumentException ("Section id: " + sectId + ", is not valid.");
+
+        }
+
+        this.options.showSection (id);
 
     }
 
     public void showSection (Options.Section.Id sectId)
     {
+
+        if (sectId == null)
+        {
+
+            return;
+
+        }
+        
+        this.options.showSection (sectId);
 
     }
 

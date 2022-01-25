@@ -18,11 +18,11 @@
     -fx-content-display: graphic-only;
     -fx-padding: 0.2em;
 }
-.sections { -fx-padding: 0.5em; }
+.sectionsX { -fx-padding: 0.5em; }
 .sections .header {
     -fx-padding: 0;
     -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
+    -fx-border-color: -qw-component-inner-border-color;
 }
 .sections .header .title {
     -fx-font-size: 1.5em;
@@ -30,18 +30,6 @@
 }
 .accordion { -fx-padding: 0 0 0.5em 0; }
 .accordion :closed { -fx-padding: 0.5em 0 0 0.5em; }
-/*
-.looks .header .icon { -fx-image: url(/imgs/eye16.png); }
-.naming .header .icon, .start .header .icon { -fx-image: url(/imgs/settings16.png); }
-.accordion.project .header .icon { -fx-image: url(/imgs/project16.png); }
-.assets .header .icon { -fx-image: url(/imgs/assets16.png); }
-.editing .header .icon { -fx-image: url(/imgs/chapter16.png); }
-.contacts .header .icon { -fx-image: url(/imgs/editors16.png); }
-.edit .header .icon { -fx-image: url(/imgs/edit16.png); }
-.warmup .header .icon { -fx-image: url(/imgs/warmups16.png); }
-.achievements .header .icon { -fx-image: url(/imgs/achievement16.png); }
-.bug .header .icon { -fx-image: url(/imgs/bug16.png); }
-*/
 .editing .hyperlink {
     -fx-graphic-text-gap: 0.5em;
 }
@@ -49,14 +37,24 @@
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
 }
-.sections .main { -fx-padding: 0.5em 0.5em 0.75em 0.5em; }
-.sections .sub { -fx-padding: 0 0 0.75em 1em; }
-.sections .sub .item, .sections .main .item {
+.items .main { -fx-padding: 0.25em 0.5em 0.75em 0.5em; }
+.items .sub { -fx-padding: 0 0 0.75em 1em; }
+.items .sub .item, .items .main .item {
     -fx-padding: 0 0 0.5em 0;
     -fx-spacing: 0.5em;
     -fx-alignment: center-left;
 }
-.sections .sub .check-box { -fx-padding: 0 0 0.5em 0; }
+.items .sub .check-box { -fx-padding: 0 0 0.5em 0; }
+.items .subtitle
+{
+    -fx-padding: 1.5em 0 0.25em 0;
+    -fx-font-size: 1.5em;
+    /*-fx-font-weight: bold;*/
+}
+.items .subtitle:first
+{
+    -fx-padding: 0 0 0.25em 0;
+}
 .ownsound
 {
     -fx-cursor: hand;
@@ -78,4 +76,144 @@
 .sub .errors
 {
     -fx-padding: 0.25em 0 0.25em 0.5em;
+}
+
+.sections .header .iconbox,
+.sections .header .iconbox .icon
+{
+    -fx-pref-width: 1.5em;
+    -fx-pref-height: 1.5em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.sections .header
+{
+    -fx-padding: 0.5em;
+}
+
+.items
+{
+    -fx-padding: 0 0 0.5em 0.75em;
+}
+
+.sections
+{
+    -fx-min-width: 23em;
+    -fx-padding: 0 0 0 0em;
+}
+
+.sections .header
+{
+    -fx-border-width: 0;
+}
+
+.left
+{
+    -fx-min-width: 23em;
+    -fx-max-width: 23em;
+    -fx-pref-width: 23em;
+}
+
+.items .header .iconbox,
+.items .header .iconbox .icon
+{
+    /*visibility: hidden;*/
+    -fx-pref-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-min-width: 1.5em;
+    -fx-pref-height: 1.5em;
+    -fx-min-height: 1.5em;
+    -fx-max-height: 1.5em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.items .header
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.items .header .title
+{
+    -fx-font-size: 2em;
+}
+
+.items .content
+{
+    -fx-padding: 0.25em 0em 0 0;
+}
+
+.split-pane .split-pane-divider
+{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.sections .header:selected
+{
+    -fx-background-color: #dddddd;
+}
+
+.sections .header .title
+{
+    -fx-text-fill: -qw-text-base-color;
+}
+
+.sections .header:selected .title
+{
+    /*-fx-text-fill: white;*/
+}
+
+.sections .header:hover
+{
+    -fx-background-color: #eeeeee;
+    -fx-border-color: -qw-border-color;
+}
+
+.scroll-pane .scroll-bar:vertical
+{
+    -fx-block-increment: 30;
+    -fx-unit-increment: 50;
+}
+
+.sections .header .iconbox .icon.looks-icon,
+.items .header .iconbox .icon.looks-icon
+{
+    -fx-pref-height: 1em;
+    -fx-max-height: 1em;
+    -fx-min-height: 1em;
+}
+
+.sections .header .iconbox .icon.editing-icon,
+.items .header .iconbox .icon.editing-icon
+{
+    -fx-pref-width: 1.125em;
+    -fx-max-width: 1.125em;
+    -fx-min-width: 1.125em;
+}
+
+.sections .header .iconbox .icon.achievements-icon,
+.items .header .iconbox .icon.achievements-icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.sections .header .iconbox .icon.start-icon,
+.items .header .iconbox .icon.start-icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.check-box .box
+{
+    -fx-pref-width: 1.75em;
+    -fx-pref-height: 1.75em;
+    -fx-padding: 0.3em;
 }

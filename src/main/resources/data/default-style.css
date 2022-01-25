@@ -196,6 +196,8 @@ Text
     -fx-background-color: -qw-bg-color;
     -fx-text-fill: -fx-text-base-color;
     -fx-background-radius: 0px;
+    -fx-max-width: 30em;
+    -fx-pref-width: 30em;
 }
 
 .tooltip .qtextview
@@ -1184,25 +1186,6 @@ Text
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
  }
-
-.root:night .button .iconbox .icon
-{
-    -fx-background-color: -qw-icon-hover-color;
-}
-
-.root:night .menu-button:hover .iconbox .icon,
-.root:night .menu-button:armed .iconbox .icon,
-.root:night .menu-button:focused .iconbox .icon,
-.root:night .button:hover .iconbox .icon,
-.root:night .button:armed .iconbox .icon,
-.root:night .button:focused .iconbox .icon,
-.root:night .menu-button:hover .arrow-button .arrow,
-.root:night .menu-button:armed .arrow-button .arrow,
-.root:night .menu-button:focused .arrow-button .arrow
-{
-    -fx-background-color: -qw-icon-hover-color;
-}
-
 .controls .button:armed,
 .controls .menu-button:armed,
 .toolbar .button:armed,
@@ -1220,6 +1203,16 @@ Text
  {
      -fx-background-color: -qw-armed-bg;
  }
+
+.controls .button:hover .iconbox .icon,
+.controls .menu-button:hover .iconbox .icon,
+.controls .menu-button:armed .iconbox .icon,
+.controls .button:armed .iconbox .icon,
+.controls .menu-button:focused .iconbox .icon,
+.controls .button:focused .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
 
 .controls
  {
@@ -2532,4 +2525,58 @@ WordCountTimerButton
 .cell.list-cell .iconbox .icon.online-icon
 {
     /*-fx-pref-height: 1.333em;*/
+}
+
+.check-box .box
+{
+    -fx-pref-width: 1.25em;
+    -fx-pref-height: 1.25em;
+    -fx-padding: 0.3em;
+    -fx-background-radius: 0;
+    -fx-background-color: #dddddd;
+}
+
+.check-box .box .mark
+{
+    -fx-background-color: transparent;
+    -fx-shape: "M 5.695,8.117 11.941,14.363 26.305,0 32,5.695 11.941,25.754 0,13.812 Z";
+}
+
+.check-box:selected .box .mark
+{
+    -fx-background-color: #4d4d4d;
+}
+
+.slider .thumb
+{
+    -fx-background-color: #4d4d4d;
+    -fx-background-radius: 0;
+    -fx-pref-width: 0.5em;
+    -fx-pref-height: 1.75em;
+    -fx-effect: null;
+}
+
+.slider .track
+{
+    -fx-background-color: #dddddd;
+    -fx-background-radius: 0;
+    -fx-pref-height: 0.5em;
+}
+
+.radio-button .radio
+{
+    -fx-pref-width: 1.75em;
+    -fx-pref-height: 1.75em;
+    -fx-background-color: #dddddd;
+    -fx-padding: 0.75em;
+}
+
+.radio-button .radio .dot
+{
+    -fx-padding: 0.5em;
+}
+
+.radio-button:selected .radio .dot
+{
+    -fx-background-color: #4d4d4d;
 }

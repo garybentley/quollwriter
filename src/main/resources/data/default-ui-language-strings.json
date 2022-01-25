@@ -892,7 +892,7 @@
                 },
                 "popup" :
                 {
-                    "title" : "Add a new type of Object"
+                    "title" : "Add a new type of ${objectnames.singular.asset}"
                 },
                 "wizard" :
                 {
@@ -5402,7 +5402,6 @@
         "qwstart" :
         {
             "title" : "When {QW} starts",
-            "text" : "Want to see some tips when {QW} starts?  Or maybe open the last ${objectnames.singular.project} you edited?  Look no further!",
             "labels" :
             {
                 "showtips" : "Show useful tips",
@@ -5413,7 +5412,6 @@
         "website" :
         {
             "title" : "{QW} Website Translations",
-            "text" : "Want to create a translation for the {QW} website?  Just hit that button and go, go, go.",
             "labels" :
             {
                 "createtranslation" : "Create a translation",
@@ -5423,7 +5421,6 @@
         "betas" :
         {
             "title" : "Beta versions",
-            "text" : "Want to get ahead of the crowd?  Or maybe help improve {QW}?  This section lets you opt-in to beta versions.  But be warned, betas aren't perfect.",
             "labels" :
             {
                 "optin" : "Opt-in to beta versions (enables auto-send of errors to {QW} support)"
@@ -5440,25 +5437,14 @@
         "errors" :
         {
             "title" : "When something goes wrong",
-            "text" : "{QW} isn't perfect and it would be good to know when things cluck up.  If you open this section you'll find a single setting that will let you send errors back to the magical worker elfs at {QW} Headquarters located in deepest, darkest suburban Australia.  Did you know that every error sent will prevent a Drop Bear attack.  It's a serious and very real threat to our native elves.",
             "labels" :
             {
                 "send" : "Send errors to {QW} support"
             }
         },
-        "itemsandrules" :
-        {
-            "title" : "Manage Items & Rules",
-            "text" : "Set up the ${names.problemfinder} rules and manage the ${objectnames.plural.notetype} and ${objectnames.plural.tag}.  A dull description but it does exactly what it says on the tin, well screen.",
-            "labels" :
-            {
-                "problemfinderrules" : "${names.problemfinder} Rules"
-            }
-        },
         "editors" :
         {
             "title" : "${names.editorsservice}",
-            "text" : "Options related to the ${names.editorsservice} and how you interact with your ${objectnames.plural.contact}.",
             "labels" :
             {
                 "autologin" : "Automatically login/go online whenever {QW} starts",
@@ -5474,12 +5460,17 @@
         "assets" :
         {
             "title" : "${objectnames.plural.asset}",
-            "text" : "Need to add another field to an ${objectnames.singular.asset}?  Manage the ${objectnames.plural.tag}?  Change the names of things, change the icons?  This section has you covered, you can also right click on the section header in the sidebar to do this stuff as well.",
             "labels" :
             {
+                "subtitles" :
+                {
+                    "newasset" : "Adding new ${objectnames.plural.asset}",
+                    "existing" : "Existing ${objectnames.plural.asset}",
+                    "newtype" : "New types of ${objectnames.plural.asset}"
+                },
                 "newasset" :
                 {
-                    "text" : "Add new ${objectnames.plural.asset} (${objectnames.plural.character}, ${objectnames.plural.location}, etc) in",
+                    "text" : "When I add a new ${objectnames.plural.asset} (${objectnames.plural.character}, ${objectnames.plural.location}, etc)",
                     "options" :
                     {
                         "alwayspopup" :
@@ -5494,7 +5485,7 @@
                         },
                         "owntab" :
                         {
-                            "text" : "Their own tab",
+                            "text" : "Use a tab",
                             "tooltip" : "Adding a new ${objectnames.singular.asset} will always be in its own tab."
                         }
                     }
@@ -5506,7 +5497,6 @@
         "warmups" :
         {
             "title" : "${objectnames.plural.warmup}",
-            "text" : "Want to flex your writing muscles everytime {QW} starts?  You'd better click the title above and get things set up while you still have time.",
             "labels" :
             {
                 "dofor" : "${dowarmup.dofor.title}",
@@ -5518,11 +5508,15 @@
         "projectandbackup" :
         {
             "title" : "${objectnames.singular.project} & ${objectnames.plural.backup}",
-            "text" : "Click the title above to open this section.  You can then change where your ${objectnames.singular.project} is stored and how often backups are created and where they are stored.",
             "labels" :
             {
                 "all" : "All",
                 ":comment.all" : "This is used for the number of backups to keep.",
+                "subtitles" :
+                {
+                    "projectdir" : "${objectnames.singular.project} Folder",
+                    "backups" : "Backups"
+                },
                 "selectprojectdir" :
                 {
                     "text" : "Select the folder where your ${objectnames.singular.project} is stored",
@@ -5576,14 +5570,23 @@
         "lookandsound" :
         {
             "title" : "How things look and sound",
-            "text" : "Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when {QW} starts?  This is the section for you.",
             "labels" :
             {
+                "subtitles" :
+                {
+                    "language" : "Language",
+                    "font" : "Font and font size",
+                    "layout" : "Interface layout",
+                    "naming" : "What things are called",
+                    "tags" : "Tags",
+                    "nightmode" : "Night mode",
+                    "projectswindow" : "${objectnames.plural.project} window",
+                    "find" : "Find"
+                },
+                "changenames" : "Change names",
+                "tags" : "Edit the Tags",
                 "keepprojectswindowsopen" : "Keep the ${objectnames.plural.project} window open when a ${objectnames.singular.project} is opened",
                 "showprojectswindownoopenproject" : "Show the ${objectnames.plural.project} window when I have no open ${objectnames.plural.project}",
-                "showpreview" : "Show a brief preview of the ${objectnames.singular.chapter} when you mouse over its name in the ${objectnames.singular.project} sidebar",
-                "changedisplay" : "Change what is displayed",
-                "shownotes" : "Show ${objectnames.plural.note} in the ${objectnames.plural.chapter} list",
                 "uilanguage" : "Use the following language for the User Interface",
                 "createtranslation" : "Create a translation",
                 "edittranslation" : "Edit one of your translations",
@@ -5637,24 +5640,6 @@
                 "justchapter" : "Just show the ${objectnames.singular.chapter}",
                 "tabs" : "Tabs",
                 "other" : "Other",
-                "playtypewritersound" :
-                {
-                    "actionerror" : "The file is not a valid .wav file.",
-                    "text" : "Play a typewriter sound when editing a ${objectnames.singular.chapter}",
-                    "buttons" :
-                    {
-                        "usesound" : "Use sound",
-                        "playsound" : "Play sound"
-                    },
-                    "selectownwavfile" : "Or, select your own WAV file that will be played instead. (Note: only .wav files are supported.)",
-                    "finder" :
-                    {
-                        "title" : "Select a File",
-                        "button" : "${actions.select}",
-                        "tooltip" : "Click to find a .wav file",
-                        "filter" : "Supported Files"
-                    }
-                },
                 "highlightdividers" :
                 {
                     "text" : "Highlight dividers when I move the mouse over them",
@@ -5672,19 +5657,9 @@
                 "layout-ch-os-ps" : "The ${objectnames.singular.project} sidebar is shown on the far right with other sidebars next to it (to the left)."
             }
         },
-        "naming" :
-        {
-            "title" : "What things are called",
-            "text" : "Not happy with what things are called?  Want to change ${objectnames.singular.chapter} to <i>Sausage</i>?  What are you waiting for crack this section open and get changing.  Yes that's a phrase now.",
-            "labels" :
-            {
-                "changenames" : "Change names"
-            }
-        },
         "editingchapters" :
         {
-            "title" : "${objectnames.plural.chapter}",
-            "text" : "Everything to do with ${objectnames.plural.chapter}.  Manage your personal dictionary, the language for the ${objectnames.singular.project}, set up auto save and how edit positions behave.  All this and more for the low, low price of a few clicks.",
+            "title" : "Editing ${objectnames.plural.chapter}",
             "downloaddictionaryfiles" :
             {
                 "actionerror" : "Unable to download dictionary files",
@@ -5709,7 +5684,40 @@
             },
             "labels" :
             {
-                "autosave" : "Enable ${objectnames.singular.chapter} Auto-save",
+                "subtitles" :
+                {
+                    "autosave" : "${objectnames.singular.chapter} auto-save",
+                    "editposition" : "Edit position",
+                    "sidebar" : "${objectnames.plural.chapter} in the sidebar",
+                    "problemfinder" : "${names.problemfinder}",
+                    "notetypes" : "Note types",
+                    "spellcheck" : "Spellchecking and dictionary",
+                    "keypress" : "Key press sound"
+                },
+                "playtypewritersound" :
+                {
+                    "actionerror" : "The file is not a valid .wav file.",
+                    "text" : "Play a typewriter sound when editing a ${objectnames.singular.chapter}",
+                    "buttons" :
+                    {
+                        "usesound" : "Use sound",
+                        "playsound" : "Play sound"
+                    },
+                    "selectownwavfile" : "Or, select your own WAV file that will be played instead. (Note: only .wav files are supported.)",
+                    "finder" :
+                    {
+                        "title" : "Select a File",
+                        "button" : "${actions.select}",
+                        "tooltip" : "Click to find a .wav file",
+                        "filter" : "Supported Files"
+                    }
+                },
+                "changedisplay" : "Change what is displayed",
+                "showpreview" : "Show a brief preview of the ${objectnames.singular.chapter} when you mouse over its name in the ${objectnames.singular.project} sidebar",
+                "shownotes" : "Show ${objectnames.plural.note} in the ${objectnames.plural.chapter} list",
+                "editnotetypes" : "Edit the ${objectnames.plural.notetype}",
+                "problemfinderrules" : "Edit the ${names.problemfinder} rules",
+                "autosave" : "Enable ${objectnames.singular.chapter} auto-save",
                 "autosavewhen" : "Auto-save every",
                 "showicon" : "Show an icon against a ${objectnames.singular.chapter} in the ${objectnames.singular.chapter} list when",
                 "haseditposition" : "it has an edit position",
@@ -5736,7 +5744,6 @@
         "achievements" :
         {
             "title" : "Achievements",
-            "text" : "Are the achievements annoying you?  Use this section to switch them off and they will bug you no more you underachiever.",
             "labels" :
             {
                 "enable" : "Enable achievements",
@@ -8208,7 +8215,7 @@
                 "items" :
                 {
                     "addtag" : "Add/Manage the Tag(s)",
-                    "newobject" : "Add new Type of Object",
+                    "newobject" : "Add new Type of ${objectnames.singular.asset}",
                     "addsection" :
                     {
                         "below" : "Add section below",
@@ -8225,7 +8232,7 @@
                     "novalue" : "<b><i>No description.</i></b>"
                 }
             },
-            "tooltip" : "Double click to add a new type of Object, right click to see the menu.",
+            "tooltip" : "Double click to add a new type of ${objectnames.singular.asset}, right click to see the menu.",
             "section" :
             {
                 "title" :

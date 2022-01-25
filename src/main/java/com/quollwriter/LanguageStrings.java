@@ -3,6 +3,14 @@ package com.quollwriter;
 public class LanguageStrings
 {
 
+    public static final String newtype = "newtype";
+    public static final String editnotetypes = "editnotetypes";
+    public static final String keypress = "keypress";
+    public static final String editposition = "editposition";
+    public static final String projectswindow = "projectswindow";
+    public static final String language = "language";
+    public static final String projectdir = "projectdir";
+    public static final String subtitles = "subtitles";
     public static final String isfirstuse = "isfirstuse";
     public static final String first = "first";
     public static final String permanentnightmode = "permanentnightmode";

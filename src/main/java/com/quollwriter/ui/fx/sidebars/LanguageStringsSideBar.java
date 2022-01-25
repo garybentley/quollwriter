@@ -310,7 +310,17 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
             l.setOnMousePressed (ev ->
             {
 
-                this.viewer.showIds (new Id (BaseStrings.toId (n.getId ())));
+                try
+                {
+
+                    this.viewer.showIds (new Id (BaseStrings.toId (n.getId ())));
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to show ids for: " + n,
+                                          e);
+
+                }
 
             });
 
