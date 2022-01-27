@@ -1762,14 +1762,14 @@ Text
 .virtualized-scroll-pane .scroll-bar:vertical,
 .virtual-flow .scroll-bar:vertical
 {
-    -fx-pref-width: 0.6em;
+    -fx-pref-width: 0.8em;
 }
 
 .scroll-pane .scroll-bar:horizontal,
 .virtualized-scroll-pane .scroll-bar:horizontal,
 .virtual-scroll-pane .scroll-bar:horizontal
 {
-    -fx-pref-height: 0.6em;
+    -fx-pref-height: 0.8em;
 }
 
 .scroll-pane .scroll-bar .decrement-button,
@@ -2529,11 +2529,17 @@ WordCountTimerButton
 
 .check-box .box
 {
-    -fx-pref-width: 1.25em;
-    -fx-pref-height: 1.25em;
+    -fx-pref-width: 1.75em;
+    -fx-pref-height: 1.75em;
     -fx-padding: 0.3em;
     -fx-background-radius: 0;
     -fx-background-color: #dddddd;
+}
+
+.tree .cell .check-box .box
+{
+    -fx-pref-width: 1.25em;
+    -fx-pref-height: 1.25em;
 }
 
 .check-box .box .mark

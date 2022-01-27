@@ -140,7 +140,7 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
 
         }
 
-        this.noMatches.setVisible (this.results == null);
+        this.noMatches.setVisible (this.results == null || (snippets != null && snippets.size () == 0));
 
     }
 
@@ -167,12 +167,15 @@ public class AppearsInChaptersSideBar<E extends AbstractProjectViewer> extends S
 
         if (this.obj instanceof UserConfigurableObject)
         {
-
+/*
             UIUtils.setBackgroundImage (sb.getHeader ().getIcon (),
                                         ((UserConfigurableObject) this.obj).getUserConfigurableObjectType ().icon16x16Property (),
                                         this.getBinder ());
-
+*/
             //sb.getHeader ().getIcon ().imageProperty ().bind (((UserConfigurableObject) this.obj).getUserConfigurableObjectType ().icon16x16Property ());
+
+            sb.getHeader ().getIcon ().setImage (((UserConfigurableObject) this.obj).getUserConfigurableObjectType ().icon16x16Property (),
+                                                 this.getBinder ());
 
         } else {
 

@@ -844,96 +844,72 @@ TODO ? Remove?
 
     public void setUseTypewriterScrolling (boolean v)
     {
-/*
-TODO
 
-        if (!SwingUtilities.isEventDispatchThread ())
+        this.editor.addEventFilter (ScrollEvent.SCROLL, ev ->
         {
 
-            SwingUIUtils.doLater (() ->
+            if (ev.isConsumed ())
             {
 
-                this.setUseTypewriterScrolling (v);
+                return;
+            }
 
-            });
+            double vh = this.editor.getViewportHeight ();
 
-            return;
+            int caret = this.editor.getCaretPosition ();
 
-        }
+            Bounds b = this.editor.getBoundsForPosition (caret);
 
-        if (!v)
-        {
-
-            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-            // Reset the margin.
-            this.editor.setMargin (this.origEditorMargin);
-            this.showIconColumn (true);
-
-        } else {
-
-            this.scrollPane.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-            this.showIconColumn (false);
-
-        }
-
-        this.scrollCaretIntoView (null);
-
-        this.scrollPane.getViewport ().setViewSize (this.editor.getPreferredSize ());
-
-        this.editor.requestFocus ();
-*/
-    }
-
-    public void scrollCaretIntoView (final Runnable runAfterScroll)
-    {
-/*
-TODO Remove
-        if (!SwingUtilities.isEventDispatchThread ())
-        {
-
-            SwingUIUtils.doLater (() ->
+            if (ev.getDeltaY () < 0)
             {
 
-                this.scrollCaretIntoView (runAfterScroll);
-
-            });
-
-            return;
-
-        }
-
-        final ProjectChapterEditorPanelContent _this = this;
-*/
-/*
-TODO
-        try
-        {
-
-            int c = _this.editor.getCaret ().getDot ();
-
-            if (c > -1)
-            {
-
-                _this.scrollToPosition (c);
+            } else {
 
             }
 
-            _this.updateViewportPositionForTypewriterScrolling ();
+        });
 
-            if (runAfterScroll != null)
+        this.getPanel ().pseudoClassStateChanged (StyleClassNames.TYPEWRITER_SCROLLING_PSEUDO_CLASS, v);
+
+        //this.editor.pseudoClassStateChanged (StyleClassNames.TYPEWRITER_SCROLLING_PSEUDO_CLASS, v);
+
+        //this.scrollPane.setVbarPolicy (v ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        Runnable centerCaret = () ->
+        {
+
+            double vh = this.editor.getViewportHeight ();
+
+            int caret = this.editor.getCaretPosition ();
+
+            Bounds b = this.editor.getBoundsForPosition (caret);
+
+            double half = (vh - b.getHeight ()) / 2;
+
+            double diff = half - b.getMinY ();
+
+            double offset = this.scrollPane.estimatedScrollYProperty ().getValue ();
+
+            this.scrollPane.scrollYToPixel (offset - (vh / 2) - (b.getHeight ()) + (b.getMinY ()));
+
+        };
+
+        this.addChangeListener (this.editor.caretPositionProperty (),
+                                (pr, oldv, newv) ->
+        {
+
+            if (this.viewer.isUseTypeWriterScrolling ())
             {
 
-                SwingUIUtils.doLater (runAfterScroll);
+                UIUtils.runLater (centerCaret);
+                UIUtils.forceRunLater (() -> this.requestLayout ());
 
             }
 
-        } catch (Exception e)
-        {
+        });
 
-            // Ignore it.
+        UIUtils.runLater (centerCaret);
 
-        }
-*/
     }
 
     private void scheduleWordCountUpdate ()

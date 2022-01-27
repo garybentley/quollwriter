@@ -38,7 +38,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
     public static final float DEFAULT_BORDER_OPACITY = 0.7f;
 
-    private PanelContent panel = null;
+    //private PanelContent panel = null;
 
     private BackgroundPane background = null;
 
@@ -100,35 +100,8 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
             }
 
-            if (oldv != null)
-            {
+            this.updateHeader ();
 
-                //this.header.getStyleClass ().remove (oldv.getStyleClassName ());
-
-            }
-/*
-            if (newv != null)
-            {
-
-                PanelContent p = newv.getContent ();
-
-                if (p instanceof AssetViewPanel)
-                {
-
-                    UserConfigurableObjectType type = ((AssetViewPanel) p).getObject ().getUserConfigurableObjectType ();
-
-                    this.header.getIcon ().imageProperty ().unbind ();
-                    this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
-
-                }
-
-                this.header.titleProperty ().unbind ();
-                this.header.titleProperty ().bind (newv.titleProperty ());
-                this.header.getIcon ().imageProperty ().unbind ();
-                this.header.getStyleClass ().add (newv.getStyleClassName ());
-
-            }
-*/
             UIUtils.runLater (() ->
             {
 
@@ -172,7 +145,6 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
                 // TODO
                 UIUtils.showFeatureComingSoonPopup ();
-                if (true){return;}
 
                 this.viewer.setDistractionFreeModeEnabled (!this.viewer.isDistractionFreeModeEnabled ());
 
@@ -193,6 +165,8 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
             UIUtils.setTooltip (but,
                                 getUILanguageStringProperty (fullscreen,distractionfreemode, newv ? exit : enter));
+
+            this.setDistractionFreeModeEnabled (newv);
 
         });
 
@@ -563,7 +537,21 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             if (!this.header.localToScreen (this.header.getBoundsInLocal ()).contains (ev.getScreenX (), ev.getScreenY ()))
             {
 
-                this.hideHeader ();
+                if (this.headerHideTimer != null)
+                {
+
+                    this.headerHideTimer.cancel (true);
+
+                }
+
+                this.headerHideTimer = this.viewer.schedule (() ->
+                {
+
+                    this.hideHeader ();
+
+                },
+                750,
+                -1);
 
             }
 
@@ -1171,6 +1159,65 @@ TODO
         // TODO Make an option.
         this.clockFormat = new SimpleDateFormat ("h:mm a");
 
+        this.updateHeader ();
+
+    }
+
+    private void updateHeader ()
+    {
+
+        Panel p = this.viewer.getCurrentPanel ();
+
+        this.header.getStyleClass ().clear ();
+        this.header.getStyleClass ().add (StyleClassNames.HEADER);
+
+        this.header.getStyleClass ().remove (Project.OBJECT_TYPE);
+
+        if (p != null)
+        {
+
+            PanelContent pc = p.getContent ();
+
+            this.header.getIcon ().setBackground (null);
+            this.headerBinder.dispose ();
+
+            if (pc instanceof AssetViewPanel)
+            {
+
+                UserConfigurableObjectType type = ((AssetViewPanel) pc).getObject ().getUserConfigurableObjectType ();
+
+                //this.header.getIcon ().imageProperty ().unbind ();
+                //this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
+/*
+                UIUtils.setBackgroundImage (this.header.getIcon (),
+                                            type.icon24x24Property (),
+                                            this.headerBinder);
+                this.header.setIconClassName ("asset");
+*/
+                this.header.getIcon ().setImage (((AssetViewPanel) pc).getObject ().getUserConfigurableObjectType ().icon24x24Property (),
+                                            this.headerBinder);
+                this.header.setIconClassName ("");
+
+            } else {
+
+                this.header.getIcon ().setImage (null);
+                this.header.setIconClassName (p.getStyleClassName ());
+
+            }
+
+            this.header.titleProperty ().unbind ();
+            this.header.titleProperty ().bind (p.titleProperty ());
+            //this.header.getIcon ().imageProperty ().unbind ();
+            //this.header.getStyleClass ().add (p.getStyleClassName ());
+
+        } else {
+
+            this.header.getStyleClass ().add (Project.OBJECT_TYPE);
+            this.header.titleProperty ().unbind ();
+            this.header.titleProperty ().bind (this.viewer.getProject ().nameProperty ());
+
+        }
+
     }
 
     public Header getHeader ()
@@ -1258,13 +1305,6 @@ TODO
         },
         750,
         -1);
-
-    }
-
-    public PanelContent getPanel ()
-    {
-
-        return this.panel;
 
     }
 
@@ -1423,7 +1463,7 @@ TODO ? psuedo class
 
         if ((this.viewer.isDistractionFreeModeEnabled ())
             &&
-            (this.panel instanceof ChapterEditorPanelContent)
+            (this.viewer.getCurrentPanel ().getContent () instanceof ChapterEditorPanelContent)
             &&
             (!this.viewer.getProject ().getPropertyAsBoolean (propName))
            )
@@ -1448,22 +1488,12 @@ TODO ? psuedo class
     private void setDistractionFreeModeEnabledForChildPanel (boolean v)
     {
 
-        if (this.panel instanceof ChapterEditorPanelContent)
+        if (this.viewer.getCurrentPanel ().getContent () instanceof ChapterEditorPanelContent)
         {
 
-            ChapterEditorPanelContent p = (ChapterEditorPanelContent) this.panel;
+            ChapterEditorPanelContent p = (ChapterEditorPanelContent) this.viewer.getCurrentPanel ().getContent ();
 
-            // TODO             this.viewer.setUseTypewriterScrolling (v);
-
-
-        }
-
-        if (this.panel instanceof ProjectChapterEditorPanelContent)
-        {
-
-            ProjectChapterEditorPanelContent p = (ProjectChapterEditorPanelContent) this.panel;
-
-            this.viewer.setUseTypewriterScrolling (v);
+            p.setUseTypewriterScrolling (v);
 
         }
 
@@ -1509,53 +1539,6 @@ TODO ? psuedo class
         }
 
         this.header.setVisible (false);
-        Panel p = this.viewer.getCurrentPanel ();
-
-        this.header.getStyleClass ().clear ();
-        this.header.getStyleClass ().add (StyleClassNames.HEADER);
-
-        this.header.getStyleClass ().remove (Project.OBJECT_TYPE);
-
-        if (p != null)
-        {
-
-            PanelContent pc = p.getContent ();
-
-            this.header.getIcon ().setBackground (null);
-            this.headerBinder.dispose ();
-
-            if (pc instanceof AssetViewPanel)
-            {
-
-                UserConfigurableObjectType type = ((AssetViewPanel) pc).getObject ().getUserConfigurableObjectType ();
-
-                //this.header.getIcon ().imageProperty ().unbind ();
-                //this.header.getIcon ().imageProperty ().bind (type.icon24x24Property ());
-
-                UIUtils.setBackgroundImage (this.header.getIcon (),
-                                            type.icon24x24Property (),
-                                            this.headerBinder);
-                this.header.setIconClassName ("asset");
-
-
-            } else {
-
-                this.header.setIconClassName (p.getStyleClassName ());
-
-            }
-
-            this.header.titleProperty ().unbind ();
-            this.header.titleProperty ().bind (p.titleProperty ());
-            //this.header.getIcon ().imageProperty ().unbind ();
-            //this.header.getStyleClass ().add (p.getStyleClassName ());
-
-        } else {
-
-            this.header.getStyleClass ().add (Project.OBJECT_TYPE);
-            this.header.titleProperty ().unbind ();
-            this.header.titleProperty ().bind (this.viewer.getProject ().nameProperty ());
-
-        }
 
         UIUtils.runLater (() ->
         {
@@ -1566,6 +1549,7 @@ TODO ? psuedo class
             this.header.relocate (w * 0.1,
                                   0);
             this.header.setVisible (true);
+            this.header.requestLayout ();
 
         });
 

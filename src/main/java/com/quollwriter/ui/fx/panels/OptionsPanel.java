@@ -106,7 +106,12 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
 
         }
 
-        this.options.showSection (id);
+        UIUtils.forceRunLater (() ->
+        {
+
+            this.options.showSection (id);
+
+        });
 
     }
 
@@ -119,7 +124,7 @@ public class OptionsPanel extends PanelContent<AbstractViewer>
             return;
 
         }
-        
+
         this.options.showSection (sectId);
 
     }

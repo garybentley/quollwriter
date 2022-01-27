@@ -87,7 +87,7 @@ public class Options extends VBox implements Stateful
 
         this.sections = new VBox ();
         this.sections.getStyleClass ().add (StyleClassNames.SECTIONS);
-        left.getChildren ().add (new ScrollPane (this.sections));
+        left.getChildren ().add (new QScrollPane (this.sections));
         VBox.setVgrow (this.sections,
                        Priority.ALWAYS);
 
@@ -175,7 +175,7 @@ public class Options extends VBox implements Stateful
 
         VBox.setVgrow (c,
                        Priority.ALWAYS);
-        ScrollPane csp = new ScrollPane (c);
+        ScrollPane csp = new QScrollPane (c);
         VBox.setVgrow (csp,
                        Priority.ALWAYS);
         this.contentWrapper.getChildren ().addAll (ch, csp);
@@ -2865,17 +2865,7 @@ TODO Remove, rolled into start section
                         .onAction (ev ->
                         {
 
-                            QuollPopup qp = this.viewer.getPopupById (ObjectTypeNameChangePopup.POPUP_ID);
-
-                            if (qp != null)
-                            {
-
-                                qp.toFront ();
-                                return;
-
-                            }
-
-                            new ObjectTypeNameChangePopup (this.viewer).show ();
+                            viewer.runCommand (AbstractViewer.CommandId.editobjectnames);
 
                         })
                         .build ())

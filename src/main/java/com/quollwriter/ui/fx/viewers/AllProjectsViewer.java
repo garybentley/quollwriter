@@ -959,7 +959,8 @@ TODO Remove as not appropriate.
                     throws GeneralException
     {
 
-        // TODO
+        this.viewStatistics (chartType);
+
 
     }
 

@@ -2633,48 +2633,6 @@ TODO Remove?
 
     }
 
-    protected void setPanelVisible (PanelContent pc)
-    {
-
-        this.setPanelVisible (pc.getPanel ());
-
-    }
-
-    protected void setPanelVisible (Panel qp)
-    {
-
-        //this.updateToolbarForPanel (qp);
-
-        if (!this.isInFullScreenMode ())
-        {
-
-            int tInd = this.getTabIndexForPanelId (qp.getPanelId ());
-
-            this.tabs.selectionModelProperty ().getValue ().select (tInd);
-
-        } else {
-
-            try
-            {
-
-                this.showInFullScreen (qp.getContent ());
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to show panel: " + qp +
-                                      " in full screen",
-                                      e);
-
-                ComponentUtils.showErrorMessage (this,
-                                                 getUILanguageStringProperty (fullscreen,showpanelactionerror));
-                                          //"Unable to show in full screen");
-
-            }
-
-        }
-
-    }
-
     /**
 	 * Determine the number of words written for this project during this session.
 	 *
@@ -3032,6 +2990,15 @@ TODO Remove?
 
         this.typeWriterScrollingEnabledProp.setValue (v);
 
+        Panel qp = this.getCurrentlyVisibleTab ();
+
+        if (qp.getContent () instanceof ChapterEditorPanelContent)
+        {
+
+            ((ChapterEditorPanelContent) qp.getContent ()).setUseTypewriterScrolling (v);
+
+        }
+
     }
 
     public boolean isUseTypeWriterScrolling ()
@@ -3180,7 +3147,9 @@ TODO Remove?
             if (qp != null)
             {
 
-                this.setPanelVisible (qp);
+                int tInd = this.getTabIndexForPanelId (qp.getPanelId ());
+
+                this.tabs.selectionModelProperty ().getValue ().select (tInd);
 
             }
 
@@ -4971,21 +4940,6 @@ TODO REmove
 
     }
 
-    public void showInFullScreen (Panel panel)
-                           throws GeneralException
-    {
-
-        if (panel == null)
-        {
-
-            throw new NullPointerException ("Panel must be provided.");
-
-        }
-
-        this.showInFullScreen (panel.getContent ());
-
-    }
-
     @Override
     public void dispose ()
     {
@@ -5089,7 +5043,7 @@ TODO REmove
 
     }
 
-    public void showInFullScreen (PanelContent qep)
+    public void showInFullScreenX (PanelContent qep)
                            throws GeneralException
     {
 
@@ -5100,129 +5054,6 @@ TODO REmove
 
         }
 
-/*
-TODO Needed?
-        if (this.fsf == null)
-        {
-
-            // Need to get the divider location.
-            this.lastDividerLocation = this.splitPane.getDividerLocation ();
-
-        }
-
-        if (this.fullScreenOverlay == null)
-        {
-
-            this.fullScreenOverlay = new FullScreenOverlay (this);
-
-            this.setGlassPane (this.fullScreenOverlay);
-
-        }
-
-        this.fullScreenOverlay.setVisible (true);
-
-        if (this.fsf != null)
-        {
-
-            if (this.fsf.getPanel () == qep)
-            {
-
-                // Nothing to do, it's already showing, maybe bring to front.
-                this.fsf.toFront ();
-
-                return;
-
-            }
-
-        }
-
-        if (qep == null)
-        {
-
-            qep = new BlankQuollPanel (this,
-									   "fullscreen-blank");
-
-            qep.init ();
-
-        }
-        */
-/*
-TODO Remove?
-        if (this.currentOtherSideBar != null)
-        {
-
-            this.savedOtherSideBarWidth = this.currentOtherSideBar.getSize ().width;
-
-        }
-
-        if (this.mainSideBar != null)
-        {
-
-            this.savedSideBarWidth = this.mainSideBar.getSize ().width;
-
-        }
-*/
-/*
-        int tabInd = this.getTabIndexForPanelId (qep.getPanelId ());
-
-        if (tabInd > -1)
-        {
-
-            // TODO Make better?
-            this.fsfplaceholder = new ShowingInFullScreenPanel (this,
-                                                                qep);
-
-            // Need to set the component, otherwise it will be removed.
-            this.tabs.getTabs ().get (tabInd).setContent (this.fsfplaceholder.getPanel ());
-
-        }
-*/
-        //if (this.fsf != null)
-        //{
-
-            //this.fsf.setIconified (false);
-            //this.fsf.switchTo (qep);
-
-        //} else
-        //{
-/*
-            Set<Node> items = new LinkedHashSet<> ();
-
-            this.fsf = new FullScreenView (this,
-                                           items,
-                                           qep);
-
-            this.fsf.init ();
-
-            // Need to set the tabs hidden otherwise the parent qw window will flash in front
-            // or show up in front of the fsf.
-            // TODO? this.tabs.setVisible (false);
-
-            this.fireProjectEvent (new ProjectEvent (this.project,
-                                                     ProjectEvent.Type.fullscreen,
-                                                     ProjectEvent.Action.enter));
-*/
-        //}
-
-        //this.getViewer ().hide ();
-        //this.setIconified (true);
-/*
-        this.getViewer ().setFullScreen (true);
-
-		final AbstractProjectViewer _this = this;
-
-		UIUtils.runLater (() ->
-        {
-
-			if (_this.fsf != null)
-			{
-
-				_this.fsf.toFront ();
-
-			}
-
-		});
-*/
     }
 /*
 TODO

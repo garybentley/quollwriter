@@ -2218,6 +2218,17 @@ TODO Remove handled by the content.
     {
 
         // TODO
+        QuollPopup qp = this.getPopupById (ObjectTypeNameChangePopup.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.toFront ();
+            return;
+
+        }
+
+        new ObjectTypeNameChangePopup (this).show ();
 
     }
 

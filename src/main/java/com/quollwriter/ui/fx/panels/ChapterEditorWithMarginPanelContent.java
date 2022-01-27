@@ -85,6 +85,7 @@ TODO
         Pane marginbg = new Pane ();
         marginbg.getStyleClass ().add (StyleClassNames.MARGINBG);
         marginbg.prefHeightProperty ().bind (this.getBackgroundPane ().heightProperty ());
+        marginbg.managedProperty ().bind (marginbg.visibleProperty ());
 
         this.getBackgroundPane ().getChildren ().add (marginbg);
 
@@ -208,6 +209,7 @@ TODO
 
                                                        });
                 margin.getStyleClass ().add (StyleClassNames.MARGIN);
+                margin.managedProperty ().bind (margin.visibleProperty ());
 
                 return margin;
 

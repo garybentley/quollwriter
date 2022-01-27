@@ -36,7 +36,7 @@ public class BackgroundPane extends Pane implements Stateful
             this.updateBackground ();
 
         });
-        
+
         this.setOnDragDropped (ev ->
         {
 
@@ -237,7 +237,7 @@ public class BackgroundPane extends Pane implements Stateful
                 if (o < 0)
                 {
 
-                    o = 0.05;
+                    o = 0;
 
                 }
 

@@ -2671,7 +2671,7 @@
         "25" : "Don't like the font or font size?  <a href='action:textproperties'>Click to change the text properties.</a><br />The text properties can be accessed from the [tools] menu on the toolbar then select [edit-properties]<b>Edit Text Properties</b>.",
         "26_1" : "Want to find a synonym?  Highlight a word while editing a ${objectnames.singular.chapter} and right click.",
         "26_2" : "Want to find a synonym?  Highlight a word and right click.",
-        "27" : "Missing the sound of a typewriter?  <a href='action:enabletypewritersound'>Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the <b>How things look and sound</b> section of the <a href='action:options.look'>options</a>.",
+        "27" : "Missing the sound of a typewriter?  <a href='action:enabletypewritersound'>Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the <b>How things look and sound</b> section of the <a href='action:options.editing'>options</a>.",
         "28" : "${objectnames.plural.warmup} can be converted into ${objectnames.plural.project}.  <a href='action:warmup'>Click to do a ${objectnames.singular.warmup} now.</a><br />You can do a ${objectnames.singular.warmup} at any time, just select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the ${objectnames.singular.project} menu.",
         "29" : "In full screen mode you can change the size of the writing area and how transparent the background is?  Just move your cursor to the top of the screen to see the options.",
         "30" : "Did you know that in full screen mode you can change the color of the text and the background of the writing area? <a href='action:fullscreen'>Click to enter full screen mode now.",
@@ -6041,7 +6041,7 @@
                     "chapterpreview" :
                     {
                         "title" : "Improved ${objectnames.singular.chapter} previews",
-                        "text" : "The popup displayed when you hold your mouse over a ${objectnames.singular.chapter} in the ${objectnames.singular.chapter} list has been improved and can be configured to display a variety of information.<br /><br />See <a href='help:chapters'>for more details</a>.<br /><br /><a href='action:options.look'>Click here to change what is displayed.</a>"
+                        "text" : "The popup displayed when you hold your mouse over a ${objectnames.singular.chapter} in the ${objectnames.singular.chapter} list has been improved and can be configured to display a variety of information.<br /><br />See <a href='help:chapters'>for more details</a>.<br /><br /><a href='action:options.editing'>Click here to change what is displayed.</a>"
                     },
                     "import" :
                     {
