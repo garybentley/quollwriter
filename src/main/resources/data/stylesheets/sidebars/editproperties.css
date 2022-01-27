@@ -23,15 +23,22 @@
 .form .items > .label
 {
     -fx-font-style: italic;
+    -fx-font-size: 1.1em;
+    /*-fx-font-style: italic;*/
+    -fx-padding: 1em 0 0.3em 0;
 }
 
 .form .description
 {
-    -fx-font-style: italic;
     -fx-padding: 0 0 0.25em 0;
 }
 
 .combo-box
 {
     -fx-max-width: 20em;
+}
+
+.fullscreen
+{
+    -fx-padding: 0 0 1em 0;
 }

@@ -1,81 +1,78 @@
 /*
  * Styles related to the statistics panel, com.quollwriter.ui.fx.panels.StatisticsPanel
  */
- .statistics .header.main { -fx-padding: 0.3em; }
- .header.main .iconbox,
- .header.main .iconbox .icon
- {
-     -fx-pref-width: 1.7em;
-     -fx-pref-height: 1.7em;
-     -fx-fill-height: false;
-     -fx-alignment: center;
- }
-
+/*
  .panel.statistics .controls
  {
      -fx-padding: 0.5em;
      -fx-alignment: center-left;
  }
+*/
 
- .panel.statistics .controls .label,
- .panel.statistics .controls .check-box,
- .panel.statistics .controls .hyperlink
- {
-     -fx-padding: 0 0.5em 0 0.5em;
- }
+.controls
+{
+    -fx-alignment: center-left;
+}
 
- .panel.statistics .detail
+.controls .label,
+.controls .check-box,
+.controls .hyperlink
+{
+     -fx-padding: 0 0.5em 0 1em;
+     -fx-alignment: center-left;
+}
+
+ .detail
  {
      -fx-padding: 0.5em 0.5em 1em 1em;
-     -fx-alignment: center;
  }
 
- .panel.statistics .markers
+ .markers
  {
      -fx-vertical-grid-lines-visible: false;
      -fx-horizontal-grid-lines-visible: false;
      -fx-horizontal-zero-line-visible: false;
  }
 
- .panel.statistics .markers .axis
+ .markers .axis
  {
      -fx-opacity: 0;
  }
 
- .panel.statistics .detail > *,
-  .panel.statistics .detail
+ .detail > *,
+ .detail
  {
      -fx-alignment: center;
  }
 
- .panel.statistics .detail .item
+ .detail .item
  {
      -fx-padding: 0 0.5em 0 0;
  }
 
- .panel.statistics .chart
+ .chart
  {
      -fx-category-gap: 10em;
      -fx-legend-visible: false;
      -fx-vertical-grid-lines-visible: false;
  }
 
- .panel.statistics .axis-label
+ .axis-label
  {
      -fx-font-size: 1.2em;
  }
 
- .panel.statistics .axis > *
+ .axis > *
  {
      -fx-font-size: 1.1em;
  }
 
- .panel.statistics .chart-plot-background
+ .chart-plot-background
  {
      -fx-background-color: transparent;
  }
 
- .panel.statistics .chart-bar.series0
+ .chart-bar.series0
  {
      -fx-background-color: #f5b800;
      -fx-min-width: 2em;
@@ -84,7 +81,7 @@
      -fx-max-width: 2em;
  }
 
- .panel.statistics .chart-bar.series1
+ .chart-bar.series1
  {
      -fx-background-color: lightblue;
      -fx-min-width: 2em;

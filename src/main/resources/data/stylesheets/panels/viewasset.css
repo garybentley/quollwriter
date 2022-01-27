@@ -460,3 +460,8 @@
     -fx-font-size: 1.5em;
     -fx-font-style: italic;
 }
+
+.field .header.label .iconbox
+{
+    visibility: hidden;
+}

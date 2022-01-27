@@ -128,3 +128,25 @@
     -fx-max-width: 1em;
     -fx-min-width: 1em;
 }
+
+.panel.chapter:typewriterscrolling .texteditor .margin
+{
+    visibility: hidden;
+}
+
+.panel.chapter:typewriterscrolling .virtualized-scroll-pane
+{
+    -fx-vbar-policy: never;
+}
+
+.panel.chapter:typewriterscrolling .margin-bg
+{
+    visibility: hidden;
+}
+
+.panel.chapter:typewriterscrolling .texteditor .margin
+{
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-min-width: 0
+}

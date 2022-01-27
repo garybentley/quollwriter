@@ -21,6 +21,8 @@
 }
 .accordion.readability .header .iconbox .readability-icon.icon {
     -fx-pref-height: 0.888em;
+    -fx-max-height: 0.888em;
+    -fx-min-height: 0.888em;
 }
 HBox {
     -fx-alignment: center-left;
@@ -44,4 +46,20 @@ HBox {
 .scroll-pane
 {
     -fx-fit-to-width: true;
+}
+
+.form:column .items .control
+{
+    -fx-padding: 0 0 1em 0;
+}
+
+.form:column .items > .label
+{
+    -fx-padding: 0 0.25em 1em 0;
+}
+
+.content .check-box,
+.content .hyperlink
+{
+    -fx-padding: 0 0 0.75em 1.5em;
 }
