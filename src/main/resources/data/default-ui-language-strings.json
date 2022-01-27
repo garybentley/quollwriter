@@ -6304,6 +6304,17 @@
                         "text" : "<ul><li>Numerous fixes and minor improvements as a result of the formal testing.  Please note: editor mode and the UI strings editor have not yet been fully tested, use with caution!</li></ul>"
                     }
                 }
+            },
+            "3.0.0b21" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes/Minor Improvements",
+                        "text" : "<ul><li>More fixes and improvements as a result of the formal testing.  The options panel has been reworked to be less of a cluttered nightmare.</li></ul>"
+                    }
+                }
             }
         }
     },
