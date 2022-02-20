@@ -810,7 +810,7 @@ TODO
         }
 
         Environment.targets = new TargetsData (UserProperties.getProperties ());
-        Environment.setDebugModeEnabled (true);
+        //Environment.setDebugModeEnabled (true);
         Environment.startupCompleteProp.addListener ((val, oldv, newv) ->
         {
 
