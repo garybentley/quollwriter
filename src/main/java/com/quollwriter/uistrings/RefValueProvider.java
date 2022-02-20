@@ -9,4 +9,6 @@ public interface RefValueProvider
 
     public int getSCount (String id);
 
+    public boolean isIdValid (String id);
+
 }

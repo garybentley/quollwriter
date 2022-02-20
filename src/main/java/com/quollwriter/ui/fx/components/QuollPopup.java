@@ -659,7 +659,6 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         private StringProperty confirmButtonLabel = null;
         private StringProperty cancelButtonLabel = null;
         private StringProperty entryLabel = null;
-        private AbstractViewer viewer = null;
         private String text = null;
 
         public TextEntryBuilder text (String t)
@@ -681,14 +680,6 @@ public class QuollPopup extends StackPane implements IPropertyBinder
             }
 
             this.items.add (i);
-            return _this ();
-
-        }
-
-        public TextEntryBuilder inViewer (AbstractViewer h)
-        {
-
-            this.viewer = h;
             return _this ();
 
         }

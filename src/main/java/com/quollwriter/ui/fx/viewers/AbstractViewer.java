@@ -61,7 +61,10 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         openproject,
         newproject,
         nightmode,
-        timer
+        timer,
+        onlynovalue,
+        onlyerrors,
+        filter
     };
 
     public interface HeaderControlButtonIds
@@ -322,7 +325,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
             .buttonId (HeaderControlButtonIds.context)
             .items (() ->
             {
-        //Environment.setNightModeEnabled (!Environment.nightModeProperty ().get ());
 
                 Supplier<Set<MenuItem>> menuItemSupp = _this.getSettingsMenuSupplier ();
 

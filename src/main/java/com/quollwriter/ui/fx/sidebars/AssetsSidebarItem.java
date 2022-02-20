@@ -383,14 +383,14 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                         if (nv1 == null)
                         {
 
-                            nv1 = new Integer (Short.MAX_VALUE);
+                            nv1 = Integer.valueOf (Short.MAX_VALUE);
 
                         }
 
                         if (nv2 == null)
                         {
 
-                            nv2 = new Integer (Short.MAX_VALUE);
+                            nv2 = Integer.valueOf (Short.MAX_VALUE);
 
                         }
 
@@ -699,14 +699,14 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
                     if (nv1 == null)
                     {
 
-                        nv1 = new Integer (Short.MAX_VALUE);
+                        nv1 = Integer.valueOf (Short.MAX_VALUE);
 
                     }
 
                     if (nv2 == null)
                     {
 
-                        nv2 = new Integer (Short.MAX_VALUE);
+                        nv2 = Integer.valueOf (Short.MAX_VALUE);
 
                     }
 

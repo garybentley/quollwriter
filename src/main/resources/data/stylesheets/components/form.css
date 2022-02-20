@@ -4,6 +4,7 @@
  .form:stacked .label
  {
      -fx-padding: 0 0 0.3em 0;
+     -fx-font-style: italic;
      /*-fx-text-overrun: clip;*/
  }
 
@@ -60,4 +61,9 @@
     -fx-border-width: 1px 0 0 0;
     -fx-border-color: -qw-focus-color;;
     -fx-font-style: italic;
+}
+
+.form:stacked .choice-box .label
+{
+    -fx-font-style: normal;
 }

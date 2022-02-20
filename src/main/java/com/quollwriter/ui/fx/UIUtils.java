@@ -475,7 +475,7 @@ public class UIUtils
                          .styleClassName (StyleClassNames.OBJECTSELECT)
                          .headerIconClassName (StyleClassNames.VIEW)
                          .popupId ("showobject")
-                         .objects (objs)
+                         .objects (FXCollections.observableList (new ArrayList<> (objs)))
                          .cellProvider ((obj, popupContent) ->
                          {
 
@@ -2384,16 +2384,376 @@ public class UIUtils
     public static void showAddNewUILanguageStringsPopup (final AbstractViewer viewer)
     {
 
+        String none = "[NONE]";
+
         List<String> prefix = Arrays.asList (uilanguage,_new,popup);
 
-        QuollPopup.textEntryBuilder ()
+        QuollTextField name = QuollTextField.builder ()
+            .build ();
+
+        ComboBox<String> spellcheckLang = new ComboBox<> ();
+        spellcheckLang.setDisable (true);
+
+        final QuollCheckBox defLang = QuollCheckBox.builder ()
+            .label (new SimpleStringProperty ("Set as default"))
+            .build ();
+        defLang.managedProperty ().bind (defLang.visibleProperty ());
+
+        Consumer<String> downloadDictFiles = lang ->
+        {
+
+            DownloadPanel langDownload = DownloadPanel.builder ()
+                .title (getUILanguageStringProperty (Arrays.asList (dictionary,download,notification),
+                                                     getUILanguageStringProperty (languagenames,lang)))
+                .styleClassName (StyleClassNames.DOWNLOAD)
+                .showStop (true)
+                .build ();
+            langDownload.managedProperty ().bind (langDownload.visibleProperty ());
+
+            Set<Node> controls = new LinkedHashSet<> ();
+            controls.add (langDownload.getStopButton ());
+
+            Notification n = viewer.addNotification (langDownload,
+                                                     StyleClassNames.DOWNLOAD,
+                                                     -1,
+                                                     controls);
+
+            UrlDownloader dl = UIUtils.downloadDictionaryFiles (lang,
+                                             viewer,
+                                             // On progress
+                                             p ->
+                                             {
+
+                                                 langDownload.setProgress (p);
+
+                                             },
+                                             // On complete
+                                             () ->
+                                             {
+
+                                                 viewer.removeNotification (n);
+
+                                                 // Add a notification that the files have been downloaded.
+                                                 viewer.addNotification (getUILanguageStringProperty (Arrays.asList (options,editingchapters,downloaddictionaryfiles,notification,text),
+                                                                             //"The language files for <b>%s</b> have been downloaded and the project language set.",
+                                                                                                           lang),
+                                                                              StyleClassNames.INFORMATION,
+                                                                              -1);
+
+                                             },
+                                             // On error
+                                             ex ->
+                                             {
+
+                                                 viewer.removeNotification (n);
+
+                                                 ComponentUtils.showErrorMessage (viewer,
+                                                                                  getUILanguageStringProperty (Arrays.asList (dictionary,download,actionerror),
+                                                                                                               getUILanguageStringProperty (languagenames,spellcheckLang.valueProperty ().getValue ())));
+
+                                             });
+
+        };
+
+        Node downloadFiles = QuollHyperlink.builder ()
+            .label (options,editingchapters,labels,downloadlanguagefiles)
+            .styleClassName (StyleClassNames.DOWNLOAD)
+            .onAction (ev ->
+            {
+
+                String lang = spellcheckLang.valueProperty ().getValue ();
+
+                downloadDictFiles.accept (lang);
+
+            })
+            .build ();
+        downloadFiles.managedProperty ().bind (downloadFiles.visibleProperty ());
+
+        String defl = UserProperties.getDefaultUILanguageStringsSpellCheckLanguage ();
+
+        if (defl != null)
+        {
+
+            downloadFiles.setVisible (!DictionaryProvider.isLanguageInstalled (defl));
+
+        } else {
+
+            downloadFiles.setVisible (false);
+
+        }
+
+        spellcheckLang.valueProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            final String lang = newv;
+
+            String def = UserProperties.getDefaultUILanguageStringsSpellCheckLanguage ();
+
+            final String currLang = def;
+
+            if (def != null)
+            {
+
+                if (!def.equals (lang))
+                {
+
+                    defLang.setSelected (false);
+
+                } else {
+
+                    defLang.setSelected (true);
+
+                }
+
+            }
+
+            downloadFiles.setVisible (false);
+
+            // Check to see if the files are available.
+            try
+            {
+
+                if ((!lang.equals (none))
+                    &&
+                    (!DictionaryProvider.isLanguageInstalled (lang))
+                   )
+                {
+
+                    downloadFiles.setVisible (true);
+
+                    List<String> _prefix = Arrays.asList (options,editingchapters,downloaddictionaryfiles,popup);
+
+                    QuollPopup.questionBuilder ()
+                        .withViewer (viewer)
+                        .styleClassName (StyleClassNames.DOWNLOAD)
+                        .title (getUILanguageStringProperty (Utils.newList (_prefix,title)))
+                        .message (getUILanguageStringProperty (Utils.newList (_prefix,text),
+                                                               lang))
+                        .confirmButtonLabel (getUILanguageStringProperty (Utils.newList (_prefix,buttons,confirm)))
+                        .cancelButtonLabel (getUILanguageStringProperty (Utils.newList (_prefix,buttons,cancel)))
+                        .onConfirm (ev ->
+                        {
+
+                            downloadDictFiles.accept (lang);
+
+                        })
+                        .onCancel (ev ->
+                        {
+
+                            spellcheckLang.getSelectionModel ().select (currLang);
+
+                        })
+                        .build ();
+
+                    return;
+
+                }
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get language files for: " +
+                                      lang,
+                                      e);
+
+                ComponentUtils.showErrorMessage (viewer,
+                                                 getUILanguageStringProperty (options,editingchapters,downloaddictionaryfiles,actionerror));
+                                          //"Unable to check for dictionary files, please contact Quoll Writer support.");
+
+                return;
+
+            }
+
+        });
+
+        Callback<ListView<String>, ListCell<String>> langCellFactory = (lv ->
+        {
+
+            return new ListCell<String> ()
+            {
+
+                @Override
+                protected void updateItem (String  item,
+                                           boolean empty)
+                {
+
+                    super.updateItem (item,
+                                      empty);
+
+                    if (empty || item == null)
+                    {
+
+                        this.textProperty ().unbind ();
+                        setText ("");
+
+                    } else {
+
+                        if (item.equals (none))
+                        {
+
+                            this.textProperty ().bind (new SimpleStringProperty ("Do not spellcheck"));
+
+                        } else {
+
+                            StringProperty textProp = getUILanguageStringProperty (Arrays.asList (languagenames,item));
+
+                            this.textProperty ().bind (textProp);
+
+                        }
+
+                    }
+
+                }
+
+            };
+
+        });
+
+        spellcheckLang.setCellFactory (langCellFactory);
+        spellcheckLang.setButtonCell (langCellFactory.call (null));
+
+        // Get the languages supported by the spellchecker.
+        Environment.schedule (() ->
+        {
+
+            String l = null;
+
+            try
+            {
+
+                l = Utils.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + UserProperties.get (Constants.QUOLL_WRITER_SUPPORTED_LANGUAGES_URL_PROPERTY_NAME)));
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to get language files url",
+                                      e);
+
+            }
+
+            StringTokenizer t = new StringTokenizer (l,
+                                                     String.valueOf ('\n'));
+
+            final List<String> langs = new ArrayList<> ();
+
+            langs.add (none);
+
+            while (t.hasMoreTokens ())
+            {
+
+                String lang = t.nextToken ().trim ();
+
+                if (lang.equals (Constants.ENGLISH))
+                {
+
+                    continue;
+
+                }
+
+                if (lang.equals (""))
+                {
+
+                    continue;
+
+                }
+
+                langs.add (lang);
+
+            }
+
+            UIUtils.runLater (() ->
+            {
+
+                spellcheckLang.getItems ().addAll (langs);
+
+                String def = UserProperties.getDefaultUILanguageStringsSpellCheckLanguage ();
+
+                spellcheckLang.getSelectionModel ().select (def);
+
+                spellcheckLang.setDisable (false);
+
+            });
+
+        },
+        1,
+        -1);
+
+        defLang.selectedProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if (defLang.isSelected ())
+            {
+
+                UserProperties.setDefaultUILanguageStringsSpellCheckLanguage (spellcheckLang.valueProperty ().getValue ());
+
+            }
+
+        });
+
+        Form f = Form.builder ()
+            .description (prefix,text)
+            .confirmButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,create)))
+            .cancelButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)))
+            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,LanguageStrings.name)),
+                   name)
+            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,LanguageStrings.spellcheck)),
+                   spellcheckLang)
+            .item (defLang)
+            .item (downloadFiles)
+            .build ();
+
+        f.addEventHandler (Form.FormEvent.CONFIRM_EVENT,
+                           ev ->
+        {
+
+             String v = name.getText ().trim ();
+             f.hideError ();
+
+             if ((v == null)
+                 ||
+                 (v.trim ().length () == 0)
+                )
+             {
+
+                 // This can be English because if the creator doesn't know English then they can't create a set of strings.
+                 f.showError (new SimpleStringProperty ("Please enter the language name"));
+                 return;
+
+             }
+
+             UILanguageStrings ls = new UILanguageStrings (UILanguageStringsManager.getDefaultUILanguageStrings ());
+             ls.setNativeName (v);
+             ls.setUser (true);
+             ls.setQuollWriterVersion (Environment.getQuollWriterVersion ());
+             ls.setSpellcheckLanguage (spellcheckLang.getValue ().equals (none) ? null : spellcheckLang.getValue ());
+
+             try
+             {
+
+                 LanguageStringsEditor lse = new LanguageStringsEditor (ls);
+                 lse.createViewer ();
+                 lse.init (null);
+
+             } catch (Exception e) {
+
+                 Environment.logError ("Unable to create language strings editor",
+                                       e);
+
+                 ComponentUtils.showErrorMessage (viewer,
+                                                  "Unable to create strings editor.");
+
+             }
+
+        });
+
+        QuollPopup.formBuilder ()
             .withViewer (viewer)
             .title (prefix,title)
-            .description (prefix,text)
+            //.description (prefix,text)
             .styleClassName (StyleClassNames.ADDNEWUILANGSTRINGS)
             .headerIconClassName (StyleClassNames.EDIT)
-            .confirmButtonLabel (prefix,buttons,create)
-            .cancelButtonLabel (prefix,buttons,cancel)
+            //.confirmButtonLabel (prefix,buttons,create)
+            //.cancelButtonLabel (prefix,buttons,cancel)
+            .form (f)
+            /*
             .onConfirm (ev ->
             {
 
@@ -2425,6 +2785,8 @@ public class UIUtils
                  }
 
             })
+            */
+            /*
             .validator (v ->
             {
 
@@ -2442,6 +2804,7 @@ public class UIUtils
                 return null;
 
             })
+            */
             .build ();
             /*
             TODO Remove
@@ -2577,7 +2940,7 @@ public class UIUtils
             .styleSheet (StyleClassNames.UILANGSTRINGSSELECT)
             .headerIconClassName (StyleClassNames.EDIT)
             .popupId (popupId)
-            .objects (objs)
+            .objects (FXCollections.observableList (new ArrayList<> (objs)))
             .cellProvider ((obj, popupContent) ->
             {
 
@@ -2731,7 +3094,7 @@ public class UIUtils
             .title (getUILanguageStringProperty (uilanguage,edit,popup,title))
             .styleClassName (StyleClassNames.WEBSITELANGSTRINGSSELECT)
             .popupId (popupId)
-            .objects (objs)
+            .objects (FXCollections.observableList (new ArrayList<> (objs)))
             .cellProvider ((obj, popupContent) ->
             {
 

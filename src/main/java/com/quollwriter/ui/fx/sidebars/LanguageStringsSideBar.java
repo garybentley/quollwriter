@@ -33,7 +33,6 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
     public static final String SIDEBAR_ID = "mainlanguagestrings";
 
     private Map<String, QuollTreeView> sectionTrees = new HashMap<> ();
-    private Filter<Node> nodeFilter = null;
     private QuollHyperlink                forwardLabel = null;
     private ScrollPane scroll = null;
 
@@ -74,6 +73,61 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
 
         content.getChildren ().add (this.forwardLabel);
 
+        this.getBinder ().addChangeListener (this.viewer.nodeFilterProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            this.createSectionTrees (content,
+                                     baseStrings);
+
+        });
+
+        this.createSectionTrees (content,
+                                 baseStrings);
+
+        this.scroll = new ScrollPane (content);
+        VBox.setVgrow (this.scroll,
+                       Priority.ALWAYS);
+
+        this.setContent (this.scroll);
+
+        this.addChangeListener (viewer.currentPanelProperty (),
+                                (pr, oldv, newv) ->
+        {
+
+            Panel pp = this.viewer.getCurrentPanel ();
+
+            if (pp.getContent () instanceof LanguageStringsIdsPanel)
+            {
+
+                LanguageStringsIdsPanel p = (LanguageStringsIdsPanel) pp.getContent ();
+
+                Node n = p.getParentNode ();
+
+                this.sectionTrees.values ().stream ()
+                    .forEach (t ->
+                    {
+
+                        t.clearSelection ();
+
+                        t.select (n);
+
+                    });
+
+            }
+
+        });
+
+    }
+
+    private void createSectionTrees (VBox                    content,
+                                     AbstractLanguageStrings baseStrings)
+    {
+
+        this.sectionTrees.clear ();
+
+        content.getChildren ().clear ();
+
         String defSection = "General";
 
         Map<String, Set<Node>> sections = baseStrings.getNodesInSections (defSection);
@@ -95,30 +149,6 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
             content.getChildren ().add (it);
 
         }
-
-        this.scroll = new ScrollPane (content);
-
-        this.setContent (this.scroll);
-
-        this.addChangeListener (viewer.currentPanelProperty (),
-                                (pr, oldv, newv) ->
-        {
-
-            LanguageStringsIdsPanel p = (LanguageStringsIdsPanel) this.viewer.getCurrentPanel ().getContent ();
-
-            Node n = p.getParentNode ();
-
-            this.sectionTrees.values ().stream ()
-                .forEach (t ->
-                {
-
-                    t.clearSelection ();
-
-                    t.select (n);
-
-                });
-
-        });
 
     }
 
@@ -192,10 +222,10 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
                     if (x != null)
                     {
 
-                        if (this.nodeFilter != null)
+                        if (this.viewer.getNodeFilter () != null)
                         {
 
-                            if (this.nodeFilter.accept (x))
+                            if (this.viewer.getNodeFilter ().accept (x))
                             {
 
                                 n = x;
@@ -210,7 +240,7 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
 
                     }
 
-                    vals = n.getValues (this.nodeFilter);
+                    vals = n.getValues (this.viewer.getNodeFilter ());
 
                     if (vals.size () == 0)
                     {
@@ -230,7 +260,7 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
 
             }
 
-            vals = k.getValues (this.nodeFilter);
+            vals = k.getValues (this.viewer.getNodeFilter ());
 
             if (vals.size () == 0)
             {
@@ -270,6 +300,7 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
                 .build ();
 
             l.setIconClassName (this.getStringStyle (n));
+            l.getStyleClass ().add (this.getStringStyle (n));
 
             this.getBinder ().<Node, Number>addMapChangeListener (this.viewer.userCountsProperty (),
                                                                   ev ->
@@ -281,10 +312,7 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
                 {
 
                     nameP.setValue (this.getStringTitle (n));
-                    //l.getStyleClass ().removeAll (Arrays.asList (StyleClassNames.ERROR, StyleClassNames.NEXT, StyleClassNames.SAVE));
                     l.setIconClassName (this.getStringStyle (n));
-
-                    //l.getStyleClass ().add (this.getStringStyle (n));
 
                 }
 
@@ -411,24 +439,44 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
         String name = null;
         String styleClassName = null;
 
+        String t = "%s (%s/%s)";
+        List<String> reps = new ArrayList<> ();
+        reps.add (title);
+
+        if (this.viewer.getNodeFilter () != null)
+        {
+
+            t = "%s (%s)";
+
+        } else {
+
+            reps.add (Environment.formatNumber (c));
+
+        }
+
+        reps.add (Environment.formatNumber (alls));
+
         if (errCount > 0)
         {
 
+            t += " [%s errors]";
+            reps.add (Environment.formatNumber (errCount));
+/*
             name = String.format ("%s (%s/%s) [%s errors]",
                                   title,
                                   Environment.formatNumber (c),
                                   Environment.formatNumber (alls),
                                   Environment.formatNumber (errCount));
-
+*/
             styleClassName = StyleClassNames.ERROR;
 
         } else {
-
+/*
             name = String.format ("%s (%s/%s)",
                                   title,
                                   Environment.formatNumber (c),
                                   Environment.formatNumber (alls));
-
+*/
             if (alls == c)
             {
 
@@ -447,7 +495,23 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
 
         }
 
+        name = String.format (t,
+                              reps.toArray ());
+
         return name;
+
+    }
+
+    @Override
+    public State getState ()
+    {
+
+        State s = super.getState ();
+
+        s.set ("scroll",
+               this.scroll.getVvalue ());
+
+        return s;
 
     }
 
@@ -464,13 +528,19 @@ public class LanguageStringsSideBar extends BaseSideBar<AbstractLanguageStringsE
 
         }
 
-        float scroll = s.getAsFloat ("scroll",
-                                     0f);
+        double scroll = (double) s.getAsFloat ("scroll",
+                                               0f);
 
         if (scroll > 0)
         {
 
-            this.scroll.setVvalue (scroll);
+            this.scroll.applyCss ();
+            this.scroll.layout ();
+            UIUtils.forceRunLater (() ->
+            {
+                this.scroll.setVvalue (scroll);
+
+            });
 
         }
 

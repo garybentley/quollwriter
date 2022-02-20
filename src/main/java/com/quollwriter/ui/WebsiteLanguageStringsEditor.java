@@ -1795,4 +1795,12 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
 
     }
 
+    @Override
+    public boolean isIdValid (String id)
+    {
+
+        throw new IllegalStateException ("DO NOT USE!");
+
+    }
+
 }

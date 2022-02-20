@@ -59,7 +59,7 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
             putValue (Action.SHORT_DESCRIPTION,
                       getValue (Action.NAME));
             putValue (Action.MNEMONIC_KEY,
-                      new Integer (KeyEvent.VK_U));
+                      Integer.valueOf (KeyEvent.VK_U));
             putValue (Action.ACCELERATOR_KEY,
                       KeyStroke.getKeyStroke ("control Z"));
             setEnabled (false);
@@ -98,7 +98,7 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
             putValue (Action.SHORT_DESCRIPTION,
                       getValue (Action.NAME));
             putValue (Action.MNEMONIC_KEY,
-                      new Integer (KeyEvent.VK_R));
+                      Integer.valueOf (KeyEvent.VK_R));
             putValue (Action.ACCELERATOR_KEY,
                       KeyStroke.getKeyStroke (KeyEvent.VK_Y,
                                               InputEvent.CTRL_MASK));
@@ -157,11 +157,11 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
      */
     public void undo ()
     {
-        
+
         textComponent.getDocument ().addDocumentListener (this);
         super.undo ();
         textComponent.getDocument ().removeDocumentListener (this);
-        
+
     }
 
     /*
@@ -191,29 +191,29 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
 
     public void endCompoundEdit ()
     {
-        
+
         this.forceCompoundEdit = false;
-        
+
         compoundEdit.end ();
-        
+
         compoundEdit = null;
-        
+
     }
 
     public void startCompoundEdit ()
     {
-        
+
         if (compoundEdit != null)
         {
-            
+
             compoundEdit.end ();
-            
+
             compoundEdit = null;
-            
-        } 
-        
+
+        }
+
         this.forceCompoundEdit = true;
-        
+
     }
 
     /*
@@ -222,7 +222,7 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
      */
     public void undoableEditHappened (UndoableEditEvent e)
     {
-        
+
         // Start a new compound edit
 
         if (!this.record)
@@ -242,11 +242,11 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
 
         if (this.forceCompoundEdit)
         {
-            
+
             compoundEdit.addEdit (e.getEdit ());
 
             return;
-            
+
         }
 
         // Check for an attribute change
@@ -280,34 +280,34 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
         if ((offsetChange == lengthChange) &&
             (Math.abs (offsetChange) == 1))
         {
-            
+
             String last = "x";
-            
+
             try
             {
-                
+
                 last = this.textComponent.getText (this.textComponent.getCaretPosition () - 1,
                                                    1);
-                
+
             } catch (Exception ex) {
-                
+
                 // Ignore.
-                
-            }
-            
-            // Get the char, if it's white space then end the edit.            
-            if (Character.isWhitespace (last.charAt (0)))
-            {
-                
-                compoundEdit.end ();
-                compoundEdit = startCompoundEdit (e.getEdit ());
-                
-            } else {
-            
-                compoundEdit.addEdit (e.getEdit ());            
 
             }
-            
+
+            // Get the char, if it's white space then end the edit.
+            if (Character.isWhitespace (last.charAt (0)))
+            {
+
+                compoundEdit.end ();
+                compoundEdit = startCompoundEdit (e.getEdit ());
+
+            } else {
+
+                compoundEdit.addEdit (e.getEdit ());
+
+            }
+
             lastOffset = textComponent.getCaretPosition ();
             lastLength = textComponent.getDocument ().getLength ();
 

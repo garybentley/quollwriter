@@ -7,6 +7,7 @@ public final class StyleClassNames
 
     public static final PseudoClass TYPEWRITER_SCROLLING_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.TYPEWRITER_SCROLLING);
     public static final PseudoClass HASPARENT_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASPARENT);
+    public static final PseudoClass FOCUSED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.FOCUSED);
     public static final PseudoClass NEEDS_SAVE_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NEEDSSAVE);
     public static final PseudoClass HASSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASSTYLES);
     public static final PseudoClass NOSTYLES_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.NOSTYLES);
@@ -47,6 +48,8 @@ public final class StyleClassNames
     public static final PseudoClass UNDEALTWITH_PSEUDO_CLASS  = PseudoClass.getPseudoClass (StyleClassNames.UNDEALTWITH);
     public static final PseudoClass ATTENTIONREQUIRED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.ATTENTIONREQUIRED);
 
+    public static final String FILTER = "filter";
+    public static final String FOCUSED = "focused";
     public static final String TYPEWRITER_SCROLLING = "typewriterscrolling";
     public static final String NEEDSSAVE = "needssave";
     public static final String NOSECTIONS = "nosections";

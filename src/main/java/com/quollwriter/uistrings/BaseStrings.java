@@ -381,9 +381,9 @@ public class BaseStrings implements RefValueProvider
         for (Id id : ids)
         {
 
-            if ((id.getStart () <= offset)
+            if ((offset >= id.getStart ())
                 &&
-                (id.getEnd () >= offset)
+                (offset <= id.getEnd ())
                )
             {
 
@@ -494,6 +494,64 @@ copy?
 
         }
 
+        int len = 0;
+
+        int start = 0;
+
+        while ((start = text.indexOf (ID_REF_START, start)) != -1)
+        {
+
+            String id = null;
+            boolean partial = false;
+
+            start += ID_REF_START.length ();
+
+            int ind = start;
+
+            int idendind = text.indexOf (ID_REF_END, start);
+
+            if (idendind > -1)
+            {
+
+                id = text.substring (start, idendind);
+
+                partial = false;
+                //hasClosingBrace = true;
+                start += id.length ();
+                start += ID_REF_END.length ();
+
+            } else {
+
+                StringBuilder b = new StringBuilder ();
+
+                for (int i = start; i < text.length (); i++)
+                {
+
+                    char c = text.charAt (i);
+
+                    if (Character.isWhitespace (c))
+                    {
+
+                        break;
+
+                    }
+
+                    b.append (c);
+
+                }
+
+                id = b.toString ();
+                start += id.length ();
+                partial = true;
+
+            }
+
+            ret.add (new Id (ind, id, partial));
+
+        }
+
+            return ret;
+/*
         java.util.List<String> lines = Utils.splitString (text,
                                                           "\n");
 
@@ -531,7 +589,7 @@ copy?
                     for (int i = start; i < l.length (); i++)
                     {
 
-                        char c = text.charAt (i);
+                        char c = l.charAt (i);
 
                         if (Character.isWhitespace (c))
                         {
@@ -550,14 +608,16 @@ copy?
 
                 }
 
-                ret.add (new Id (ind, id, partial));
+                ret.add (new Id (ind + len, id, partial));
 
             }
+
+            len += l.length () + 1;
 
         }
 
         return ret;
-
+*/
     }
 
     public static List<String> buildRefValsTree (String           text,
@@ -644,6 +704,16 @@ copy?
 
         Set<String> errors = new LinkedHashSet<> ();
 
+        if ((text == null)
+            ||
+            ("".equals (text))
+           )
+        {
+
+            return errors;
+
+        }
+
         List<String> vals = BaseStrings.buildRefValsTree (text,
                                                           textId,
                                                           new ArrayList<String> (),
@@ -704,14 +774,16 @@ copy?
                 errors.add (String.format ("No id provided at location: %s",
                                            id.getStart ()));
 
-            }
+            } else {
 
-            if (prov.getRawText (id.getId ()) == null)
-            {
+                if (!prov.isIdValid (id.getId ()))
+                {
 
-                errors.add (String.format ("Id: %s, referenced at location: %s does not exist.",
-                            id.getId (),
-                            id.getStart ()));
+                    errors.add (String.format ("Id: %s, referenced at location: %s does not exist.",
+                                id.getId (),
+                                id.getStart ()));
+
+                }
 
             }
 
@@ -1419,8 +1491,17 @@ copy?
            )
         {
 
+            n = n.getChild (idparts.subList (1, idparts.size ()));
 
-            return n.getChild (idparts.subList (1, idparts.size ()));
+        }
+
+        if ((n == null)
+            &&
+            (this.parent != null)
+           )
+        {
+
+            n = this.parent.getNode (idparts);
 
         }
 

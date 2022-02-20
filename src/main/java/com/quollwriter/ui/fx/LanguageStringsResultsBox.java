@@ -116,7 +116,7 @@ public class LanguageStringsResultsBox extends FindResultsBox<AbstractLanguageSt
                 l.setOnMousePressed (ev ->
                 {
 
-                    this.viewer.showIds (new Id (BaseStrings.toId (n.getParent ().getId ())));
+                    this.viewer.showId (new Id (BaseStrings.toId (n.getId ())));
 
                 });
 

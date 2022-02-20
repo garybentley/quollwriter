@@ -1434,6 +1434,21 @@ public class UserProperties
 
     }
 
+    public static void setDefaultUILanguageStringsSpellCheckLanguage (String lang)
+    {
+
+        UserProperties.set (Constants.UI_LANGUAGE_STRINGS_SPELL_CHECK_LANGUAGE_PROPERTY_NAME,
+                            lang);
+
+    }
+
+    public static String getDefaultUILanguageStringsSpellCheckLanguage ()
+    {
+
+        return UserProperties.get (Constants.UI_LANGUAGE_STRINGS_SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+
+    }
+
     public static void setDefaultSpellCheckLanguage (String lang)
     {
 

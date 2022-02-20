@@ -117,62 +117,6 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
     }
 
-/*
-    private int getErrorCount (LanguageStrings.Node n)
-    {
-
-        int c = 0;
-
-        // Get the card.
-        IdsPanel p = this.panels.get (n.getNodeId ());
-
-        if (p != null)
-        {
-
-            return p.getErrorCount ();
-
-        }
-
-        for (LanguageStrings.Value nv : this.valuesCache.get (n))
-        {
-
-            LanguageStrings.Value uv = this.userStrings.getValue (nv.getId (),
-                                                                  true);
-
-            if (uv instanceof LanguageStrings.TextValue)
-            {
-
-                LanguageStrings.TextValue _nv = this.baseStrings.getTextValue (uv.getId ());
-
-                if (nv == null)
-                {
-
-                  // The string is present in the user strings but not the base!
-                  Environment.logError ("Found string: " + uv.getId () + " present in user strings but not base.");
-
-                  continue;
-
-                }
-
-                if (LanguageStrings.getErrors (((LanguageStrings.TextValue) uv).getRawText (),
-                                               LanguageStrings.toId (nv.getId ()),
-                                               _nv.getSCount (),
-                                               this).size () > 0)
-                {
-
-                    c++;
-
-                };
-
-            }
-
-        }
-
-        return c;
-
-    }
-*/
-
     public void showChanges (UILanguageStrings newls)
     {
 
@@ -195,7 +139,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
             // Get a diff of the default to this new.
             LanguageStringsEditor lse = UILanguageStringsManager.editUILanguageStrings (uls,
                                                                            newls.getQuollWriterVersion ());
-            lse.limitViewToPreviousVersionDiff ();
+            //lse.limitViewToPreviousVersionDiff ();
 
         } catch (Exception e) {
 
@@ -243,7 +187,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
             return;
 
         }
-
+/*
+TODO?
         this.setNodeFilter (new Filter<Node> ()
         {
 
@@ -309,7 +254,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
             }
 
         });
-
+*/
         this.showForwardLabel (new SimpleStringProperty (String.format ("Click to show all the strings for version <b>%s</b>.",
                                                                         this.userStrings.getQuollWriterVersion ().toString ())));
 
@@ -346,7 +291,8 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
     public void onForwardLabelClicked ()
                                 throws Exception
     {
-
+/*
+TODO?
         if (this.nodeFilter != null)
         {
 
@@ -361,7 +307,7 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
             this.limitViewToPreviousVersionDiff ();
 
         }
-
+*/
     }
 
 	@Override
@@ -415,81 +361,119 @@ public class LanguageStringsEditor extends AbstractLanguageStringsEditor<UILangu
 
                  final UILanguageStrings newls = new UILanguageStrings (data);
 
-                 VBox content = new VBox ();
+                 // See if the user already has a set of strings for the version and id.
+                 Version v = newls.getQuollWriterVersion ();
 
-                 // Add a notification.
-                 final Notification n = _this.addNotification (content,
-                                                               StyleClassNames.INFORMATION,
-                                                               -1);
+                 UILanguageStrings userStrs = UILanguageStringsManager.getUILanguageStrings ("user-" + this.userStrings.getId (),
+                                                                        v);
 
-                 content.getChildren ().add (QuollTextView.builder ()
-                    .inViewer (this)
-                    .text (new SimpleStringProperty (String.format ("A new version of the <b>%s</b> language strings is available.  This is for version <b>%s</b>, of {QW}.<br />You can view the changes and submit an update to your strings.",
-                                                                    newls.getNativeName (),
-                                                                    newls.getQuollWriterVersion ().toString ())))
-                    .build ());
-                content.getChildren ().add (QuollHyperlink.builder ()
-                    .label (new SimpleStringProperty ("View the changes"))
-                    .styleClassName (StyleClassNames.VIEW)
-                    .onAction (ev ->
-                    {
+                 if (userStrs != null)
+                 {
 
-                        UILanguageStrings uls = null;
+                     return;
 
-                        try
+                 }
+
+                 // See if they already have a version that is later than this version.
+                 Set<UILanguageStrings> allstrs = UILanguageStringsManager.getAllUserUILanguageStrings ();
+
+                 for (UILanguageStrings uistrs : allstrs)
+                 {
+
+                     if ((uistrs.getId ().equals (this.userStrings.getId ()))
+                         &&
+                         (this.userStrings.getQuollWriterVersion ().isNewer (uistrs.getQuollWriterVersion ()))
+                        )
+                     {
+
+                         // Newer, don't do anything.
+                         return;
+
+                     }
+
+                 }
+
+
+                 UIUtils.runLater (() ->
+                 {
+
+                     VBox content = new VBox ();
+
+                     // Add a notification.
+                     final Notification n = _this.addNotification (content,
+                                                                   StyleClassNames.INFORMATION,
+                                                                   -1);
+
+                     content.getChildren ().add (QuollTextView.builder ()
+                        .inViewer (this)
+                        .text (new SimpleStringProperty (String.format ("A new version of the <b>%s</b> language strings is available.  This is for version <b>%s</b> of {QW}.<br />You can view the changes and submit an update to your strings.",
+                                                                        newls.getNativeName (),
+                                                                        newls.getQuollWriterVersion ().toString ())))
+                        .build ());
+                    content.getChildren ().add (QuollHyperlink.builder ()
+                        .label (new SimpleStringProperty (String.format ("Click to update your translation for version %1$s",
+                                                                         newls.getQuollWriterVersion ().toString ())))
+                        .onAction (ev ->
                         {
 
-                            uls = UILanguageStringsManager.getUserUILanguageStrings (newls.getQuollWriterVersion (),
-                                                                                     _this.userStrings.getId ());
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to get user strings for version: " + newls.getQuollWriterVersion () + ", " + _this.userStrings.getId (),
-                                                  e);
-
-                            ComponentUtils.showErrorMessage (this,
-                                                             getUILanguageStringProperty (uilanguage,edit,actionerror));
-
-                            return;
-
-                        }
-
-                        if (uls != null)
-                        {
-
-                            // Open these instead.
-                            LanguageStringsEditor lse = UILanguageStringsManager.editUILanguageStrings (uls,
-                                                                                                        uls.getQuollWriterVersion ());
+                            UILanguageStrings uls = null;
 
                             try
                             {
 
-                                lse.limitViewToPreviousVersionDiff ();
+                                uls = UILanguageStringsManager.getUserUILanguageStrings (newls.getQuollWriterVersion (),
+                                                                                         _this.userStrings.getId ());
 
                             } catch (Exception e) {
 
-                                Environment.logError ("Unable to update view",
+                                Environment.logError ("Unable to get user strings for version: " + newls.getQuollWriterVersion () + ", " + _this.userStrings.getId (),
                                                       e);
 
-                                ComponentUtils.showErrorMessage (_this,
-                                                                 new SimpleStringProperty ("Unable to update view"));
+                                ComponentUtils.showErrorMessage (this,
+                                                                 getUILanguageStringProperty (uilanguage,edit,actionerror));
 
                                 return;
 
                             }
 
+                            if (uls != null)
+                            {
+
+                                // Open these instead.
+                                LanguageStringsEditor lse = UILanguageStringsManager.editUILanguageStrings (uls,
+                                                                                                            uls.getQuollWriterVersion ());
+
+                                try
+                                {
+
+                                    //lse.limitViewToPreviousVersionDiff ();
+
+                                } catch (Exception e) {
+
+                                    Environment.logError ("Unable to update view",
+                                                          e);
+
+                                    ComponentUtils.showErrorMessage (_this,
+                                                                     new SimpleStringProperty ("Unable to update view"));
+
+                                    return;
+
+                                }
+
+                                _this.removeNotification (n);
+
+                                return;
+
+                            }
+
+                            _this.showChanges (newls);
+
                             _this.removeNotification (n);
 
-                            return;
+                        })
+                        .build ());
 
-                        }
-
-                        _this.showChanges (newls);
-
-                        _this.removeNotification (n);
-
-                    })
-                    .build ());
+                    });
 
              } catch (Exception e) {
 

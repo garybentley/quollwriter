@@ -39,6 +39,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
     private Map<String, ProjectObjectsSidebarItem> items = null;
     private VBox contentBox = null;
     private State state = new State ();
+    private ScrollPane scrollPane = null;
 
     public ProjectSideBar (ProjectViewer viewer)
     {
@@ -78,25 +79,25 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
         UIUtils.setTooltip (this.contentBox,
                             getUILanguageStringProperty (project,LanguageStrings.sidebar,tooltip));
                             */
-        ScrollPane sp = new ScrollPane (this.contentBox);
-        UIUtils.makeDraggable (sp);
-        bb.getChildren ().add (sp);
+        this.scrollPane = new ScrollPane (this.contentBox);
+        UIUtils.makeDraggable (this.scrollPane);
+        bb.getChildren ().add (this.scrollPane);
 
         this.contentBox.getChildren ().addListener ((ListChangeListener<Node>) ch ->
         {
 
             // We turn on/off fit to width depending upon whether we have any children otherwise
             // content box won't stretch when it's empty.
-            sp.setStyle (this.contentBox.getChildren ().size () == 0 ? "-fx-fit-to-width: true; " : "-fx-fit-to-width: false;");
+            this.scrollPane.setStyle (this.contentBox.getChildren ().size () == 0 ? "-fx-fit-to-width: true; " : "-fx-fit-to-width: false;");
 
             noSections.setVisible (this.contentBox.getChildren ().size () == 0);
 
         });
 
-        sp.setStyle (this.contentBox.getChildren ().size () == 0 ? "-fx-fit-to-width: true; " : "-fx-fit-to-width: false;");
+        this.scrollPane.setStyle (this.contentBox.getChildren ().size () == 0 ? "-fx-fit-to-width: true; " : "-fx-fit-to-width: false;");
 
         //this.contentBox.prefWidthProperty ().bind (sp.prefViewportWidthProperty ());
-        this.contentBox.prefHeightProperty ().bind (sp.prefViewportHeightProperty ());
+        this.contentBox.prefHeightProperty ().bind (this.scrollPane.prefViewportHeightProperty ());
         //this.contentBox.prefWidthProperty ().bind (sp.prefViewportWidthProperty ());
         this.contentBox.addEventHandler (MouseEvent.MOUSE_CLICKED,
                                          ev ->
@@ -219,7 +220,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
 
         });
 
-        VBox.setVgrow (sp,
+        VBox.setVgrow (this.scrollPane,
                        Priority.ALWAYS);
         this.setContent (bb);
 
@@ -292,6 +293,26 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
         }
 
         this.state = s;
+
+        double scroll = (double) s.getAsFloat ("scroll",
+                                               0f);
+
+        if (scroll > 0)
+        {
+
+            this.scrollPane.applyCss ();
+            this.scrollPane.layout ();
+
+            // Don't ask...
+            UIUtils.forceRunLater (() ->
+            {
+            UIUtils.forceRunLater (() ->
+            {
+                this.scrollPane.setVvalue (scroll);
+
+            });
+});
+        }
 
         if (ids == null)
         {
@@ -368,6 +389,9 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
             }
 
         }
+
+        s.set ("scroll",
+               this.scrollPane.getVvalue ());
 
         s.set ("ids",
                ids.stream ()

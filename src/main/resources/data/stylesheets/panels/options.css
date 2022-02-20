@@ -76,6 +76,9 @@
     -fx-pref-width: 1.5em;
     -fx-pref-height: 1.5em;
     -fx-fill-height: false;
+    -fx-min-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-pref-width: 1.5em;    
     -fx-alignment: center;
 }
 
@@ -207,4 +210,11 @@
     -fx-pref-width: 1.75em;
     -fx-pref-height: 1.75em;
     -fx-padding: 0.3em;
+}
+
+.sections .header .iconbox .icon.project-icon
+{
+    -fx-min-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-pref-width: 1.5em;
 }

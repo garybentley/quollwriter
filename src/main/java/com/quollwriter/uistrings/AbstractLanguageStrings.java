@@ -30,11 +30,14 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     private Set<Section> sections = null;
     private boolean isUser = false;
     private BaseStrings strings = null;
+    private StringProperty spellcheckLanguageProp = null;
 
     protected AbstractLanguageStrings ()
     {
 
         super (OBJECT_TYPE);
+
+        this.spellcheckLanguageProp = new SimpleStringProperty ();
 
         this.strings = new BaseStrings (null);
 
@@ -333,6 +336,9 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
         }
 
+        this.spellcheckLanguageProp.setValue (this.getString (":spellchecklanguage",
+                                                              m));
+
         this.created = new Date ();
         this.created.setTime (n.longValue ());
 
@@ -491,6 +497,9 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
         this.addToStringProperties (props,
                                     "stringsversion",
                                     this.stringsVersion);
+        this.addToStringProperties (props,
+                                    "spellchecklanguage",
+                                    this.spellcheckLanguageProp.getValue ());
 
         if (this.parent != null)
         {
@@ -525,6 +534,8 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
                this.isUser);
         m.put (":version",
                this.stringsVersion);
+        m.put (":spellchecklanguage",
+               this.spellcheckLanguageProp.getValue ());
 
         if (this.lastModified != null)
         {
@@ -1368,6 +1379,24 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
     }
 
+    public TextValue getTextValue (List<String> idparts,
+                                   boolean      thisOnly)
+    {
+
+        Value v = this.getValue (idparts,
+                                 thisOnly);
+
+        if (v instanceof TextValue)
+        {
+
+            return (TextValue) v;
+
+        }
+
+        return null;
+
+    }
+
     public Value getValue (List<String> idparts)
     {
 
@@ -1434,7 +1463,38 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     public String getRawText (String id)
     {
 
-        return this.getRawText (BaseStrings.getIdParts (id));
+        return this.getRawText (id,
+                                false);
+
+    }
+
+    public String getRawText (String  id,
+                              boolean thisOnly)
+    {
+
+        return this.getRawText (BaseStrings.getIdParts (id),
+                                thisOnly);
+
+    }
+
+    public StringProperty spellcheckLanguageProperty ()
+    {
+
+        return this.spellcheckLanguageProp;
+
+    }
+
+    public String getSpellcheckLanguage ()
+    {
+
+        return this.spellcheckLanguageProp.getValue ();
+
+    }
+
+    public void setSpellcheckLanguage (String l)
+    {
+
+        this.spellcheckLanguageProp.setValue (l);
 
     }
 
@@ -1503,6 +1563,15 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
     public String getRawText (List<String> idparts)
     {
 
+        return this.getRawText (idparts,
+                                false);
+
+    }
+
+    public String getRawText (List<String> idparts,
+                              boolean      thisOnly)
+    {
+
         if (idparts.size () < 1)
         {
 
@@ -1510,7 +1579,8 @@ public abstract class AbstractLanguageStrings<E extends AbstractLanguageStrings>
 
         }
 
-        TextValue v = this.getTextValue (idparts);
+        TextValue v = this.getTextValue (idparts,
+                                         thisOnly);
 
         if (v != null)
         {

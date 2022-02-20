@@ -64,7 +64,7 @@
 
  .texteditor .margin .editmarker
  {
-     -fx-pref-width: 2px;
+     -fx-pref-width: 3px;
  }
 /*
  .texteditor .margin .scene .image-view

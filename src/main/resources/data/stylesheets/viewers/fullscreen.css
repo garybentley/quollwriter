@@ -70,25 +70,20 @@
 {
     -fx-pref-width: 1.333em;
     -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
     -fx-fill-height: false;
     -fx-alignment: center;
 }
 .fullscreen .information .label .iconbox .icon.chapter-icon
 {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 
-/*
- .fullscreen .information .label.session
- {
-     -fx-graphic: url(/imgs/clock16.png);
- }
-
- .fullscreen .information .label.chapter
- {
-     -fx-graphic: url(/imgs/chapter16.png);
- }
-*/
  .fullscreen .sidebars
  {
      -fx-background-color: -qw-bg-color;
@@ -110,6 +105,10 @@
  .fullscreen > .header .iconbox .icon {
      -fx-pref-width: 2em;
      -fx-pref-height: 2em;
+     -fx-max-height: 2em;
+     -fx-min-height: 2em;
+     -fx-max-width: 2em;
+     -fx-min-width: 2em;
      -fx-fill-height: false;
      -fx-alignment: center;
  }
@@ -118,15 +117,23 @@
  }
  .fullscreen > .header .iconbox .ideaboard-icon.icon {
      -fx-pref-width: 1.333em;
+     -fx-max-width: 1.333em;
+     -fx-min-width: 1.333em;
  }
  .fullscreen > .header .iconbox .achievements-icon.icon {
      -fx-pref-width: 1.333em;
+     -fx-max-width: 1.333em;
+     -fx-min-width: 1.333em;
  }
  .fullscreen > .header .iconbox .chapter-icon.icon {
      -fx-pref-width: 1.666em;
+     -fx-max-width: 1.666em;
+     -fx-min-width: 1.666em;
  }
  .fullscreen > .header .iconbox .help-icon.icon {
      -fx-pref-width: 1.333em;
+     -fx-max-width: 1.333em;
+     -fx-min-width: 1.333em;
  }
 
 .fullscreen .header .controls
@@ -135,21 +142,6 @@
     -fx-padding: 0 0.5em 0 0.5em;
 }
 
-/*
- .fullscreen > .header .fullscreenexit { -fx-graphic: url(/imgs/fullscreen-exit24.png); }
- .fullscreen > .header .find { -fx-graphic: url(/imgs/find24.png); }
- .fullscreen > .header .bug { -fx-graphic: url(/imgs/bug24.png); }
- .fullscreen > .header .controls .ideaboard { -fx-graphic: url(/imgs/idea24.png); }
- .fullscreen > .header .contacts { -fx-graphic: url(/imgs/editors24.png); }
- .fullscreen > .header .distractionfreeenter { -fx-graphic: url(/imgs/distraction-free24.png); }
- .fullscreen > .header .distractionfreeexit { -fx-graphic: url(/imgs/distraction-free-exit24.png); }
- .fullscreen > .header .editproperties { -fx-graphic: url(/imgs/options24.png); }
- .fullscreen > .header .timer { -fx-graphic: url(/imgs/clock24.png); }
- .fullscreen > .header .play { -fx-graphic: url(/imgs/play16.png); }
- .fullscreen > .header .stop { -fx-graphic: url(/imgs/stop16.png); }
- .fullscreen > .header .pause { -fx-graphic: url(/imgs/pause16.png); }
- .fullscreen > .header .reset { -fx-graphic: url(/imgs/reset16.png); }
-*/
 .fullscreen > .header .progress { -fx-alignment: center; -fx-padding: 0.5em; }
 
 .fullscreen > .header .progress-bar {

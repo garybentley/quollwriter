@@ -152,8 +152,13 @@
         {
             "popup" :
             {
-                "title" : "Enter the language name",
+                "title" : "Create a new translation",
                 "text" : "Enter the name of the language you want to create the strings for.  This should be the name that a native speaker of the language user would use, such as Español, Français or Deutsch.",
+                "labels" :
+                {
+                    "name" : "Language name",
+                    "spellcheck" : "Spellcheck language"
+                },
                 "buttons" :
                 {
                     "create" : "${actions.create}",
@@ -6315,6 +6320,17 @@
                         "text" : "<ul><li>More fixes and improvements as a result of the formal testing.  The options panel has been reworked to be less of a cluttered nightmare.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b22" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes/Minor Improvements",
+                        "text" : "<ul><li>More fixes and improvements as a result of the formal testing.</li></ul>"
+                    }
+                }
             }
         }
     },
@@ -7033,7 +7049,7 @@
                 ":comment.averagesessionlength" : "%1$s is the average session time across all sessions.",
                 ":scount.averagesessionlength" : 1,
                 "longestsession" : "%1$s words, %2$s, %3$s - Longest session",
-                ":comment.longestsession" : "%1$s is the number of words written in the session, %2$s is the duration of the session, %2$s is the date/time of the session.",
+                ":comment.longestsession" : "%1$s is the number of words written in the session, %2$s is the duration of the session, %3$s is the date/time of the session.",
                 ":scount.longestsession" : 3,
                 "numzerowordsessions" : "%1$s, %2$s - Zero word count sessions",
                 ":comment.numzerowordsessions" : "%1$s is the number of sessions, %2$s is the duration of the sessions.",

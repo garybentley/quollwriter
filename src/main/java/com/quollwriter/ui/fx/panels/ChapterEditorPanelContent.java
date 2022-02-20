@@ -199,6 +199,45 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         });
 
+        this.addChangeListener (this.viewer.typeWriterScrollingEnabledProperty (),
+                                (pr, oldv, newv) ->
+        {
+
+            this.setUseTypewriterScrolling (newv);
+
+        });
+
+        this.editor.addEventFilter (ScrollEvent.SCROLL, ev ->
+        {
+
+            if (!this.viewer.isUseTypeWriterScrolling ())
+            {
+
+                return;
+
+            }
+
+            if (ev.isConsumed ())
+            {
+
+                return;
+            }
+
+            if (ev.getDeltaY () < 0)
+            {
+
+                this.editor.nextLine (org.fxmisc.richtext.NavigationActions.SelectionPolicy.CLEAR);
+
+            } else {
+
+                this.editor.prevLine (org.fxmisc.richtext.NavigationActions.SelectionPolicy.CLEAR);
+
+            }
+
+            ev.consume ();
+
+        });
+
         this.addChangeListener (this.viewer.projectSpellCheckLanguageProperty (),
                                 (v, oldv, newv) ->
         {
@@ -228,6 +267,40 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
             this.editor.setSpellCheckEnabled (newv);
 
         });
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.process (EventPattern.keyPressed (KeyCode.DOWN),
+                                             ev ->
+                                             {
+
+                                                    if (this.viewer.isUseTypeWriterScrolling ())
+                                                    {
+
+                                                        this.editor.nextLine (org.fxmisc.richtext.NavigationActions.SelectionPolicy.CLEAR);
+                                                        return InputHandler.Result.CONSUME;
+
+                                                    }
+
+                                                    return InputHandler.Result.PROCEED;
+
+                                             }));
+
+        Nodes.addInputMap (this.editor,
+                           InputMap.process (EventPattern.keyPressed (KeyCode.UP),
+                                             ev ->
+                                             {
+
+                                                    if (this.viewer.isUseTypeWriterScrolling ())
+                                                    {
+
+                                                        this.editor.prevLine (org.fxmisc.richtext.NavigationActions.SelectionPolicy.CLEAR);
+                                                        return InputHandler.Result.CONSUME;
+
+                                                    }
+
+                                                    return InputHandler.Result.PROCEED;
+
+                                             }));
 
         Nodes.addInputMap (this.editor,
                            InputMap.consume (EventPattern.keyPressed (KeyCode.E, KeyCombination.SHORTCUT_DOWN),
@@ -845,35 +918,18 @@ TODO ? Remove?
     public void setUseTypewriterScrolling (boolean v)
     {
 
-        this.editor.addEventFilter (ScrollEvent.SCROLL, ev ->
-        {
-
-            if (ev.isConsumed ())
-            {
-
-                return;
-            }
-
-            double vh = this.editor.getViewportHeight ();
-
-            int caret = this.editor.getCaretPosition ();
-
-            Bounds b = this.editor.getBoundsForPosition (caret);
-
-            if (ev.getDeltaY () < 0)
-            {
-
-            } else {
-
-            }
-
-        });
-
         this.getPanel ().pseudoClassStateChanged (StyleClassNames.TYPEWRITER_SCROLLING_PSEUDO_CLASS, v);
 
-        //this.editor.pseudoClassStateChanged (StyleClassNames.TYPEWRITER_SCROLLING_PSEUDO_CLASS, v);
+        if (v)
+        {
 
-        //this.scrollPane.setVbarPolicy (v ? ScrollPane.ScrollBarPolicy.NEVER : ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            this.scrollPane.setVbarPolicy (ScrollPane.ScrollBarPolicy.NEVER);
+
+        } else {
+
+            this.scrollPane.setVbarPolicy (ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        }
 
         Runnable centerCaret = () ->
         {
@@ -881,6 +937,11 @@ TODO ? Remove?
             double vh = this.editor.getViewportHeight ();
 
             int caret = this.editor.getCaretPosition ();
+
+            if (caret < 0)
+            {
+                return;
+            }
 
             Bounds b = this.editor.getBoundsForPosition (caret);
 
@@ -892,6 +953,8 @@ TODO ? Remove?
 
             this.scrollPane.scrollYToPixel (offset - (vh / 2) - (b.getHeight ()) + (b.getMinY ()));
 
+            UIUtils.forceRunLater (() -> this.requestLayout ());
+
         };
 
         this.addChangeListener (this.editor.caretPositionProperty (),
@@ -902,13 +965,17 @@ TODO ? Remove?
             {
 
                 UIUtils.runLater (centerCaret);
-                UIUtils.forceRunLater (() -> this.requestLayout ());
 
             }
 
         });
 
-        UIUtils.runLater (centerCaret);
+        if (this.viewer.isUseTypeWriterScrolling ())
+        {
+
+            UIUtils.runLater (centerCaret);
+
+        }
 
     }
 

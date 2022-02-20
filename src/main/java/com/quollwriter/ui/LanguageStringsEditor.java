@@ -1598,4 +1598,12 @@ TODO Remove
 
     }
 
+    @Override
+    public boolean isIdValid (String id)
+    {
+
+        throw new IllegalStateException ("DO NOT USE!");
+
+    }
+
 }

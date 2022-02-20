@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.panels;
 
 import java.util.*;
+import java.util.stream.*;
 
 import java.beans.*;
 
@@ -35,22 +36,69 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
     private VBox content = null;
     private AbstractLanguageStringsEditor editor = null;
     private String limitType = "";
-    private boolean showingErrors = false;
-    private boolean showOnlyNoValue = false;
+    private BooleanProperty showingErrorsProp = null;
+    private BooleanProperty showOnlyNoValueProp = null;
     private VirtualFlow<?, ?> virtualFlow = null;
+    private VirtualizedScrollPane<?> scroll = null;
 
     public LanguageStringsIdsPanel (AbstractLanguageStringsEditor ed,
-                                    Node                          parent,
-                                    Set<Value>                    values)
+                                    Node                          parent)
+//                                    Set<Value>                    userValues)
     {
 
         super (ed);
 
+        this.showingErrorsProp = new SimpleBooleanProperty (false);
+        this.showOnlyNoValueProp = new SimpleBooleanProperty (false);
+
         this.editor = ed;
 
         this.parent = parent;
-        this.allValues = values;
-        this.values = FXCollections.observableList (new ArrayList<> (values));
+        //this.allValues = values;
+        this.allValues = parent.getValues (null);
+
+        this.values = FXCollections.observableList (new ArrayList<> (this.allValues));
+
+        this.getBinder ().addChangeListener (ed.nodeFilterProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            try
+            {
+
+                this.saveValues ();
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to save values",
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 "Unable to save values.");
+                return;
+
+
+            }
+
+            this.values.clear ();
+
+            if (newv != null)
+            {
+
+                Filter<Node> f = this.viewer.getNodeFilter ();
+
+                List<Value> vals = this.allValues.stream ()
+                    .filter (v -> f.accept (v))
+                    .collect (Collectors.toList ());
+                this.values.addAll (vals);
+
+            } else {
+
+                this.values.addAll (this.allValues);
+
+            }
+
+        });
 
         this.content = new VBox ();
 
@@ -73,6 +121,66 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
                 .styleClassName ("sectioncomment")
                 .text (this.parent.getComment ())
                 .build ());
+
+        }
+
+        QuollLabel showingErrors = QuollLabel.builder ()
+            .styleClassName ("errorsonly")
+            .label (new SimpleStringProperty ("Only showing values that have one or more errors in the text."))
+            .build ();
+        showingErrors.setVisible (false);
+
+        QuollLabel showingNoValue = QuollLabel.builder ()
+            .styleClassName ("novalue")
+            .label (new SimpleStringProperty ("Only showing values that have no text provided yet."))
+            .build ();
+        showingNoValue.setVisible (false);
+
+        VBox m = new VBox ();
+        m.getStyleClass ().add ("messages");
+
+        m.getChildren ().addAll (showingErrors, showingNoValue);
+
+        this.content.getChildren ().add (m);
+
+        this.showingErrorsProp.addListener ((pr, oldv, newv) ->
+        {
+
+            showingErrors.setVisible (newv);
+
+        });
+
+        this.showOnlyNoValueProp.addListener ((pr, oldv, newv) ->
+        {
+
+            showingNoValue.setVisible (newv);
+
+        });
+
+        this.createView ();
+
+        this.content.getChildren ().add (this.scroll);
+
+    }
+
+    private void createView ()
+    {
+
+        this.values.clear ();
+
+        if (this.viewer.getNodeFilter () != null)
+        {
+
+            Filter<Node> f = this.viewer.getNodeFilter ();
+
+            List<Value> vals = this.allValues.stream ()
+                .filter (v -> f.accept (v))
+                .collect (Collectors.toList ());
+            this.values.addAll (vals);
+
+        } else {
+
+            this.values.addAll (this.allValues);
 
         }
 
@@ -124,217 +232,16 @@ public class LanguageStringsIdsPanel extends PanelContent<AbstractLanguageString
 
         });
 
-        this.content.getChildren ().add (new VirtualizedScrollPane<> (this.virtualFlow));
+        this.scroll = new VirtualizedScrollPane<> (this.virtualFlow);
 
-        VBox.setVgrow (this.content.getChildren ().get (this.content.getChildren ().size () - 1),
-                       Priority.ALWAYS);
-
-        //this.getChildren ().add (new ScrollPane (this.content));
-
-        //this.buildForm (this.parent.getNodeId ());
-
-/*
-TODO ?
-        this.content.setFocusTraversalPolicy (new java.awt.FocusTraversalPolicy ()
+        this.scroll.estimatedScrollYProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            @Override
-            public Component getDefaultComponent (Container cont)
-            {
-
-                return this.getFirstComponent (cont);
-
-            }
-
-            @Override
-            public Component getFirstComponent (Container cont)
-            {
-
-                for (int i = 0; i < cont.getComponentCount (); i++)
-                {
-
-                    Component c = cont.getComponent (i);
-
-                    if (c instanceof LanguageStringsIdBox)
-                    {
-
-                        return ((LanguageStringsIdBox) c).getFocusableComponent ();
-
-                    }
-
-                }
-
-                return null;
-
-            }
-
-            @Override
-            public Component getLastComponent (Container cont)
-            {
-
-                LanguageStringsIdBox b = null;
-
-                for (int i = cont.getComponentCount () - 1; i > -1; i--)
-                {
-
-                    Component c = cont.getComponent (i);
-
-                    if (c instanceof LanguageStringsIdBox)
-                    {
-
-                        b = (LanguageStringsIdBox) c;
-
-                        break;
-
-                    }
-
-                }
-
-                if (b != null)
-                {
-
-                    return b.getFocusableComponent ();
-
-                }
-
-                return null;
-
-            }
-
-            @Override
-            public Component getComponentAfter (Container cont,
-                                                Component comp)
-            {
-
-                Container parent = comp.getParent ();
-
-                while (parent != null)
-                {
-
-                    if (parent instanceof LanguageStringsIdBox)
-                    {
-
-                        if (comp instanceof JTextField)
-                        {
-
-                            JTextField f = (JTextField) comp;
-
-                            if (!f.isEditable ())
-                            {
-
-                                LanguageStringsIdBox b = (LanguageStringsIdBox) parent;
-
-                                return b.getFocusableComponent ();
-
-                            }
-
-                        }
-
-                        LanguageStringsIdBox b = (LanguageStringsIdBox) parent;
-
-                        int i = 0;
-
-                        for (; i < cont.getComponentCount (); i++)
-                        {
-
-                            if (b == cont.getComponent (i))
-                            {
-
-                                i++;
-
-                                break;
-
-                            }
-
-                        }
-
-                        if (i < cont.getComponentCount ())
-                        {
-
-                            Component x = cont.getComponent (i);
-
-                            if (x instanceof LanguageStringsIdBox)
-                            {
-
-                                return ((LanguageStringsIdBox) x).getFocusableComponent ();
-
-                            }
-
-                        }
-
-                        break;
-
-                    }
-
-                    parent = parent.getParent ();
-
-                }
-
-                return null;
-
-            }
-
-            @Override
-            public Component getComponentBefore (Container cont,
-                                                 Component comp)
-            {
-
-                Container parent = comp.getParent ();
-
-                while (parent != null)
-                {
-
-                    if (parent instanceof LanguageStringsIdBox)
-                    {
-
-                        LanguageStringsIdBox b = (LanguageStringsIdBox) parent;
-
-                        int i = 0;
-
-                        for (; i < cont.getComponentCount (); i++)
-                        {
-
-                            if (b == cont.getComponent (i))
-                            {
-
-                                i--;
-
-                                break;
-
-                            }
-
-                        }
-
-                        if (i > -1)
-                        {
-
-                            Component x = cont.getComponent (i);
-
-                            if (x instanceof LanguageStringsIdBox)
-                            {
-
-                                return ((LanguageStringsIdBox) x).getFocusableComponent ();
-
-                            }
-
-                        }
-
-                        break;
-
-                    }
-
-                    parent = parent.getParent ();
-
-                }
-
-                return null;
-
-            }
+            this.scroll.pseudoClassStateChanged (StyleClassNames.SCROLLING_PSEUDO_CLASS, newv.doubleValue () > 0);
 
         });
 
-        this.content.setFocusTraversalPolicyProvider (true);
-*/
+        VBox.setVgrow (this.scroll, Priority.ALWAYS);
 
     }
 
@@ -481,7 +388,8 @@ TODO ?
 
                 scount = tv.getSCount ();
 
-                if (BaseStrings.getErrors (tv.getRawText (),
+                if (BaseStrings.getErrors ((this.editor.getUserStrings ().containsId (v.getId ()) ? this.editor.getUserStrings ().getTextValue (v.getId ()).getRawText () : null),
+                //tv.getRawText (),
                                            BaseStrings.toId (v.getId ()),
                                            scount,
                                            this.viewer).size () > 0)
@@ -507,7 +415,7 @@ TODO ?
 
         this.values.clear ();
 
-        List<Value> vals = new ArrayList<> ();
+        var vals = new ArrayList<Value> ();
 
         for (Value v : this.allValues)
         {
@@ -519,7 +427,15 @@ TODO ?
 
                 TextValue tv = (TextValue) v;
 
-                if (tv.getRawText () == null)
+                TextValue uv = this.editor.getUserStrings ().getTextValue (v.getId (),
+                                                                           true);
+
+                if ((uv == null)
+                    ||
+                    (uv.getRawText () == null)
+                    ||
+                    (uv.getRawText ().equals (""))
+                   )
                 {
 
                    vals.add (v);
@@ -545,50 +461,14 @@ TODO ?
         }
 
         this.values.addAll (vals);
-/*
-        boolean show = true;
 
-        if (this.limitType.equals ("novalue"))
+        UIUtils.forceRunLater (() ->
         {
 
-            show = false;
-            this.limitType = "";
+            this.virtualFlow.show (0);
 
-        } else {
+        });
 
-            this.limitType = "novalue";
-
-        }
-
-        for (javafx.scene.Node c : this.content.getChildren ())
-        {
-
-            if (c instanceof LanguageStringsIdBox)
-            {
-
-                c.setVisible (true);
-
-                if (show)
-                {
-
-                    LanguageStringsIdBox b = (LanguageStringsIdBox) c;
-
-                    if (b.hasUserValue ())
-                    {
-
-                        c.setVisible (false);
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        //this.getToolBarButton (LIMIT_ERROR_ACTION_NAME).setSelected (false);
-        //this.getToolBarButton (LIMIT_NO_VALUE_ACTION_NAME).setSelected (show);
-*/
     }
 
     @Override
@@ -602,14 +482,58 @@ TODO ?
     public void scrollToNode (String id)
     {
 
-        for (javafx.scene.Node c : this.content.getChildren ())
+        for (int i = 0; i < this.values.size (); i++)
         {
 
-            if (c instanceof LanguageStringsIdBox)
+            if (BaseStrings.toId (this.values.get (i).getId ()).equals (id))
             {
 
-                final LanguageStringsIdBox box = (LanguageStringsIdBox) c;
+                this.virtualFlow.showAsFirst (i);// 10d);
 
+            }
+/*
+TODO???
+                int _i = i;
+
+                LanguageStringsIdBox r = this.idBoxes.get (this.values.get (_i));
+
+                Border b = r.getBorder ();
+                Paint pb = b.getLeftStroke ();
+
+                if (!(pb instanceof Color))
+                {
+
+                    return;
+
+                }
+
+                UIUtils.forceRunLater (() ->
+                {
+
+                    Transition t = new Transition ()
+                    {
+
+                        {
+                            setCycleDuration (Duration.millis (2000));
+                            setCycleCount (2);
+                        }
+
+                        @Override
+                        protected void interpolate (double v)
+                        {
+
+
+
+                        }
+
+                    };
+
+                });
+
+                break;
+
+            }
+*/
 /*
 TODO
                 if (BaseStrings.toId (box.baseValue.getId ()).equals (id))
@@ -680,8 +604,6 @@ TODO
                 }
                 */
 
-            }
-
         }
 
     }
@@ -749,18 +671,42 @@ TODO
 
         int c = 0;
 
-        for (LanguageStringsIdBox co : this.idBoxes.values ())
+        for (Value v : this.allValues)
         {
 
-            if (co instanceof LanguageStringsTextIdBox)
+            LanguageStringsIdBox co = this.idBoxes.get (v);
+
+            if (co != null)
             {
 
-                LanguageStringsTextIdBox b = (LanguageStringsTextIdBox) co;
-
-                if (b.hasErrors ())
+                if (co instanceof LanguageStringsTextIdBox)
                 {
 
-                    c++;
+                    LanguageStringsTextIdBox b = (LanguageStringsTextIdBox) co;
+
+                    c += b.getErrorCount ();
+
+                }
+
+            } else {
+
+                if (v instanceof TextValue)
+                {
+
+                    TextValue _nv = this.editor.getUserStrings ().getTextValue (v.getId (),
+                                                                                true);
+
+                    if (_nv != null)
+                    {
+
+                        int x = BaseStrings.getErrors (_nv.getRawText (),
+                                                       BaseStrings.toId (v.getId ()),
+                                                       ((TextValue) v).getSCount (),
+                                                       this.editor).size ();
+
+                        c += x;
+
+                    }
 
                 }
 
@@ -777,10 +723,62 @@ TODO
 
         int c = 0;
 
+        for (Value v : this.allValues)
+        {
+
+            if (this.viewer.getNodeFilter () != null)
+            {
+
+                if (!this.viewer.getNodeFilter ().accept (v))
+                {
+
+                    continue;
+
+                }
+
+            }
+
+            LanguageStringsIdBox b = this.idBoxes.get (v);
+
+            if (b != null)
+            {
+
+                if (b.hasUserValue ())
+                {
+
+                    c++;
+
+                }
+
+            } else {
+
+                if (this.editor.getUserStrings ().containsId (v.getId ()))
+                {
+
+                    c++;
+
+                }
+
+            }
+
+        }
+/*
         for (LanguageStringsIdBox co : this.idBoxes.values ())
         {
 
             LanguageStringsIdBox b = (LanguageStringsIdBox) co;
+
+            if (this.viewer.getNodeFilter () != null)
+            {
+
+                if (!this.viewer.getNodeFilter ().accept (b.getBaseValue ()))
+                {
+
+                    continue;
+
+                }
+
+            }
 
             if (b.hasUserValue ())
             {
@@ -790,7 +788,7 @@ TODO
             }
 
         }
-
+*/
         return c;
 
     }
@@ -843,6 +841,53 @@ TODO
 
     }
 */
+
+    @Override
+    public State getState ()
+    {
+
+        State s = super.getState ();
+
+        s.set ("scroll",
+               this.scroll.estimatedScrollYProperty ().getValue ());
+
+        return s;
+
+    }
+
+    @Override
+    public void init (State s)
+               throws GeneralException
+    {
+
+        super.init (s);
+
+        if (s == null)
+        {
+
+            return;
+
+        }
+
+        double scroll = (double) s.getAsFloat ("scroll",
+                                               0f);
+
+        if (scroll > 0)
+        {
+
+            this.scroll.applyCss ();
+            this.scroll.layout ();
+            UIUtils.forceRunLater (() ->
+            {
+
+                this.scroll.scrollYToPixel (scroll);
+
+            });
+
+        }
+
+    }
+
     public AbstractLanguageStringsEditor getEditor ()
     {
 
@@ -863,13 +908,13 @@ TODO
             {
 
                 //this.limitType = "";
-                if (this.showingErrors)
+                if (this.showingErrorsProp.getValue ())
                 {
 
                     try
                     {
 
-                        this.showingErrors = false;
+                        this.showingErrorsProp.setValue (false);
                         this.showAll ();
 
                     } catch (Exception e) {
@@ -888,7 +933,8 @@ TODO
                     try
                     {
 
-                        this.showingErrors = true;
+                        this.showingErrorsProp.setValue (true);
+                        this.showOnlyNoValueProp.setValue (false);
                         this.showOnlyErrors ();
 
                     } catch (Exception e) {
@@ -912,13 +958,13 @@ TODO
             .onAction (ev ->
             {
 
-                if (this.showOnlyNoValue)
+                if (this.showOnlyNoValueProp.getValue ())
                 {
 
                     try
                     {
 
-                        this.showOnlyNoValue = false;
+                        this.showOnlyNoValueProp.setValue (false);
                         this.showAll ();
 
                     } catch (Exception e) {
@@ -937,7 +983,8 @@ TODO
                     try
                     {
 
-                        this.showOnlyNoValue = true;
+                        this.showOnlyNoValueProp.setValue (true);
+                        this.showingErrorsProp.setValue (false);
                         this.showOnlyNoValue ();
 
                     } catch (Exception e) {
@@ -955,7 +1002,8 @@ TODO
             })
             .build ());
 
-        return items;
+        //return items;
+        return null;//new HashSet<> ();
 
     }
 
@@ -995,7 +1043,8 @@ TODO
                     try
                     {
 
-                        this.showOnlyNoValue = true;
+                        this.showOnlyNoValueProp.setValue (true);
+                        this.showingErrorsProp.setValue (false);
                         this.showOnlyNoValue ();
 
                     } catch (Exception e) {

@@ -6,6 +6,7 @@ import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.scene.input.*;
 import javafx.scene.*;
+import javafx.collections.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
@@ -198,7 +199,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
         }
 
-        final Set<ProjectCommentsMessage> pcms = new LinkedHashSet<> ();
+        final List<ProjectCommentsMessage> pcms = new ArrayList<> ();
 
         Set<EditorMessage> messages = this.getMessage ().getEditor ().getMessages (this.getMessage ().getForProjectId (),
                                                                                    ProjectCommentsMessage.MESSAGE_TYPE);
@@ -240,7 +241,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                 .title (getUILanguageStringProperty (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,popup,title))
                 .styleClassName (StyleClassNames.OTHERCOMMENTS)
                 .popupId (popupId)
-                .objects (pcms)
+                .objects (FXCollections.observableList (pcms))
                 .cellProvider ((obj, popupContent) ->
                 {
 

@@ -21,11 +21,10 @@ import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.text.*;
+import com.quollwriter.ui.events.*;
 
 public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, String>
 {
-
-    //public static final String POPUP_ID = "stringsmatch";
 
     private String popupId = null;
 
@@ -37,13 +36,11 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
 
     private DictionaryProvider2 dictProv = null;
 
-    private ListView<String> matchesView = null;
-
     private ScheduledFuture errorCheck = null;
 
-    private VBox matchesWrapper = null;
+    private ObservableList<String> matches = null;
 
-    //private ObservableList<String> matches = FXCollections.observableList (new ArrayList<> ());
+    private ShowObjectSelectPopup<String> matchesView = null;
 
     public LanguageStringsTextIdBox (final TextValue               baseValue,
                                      final TextValue               stringsValue,
@@ -54,23 +51,44 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
                stringsValue,
                panel);
 
-        this.matchesWrapper = new VBox ();
+        this.matches = FXCollections.observableList (new ArrayList<> ());
 
         this.popupId = BaseStrings.toId (this.baseValue.getId ()) + "stringsmatch";
 
         LanguageStringsTextIdBox _this = this;
-
         try
         {
 
-            this.dictProv = new UserDictionaryProvider (dictProv)
+            this.dictProv = new DictionaryProvider2 ()
             {
+
+                @Override
+                public void addDictionaryChangedListener (DictionaryChangedListener l)
+                {
+
+                }
+
+                @Override
+                public void removeDictionaryChangedListener (DictionaryChangedListener l)
+                {
+
+                }
+
+                @Override
+                public void removeWord (String word)
+                {
+
+                }
+
+                @Override
+                public void addWord (String word)
+                {
+
+                }
 
                 @Override
                 public com.quollwriter.ui.fx.SpellChecker getSpellChecker ()
                 {
-
-                    final com.quollwriter.ui.fx.SpellChecker sp = super.getSpellChecker ();
 
                     return new com.quollwriter.ui.fx.SpellChecker ()
                     {
@@ -78,19 +96,26 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
                         @Override
                         public boolean isCorrect (Word word)
                         {
-
-                            int offset = word.getAllTextStartOffset ();
-
-                            Id id = _this.getIdAtOffset (offset);
-
-                            if (id != null)
+//if(true){return true;}
+                            if (_this.panel.getEditor ().getBaseStrings ().isIdValid (word.getText ()))
                             {
 
-                                return _this.panel.getEditor ().getBaseStrings ().isIdValid (id.getId ());
+                                return true;
 
                             }
 
-                            return sp.isCorrect (word);
+                            com.quollwriter.ui.fx.SpellChecker sp = _this.panel.getEditor ().getSpellChecker ();
+
+                            if (sp != null)
+                            {
+
+                                return sp.isCorrect (word);
+
+                            } else {
+
+                                return true;
+
+                            }
 
                         }
 
@@ -106,7 +131,18 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
                         public java.util.List<String> getSuggestions (Word word)
                         {
 
-                            return sp.getSuggestions (word);
+                            com.quollwriter.ui.fx.SpellChecker sp = _this.panel.getEditor ().getSpellChecker ();
+
+                            if (sp != null)
+                            {
+
+                                return sp.getSuggestions (word);
+
+                            } else {
+
+                                return null;
+
+                            }
 
                         }
 
@@ -177,9 +213,6 @@ public class LanguageStringsTextIdBox extends LanguageStringsIdBox<TextValue, St
             .label (new SimpleStringProperty ("Preview"))
             .build ());
         this.previewWrapper.getChildren ().add (this.preview);
-
-        items.add (new Form.Item (this.previewWrapper));
-
         this.userValue = QuollTextArea.builder ()
                             .text ((this.stringsValue != null ? this.stringsValue.getRawText () : null))
                             .contextMenu (() ->
@@ -263,6 +296,21 @@ TODO ?
 
         });
 */
+
+        this.userValue.getTextEditor ().caretPositionProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            if ((newv > 0)
+                &&
+                (this.userValue.getTextEditor ().isFocused ())
+               )
+            {
+
+                this.showMatches (false);
+
+            }
+
+        });
 
         Nodes.addInputMap (this.userValue.getTextEditor (),
                            InputMap.process (EventPattern.keyPressed (KeyCode.P, KeyCombination.SHORTCUT_DOWN),
@@ -397,22 +445,29 @@ TODO ?
 
                                                           this.matchesView.getSelectionModel ().select (this.matchesView.getFocusModel ().getFocusedIndex ());
 
+                                                          return InputHandler.Result.CONSUME;
+
                                                           //this.fillMatch ();
 
                                                       } else {
 
-                                                          this.showMatches (false);
+                                                          if (this.showMatches (false))
+                                                          {
+
+                                                              return InputHandler.Result.CONSUME;
+
+                                                          }
 
                                                       }
 
                                                       if (ev.isShiftDown ())
                                                       {
 
-                                                          panel.moveToPreviousBox (stringsValue);
+                                                          panel.moveToPreviousBox (this.baseValue);
 
                                                       } else {
 
-                                                          panel.moveToNextBox (stringsValue);
+                                                          panel.moveToNextBox (this.baseValue);
 
                                                       }
 
@@ -434,20 +489,22 @@ TODO ?
         items.add (new Form.Item (new SimpleStringProperty ("Your Value"),
                                   this.userValue));
 
+        items.add (new Form.Item (this.previewWrapper));
+
         this.userValue.getTextEditor ().focusedProperty ().addListener ((pr, oldv, newv) ->
         {
-/*
-            if (this.isSelectorVisible ())
-            {
 
-                return;
+            this.hideSelector ();
 
-            }
-*/
             if (!newv)
             {
 
-                this.hideSelector ();
+                if (this.isSelectorVisible ())
+                {
+
+                    return;
+
+                }
 
                 UIUtils.runLater (() ->
                 {
@@ -468,10 +525,12 @@ TODO ?
             }
 
         });
-/*
+
         this.userValue.getTextEditor ().plainTextChanges ().subscribe (ev ->
         {
 
+            this.showPreview ();
+/*
             if (this.errorCheck != null)
             {
 
@@ -482,13 +541,18 @@ TODO ?
             this.errorCheck = this.panel.getEditor ().schedule (() ->
             {
 
+                UIUtils.runLater (() ->
+                {
+
+                    this.showErrors (false);
+
+                });
 
             },
             750,
             -1);
-
-        });
 */
+        });
 
         UIUtils.forceRunLater (() ->
         {
@@ -501,20 +565,19 @@ TODO ?
 
     }
 
-    private void showMatches (boolean fillOnSingleMatch)
+    private boolean showMatches (boolean fillOnSingleMatch)
     {
 
         int c = this.userValue.getTextEditor ().getCaretPosition ();
 
         String t = this.userValue.getTextEditor ().getText ();
-
         Id id = BaseStrings.getId (t, c);
 
         if (id == null)
         {
 
             this.hideSelector ();
-            return;
+            return false;
 
         }
 
@@ -552,7 +615,7 @@ TODO ?
                     this.fillMatch ();
 
                     this.hideSelector ();
-                    return;
+                    return true;
 
                 }
 
@@ -576,6 +639,13 @@ TODO ?
 
             Bounds b = this.userValue.getTextEditor ().getBoundsForPosition (ind);
 
+            if (b == null)
+            {
+
+                return false;
+
+            }
+
             b = this.userValue.getTextEditor ().screenToLocal (b);
             //b = this.userValue.getTextEditor ().localToScene (b);
 
@@ -583,10 +653,14 @@ TODO ?
                                       b.getMinX (),
                                       b.getMaxY () - this.userValue.getTextEditor ().getLayoutBounds ().getHeight ());
 
+            return true;
+
         } catch (Exception e) {
 
-            Environment.logError ("Unable show selection popup",
+            Environment.logError ("Unable to show selection popup",
                                   e);
+
+            return false;
 
         }
 
@@ -734,7 +808,7 @@ TODO ?
 
     }
 
-    public boolean hasErrors ()
+    public int getErrorCount ()
     {
 
         String s = this.getUserValue ();
@@ -742,14 +816,21 @@ TODO ?
         if (s == null)
         {
 
-            return false;
+            return 0;
 
         }
 
         return BaseStrings.getErrors (s,
                                       BaseStrings.toId (this.baseValue.getId ()),
                                       this.baseValue.getSCount (),
-                                      this.getEditor ()).size () > 0;
+                                      this.getEditor ()).size ();
+
+    }
+
+    public boolean hasErrors ()
+    {
+
+        return this.getErrorCount () > 0;
 
 
     }
@@ -794,6 +875,22 @@ TODO ?
     private void fillMatch ()
     {
 
+        String m = this.matchesView.getFocusModel ().getFocusedItem ();
+
+        if (m == null)
+        {
+
+            m = this.matches.get (0);
+
+        }
+
+        this.fillMatch (m);
+
+    }
+
+    private void fillMatch (String m)
+    {
+
         TextEditor editor = this.userValue.getTextEditor ();
 
         int c = editor.getCaretPosition ();
@@ -805,15 +902,6 @@ TODO ?
         {
 
             return;
-
-        }
-
-        String m = this.matchesView.getFocusModel ().getFocusedItem ();
-
-        if (m == null)
-        {
-
-            m = this.matchesView.getItems ().get (0);
 
         }
 
@@ -937,7 +1025,7 @@ TODO ?
 
         i += incr;
 
-        int s = this.matchesView.getItems ().size ();
+        int s = this.matches.size ();
 
         if (i < 0)
         {
@@ -955,9 +1043,7 @@ TODO ?
 
         this.matchesView.getFocusModel ().focus (i);
 
-        this.matchesView.scrollTo (i);
-
-        return this.matchesView.getItems ().get (i);
+        return this.matchesView.getFocusModel ().getFocusedItem ();
 
     }
 
@@ -985,7 +1071,7 @@ TODO ?
         if (this.matchesView != null)
         {
 
-            this.matchesView.getFocusModel ().focus (-1);
+            //this.matchesView.getFocusModel ().focus (-1);
 
         }
 
@@ -1035,34 +1121,8 @@ TODO ?
 
         }
 
-        this.matchesWrapper.getChildren ().clear ();
-
-        this.matchesView = new ListView<> ();
-        this.matchesWrapper.getChildren ().add (this.matchesView);
-        this.matchesView.setItems (FXCollections.observableList (new ArrayList<> (matches)));
-        VBox.setVgrow (this.matchesView,
-                       Priority.ALWAYS);
-
-        this.matchesView.getSelectionModel ().setSelectionMode (SelectionMode.SINGLE);
-        /*
-        this.matchesView.setOnMouseClicked (ev ->
-        {
-
-            this.fillMatch ();
-
-        });
-        */
-        this.matchesView.getSelectionModel ().selectedItemProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            if (newv != null)
-            {
-
-                this.fillMatch ();
-
-            }
-
-        });
+        this.matches.clear ();
+        this.matches.addAll (matches);
 
         this.userValue.getTextEditor ().setFocusTraversable (false);
 
@@ -1071,61 +1131,69 @@ TODO ?
         if (qp == null)
         {
 
-            qp = QuollPopup.builder ()
-                .styleClassName (StyleClassNames.STRING)
-                .styleSheet (StyleClassNames.OBJECTSELECT, "languagestringmatches")
-                .hideOnEscape (true)
-                .withClose (false)
-                .content (this.matchesWrapper)
-                .popupId (this.popupId)
-                .removeOnClose (false)
+            this.matchesView = ShowObjectSelectPopup.<String>builder ()
                 .withViewer (this.panel.getEditor ())
+                .styleClassName (StyleClassNames.STRING)
+                .title ((StringProperty) null)
+                .styleSheet (StyleClassNames.OBJECTSELECT, "languagestringmatches")
+                .popupId (this.popupId)
+                .objects (this.matches)
+                .withClose (false)
+                .visibleCount (7)
+                .allowNavigationByKeys (true)
+                .cellProvider ((obj, popupContent) ->
+                {
+
+                   QuollLabel l = QuollLabel.builder ()
+                        .label (obj)
+                        .build ();
+
+                    l.setOnMousePressed (ev ->
+                    {
+
+                        if (ev.getButton () != MouseButton.PRIMARY)
+                        {
+
+                            return;
+
+                        }
+
+                        this.fillMatch (obj);
+
+                    });
+
+                    return l;
+
+                })
                 .build ();
+
+            qp = this.matchesView.createPopup ();
+
+            this.matchesView.getSelectionModel ().selectedItemProperty ().addListener ((pr, oldv, newv) ->
+            {
+
+                if (newv != null)
+                {
+
+                    this.fillMatch ();
+
+                }
+
+            });
 
         }
 
+        QuollPopup _qp = qp;
+
         UIUtils.forceRunLater (() ->
         {
-            try
-            {
 
-                this.matchesView.setPrefHeight (this.matchesView.getItems ().size () * (this.matchesView.getFixedCellSize () + 1));
-                //this.matchesView.setMinHeight (this.matchesView.getPrefHeight ());
-                this.matchesView.setMaxHeight (this.matchesView.getPrefHeight ());
-
-                if (this.matchesView.getItems ().size () > 5)
-                {
-
-                    this.matchesView.setPrefHeight (5 * (this.matchesView.getFixedCellSize () + 1));
-                    this.matchesView.setMaxHeight (5 * (this.matchesView.getFixedCellSize () + 1));
-                    //this.matchesView.setMinHeight (this.matchesView.getPrefHeight ());
-
-                }
-
-                this.matchesWrapper.setPrefHeight (this.matchesView.getPrefHeight ());
-                this.matchesWrapper.setMinHeight (this.matchesView.getMinHeight ());
-                this.matchesWrapper.setMaxHeight (this.matchesView.getMaxHeight ());
-
-                int ind = this.matchesView.getFocusModel ().getFocusedIndex ();
-
-                if (ind < 0)
-                {
-
-                    ind = 0;
-
-                }
-
-                this.matchesView.getFocusModel ().focus (ind);
-
-            } catch (Exception e) {
-
-                // Just ignore, sometimes the LC can be null.
-
-            }
+            this.matchesView.getFocusModel ().focus (-1);
+            this.matchesView.getFocusModel ().focus (0);
 
         });
 
-        this.panel.getEditor ().showPopup (qp,
+        this.panel.getEditor ().showPopup (_qp,
                                            this.userValue.getTextEditor (),
                                            x,
                                            y,

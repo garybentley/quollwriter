@@ -1198,6 +1198,7 @@ TODO
                 if(doc != null) {
 
                     TextStyle ts = this.getTextInsertionStyle ();
+                    System.out.println ("SS: " + ts);
                     ReadOnlyStyledDocumentBuilder b = new ReadOnlyStyledDocumentBuilder (getSegOps (),
                                                                                          this.getParagraphInsertionStyle ());
 
@@ -1236,7 +1237,6 @@ TODO
                     return;
                 }
             }
-            return;
         }
 
         super.paste ();
@@ -2695,9 +2695,9 @@ System.out.println ("HEREZ: " + cb);
                 TextStyle ts = new TextStyle (Optional.of (is.readBoolean ()),
                                               Optional.of (is.readBoolean ()),
                                               Optional.of (is.readBoolean ()),
-                                              Optional.of (false),
-                                              Optional.of (12),
-                                              Optional.of ("Arial"),
+                                              Optional.empty (),
+                                              Optional.empty (),
+                                              Optional.empty (),
                                               Optional.empty (),
                                               null,
                                               Optional.empty ());

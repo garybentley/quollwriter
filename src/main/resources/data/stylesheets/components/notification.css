@@ -37,7 +37,7 @@
  .content
  {
      -fx-padding: 0.5em;
-     -fx-alignment: center;
+     -fx-alignment: center-left;
      -fx-fill-width: true;
  }
 
@@ -124,4 +124,32 @@
 .content .buttons
 {
     -fx-padding: 0.5em 0.5em 0 0.5em;
+}
+
+.hyperlink
+{
+    -fx-alignment: center-left;
+}
+
+.filter
+{
+    -fx-background-color: #dddddd;
+    -fx-cursor: hand;
+}
+
+.filter .web-view
+{
+    -fx-cursor: hand;
+}
+
+.filter .iconbox .icon.filter-icon
+{
+    -fx-pref-height: 1.2em;
+    -fx-max-height: 1.2em;
+    -fx-min-height: 1.2em;
+}
+
+.filter .controls
+{
+    visibility: hidden;
 }

@@ -525,14 +525,16 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         }
 
-        UILanguageStringsManager.setUILanguage (UserProperties.get (Constants.DEFAULT_UI_LANGUAGE_PROPERTY_NAME));
-
         String userUILang = UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
 
         if (userUILang != null)
         {
 
             UILanguageStringsManager.setUILanguage (userUILang);
+
+        } else {
+
+            UILanguageStringsManager.setUILanguage (UserProperties.get (Constants.DEFAULT_UI_LANGUAGE_PROPERTY_NAME));
 
         }
 
@@ -808,7 +810,7 @@ TODO
         }
 
         Environment.targets = new TargetsData (UserProperties.getProperties ());
-
+        Environment.setDebugModeEnabled (true);
         Environment.startupCompleteProp.addListener ((val, oldv, newv) ->
         {
 

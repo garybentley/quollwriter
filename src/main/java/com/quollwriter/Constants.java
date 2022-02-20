@@ -480,6 +480,8 @@ public class Constants
 
     public static final String PROJECT_FILES_DIR_NAME = "files";
 
+    public static final String UI_LANGUAGE_STRINGS_SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "uiLanguageStringsSpellCheckLanguage";
+
     public static final String SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "spellCheckLanugage";
 
     public static final String DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "defaultSpellCheckLanugage";

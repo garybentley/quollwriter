@@ -254,7 +254,7 @@ public class TextValue extends Value<TextValue>
 */
         if (this.getErrors (prov).size () > 0)
         {
-
+System.out.println ("ERRS: " + this.getErrors (prov));
             return this.text;
 
         }

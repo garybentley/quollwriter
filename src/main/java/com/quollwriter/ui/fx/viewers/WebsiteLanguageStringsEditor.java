@@ -63,7 +63,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
     public void onForwardLabelClicked ()
                                 throws Exception
     {
-
+/*
+TODO?
         if ((this.nodeFilter != null)
             &&
             (this.prevEnglishStrings != null)
@@ -81,7 +82,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
             this.limitViewToPreviousVersionDiff ();
 
         }
-
+*/
     }
 
     @Override
@@ -519,7 +520,8 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
         }
 
         this.prevEnglishStrings = prevbasels;
-
+/*
+TODO?
         this.setNodeFilter (new Filter<Node> ()
         {
 
@@ -585,7 +587,7 @@ public class WebsiteLanguageStringsEditor extends AbstractLanguageStringsEditor<
             }
 
         });
-
+*/
         this.showForwardLabel (new SimpleStringProperty (String.format ("Click to show all the strings for version <b>%1$s</b>.",
                                                          this.baseStrings.getStringsVersion ())));
 /*

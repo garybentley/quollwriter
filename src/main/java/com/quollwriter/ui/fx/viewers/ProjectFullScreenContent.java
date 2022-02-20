@@ -136,7 +136,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         List<String> prefix = Arrays.asList (fullscreen,title,toolbar,buttons);
 
-        Button but = QuollButton.builder ()
+        QuollButton but = QuollButton.builder ()
             .iconName (StyleClassNames.DISTRACTIONFREEENTER)
             .buttonId ("distractionfreeenter")
             .tooltip (getUILanguageStringProperty (Utils.newList (prefix,distractionfreemodeenter,tooltip)))
@@ -144,9 +144,11 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             {
 
                 // TODO
-                UIUtils.showFeatureComingSoonPopup ();
+                //UIUtils.showFeatureComingSoonPopup ();
 
                 this.viewer.setDistractionFreeModeEnabled (!this.viewer.isDistractionFreeModeEnabled ());
+
+                this.viewer.setUseTypewriterScrolling (this.viewer.isDistractionFreeModeEnabled ());
 
                 UserProperties.set (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
                                     this.viewer.isDistractionFreeModeEnabled ());
@@ -158,15 +160,12 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
                                                (pr, oldv, newv) ->
         {
 
-            but.getStyleClass ().remove (StyleClassNames.DISTRACTIONFREEENTER);
-            but.getStyleClass ().remove (StyleClassNames.DISTRACTIONFREEEXIT);
-
-            but.getStyleClass ().add (newv ? StyleClassNames.DISTRACTIONFREEEXIT : StyleClassNames.DISTRACTIONFREEENTER);
+            but.setIconName (newv ? StyleClassNames.DISTRACTIONFREEEXIT : StyleClassNames.DISTRACTIONFREEENTER);
 
             UIUtils.setTooltip (but,
                                 getUILanguageStringProperty (fullscreen,distractionfreemode, newv ? exit : enter));
 
-            this.setDistractionFreeModeEnabled (newv);
+            this.viewer.setUseTypewriterScrolling (newv);
 
         });
 
@@ -1435,14 +1434,6 @@ TODO
     public void setDistractionFreeModeEnabled (boolean v)
     {
 
-        this.setDistractionFreeModeEnabledForChildPanel (v);
-
-/*
-TODO ? psuedo class
-        this.distModeButton.setIcon (Environment.getIcon ((this.distractionFreeModeEnabled ? Constants.DISTRACTION_FREE_EXIT_ICON_NAME : Constants.DISTRACTION_FREE_ICON_NAME),
-                                     Constants.ICON_TITLE_ACTION));
-*/
-
         // See if they have been in this mode before, if not then show the help popup.
         this.showFirstTimeInDistractionFreeModeInfoPopup ();
 
@@ -1480,20 +1471,6 @@ TODO ? psuedo class
                                 true);
 
             return;
-
-        }
-
-    }
-
-    private void setDistractionFreeModeEnabledForChildPanel (boolean v)
-    {
-
-        if (this.viewer.getCurrentPanel ().getContent () instanceof ChapterEditorPanelContent)
-        {
-
-            ChapterEditorPanelContent p = (ChapterEditorPanelContent) this.viewer.getCurrentPanel ().getContent ();
-
-            p.setUseTypewriterScrolling (v);
 
         }
 

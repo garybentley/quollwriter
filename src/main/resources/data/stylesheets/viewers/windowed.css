@@ -13,7 +13,7 @@
 }
 .windowed > .header.title .title {
     -fx-font-size: 2.5em;
-    -fx-padding: 0 0.5em 0 0.5em;
+    -fx-padding: 0 0.5em 0 0.25em;
     -fx-max-width: Infinity;
     -fx-text-fill: -fx-text-base-color;
 }
@@ -54,6 +54,11 @@
     -fx-pref-width: 1.333em;
     -fx-max-width: 1.333em;
     -fx-min-width: 1.333em;
+}
+.windowed > .header .controls .menu-button > .label .iconbox .filter-icon {
+    -fx-pref-height: 1.2em;
+    -fx-max-height: 1.2em;
+    -fx-min-height: 1.2em;
 }
 .windowed > .header .controls .button .iconbox .warmup-icon,
 .windowed > .header.title .iconbox .warmup-icon {

@@ -2990,15 +2990,6 @@ TODO Remove?
 
         this.typeWriterScrollingEnabledProp.setValue (v);
 
-        Panel qp = this.getCurrentlyVisibleTab ();
-
-        if (qp.getContent () instanceof ChapterEditorPanelContent)
-        {
-
-            ((ChapterEditorPanelContent) qp.getContent ()).setUseTypewriterScrolling (v);
-
-        }
-
     }
 
     public boolean isUseTypeWriterScrolling ()
@@ -5662,17 +5653,7 @@ TODO Remove?
             if (v.equals ("textproperties"))
             {
 
-                Panel qp = this.getCurrentlyVisibleTab ();
-
                 this.showTextProperties ();
-/*
-                if (qp.getContent () instanceof ChapterEditorPanelContent)
-                {
-
-
-
-                }
-*/
                 return;
 
             }

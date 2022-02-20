@@ -50,6 +50,7 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorWithMarginPan
     //private QTextEditor editor = null;
     private boolean isScrolling = false;
     private ProblemFinder problemFinder = null;
+    private TextEditor.Position editPosition = null;
 
     public ProjectChapterEditorPanelContent (ProjectViewer viewer,
                                              Chapter       chapter)
@@ -64,6 +65,7 @@ public class ProjectChapterEditorPanelContent extends ChapterEditorWithMarginPan
         UIUtils.addStyleSheet (this,
                                Constants.PANEL_STYLESHEET_TYPE,
                                "chapteredit");
+
 /*
 TODO
         this.addChangeListener (chapter.editPositionProperty (),
@@ -102,6 +104,43 @@ TODO
 
             UIUtils.forceRunLater (() ->
             {
+
+                this.getBinder ().addChangeListener (this.object.editPositionProperty (),
+                                                     (ppr, _oldv, _newv) ->
+                {
+
+                    if (_newv.intValue () > -1)
+                    {
+
+                        if (this.editPosition == null)
+                        {
+
+                            this.editPosition = this.editor.createTextPosition (this.object.getEditPosition ());
+                            this.object.editPositionProperty ().bindBidirectional (this.editPosition.positionProperty ());
+
+                        }
+
+                    } else {
+
+                        if (this.editPosition != null)
+                        {
+
+                            this.editPosition.dispose ();
+                            this.editPosition = null;
+
+                        }
+
+                    }
+                    
+                });
+
+                if (this.object.getEditPosition () > -1)
+                {
+
+                    this.editPosition = this.editor.createTextPosition (this.object.getEditPosition ());
+                    this.object.editPositionProperty ().bindBidirectional (this.editPosition.positionProperty ());
+
+                }
 
                 this.object.getScenes ().stream ()
                     .forEach (s ->
@@ -756,6 +795,13 @@ TODO
         this.getPanel ().addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
                                           ev ->
         {
+
+            if (this.editPosition != null)
+            {
+
+                this.editPosition.dispose ();
+
+            }
 
             this.itemsSubscription.unsubscribe ();
             this.itemsPositionSubscription.unsubscribe ();

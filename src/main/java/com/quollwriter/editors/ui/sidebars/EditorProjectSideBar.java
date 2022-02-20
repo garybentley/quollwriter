@@ -7,6 +7,7 @@ import javafx.scene.*;
 import javafx.geometry.*;
 import javafx.scene.input.*;
 import javafx.scene.control.*;
+import javafx.collections.*;
 
 import org.josql.*;
 
@@ -296,7 +297,7 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 
         ProjectVersion currPv = this.viewer.getProject ().getProjectVersion ();
 
-        Set<ProjectVersion> others = new LinkedHashSet<> ();
+        List<ProjectVersion> others = new ArrayList<> ();
 
         for (ProjectVersion pv : pvs)
         {
@@ -339,7 +340,7 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
                 .headerIconClassName (StyleClassNames.VIEW)
                 .styleClassName ("versionselect")
                 .popupId (popupId)
-                .objects (others)
+                .objects (FXCollections.observableList (others))
                 .cellProvider ((obj, popupContent) ->
                 {
 

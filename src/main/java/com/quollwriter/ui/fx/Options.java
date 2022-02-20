@@ -894,7 +894,7 @@ TODO Remove, rolled into start section
 
         int v = UserProperties.chapterAutoSaveTimeProperty ().getValue () / Constants.MIN_IN_MILLIS;
 
-        autosaveAmount.getSelectionModel ().select (new Integer (UserProperties.chapterAutoSaveTimeProperty ().getValue () / Constants.MIN_IN_MILLIS));
+        autosaveAmount.getSelectionModel ().select (Integer.valueOf (UserProperties.chapterAutoSaveTimeProperty ().getValue () / Constants.MIN_IN_MILLIS));
         autosaveAmount.valueProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -2454,7 +2454,7 @@ TODO Remove, rolled into start section
 
                 try
                 {
-
+System.out.println ("HERE: " + uid);
                     Environment.setUILanguage (uid);
 
                 } catch (Exception e) {

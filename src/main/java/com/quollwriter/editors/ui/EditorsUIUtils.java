@@ -16,6 +16,7 @@ import javafx.scene.layout.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.embed.swing.*;
+import javafx.collections.*;
 
 import org.josql.*;
 
@@ -2215,7 +2216,7 @@ public class EditorsUIUtils
 
     }
 
-    public static void showContacts (      Set<EditorEditor>     editors,
+    public static void showContacts (      ObservableList<EditorEditor>     editors,
                                            StringProperty        title,
                                      final AbstractProjectViewer viewer,
                                            Consumer<EditorEditor> onSelect,

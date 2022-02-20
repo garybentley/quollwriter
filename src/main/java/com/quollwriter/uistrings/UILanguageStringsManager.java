@@ -1581,8 +1581,7 @@ TODO Remove
 
         for (AbstractViewer v : Environment.getOpenViewers ())
         {
-/*
-TODO
+
             if (v instanceof LanguageStringsEditor)
             {
 
@@ -1596,7 +1595,7 @@ TODO
                 }
 
             }
-*/
+
         }
 
         return null;

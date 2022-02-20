@@ -8,6 +8,7 @@ import javafx.beans.property.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
+import javafx.collections.*;
 
 import com.quollwriter.data.DataObject;
 import com.quollwriter.data.NamedObject;
@@ -301,7 +302,7 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
                     .onAction (ev ->
                     {
 
-                        Set<EditorEditor> eds = new LinkedHashSet<> (EditorsEnvironment.getEditors ());
+                        List<EditorEditor> eds = new ArrayList<> (EditorsEnvironment.getEditors ());
 
                         List<ProjectEditor> projEds = null;
 
@@ -358,7 +359,7 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
                             })
                             .build ();
 
-                        EditorsUIUtils.showContacts (eds,
+                        EditorsUIUtils.showContacts (FXCollections.observableList (eds),
                                                      getUILanguageStringProperty (project,sidebar,editors,sendinvite,popup,title),
                                                      viewer,
                                                      ed ->

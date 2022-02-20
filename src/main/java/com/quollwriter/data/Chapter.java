@@ -42,7 +42,7 @@ public class Chapter extends LegacyUserConfigurableObject
     private int editPosition = -1;
 
     private IntegerProperty editPositionProp = new SimpleIntegerProperty (-1);
-    private Position textEditPos = null;
+    //private Position textEditPos = null;
     private boolean editComplete = false;
     private BooleanProperty editCompleteProp = new SimpleBooleanProperty (false);
     private ObservableSet<Issue> problemFinderIgnores = FXCollections.observableSet (new HashSet<> ());
@@ -1510,16 +1510,20 @@ TODO Remove
 
     }
 
+    /*
+     * Do not use, swing method.
+     */
+    @Deprecated
     public void setTextEditPosition (Position p)
     {
 
-        this.textEditPos = p;
+        //this.textEditPos = p;
 
         if (p == null)
         {
 
-            this.editPosition = -1;
-            this.editPositionProp.setValue (-1);
+            //this.editPosition = -1;
+            //this.editPositionProp.setValue (-1);
 
         }
 
@@ -1540,8 +1544,6 @@ TODO Remove
         this.editPositionProp.setValue (p);
 
         this.editPosition = p;
-
-        //this.textEditPos = null;
 
         this.firePropertyChangedEvent (EDIT_POSITION,
                                        oldPos,

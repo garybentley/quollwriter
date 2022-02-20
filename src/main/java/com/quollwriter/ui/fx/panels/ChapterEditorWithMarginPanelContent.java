@@ -104,7 +104,6 @@ TODO
             {
 
                 this.createTextPosition (ev.getSource ());
-                //ev.getSource ().setTextPosition2 (this.editor.createTextPosition (ev.getSource ().getPosition ()));
 
             }
 
