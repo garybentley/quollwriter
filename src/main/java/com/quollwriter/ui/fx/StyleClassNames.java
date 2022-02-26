@@ -114,7 +114,7 @@ public final class StyleClassNames
     public static final String SENDING = "sending";
     public static final String PREVIOUSCONTACTS = "previouscontacts";
     public static final String DELETEACCOUNT = "deleteaccount";
-    public static final String PREVIOUSEDITORS = "previoseditors";
+    public static final String PREVIOUSEDITORS = "previouseditors";
     public static final String CHATMESSAGE = "chatmessage";
     public static final String STATUSBAR = "statusbar";
     public static final String ATTENTIONREQUIRED = "attentionrequired";

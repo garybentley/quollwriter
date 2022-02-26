@@ -40,6 +40,7 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
             this.responseBox = new VBox ();
 
             this.getChildren ().add (this.responseBox);
+            this.getStyleClass ().add (StyleClassNames.INVITEMESSAGE);
 
             this.getChildren ().add (Header.builder ()
                 .title (editors,messages,inviteresponse,undealtwith,(this.message.isAccepted () ? accepted : rejected),title)

@@ -40,8 +40,10 @@ public class IconBox extends HBox
 
         }
         this.getChildren ().add (this.pane);
-        //this.prefHeightProperty ().bind (this.pane.heightProperty ());
-        //this.prefWidthProperty ().bind (this.pane.widthProperty ());
+        //this.prefHeightProperty ().bind (this.pane.prefHeightProperty ());
+        //this.prefWidthProperty ().bind (this.pane.prefWidthProperty ());
+        //this.maxWidthProperty ().bind (this.pane.prefWidthProperty ());
+        //this.maxHeightProperty ().bind (this.pane.prefHeightProperty ());
         this.managedProperty ().bind (this.visibleProperty ());
 
         if ((b.image != null)
@@ -126,6 +128,10 @@ public class IconBox extends HBox
     {
 
         this.pane.getChildren ().clear ();
+        this.pane.prefWidthProperty ().unbind ();
+        this.pane.prefHeightProperty ().unbind ();
+        this.pane.maxWidthProperty ().unbind ();
+        this.pane.maxHeightProperty ().unbind ();
 
         if (im == null)
         {
@@ -145,16 +151,28 @@ public class IconBox extends HBox
 
         }
 
+        BackgroundImage bim = new BackgroundImage (im,
+                                                  BackgroundRepeat.NO_REPEAT,
+                                                  BackgroundRepeat.NO_REPEAT,
+                                                  BackgroundPosition.DEFAULT,
+                                                  new BackgroundSize (100, 100, true, true, true, false));
+
+        this.pane.setBackground (new Background (bim));
+        this.pane.setPrefHeight (im.getHeight ());
+        this.pane.setPrefWidth (im.getWidth ());
+        /*
+        OLD THIS WORKED!
         ImageView iv = new ImageView ();
         iv.setImage (im);
         iv.setPreserveRatio (true);
         iv.setSmooth (true);
         iv.setCache (true);
 
-        iv.fitWidthProperty ().bind (this.widthProperty ());
+        //iv.fitWidthProperty ().bind (this.widthProperty ());
         //this.pane.prefWidthProperty ().bind (iv.fitWidthProperty ());
         //this.pane.prefHeightProperty ().bind (iv.fitHeightProperty ());
         this.pane.getChildren ().add (iv);
+        */
 
         if (this.onImagePresent != null)
         {

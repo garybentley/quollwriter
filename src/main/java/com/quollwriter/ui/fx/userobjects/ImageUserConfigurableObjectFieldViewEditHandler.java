@@ -252,6 +252,8 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
         }
 */
         this.icon = new QuollImageView ();
+        //this.icon.maxWidthProperty ().bind (this.icon.prefWidthProperty ());
+        //this.icon.prefHeightProperty ().bind (this.icon.)
 
         try
         {
@@ -269,6 +271,7 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
         this.icon.widthProperty ().addListener ((pr, oldv, newv) ->
         {
             UIUtils.forceRunLater (() -> this.icon.requestLayout ());
+
         });
 
         this.icon.imagePathProperty ().addListener ((pr, oldv, newv) ->

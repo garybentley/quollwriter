@@ -164,6 +164,13 @@ public class EditorPanel extends VBox
 
     }
 
+    public void showChatBox ()
+    {
+
+        this.chatBox.requestFocus ();
+
+    }
+
     public void removeMessage (EditorMessage mess)
     {
 
@@ -434,7 +441,7 @@ TODO?
 
         }
 
-        this.chatHistoryScrollPane = new ScrollPane (this.chatHistoryBox);
+        this.chatHistoryScrollPane = new QScrollPane (this.chatHistoryBox);
         VBox.setVgrow (this.chatHistoryScrollPane,
                        Priority.ALWAYS);
 

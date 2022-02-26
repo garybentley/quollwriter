@@ -80,23 +80,17 @@ public class QuollImageView extends StackPane
 
         final QuollImageView _this = this;
 
-        StackPane sp = new StackPane ();
-        this.getChildren ().add (sp);
-
         this.ib = IconBox.builder ()
             .build ();
         VBox bb = new VBox ();
+
         VBox.setVgrow (bb,
-                       Priority.NEVER);
+                       Priority.ALWAYS);
+
         bb.getChildren ().add (this.ib);
-        //bb.maxHeightProperty ().bind (this.ib.heightProperty ());
-        //bb.prefHeightProperty ().bind (this.ib.heightProperty ());
-        this.ib.heightProperty ().addListener ((pr, oldv, newv) ->
-        {
+        this.ib.prefWidthProperty ().bind (bb.widthProperty ());
+        this.ib.prefHeightProperty ().bind (bb.heightProperty ());
 
-            UIUtils.forceRunLater (() -> bb.requestLayout ());
-
-        });
         this.getChildren ().add (bb);//this.ib);
 
         this.overlay = new VBox ();
@@ -109,7 +103,7 @@ public class QuollImageView extends StackPane
         this.pseudoClassStateChanged (StyleClassNames.NOIMAGE_PSEUDO_CLASS, false);
         this.ib.setImage (null);
         this.imageProp.setValue (null);
-        
+
         /*
         VBox.setVgrow (this.overlay,
                        Priority.ALWAYS);
@@ -355,6 +349,7 @@ public class QuollImageView extends StackPane
 
         this.imageProp.setValue (im);
         this.ib.setImage (im);
+        this.setPrefHeight (im.getHeight ());
         /*
         UIUtils.runLater (() ->
         {

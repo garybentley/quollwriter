@@ -20,8 +20,6 @@ import javafx.collections.*;
 
 import org.josql.*;
 
-import com.toedter.calendar.*;
-
 import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.data.comparators.*;
@@ -607,6 +605,7 @@ public class EditorsUIUtils
         QuollPopup qp = QuollPopup.formBuilder ()
             .title (Utils.newList (prefix,title))
             .styleClassName (StyleClassNames.EDIT)
+            .styleSheet ("updateeditorcontactinfo")
             .form (f)
             .build ();
 
@@ -649,13 +648,18 @@ public class EditorsUIUtils
 
                         List<String> prefix2 = Arrays.asList (editors,user,edit,info,confirmpopup);
 
-                        QuollPopup.messageBuilder ()
-                            .title (Utils.newList (prefix2,title))
-                            .message (Utils.newList (prefix2,text))
-                            .closeButton ()
-                            .build ();
+                        UIUtils.runLater (() ->
+                        {
 
-                        qp.close ();
+                            QuollPopup.messageBuilder ()
+                                .title (Utils.newList (prefix2,title))
+                                .message (Utils.newList (prefix2,text))
+                                .closeButton ()
+                                .build ();
+
+                            qp.close ();
+
+                        });
 
                     }
 
@@ -1387,7 +1391,8 @@ public class EditorsUIUtils
 
             if (ed.isPending ())
             {
-
+/*
+TODO Removed for now, not sure this is the desired behaviour.
                 InviteMessage invite = new InviteMessage (EditorsEnvironment.getUserAccount ());
 
                 invite.setEditor (ed);
@@ -1399,21 +1404,26 @@ public class EditorsUIUtils
                                                         () ->
                                                         {
 
-                                                            form.hideLoading ();
-                                                            form.getConfirmButton ().setDisable (false);
+                                                            UIUtils.runLater (() ->
+                                                            {
 
-                                                            QuollPopup.messageBuilder ()
-                                                                .inViewer (viewer)
-                                                                .title (editors,user,invitesent,popup,title)
-                                                                .message (getUILanguageStringProperty (Arrays.asList (editors,user,invitesent,popup,text),
-                                                                                                       ed.getEmail ()))
-                                                                .closeButton ()
-                                                                .build ();
+                                                                form.hideLoading ();
+                                                                form.getConfirmButton ().setDisable (false);
+
+                                                                QuollPopup.messageBuilder ()
+                                                                    .inViewer (viewer)
+                                                                    .title (editors,user,invitesent,popup,title)
+                                                                    .message (getUILanguageStringProperty (Arrays.asList (editors,user,invitesent,popup,text),
+                                                                                                           ed.getEmail ()))
+                                                                    .closeButton ()
+                                                                    .build ();
+
+                                                            });
 
                                                         },
                                                         onCancel,
                                                         null);
-
+*/
             }
 
         });
@@ -1853,6 +1863,7 @@ public class EditorsUIUtils
         QuollPopup qp = QuollPopup.formBuilder ()
             .withViewer (viewer)
             .form (f)
+            .styleSheet (StyleClassNames.REPORTMESSAGE)
             .styleClassName (StyleClassNames.REPORTMESSAGE)
             .title (Utils.newList (prefix,title))
             .build ();
@@ -1866,7 +1877,7 @@ public class EditorsUIUtils
             if (notes.getText ().trim ().length () == 0)
             {
 
-                f.showError (getUILanguageStringProperty (prefix,errors,novalue));
+                f.showError (getUILanguageStringProperty (Utils.newList (prefix,errors,novalue)));
                 return;
 
             }
@@ -1903,39 +1914,55 @@ public class EditorsUIUtils
                                                                  (ret, resCode) ->
                                                                  {
 
-                                                                     qp.close ();
+                                                                     UIUtils.runLater (() ->
+                                                                     {
 
-                                                                     QuollPopup.messageBuilder ()
-                                                                        .withViewer (viewer)
-                                                                        .title (editors,user,reportmessage,confirmpopup,title)
-                                                                        .message (editors,user,reportmessage,confirmpopup,text)
-                                                                        .build ();
+                                                                         qp.close ();
+
+                                                                         QuollPopup.messageBuilder ()
+                                                                            .withViewer (viewer)
+                                                                            .title (editors,user,reportmessage,confirmpopup,title)
+                                                                            .message (editors,user,reportmessage,confirmpopup,text)
+                                                                            .closeButton ()
+                                                                            .build ();
+
+                                                                    });
 
                                                                  },
                                                                  (ret, resCode) ->
                                                                  {
 
-                                                                    qp.close ();
+                                                                    UIUtils.runLater (() ->
+                                                                    {
 
-                                                                    Environment.logError ("Unable to report message:" +
-                                                                                          ev);
+                                                                        qp.close ();
 
-                                                                    ComponentUtils.showErrorMessage (viewer,
-                                                                                                     getUILanguageStringProperty (editors,user,reportmessage,actionerror));
-                                                                                                  //"Unable to report the message, please contact Quoll Writer support for assistance.");
+                                                                        Environment.logError ("Unable to report message:" +
+                                                                                              ev);
+
+                                                                        ComponentUtils.showErrorMessage (viewer,
+                                                                                                         getUILanguageStringProperty (editors,user,reportmessage,actionerror));
+                                                                                                      //"Unable to report the message, please contact Quoll Writer support for assistance.");
+
+                                                                    });
 
                                                                  },
                                                                  (exp) ->
                                                                  {
 
-                                                                    qp.close ();
+                                                                    UIUtils.runLater (() ->
+                                                                    {
 
-                                                                    Environment.logError ("Unable to report message, got fail",
-                                                                                          exp);
+                                                                        qp.close ();
 
-                                                                    ComponentUtils.showErrorMessage (viewer,
-                                                                                                     getUILanguageStringProperty (editors,user,reportmessage,actionerror));
-                                                                                                  //"Unable to report the message, please contact Quoll Writer support for assistance.");
+                                                                        Environment.logError ("Unable to report message, got fail",
+                                                                                              exp);
+
+                                                                        ComponentUtils.showErrorMessage (viewer,
+                                                                                                         getUILanguageStringProperty (editors,user,reportmessage,actionerror));
+                                                                                                      //"Unable to report the message, please contact Quoll Writer support for assistance.");
+
+                                                                    });
 
                                                                 },
                                                                 null);
@@ -2176,6 +2203,13 @@ public class EditorsUIUtils
 
         UIUtils.runLater (() ->
         {
+
+            if (EditorsUIUtils.editorLogin == null)
+            {
+
+                EditorsUIUtils.editorLogin = new EditorLoginPopup ();
+
+            }
 
         /*
         if (EditorsUIUtils.editorLogin.getParent () == null)
@@ -2988,6 +3022,7 @@ public class EditorsUIUtils
                                                       NewProjectResponseMessage.MESSAGE_TYPE,
                                                       ProjectCommentsMessage.MESSAGE_TYPE,
                                                       InviteResponseMessage.MESSAGE_TYPE,
+                                                      InviteMessage.MESSAGE_TYPE,
                                                       ProjectEditStopMessage.MESSAGE_TYPE,
                                                       UpdateProjectMessage.MESSAGE_TYPE,
                                                       EditorRemovedMessage.MESSAGE_TYPE));

@@ -130,6 +130,7 @@ public class Form extends VBox
 
             ColumnConstraints _cc = new ColumnConstraints ();
             _cc.setFillWidth (true);
+            //_cc.setHgrow (Priority.NEVER);
             _cc.setHgrow (Priority.ALWAYS);
             _cc.setHalignment (HPos.LEFT);
             //_cc.setValignment (VPos.TOP);

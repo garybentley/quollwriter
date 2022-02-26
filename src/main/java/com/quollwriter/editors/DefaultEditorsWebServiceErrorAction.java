@@ -5,9 +5,11 @@ import java.awt.event.*;
 import java.net.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+//import com.quollwriter.ui.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.data.editors.*;
+import com.quollwriter.ui.fx.viewers.*;
+import com.quollwriter.ui.fx.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
@@ -32,27 +34,11 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
 
         EditorsEnvironment.clearUserPassword ();
 
-        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
-
-        if (viewer == null)
+        UIUtils.runLater (() ->
         {
 
-            throw new IllegalStateException ("Unable to handle response, no viewer available.");
-
-        }
-
-        UIUtils.doLater (new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
-
-                EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,maxloginattempts));
-                //"You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.");
-
-            }
+            EditorsUIUtils.showLoginError (getUILanguageStringProperty (editors,login,errors,maxloginattempts));
+            //"You have reached the maximum number of login attempts possible.  Please try logging in again in a few minutes.");
 
         });
 
@@ -63,7 +49,7 @@ public class DefaultEditorsWebServiceErrorAction implements EditorsWebServiceAct
                                                Runnable                onCancel)
     {
 
-        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+        AbstractViewer viewer = Environment.getFocusedViewer ();
 
         if (viewer == null)
         {

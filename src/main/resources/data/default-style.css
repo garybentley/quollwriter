@@ -25,7 +25,17 @@
      */
     -qw-hover-bg: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);
 
+    /*
+     * Experimental
+     */
+    -qw-hover-bg: #dddddd;
+
     -qw-armed-bg: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #999999 100%);
+
+    /*
+     * Experimental
+     */
+    -qw-armed-bg: #eeeeee;
 
     -qw-hover-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
     -qw-armed-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
@@ -409,6 +419,14 @@ Text
     -fx-fill-height: false;
 }
 
+.menu-item .iconbox .icon.reportmessage-icon,
+.menu-item .iconbox .icon.warning-icon
+{
+    -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
+}
+
 .menu-item .iconbox > .icon.view-icon
 {
     -fx-pref-height: 0.888em;
@@ -556,7 +574,8 @@ Text
     -fx-shape: "m 10.723,29.166 2.828,2.836 2.828,-2.836 -2.828,-2.828 z M 3.844,3.719 c 4.957,-4.957 13.605,-4.961 18.559,0 L 28,9.32 V 4 h 4 V 16.007 H 20 v -3.92 h 5.023 L 19.57,6.55 C 16.125,3.101 10.117,3.101 6.672,6.554 4.949,8.277 4,10.566 4,13.088 c 0,2.357 0.949,4.646 2.672,6.373 L 9.688,22.475 6.86,25.303 3.844,22.295 C 1.367,19.809 0,16.512 0,13.088 0,9.496 1.367,6.199 3.844,3.719 Z";
     -fx-background-color: -qw-icon-color;
 }
-.reset-icon
+.reset-icon,
+.resetpassword-icon
 {
     -fx-shape: "m 20,16 c 0,4.41 -3.586,8 -8,8 C 7.586,24 4,20.41 4,16 4,11.59 7.586,8 12,8 l 2.359,0.027 -1.164,1.164 2.828,2.828 L 22.035,6 16.023,0 13.195,2.828 14.375,4 H 12 C 5.375,4 0,9.371 0,16 c 0,6.629 5.375,12 12,12 6.625,0 12,-5.371 12,-12 z";
     -fx-background-color: -qw-icon-color;
@@ -775,7 +794,8 @@ Text
     -fx-shape: "M 15.998,16.016 V 0 C 11.639,0.27 7.701,1.938 4.521,4.537 Z M 19.914,4.158 V 18.804 L 9.646,29.16 C 11.974,30.898 14.802,32 17.843,32 25.703,32 32,25.711 32,17.941 32,10.883 26.766,5.164 19.914,4.158 Z m -6.174,15.24 -10.008,-10 c -4.977,5.754 -4.977,14.246 0,20 z";
     -fx-background-color: -qw-icon-color;
 }
-.delete-icon {
+.delete-icon,
+.deleteaccount-icon {
     -fx-shape: "M 28,4 H 24 C 24,1.789 22.211,0 20,0 H 12 C 9.789,0 8,1.789 8,4 H 4 0 v 4 h 4 v 18 c 0,3.312 2.688,6 6,6 h 12 c 3.312,0 6,-2.688 6,-6 V 8 h 4 V 4 Z M 12,24 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 0,-8 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 8,8 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 0,-8 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z";
     -fx-background-color: -qw-icon-color;
 }
@@ -799,7 +819,10 @@ Text
     -fx-background-color: -qw-icon-color;
 }
 .contacts-icon,
-.editors-icon
+.editors-icon,
+.previouscontacts-icon,
+.previouseditors-icon,
+.invitemessage-icon
 {
     -fx-shape:"M 18,6 A 6,6 0 0 1 12,12 6,6 0 0 1 6,6 6,6 0 0 1 12,0 6,6 0 0 1 18,6 M 12,16 C 5.375,16 0,21.375 0,28 c 0,2.211 1.789,4 4,4 h 16 c 2.211,0 4,-1.789 4,-4 C 24,21.375 18.625,16 12,16 Z M -3,-8 a 6,6 0 0 1 -6,6 6,6 0 0 1 -6,-6 6,6 0 0 1 6,-6 6,6 0 0 1 6,6 M -9,2 c -6.625,0 -12,5.375 -12,12 0,2.211 1.789,4 4,4 H -1 C 1.211,18 3,16.211 3,14 3,7.375 -2.375,2 -9,2 Z";
     -fx-background-color: -qw-icon-color;
@@ -883,7 +906,9 @@ Text
 .changedisplay-icon,
 .setstatus-icon,
 .managebackups-icon,
-.editneeded-icon {
+.editneeded-icon,
+.updateinfo-icon,
+.changepassword-icon {
     -fx-shape:"m 10.836,26.832 c 1.562,-1.562 1.562,-4.094 0,-5.656 -1.562,-1.562 -4.094,-1.562 -5.656,0 L 0,32 Z M 30.828,1.172 c -1.562,-1.562 -4.094,-1.562 -5.656,0 L 10.047,16.301 c 1.352,0.352 2.602,1.031 3.617,2.047 1.031,1.031 1.688,2.289 2.039,3.609 L 30.828,6.828 c 1.563,-1.562 1.563,-4.094 0,-5.656 z";
     -fx-background-color: -qw-icon-color;
 }
@@ -971,10 +996,13 @@ Text
 }
 .warning-icon,
 .important-icon,
-.errors-icon {
+.errors-icon,
+.reportmessage-icon {
     -fx-shape: "m 81.324673,119.18284 -0.165364,-2.47529 q -0.04651,-0.72347 -0.04651,-1.03869 0,-0.42892 0.222208,-0.66663 0.227376,-0.24287 0.594277,-0.24287 0.444416,0 0.594277,0.31005 0.149861,0.30489 0.149861,0.88367 0,0.34106 -0.03617,0.69246 l -0.222208,2.54764 q -0.03617,0.45475 -0.155029,0.69763 -0.118855,0.24288 -0.392739,0.24288 -0.279052,0 -0.387572,-0.23255 -0.108521,-0.23771 -0.155029,-0.7183 z m 0.573606,3.4003 q -0.315225,0 -0.552936,-0.20154 -0.232543,-0.2067 -0.232543,-0.5736 0,-0.32039 0.222208,-0.5426 0.227376,-0.22738 0.552936,-0.22738 0.325561,0 0.552936,0.22738 0.232543,0.22221 0.232543,0.5426 0,0.36173 -0.232543,0.56844 -0.232543,0.2067 -0.542601,0.2067 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
 }
 .move-icon,
 .movevert-icon {
@@ -1012,7 +1040,8 @@ Text
 }
 .contactsupport-icon,
 .email-icon,
-.mail-icon {
+.mail-icon,
+.resendconfirmemail-icon {
     -fx-shape: "M 0,24 H 32 V 8.344 L 16.086,15.879 0,8.32 Z M 32,0 H 0 V 3.906 L 16.078,11.457 32,3.918 Z";
     -fx-background-color: -qw-icon-color;
 }
@@ -1023,7 +1052,8 @@ Text
 .showfolder-icon,
 .readability-icon,
 .show-icon,
-.tryout-icon {
+.tryout-icon,
+.showpassword-icon {
     -fx-shape: "m 20,12.016 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 A 4,4 0 0 1 16,8.0159998 4,4 0 0 1 20,12.016 M 16,0 C 7.164,0 0,11.844 0,11.844 0,11.844 7.164,24 16,24 24.836,24 32,11.844 32,11.844 32,11.844 24.836,0 16,0 Z m 0,20 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-height: 0.888em;
@@ -1195,6 +1225,8 @@ Text
  {
      -fx-border-color: -qw-border-color;
      -fx-background-color: -qw-hover-bg;
+     /* Experimental */
+     -fx-border-radius: 0;
  }
 .controls .button:armed,
 .controls .menu-button:armed,
@@ -1404,7 +1436,7 @@ Text
 /**
  * COPIED FROM AeroFX
  */
-
+/*
 .button, .toggle-button{
     -fx-alignment: center;
     -fx-background-color:
@@ -1417,6 +1449,7 @@ Text
     -fx-padding: 0.5em 1em 0.5em 1em;
     -fx-text-fill: -qw-button-text-color;
 }
+*/
 .button
 {
     -fx-alignment: center;
@@ -1425,11 +1458,21 @@ Text
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);
     -fx-border-radius: 1px;
     -fx-border-color: -qw-component-border-color;
+
+    /*
+     Experimental
+     */
+    -fx-background-color: #dddddd;
 }
 
 .button:hover
 {
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #cdcdcd 100%);
+
+    /*
+     Experimental
+     */
+    -fx-background-color: #eeeeee;
     -fx-border-color: -qw-border-color;
 }
 
@@ -2551,7 +2594,8 @@ WordCountTimerButton
     -fx-background-color: #dddddd;
 }
 
-.tree .cell .check-box .box
+.tree .cell .check-box .box,
+.check-box.select .box
 {
     -fx-pref-width: 1.25em;
     -fx-pref-height: 1.25em;

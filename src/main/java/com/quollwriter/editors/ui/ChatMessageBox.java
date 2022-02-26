@@ -62,6 +62,8 @@ TODO Remove? Don't think its needed.
             }
 */
             b.getChildren ().add (messText);
+            messText.maxWidthProperty ().bind (b.widthProperty ());
+            messText.prefWidthProperty ().bind (b.widthProperty ());
 
             Node nav = this.createAvatar (av,
                                           (av == null ? getUILanguageStringProperty (editors,editor,view,chatmessages,sentbyme) : null),

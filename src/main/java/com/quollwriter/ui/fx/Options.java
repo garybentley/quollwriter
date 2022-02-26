@@ -2454,7 +2454,7 @@ TODO Remove, rolled into start section
 
                 try
                 {
-System.out.println ("HERE: " + uid);
+
                     Environment.setUILanguage (uid);
 
                 } catch (Exception e) {

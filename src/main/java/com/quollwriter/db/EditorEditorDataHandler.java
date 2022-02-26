@@ -24,7 +24,7 @@ import com.quollwriter.editors.*;
 public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedObject>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, email, name, mynameforeditor, avatarimage, myavatarimageforeditor, status, invitedbyme, theirpublickey, id, messagingusername, servicename FROM editor_v";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, email, name, mynameforeditor, avatarimage, myavatarimageforeditor, status, invitedbyme, lastmodified, datecreated, properties, theirpublickey, id, messagingusername, servicename FROM editor_v";
 
     private ObjectManager objectManager = null;
 
@@ -281,6 +281,11 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
 
             ed.setEditorStatus (EditorEditor.EditorStatus.valueOf (rs.getString (ind++)));
             ed.setInvitedByMe (rs.getBoolean (ind++));
+
+            ed.setLastModified (rs.getTimestamp (ind++));
+            ed.setDateCreated (rs.getTimestamp (ind++));
+            ed.setPropertiesAsString (rs.getString (ind++));
+
             /*
             // My private key.
             byte[] bytes = rs.getBytes (ind++);

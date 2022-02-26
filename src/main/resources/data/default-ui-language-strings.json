@@ -4472,7 +4472,7 @@
                         },
                         "errors" :
                         {
-                            "invalidvalue" : "Sorry, that looks like an existing {QW} project folder."
+                            "invalidvalue" : "Sorry, that looks like an existing {QW} ${objectnames.plural.editor} folder."
                         }
                     },
                     "logindetails" :
@@ -6328,7 +6328,7 @@
                     "bugs" :
                     {
                         "title" : "Bug Fixes/Minor Improvements",
-                        "text" : "<ul><li>More fixes and improvements as a result of the formal testing.</li></ul>"
+                        "text" : "<ul><li>More fixes and improvements as a result of the formal testing.</li><li>The User Interface language strings editor has been fully tested and can be used now.  Note: there may still be some string changes coming since Editor Mode still needs to be tested.</li></ul>"
                     }
                 }
             }

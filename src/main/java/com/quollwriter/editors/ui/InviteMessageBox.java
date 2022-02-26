@@ -52,6 +52,7 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
 
         this.getChildren ().add (Header.builder ()
             .title (title)
+            .iconClassName (StyleClassNames.INVITEMESSAGE)
             .build ());
 
         if ((!this.message.isDealtWith ())

@@ -1377,12 +1377,37 @@ TODO Remove
                                                                   () ->
                                                                   {
 
-                                                                      QuollPopup.messageBuilder ()
-                                                                          .inViewer (Environment.getFocusedViewer ())
-                                                                          .title (LanguageStrings.editors,user,edit,password,confirmpopup,title)
-                                                                          .message (LanguageStrings.editors,user,edit,password,confirmpopup,text)
-                                                                          .closeButton ()
-                                                                          .build ();
+                                                                      try
+                                                                      {
+
+                                                                          EditorsEnvironment.editorAccount.setPassword (newPassword);
+
+                                                                          if (EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME) != null)
+                                                                          {
+
+                                                                              EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME,
+                                                                                                                     newPassword);
+
+                                                                          }
+
+                                                                      } catch (Exception e) {
+
+                                                                          Environment.logError ("Unable to update password",
+                                                                                                e);
+
+                                                                      }
+
+                                                                      UIUtils.runLater (() ->
+                                                                      {
+
+                                                                          QuollPopup.messageBuilder ()
+                                                                              .inViewer (Environment.getFocusedViewer ())
+                                                                              .title (LanguageStrings.editors,user,edit,password,confirmpopup,title)
+                                                                              .message (LanguageStrings.editors,user,edit,password,confirmpopup,text)
+                                                                              .closeButton ()
+                                                                              .build ();
+
+                                                                      });
 
                                                                   },
                                                                   null,
@@ -1971,6 +1996,7 @@ TODO Remove
                                                                                 QuollPopup.messageBuilder ()
                                                                                     .withViewer (viewer)
                                                                                     .title (Utils.newList (prefix,title))
+                                                                                    .closeButton ()
                                                                                     .message (getUILanguageStringProperty (Utils.newList (prefix,text),
                                                                                                                            toEmail))
                                                                                     .build ();
@@ -1988,31 +2014,36 @@ TODO Remove
                         if (viewer instanceof AbstractProjectViewer)
                         {
 
-                            List<String> prefix = Arrays.asList (LanguageStrings.editors,user,sendprojectoninvite,popup);
+                            UIUtils.runLater (() ->
+                            {
 
-                            QuollPopup p = QuollPopup.questionBuilder ()
-                                .withViewer (viewer)
-                                .styleClassName (StyleClassNames.SENDINVITE)
-                                .title (Utils.newList (prefix,title))
-                                .message (getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                                       ed.getMainName ()))
-                                .confirmButtonLabel (Utils.newList (prefix,buttons,confirm))
-                                .cancelButtonLabel (Utils.newList (prefix,buttons,cancel))
-                                .onConfirm (ev ->
-                                {
+                                List<String> prefix = Arrays.asList (LanguageStrings.editors,user,sendprojectoninvite,popup);
 
-                                    EditorsUIUtils.showSendProject ((AbstractProjectViewer) viewer,
-                                                                    ed,
-                                                                    null);
+                                QuollPopup p = QuollPopup.questionBuilder ()
+                                    .withViewer (viewer)
+                                    .styleClassName (StyleClassNames.PROJECT)
+                                    .title (Utils.newList (prefix,title))
+                                    .message (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                                           ed.getMainName ()))
+                                    .confirmButtonLabel (Utils.newList (prefix,buttons,confirm))
+                                    .cancelButtonLabel (Utils.newList (prefix,buttons,cancel))
+                                    .onConfirm (ev ->
+                                    {
 
-                                })
-                                .onCancel (ev ->
-                                {
+                                        EditorsUIUtils.showSendProject ((AbstractProjectViewer) viewer,
+                                                                        ed,
+                                                                        null);
 
-                                    UIUtils.runLater (onCancel);
+                                    })
+                                    .onCancel (ev ->
+                                    {
 
-                                })
-                                .build ();
+                                        UIUtils.runLater (onCancel);
+
+                                    })
+                                    .build ();
+
+                            });
 
                             return;
 
@@ -2043,6 +2074,7 @@ TODO Remove
                 QuollPopup.messageBuilder ()
                     .withViewer (viewer)
                     .title (LanguageStrings.editors,user,invitesent,popup,title)
+                    .closeButton ()
                     .message (getUILanguageStringProperty (Arrays.asList (LanguageStrings.editors,user,invitesent,popup,text),
                                                            toEmail))
                     .build ();

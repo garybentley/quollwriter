@@ -16,7 +16,7 @@ plugins {
     //id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
-version '3.0.0b21'
+version '3.0.0b22'
 //version '2.6.14'
 
 sourceSets {
@@ -33,7 +33,7 @@ javafx {
 repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    //jcenter()
     mavenCentral()
 
     // Needed for the EPUB lib artifact.
@@ -42,6 +42,7 @@ repositories {
         url 'http://maven.openkm.com/'
     }
 */
+
     maven {
         //id 'psiegman-repo'
         url 'https://github.com/psiegman/mvn-repo/raw/master/releases'
@@ -74,7 +75,6 @@ dependencies {
         include 'jazzy-core.jar'
 
         include 'suggester-1.1.2.jar'
-        //include 'bc*jdk15on-151.jar'
         include 'GWordCram-0.1.jar'
 
         // TODO Remove when no longer using Swing/AWT
@@ -90,6 +90,9 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 
+    // XML Parser
+    implementation 'pull-parser:pull-parser:2.1.10'
+
     // Docx4J
     implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.1.8'
 
@@ -104,7 +107,7 @@ dependencies {
     implementation 'org.apache.commons:commons-dbcp2:2.6.0'
 
     // Apache Commons IO
-    implementation 'commons-io:commons-io:2.8.0'
+    implementation 'commons-io:commons-io:2.11.0'
 
     // H2 DB
     implementation 'com.h2database:h2:1.3.175'
@@ -129,19 +132,20 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java8:4.4.0'
 
     // RichtextFX
-    implementation 'org.fxmisc.richtext:richtextfx:0.10.7'
+    //implementation 'org.fxmisc.richtext:richtextfx:0.10.7'
     //implementation 'org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT'
 
     // This is temporary for testing changes to a local version of richtextfx.  Ignore.
     // TEMP ADD RICHTEXTFX JARS AND DEPS
 
-    // implementation fileTree('d:/reference/java/richtextfx/RichTextFX/richtextfx/build/libs/') {
-    //    include 'richtextfx-1.0.0-SNAPSHOT.jar'
-    //    include 'flowless-0.6.3.jar'
-    //    include 'reactfx-2.0-M5.jar'
-    //    include 'undofx-2.1.1.jar'
-    //    include 'wellbehavedfx-0.3.3.jar'
-    //}
+     implementation fileTree('d:/reference/java/afester-richtextfx/RichTextFX/richtextfx/build/libs/') {
+        //include 'richtextfx-1.0.0-SNAPSHOT.jar'
+        include 'richtextfx-0.10.8-rc1.jar'
+        include 'flowless-0.6.7.jar'
+        include 'reactfx-2.0-M5.jar'
+        include 'undofx-2.1.1.jar'
+        include 'wellbehavedfx-0.3.3.jar'
+    }
 
     // Flying Saucer (can be removed when no longer using Swing)
     implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
@@ -165,6 +169,8 @@ dependencies {
 }
 
 compileJava {
+
+    options.incremental = true
 
     options.compilerArgs =
     [
@@ -244,4 +250,15 @@ task copyToLib(type: Copy) {
     delete "$buildDir/libs"
     into "$buildDir/libs"
     from configurations.runtimeClasspath
+}
+
+configurations.all {
+  resolutionStrategy {
+    //failOnVersionConflict()
+    // This is to try and fix some of the dependency conflicts between siegmann and dom4j.
+    force 'commons-codec:commons-codec:1.15',
+          'commons-io:commons-io:2.11.0',
+          'org.slf4j:slf4j-api:1.8.0-beta4',
+          'pull-parser:pull-parser:2.1.10'
+  }
 }

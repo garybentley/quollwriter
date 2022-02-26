@@ -465,3 +465,8 @@
 {
     visibility: hidden;
 }
+
+.column .header.title .iconbox
+{
+    visibility: hidden;
+}

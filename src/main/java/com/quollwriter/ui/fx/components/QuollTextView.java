@@ -62,6 +62,17 @@ public class QuollTextView extends VBox
 
         });
 
+        this.text.prefWidthProperty ().bind (this.widthProperty ());
+        this.text.maxWidthProperty ().bind (this.widthProperty ());
+        //this.text.minWidthProperty ().bind (this.widthProperty ());
+
+        this.widthProperty ().addListener ((pr, oldv, newv) ->
+        {
+
+            this.text.requestLayout ();
+
+        });
+
         this.visibleProperty ().addListener ((pr, oldv, newv) ->
         {
 

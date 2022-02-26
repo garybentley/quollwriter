@@ -451,7 +451,6 @@ TODO Remove
 
         }
 
-System.out.println ("OLD: " + oldStage + ", " + newStage);
         if ((oldStage.equals ("finish"))
             &&
             (this.createCalled)
@@ -791,6 +790,9 @@ System.out.println ("OLD: " + oldStage + ", " + newStage);
                                                               Constants.EDITORS_DB_FILE_NAME_PREFIX));
                 message.pseudoClassStateChanged (StyleClassNames.ERROR_PSEUDO_CLASS, true);
 
+                this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                          false);
+
                 this.wizard.enableButton (Wizard.FINISH_BUTTON_ID,
                                           false);
 
@@ -867,17 +869,33 @@ System.out.println ("OLD: " + oldStage + ", " + newStage);
             .findButtonTooltip (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.finder,tooltip)))
             .build ();
 
+        if (EditorsEnvironment.isEditorsDBDir (this.finder.getFile ()))
+        {
+
+            finderError.setVisible (true);
+
+        }
+
         this.finder.fileProperty ().addListener ((pr, oldv, newv) ->
         {
 
             finderError.setVisible (false);
 
             // See if it's an existing editors db, if so ask.
-
-            if (Files.exists (Utils.getQuollWriterDirFile (this.finder.getFile ())))
+            if (EditorsEnvironment.isEditorsDBDir (this.finder.getFile ()))
             {
 
+            //if (Files.exists (Utils.getQuollWriterDirFile (this.finder.getFile ())))
+            //{
+
                 finderError.setVisible (true);
+                this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                          false);
+
+            } else {
+
+                this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                          true);
 
             }
 
@@ -1015,44 +1033,47 @@ System.out.println ("OLD: " + oldStage + ", " + newStage);
         if (stepId.equals ("start"))
         {
 
-            return this.createStartStep ();
+            ws = this.createStartStep ();
 
         }
 
         if (stepId.equals ("existing"))
         {
 
-            return this.createExistingStep ();
+            ws = this.createExistingStep ();
 
         }
 
         if (stepId.equals ("dir"))
         {
 
-            return this.createDirStep ();
+            ws = this.createDirStep ();
 
         }
 
         if (stepId.equals ("finish"))
         {
 
-            return this.createFinishStep ();
+            ws = this.createFinishStep ();
 
         }
 
         if (stepId.equals ("about"))
         {
 
-            return this.createAboutStep ();
+            ws = this.createAboutStep ();
 
         }
 
         if (stepId.equals ("login-details"))
         {
 
-            return this.createLoginDetailsStep ();
+            ws = this.createLoginDetailsStep ();
 
         }
+
+        this.steps.put (stepId,
+                        ws);
 
         return ws;
 
@@ -1062,12 +1083,35 @@ System.out.println ("OLD: " + oldStage + ", " + newStage);
                                 String currentStage)
     {
 
+        if ("dir".equals (currentStage))
+        {
+
+            if (EditorsEnvironment.isEditorsDBDir (this.finder.getFile ()))
+            {
+
+                this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
+                                          false);
+
+                return;
+
+            }
+
+        }
+
         if ("start".equals (currentStage))
         {
 
-            wiz.enableButton (Wizard.NEXT_BUTTON_ID,
-                              false);
-            return;
+            if ((this.tcAgreeField == null)
+                ||
+                (!this.tcAgreeField.isSelected ())
+               )
+            {
+
+                wiz.enableButton (Wizard.NEXT_BUTTON_ID,
+                                  false);
+                return;
+
+            }
 
         }
 

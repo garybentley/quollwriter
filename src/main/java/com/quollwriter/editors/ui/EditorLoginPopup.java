@@ -152,9 +152,9 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
 
         };
 
-        this.emailField.addEventHandler (KeyEvent.KEY_PRESSED,
+        this.emailField.addEventHandler (KeyEvent.KEY_RELEASED,
                                          onKeyPressed);
-        this.passwordField.addEventHandler (KeyEvent.KEY_PRESSED,
+        this.passwordField.addEventHandler (KeyEvent.KEY_RELEASED,
                                             onKeyPressed);
 
         this.form.addEventHandler (Form.FormEvent.CANCEL_EVENT,
@@ -190,6 +190,11 @@ public class EditorLoginPopup extends PopupContent<AbstractViewer>
                 {
 
                     EditorsEnvironment.removeEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME);
+
+                } else {
+
+                    EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME,
+                                                           new String (this.passwordField.getText ()));
 
                 }
 

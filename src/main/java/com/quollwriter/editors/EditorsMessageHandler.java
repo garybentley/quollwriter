@@ -831,7 +831,10 @@ public class EditorsMessageHandler implements ChatMessageListener
 
         this.logoutRequested = false;
 
-        if (this.loggedIn)
+        if ((this.conn != null)
+            &&
+            (this.conn.isConnected ())//this.loggedIn)
+           )
         {
 
             if (onLogin != null)
@@ -1804,7 +1807,7 @@ TODO OLD Remove?
                                 } else {
 
                                     ComponentUtils.showErrorMessage (getUILanguageStringProperty (Arrays.asList (editors,messages,send,actionerror),
-                                                                                                  to.getName ()));
+                                                                                                  (to.getName () != null ? to.getName () : to.getEmail ())));
                                         //"Unable to send message to <b>" + to.getName () + "</b>.  Please contact Quoll Writer support for assistance.");
 
                                     Environment.logError ("Unable to send message to: " +

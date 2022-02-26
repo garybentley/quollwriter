@@ -67,3 +67,10 @@
 {
     -fx-font-style: normal;
 }
+
+.form:stacked .tree .cell .label
+{
+    -fx-font-style: normal;
+    -fx-padding: 0;
+    -fx-label-padding: 0.1em 0.2em 0.1em 0em;
+}

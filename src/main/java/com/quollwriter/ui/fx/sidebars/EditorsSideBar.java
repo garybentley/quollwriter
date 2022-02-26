@@ -115,6 +115,14 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
         VBox.setVgrow (this.tabs,
                        Priority.ALWAYS);
 
+        this.getBinder ().addChangeListener (UserProperties.tabsLocationProperty (),
+                                             (pr, oldv, newv) ->
+        {
+
+            this.tabs.setSide (UserProperties.tabsLocationProperty ().getValue ().equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
+
+        });
+
         this.content = new VBox ();
         VBox.setVgrow (this.content,
                        Priority.ALWAYS);
@@ -137,6 +145,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
         HBox.setHgrow (edBox,
                        Priority.ALWAYS);
         ScrollPane sp = new ScrollPane (edBox);
+        sp.getStyleClass ().add (StyleClassNames.CONTACTS);
 
         this.firstLogin = new VBox ();
         this.firstLogin.getStyleClass ().add (StyleClassNames.FIRSTLOGIN);
@@ -146,11 +155,14 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             .styleClassName (StyleClassNames.TITLE)
             .label (LanguageStrings.editors,LanguageStrings.sidebar,firstlogin,title)
             .build ());
-        this.firstLogin.getChildren ().add (QuollTextView.builder ()
+
+        QuollTextView flt = QuollTextView.builder ()
             .styleClassName (StyleClassNames.TEXT)
             .text (getUILanguageStringProperty (LanguageStrings.editors,LanguageStrings.sidebar,firstlogin,text))
             .inViewer (this.viewer)
-            .build ());
+            .build ();
+
+        this.firstLogin.getChildren ().add (flt);
 
         QuollButton loginBut = QuollButton.builder ()
             .tooltip (LanguageStrings.editors,LanguageStrings.sidebar,firstlogin,buttons,login,tooltip)
@@ -188,11 +200,17 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             .styleClassName (StyleClassNames.TITLE)
             .title (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,title)
             .build ());
-        this.noEditors.getChildren ().add (QuollTextView.builder ()
+
+        QuollTextView net = QuollTextView.builder ()
             .styleClassName (StyleClassNames.TEXT)
             .text (getUILanguageStringProperty (LanguageStrings.editors,LanguageStrings.sidebar,nocontacts,text))
             .inViewer (this.viewer)
-            .build ());
+            .build ();
+
+        net.prefWidthProperty ().bind (sp.widthProperty ());
+        net.maxWidthProperty ().bind (sp.widthProperty ());
+
+        this.noEditors.getChildren ().add (net);
 
         this.noEditors.getChildren ().add (QuollButtonBar.builder ()
             .button (QuollButton.builder ()
@@ -258,6 +276,9 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             .text (getUILanguageStringProperty (LanguageStrings.editors,LanguageStrings.sidebar,type,text))
             .inViewer (this.viewer)
             .build ();
+
+        //hp.maxWidthProperty ().bind (box.widthProperty ());
+        //hp.prefWidthProperty ().bind (box.widthProperty ());
 
         box.getChildren ().add (hp);
 
@@ -1053,186 +1074,54 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
     }
 
+    public EditorPanel getEditorPanel (EditorEditor ed)
+    {
+
+        for (Tab t : this.tabs.getTabs ())
+        {
+
+            if (t.getContent () instanceof EditorPanel)
+            {
+
+                EditorPanel ep = (EditorPanel) t.getContent ();
+
+                if (ep.getEditor ().equals (ed))
+                {
+
+                    return ep;
+
+                }
+
+            }
+
+        }
+
+        return null;
+
+    }
+
     public void showChatBox (final EditorEditor ed)
                       throws GeneralException
     {
 
         this.showEditor (ed);
 
-        // TODO
-/*
-        final EditorsSideBar _this = this;
-
-        UIUtils.doLater (new ActionListener ()
+        UIUtils.forceRunLater (() ->
         {
 
-            @Override
-            public void actionPerformed (ActionEvent ev)
+            EditorPanel edPanel = this.getEditorPanel (ed);
+
+            if (edPanel != null)
             {
 
-                EditorPanel edPanel = _this.getEditorPanel (ed);
-
-                if (edPanel != null)
-                {
-
-                    edPanel.showChatBox ();
-
-                }
+                edPanel.showChatBox ();
 
             }
 
         });
-*/
-    }
-/*
-    private void updateView ()
-    {
-
-        Set<EditorEditor> invitesForMe = new LinkedHashSet ();
-        Set<ProjectEditor> projEds = new LinkedHashSet ();
-        Set<EditorEditor> others = new LinkedHashSet ();
-        Set<EditorEditor> invitesIveSent = new LinkedHashSet ();
-
-        int edsSize = 0;
-
-        for (EditorEditor ed : EditorsEnvironment.getEditors ())
-        {
-
-            if (ed.isPrevious ())
-            {
-
-                continue;
-
-            }
-
-            if (ed.isRejected ())
-            {
-
-                continue;
-
-            }
-
-            edsSize++;
-
-            if (ed.isPending ())
-            {
-
-                if (!ed.isInvitedByMe ())
-                {
-
-                    invitesForMe.add (ed);
-
-                } else {
-
-                    invitesIveSent.add (ed);
-
-                }
-
-            } else {
-
-                    others.add (ed);
-
-//                ProjectEditor pe = this.projectViewer.getProject ().getProjectEditor (ed);
-
-//                if (pe != null)
-//                {
-
-//                    projEds.add (pe);
-
-//                } else {
-
-//                    others.add (ed);
-
-//                }
-
-            }
-
-        }
-
-        this.otherEditors.setVisible (others.size () > 0);
-
-        try
-        {
-
-            this.otherEditors.update (others);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to update other editors section with editors: " +
-                                  others,
-                                  e);
-
-            this.otherEditors.setVisible (false);
-
-            UIUtils.showErrorMessage (this.viewer,
-                                      getUIString (editors,vieweditorserror));
-                                      //"Unable to display others section, please contact Quoll Writer support for assistance.");
-
-        }
-
-        this.invitesForMe.setVisible (invitesForMe.size () > 0);
-
-        try
-        {
-
-            this.invitesForMe.update (invitesForMe);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to update invites for me editors section with editors: " +
-                                  invitesForMe,
-                                  e);
-
-            this.invitesForMe.setVisible (false);
-
-            UIUtils.showErrorMessage (this.viewer,
-                                      getUIString (editors,vieweditorserror));
-                                      //"Unable to display invites from others section, please contact Quoll Writer support for assistance.");
-
-        }
-
-        this.invitesIveSent.setVisible (invitesIveSent.size () > 0);
-
-        try
-        {
-
-            this.invitesIveSent.update (invitesIveSent);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to update invites ive sent section with editors: " +
-                                  invitesIveSent,
-                                  e);
-
-            this.invitesIveSent.setVisible (false);
-
-            UIUtils.showErrorMessage (this.viewer,
-                                      getUIString (editors,vieweditorserror));
-                                      //"Unable to display invites I've sent section, please contact Quoll Writer support for assistance.");
-
-        }
-
-        this.noEditors.setVisible (edsSize == 0);
-
-        this.firstLogin.setVisible (false);
-
-        // May not have an account anymore.
-        if ((EditorsEnvironment.getUserAccount () != null)
-            &&
-            (EditorsEnvironment.getUserAccount ().getLastLogin () == null)
-           )
-        {
-
-            this.firstLogin.setVisible (true);
-            this.noEditors.setVisible (false);
-
-        }
-
-        this.validate ();
-        this.repaint ();
 
     }
-*/
+
     public void showPreviousEditors ()
     {
 
@@ -1248,6 +1137,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             ScrollPane sp = new ScrollPane (prev);
 
             t = new Tab ();
+            t.getStyleClass ().add (StyleClassNames.PREVIOUSEDITORS);
             t.setContent (sp);
             IconBox b = IconBox.builder ()
                 .iconName (StyleClassNames.PREVIOUSEDITORS)

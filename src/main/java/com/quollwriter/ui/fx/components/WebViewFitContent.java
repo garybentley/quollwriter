@@ -218,6 +218,7 @@ System.out.println ("ADDING: " + r);
             }
 
             this.webview.setPrefWidth (newv.doubleValue ());
+            this.webview.setMaxWidth (newv.doubleValue ());
             this.adjustHeight ();
 /*
             UIUtils.runLater (() ->
@@ -513,10 +514,14 @@ System.out.println ("ADDING: " + r);
 
             // Set the width of the element to match the width of the webview.
             // The initial width can be a lot smaller than it "should be".
+            /*
+            TODO Remove, not needed now we are setting our width in reaction to other events.
+            
             this.webEngine.executeScript (String.format ("document.getElementById('%1$s').style.width='%2$spx'",
                                                          divId,
                                                          Environment.formatNumber (this.webview.getPrefWidth ())));
 
+*/
              Object result = this.webEngine.executeScript (String.format ("document.getElementById('%1$s').scrollHeight",
                                                                          divId));
 
