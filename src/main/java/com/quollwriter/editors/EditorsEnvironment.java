@@ -1481,20 +1481,28 @@ TODO Remove
 
                 }
 */
+
+                int _c = c;
+
                 //xxx get notification by name.
-                final Notification n = viewer.addNotification (getUILanguageStringProperty (Arrays.asList (LanguageStrings.editors,messages,undealtwith,notification),
-                                                                //+ "  <a href='action:showundealtwitheditormessages'>Click here to view the message(s).</a>",
-                                                                                            c),
-                                                               StyleClassNames.EDITORS,
-                                                               60);
-
-                Node nn = n.getContent ();
-
-                nn.addEventHandler (MouseEvent.MOUSE_CLICKED,
-                                    ev ->
+                UIUtils.runLater (() ->
                 {
 
-                    viewer.removeNotification (n);
+                    final Notification n = viewer.addNotification (getUILanguageStringProperty (Arrays.asList (LanguageStrings.editors,messages,undealtwith,notification),
+                                                                    //+ "  <a href='action:showundealtwitheditormessages'>Click here to view the message(s).</a>",
+                                                                                                _c),
+                                                                   StyleClassNames.EDITORS,
+                                                                   60);
+
+                    Node nn = n.getContent ();
+
+                    nn.addEventHandler (MouseEvent.MOUSE_CLICKED,
+                                        ev ->
+                    {
+
+                        viewer.removeNotification (n);
+
+                    });
 
                 });
 

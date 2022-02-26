@@ -169,13 +169,23 @@ public class EditorInfoBox extends VBox
             .onNoImage (b ->
             {
 
-                b.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, true);
+                if (this.avatarBox != null)
+                {
+
+                    this.avatarBox.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, true);
+
+                }
 
             })
             .onImagePresent (b ->
             {
 
-                b.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, false);
+                if (this.avatarBox != null)
+                {
+
+                    this.avatarBox.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, false);
+
+                }
 
             })
             .build ();
@@ -405,7 +415,20 @@ public class EditorInfoBox extends VBox
 
     }
 */
+
     private void updateButtons ()
+    {
+
+        UIUtils.runLater (() ->
+        {
+
+            this.updateButtons_int ();
+
+        });
+
+    }
+
+    private void updateButtons_int ()
     {
 
         Set<EditorMessage> mess = this.getImportantMessages ();
