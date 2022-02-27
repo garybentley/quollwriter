@@ -75,3 +75,9 @@
      -fx-pref-height: 4em;
      -fx-padding: 0;
  }
+
+.contact .iconbox .icon.important-icon,
+.contact .button:hover .iconbox .icon.important-icon
+{
+    -fx-background-color: red;
+}

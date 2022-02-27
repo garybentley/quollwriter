@@ -784,6 +784,7 @@ Text
     -fx-background-color: -qw-icon-color;
 }
 .project-icon,
+.projectmessages-icon,
 .allprojects-icon {
     -fx-shape: "M 27.973,8.047 32,4.016 H 27.973 V 0 H 3.996 C 1.789,0 0,1.789 0,4 v 24 c 0,2.211 1.789,4 3.996,4 H 27.973 V 12.047 h 3.996 z M 23.977,28 H 7.992 V 4 H 23.976 V 28 Z M 11.988,8 h 7.992 v 4.031 h -7.992 z";
     -fx-background-color: -qw-icon-color;

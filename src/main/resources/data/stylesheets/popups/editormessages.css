@@ -3,7 +3,7 @@
  */
 .message
 {
-    -fx-padding: 0.5em 0 0 0;
+    -fx-padding: 0.5em 0 0.5em 0;
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
 }
@@ -90,8 +90,8 @@
 
 .message:attentionrequired
 {
-    -fx-border-width: 0 0 0 3px;
-    -fx-border-color: red;
+    -fx-border-width: 0 0 1px 3px;
+    -fx-border-color: transparent transparent -qw-component-border-color red;
 }
 
 .message .response

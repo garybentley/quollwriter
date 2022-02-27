@@ -13,6 +13,7 @@ import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.sidebars.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.panels.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -186,6 +187,55 @@ public class ProjectCommentsChaptersSidebarItem extends ProjectObjectsSidebarIte
             })
             .viewObjectOnClick (true)
             .build ();
+
+        this.selectItem ();
+
+        this.addChangeListener (this.viewer.currentPanelProperty (),
+                                (pr, oldv, newv) ->
+        {
+
+            this.selectItem ();
+
+        });
+
+    }
+
+    private void selectItem ()
+    {
+
+        this.tree.select (null);
+        this.tree.requestLayout ();
+
+        Panel p = this.viewer.getCurrentPanel ();
+
+        if (p == null)
+        {
+
+            return;
+
+        }
+
+        if (p != null)
+        {
+
+            if (p.getContent () instanceof NamedObjectPanelContent)
+            {
+
+                NamedObjectPanelContent nc = (NamedObjectPanelContent) p.getContent ();
+
+                if (nc.getObject () instanceof Chapter)
+                {
+
+                    this.tree.select ((Chapter) nc.getObject ());
+                    this.tree.requestLayout ();
+
+                    return;
+
+                }
+
+            }
+
+        }
 
     }
 

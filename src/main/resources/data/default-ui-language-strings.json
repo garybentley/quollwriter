@@ -4970,8 +4970,8 @@
                 "title" : "Sent to",
                 "labels" :
                 {
-                    "sent" : "<i>Sent</i>",
-                    "version" : "<i>Version</i>",
+                    "sent" : "Sent",
+                    "version" : "Version",
                     "notes" : "Notes",
                     "more" : "<br /><a href='#'>More, click to view all.</a>"
                 },
@@ -4984,7 +4984,7 @@
                 },
                 "chapters" :
                 {
-                    "title" : "${objectnames.plural.project}"
+                    "title" : "${objectnames.plural.chapter}"
                 }
             },
             "commentspanel" :

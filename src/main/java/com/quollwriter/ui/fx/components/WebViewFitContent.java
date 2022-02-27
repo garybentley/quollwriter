@@ -516,7 +516,7 @@ System.out.println ("ADDING: " + r);
             // The initial width can be a lot smaller than it "should be".
             /*
             TODO Remove, not needed now we are setting our width in reaction to other events.
-            
+
             this.webEngine.executeScript (String.format ("document.getElementById('%1$s').style.width='%2$spx'",
                                                          divId,
                                                          Environment.formatNumber (this.webview.getPrefWidth ())));

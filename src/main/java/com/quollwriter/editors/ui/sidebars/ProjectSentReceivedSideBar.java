@@ -47,14 +47,21 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
                                                 this.viewer,
                                                 true,
                                                 this.getBinder ());
+        VBox.setVgrow (this.editorInfoBox,
+                       Priority.NEVER);
 
         Node messageC = this.getMessageDetails (this.message);
+
+        VBox.setVgrow (messageC,
+                       Priority.NEVER);
 
         this.chapters = new ProjectCommentsChaptersSidebarItem (this.viewer,
                                                                 this.getItemsTitle (),
                                                                 this.getBinder ());
 
         QScrollPane sp = new QScrollPane (this.chapters.getAccordionItem ());
+        VBox.setVgrow (sp,
+                       Priority.ALWAYS);
 
         this.content.getChildren ().addAll (this.editorInfoBox, messageC, sp);
 
@@ -80,8 +87,8 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
     @Override
     public SideBar createSideBar ()
     {
-        
-System.out.println ("HERE SIDEBAR: " + this.getTitle ().getValue ());
+
+
         SideBar sb = SideBar.builder ()
             .title (this.getTitle ())
             .activeTitle (this.getTitle ())

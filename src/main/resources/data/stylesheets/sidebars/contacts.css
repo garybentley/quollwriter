@@ -339,3 +339,8 @@
 {
     -fx-padding: 0.5em 0 0.75em 0;
 }
+
+.chatmessage .other .label
+{
+    -fx-content-display: text-only;
+}

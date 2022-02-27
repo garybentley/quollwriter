@@ -1797,6 +1797,20 @@ TODO Remove
 
             EditorEditor ed = eds.pop ();
 
+            if (ed.isPrevious ())
+            {
+
+                EditorsEnvironment.sendMessageToAllEditors (eds,
+                                                            loginReason,
+                                                            mess,
+                                                            onSend,
+                                                            onLoginCancel,
+                                                            onError);
+
+                return;
+
+            }
+
             Runnable onSendComplete = () ->
             {
 

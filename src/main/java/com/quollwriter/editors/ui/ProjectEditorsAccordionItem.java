@@ -81,78 +81,83 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
                                      ev ->
         {
 
-            this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
-            help.setVisible (pv.getProject ().getProjectEditors ().size () > 0);
-
-            if (ev.wasRemoved ())
+            UIUtils.runLater (() ->
             {
 
-                ProjectEditor pe = ev.getElementRemoved ();
+                this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
+                help.setVisible (pv.getProject ().getProjectEditors ().size () > 0);
 
-                pe.currentProperty ().removeListener (this.listeners.get (pe));
-
-                for (Node n : this.previousEditors.getChildren ())
+                if (ev.wasRemoved ())
                 {
 
-                    if (!(n instanceof EditorInfoBox))
+                    ProjectEditor pe = ev.getElementRemoved ();
+
+                    pe.currentProperty ().removeListener (this.listeners.get (pe));
+
+                    for (Node n : this.previousEditors.getChildren ())
                     {
 
-                        continue;
-
-                    }
-
-                    EditorInfoBox ib = (EditorInfoBox) n;
-
-                    if (ib.getEditor ().equals (pe))
-                    {
-
-                        this.previousEditors.getChildren ().remove (ib);
-
-                        if (this.previousEditors.getChildren ().size () == 1)
+                        if (!(n instanceof EditorInfoBox))
                         {
 
-                            this.previousEditors.setVisible (false);
+                            continue;
 
                         }
 
-                        return;
+                        EditorInfoBox ib = (EditorInfoBox) n;
+
+                        if (ib.getEditor ().equals (pe))
+                        {
+
+                            this.previousEditors.getChildren ().remove (ib);
+
+                            if (this.previousEditors.getChildren ().size () == 1)
+                            {
+
+                                this.previousEditors.setVisible (false);
+
+                            }
+
+                            return;
+
+                        }
+
+                    }
+
+                    for (Node n : this.currentEditors.getChildren ())
+                    {
+
+                        if (!(n instanceof EditorInfoBox))
+                        {
+
+                            continue;
+
+                        }
+
+                        EditorInfoBox ib = (EditorInfoBox) n;
+
+                        if (ib.getEditor ().equals (pe))
+                        {
+
+                            this.currentEditors.getChildren ().remove (ib);
+                            return;
+
+                        }
 
                     }
 
                 }
 
-                for (Node n : this.currentEditors.getChildren ())
+                if (ev.wasAdded ())
                 {
 
-                    if (!(n instanceof EditorInfoBox))
-                    {
+                    ProjectEditor pe = ev.getElementAdded ();
 
-                        continue;
-
-                    }
-
-                    EditorInfoBox ib = (EditorInfoBox) n;
-
-                    if (ib.getEditor ().equals (pe))
-                    {
-
-                        this.currentEditors.getChildren ().remove (ib);
-                        return;
-
-                    }
+                    this.addProjectEditor (pe);
 
                 }
 
-            }
-
-            if (ev.wasAdded ())
-            {
-
-                ProjectEditor pe = ev.getElementAdded ();
-
-                this.addProjectEditor (pe);
-
-            }
+            });
 
         });
 

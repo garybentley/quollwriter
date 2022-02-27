@@ -53,165 +53,9 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
 
         this.project = proj;
         this.message = message;
+        this.getStyleClass ().add ("projectsentreceived");
 
         // TODO Set icon of header.
-/*
-        this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ()
-        {
-
-            @Override
-            public boolean canEdit (ChapterItem it)
-            {
-
-                return false;
-
-            }
-
-            @Override
-            public boolean canDelete (ChapterItem it)
-            {
-
-                return false;
-
-            }
-
-        };
-
-        this.chapterItemViewPopupProvider.setShowLinks (false);
-        this.chapterItemViewPopupProvider.setFormatDetails (Note.OBJECT_TYPE,
-                                                            new NoteFormatDetails<ProjectSentReceivedViewer> ()
-                                                            {
-
-                                                                @Override
-                                                                public String getTitle (Note item)
-                                                                {
-
-                                                                    return getUILanguageStringProperty (editors,projectcomments,(_this.message.isSentByMe () ? sent : received),comment,view,title);
-                                                                    //)"{Comment}";
-
-                                                                }
-
-                                                                @Override
-                                                                public String getIcon (Note item)
-                                                                {
-
-                                                                    return Constants.COMMENT_ICON_NAME;
-
-                                                                }
-
-                                                                @Override
-                                                                public String getItemDescription (Note item)
-                                                                {
-
-                                                                    return item.getDescription ().getMarkedUpText ();
-
-                                                                }
-
-                                                                @Override
-                                                                public ActionListener getEditItemActionHandler (Note                                         item,
-                                                                                                                ChapterItemViewer<ProjectSentReceivedViewer> ep)
-                                                                {
-
-                                                                    throw new UnsupportedOperationException ("Not supported for project comments.");
-
-                                                                }
-
-                                                                @Override
-                                                                public ActionListener getDeleteItemActionHandler (Note                                         item,
-                                                                                                                  ChapterItemViewer<ProjectSentReceivedViewer> ep,
-                                                                                                                  boolean                                      showAtItem)
-                                                                {
-
-                                                                    throw new UnsupportedOperationException ("Not supported for project comments.");
-
-                                                                }
-
-                                                                @Override
-                                                                public Set<JComponent> getTools (Note                                         item,
-                                                                                                 ChapterItemViewer<ProjectSentReceivedViewer> ep)
-                                                                {
-
-                                                                    if (_this.message.isSentByMe ())
-                                                                    {
-
-                                                                        return null;
-
-                                                                    }
-
-                                                                    Set<JComponent> buts = new LinkedHashSet ();
-
-                                                                    final JButton but = UIUtils.createButton ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
-                                                                                                              Constants.ICON_MENU,
-                                                                                                              getUIString (editors,projectcomments,received,comment,tools, (item.isDealtWith () ? undealtwith : dealtwith),tooltip),
-                                                                                                              //"Click to mark the {comment} as %s with",
-                                                                                                              //"undealt" : "dealt")),
-                                                                                                              null);
-
-                                                                    ActionListener aa = new ActionListener ()
-                                                                    {
-
-                                                                        @Override
-                                                                        public void actionPerformed (ActionEvent ev)
-                                                                        {
-
-                                                                            Date d = null;
-
-                                                                            if (!item.isDealtWith ())
-                                                                            {
-
-                                                                                d = new Date ();
-
-                                                                            }
-
-                                                                            item.setDealtWith (d);
-
-                                                                            but.setToolTipText (getUIString (editors,projectcomments,received,comment,tools, (item.isDealtWith () ? undealtwith : dealtwith),tooltip));
-                                                                            //String.format ("Click to mark the {comment} as %s with",
-                                                                            //                                   (item.isDealtWith () ? "undealt" : "dealt")));
-                                                                            but.setIcon (Environment.getIcon ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
-                                                                                                              Constants.ICON_MENU));
-
-                                                                            // Inform the sidebar of the change.
-                                                                            _this.sideBar.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
-
-                                                                        }
-
-                                                                    };
-
-                                                                    but.addActionListener (aa);
-
-                                                                    buts.add (but);
-
-                                                                    return buts;
-
-                                                                }
-
-                                                            });
-*/
-/*
-TODO Remove/change?
-        this.iconProvider = new DefaultIconProvider ()
-        {
-
-            @Override
-            public ImageIcon getIcon (String name,
-                                      int    type)
-            {
-
-                if (name.equals (Note.OBJECT_TYPE))
-                {
-
-                    name = Constants.COMMENT_ICON_NAME;
-
-                }
-
-                return super.getIcon (name,
-                                      type);
-
-            }
-
-        };
-*/
 
     }
 
@@ -428,6 +272,8 @@ TODO Remove/change?
 
             this.editChapter (c,
                               doAfterView);
+
+            return;
 
         }
 

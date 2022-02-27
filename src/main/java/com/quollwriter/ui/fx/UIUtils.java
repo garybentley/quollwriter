@@ -385,6 +385,13 @@ public class UIUtils
                                 MouseEvent     ev)
     {
 
+        if ("#".equals (url))
+        {
+
+            return;
+
+        }
+
         URL u = null;
 
         try

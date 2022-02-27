@@ -1354,16 +1354,21 @@ public class EditorsUIUtils
 
                                                         }
 
-                                                        form.hideLoading ();
+                                                        UIUtils.runLater (() ->
+                                                        {
 
-                                                        QuollPopup.messageBuilder ()
-                                                            .inViewer (viewer)
-                                                            .title (editors,user,sendorupdateproject,confirmpopup,title)
-                                                            .message (getUILanguageStringProperty (Arrays.asList (editors,user,sendorupdateproject,confirmpopup,text),
-                                                                                                   viewer.getProject ().getName (),
-                                                                                                   ed.getMainName ()))
-                                                            .closeButton ()
-                                                            .build ();
+                                                            form.hideLoading ();
+
+                                                            QuollPopup.messageBuilder ()
+                                                                .inViewer (viewer)
+                                                                .title (editors,user,sendorupdateproject,confirmpopup,title)
+                                                                .message (getUILanguageStringProperty (Arrays.asList (editors,user,sendorupdateproject,confirmpopup,text),
+                                                                                                       viewer.getProject ().getName (),
+                                                                                                       ed.getMainName ()))
+                                                                .closeButton ()
+                                                                .build ();
+
+                                                        });
 
                                                         if (onSend != null)
                                                         {
@@ -1377,8 +1382,13 @@ public class EditorsUIUtils
                                                     () ->
                                                     {
 
-                                                        form.getConfirmButton ().setDisable (false);
-                                                        form.hideLoading ();
+                                                        UIUtils.runLater (() ->
+                                                        {
+
+                                                            form.getConfirmButton ().setDisable (false);
+                                                            form.hideLoading ();
+
+                                                        });
 
                                                     },
                                                     null);
@@ -2273,6 +2283,19 @@ TODO Removed for now, not sure this is the desired behaviour.
                     .label (obj.mainNameProperty ())
                     .styleClassName (StyleClassNames.CONTACT)
                     .build ();
+               // TODO Not the proper way to do this...
+               l.setOnMouseReleased (ev ->
+               {
+
+                   if (onSelect != null)
+                   {
+
+                       onSelect.accept (obj);
+                       popupContent.close ();
+
+                   }
+
+               });
                IconBox ib = IconBox.builder ()
                     .image (obj.mainAvatarProperty ())
                     .build ();
@@ -3695,7 +3718,7 @@ TODO Removed for now, not sure this is the desired behaviour.
 
                                                                 commText = ti.getFirstSentence ().getText ();
 
-                                                                commText += getUILanguageStringProperty (prefix,more).getValue ();
+                                                                commText += getUILanguageStringProperty (Utils.newList (prefix,more)).getValue ();
                                                                 //"<br /><a href='#'>More, click to view all.</a>";
 
                                                             }
@@ -3710,8 +3733,9 @@ TODO Removed for now, not sure this is the desired behaviour.
 
                                                         QuollPopup.messageBuilder ()
                                                             .withViewer (this.viewer)
-                                                            .title (getUILanguageStringProperty (editors,projectsent,LanguageStrings.sidebar,notes,popup,title))
+                                                            .title (getUILanguageStringProperty (editors,projectsent,LanguageStrings.sidebar,LanguageStrings.notes,popup,title))
                                                             .message (new SimpleStringProperty (notes))
+                                                            .closeButton ()
                                                             .build ();
 
                                                     });
@@ -3740,7 +3764,7 @@ TODO Removed for now, not sure this is the desired behaviour.
                                 };
 
                                 pcv.createViewer ();
-                                pcv.init (null);
+                                pcv.init (new State ());
 
                                 parentMessageBox.setChildViewer (pcv);
 

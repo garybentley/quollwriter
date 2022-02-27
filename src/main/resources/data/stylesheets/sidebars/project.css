@@ -147,12 +147,11 @@
 .toolbar .button > .iconbox .spellcheckoff-icon.icon {
     -fx-pref-height: 1.3em;
 }
-.toolbar .help { -fx-graphic: url(/imgs/help20.png); }
 .toolbar .button { -fx-content-display: graphic-only; }
 
 .accordion.contacts .content .information
 {
-    -fx-padding: 0 0 0.25em 1em;
+    -fx-padding: 0 0 0.5em 1em;
 }
 
 .accordion.contacts .content .contact
