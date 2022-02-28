@@ -387,7 +387,7 @@ public class AccordionItem extends VBox implements Stateful
                 @Override
                 public Set<MenuItem> get ()
                 {
-
+System.out.println ("GETTING");
                     return items;
 
                 }

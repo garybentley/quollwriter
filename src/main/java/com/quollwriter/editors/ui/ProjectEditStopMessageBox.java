@@ -154,6 +154,7 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
             // Show the response.
             this.responseBox = new VBox ();
+            this.responseBox.managedProperty ().bind (this.responseBox.visibleProperty ());
             this.responseBox.getStyleClass ().add (StyleClassNames.RESPONSE);
 
             this.getChildren ().add (this.responseBox);
@@ -218,6 +219,14 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
             this.responseBox.getChildren ().add (bb);
 
         }
+
+        this.binder.addChangeListener (this.message.dealtWithProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.responseBox.setVisible (!newv);
+
+        });
 
     }
 

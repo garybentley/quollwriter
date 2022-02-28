@@ -52,6 +52,11 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
         this.previousEditors.managedProperty ().bind (this.previousEditors.visibleProperty ());
         this.previousEditors.setVisible (false);
 
+        long currSize = pv.getProject ().getProjectEditors ().stream ()
+            .filter (pe -> !pe.isPrevious ())
+            .count ();
+        this.countProp.setValue (currSize);
+
         this.content.getChildren ().addAll (this.currentEditors, this.previousEditors);
 
         QuollTextView help = QuollTextView.builder ()
@@ -61,7 +66,8 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
             .build ();
 
         help.prefWidthProperty ().bind (this.content.widthProperty ());
-        help.setVisible (pv.getProject ().getProjectEditors ().size () > 0);
+        help.setVisible (currSize > 0);
+        help.managedProperty ().bind (help.visibleProperty ());
 
         this.currentEditors.getChildren ().add (help);
 
@@ -84,8 +90,11 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
             UIUtils.runLater (() ->
             {
 
-                this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
-                help.setVisible (pv.getProject ().getProjectEditors ().size () > 0);
+                long _currSize = pv.getProject ().getProjectEditors ().stream ()
+                    .filter (pe -> !pe.isPrevious ())
+                    .count ();
+                this.countProp.setValue (_currSize);
+                help.setVisible (_currSize > 0);
 
                 if (ev.wasRemoved ())
                 {
@@ -161,8 +170,6 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
 
         });
 
-        this.countProp.setValue (pv.getProject ().getProjectEditors ().size ());
-
     }
 
     private void addProjectEditor (ProjectEditor pe)
@@ -219,7 +226,7 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
 
             if (oldv && !newv)
             {
-
+System.out.println ("CHANGED REMOVING");
                 for (Node n : this.currentEditors.getChildren ())
                 {
 
@@ -407,86 +414,55 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
 
             }
 
+            long prevCount = 0;
+
+            if (viewer.getProject ().getProjectEditors () != null)
+            {
+
+                prevCount = viewer.getProject ().getProjectEditors ().stream ()
+                .filter (pe -> pe.isPrevious ())
+                .count ();
+
+            }
+
             // Get all previous editors.
             if (!this.showPreviousEditors)
             {
 
-                int prevCount = 0;
-
-                Set<ProjectEditor> pes = viewer.getProject ().getProjectEditors ();
-
-                if (pes != null)
+                if (prevCount > 0)
                 {
 
-                    for (ProjectEditor pe : pes)
-                    {
-
-                        if (pe.isPrevious ())
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,previouseditors),
+                                                             Environment.formatNumber (prevCount)))
+                        .iconName (StyleClassNames.PREVIOUSEDITORS)
+                        .onAction (eev ->
                         {
 
-                            prevCount++;
+                            this.showPreviousEditors = true;
+                            this.showPreviousEditors ();
 
-                        }
-
-                    }
-
-                    if (prevCount > 0)
-                    {
-
-                        items.add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,previouseditors),
-                                                                 Environment.formatNumber (prevCount)))
-                            .iconName (StyleClassNames.PREVIOUSEDITORS)
-                            .onAction (eev ->
-                            {
-
-                                _this.showPreviousEditors = true;
-                                _this.showPreviousEditors ();
-
-                            })
-                            .build ());
-
-                    }
+                        })
+                        .build ());
 
                 }
 
             } else {
 
-                int prevCount = 0;
-
-                Set<ProjectEditor> pes = viewer.getProject ().getProjectEditors ();
-
-                if (pes != null)
+                if (prevCount > 0)
                 {
 
-                    for (ProjectEditor pe : pes)
-                    {
-
-                        if (pe.isPrevious ())
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Utils.newList (prefix,hidepreviouseditors)))
+                        .iconName (StyleClassNames.HIDE)
+                        .onAction (eev ->
                         {
 
-                            prevCount++;
+                            this.showPreviousEditors = false;
+                            this.showPreviousEditors ();
 
-                        }
-
-                    }
-
-                    if (prevCount > 0)
-                    {
-
-                        items.add (QuollMenuItem.builder ()
-                            .label (getUILanguageStringProperty (Utils.newList (prefix,hidepreviouseditors)))
-                            .iconName (StyleClassNames.HIDE)
-                            .onAction (eev ->
-                            {
-
-                                _this.showPreviousEditors = false;
-                                _this.showPreviousEditors ();
-
-                            })
-                            .build ());
-
-                    }
+                        })
+                        .build ());
 
                 }
 

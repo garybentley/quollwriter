@@ -323,6 +323,14 @@ TODO
     }
   */
 
+  @Override
+  public boolean addToAchievementsManager ()
+  {
+
+      return false;
+
+  }
+
     private void showCompleteEditing ()
     {
 

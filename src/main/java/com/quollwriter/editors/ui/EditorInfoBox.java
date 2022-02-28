@@ -1354,7 +1354,7 @@ public class EditorInfoBox extends VBox
                     QuollPopup.questionBuilder ()
                         .inViewer (_this.viewer)
                         .title (new SimpleStringProperty ("Delete types of message"))
-                        .content (b)
+                        .message (b)
                         .confirmButtonLabel (new SimpleStringProperty ("Yes, delete them"))
                         .onConfirm (eev ->
                         {
@@ -1406,9 +1406,12 @@ public class EditorInfoBox extends VBox
                             QuollPopup.messageBuilder ()
                                 .inViewer (_this.viewer)
                                 .title (new SimpleStringProperty ("Selected message types deleted"))
-                                .message (new SimpleStringProperty ("All message for selected types have been deleted."));
+                                .closeButton ()
+                                .message (new SimpleStringProperty ("All message for selected types have been deleted."))
+                                .build ();
 
-                        });
+                        })
+                        .build ();
 
                 })
                 .build ());

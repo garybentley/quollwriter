@@ -1257,103 +1257,108 @@ public class EditorsUIUtils
                                                     () ->
                                                     {
 
-                                                        // See if we already have the project editor, this can happen if we have previously
-                                                        // sent the project but they deleted it and we are re-sending.
-                                                        ProjectEditor pe = null;
-
-                                                        try
+                                                        UIUtils.runLater (() ->
                                                         {
 
-                                                            pe = EditorsEnvironment.getProjectEditor (viewer.getProject (),
-                                                                                                      ed);
+                                                            // See if we already have the project editor, this can happen if we have previously
+                                                            // sent the project but they deleted it and we are re-sending.
+                                                            ProjectEditor pe = null;
 
-                                                        } catch (Exception e) {
-
-                                                            Environment.logError ("Unable to get project editor for project: " +
-                                                                                  viewer.getProject () +
-                                                                                  " and editor: " +
-                                                                                  ed,
-                                                                                  e);
-
-                                                            // Oh bugger...
-
-                                                        }
-
-                                                        if (pe == null)
-                                                        {
-
-                                                            pe = new ProjectEditor (viewer.getProject (),
-                                                                                    ed);
-
-                                                            pe.setStatus (ProjectEditor.Status.invited);
-
-                                                            pe.statusMessageProperty ().unbind ();
-                                                            pe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,user,sendproject,editorstatus),
-                                                                                                //"{Project} sent: %s",
-                                                                                                                           Environment.formatDate (new Date ())));
-
-                                                            // Add the editor to the list of editors
-                                                            // for the project.  A little dangerous to do it here
-                                                            // since it's not in the same transaction as the message.
-                                                            // TODO: Maybe have the message have a "side-effect" or "after save"
-                                                            // TODO: that will add the editor to the project in the same transaction.
                                                             try
                                                             {
 
-                                                                EditorsEnvironment.addProjectEditor (pe);
-
-                                                                viewer.getProject ().addProjectEditor (pe);
+                                                                pe = EditorsEnvironment.getProjectEditor (viewer.getProject (),
+                                                                                                          ed);
 
                                                             } catch (Exception e) {
 
-                                                                // Goddamn it!
-                                                                // Nothing worse than having to show an error and success at the same time.
-                                                                Environment.logError ("Unable to add editor: " +
-                                                                                      ed +
-                                                                                      " to project: " +
-                                                                                      viewer.getProject (),
+                                                                Environment.logError ("Unable to get project editor for project: " +
+                                                                                      viewer.getProject () +
+                                                                                      " and editor: " +
+                                                                                      ed,
                                                                                       e);
 
-                                                                ComponentUtils.showErrorMessage (viewer,
-                                                                                                 getUILanguageStringProperty (editors,user,sendorupdateproject,actionerror));
-                                                                                          //"Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
+                                                                // Oh bugger...
 
                                                             }
 
-                                                        } else {
-
-                                                            try
+                                                            if (pe == null)
                                                             {
 
-                                                                // Update them to be current.
-                                                                pe.setCurrent (true);
-                                                                pe.setEditorFrom (new Date ());
-                                                                pe.setEditorTo (null);
+                                                                pe = new ProjectEditor (viewer.getProject (),
+                                                                                        ed);
+
+                                                                pe.setStatus (ProjectEditor.Status.invited);
 
                                                                 pe.statusMessageProperty ().unbind ();
-                                                                pe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,user,updateproject,editorstatus),
-                                                                                                    //"{Project} updated: %s",
+                                                                pe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,user,sendproject,editorstatus),
+                                                                                                    //"{Project} sent: %s",
                                                                                                                                Environment.formatDate (new Date ())));
 
-                                                                EditorsEnvironment.updateProjectEditor (pe);
+                                                                // Add the editor to the list of editors
+                                                                // for the project.  A little dangerous to do it here
+                                                                // since it's not in the same transaction as the message.
+                                                                // TODO: Maybe have the message have a "side-effect" or "after save"
+                                                                // TODO: that will add the editor to the project in the same transaction.
+                                                                try
+                                                                {
 
-                                                            } catch (Exception e) {
+                                                                    EditorsEnvironment.addProjectEditor (pe);
 
-                                                                // Goddamn it!
-                                                                // Nothing worse than having to show an error and success at the same time.
-                                                                Environment.logError ("Unable to add editor: " +
-                                                                                      ed +
-                                                                                      " to project: " +
-                                                                                      viewer.getProject (),
-                                                                                      e);
+                                                                    viewer.getProject ().addProjectEditor (pe);
 
-                                                                ComponentUtils.showErrorMessage (viewer,
-                                                                                                 getUILanguageStringProperty (editors,user,sendorupdateproject,actionerror));
-                                                                                          //"Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
+                                                                } catch (Exception e) {
+
+                                                                    // Goddamn it!
+                                                                    // Nothing worse than having to show an error and success at the same time.
+                                                                    Environment.logError ("Unable to add editor: " +
+                                                                                          ed +
+                                                                                          " to project: " +
+                                                                                          viewer.getProject (),
+                                                                                          e);
+
+                                                                    ComponentUtils.showErrorMessage (viewer,
+                                                                                                     getUILanguageStringProperty (editors,user,sendorupdateproject,actionerror));
+                                                                                              //"Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
+
+                                                                }
+
+                                                            } else {
+
+                                                                try
+                                                                {
+
+                                                                    // Update them to be current.
+                                                                    pe.setCurrent (true);
+                                                                    pe.setEditorFrom (new Date ());
+                                                                    pe.setEditorTo (null);
+
+                                                                    pe.statusMessageProperty ().unbind ();
+                                                                    pe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,user,updateproject,editorstatus),
+                                                                                                        //"{Project} updated: %s",
+                                                                                                                                   Environment.formatDate (new Date ())));
+
+                                                                    EditorsEnvironment.updateProjectEditor (pe);
+
+                                                                } catch (Exception e) {
+
+                                                                    // Goddamn it!
+                                                                    // Nothing worse than having to show an error and success at the same time.
+                                                                    Environment.logError ("Unable to add editor: " +
+                                                                                          ed +
+                                                                                          " to project: " +
+                                                                                          viewer.getProject (),
+                                                                                          e);
+
+                                                                    ComponentUtils.showErrorMessage (viewer,
+                                                                                                     getUILanguageStringProperty (editors,user,sendorupdateproject,actionerror));
+                                                                                              //"Unable to add {editor} " + ed.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
+
+                                                                }
 
                                                             }
 
-                                                        }
+                                                        });
 
                                                         UIUtils.runLater (() ->
                                                         {

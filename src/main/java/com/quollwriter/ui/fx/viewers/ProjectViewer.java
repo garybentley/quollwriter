@@ -180,6 +180,14 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
+    @Override
+    public boolean addToAchievementsManager ()
+    {
+
+        return true;
+
+    }
+
     private void initActionMappings ()
     {
 

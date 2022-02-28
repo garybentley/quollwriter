@@ -76,6 +76,14 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
     }
 
+    @Override
+    public boolean addToAchievementsManager ()
+    {
+
+        return true;
+
+    }
+
     public ObjectProperty<Warmup> currentWarmupProperty ()
     {
 

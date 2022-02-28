@@ -908,10 +908,10 @@ TODO Remove
                 public Supplier<Set<MenuItem>> getHeaderContextMenuItemSupplier ()
                 {
 
-                    Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
-
                     return () ->
                     {
+
+                        Set<MenuItem> items = super.getHeaderContextMenuItemSupplier ().get ();
 
                         Set<MenuItem> items2 = new LinkedHashSet<> (items);
 

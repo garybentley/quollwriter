@@ -8276,7 +8276,7 @@
                 "text" : "People who are editing this ${objectnames.singular.project} for you.",
                 "previouseditors" :
                 {
-                    "title" : "<i>Previous ${objectnames.plural.editor}"
+                    "title" : "Previous ${objectnames.plural.editor}"
                 },
                 "headerpopupmenu" :
                 {

@@ -60,6 +60,14 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
     }
 
     @Override
+    public boolean addToAchievementsManager ()
+    {
+
+        return false;
+
+    }
+
+    @Override
     public void init (State s)
                throws GeneralException
     {

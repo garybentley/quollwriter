@@ -1322,15 +1322,20 @@ TODO
 
         // This is done here because the achievements manager needs the project.
         // Also the achievements panel needs the achievements manager.
-        try
+        if (this.addToAchievementsManager ())
         {
 
-            Environment.getAchievementsManager ().addProjectViewer (this);
+            try
+            {
 
-        } catch (Exception e) {
+                Environment.getAchievementsManager ().addProjectViewer (this);
 
-            Environment.logError ("Unable to add viewer to achievements manager.",
-                                  e);
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to add viewer to achievements manager.",
+                                      e);
+
+            }
 
         }
 
@@ -1763,15 +1768,20 @@ TODO
 
         // This is done here because the achievements manager needs the project.
         // Also the achievements panel needs the achievements manager.
-        try
+        if (this.addToAchievementsManager ())
         {
 
-            Environment.getAchievementsManager ().addProjectViewer (this);
+            try
+            {
 
-        } catch (Exception e) {
+                Environment.getAchievementsManager ().addProjectViewer (this);
 
-            Environment.logError ("Unable to add viewer to achievements manager.",
-                                  e);
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to add viewer to achievements manager.",
+                                      e);
+
+            }
 
         }
 
@@ -5614,6 +5624,8 @@ TODO Remove?
                                            fileName);
 
     }
+
+    public abstract boolean addToAchievementsManager ();
 
     public abstract void viewObject (DataObject d,
                                      Runnable   doAfterView);
