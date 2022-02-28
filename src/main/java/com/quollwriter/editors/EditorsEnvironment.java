@@ -2541,9 +2541,14 @@ TODO Remove
         if (proj != null)
         {
 
-            AbstractProjectViewer pv = null; // TODO Environment.getProjectViewer (proj);
+            AbstractProjectViewer pv = Environment.getProjectViewer (proj);
 
-            pv.getProject ().removeProjectEditor (pe);
+            if (proj != null)
+            {
+
+                pv.getProject ().removeProjectEditor (pe);
+
+            }
 
         }
 /*

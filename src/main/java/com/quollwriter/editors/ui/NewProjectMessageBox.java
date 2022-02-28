@@ -433,7 +433,12 @@ TODO Is this needed?
             try
             {
 
-                p.setFilePassword (pwd);
+                if (pwd.length () > 0)
+                {
+
+                    p.setFilePassword (pwd);
+
+                }
 
                 // We create the project but then close the connection pool since the user
                 // may not want to open the project yet.
@@ -443,7 +448,7 @@ TODO Is this needed?
             } catch (Exception e) {
 
                 Environment.logError ("Unable to save editor project to: " +
-                                      saveDir.getFile () +
+                                      saveDir +
                                       ", message: " +
                                       this.message,
                                       e);

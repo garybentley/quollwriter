@@ -1857,6 +1857,8 @@ TODO NEeded?
                          p.getFilePassword (),
                          0);
 
+        p.setEncrypted (p.getFilePassword () != null);
+
         // Create a file that indicates that the directory can be deleted.
         Utils.createQuollWriterDirFile (projDir);
 

@@ -4,8 +4,8 @@
 .message
 {
     -fx-padding: 0.5em 0 0.5em 0;
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 0 0 1px 3px;
+    -fx-border-color: transparent transparent -qw-component-border-color transparent;
 }
 
 .form:column .items > .label
@@ -119,4 +119,9 @@
 {
     -fx-alignment: center;
     -fx-padding: 1em 0.5em 0.5em 0.5em;
+}
+
+.message.projecteditstopmessage .response
+{
+    -fx-padding: 0 0.5em 0 1em;
 }
