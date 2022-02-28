@@ -3830,7 +3830,7 @@
                             "popup" :
                             {
                                 ":comment" : "This popup is shown when the user accepts the invitation.",
-                                "title" : "Accept the invitation",
+                                "title" : "Where should the ${objectnames.singular.project} be saved?",
                                 "finder" :
                                 {
                                     "title" : "Select a Folder to save to",
@@ -3849,7 +3849,6 @@
                                     "encrypt" : "Encrypt this ${objectnames.singular.project}?  You will be prompted for a password.",
                                     "password" : "Password",
                                     "confirmpassword" : "Confirm",
-                                    "where" : "Where should the ${objectnames.singular.project} be saved?",
                                     "sendmessage" :
                                     {
                                         "text" : "Send a message back",

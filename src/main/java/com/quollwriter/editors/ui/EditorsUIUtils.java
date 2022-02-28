@@ -1174,6 +1174,7 @@ public class EditorsUIUtils
             {
 
                 form.showErrors (errors);
+                ev.consume ();
                 return;
 
             }
@@ -1447,27 +1448,37 @@ TODO Removed for now, not sure this is the desired behaviour.
                                         final Runnable              onSend)
     {
 
+        Form f = EditorsUIUtils.createSendProjectPanel (viewer,
+                                                      ed,
+                                                      () ->
+                                                      {
+
+                                                          // Need to close the popup.
+
+                                                          if (onSend != null)
+                                                          {
+
+                                                              Environment.scheduleImmediately (onSend);
+
+                                                          }
+
+                                                      },
+                                                      null);
+
         QuollPopup qp = QuollPopup.formBuilder ()
             .title (editors,user,sendproject,popup,title)
             .styleClassName (StyleClassNames.SEND)
             .styleSheet ("sendproject")
-            .form (EditorsUIUtils.createSendProjectPanel (viewer,
-                                                          ed,
-                                                          () ->
-                                                          {
-
-                                                              // Need to close the popup.
-
-                                                              if (onSend != null)
-                                                              {
-
-                                                                  Environment.scheduleImmediately (onSend);
-
-                                                              }
-
-                                                          },
-                                                          null))
+            .form (f)
             .build ();
+
+        f.addEventHandler (Form.FormEvent.CONFIRM_EVENT,
+                           ev ->
+        {
+
+            qp.close ();
+
+        });
 
     }
 

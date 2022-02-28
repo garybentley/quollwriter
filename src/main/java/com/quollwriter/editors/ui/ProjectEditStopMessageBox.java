@@ -33,36 +33,9 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
         super (mess,
                viewer);
 
-    }
-
-    public boolean isAutoDealtWith ()
-    {
-
-        return false;
-
-    }
-
-    public void doUpdate ()
-    {
-
-        if (this.message.isDealtWith ())
-        {
-
-            if (this.responseBox != null)
-            {
-
-                this.responseBox.setVisible (false);
-
-            }
-
-        }
-
-    }
-
-    public void doInit ()
-    {
-
         final ProjectEditStopMessageBox _this = this;
+
+        this.getStyleClass ().add ("projecteditstopmessage");
 
         StringProperty title = null;
         //"Stopped editing {project}";
@@ -78,15 +51,14 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
         }
 
-        QuollLabel h = QuollLabel.builder ()
-            .label (title)
-            .styleClassName (StyleClassNames.STOPPED)
-            .build ();
-        h.getStyleClass ().add (StyleClassNames.SUBTITLE);
-
-        this.getChildren ().add (h);
+       this.getChildren ().add (Header.builder ()
+        .title (title)
+        .styleClassName (StyleClassNames.HEADER)
+        .iconClassName (StyleClassNames.STOPPED)
+        .build ());
 
         Form.Builder fb = Form.builder ();
+        fb.layoutType (Form.LayoutType.column);
 
         String reason = this.message.getReason ();
 
@@ -244,6 +216,30 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
                 .build ();
 
             this.responseBox.getChildren ().add (bb);
+
+        }
+
+    }
+
+    public boolean isAutoDealtWith ()
+    {
+
+        return false;
+
+    }
+
+    public void doUpdate ()
+    {
+
+        if (this.message.isDealtWith ())
+        {
+
+            if (this.responseBox != null)
+            {
+
+                this.responseBox.setVisible (false);
+
+            }
 
         }
 

@@ -64,12 +64,12 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
            this.responseBox = new VBox ();
 
            this.getChildren ().add (this.responseBox);
-
+/*
            this.responseBox.getChildren ().add (QuollLabel.builder ()
             .label (editors,messages,invite,received,response)
             .styleClassName (StyleClassNames.SUBTITLE)
             .build ());
-
+*/
            QuollButtonBar bb = QuollButtonBar.builder ()
             .button (QuollButton.builder ()
                 .label (editors,messages,invite,received,buttons,LanguageStrings.confirm,text)

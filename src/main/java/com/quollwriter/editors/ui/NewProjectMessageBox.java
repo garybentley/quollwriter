@@ -29,6 +29,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
     private VBox responseBox = null;
     private ProjectSentReceivedViewer sentViewer = null;
     private Label previousLabel = null;
+    private QuollButtonBar responseButs = null;
 
     public NewProjectMessageBox (NewProjectMessage mess,
                                  AbstractViewer    viewer)
@@ -136,7 +137,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
                 .title (editors,messages,newproject,received,undealtwith,LanguageStrings.text)
                 .build ());
 
-            QuollButtonBar buts = QuollButtonBar.builder ()
+            this.responseButs = QuollButtonBar.builder ()
                 .button (QuollButton.builder ()
                     .label (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.accept,LanguageStrings.text)
                     .buttonType (ButtonBar.ButtonData.YES)
@@ -161,7 +162,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
                     .build ())
                 .build ();
 
-            this.responseBox.getChildren ().add (buts);
+            this.responseBox.getChildren ().add (this.responseButs);
 
         }
 
@@ -195,6 +196,13 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
 
         this.previousLabel.setVisible (false);
 
+        if (this.message.isDealtWith ())
+        {
+
+            this.responseBox.setVisible (false);
+
+        }
+
         if ((!this.message.isDealtWith ())
             &&
             (this.message.getEditor ().isPrevious ())
@@ -222,14 +230,20 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         QuollPopup qp = QuollPopup.builder ()
             .headerIconClassName (StyleClassNames.PROJECT)
             .styleClassName (StyleClassNames.ACCEPT)
+            .styleSheet ("editoracceptproject")
             .title (Utils.newList (prefix,title))
             .content (content)
             .inViewer (this.viewer)
+            .hideOnEscape (true)
+            .removeOnClose (true)
+            .withClose (true)
             .build ();
-
+/*
+TODO Remove
         content.getChildren ().add (Header.builder ()
             .title (Utils.newList (prefix,labels,where))
             .build ());
+*/
 /*
 TODO Is this needed?
         Path defDir = Environment.getDefaultSaveProjectDirPath ();
@@ -252,9 +266,23 @@ TODO Is this needed?
         Path defDir = Environment.getDefaultSaveProjectDirPath ();
         Path nf = defDir.resolve ("editor-projects/").resolve (this.message.getEditor ().getEmail ());
 
+        try
+        {
+
+            Files.createDirectories (nf);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to create directories for: " + defDir,
+                                  e);
+
+            // TODO Hanlde this error.
+
+        }
+
         QuollFileField saveDir = QuollFileField.builder ()
             .styleClassName (StyleClassNames.SAVE)
-            .initialFile (defDir)
+            .initialFile (nf)
             .limitTo (QuollFileField.Type.directory)
             .chooserTitle (Utils.newList (prefix,finder,tooltip))
             .withViewer (viewer)
@@ -288,7 +316,7 @@ TODO Is this needed?
 
         Form form = Form.builder ()
             //.description (desc)
-            .layoutType (Form.LayoutType.column)
+            .layoutType (Form.LayoutType.stacked)
             .item (getUILanguageStringProperty (Utils.newList (prefix,labels,project)),
                    QuollLabel.builder ()
                     .label (this.message.forProjectNameProperty ())
@@ -305,6 +333,8 @@ TODO Is this needed?
             .confirmButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,LanguageStrings.save)))
             .cancelButton (getUILanguageStringProperty (Utils.newList (prefix,buttons,LanguageStrings.cancel)))
             .build ();
+
+        content.getChildren ().add (form);
 
         form.setOnCancel (ev ->
         {
@@ -323,7 +353,7 @@ TODO Is this needed?
             // See if the project already exists.
             Path pf = saveDir.getFile ().resolve (Utils.sanitizeForFilename (this.message.getForProjectName ()));
 
-            if (Files.notExists (pf))
+            if (Files.exists (pf))
             {
 
                 form.showError (getUILanguageStringProperty (Utils.newList (prefix2,errors,valueexists),
@@ -346,7 +376,7 @@ TODO Is this needed?
                 if (pwd.equals (""))
                 {
 
-                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,nopassword)));
+                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,errors,nopassword)));
                                            //"Please provide a password for securing the {project}.");
                     return;
 
@@ -355,7 +385,7 @@ TODO Is this needed?
                 if (pwd2.equals (""))
                 {
 
-                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,confirmpassword)));
+                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,errors,confirmpassword)));
                                            //"Please confirm your password.");
                     return;
 
@@ -364,7 +394,7 @@ TODO Is this needed?
                 if (!pwd.equals (pwd2))
                 {
 
-                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,nomatch)));
+                    form.showError (getUILanguageStringProperty (Utils.newList (prefix2,errors,nomatch)));
                                            //"The passwords do not match.");
                     return;
 
@@ -439,7 +469,12 @@ TODO Is this needed?
 
                 }
 
-                qp.close ();
+                UIUtils.runLater (() ->
+                {
+
+                    qp.close ();
+
+                });
 
                 this.message.setAccepted (true);
                 this.message.setDealtWith (true);
@@ -464,52 +499,57 @@ TODO Is this needed?
 
                 }
 
-                QuollPopup.questionBuilder ()
-                    .styleClassName (StyleClassNames.OPEN)
-                    .popupId (popupId)
-                    .title (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,title)
-                    .message (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,text)
-                    .confirmButtonLabel (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,confirm)
-                    .cancelButtonLabel (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,cancel)
-                    .onConfirm (eev ->
-                    {
+                UIUtils.runLater (() ->
+                {
 
-                        this.viewer.getPopupById (popupId).close ();
-
-                        try
+                    QuollPopup.questionBuilder ()
+                        .styleClassName (StyleClassNames.OPEN)
+                        .popupId (popupId)
+                        .title (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,title)
+                        .message (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,text)
+                        .confirmButtonLabel (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,confirm)
+                        .cancelButtonLabel (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,popup,buttons,cancel)
+                        .onConfirm (eev ->
                         {
 
-                            Environment.openProject (fproj,
-                                                     () ->
-                                                     {
+                            this.viewer.getPopupById (popupId).close ();
 
-                                                        // Show the first chapter.
-                                                        AbstractProjectViewer pv = Environment.getProjectViewer (fproj);
+                            try
+                            {
 
-                                                        if (pv != null)
-                                                        {
+                                Environment.openProject (fproj,
+                                                         () ->
+                                                         {
 
-                                                            pv.viewObject (pv.getProject ().getBook (0).getChapters ().get (0));
+                                                            // Show the first chapter.
+                                                            AbstractProjectViewer pv = Environment.getProjectViewer (fproj);
 
-                                                        }
+                                                            if (pv != null)
+                                                            {
 
-                                                     });
+                                                                pv.viewObject (pv.getProject ().getBook (0).getChapters ().get (0));
 
-                        } catch (Exception e) {
+                                                            }
 
-                            Environment.logError ("Unable to open project: " +
-                                                  fproj,
-                                                  e);
+                                                         });
 
-                            ComponentUtils.showErrorMessage (getUILanguageStringProperty (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,actionerror));
-                                                      //"Unable to open {project}: " + fproj.getName () + " please contact Quoll Support for assistance.");
+                            } catch (Exception e) {
 
-                        }
+                                Environment.logError ("Unable to open project: " +
+                                                      fproj,
+                                                      e);
+
+                                ComponentUtils.showErrorMessage (getUILanguageStringProperty (editors,messages,newproject,received,undealtwith,LanguageStrings.accepted,openproject,actionerror));
+                                                          //"Unable to open {project}: " + fproj.getName () + " please contact Quoll Support for assistance.");
+
+                            }
 
 
 
-                    })
-                    .build ();
+                        })
+                        .build ();
+
+                });
 
             };
 

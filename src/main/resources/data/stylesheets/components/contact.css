@@ -10,6 +10,11 @@
      -fx-alignment: center;
  }
 
+.contact .controls.statusbar
+{
+    -fx-spacing: 0.5em;
+}
+
  .contact .controls .iconbox .icon.online-icon
  {
      -fx-pref-height: 1.000em;

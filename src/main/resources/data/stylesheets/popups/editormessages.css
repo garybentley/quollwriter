@@ -93,12 +93,12 @@
     -fx-border-width: 0 0 1px 3px;
     -fx-border-color: transparent transparent -qw-component-border-color red;
 }
-
+/*
 .message .response
 {
     -fx-padding: 0 0.5em 0.25em 0.5em;
 }
-
+*/
 .message .response .header .title
 {
     -fx-padding: 0;
@@ -117,6 +117,6 @@
 
 .message .response .buttons
 {
-    -fx-alignment: center-left;
-    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+    -fx-alignment: center;
+    -fx-padding: 1em 0.5em 0.5em 0.5em;
 }

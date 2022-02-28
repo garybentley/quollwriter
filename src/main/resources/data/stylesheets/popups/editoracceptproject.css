@@ -1,0 +1,29 @@
+.control .passwords .label
+{
+    -fx-padding: 0.3em 0.5em 0.3em 0.5em;
+}
+
+.control .qtextarea
+{
+    -fx-pref-height: 8em;
+    -fx-max-height: 8em;
+    -fx-min-height: 8em;
+}
+
+.control .header.subtitle
+{
+    -fx-padding: 0 0 0 -0.5em;
+}
+
+.control .header.subtitle .label
+{
+    -fx-font-size: 1em;
+    -fx-padding: 0;
+}
+
+.control .header.subtitle .iconbox
+{
+    visibility: hidden;
+    -fx-border-width: 0 0 0px 0;
+    -fx-border-color: -qw-component-border-color;
+}

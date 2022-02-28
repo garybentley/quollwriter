@@ -799,9 +799,14 @@ public class Form extends VBox
                      Node           c)
         {
 
-            this.label = QuollLabel.builder ()
-                .label (l)
-                .build ();
+            if (l != null)
+            {
+
+                this.label = QuollLabel.builder ()
+                    .label (l)
+                    .build ();
+
+            }
 
             this.control = c;
 

@@ -1698,6 +1698,7 @@ public class UIUtils
                                                         .title (project,actions,deleteproject,editorproject,confirmpopup,title)
                                                         .message (getUILanguageStringProperty (Arrays.asList (project,actions,deleteproject,editorproject,confirmpopup,text),
                                                                                                proj.getForEditor ().getMainName ()))
+                                                        .closeButton ()
                                                         .build ();
 
                                                    });

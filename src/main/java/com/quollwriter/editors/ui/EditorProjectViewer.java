@@ -339,7 +339,7 @@ TODO
             QuollPopup.yesConfirmTextEntryBuilder ()
                 .title (Utils.newList (prefix,title))
                 .styleClassName (StyleClassNames.DELETE)
-                .styleSheet ("deleteeditorproject")
+                //.styleSheet ("deleteeditorproject")
                 .inViewer (this)
                 .description (getUILanguageStringProperty (Utils.newList (prefix,text),
                                                            this.project.getName (),
@@ -353,30 +353,40 @@ TODO
                                                                    () ->
                     {
 
-                        _this.close (true,
-                                     () ->
+                        UIUtils.runLater (() ->
                         {
 
-                            Environment.deleteProject (_proj,
-                                                       () ->
+                            _this.close (true,
+                                         () ->
                             {
 
-                                List<String> prefx = Arrays.asList (editors,LanguageStrings.project,actions,deleteproject,confirmpopup);
+                                Environment.deleteProject (_proj,
+                                                           () ->
+                                {
 
-                                QuollPopup.messageBuilder ()
-                                    .title (Utils.newList (prefx,title))
-                                    .message (getUILanguageStringProperty (Utils.newList (prefx,text),
-                                                                           _proj.getForEditor ().mainNameProperty ()))
-                                    .closeButton (null,
-                                                  () ->
-                                                  {
+                                    List<String> prefx = Arrays.asList (editors,LanguageStrings.project,actions,deleteproject,confirmpopup);
 
-                                                      Environment.showAllProjectsViewerIfNoOpenProjects ();
+                                    UIUtils.runLater (() ->
+                                    {
 
-                                                  })
-                                    .build ();
+                                        QuollPopup.messageBuilder ()
+                                            .title (Utils.newList (prefx,title))
+                                            .message (getUILanguageStringProperty (Utils.newList (prefx,text),
+                                                                                   _proj.getForEditor ().mainNameProperty ()))
+                                            .closeButton (null,
+                                                          () ->
+                                                          {
 
-                             });
+                                                              Environment.showAllProjectsViewerIfNoOpenProjects ();
+
+                                                          })
+                                            .build ();
+
+                                    });
+
+                                 });
+
+                            });
 
                         });
 
