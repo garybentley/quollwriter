@@ -1315,7 +1315,7 @@ public class EditorInfoBox extends VBox
             }
 
             menu.getItems ().add (QuollMenuItem.builder ()
-                .label (new SimpleStringProperty ("Delete Contact completely"))
+                .label (new SimpleStringProperty ("Delete Contact completely [debug option]"))
                 .iconName (StyleClassNames.DELETE)
                 .onAction (ev ->
                 {

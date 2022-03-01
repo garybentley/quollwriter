@@ -755,6 +755,26 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
 
     }
 
+    public void deleteAllMessagesForEditor (EditorEditor ed,
+                                            Connection   conn)
+                                     throws GeneralException
+    {
+
+        List<EditorMessage> mess = this.getObjects (ed,
+                                                    conn,
+                                                    true);
+
+        for (EditorMessage m : mess)
+        {
+
+            this.objectManager.deleteObject (m,
+                                             true,
+                                             conn);
+
+        }
+
+    }
+
     public EditorMessage getMessageByEditorAndId (EditorEditor ed,
                                                   String       messId,
                                                   Connection   conn)

@@ -3005,9 +3005,8 @@ TODO Remove
 
         ed.getBinder ().dispose ();
 
-        EditorsEnvironment.editorsManager.deleteObject (ed,
-                                                        false,
-                                                        null);
+        // Delete from the project editor.
+        EditorsEnvironment.editorsManager.deleteEditor (ed);
 
         EditorsEnvironment.editors.remove (ed);
 

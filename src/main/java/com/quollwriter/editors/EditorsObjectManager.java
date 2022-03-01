@@ -61,6 +61,67 @@ public class EditorsObjectManager extends ObjectManager
 
     }
 
+    public void deleteEditor (EditorEditor ed)
+                       throws GeneralException
+    {
+
+        Connection c = null;
+
+        try
+        {
+
+            c = this.getConnection ();
+
+            this.deleteFromAllProjects (ed,
+                                        c);
+
+            this.deleteAllMessagesForEditor (ed,
+                                             c);
+
+            this.deleteObject (ed,
+                               false,
+                               c);
+
+        } catch (Exception e)
+        {
+
+            this.throwException (c,
+                                 "Unable to delete editor: " + ed,
+                                 e);
+
+        } finally
+        {
+
+            this.releaseConnection (c);
+
+        }
+
+    }
+
+    public void deleteFromAllProjects (EditorEditor ed,
+                                       Connection   c)
+                                throws GeneralException
+    {
+
+        ProjectEditorDataHandler h = (ProjectEditorDataHandler) this.handlers.get (ProjectEditor.class);
+
+        h.deleteFromAllProjects (ed,
+                                 c);
+
+    }
+
+    public void deleteAllMessagesForEditor (EditorEditor ed,
+                                            Connection   c)
+                                     throws GeneralException
+    {
+
+        EditorMessageDataHandler h = (EditorMessageDataHandler) this.handlers.get (EditorMessage.class);
+
+        h.deleteAllMessagesForEditor (ed,
+                                      c);
+
+    }
+
     @Override
     public boolean supportsLinks ()
     {

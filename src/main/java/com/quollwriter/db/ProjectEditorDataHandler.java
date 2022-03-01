@@ -276,4 +276,46 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
 
     }
 
+    public void deleteFromAllProjects (EditorEditor ed,
+                                       Connection   conn)
+                                throws GeneralException
+    {
+
+        List<ProjectEditor> ret = new ArrayList<> ();
+
+        ResultSet rs = null;
+
+        try
+        {
+
+            rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE editordbkey = ?",
+                                                  Arrays.asList (ed.getKey ()),
+                                                  conn);
+
+            while (rs.next ())
+            {
+
+                ret.add (this.getProjectEditor (rs));
+
+            }
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to load project editors for: " +
+                                        ed,
+                                        e);
+
+        }
+
+        for (ProjectEditor pe : ret)
+        {
+
+            this.objectManager.deleteObject (pe,
+                                             true,
+                                             conn);
+
+        }
+
+    }
+
 }
