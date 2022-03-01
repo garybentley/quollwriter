@@ -897,7 +897,8 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
         p.setOnCancel (ev ->
         {
 
-            this.removeNewItem (item);
+            //this.getParagraphIconMargin (item).removeItem (item);
+            this.newItems.remove (item);
 
             this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
 
@@ -906,9 +907,17 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
         p.setOnClose (() ->
         {
 
-            this.removeNewItem (item);
+            //this.getParagraphIconMargin (item).removeItem (item);
+            this.newItems.remove (item);
 
-            this.editor.recreateParagraphGraphic (this.editor.getParagraphForOffset (item.getPosition ()));
+            int ind = this.editor.getParagraphForOffset (item.getPosition ());
+
+            if (ind > -1)
+            {
+
+                this.editor.recreateParagraphGraphic (ind);
+
+            }
 
         });
 

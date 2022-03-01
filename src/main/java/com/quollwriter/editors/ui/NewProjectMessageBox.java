@@ -147,7 +147,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
                         this.handleNewProjectResponse (true);
 
                     })
-                    .tooltip (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.accept,title)
+                    .tooltip (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.accept,tooltip)
                     .build ())
                 .button (QuollButton.builder ()
                     .label (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.reject,LanguageStrings.text)
@@ -158,7 +158,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
                         this.handleNewProjectResponse (false);
 
                     })
-                    .tooltip (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.reject,title)
+                    .tooltip (editors,messages,newproject,received,undealtwith,buttons,LanguageStrings.reject,tooltip)
                     .build ())
                 .build ();
 

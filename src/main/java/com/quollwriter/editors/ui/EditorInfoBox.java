@@ -1315,6 +1315,37 @@ public class EditorInfoBox extends VBox
             }
 
             menu.getItems ().add (QuollMenuItem.builder ()
+                .label (new SimpleStringProperty ("Delete Contact completely"))
+                .iconName (StyleClassNames.DELETE)
+                .onAction (ev ->
+                {
+
+                    QuollPopup.yesConfirmTextEntryBuilder ()
+                        .description (new SimpleStringProperty ("Enter <b>Yes</b> to completely delete the Contact."))
+                        .onConfirm (eev ->
+                        {
+
+                            try
+                            {
+
+                                EditorsEnvironment.deleteEditor (this.editor);
+
+                            } catch (Exception e) {
+
+                                Environment.logError ("Unable to delete editor: " + this.editor,
+                                                      e);
+
+                                ComponentUtils.showErrorMessage (new SimpleStringProperty ("Unable to delete editor."));
+
+                            }
+
+                        })
+                        .build ();
+
+                })
+                .build ());
+
+            menu.getItems ().add (QuollMenuItem.builder ()
                 .label (new SimpleStringProperty ("Delete all messages for types [Debug option]"))
                 .iconName (StyleClassNames.DELETE)
                 .onAction (ev ->

@@ -529,6 +529,7 @@ public class EditorsUIUtils
                     .withViewer (viewer)
                     .styleClassName (StyleClassNames.DELETE)
                     .title (Utils.newList (prefix,title))
+                    .closeButton ()
                     .message (getUILanguageStringProperty (Utils.newList (prefix,text),
                                                            ed.getMainName ()))
                     .build ();
@@ -1741,24 +1742,30 @@ TODO Removed for now, not sure this is the desired behaviour.
 
                                                         }
 
-                                                        // Fire an event for each note.
-                                                        for (Note n : comments)
+                                                        UIUtils.runLater (() ->
                                                         {
 
-                                                            viewer.fireProjectEvent (ProjectEvent.Type.note,
-                                                                                     ProjectEvent.Action.edit,
-                                                                                     n);
+                                                            // Fire an event for each note.
+                                                            for (Note n : comments)
+                                                            {
 
-                                                        }
+                                                                viewer.fireProjectEvent (ProjectEvent.Type.note,
+                                                                                         ProjectEvent.Action.edit,
+                                                                                         n);
 
-                                                        QuollPopup.messageBuilder ()
-                                                            .title (editors,user,sendunsentcomments,confirmpopup,title)
-                                                            .message (getUILanguageStringProperty (Arrays.asList (editors,user,sendunsentcomments,confirmpopup,text),
-                                                                                                   ed.getMainName ()))
-                                                            .inViewer (viewer)
-                                                            .build ();
+                                                            }
 
-                                                        qp.close ();
+                                                            QuollPopup.messageBuilder ()
+                                                                .title (editors,user,sendunsentcomments,confirmpopup,title)
+                                                                .message (getUILanguageStringProperty (Arrays.asList (editors,user,sendunsentcomments,confirmpopup,text),
+                                                                                                       ed.getMainName ()))
+                                                                .inViewer (viewer)
+                                                                .closeButton ()
+                                                                .build ();
+
+                                                            qp.close ();
+
+                                                        });
 
                                                         if (onSend != null)
                                                         {

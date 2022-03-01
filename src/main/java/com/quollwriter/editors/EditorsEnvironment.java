@@ -205,7 +205,7 @@ public class EditorsEnvironment
                         }
 
                         // Add a notification to the project viewer saying we are logging in.
-                        final AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+                        final AbstractViewer viewer = Environment.getFocusedViewer ();
 
                         Notification _n = null;
 
@@ -2013,7 +2013,7 @@ TODO Remove
 
                                                                                 List<String> prefix = Arrays.asList (LanguageStrings.editors,user,invitesent,popup);
 
-                                                                                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+                                                                                AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                                                                 QuollPopup.messageBuilder ()
                                                                                     .withViewer (viewer)
@@ -2802,46 +2802,49 @@ TODO Remove
                                                 () ->
                                                 {
 
-                                                    try
+                                                    UIUtils.runLater (() ->
                                                     {
 
-                                                        // Uupdate the editor to be previous.
-                                                        ed.setEditorStatus (EditorEditor.EditorStatus.previous);
+                                                        try
+                                                        {
 
-                                                        EditorsEnvironment.updateEditor (ed);
+                                                            // Uupdate the editor to be previous.
+                                                            ed.setEditorStatus (EditorEditor.EditorStatus.previous);
 
-                                                    } catch (Exception e) {
+                                                            EditorsEnvironment.updateEditor (ed);
 
-                                                        Environment.logError ("Unable to update editor: " +
-                                                                              ed,
-                                                                              e);
+                                                        } catch (Exception e) {
 
-                                                        ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.editors,editor,edit,actionerror));
-                                                                                  //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                            Environment.logError ("Unable to update editor: " +
+                                                                                  ed,
+                                                                                  e);
 
-                                                        return;
+                                                            ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.editors,editor,edit,actionerror));
+                                                                                      //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
-                                                    }
+                                                            return;
 
-                                                    try
-                                                    {
+                                                        }
 
-                                                        EditorsEnvironment.removeEditorAsProjectEditorForAllProjects (ed);
+                                                        try
+                                                        {
 
-                                                    } catch (Exception e) {
+                                                            EditorsEnvironment.removeEditorAsProjectEditorForAllProjects (ed);
 
-                                                        Environment.logError ("Unable to remove editor as project editor: " +
-                                                                              ed,
-                                                                              e);
+                                                        } catch (Exception e) {
 
-                                                        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+                                                            Environment.logError ("Unable to remove editor as project editor: " +
+                                                                                  ed,
+                                                                                  e);
 
-                                                        ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.editors,editor,edit,actionerror));
-                                                                                  //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                            ComponentUtils.showErrorMessage (getUILanguageStringProperty (LanguageStrings.editors,editor,edit,actionerror));
+                                                                                      //"Unable to update {editor}, please contact Quoll Writer support for assistance.");
 
-                                                        return;
+                                                            return;
 
-                                                    }
+                                                        }
+
+                                                    });
 
                                                     // Unsubscribe.
                                                     EditorsEnvironment.messageHandler.unsubscribeFromEditor (ed);
@@ -3372,9 +3375,10 @@ TODO Remove
             //if (!EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.EDITORS_SEEN_OFFLINE_SEND_MESSAGE_PROPERTY_NAME))
             //{
 
-                AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+                AbstractViewer viewer = Environment.getFocusedViewer ();
 
                 QuollPopup.messageBuilder ()
+                    .inViewer (viewer)
                     .title (LanguageStrings.editors,messages,editoroffline,popup,title)
                     .message (getUILanguageStringProperty (Arrays.asList (LanguageStrings.editors,messages,editoroffline,popup,text),
                                                            ed.mainNameProperty ()))

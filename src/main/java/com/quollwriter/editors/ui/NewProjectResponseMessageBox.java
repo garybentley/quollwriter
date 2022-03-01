@@ -108,6 +108,16 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
         final ProjectEditor fpe = pe;
 
+        if (pe == null)
+        {
+
+            Environment.logError ("Unable to get project editor for project: " +
+                                  proj +
+                                  ", editor: " +
+                                  ed);
+
+        }
+
         // Only do this if the editor is still pending.
         if ((!this.message.isDealtWith ())
             &&

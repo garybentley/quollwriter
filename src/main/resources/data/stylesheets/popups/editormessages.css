@@ -111,7 +111,7 @@
 
 .message .response .header
 {
-    -fx-border-width: 0 0 1px 0;
+    -fx-border-width: 0 0 0 0;
     -fx-border-color: -qw-component-border-color;
 }
 
