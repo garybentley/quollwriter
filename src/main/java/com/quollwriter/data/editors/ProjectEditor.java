@@ -64,6 +64,16 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
         this.statusMessageProp.bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
+            if ((this.statusString.getValue () == null)
+                ||
+                (this.statusString.getValue ().size () == 0)
+               )
+            {
+
+                return "";
+
+            }
+
             return getUILanguageStringProperty (this.statusString.getValue (),
                                                 (this.statusStringParms.getValue () != null ? this.statusStringParms.getValue ().toArray () : null)).getValue ();
 

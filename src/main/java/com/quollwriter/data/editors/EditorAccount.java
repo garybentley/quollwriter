@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import org.bouncycastle.openpgp.*;
 
 import com.quollwriter.*;
+import com.quollwriter.ui.fx.UIUtils;
 
 public class EditorAccount
 {
@@ -180,6 +181,14 @@ public class EditorAccount
 
     public void setAvatar (Image im)
     {
+
+        if (im.getWidth () > Constants.EDITORS_SERVICE_AVATAR_MAX_WIDTH)
+        {
+
+            im = UIUtils.getScaledImage (im,
+                                         Constants.EDITORS_SERVICE_AVATAR_MAX_WIDTH);
+
+        }
 
         this.avatarProp.setValue (im);
 

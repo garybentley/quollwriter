@@ -1745,6 +1745,15 @@ TODO OLD Remove?
 
                                 String dmess = JSONEncoder.encode (data);
 
+                                if (dmess.length () > Constants.EDITORS_SERVICE_MAX_MESSAGE_SIZE)
+                                {
+
+                                    throw new GeneralException ("Message is too large, size is: " +
+                                                                dmess.length () +
+                                                                ", max is: " + Constants.EDITORS_SERVICE_MAX_MESSAGE_SIZE);
+
+                                }
+
                                 byte[] bmess = dmess.getBytes ();
 
                                 if (mess.isEncrypted ())

@@ -548,6 +548,10 @@ public class Constants
     public static final String DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT = "defaultChapterInfoPreviewFormat";
 
     public static final String DEBUG_MODE_PROPERTY_NAME = "debugMode";
+
+    // Note this is based on the size in the server which is set by system property: xmpp.parser.buffer.size
+    public static final int EDITORS_SERVICE_MAX_MESSAGE_SIZE = 5242880;
+    public static final int EDITORS_SERVICE_AVATAR_MAX_WIDTH = 120;
     public static final String EDITORS_SERVICE_HOST_PROPERTY_NAME = "editorsServiceHost";
     public static final String EDITORS_SERVICE_PORT_PROPERTY_NAME = "editorsServicePort";
     public static final String EDITORS_SERVICE_REPORT_MESSAGE_PAGE_PROPERTY_NAME = "editorsServiceReportMessagePage";
