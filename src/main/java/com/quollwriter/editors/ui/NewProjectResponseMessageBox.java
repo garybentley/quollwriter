@@ -107,7 +107,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         }
 
         final ProjectEditor fpe = pe;
-
+/*
+TODO Remove, not needed
         if (pe == null)
         {
 
@@ -117,7 +118,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                   ed);
 
         }
-
+*/
         // Only do this if the editor is still pending.
         if ((!this.message.isDealtWith ())
             &&
@@ -213,10 +214,9 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
                             EditorsEnvironment.updateEditor (ed);
 
-                            fpe.statusMessageProperty ().unbind ();
-                            fpe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,messages,newprojectresponse,received,editorstatus,accepted),
+                            fpe.setStatusMessage (Arrays.asList (editors,messages,newprojectresponse,received,editorstatus,accepted),
                                                                 //"Accepted {project}: %s",
-                                                                                            Environment.formatDate (this.message.getWhen ())));
+                                                  Arrays.asList (Environment.formatDate (this.message.getWhen ())));
                             fpe.setEditorFrom (this.message.getWhen ());
                             fpe.setCurrent (true);
                             fpe.setStatus (ProjectEditor.Status.accepted);
@@ -425,20 +425,18 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
                             fpe.setEditorFrom (this.message.getWhen ());
                             fpe.setCurrent (true);
-                            fpe.statusMessageProperty ().unbind ();
-                            fpe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,messages,newprojectresponse,received,editorstatus,LanguageStrings.accepted),
+                            fpe.setStatusMessage (Arrays.asList (editors,messages,newprojectresponse,received,editorstatus,LanguageStrings.accepted),
                                                                 //"Accepted {project}: %s",
-                                                                                            Environment.formatDate (this.message.getWhen ())));
+                                                  Arrays.asList (Environment.formatDate (this.message.getWhen ())));
 
                             EditorsEnvironment.updateProjectEditor (fpe);
 
                         } else {
 
                             fpe.setCurrent (false);
-                            fpe.statusMessageProperty ().unbind ();
-                            fpe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,messages,newprojectresponse,received,editorstatus,rejected),
+                            fpe.setStatusMessage (Arrays.asList (editors,messages,newprojectresponse,received,editorstatus,rejected),
                                                                 //"Rejected {project}: %s",
-                                                                                            Environment.formatDate (this.message.getWhen ())));
+                                                  Arrays.asList (Environment.formatDate (this.message.getWhen ())));
 
                             EditorsEnvironment.removeProjectEditor (fpe);
 

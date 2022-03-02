@@ -18,13 +18,15 @@ public class CommentItemFormatter extends AbstractChapterItemFormatter<Note, Abs
     public CommentItemFormatter (AbstractProjectViewer viewer,
                                  IPropertyBinder     binder,
                                  Note                item,
-                                 Runnable            onNewPopupShown)
+                                 Runnable            onNewPopupShown,
+                                 boolean             itemEditable)
     {
 
         super (viewer,
                binder,
                item,
-               onNewPopupShown);
+               onNewPopupShown,
+               itemEditable);
 
     }
 

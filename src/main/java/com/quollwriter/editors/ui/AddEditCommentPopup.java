@@ -154,7 +154,7 @@ public class AddEditCommentPopup extends PopupContent<EditorProjectViewer>
         List<String> prefix = Arrays.asList (comments,addedit,labels);
 
         this.desc = QuollTextArea.builder ()
-            .placeholder (getUILanguageStringProperty (comment,addedit,labels,comment,tooltip))
+            .placeholder (getUILanguageStringProperty (comments,addedit,labels,comment,tooltip))
             .styleClassName (StyleClassNames.DESCRIPTION)
             .withViewer (this.viewer)
             .formattingEnabled (true)

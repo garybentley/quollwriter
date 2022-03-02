@@ -219,7 +219,7 @@ public class SendProjectWizard extends Wizard<AbstractProjectViewer>
                                                                                           _this.editor);
 
                                                     pe.setStatus (ProjectEditor.Status.invited);
-                                                    pe.setStatusMessage ("{Project} sent: " + Environment.formatDate (new Date ()));
+                                                    //pe.setStatusMessage ("{Project} sent: " + Environment.formatDate (new Date ()));
 
                                                     // Add the editor to the list of editors
                                                     // for the project.  A little dangerous to do it here

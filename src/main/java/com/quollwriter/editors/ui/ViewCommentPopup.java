@@ -29,7 +29,8 @@ public class ViewCommentPopup extends PopupContent<AbstractProjectViewer>
     private TextEditor.Highlight highlight = null;
 
     public ViewCommentPopup (AbstractProjectViewer viewer,
-                             Set<Note>             items)
+                             Set<Note>             items,
+                             boolean               itemEditable)
     {
 
         super (viewer);
@@ -64,7 +65,8 @@ public class ViewCommentPopup extends PopupContent<AbstractProjectViewer>
             CommentItemFormatter form = new CommentItemFormatter (this.viewer,
                                                                   this.getBinder (),
                                                                   i,
-                                                                  r);
+                                                                  r,
+                                                                  itemEditable);
 
             Node n = form.format ();
             n.getStyleClass ().add (StyleClassNames.CHAPTERITEM);
@@ -85,6 +87,34 @@ public class ViewCommentPopup extends PopupContent<AbstractProjectViewer>
         }
 
         last.pseudoClassStateChanged (StyleClassNames.LAST_PSEUDO_CLASS, true);
+
+        if (items.size () == 1)
+        {
+
+            ChapterItem ci = items.iterator ().next ();
+
+            if (ci instanceof Note)
+            {
+
+                Note n = (Note) ci;
+
+                if (n.isEditNeeded ())
+                {
+
+                    if (n.getEndPosition () > n.getStartPosition ())
+                    {
+
+                        this.highlight = this.viewer.getEditorForChapter (n.getChapter ()).getEditor ().addHighlight (new IndexRange (n.getStartPosition (),
+                                                                                                                                      n.getEndPosition ()),
+                                                                                                                      UserProperties.getEditNeededNoteChapterHighlightColor ());
+
+                    }
+
+                }
+
+            }
+
+        }
 
         this.getChildren ().add (b);
 

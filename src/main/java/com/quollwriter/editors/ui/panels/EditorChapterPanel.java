@@ -498,7 +498,8 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
         }
 
         qp = new ViewCommentPopup (this.viewer,
-                                   items).getPopup ();
+                                   items,
+                                   true).getPopup ();
 
         this.showPopupForItem (top,
                                qp);

@@ -33,13 +33,6 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class ChapterCommentsPanel extends ChapterEditorWithMarginPanelContent<ProjectSentReceivedViewer> implements ToolBarSupported
 {
 
-     //private IconColumn<ProjectSentReceivedViewer> iconColumn = null;
-     //protected ProjectSentReceivedViewer   projectViewer = null;
-     //private int                     lastCaret = -1;
-     //private ChapterItemTransferHandler chItemTransferHandler = null;
-     //private BlockPainter highlight = null;
-     //private boolean chapterItemEditVisible = false;
-
      public ChapterCommentsPanel (ProjectSentReceivedViewer pv,
                                   Chapter                   c)
                            throws GeneralException
@@ -61,29 +54,6 @@ public class ChapterCommentsPanel extends ChapterEditorWithMarginPanelContent<Pr
 
         final ChapterCommentsPanel _this = this;
 
-        //this.editor.setEditable (false);
-        //this.editor.setCanCopy (false);
-/*
-        this.iconColumn = new IconColumn<ProjectSentReceivedViewer> (this,
-                                                                     c,
-                                                                     this.projectViewer.getIconProvider (),
-                                                                     this.projectViewer.getChapterItemViewPopupProvider ());
-
-        this.iconColumn.setItemMoveAllowed (false);
-         this.iconColumn.setSinglePopupOnly (true);
-
-        this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
-
-        //this.setTransferHandler (this.chItemTransferHandler);
-
-        InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-        // Remove ctrl+shift+O from the when_focused set since it conflicts.
-        this.editor.getInputMap (JComponent.WHEN_FOCUSED).put (KeyStroke.getKeyStroke ("ctrl shift O"),
-                                                               "none");
-
-        this.highlight = new BlockPainter (UIUtils.getHighlightColor ());
-*/
     }
 
     @Override
@@ -361,7 +331,8 @@ System.out.println ("DIFF: " + diffs);
         }
 
         qp = new ViewCommentPopup (this.viewer,
-                                   items).getPopup ();
+                                   items,
+                                   false).getPopup ();
 
         this.showPopupForItem (top,
                                qp);

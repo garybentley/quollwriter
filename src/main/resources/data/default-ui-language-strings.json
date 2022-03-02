@@ -406,7 +406,8 @@
                 "scene" : "${objectnames.singular.scene}",
                 "outlineitem" : "${objectnames.singular.outlineitem}",
                 "note" : "${objectnames.singular.note}",
-                "editneedednote" : "${objectnames.singular.editneedednote}"
+                "editneedednote" : "${objectnames.singular.editneedednote}",
+                "comment" : "${objectnames.singular.comment}"
             }
         },
         "moveitem" :
@@ -5048,8 +5049,8 @@
                             {
                                 "dealtwith" : "Set all dealt with",
                                 "undealtwith" : "Set all undealt with",
-                                "view" : "View ${objectnames.singular.project}",
-                                "close" : "Close ${objectnames.singular.project}"
+                                "view" : "View ${objectnames.singular.chapter}",
+                                "close" : "Close ${objectnames.singular.chapter}"
                             }
                         },
                         "comment" :

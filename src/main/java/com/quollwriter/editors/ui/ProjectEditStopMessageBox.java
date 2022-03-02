@@ -184,10 +184,9 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 
                         pe.setCurrent (false);
                         pe.setEditorTo (new Date ());
-                        pe.statusMessageProperty ().unbind ();
-                        pe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,messages,projecteditstop,editorstatus),
+                        pe.setStatusMessage (Arrays.asList (editors,messages,projecteditstop,editorstatus),
                                                             //"Stopped editing: %s",
-                                                                                       Environment.formatDate (pe.getEditorTo ())));
+                                             Arrays.asList (Environment.formatDate (pe.getEditorTo ())));
 
                         EditorsEnvironment.updateProjectEditor (pe);
 

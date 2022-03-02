@@ -24,3 +24,8 @@
 {
     -fx-padding: 0 0 0 0.5em;
 }
+
+.tree
+{
+    -fx-cell-indent: 0;
+}

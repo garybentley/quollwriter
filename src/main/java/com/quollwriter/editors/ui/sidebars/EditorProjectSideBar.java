@@ -124,6 +124,20 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 
         this.showUnsentNotification ();
 
+        this.viewer.getProject ().getBooks ().get (0).getChapters ().stream ()
+            .forEach (c ->
+            {
+
+                // TODO Do we need to record and manage these?
+                c.chapterItemsEvents ().subscribe (ev ->
+                {
+
+                    this.showUnsentNotification ();
+
+                });
+
+            });
+
         this.getBinder ().addChangeListener (this.viewer.getProject ().projectVersionProperty (),
                                              (pr, oldv, newv) ->
         {
@@ -149,23 +163,6 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
         this.content.getChildren ().add (this.otherVersionsLabel);
 
         final EditorProjectSideBar _this = this;
-
-        this.viewer.addProjectEventListener (new ProjectEventListener ()
-        {
-
-            public void eventOccurred (ProjectEvent ev)
-            {
-
-                if (ev.getContextObject () instanceof Note)
-                {
-
-                    _this.showUnsentNotification ();
-
-                }
-
-            }
-
-        });
 
         this.chapters = new EditorChaptersSidebarItem (this.viewer,
                                                        this.getBinder ());

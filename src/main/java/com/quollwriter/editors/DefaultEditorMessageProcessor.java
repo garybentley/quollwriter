@@ -3,11 +3,9 @@ package com.quollwriter.editors;
 import java.awt.event.*;
 import java.awt.image.*;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Date;
+import java.util.*;
 
-import javafx.embed.swing.*;
+//import javafx.embed.swing.*;
 
 import org.bouncycastle.openpgp.*;
 
@@ -285,9 +283,9 @@ System.out.println ("GOT MESS: " + mess);
 
         int c = mess.getComments ().size ();
 
-        pe.setStatusMessage (String.format (getUIString (editors,user,commentsreceived,editorstatus),
+        pe.setStatusMessage (Arrays.asList (editors,user,commentsreceived,editorstatus),
                                             //"Received %s {comment%s}: %s",
-                                            Environment.formatNumber (c),
+                             Arrays.asList (Environment.formatNumber (c),
                                             Environment.formatDate (mess.getWhen ())));
 
         EditorsEnvironment.updateProjectEditor (pe);

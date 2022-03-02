@@ -2613,7 +2613,8 @@ TODO Remove
         return projs;
 
     }
-
+/*
+TODO Remove, never used.
     public static void setProjectEditorStatus (final String       projId,
                                                final EditorEditor ed,
                                                final String       newStatus)
@@ -2651,7 +2652,7 @@ TODO Remove
         EditorsEnvironment.updateProjectEditor (pe);
 
     }
-
+*/
     public static void removeEditorAsProjectEditorForAllProjects (final EditorEditor ed)
                                                            throws Exception
     {
@@ -2673,7 +2674,8 @@ TODO Remove
 
             pe.setEditorTo (new java.util.Date ());
             pe.setCurrent (false);
-            pe.setStatusMessage (getUIString (LanguageStrings.editors,editor,remove,editorstatus));
+            pe.setStatusMessage (Arrays.asList (LanguageStrings.editors,editor,remove,editorstatus),
+                                 null);
             //"Removed");
 
             EditorsEnvironment.updateProjectEditor (pe);
@@ -2951,18 +2953,23 @@ TODO Remove
         EditorsEnvironment.editorsManager.saveObject (ed,
                                                       null);
 
-        EditorsEnvironment.editors.add (ed);
-
-        if (ed.isInvitedByMe ())
+        UIUtils.runLater (() ->
         {
 
-            EditorsEnvironment.invitesIveSent.add (ed);
+            EditorsEnvironment.editors.add (ed);
 
-        } else {
+            if (ed.isInvitedByMe ())
+            {
 
-            EditorsEnvironment.invitesForMe.add (ed);
+                EditorsEnvironment.invitesIveSent.add (ed);
 
-        }
+            } else {
+
+                EditorsEnvironment.invitesForMe.add (ed);
+
+            }
+
+        });
 
         ed.getBinder ().addChangeListener (ed.editorStatusProperty (),
                                            (pr, oldv, newv) ->

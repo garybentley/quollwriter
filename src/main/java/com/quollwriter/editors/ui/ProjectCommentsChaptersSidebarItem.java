@@ -41,6 +41,69 @@ public class ProjectCommentsChaptersSidebarItem extends ProjectObjectsSidebarIte
             .project (pv.getProject ())
             .root (this.createTree ())
             .withViewer (this.viewer)
+            .labelProvider (treeItem ->
+            {
+
+                NamedObject n = treeItem.getValue ();
+
+                if (n instanceof Project)
+                {
+
+                    return new Label ();
+
+                }
+
+                QuollLabel l = QuollLabel.builder ()
+                    .styleClassName (n.getObjectType ())
+                    .build ();
+
+                if (n instanceof Note)
+                {
+
+                    Note _n = (Note) n;
+
+                    l.setIconClassName (StyleClassNames.COMMENT);
+                    l.getStyleClass ().add (StyleClassNames.COMMENT);
+                    l.textProperty ().bind (n.nameProperty ());
+
+                }
+/*
+                l.setOnMouseClicked (ev ->
+                {
+
+                    if (ev.getButton () != MouseButton.PRIMARY)
+                    {
+
+                        return;
+
+                    }
+
+                    l.requestFocus ();
+
+                    this.viewer.viewObject (n);
+
+                });
+*/
+                List<String> prefix = Arrays.asList (project,sidebar,chapters,treepopupmenu,items);
+
+                if (n instanceof Chapter)
+                {
+
+                    Chapter c = (Chapter) n;
+
+                    l.textProperty ().unbind ();
+
+                    String v = "%1$s (%2$s)";
+
+                    l.setText (String.format (v,
+                                              c.getName (),
+                                              Environment.formatNumber (c.getNotes ().size ())));
+
+                }
+
+                return l;
+
+            })
             .contextMenuItemSupplier (obj ->
             {
 

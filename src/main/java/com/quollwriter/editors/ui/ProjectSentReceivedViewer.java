@@ -42,10 +42,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends AbstractProjectViewer
 {
 
-    //private DefaultChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
     private EditorEditor editor = null;
     protected E message = null;
-    //private ProjectSentReceivedSideBar<E, ProjectSentReceivedViewer<E>> sideBar = null;
 
     public ProjectSentReceivedViewer (Project proj,
                                       E       message)

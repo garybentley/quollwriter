@@ -3,7 +3,11 @@ package com.quollwriter.data.editors;
 import java.util.*;
 import javafx.beans.property.*;
 
+import com.quollwriter.*;
+import com.quollwriter.uistrings.*;
 import com.quollwriter.data.*;
+
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
 /**
  * Models an editor for a project.
@@ -41,15 +45,30 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
     private String forProjectId = null;
     private String forProjectName = null;
     private ObjectProperty<Status> statusProp = new SimpleObjectProperty ();
-    private StringProperty statusMessageProp = new SimpleStringProperty ();
+    private StringProperty statusMessageProp = null;
     private Date from = null;
     private Date to = null;
     private BooleanProperty currentProp = new SimpleBooleanProperty (false);
+    private ObjectProperty<List<String>> statusString = null;
+    private ObjectProperty<List<String>> statusStringParms = null;
 
     public ProjectEditor ()
     {
 
         super (OBJECT_TYPE);
+
+        this.statusString = new SimpleObjectProperty ();
+        this.statusStringParms = new SimpleObjectProperty ();
+
+        this.statusMessageProp = new SimpleStringProperty ();
+        this.statusMessageProp.bind (UILanguageStringsManager.createStringBinding (() ->
+        {
+
+            return getUILanguageStringProperty (this.statusString.getValue (),
+                                                this.statusStringParms.getValue ()).getValue ();
+
+        },
+        this.statusString));
 
     }
 
@@ -85,7 +104,7 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
                                     this.currentProp.getValue ());
         this.addToStringProperties (props,
                                     "statusMessage",
-                                    this.getStatusMessage ());
+                                    this.statusMessageProp.getValue ());
         this.addToStringProperties (props,
                                     "from",
                                     this.from);
@@ -137,7 +156,7 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
 
     }
 
-    public ObjectProperty<Status> statueProperty ()
+    public ObjectProperty<Status> statusProperty ()
     {
 
         return this.statusProp;
@@ -236,17 +255,80 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
 
     }
 
+    public void setStatusMessage (List<String> str,
+                                  List<String> parms)
+    {
+
+        this.statusStringParms.setValue (parms);
+        this.statusString.setValue (str);
+
+    }
+
     public void setStatusMessage (String s)
     {
 
-        this.statusMessageProp.setValue (s);
+        if (s == null)
+        {
+
+            return;
+
+        }
+
+        // Eeek!
+        if (s.startsWith ("{"))
+        {
+
+            try
+            {
+
+                Map m = (Map) JSONDecoder.decode (s);
+                Object str = m.get ("str");
+
+                Object p = m.get ("parms");
+
+                if ((p != null)
+                    &&
+                    (p instanceof List)
+                   )
+                {
+
+                    this.statusStringParms.setValue ((List<String>) p);
+
+                }
+
+                if (str instanceof List)
+                {
+
+                    this.statusString.setValue ((List<String>) str);
+
+                }
+
+            } catch (Exception e) {
+
+                this.statusString.setValue (Arrays.asList ("<Error>"));
+
+            }
+
+        } else {
+
+            // Legacy, pre v3.
+            this.statusString.setValue (Arrays.asList (s));
+
+        }
 
     }
 
     public String getStatusMessage ()
+                             throws GeneralException
     {
 
-        return this.statusMessageProp.getValue ();
+        Map m = new HashMap ();
+        m.put ("str",
+               this.statusString.getValue ());
+        m.put ("parms",
+               this.statusStringParms.getValue ());
+
+        return JSONEncoder.encode (m);
 
     }
 

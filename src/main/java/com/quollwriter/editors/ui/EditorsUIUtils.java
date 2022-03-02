@@ -1291,10 +1291,9 @@ public class EditorsUIUtils
 
                                                                 pe.setStatus (ProjectEditor.Status.invited);
 
-                                                                pe.statusMessageProperty ().unbind ();
-                                                                pe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,user,sendproject,editorstatus),
+                                                                pe.setStatusMessage (Arrays.asList (editors,user,sendproject,editorstatus),
                                                                                                     //"{Project} sent: %s",
-                                                                                                                               Environment.formatDate (new Date ())));
+                                                                                     Arrays.asList (Environment.formatDate (new Date ())));
 
                                                                 // Add the editor to the list of editors
                                                                 // for the project.  A little dangerous to do it here
@@ -1334,10 +1333,9 @@ public class EditorsUIUtils
                                                                     pe.setEditorFrom (new Date ());
                                                                     pe.setEditorTo (null);
 
-                                                                    pe.statusMessageProperty ().unbind ();
-                                                                    pe.statusMessageProperty ().bind (getUILanguageStringProperty (Arrays.asList (editors,user,updateproject,editorstatus),
+                                                                    pe.setStatusMessage (Arrays.asList (editors,user,updateproject,editorstatus),
                                                                                                         //"{Project} updated: %s",
-                                                                                                                                   Environment.formatDate (new Date ())));
+                                                                                         Arrays.asList (Environment.formatDate (new Date ())));
 
                                                                     EditorsEnvironment.updateProjectEditor (pe);
 
@@ -2642,7 +2640,7 @@ TODO Removed for now, not sure this is the desired behaviour.
 
                     // Need to give it a fake key.
                     n.setKey (k++);
-                    n.setType (Note.EDIT_NEEDED_OBJECT_TYPE);
+                    n.setType (Note.EDIT_NEEDED_NOTE_TYPE);
 
                     // Get the fake chapter.
                     Chapter fakec = n.getChapter ();
@@ -2666,7 +2664,7 @@ TODO Removed for now, not sure this is the desired behaviour.
                                                                        message);
 
                 pcv.createViewer ();
-                pcv.init (null);
+                pcv.init (new State ());
 
                 if (onShow != null)
                 {

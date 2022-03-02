@@ -29,6 +29,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
     private QuollButton deleteBut = null;
     private QuollButton saveBut = null;
     private QuollButton cancelBut = null;
+    private boolean editable = true;
 
     public AbstractChapterItemFormatter (V               viewer,
                                          IPropertyBinder binder,
@@ -36,10 +37,26 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
                                          Runnable        onNewPopupShown)
     {
 
+        this (viewer,
+              binder,
+              item,
+              onNewPopupShown,
+              true);
+
+    }
+
+    public AbstractChapterItemFormatter (V               viewer,
+                                         IPropertyBinder binder,
+                                         E               item,
+                                         Runnable        onNewPopupShown,
+                                         boolean         editable)
+    {
+
         this.viewer = viewer;
         this.item = item;
         this.binder = binder;
         this.popupShown = onNewPopupShown;
+        this.editable = editable;
 
     }
 
@@ -91,6 +108,8 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
             .build ();
         this.editBut.managedProperty ().bind (this.editBut.visibleProperty ());
 
+        this.editBut.setVisible (this.editable);
+
         this.linkBut = QuollButton.builder ()
             .iconName (StyleClassNames.LINK)
             .tooltip (getUILanguageStringProperty (Arrays.asList (linkitem,tooltip),
@@ -111,6 +130,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
             })
             .build ();
         this.linkBut.managedProperty ().bind (this.linkBut.visibleProperty ());
+        this.linkBut.setVisible (this.editable);
 
         this.deleteBut = QuollButton.builder ()
             .iconName (StyleClassNames.DELETE)
@@ -130,6 +150,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
             })
             .build ();
         this.deleteBut.managedProperty ().bind (this.deleteBut.visibleProperty ());
+        this.deleteBut.setVisible (this.editable);
 
         this.saveBut = QuollButton.builder ()
             .iconName (StyleClassNames.SAVE)

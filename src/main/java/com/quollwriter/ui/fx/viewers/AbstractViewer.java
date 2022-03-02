@@ -169,7 +169,7 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     private Set<QuollPopup> popups = new HashSet<> ();
 
-    private Set<ProjectEventListener> projectEventListeners = new HashSet ();
+    private Set<ProjectEventListener> projectEventListeners = new HashSet<> ();
     private boolean ignoreProjectEvents = false;
 
     private Pane popupPane = null;

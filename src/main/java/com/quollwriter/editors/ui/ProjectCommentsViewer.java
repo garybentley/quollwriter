@@ -103,6 +103,7 @@ public class ProjectCommentsViewer extends ProjectSentReceivedViewer<ProjectComm
             controls.add (QuollButton.builder ()
                 .tooltip (editors,projectcomments,title,toolbar,buttons,openproject,tooltip)
                 .iconName (StyleClassNames.OPEN)
+                .buttonId ("open")
                 .onAction (ev ->
                 {
 
