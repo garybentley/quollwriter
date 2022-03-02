@@ -57,15 +57,15 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
 
         super (OBJECT_TYPE);
 
-        this.statusString = new SimpleObjectProperty ();
-        this.statusStringParms = new SimpleObjectProperty ();
+        this.statusString = new SimpleObjectProperty (new ArrayList<> ());
+        this.statusStringParms = new SimpleObjectProperty (new ArrayList<> ());
 
         this.statusMessageProp = new SimpleStringProperty ();
         this.statusMessageProp.bind (UILanguageStringsManager.createStringBinding (() ->
         {
 
             return getUILanguageStringProperty (this.statusString.getValue (),
-                                                this.statusStringParms.getValue ()).getValue ();
+                                                (this.statusStringParms.getValue () != null ? this.statusStringParms.getValue ().toArray () : null)).getValue ();
 
         },
         this.statusString));
@@ -76,7 +76,7 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
                           EditorEditor editor)
     {
 
-        super (OBJECT_TYPE);
+        this ();
 
         this.forProjectId = proj.getId ();
         this.forProjectName = proj.getName ();

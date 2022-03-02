@@ -364,9 +364,13 @@ TODO
                         UIUtils.runLater (() ->
                         {
 
+                            Environment.setCloseDownAllowed (false);
+
                             _this.close (true,
                                          () ->
                             {
+
+                                Environment.setCloseDownAllowed (true);
 
                                 Environment.deleteProject (_proj,
                                                            () ->
