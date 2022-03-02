@@ -131,6 +131,7 @@ public class EditorEditor extends AbstractEditorObject
     private String messagingUsername = null;
     private StringProperty mainNameProp = new SimpleStringProperty ();
     private ObjectProperty<Image> mainAvatarProp = new SimpleObjectProperty ();
+    private IntegerProperty messagesUpdatedProp = new SimpleIntegerProperty (0);
 
     public EditorEditor ()
     {
@@ -501,6 +502,20 @@ public class EditorEditor extends AbstractEditorObject
     {
 
         return this.statusProp;
+
+    }
+
+    public void messageUpdated ()
+    {
+
+        this.messagesUpdatedProp.setValue (this.messagesUpdatedProp.getValue () + 1);
+
+    }
+
+    public IntegerProperty messagesUpdatedProperty ()
+    {
+
+        return this.messagesUpdatedProp;
 
     }
 

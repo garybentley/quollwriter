@@ -780,7 +780,7 @@ TODO
             eprops.setParentProperties (UserProperties.getProperties ());
 
             EditorsEnvironment.init (eprops);
-EditorsEnvironment.logEditorMessages (true);
+
         } catch (Exception e) {
 
             Environment.logError ("Unable to init editors environment",

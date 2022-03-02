@@ -62,6 +62,13 @@ public abstract class EditorMessage extends DataObject
 
         super (OBJECT_TYPE);
 
+        this.dealtWithProp.addListener ((pr, oldv, newv) ->
+        {
+
+            this.editor.messageUpdated ();
+
+        });
+
     }
 
     public abstract String getMessageType ();

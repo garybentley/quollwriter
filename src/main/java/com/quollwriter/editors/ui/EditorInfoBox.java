@@ -101,6 +101,14 @@ public class EditorInfoBox extends VBox
 
         });
 
+        binder.addChangeListener (this.editor.messagesUpdatedProperty (),
+                                  (pr, oldv, newv) ->
+        {
+
+            this.updateButtons ();
+
+        });
+
         this.viewer = viewer;
 
         if (this.viewer instanceof AbstractProjectViewer)

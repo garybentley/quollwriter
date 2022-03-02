@@ -240,6 +240,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                 .withViewer (this.viewer)
                 .title (getUILanguageStringProperty (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,popup,title))
                 .styleClassName (StyleClassNames.OTHERCOMMENTS)
+                .styleSheet (StyleClassNames.OTHERCOMMENTS)
                 .popupId (popupId)
                 .objects (FXCollections.observableList (pcms))
                 .cellProvider ((obj, popupContent) ->
@@ -248,6 +249,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                     int c = obj.getComments ().size ();
 
                     VBox b = new VBox ();
+                    b.getStyleClass ().add ("commentset");
 
                     b.setOnMouseClicked (ev ->
                     {

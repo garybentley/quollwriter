@@ -730,6 +730,8 @@ TODO
         {
 
             this.setUseInitialStyleForInsertion (false);
+            this.setTextInsertionStyle (this.getStyleOfChar (newv));
+
             this.updateCaretNode ();
 
         });
