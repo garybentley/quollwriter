@@ -741,31 +741,26 @@ public class EditorsMessageHandler implements ChatMessageListener
 
         final EditorsMessageHandler _this = this;
 
-        Environment.scheduleImmediately (() ->
+        if (_this.conn != null)
         {
 
-            if (_this.conn != null)
+            try
             {
 
-                try
-                {
+                _this.conn.disconnect ();
 
-                    _this.conn.disconnect ();
+                _this.conn = null;
 
-                    _this.conn = null;
+            } catch (Exception e) { }
 
-                } catch (Exception e) { }
+            if (onLogout != null)
+            {
 
-                if (onLogout != null)
-                {
-
-                    Environment.scheduleImmediately (onLogout);
-
-                }
+                Environment.scheduleImmediately (onLogout);
 
             }
 
-        });
+        }
 
     }
 
@@ -891,6 +886,8 @@ public class EditorsMessageHandler implements ChatMessageListener
                     _this.conn.connect ();
 
                 } catch (Exception e) {
+
+                    this.conn = null;
 
                     Environment.logError ("Unable to connect to Editors service",
                                           e);
@@ -1040,6 +1037,8 @@ public class EditorsMessageHandler implements ChatMessageListener
                     _this.conn.login ();
 
                 } catch (Exception e) {
+
+                    this.conn = null;
 
                     Environment.logError ("User: " +
                                           acc.getEmail () +

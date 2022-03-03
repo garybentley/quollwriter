@@ -294,6 +294,15 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
                     }
 
+                    QuollLabel info = QuollLabel.builder ()
+                        .styleClassName (StyleClassNames.WHEN)
+                        .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,item,(this.getMessage ().isSentByMe () ? sent : received)),
+                                                                                    //"Received: %s",
+                                                             Environment.formatDate (obj.getWhen ())))
+                        .build ();
+
+                    b.getChildren ().add (info);
+
                     // Get the first line of the notes, if provided.
                     String genComm = obj.getGeneralComment ();
 
@@ -318,15 +327,6 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                         b.getChildren ().add (notesT);
 
                     }
-
-                    QuollLabel info = QuollLabel.builder ()
-                        .styleClassName (StyleClassNames.WHEN)
-                        .label (getUILanguageStringProperty (Arrays.asList (editors,projectcomments,LanguageStrings.sidebar,comments,othercomments,item,(this.getMessage ().isSentByMe () ? sent : received)),
-                                                                                    //"Received: %s",
-                                                             Environment.formatDate (obj.getWhen ())))
-                        .build ();
-
-                    b.getChildren ().add (info);
 
                     return b;
 
