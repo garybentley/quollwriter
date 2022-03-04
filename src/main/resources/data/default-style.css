@@ -980,7 +980,8 @@ Text
     -fx-shape: "M 28,12 V 8 h -5.004 l 1,-8 h -4 l -1,8 h -7.998 l 1,-8 h -4 l -1,8 H 0 v 4 H 6.498 L 5.5,20 H 0 v 4 h 5 l -1,8 h 4 l 1,-8 h 8 l -1.002,8 H 20 l 1,-8 h 7 v -4 h -6.5 l 0.996,-8 z m -10.5,8 h -8 l 0.998,-8 h 7.998 z";
     -fx-background-color: -qw-icon-color;
 }
-.save-icon {
+.save-icon,
+.dealtwith-icon {
     -fx-shape: "M 5.695,8.117 11.941,14.363 26.305,0 32,5.695 11.941,25.754 0,13.812 Z";
     -fx-background-color: -qw-icon-color;
     /* Note ratio: 1w * 0.8125h */
@@ -1024,6 +1025,7 @@ Text
 .ignore-icon,
 .stopped-icon,
 .rejected-icon,
+.undealtwith-icon,
 .tab-pane .tab-close-button {
     -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
     -fx-background-color: -qw-icon-color;
@@ -2419,12 +2421,26 @@ a
     -fx-min-height: 0.888em;
     -fx-fill-height: false;
     -fx-alignment: center;
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+
 }
 .hyperlink .iconbox .view-icon.icon {
     -fx-pref-height: 0.888em;
 }
 .hyperlink .iconbox .chapter-icon.icon {
     -fx-pref-width: 1em;
+}
+
+.hyperlink .iconbox .warning-icon.icon
+{
+    -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
 }
 
 .qtextview.placeholder .label

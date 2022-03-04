@@ -61,5 +61,5 @@ HBox {
 .content .check-box,
 .content .hyperlink
 {
-    -fx-padding: 0 0 0.75em 1.5em;
+    -fx-padding: 0 0 0.75em 0.5em;
 }
