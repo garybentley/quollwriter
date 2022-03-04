@@ -1,5 +1,8 @@
 package com.quollwriter.editors.ui;
 
+import java.util.*;
+import java.util.function.*;
+
 import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -19,14 +22,16 @@ public class CommentItemFormatter extends AbstractChapterItemFormatter<Note, Abs
                                  IPropertyBinder     binder,
                                  Note                item,
                                  Runnable            onNewPopupShown,
-                                 boolean             itemEditable)
+                                 boolean             itemEditable,
+                                 Supplier<Set<Node>> extraControls)
     {
 
         super (viewer,
                binder,
                item,
                onNewPopupShown,
-               itemEditable);
+               itemEditable,
+               extraControls);
 
     }
 
@@ -68,6 +73,26 @@ public class CommentItemFormatter extends AbstractChapterItemFormatter<Note, Abs
     {
 
         VBox v = new VBox ();
+
+        if (this.item.isDealtWith ())
+        {
+
+            QuollLabel l = QuollLabel.builder ()
+                .styleClassName (StyleClassNames.DEALTWITH)
+                .label (new SimpleStringProperty (Environment.formatDateTime (this.item.getDealtWith ())))
+                .build ();
+
+            v.getChildren ().add (l);
+
+            this.binder.addChangeListener (this.item.dealtWithProperty (),
+                                           (pr, oldv, newv) ->
+            {
+
+                l.setVisible (this.item.isDealtWith ());
+
+            });
+
+        }
 
         String summ = this.item.getSummary ();
 

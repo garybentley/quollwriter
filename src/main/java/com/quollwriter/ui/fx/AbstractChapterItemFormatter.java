@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.scene.Node;
 import javafx.scene.layout.*;
@@ -21,7 +22,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
 
     protected V viewer = null;
     protected E item = null;
-    private IPropertyBinder binder = null;
+    protected IPropertyBinder binder = null;
     private LinkedToPanel linkedToPanel = null;
     private Runnable popupShown = null;
     private QuollButton editBut = null;
@@ -30,26 +31,30 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
     private QuollButton saveBut = null;
     private QuollButton cancelBut = null;
     private boolean editable = true;
+    private Supplier<Set<Node>> extraControls = null;
 
     public AbstractChapterItemFormatter (V               viewer,
                                          IPropertyBinder binder,
                                          E               item,
-                                         Runnable        onNewPopupShown)
+                                         Runnable        onNewPopupShown,
+                                         Supplier<Set<Node>> extraControls)
     {
 
         this (viewer,
               binder,
               item,
               onNewPopupShown,
-              true);
+              true,
+              extraControls);
 
     }
 
-    public AbstractChapterItemFormatter (V               viewer,
-                                         IPropertyBinder binder,
-                                         E               item,
-                                         Runnable        onNewPopupShown,
-                                         boolean         editable)
+    public AbstractChapterItemFormatter (V                   viewer,
+                                         IPropertyBinder     binder,
+                                         E                   item,
+                                         Runnable            onNewPopupShown,
+                                         boolean             editable,
+                                         Supplier<Set<Node>> extraControls)
     {
 
         this.viewer = viewer;
@@ -57,6 +62,7 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
         this.binder = binder;
         this.popupShown = onNewPopupShown;
         this.editable = editable;
+        this.extraControls = extraControls;
 
     }
 
@@ -214,6 +220,14 @@ public abstract class AbstractChapterItemFormatter<E extends ChapterItem, V exte
         //ToolBar t = new ToolBar ();
         HBox t = new HBox ();
         t.getStyleClass ().addAll (StyleClassNames.BUTTONS, StyleClassNames.TOOLBAR);
+
+        if (this.extraControls != null)
+        {
+
+            t.getChildren ().addAll (this.extraControls.get ());
+
+        }
+
         t.getChildren ().addAll (this.editBut, this.linkBut, this.deleteBut, this.saveBut, this.cancelBut);
 
         v.getChildren ().addAll (this.getContent (), lv, t);

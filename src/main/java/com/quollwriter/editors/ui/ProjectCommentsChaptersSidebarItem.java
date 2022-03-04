@@ -65,8 +65,17 @@ public class ProjectCommentsChaptersSidebarItem extends ProjectObjectsSidebarIte
                     l.setIconClassName (StyleClassNames.COMMENT);
                     l.getStyleClass ().add (StyleClassNames.COMMENT);
                     l.textProperty ().bind (n.nameProperty ());
+                    l.pseudoClassStateChanged (StyleClassNames.DEALTWITH_PSEUDO_CLASS, _n.isDealtWith ());
+
+                    _n.dealtWithProperty ().addListener ((pr, oldv, newv) ->
+                    {
+
+                        l.pseudoClassStateChanged (StyleClassNames.DEALTWITH_PSEUDO_CLASS, newv != null);
+
+                    });
 
                 }
+
 /*
                 l.setOnMouseClicked (ev ->
                 {
@@ -122,7 +131,7 @@ public class ProjectCommentsChaptersSidebarItem extends ProjectObjectsSidebarIte
 
                         its.add (QuollMenuItem.builder ()
                             .label (getUILanguageStringProperty (Utils.newList (prefix,comment,items,(n.isDealtWith () ? undealtwith : dealtwith))))
-                            .iconName (StyleClassNames.VIEW)
+                            .iconName (n.isDealtWith () ? StyleClassNames.DEALTWITH : StyleClassNames.UNDEALTWITH)
                             .onAction (ev ->
                             {
 
@@ -178,7 +187,7 @@ public class ProjectCommentsChaptersSidebarItem extends ProjectObjectsSidebarIte
 
                             its.add (QuollMenuItem.builder ()
                                 .label (getUILanguageStringProperty (Utils.newList (prefix,Chapter.OBJECT_TYPE,items,undealtwith)))
-                                .iconName (StyleClassNames.SETUNDEALTWITH)
+                                .iconName (StyleClassNames.UNDEALTWITH)
                                 .onAction (ev ->
                                 {
 
@@ -199,7 +208,7 @@ public class ProjectCommentsChaptersSidebarItem extends ProjectObjectsSidebarIte
 
                             its.add (QuollMenuItem.builder ()
                                 .label (getUILanguageStringProperty (Utils.newList (prefix,Chapter.OBJECT_TYPE,items,dealtwith)))
-                                .iconName (StyleClassNames.SETDEALTWITH)
+                                .iconName (StyleClassNames.DEALTWITH)
                                 .onAction (ev ->
                                 {
 
@@ -314,6 +323,7 @@ public class ProjectCommentsChaptersSidebarItem extends ProjectObjectsSidebarIte
 
             TreeItem<NamedObject> cit = new TreeItem<> (c);
             root.getChildren ().add (cit);
+            cit.setExpanded (true);
 
             c.getNotes ().stream ()
                 .forEach (n -> cit.getChildren ().add (new TreeItem<> (n)));

@@ -22,7 +22,8 @@ public class NoteItemFormatter extends AbstractProjectItemFormatter<Note>
         super (viewer,
                binder,
                item,
-               onNewPopupShown);
+               onNewPopupShown,
+               null);
 
     }
 
@@ -31,6 +32,16 @@ public class NoteItemFormatter extends AbstractProjectItemFormatter<Note>
     {
 
         VBox v = new VBox ();
+
+        if (this.item.isDealtWith ())
+        {
+
+            v.getChildren ().add (QuollLabel.builder ()
+                .styleClassName (StyleClassNames.DEALTWITH)
+                .label (new SimpleStringProperty (Environment.formatDateTime (this.item.getDealtWith ())))
+                .build ());
+
+        }
 
         String summ = this.item.getSummary ();
 

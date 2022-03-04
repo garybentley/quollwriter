@@ -1,6 +1,7 @@
 package com.quollwriter.editors.ui;
 
 import java.util.*;
+import java.util.function.*;
 
 import javafx.scene.Node;
 import javafx.scene.layout.*;
@@ -62,11 +63,57 @@ public class ViewCommentPopup extends PopupContent<AbstractProjectViewer>
         for (Note i : items)
         {
 
+            Supplier<Set<Node>> extraControls = null;
+
+            if (!itemEditable)
+            {
+
+                extraControls = () ->
+                {
+
+                    Set<Node> cons = new LinkedHashSet<> ();
+
+                    QuollButton d = QuollButton.builder ()
+                        .iconName (i.isDealtWith () ? StyleClassNames.UNDEALTWITH : StyleClassNames.DEALTWITH)
+                        .onAction (ev ->
+                        {
+
+                            if (i.isDealtWith ())
+                            {
+
+                                i.setDealtWith (null);
+
+                            } else {
+
+                                i.setDealtWith (new Date ());
+
+                            }
+
+                        })
+                        .build ();
+
+                    this.getBinder ().addChangeListener (i.dealtWithProperty (),
+                                                         (pr, oldv, newv) ->
+                    {
+
+                        d.setIconName (i.isDealtWith () ? StyleClassNames.UNDEALTWITH : StyleClassNames.DEALTWITH);
+
+                    });
+
+                    cons.add (d);
+
+                    return cons;
+
+                };
+
+            }
+
             CommentItemFormatter form = new CommentItemFormatter (this.viewer,
                                                                   this.getBinder (),
                                                                   i,
                                                                   r,
-                                                                  itemEditable);
+                                                                  itemEditable,
+                                                                  extraControls);
 
             Node n = form.format ();
             n.getStyleClass ().add (StyleClassNames.CHAPTERITEM);
@@ -130,6 +177,7 @@ public class ViewCommentPopup extends PopupContent<AbstractProjectViewer>
             .title (getUILanguageStringProperty (objectnames,singular,StyleClassNames.COMMENT))
             .styleClassName (StyleClassNames.COMMENT)
             .headerIconClassName (StyleClassNames.COMMENT)
+            .styleSheet ("comments")
             .hideOnEscape (true)
             .withClose (true)
             .content (this)

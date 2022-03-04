@@ -23,7 +23,8 @@ public class SceneItemFormatter extends AbstractProjectItemFormatter<Scene>
         super (viewer,
                binder,
                scene,
-               onNewPopupShown);
+               onNewPopupShown,
+               null);
 
     }
 

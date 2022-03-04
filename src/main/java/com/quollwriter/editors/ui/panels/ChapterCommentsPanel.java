@@ -57,6 +57,14 @@ public class ChapterCommentsPanel extends ChapterEditorWithMarginPanelContent<Pr
     }
 
     @Override
+    public Boolean canDrag (ChapterItem ci)
+    {
+
+        return false;
+
+    }
+
+    @Override
     public Map<KeyCombination, Runnable> getActionMappings ()
     {
 
@@ -180,12 +188,6 @@ System.out.println ("DIFF: " + diffs);
                 .iconName (StyleClassNames.COMMENT)
                 .build ();
 
-            riv.setOnMouseDragged (ev ->
-            {
-
-                riv.requestFocus ();
-
-            });
             riv.setOnMouseClicked (ev ->
             {
 
@@ -200,6 +202,47 @@ System.out.println ("DIFF: " + diffs);
                                true);
 
                 ev.consume ();
+
+            });
+
+            riv.setOnContextMenuRequested (ev ->
+            {
+
+                Set<MenuItem> items = new LinkedHashSet<> ();
+
+                if (n.isDealtWith ())
+                {
+
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Arrays.asList ("Set undealt with")))
+                        .iconName (StyleClassNames.UNDEALTWITH)
+                        .onAction (eev ->
+                        {
+
+                            n.setDealtWith (null);
+
+                        })
+                        .build ());
+
+                } else {
+
+                    items.add (QuollMenuItem.builder ()
+                        .label (getUILanguageStringProperty (Arrays.asList ("Set dealt with")))
+                        .iconName (StyleClassNames.DEALTWITH)
+                        .onAction (eev ->
+                        {
+
+                            n.setDealtWith (new Date ());
+
+                        })
+                        .build ());
+
+                }
+
+                UIUtils.showContextMenu (riv,
+                                         items,
+                                         ev.getScreenX (),
+                                         ev.getScreenY ());
 
             });
 

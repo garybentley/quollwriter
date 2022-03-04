@@ -22,7 +22,8 @@ public class OutlineItemFormatter extends AbstractProjectItemFormatter<OutlineIt
         super (viewer,
                binder,
                item,
-               onNewPopupShown);
+               onNewPopupShown,
+               null);
 
     }
 

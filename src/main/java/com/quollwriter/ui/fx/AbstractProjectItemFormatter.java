@@ -1,5 +1,8 @@
 package com.quollwriter.ui.fx;
 
+import java.util.*;
+import java.util.function.*;
+
 import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -13,16 +16,18 @@ import com.quollwriter.ui.fx.viewers.*;
 public abstract class AbstractProjectItemFormatter<E extends ChapterItem> extends AbstractChapterItemFormatter<E, ProjectViewer>
 {
 
-    public AbstractProjectItemFormatter (ProjectViewer   viewer,
-                                         IPropertyBinder binder,
-                                         E               item,
-                                         Runnable        onNewPopupShown)
+    public AbstractProjectItemFormatter (ProjectViewer       viewer,
+                                         IPropertyBinder     binder,
+                                         E                   item,
+                                         Runnable            onNewPopupShown,
+                                         Supplier<Set<Node>> extraControls)
     {
 
         super (viewer,
                binder,
                item,
-               onNewPopupShown);
+               onNewPopupShown,
+               extraControls);
 
     }
 
