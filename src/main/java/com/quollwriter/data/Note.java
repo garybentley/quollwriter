@@ -2,6 +2,8 @@ package com.quollwriter.data;
 
 import java.util.*;
 
+import javafx.beans.property.*;
+
 import org.dom4j.*;
 
 import com.quollwriter.text.*;
@@ -18,7 +20,7 @@ public class Note extends ChapterItem
     private Date        due = null;
     private String      type = null;
     private NamedObject object = null;
-    private Date        dealtWith = null;
+    private ObjectProperty<Date>        dealtWithProp = new SimpleObjectProperty ();
 
     public Note()
     {
@@ -66,34 +68,41 @@ public class Note extends ChapterItem
                                     this.object);
         this.addToStringProperties (props,
                                     "dealtWith",
-                                    this.dealtWith);
+                                    this.dealtWithProp.getValue ());
+
+    }
+
+    public ObjectProperty<Date> dealtWithProperty ()
+    {
+
+        return this.dealtWithProp;
 
     }
 
     public boolean isDealtWith ()
     {
 
-        return this.dealtWith != null;
+        return this.dealtWithProp.getValue () != null;
 
     }
 
     public Date getDealtWith ()
     {
 
-        return this.dealtWith;
+        return this.dealtWithProp.getValue ();
 
     }
 
     public void setDealtWith (Date d)
     {
 
-        Date oldd = this.dealtWith;
+        Date oldd = this.dealtWithProp.getValue ();
 
-        this.dealtWith = d;
+        this.dealtWithProp.setValue (d);
 
         this.firePropertyChangedEvent (Note.DEALT_WITH,
                                        oldd,
-                                       this.dealtWith);
+                                       this.dealtWithProp.getValue ());
 
     }
 
