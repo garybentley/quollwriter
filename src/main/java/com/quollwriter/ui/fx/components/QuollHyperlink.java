@@ -20,6 +20,8 @@ public class QuollHyperlink extends Hyperlink
     private QuollHyperlink (Builder b)
     {
 
+        this.setWrapText (true);
+
         if (b.styleSheet != null)
         {
 
