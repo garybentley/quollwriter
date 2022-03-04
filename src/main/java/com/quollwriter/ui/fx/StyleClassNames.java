@@ -5,6 +5,7 @@ import javafx.css.*;
 public final class StyleClassNames
 {
 
+    public static final PseudoClass DEALTWITH_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.DEALTWITH);
     public static final PseudoClass TYPEWRITER_SCROLLING_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.TYPEWRITER_SCROLLING);
     public static final PseudoClass HASPARENT_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.HASPARENT);
     public static final PseudoClass FOCUSED_PSEUDO_CLASS = PseudoClass.getPseudoClass (StyleClassNames.FOCUSED);
@@ -120,6 +121,7 @@ public final class StyleClassNames
     public static final String ATTENTIONREQUIRED = "attentionrequired";
     public static final String ONLINESTATUS = "onlinestatus";
     public static final String UNDEALTWITH = "undealtwith";
+    public static final String DEALTWITH = "dealtwith";
     public static final String COMMENT = "comment";
     public static final String NOTIFY = "notify";
     public static final String MESSAGE = "message";
