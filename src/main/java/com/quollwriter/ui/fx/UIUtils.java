@@ -5079,6 +5079,13 @@ TODO
                                         double        y)
     {
 
+        if (n.getProperties ().get ("context-menu") != null)
+        {
+
+            ((ContextMenu) n.getProperties ().get ("context-menu")).hide ();
+
+        }
+
         ContextMenu cm = new ContextMenu ();
         cm.getItems ().addAll (items);
         n.getProperties ().put ("context-menu",
