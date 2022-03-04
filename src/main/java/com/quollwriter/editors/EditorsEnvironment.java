@@ -1320,7 +1320,7 @@ TODO Remove
 
     public static void closeDown ()
     {
-System.out.println ("CLOSING DOWN");
+
         EditorsEnvironment.goOffline ();
 
         // Close all the db connections.

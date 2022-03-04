@@ -525,6 +525,8 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                 QuollPopup _np = np;
 
+                this.loginBut.setDisable (true);
+
                 EditorsEnvironment.goOnline (null,
                                              () ->
                                              {
@@ -570,7 +572,8 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                                                  UIUtils.runLater (() ->
                                                  {
 
-                                                     this.loginBut.setDisable (true);
+                                                     this.loginBut.setVisible (true);
+                                                     this.loginBut.setDisable (false);
 
                                                      if (_np != null)
                                                      {
