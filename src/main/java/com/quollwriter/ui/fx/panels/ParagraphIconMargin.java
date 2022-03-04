@@ -130,6 +130,7 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
     private ChangeListener<javafx.scene.Scene> sceneList = null;
     private IPropertyBinder binder = new PropertyBinder ();
     private Function<ChapterItem, Node> nodeProvider = null;
+    private Function<ChapterItem, Boolean> canDrag = null;
 
     public ParagraphIconMargin (E                                       viewer,
                                 TextEditor                              editor,
@@ -138,8 +139,11 @@ public class ParagraphIconMargin<E extends AbstractProjectViewer> extends Pane
                                 Function<ChapterItem, Node>             nodeProvider,
                                 BiConsumer<ChapterItem, Node>           showItem,
                                 Function<IndexRange, List<ChapterItem>> getNewItems,
-                                Function<Integer, Set<MenuItem>>        contextMenuItemSupplier)
+                                Function<Integer, Set<MenuItem>>        contextMenuItemSupplier,
+                                Function<ChapterItem, Boolean>          canDrag)
     {
+
+        this.canDrag = canDrag;
 
         this.strucNodes = new TreeSet<> ((o1, o2) ->
         {
@@ -569,6 +573,19 @@ xxx
 
         riv.setOnDragDetected (ev ->
         {
+
+            if (this.canDrag != null)
+            {
+
+                if (!this.canDrag.apply (ci))
+                {
+
+                    ev.consume ();
+                    return;
+
+                }
+
+            }
 
             SnapshotParameters sp = new SnapshotParameters ();
             // Transparent bg.

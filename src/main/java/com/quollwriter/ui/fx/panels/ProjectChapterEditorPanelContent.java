@@ -131,7 +131,7 @@ TODO
                         }
 
                     }
-                    
+
                 });
 
                 if (this.object.getEditPosition () > -1)
@@ -210,6 +210,14 @@ TODO
                                                                               this.editor.getCaretPosition ());
 
                                              }));
+
+    }
+
+    @Override
+    public Boolean canDrag (ChapterItem ci)
+    {
+
+        return true;
 
     }
 

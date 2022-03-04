@@ -602,6 +602,15 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
 
     }
 */
+
+    @Override
+    public Boolean canDrag (ChapterItem ci)
+    {
+
+        return false;
+
+    }
+
     @Override
     public Set<MenuItem> getContextMenuItems (boolean    compress)
     {

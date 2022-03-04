@@ -206,6 +206,12 @@ TODO
 
                                                            return this.getMarginContextMenuItems (cpos);
 
+                                                       },
+                                                       item ->
+                                                       {
+
+                                                           return this.canDrag (item);
+
                                                        });
                 margin.getStyleClass ().add (StyleClassNames.MARGIN);
                 margin.managedProperty ().bind (margin.visibleProperty ());
@@ -282,6 +288,8 @@ TODO
                                               }));
 
     }
+
+    public abstract Boolean canDrag (ChapterItem it);
 
     public abstract Node getMarginNodeForChapterItem (ChapterItem it);
 
@@ -628,7 +636,7 @@ TODO
 
             int paraNo = this.editor.getParagraphForOffset (item.getPosition ());
             this.editor.showParagraphAtTop (paraNo);
-System.out.println ("HEREX");
+
             this.showPopupForItem (item,
                                    popup);
 
