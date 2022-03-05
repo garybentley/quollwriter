@@ -117,12 +117,42 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
             {
 
                 EditorsUIUtils.showSendUnsentComments (this.viewer,
-                                                       null);
+                                                       () ->
+                                                       {
+
+                                                           this.showUnsentNotification ();
+
+                                                       });
 
             })
             .build ();
 
         this.showUnsentNotification ();
+
+        this.getBinder ().addListChangeListener (this.viewer.getProject ().getBooks ().get (0).getChapters (),
+                                                 ev ->
+        {
+
+            this.showUnsentNotification ();
+
+            while (ev.next ())
+            {
+
+                for (Chapter c : ev.getAddedSubList ())
+                {
+
+                    c.chapterItemsEvents ().subscribe (eev ->
+                    {
+
+                        this.showUnsentNotification ();
+
+                    });
+
+                }
+
+            }
+
+        });
 
         this.viewer.getProject ().getBooks ().get (0).getChapters ().stream ()
             .forEach (c ->
@@ -336,6 +366,7 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
                 .title (editors,project,LanguageStrings.sidebar,comments,otherversions,popup,title)
                 .headerIconClassName (StyleClassNames.VIEW)
                 .styleClassName ("versionselect")
+                .styleSheet ("versionselect")
                 .popupId (popupId)
                 .objects (FXCollections.observableList (others))
                 .cellProvider ((obj, popupContent) ->
@@ -344,11 +375,12 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
                     List<String> prefix = Arrays.asList (editors,project,LanguageStrings.sidebar,comments,otherversions,popup,labels);
 
                     VBox b = new VBox ();
+                    b.getStyleClass ().add (StyleClassNames.ITEM);
 
                     UIUtils.setTooltip (b,
                                         getUILanguageStringProperty (Utils.newList (prefix,clicktoview),
                                                     //"<html>Click to view version <b>%s</b>.</html>",
-                                                                     obj.getName ()));
+                                                                     (obj.getName () != null ? obj.getName () : getUILanguageStringProperty (Utils.newList (prefix,noversion)))));
 
                     b.setOnMouseClicked (ev ->
                     {
@@ -424,8 +456,8 @@ public class EditorProjectSideBar extends BaseSideBar<EditorProjectViewer>
 
                         s.append (t);
 
-                        b.getChildren ().add (QuollLabel.builder ()
-                            .label (new SimpleStringProperty (s.toString ()))
+                        b.getChildren ().add (QuollTextView.builder ()
+                            .text (new SimpleStringProperty (s.toString ()))
                             .styleClassName (StyleClassNames.INFO)
                             .build ());
 

@@ -6331,6 +6331,17 @@
                         "text" : "<ul><li>More fixes and improvements as a result of the formal testing.</li><li>The User Interface language strings editor has been fully tested and can be used now.  Note: there may still be some string changes coming since Editor Mode still needs to be tested.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b23" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes/Minor Improvements",
+                        "text" : "<ul><li>More fixes and improvements as a result of the formal testing.</li><li>The User Interface language strings editor has been fully tested and can be used now.  Note: there may still be some string changes coming since Editor Mode still needs to be tested.</li><li>Most of Editor Mode has been tested although there is still more to do.  It is usable however.</li></ul>"
+                    }
+                }
             }
         }
     },

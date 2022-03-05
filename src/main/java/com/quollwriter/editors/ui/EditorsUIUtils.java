@@ -1473,6 +1473,7 @@ TODO Removed for now, not sure this is the desired behaviour.
             .title (editors,user,sendproject,popup,title)
             .styleClassName (StyleClassNames.SEND)
             .styleSheet ("sendproject")
+            .inViewer (viewer)
             .form (f)
             .build ();
 
@@ -1502,6 +1503,7 @@ TODO Removed for now, not sure this is the desired behaviour.
             .title (editors,user,updateproject,popup,title)
             .styleClassName (StyleClassNames.SEND)
             .styleSheet ("sendproject")
+            .inViewer (viewer)
             .form (EditorsUIUtils.createSendProjectPanel (viewer,
                                                           ed,
                                                           () ->
@@ -2763,7 +2765,10 @@ TODO Removed for now, not sure this is the desired behaviour.
         Consumer<String> open = (pwd) ->
         {
 
-            if (pwd.equals (""))
+            if ((pwd != null)
+                &&
+                (pwd.equals (""))
+               )
             {
 
                 pwd = null;
@@ -2801,7 +2806,7 @@ TODO Removed for now, not sure this is the desired behaviour.
 
                 Environment.openProject (_proj);
 
-                AbstractProjectViewer pv = null; // TODO Environment.getProjectViewer (_proj);
+                AbstractProjectViewer pv = Environment.getProjectViewer (_proj);
 
                 if (!(pv instanceof EditorProjectViewer))
                 {

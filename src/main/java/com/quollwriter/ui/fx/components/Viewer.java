@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.beans.value.*;
 import javafx.scene.text.*;
+import javafx.geometry.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -120,6 +121,9 @@ public class Viewer extends Stage implements Stateful
         Integer wh = null;
         Integer ww = null;
 
+        //this.setY (0);
+        //this.setX (0);
+
         if (s != null)
         {
 
@@ -166,6 +170,23 @@ public class Viewer extends Stage implements Stateful
         {
 
             ww = DEFAULT_WINDOW_WIDTH;
+
+        }
+
+        // Make sure the height is within the bounds of the display.
+        Rectangle2D b = Screen.getPrimary ().getVisualBounds ();
+
+        if (wh > b.getHeight ())
+        {
+
+            wh = (int) (b.getHeight () - 20);
+
+        }
+
+        if (ww > b.getWidth ())
+        {
+
+            ww = (int) (b.getWidth () - 20);
 
         }
 

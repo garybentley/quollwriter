@@ -78,6 +78,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
        this.responseBox.getStyleClass ().add (StyleClassNames.RESPONSE);
        this.responseBox.managedProperty ().bind (this.responseBox.visibleProperty ());
        this.responseBox.setVisible (false);
+       this.getChildren ().add (this.responseBox);
 
        if (!this.message.isSentByMe ())
        {
@@ -89,19 +90,21 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
               )
            {
 
-               Button update = QuollButton.builder ()
-                .label (editors,messages,updateproject,received,undealtwith,buttons,LanguageStrings.update)
-                .onAction (ev ->
-                {
+               QuollButtonBar responseButs = QuollButtonBar.builder ()
+                    .button (QuollButton.builder ()
+                        .label (editors,messages,updateproject,received,undealtwith,buttons,LanguageStrings.update)
+                        .onAction (ev ->
+                        {
 
-                    EditorsUIUtils.showProjectUpdate (this.message,
-                                                      this.viewer,
-                                                      null);
+                            EditorsUIUtils.showProjectUpdate (this.message,
+                                                              this.viewer,
+                                                              null);
 
-                })
-                .build ();
+                        })
+                        .build ())
+                    .build ();
 
-               this.responseBox.getChildren ().add (update);
+               this.responseBox.getChildren ().add (responseButs);
                this.responseBox.setVisible (true);
 
            }

@@ -30,7 +30,7 @@ public class CommentItemFormatter extends AbstractChapterItemFormatter<Note, Abs
                binder,
                item,
                onNewPopupShown,
-               itemEditable,
+               itemEditable && !item.isDealtWith (),
                extraControls);
 
     }

@@ -23,10 +23,28 @@ public abstract class AbstractProjectItemFormatter<E extends ChapterItem> extend
                                          Supplier<Set<Node>> extraControls)
     {
 
+        this (viewer,
+              binder,
+              item,
+              onNewPopupShown,
+              true,
+              extraControls);
+
+    }
+
+    public AbstractProjectItemFormatter (ProjectViewer       viewer,
+                                         IPropertyBinder     binder,
+                                         E                   item,
+                                         Runnable            onNewPopupShown,
+                                         boolean             editable,
+                                         Supplier<Set<Node>> extraControls)
+    {
+
         super (viewer,
                binder,
                item,
                onNewPopupShown,
+               editable,
                extraControls);
 
     }

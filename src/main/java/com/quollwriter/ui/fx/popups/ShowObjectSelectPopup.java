@@ -284,6 +284,8 @@ public class ShowObjectSelectPopup<T> extends PopupContent
 
         VBox content = new VBox ();
         this.getChildren ().add (content);
+        VBox.setVgrow (content,
+                       Priority.ALWAYS);
 
         if (b.above != null)
         {
@@ -293,6 +295,8 @@ public class ShowObjectSelectPopup<T> extends PopupContent
         }
 
         this.scroll = new ScrollPane (vb);
+        VBox.setVgrow (this.scroll,
+                       Priority.ALWAYS);
 
         content.getChildren ().add (this.scroll);
 
@@ -329,7 +333,7 @@ public class ShowObjectSelectPopup<T> extends PopupContent
 
             this.scroll.setPrefHeight (h);
             this.scroll.setMinHeight (h);
-            this.scroll.setMaxHeight (h);
+            //this.scroll.setMaxHeight (h);
 
         });
 

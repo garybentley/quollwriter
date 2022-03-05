@@ -318,27 +318,32 @@ public class EditorChaptersSidebarItem extends ProjectObjectsSidebarItem<EditorP
                         })
                         .build ());
 
-                    its.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
-                        .iconName (StyleClassNames.EDIT)
-                        .onAction (ev ->
-                        {
+                    if (!note.isDealtWith ())
+                    {
 
-                            this.viewer.editComment (note);
+                        its.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,edit)))
+                            .iconName (StyleClassNames.EDIT)
+                            .onAction (ev ->
+                            {
 
-                        })
-                        .build ());
+                                this.viewer.editComment (note);
 
-                    its.add (QuollMenuItem.builder ()
-                        .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
-                        .iconName (StyleClassNames.DELETE)
-                        .onAction (ev ->
-                        {
+                            })
+                            .build ());
 
-                            this.viewer.showDeleteComment (note);
+                        its.add (QuollMenuItem.builder ()
+                            .label (getUILanguageStringProperty (Utils.newList (prefix,delete)))
+                            .iconName (StyleClassNames.DELETE)
+                            .onAction (ev ->
+                            {
 
-                        })
-                        .build ());
+                                this.viewer.showDeleteComment (note);
+
+                            })
+                            .build ());
+
+                    }
 
                 }
 

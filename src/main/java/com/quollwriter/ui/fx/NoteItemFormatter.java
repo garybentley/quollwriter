@@ -23,6 +23,7 @@ public class NoteItemFormatter extends AbstractProjectItemFormatter<Note>
                binder,
                item,
                onNewPopupShown,
+               !item.isDealtWith (),
                null);
 
     }
@@ -37,7 +38,7 @@ public class NoteItemFormatter extends AbstractProjectItemFormatter<Note>
         {
 
             v.getChildren ().add (QuollLabel.builder ()
-                .styleClassName (StyleClassNames.DEALTWITH)
+                //.styleClassName (StyleClassNames.DEALTWITH)
                 .label (new SimpleStringProperty (Environment.formatDateTime (this.item.getDealtWith ())))
                 .build ());
 
