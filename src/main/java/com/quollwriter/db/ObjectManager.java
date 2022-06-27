@@ -3139,6 +3139,13 @@ TODO REmove
 
         ProjectInfo inf = Environment.getProjectInfo (project);
 
+        if (inf == null)
+        {
+
+            return FXCollections.observableSet ();
+
+        }
+
         return inf.getBackupPaths ();
 /*
         File dir = project.getBackupDirectory ();

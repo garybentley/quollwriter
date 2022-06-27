@@ -28,7 +28,7 @@ public class EditorFindInfoBox extends Box
 
         this.editor = ed;
 
-        if (ed.getAvatar () != null)
+        if (ed.getMainAvatar () != null)
         {
 /*
 TODO Remove

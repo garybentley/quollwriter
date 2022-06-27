@@ -45,7 +45,31 @@ public class QuollToolBar extends HBox implements Stateful
                                 b.tooltip);
 
         }
+/*
+        this.setPrefRows (1);
 
+        this.prefColumnsProperty ().bind (javafx.beans.binding.Bindings.createIntegerBinding (() ->
+        {
+
+            int i = 0;
+
+            for (Node n : this.getChildren ())
+            {
+
+                if (n.isVisible ())
+                {
+
+                    i++;
+
+                }
+
+            }
+
+            return i;
+
+        },
+        this.getChildren ()));
+*/
         this.getStyleClass ().add (StyleClassNames.QTOOLBAR);
 
         if (b.styleName != null)

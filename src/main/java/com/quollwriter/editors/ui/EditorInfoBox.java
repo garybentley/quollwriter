@@ -198,7 +198,7 @@ public class EditorInfoBox extends VBox
             })
             .build ();
 
-        this.avatarBox.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, this.editor.getAvatar () == null);
+        this.avatarBox.pseudoClassStateChanged (StyleClassNames.NOAVATAR_PSEUDO_CLASS, this.editor.getMainAvatar () == null);
 
 /*
         this.avatar = new ImageView ();

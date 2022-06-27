@@ -184,6 +184,17 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
 
             // Compare books.
             // If not equal fall through to a name sort.
+            if ((c1.getBook () == null)
+                ||
+                (c2.getBook () == null)
+               )
+            {
+
+                // Not entirely sure how this can happen.
+                return 0;
+
+            }
+            
             if (c1.getBook () == c2.getBook ())
             {
 

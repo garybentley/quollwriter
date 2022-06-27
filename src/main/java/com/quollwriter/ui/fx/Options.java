@@ -3062,13 +3062,6 @@ TODO Remove, rolled into start section
     private Section createEditorsSection (AbstractViewer viewer)
     {
 
-        if (EditorsEnvironment.getUserAccount () == null)
-        {
-
-            return null;
-
-        }
-
         QuollCheckBox autoLogin = QuollCheckBox.builder ()
             .label (options,editors,labels,autologin)
             .build ();

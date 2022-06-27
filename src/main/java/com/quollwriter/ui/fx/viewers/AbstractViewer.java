@@ -165,8 +165,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     //private Node content = null;
     //private VBox notifications = null;
 
-    private EditorsSideBar editorsSideBar = null;
-
     private Set<QuollPopup> popups = new HashSet<> ();
 
     private Set<ProjectEventListener> projectEventListeners = new HashSet<> ();
@@ -3062,6 +3060,8 @@ TODO
 */
         }
 
+        this.updateLayout ();
+
     }
 
     public Set<SideBar> getSideBars ()
@@ -3145,7 +3145,7 @@ TODO
           try
           {
 
-              _this.editorsSideBar.showChatBox (ed);
+              this.getEditorsSideBar ().showChatBox (ed);
 
           } catch (Exception e) {
 
@@ -3194,12 +3194,10 @@ TODO
 
       }
 
-      if (this.editorsSideBar == null)
+      if (this.getEditorsSideBar () == null)
       {
 
-          this.editorsSideBar = new EditorsSideBar (this);
-
-          this.addSideBar (this.editorsSideBar);
+          this.addSideBar (new EditorsSideBar (this));
 
       }
 
@@ -3209,11 +3207,28 @@ TODO
 
     }
 
+    private EditorsSideBar getEditorsSideBar ()
+    {
+
+        SideBar sb = this.getSideBarById (EditorsSideBar.SIDEBAR_ID);
+
+        if ((sb != null)
+            &&
+            (sb.getContent () instanceof EditorsSideBar)
+           )
+        {
+
+            return (EditorsSideBar) sb.getContent ();
+
+        }
+
+        return null;
+
+    }
+
     public void viewEditor (final EditorEditor ed)
                      throws GeneralException
     {
-
-        final AbstractViewer _this = this;
 
         this.runCommand (AbstractViewer.CommandId.vieweditors,
                          () ->
@@ -3222,7 +3237,7 @@ TODO
             try
             {
 
-                _this.editorsSideBar.showEditor (ed);
+                this.getEditorsSideBar ().showEditor (ed);
 
             } catch (Exception e) {
 
@@ -3230,7 +3245,7 @@ TODO
                                       ed,
                                       e);
 
-                ComponentUtils.showErrorMessage (_this,
+                ComponentUtils.showErrorMessage (this,
                                                  getUILanguageStringProperty (editors,vieweditorerror));
                                                  //"Unable to show Editor");
 
@@ -3699,7 +3714,7 @@ TODO Not needed, is a function of the sidebar itself...
 
             this.fullScreenContent.prefWidthProperty ().bind (this.popupPane.widthProperty ());
             this.fullScreenContent.prefHeightProperty ().bind (this.popupPane.heightProperty ());
-            this.popupPane.getChildren ().add (this.fullScreenContent);
+            this.popupPane.getChildren ().add (0, this.fullScreenContent);
 
         }
 

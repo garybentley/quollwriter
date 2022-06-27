@@ -169,39 +169,44 @@ public class EditorsUIUtils
 
                 final Notification notify = viewer.addNotification (getUILanguageStringProperty (editors,user,deleteaccount,notification),
                                                                     //"Deleting your Editors Service account, please wait.  This sometimes takes a little while...",
-                                                                    Constants.LOADING_GIF_NAME,
+                                                                    StyleClassNames.DELETE,
                                                                     -1);
 
                 EditorsEnvironment.deleteUserAccount (() ->
                 {
 
-                    // Remove the editors sidebar.
-                    Environment.removeSideBarFromAllProjectViewers (EditorsSideBar.SIDEBAR_ID);
-
-                    viewer.removeNotification (notify);
-
-                    String url = "";
-
-                    try
+                    UIUtils.runLater (() ->
                     {
+                        // Remove the editors sidebar.
+                        Environment.removeSideBarFromAllProjectViewers (EditorsSideBar.SIDEBAR_ID);
 
-                        url = new File (dbDir).toURI ().toURL ().toString ();
+                        viewer.removeNotification (notify);
 
-                    } catch (Exception e) {
+                        String url = "";
 
-                        Environment.logError ("Unable to convert file: " +
-                                              dbDir +
-                                              " to a url",
-                                              e);
+                        try
+                        {
 
-                    }
+                            url = new File (dbDir).toURI ().toURL ().toString ();
 
-                    QuollPopup.messageBuilder ()
-                        .inViewer (viewer)
-                        .title (editors,user,deleteaccount,confirmpopup,title)
-                        .message (getUILanguageStringProperty (Arrays.asList (editors,user,deleteaccount,confirmpopup,text),
-                                                               url))
-                        .build ();
+                        } catch (Exception e) {
+
+                            Environment.logError ("Unable to convert file: " +
+                                                  dbDir +
+                                                  " to a url",
+                                                  e);
+
+                        }
+
+                        QuollPopup.messageBuilder ()
+                            .inViewer (viewer)
+                            .title (editors,user,deleteaccount,confirmpopup,title)
+                            .message (getUILanguageStringProperty (Arrays.asList (editors,user,deleteaccount,confirmpopup,text),
+                                                                   url))
+                            .closeButton ()
+                            .build ();
+
+                    });
 
                 },
                 // On error
@@ -733,14 +738,7 @@ public class EditorsUIUtils
         fb.item (getUILanguageStringProperty (Utils.newList (prefix,labels,LanguageStrings.name)),
                  nb);
 
-        Image im = ed.getMyAvatarForEditor ();
-
-        if (im == null)
-        {
-
-            im = ed.getAvatar ();
-
-        }
+        Image im = ed.getMainAvatar ();
 
         ImageSelector avatarSel = ImageSelector.builder ()
             .image (im) //(im != null) ? SwingFXUtils.toFXImage (im, null) : null)

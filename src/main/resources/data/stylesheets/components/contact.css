@@ -22,7 +22,7 @@
 
  .contact
  {
-     -fx-padding: 0.5em 0 0.5em 0.5em;
+     -fx-padding: 0em 0 0.5em 0.5em;
      -fx-border-color: -qw-component-border-color;
      -fx-cursor: hand;
      -fx-border-width: 0;

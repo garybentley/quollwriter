@@ -1078,7 +1078,8 @@ TODO Remove
             Map<String, String> env = new HashMap<> ();
             env.put ("create", "true");
 
-            FileSystem fs = FileSystems.newFileSystem (Paths.get (f.getPath ()), null);
+            FileSystem fs = FileSystems.newFileSystem (f.toPath (), null);
+            //FileSystem fs = FileSystems.newFileSystem (Paths.get (f.getPath ()).toUri (), env);
 
             File[] files = dirToWrite.listFiles ();
 

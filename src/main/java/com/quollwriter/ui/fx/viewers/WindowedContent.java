@@ -56,6 +56,8 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
             .configurable (true)
             .build ();
 
+        ctb.minWidthProperty ().bind (ctb.prefWidthProperty ());
+
 /*
         // TODO Change or make work!
         QuollToolBar ctb = QuollToolBar.builder ()

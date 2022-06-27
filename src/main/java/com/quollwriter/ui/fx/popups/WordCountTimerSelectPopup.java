@@ -34,7 +34,8 @@ public class WordCountTimerSelectPopup extends PopupContent
 
         super (viewer);
 
-        HBox b = new HBox ();
+        //HBox b = new HBox ();
+        FlowPane b = new FlowPane ();
 
         ChoiceBox<StringProperty> words = UIUtils.getWordsOptions (() -> UIUtils.getDefaultWarmupWords (),
                                                                    (v) -> { this.wordCount = v; });
@@ -47,6 +48,8 @@ public class WordCountTimerSelectPopup extends PopupContent
         QuollLabel l = QuollLabel.builder ()
             .label (timer,labels,andor)
             .build ();
+        l.minWidthProperty ().bind (l.prefWidthProperty ());
+        l.maxWidthProperty ().bind (l.prefWidthProperty ());
 
         QuollButton but = QuollButton.builder ()
             .tooltip (timer,buttons,start,tooltip)

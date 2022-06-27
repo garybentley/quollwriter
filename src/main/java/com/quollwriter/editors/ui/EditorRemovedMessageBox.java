@@ -72,6 +72,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 
             // Show the response.
             this.responseBox = new VBox ();
+            this.responseBox.managedProperty ().bind (this.responseBox.visibleProperty ());
 
             this.getChildren ().add (this.responseBox);
 
@@ -85,51 +86,53 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
 
             final EditorEditor ed = this.message.getEditor ();
 
-            this.getChildren ().add (QuollButton.builder ()
-                .label (editors,messages,contactremoved,received,undealtwith,buttons,confirm)
-                .onAction (ev ->
-                {
-
-                    try
+            this.getChildren ().add (QuollButtonBar.builder ()
+                .button (QuollButton.builder ()
+                    .label (editors,messages,contactremoved,received,undealtwith,buttons,confirm)
+                    .onAction (ev ->
                     {
 
-                        // Unsubscribe.
-                        EditorsEnvironment.getMessageHandler ().unsubscribeFromEditor (ed);
+                        try
+                        {
 
-                        // For all projects, if they are a project editor then set them as previous.
-                        EditorsEnvironment.removeEditorAsProjectEditorForAllProjects (ed);
+                            // Unsubscribe.
+                            EditorsEnvironment.getMessageHandler ().unsubscribeFromEditor (ed);
 
-                        // Uupdate the editor to be previous.
-                        ed.setEditorStatus (EditorEditor.EditorStatus.previous);
+                            // For all projects, if they are a project editor then set them as previous.
+                            EditorsEnvironment.removeEditorAsProjectEditorForAllProjects (ed);
 
-                        EditorsEnvironment.updateEditor (ed);
+                            // Uupdate the editor to be previous.
+                            ed.setEditorStatus (EditorEditor.EditorStatus.previous);
 
-                        this.responseBox.setVisible (false);
+                            EditorsEnvironment.updateEditor (ed);
 
-                        this.message.setDealtWith (true);
+                            this.responseBox.setVisible (false);
 
-                        EditorsEnvironment.updateMessage (this.message);
+                            this.message.setDealtWith (true);
 
-                        // Offer to remove any projects we are editing for them.
-                        EditorsUIUtils.showDeleteProjectsForEditor (this.viewer,
-                                                                    this.message.getEditor (),
-                                                                    null);
+                            EditorsEnvironment.updateMessage (this.message);
 
-                    } catch (Exception e) {
+                            // Offer to remove any projects we are editing for them.
+                            EditorsUIUtils.showDeleteProjectsForEditor (this.viewer,
+                                                                        this.message.getEditor (),
+                                                                        null);
 
-                        Environment.logError ("Unable to update editor: " +
-                                              ed,
-                                              e);
+                        } catch (Exception e) {
 
-                        ComponentUtils.showErrorMessage (this.viewer,
-                                                         getUILanguageStringProperty (editors,messages,update,actionerror));
-                                                  //"Unable to update {contact}, please contact Quoll Writer support for assistance.");
+                            Environment.logError ("Unable to update editor: " +
+                                                  ed,
+                                                  e);
 
-                        return;
+                            ComponentUtils.showErrorMessage (this.viewer,
+                                                             getUILanguageStringProperty (editors,messages,update,actionerror));
+                                                      //"Unable to update {contact}, please contact Quoll Writer support for assistance.");
 
-                    }
+                            return;
 
-                })
+                        }
+
+                    })
+                    .build ())
                 .build ());
 
         }

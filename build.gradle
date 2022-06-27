@@ -132,12 +132,12 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java8:4.4.4'
 
     // RichtextFX
-    //implementation 'org.fxmisc.richtext:richtextfx:0.10.7'
+    implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
     //implementation 'org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT'
 
     // This is temporary for testing changes to a local version of richtextfx.  Ignore.
     // TEMP ADD RICHTEXTFX JARS AND DEPS
-
+/*
      implementation fileTree('d:/reference/java/afester-richtextfx/RichTextFX/richtextfx/build/libs/') {
         //include 'richtextfx-1.0.0-SNAPSHOT.jar'
         include 'richtextfx-0.10.8-rc1.jar'
@@ -146,7 +146,7 @@ dependencies {
         include 'undofx-2.1.1.jar'
         include 'wellbehavedfx-0.3.3.jar'
     }
-
+*/
     // Flying Saucer (can be removed when no longer using Swing)
     implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
 

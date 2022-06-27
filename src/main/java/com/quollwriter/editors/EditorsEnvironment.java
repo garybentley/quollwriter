@@ -204,23 +204,27 @@ public class EditorsEnvironment
 
                         }
 
-                        // Add a notification to the project viewer saying we are logging in.
-                        final AbstractViewer viewer = Environment.getFocusedViewer ();
-
-                        Notification _n = null;
-
-                        // We may not have a viewer if we are opening an encrypted project.
-                        if (viewer != null)
+                        UIUtils.runLater (() ->
                         {
 
-                            _n = viewer.addNotification (getUILanguageStringProperty (LanguageStrings.editors,login,auto,notification),
-                                                        //"Logging in to the Editors service...",
-                                                         Constants.EDITORS_ICON_NAME,
-                                                         30);
+                            // Add a notification to the project viewer saying we are logging in.
+                            final AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                        }
+                            Notification _n = null;
 
-                        final Notification n = _n;
+                            // We may not have a viewer if we are opening an encrypted project.
+                            if (viewer != null)
+                            {
+
+                                _n = viewer.addNotification (getUILanguageStringProperty (LanguageStrings.editors,login,auto,notification),
+                                                            //"Logging in to the Editors service...",
+                                                             Constants.EDITORS_ICON_NAME,
+                                                             30);
+                                _n.setId ("editorsloginnotification");
+
+                            }
+
+                        });
 
                         EditorsEnvironment.setLoginCredentials (email,
                                                                 pwd);
@@ -231,24 +235,52 @@ public class EditorsEnvironment
                                                      () ->
                         {
 
-                            if (viewer != null)
+                            UIUtils.runLater (() ->
                             {
 
-                                viewer.removeNotification (n);
+                                final AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                            }
+                                if (viewer != null)
+                                {
+
+                                    Node nn = viewer.lookup ("#editorsloginnotification");
+
+                                    if (nn != null)
+                                    {
+
+                                        viewer.removeNotification ((Notification) nn);
+
+                                    }
+
+                                }
+
+                            });
 
                         },
                         // On cancel
                         () ->
                         {
 
-                            if (viewer != null)
+                            UIUtils.runLater (() ->
                             {
 
-                                viewer.removeNotification (n);
+                                final AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                            }
+                                if (viewer != null)
+                                {
+
+                                    Node nn = viewer.lookup ("#editorsloginnotification");
+
+                                    if (nn != null)
+                                    {
+
+                                        viewer.removeNotification ((Notification) nn);
+
+                                    }
+
+                                }
+
+                            });
 
                         },
                         // On error
@@ -258,12 +290,26 @@ public class EditorsEnvironment
                             EditorsEnvironment.setLoginCredentials (EditorsEnvironment.editorAccount.getEmail (),
                                                                     null);
 
-                            if (viewer != null)
+                            UIUtils.runLater (() ->
                             {
 
-                                viewer.removeNotification (n);
+                                final AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                            }
+                                if (viewer != null)
+                                {
+
+                                    Node nn = viewer.lookup ("#editorsloginnotification");
+
+                                    if (nn != null)
+                                    {
+
+                                        viewer.removeNotification ((Notification) nn);
+
+                                    }
+
+                                }
+
+                            });
 
                             EditorsUIUtils.showLoginError (getUILanguageStringProperty (LanguageStrings.editors,login,auto,actionerror),
                                                             //"Unable to automatically login, please check your email and password.",
@@ -589,6 +635,35 @@ public class EditorsEnvironment
                     continue;
 
                 }
+
+                ed.getBinder ().addChangeListener (ed.editorStatusProperty (),
+                                                   (pr, oldv, newv) ->
+                {
+
+                    if ((newv == EditorEditor.EditorStatus.current)
+                        &&
+                        (oldv != EditorEditor.EditorStatus.current)
+                       )
+                    {
+
+                        EditorsEnvironment.invitesForMe.remove (ed);
+                        EditorsEnvironment.invitesIveSent.remove (ed);
+                        EditorsEnvironment.currentEditors.add (ed);
+                        EditorsEnvironment.previousEditors.remove (ed);
+
+                    }
+
+                    if (newv == EditorEditor.EditorStatus.previous)
+                    {
+
+                        EditorsEnvironment.invitesForMe.remove (ed);
+                        EditorsEnvironment.invitesIveSent.remove (ed);
+                        EditorsEnvironment.currentEditors.remove (ed);
+                        EditorsEnvironment.previousEditors.add (ed);
+
+                    }
+
+                });
 
                 if (ed.isPending ())
                 {
@@ -3559,14 +3634,17 @@ TODO Remove, never used.
 
                 };
 
+                // Offer to remove all the editor projects.
+                UIUtils.runLater (() ->
+                {
+
+                    EditorsUIUtils.showDeleteProjectsForAllEditors (Environment.getFocusedViewer (),
+                                                                    deleteAcc);
+
+                });
+
             });
 
-            // Offer to remove all the editor projects.
-            /*
-            TODO
-            EditorsUIUtils.showDeleteProjectsForAllEditors (Environment.getFocusedViewer (),
-                                                            deleteAcc);
-*/
         },
         null,
         onError);

@@ -125,3 +125,23 @@
 {
     -fx-padding: 0 0.5em 0 1em;
 }
+
+.message.invitemessage .qtextview
+{
+    -fx-padding: 0 0.25em 0.25em 1em;
+}
+
+.message.invitemessage .details
+{
+    -fx-padding: 0.5em 0.25em 0.25em 1em;
+}
+
+.message.invitemessage .details .image-view
+{
+    -fx-padding: 0 0.25em 0 0;
+}
+
+.message.invitemessage .details .label
+{
+    -fx-font-size: 1.5em;
+}

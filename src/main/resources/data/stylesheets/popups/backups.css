@@ -19,8 +19,12 @@
     -fx-padding: 0.5em;
 }
 .item > .iconbox { visibility: hidden; }
-.item:hover { -fx-background-color: -qw-hover-bg; }
+.item:hover { -fx-background-color: -qw-hover-bg;}
 .item .title { -fx-font-size: 1.1em; }
+.item:hover .title
+{
+    -fx-text-fill: -qw-text-hover-color;
+}
 /*
 .item .restore { -fx-graphic: url(/imgs/restore16.png); }
 .item .delete { -fx-graphic: url(/imgs/delete16.png); }
@@ -35,6 +39,12 @@
     -fx-fill-height: false;
     -fx-alignment: center;
 }
+
+.item:hover .controls .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
 .nobackups {
     -fx-font-size: 1.2em;
     -fx-border-width: 1px;

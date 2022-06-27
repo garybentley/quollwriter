@@ -49,6 +49,10 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
     private Map<EditorEditor, IPropertyBinder> editorBinders = new HashMap<> ();
 
+    private VBox invitesFromOthersBox = null;
+    private VBox pendingInvitesBox = null;
+    private VBox allContactsBox = null;
+
     public EditorsSideBar (E viewer)
     {
 
@@ -144,7 +148,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                        Priority.ALWAYS);
         HBox.setHgrow (edBox,
                        Priority.ALWAYS);
-        ScrollPane sp = new ScrollPane (edBox);
+        ScrollPane sp = new QScrollPane (edBox);
         sp.getStyleClass ().add (StyleClassNames.CONTACTS);
 
         this.firstLogin = new VBox ();
@@ -237,17 +241,27 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
         this.noEditors.setVisible (EditorsEnvironment.getCurrentEditors ().size () == 0);
 
-        edBox.getChildren ().add (this.createEditorsSection (invitesfromothers,
-                                                             StyleClassNames.INVITESFORME,
-                                                             EditorsEnvironment.getInvitesForMe ()));
+        this.invitesFromOthersBox = new VBox ();
+        this.invitesFromOthersBox.managedProperty ().bind (this.invitesFromOthersBox.visibleProperty ());
+        this.pendingInvitesBox = new VBox ();
+        this.pendingInvitesBox.managedProperty ().bind (this.pendingInvitesBox.visibleProperty ());
+        this.allContactsBox = new VBox ();
+        this.allContactsBox.managedProperty ().bind (this.allContactsBox.visibleProperty ());
 
-        edBox.getChildren ().add (this.createEditorsSection (pendinginvites,
-                                                             StyleClassNames.PENDINGINVITES,
-                                                             EditorsEnvironment.getPendingInvites ()));
+        this.createEditorsSection (this.invitesFromOthersBox,
+                                   invitesfromothers,
+                                   StyleClassNames.INVITESFORME,
+                                   EditorsEnvironment.getInvitesForMe ());
+        this.createEditorsSection (this.pendingInvitesBox,
+                                   pendinginvites,
+                                   StyleClassNames.PENDINGINVITES,
+                                   EditorsEnvironment.getPendingInvites ());
+        this.createEditorsSection (this.allContactsBox,
+                                   allcontacts,
+                                   StyleClassNames.ALLCONTACTS,
+                                   EditorsEnvironment.getCurrentEditors ());
 
-        edBox.getChildren ().add (this.createEditorsSection (allcontacts,
-                                                             StyleClassNames.ALLCONTACTS,
-                                                             EditorsEnvironment.getCurrentEditors ()));
+        edBox.getChildren ().addAll (this.invitesFromOthersBox, this.pendingInvitesBox, this.allContactsBox);
 
         Tab t = new Tab ();
         t.getStyleClass ().add (StyleClassNames.CONTACTS);
@@ -265,7 +279,8 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
     }
 
-    private Node createEditorsSection (String         type,
+    private Node createEditorsSection (VBox           parent,
+                                       String         type,
                                        String         className,
                                        ObservableList<EditorEditor> eds)
     {
@@ -302,6 +317,23 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             }
 
         }
+
+        AccordionItem acc = AccordionItem.builder ()
+            .styleClassName (className)
+            .title (UILanguageStringsManager.createStringPropertyWithBinding (() ->
+            {
+
+                return getUILanguageStringProperty (Arrays.asList (LanguageStrings.editors,LanguageStrings.sidebar,type,title),
+                                                    Environment.formatNumber (eds.size ())).getValue ();
+
+
+            },
+            eds))
+            .openContent (box)
+            .build ();
+
+        acc.managedProperty ().bind (acc.visibleProperty ());
+        acc.setVisible (eds.size () > 0);
 
         this.getBinder ().addListChangeListener (eds,
                                                  ev ->
@@ -350,6 +382,8 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                                 box.getChildren ().remove (_rem);
 
+                                acc.setVisible (eds.size () > 0);
+
                             });
 
                         }
@@ -383,6 +417,8 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                             }
 
+                            acc.setVisible (true);
+
                         }
 
                     });
@@ -393,22 +429,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
         });
 
-        AccordionItem acc = AccordionItem.builder ()
-            .styleClassName (className)
-            .title (UILanguageStringsManager.createStringPropertyWithBinding (() ->
-            {
-
-                return getUILanguageStringProperty (Arrays.asList (LanguageStrings.editors,LanguageStrings.sidebar,type,title),
-                                                    Environment.formatNumber (eds.size ())).getValue ();
-
-
-            },
-            eds))
-            .openContent (box)
-            .build ();
-
-        acc.managedProperty ().bind (acc.visibleProperty ());
-        acc.setVisible (eds.size () > 0);
+        parent.getChildren ().add (acc);
 
         return acc;
 
@@ -561,7 +582,13 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
                                              },
                                              // On cancel
-                                             null,
+                                             () ->
+                                             {
+
+                                                 this.loginBut.setVisible (true);
+                                                 this.loginBut.setDisable (false);
+
+                                             },
                                              // On error
                                              exp ->
                                              {
@@ -1133,7 +1160,10 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
         if (t == null)
         {
 
-            Node prev = this.createEditorsSection (previouscontacts,
+            VBox prev = new VBox ();
+
+            this.createEditorsSection (prev,
+                                                   previouscontacts,
                                                    StyleClassNames.PREVIOUSEDITORS,
                                                    EditorsEnvironment.getPreviousEditors ());
 
@@ -1148,6 +1178,13 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
             t.setGraphic (b);
             this.specialTabs.put ("previous-editors",
                                   t);
+
+            this.tabs.getTabs ().add (t);
+
+        }
+
+        if (!this.tabs.getTabs ().contains (t))
+        {
 
             this.tabs.getTabs ().add (t);
 

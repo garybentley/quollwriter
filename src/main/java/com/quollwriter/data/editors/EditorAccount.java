@@ -182,11 +182,16 @@ public class EditorAccount
     public void setAvatar (Image im)
     {
 
-        if (im.getWidth () > Constants.EDITORS_SERVICE_AVATAR_MAX_WIDTH)
+        if (im != null)
         {
 
-            im = UIUtils.getScaledImage (im,
-                                         Constants.EDITORS_SERVICE_AVATAR_MAX_WIDTH);
+            if (im.getWidth () > Constants.EDITORS_SERVICE_AVATAR_MAX_WIDTH)
+            {
+
+                im = UIUtils.getScaledImage (im,
+                                             Constants.EDITORS_SERVICE_AVATAR_MAX_WIDTH);
+
+            }
 
         }
 

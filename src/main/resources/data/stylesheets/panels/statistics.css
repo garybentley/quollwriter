@@ -174,3 +174,21 @@
 {
     -fx-padding: 0 0 0.5em 0;
 }
+
+VBox
+{
+    -fx-fill-width: true;
+}
+
+VBox.information
+{
+    -fx-alignment: center;
+    -fx-padding: 3em;
+    -fx-fill-width: true;
+}
+
+.label.information
+{
+    -fx-font-size: 1.8em;
+    -fx-alignment: top-center;
+}

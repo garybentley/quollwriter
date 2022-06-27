@@ -24,6 +24,19 @@
     -fx-font-size: 1.5em;
     -fx-cursor: hand;
 }
+
+.sections .header:selected .title,
+.sections .header:hover .title
+{
+    -fx-text-fill: -qw-title-selected-text-color;
+}
+
+.sections .header:selected .iconbox .icon,
+.sections .header:hover .iconbox .icon
+{
+    -fx-background-color: -qw-title-selected-icon-color;
+}
+
 .accordion { -fx-padding: 0 0 0.5em 0; }
 .accordion :closed { -fx-padding: 0.5em 0 0 0.5em; }
 .editing .hyperlink {
@@ -222,4 +235,9 @@
 .items .scroll-pane
 {
     -fx-padding: 0 0.5em 0 0;
+}
+
+.start-icon
+{
+    -fx-background-color: -qw-icon-color;
 }

@@ -48,6 +48,16 @@
     -fx-fill-height: false;
 }
 
+.timer .start .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+
+.timer .start:hover .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
 .header .iconbox .icon,
 .header .iconbox {
      -fx-pref-width: 1.333em;

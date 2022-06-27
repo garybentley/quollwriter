@@ -461,6 +461,17 @@ TODO Remove
 
         }
 
+        if (("existing".equals (oldStage))
+            &&
+            ("start".equals (newStage))
+           )
+        {
+
+            this.login = false;
+            return true;
+
+        }
+
         if ((oldStage.equals ("start"))
             &&
             (newStage.equals ("existing"))

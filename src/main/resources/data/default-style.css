@@ -38,6 +38,7 @@
     -qw-armed-bg: #eeeeee;
 
     -qw-hover-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
+    -qw-hover-night-bg: #dddddd;
     -qw-armed-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
 
     -qw-dragging-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 50%, #ffffff 100%);
@@ -53,6 +54,10 @@
     -qw-component-inner-border-color: #cccccc;
 
     -qw-icon-color: -qw-dark-color;
+
+    -qw-button-icon-color: -qw-icon-color;
+
+    -qw-title-selected-icon-color: -qw-icon-color;
 
     -qw-icon-hover-color: -qw-dark-color;
 
@@ -101,15 +106,23 @@
 
     -qw-text-hover-color: -qw-text-base-color;
 
+    -qw-title-selected-text-color: -qw-text-base-color;
+
 }
 
 .root:night
 {
     -fx-text-base-color: #ffffff;
 
+    -qw-text-base-color: -fx-text-base-color;
+
     -qw-text-hover-color: #4d4d4d;
 
     -qw-bg-color: #4d4d4d;
+
+    -qw-title-selected-text-color: -qw-bg-color;
+
+    -qw-title-selected-icon-color: -qw-bg-color;
 
     /*
      * The dark color.  Generally used for borders and drop shadows as well as solid colors.
@@ -120,6 +133,8 @@
      * Used for hover effects on things you can click on.
      */
     -qw-hover-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
+    -qw-hover-bg: #dddddd;
+    -qw-hover-bg: -qw-hover-night-bg;
 
     -qw-armed-bg: linear-gradient(from 0% 0% to 0% 100%, -fx-pressed-base 0%, #ffffff 100%);
 
@@ -148,6 +163,7 @@
 
     -qw-button-text-color: -qw-dark-color;
     -qw-button-text-color: -qw-bg-color;
+    -qw-button-icon-color: -qw-bg-color;
     /*fx-text-base-color;*/
 
 }
@@ -365,6 +381,11 @@ Text
 .radiobuttons .radio-button
 {
     -fx-padding: 0 0 0.5em 0;
+}
+
+.radio-button
+{
+    -fx-cursor: hand;
 }
 
 .separator:horizontal .line {
@@ -724,11 +745,18 @@ Text
  .spinner .increment-arrow-button .increment-arrow,
  .spinner .decrement-arrow-button .decrement-arrow {
      -fx-shape: "M 0,32 V 0 l 24,16 z";
-     -fx-background-color: -qw-icon-color;
+     -fx-background-color: -qw-button-icon-color;
      -fx-pref-width: 0.888em;
      -fx-max-width: 0.888em;
      -fx-min-width: 0.888em;
  }
+
+.spinner .increment-arrow-button:hover .increment-arrow,
+.spinner .decrement-arrow-button:hover .decrement-arrow
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
  .previous-icon
  {
      -fx-rotate: 180;
@@ -741,10 +769,14 @@ Text
 .noproblems-icon,
 .info-icon,
 .chapterinfo-icon,
-.description-icon {
+.description-icon,
+.hyperlink .iconbox .icon.information-icon
+ {
     -fx-shape: "M 12,4 A 4,4 0 0 1 8,8 4,4 0 0 1 4,4 4,4 0 0 1 8,0 4,4 0 0 1 12,4 M 2,16 c 1.105,0 2,0.895 2,2 v 8 c 0,1.105 -0.895,2 -2,2 H 0 v 4 h 16 v -4 h -1.992 c -1.102,0 -2,-0.895 -2,-2 L 12,12 H 0 v 4 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-width: 0.666em;
+    -fx-max-width: 0.666em;
+    -fx-min-width: 0.666em;
 }
 
 .accordion .header .iconbox .icon.description-icon
@@ -765,6 +797,12 @@ Text
     -fx-shape: "m 31.415596,0.586 c -0.78104,-0.781 -2.059105,-0.781 -2.840144,0 L 24.505245,4.66 C 22.83716,3.551 20.923063,3 19.000965,3 16.441835,3 13.799701,3.977 11.930606,5.93 l -6.0003048,6 C 2.5081274,15.348 2.086106,20.633 4.6572366,24.512 l -4.07020678,4.074 c -0.78103968,0.781 -0.78103968,2.047 0,2.828 C 0.97704963,31.805 1.4880756,32 2.0001016,32 c 0.512026,0 1.023052,-0.195 1.4140718,-0.586 L 7.4843802,27.34 C 9.1524649,28.449 11.078563,29 13.00066,29 c 2.475126,0 5.11726,-0.977 7.07036,-2.93 l 5.988304,-6 c 3.422174,-3.418 3.844195,-8.703 1.273064,-12.582 l 4.082208,-4.074 c 0.78204,-0.781 0.78204,-2.047 0.001,-2.828 z M 24.989269,13 c 0,1.602 -0.625031,3.109 -1.758089,4.242 l -5.988304,6 C 16.105818,24.375 14.518738,25 13.00066,25 12.094614,25 11.22757,24.777 10.43053,24.398 l 2.900147,-2.984 c 0.78104,-0.781 0.78104,-2.047 0,-2.828 -0.697035,-0.781 -1.9631,-0.781 -2.744139,0 L 7.6023862,21.57 C 7.2193667,20.777 7.0003556,19.91 7.0003556,19 c 0,-1.602 0.6250317,-3.109 1.7580893,-4.242 l 5.9163001,-6 C 15.807803,7.625 17.398884,7 19.000965,7 c 0.906046,0 1.77009,0.223 2.566131,0.602 l -3.043155,3.047 c -0.78104,0.781 -0.78104,2.047 0,2.828 0.39102,0.391 0.902046,0.586 1.414072,0.586 0.508026,0 1.020052,-0.195 1.410071,-0.586 l 3.039155,-3.047 c 0.384019,0.793 0.60203,1.66 0.60203,2.57 z";
     -fx-background-color: -qw-icon-color;
 }
+
+.button .weblinks-icon
+{
+    -fx-background-color: -qw-button-icon-color;
+}
+
 .colorchooser-icon,
 .colors-icon {
     -fx-shape: "M 10.918,17.961 5.174,27.719 C 8.027,30.352 11.809,32 16,32 c 1.041,0 2.055,-0.117 3.041,-0.305 z M 12.105,12 H 0.566 C 0.232,13.285 0,14.609 0,16 c 0,3.891 1.445,7.41 3.756,10.188 z m 3.528,10 5.391,9.117 C 25.473,29.633 29.063,26.316 30.813,22 Z M 16.5,10 11.092,0.848 C 6.592,2.307 2.953,5.646 1.188,10 Z m 3.451,10 H 31.433 C 31.766,18.715 32,17.391 32,16 32,12.127 30.57,8.623 28.277,5.855 Z m 1.221,-6.02 5.691,-9.664 C 24.008,1.658 20.211,0 16,0 15.002,0 14.035,0.119 13.088,0.293 Z";
@@ -923,6 +961,8 @@ Text
     -fx-shape:"M 14,0 H 0 V 32 H 24 V 9.998 Z M 4,28 V 4 h 8 v 8 h 8 v 16 z";
     -fx-background-color: -qw-icon-color;
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 .editcomplete-icon {
     -fx-shape: "m 134.04575,134.45734 h 1.05833 v 8.46666 h -1.05833 z m 2.813,3.20028 1.34272,1.35555 3.08789,-3.11716 1.22428,1.23597 -4.31217,4.35335 -2.567,-2.59174 z";
@@ -1439,6 +1479,13 @@ Text
     */
     /*-fx-min-width: 3.5em;*/
 }
+
+.layoutselector .qtextview.description,
+.layoutselector .qtextview.description > *,
+.layoutselector .qtextview.description > * > *
+{
+    -fx-cursor: hand;
+}
 /**
  * COPIED FROM AeroFX
  */
@@ -1460,10 +1507,12 @@ Text
 {
     -fx-alignment: center;
     -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-padding: 0.5em 0.75em 0.5em 0.75em;
     -fx-background-radius: 0;
-    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);
+    /*-fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);*/
     -fx-border-radius: 1px;
     -fx-border-color: -qw-component-border-color;
+    -fx-text-fill: -qw-button-text-color;
 
     /*
      Experimental
@@ -1473,8 +1522,9 @@ Text
 
 .button:hover
 {
+/*
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #cdcdcd 100%);
-
+*/
     /*
      Experimental
      */
@@ -1484,7 +1534,10 @@ Text
 
 .button:armed
 {
+    /*
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #87cde5 100%);
+*/
+    -fx-background-color: #cccccc;
     -fx-border-color: -qw-border-color;
 }
 
@@ -1564,7 +1617,7 @@ Text
 
 .text-field, .text-field:focused
 {
-    -fx-padding: 0.2em;
+    -fx-padding: 0.275em;
 }
 
 .text-field
@@ -1572,9 +1625,17 @@ Text
     -fx-border-radius: 0;
     -fx-border-color: -qw-component-border-color;
     -fx-padding: 0.2em;
+    -fx-padding: 0.275em;
     -fx-background-insets: 0;
     -fx-text-fill: -qw-text-base-color;
     -fx-background-color: -qw-bg-color;
+}
+
+.text-field:selected,
+.text-field:focused,
+.text-field:readonly
+{
+    -fx-text-fill: -qw-text-base-color;
 }
 
 .control:error .text-field
@@ -1756,8 +1817,8 @@ Text
  */
  .qpopup.compresschaptercontextexample .content
  {
-     -fx-pref-width: 275px;
-     -fx-min-width: 275px;
+     -fx-pref-width: 280px;
+     -fx-min-width: 280px;
  }
 
 .qpopup.compresschaptercontextexample .content .image-view:compressed
@@ -1778,6 +1839,11 @@ Text
     -fx-image: url(/data/chapter-icons-example.png);
 }
 
+.qpopup.chaptericonsexample .content
+{
+    -fx-pref-width: 245px;
+    -fx-min-width: 245px;
+}
 /**
  * Wizard (ui.fx.components.Wizard)
  */
@@ -1981,6 +2047,12 @@ Text
 .menu-button .arrow-button .arrow {
     -fx-background-color: -qw-icon-color;
 }
+
+.menu-button:hover .arrow-button .arrow
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
 /*
 .project .sidebar .toolbar:bottom .menu-button .arrow-button
 {
@@ -2094,6 +2166,7 @@ Text
     -fx-pref-height: 1.333em;
     -fx-fill-height: false;
     -fx-alignment: center;
+    -fx-background-color: -qw-button-icon-color;
 }
 .viewer.project .sidebar.chapterinfo .scroll-pane
 {
@@ -2150,6 +2223,7 @@ Text
     -fx-pref-width: 8em;
     -fx-text-alignment: right;
     -fx-alignment: center-right;
+    -fx-content-display: text-only;
 }
 
 .compressedmenu:focused .compressedmenutitle
@@ -2401,6 +2475,10 @@ a
     -fx-cursor: hand;
 }
 
+.filefind .text-field
+{
+    -fx-cursor: hand;
+}
 .hyperlink {
     -fx-fill: -qw-hyperlink-color;
     -fx-text-fill: -qw-hyperlink-color;
@@ -2434,6 +2512,8 @@ a
 }
 .hyperlink .iconbox .chapter-icon.icon {
     -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
 }
 
 .hyperlink .iconbox .warning-icon.icon
@@ -2635,6 +2715,7 @@ WordCountTimerButton
 .slider .thumb
 {
     -fx-background-color: #4d4d4d;
+    -fx-background-color: -fx-text-base-color;
     -fx-background-radius: 0;
     -fx-pref-width: 0.5em;
     -fx-pref-height: 1.75em;
@@ -2653,15 +2734,37 @@ WordCountTimerButton
     -fx-pref-width: 1.75em;
     -fx-pref-height: 1.75em;
     -fx-background-color: #dddddd;
-    -fx-padding: 0.75em;
+    /*-fx-padding: 0.6em;*/
+    -fx-snap-to-pixel: true;
 }
-
+/*
 .radio-button .radio .dot
 {
     -fx-padding: 0.5em;
+    -fx-padding: 0.45em;
 }
-
+*/
 .radio-button:selected .radio .dot
 {
     -fx-background-color: #4d4d4d;
+    -fx-padding: 0.2em;
+/*
+    -fx-min-width: 0.5em;
+    -fx-max-width: 0.5em;
+    -fx-pref-width: 0.5em;
+    -fx-min-height: 1em;
+    -fx-max-height: 1em;
+    -fx-pref-height: 1em;
+*/
+}
+
+TilePane
+{
+    -fx-hgap: 0;
+    -fx-vgap: 0;
+}
+
+.button:hover .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
 }

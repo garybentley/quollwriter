@@ -26,3 +26,18 @@
 .items .label .iconbox .chapter-icon.icon {
     -fx-pref-width: 1em;
 }
+
+.label.title
+{
+    -fx-content-display: text-only;
+}
+
+.label .iconbox .icon.warmup-icon
+{
+    -fx-pref-width: 1em;
+}
+
+.label .iconbox .icon.editor-icon
+{
+    -fx-pref-width: 1em;
+}

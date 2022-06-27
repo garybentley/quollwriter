@@ -141,6 +141,20 @@ public class SessionWordCountChart extends VBox implements QuollChart
 
         }
 
+        List<XYChart.Data<Number, Number>> data = this.chart.getData ().get (0).getData ();
+
+        if ((data == null)
+            ||
+            (data.size () == 0)
+           )
+        {
+
+            this.showNoDataMessage ();
+
+            return;
+
+        }
+
         final SimpleDateFormat dateFormat = new SimpleDateFormat ("hh:mm a, EEE, dd MMM yyyy");
 
         // Again with the stupid, have to do this AFTER the data has been added...
@@ -164,7 +178,7 @@ public class SessionWordCountChart extends VBox implements QuollChart
         {
 
             //this.getChildren ().add (this.avgLine);
-
+/*
             List<XYChart.Data<Number, Number>> data = this.chart.getData ().get (0).getData ();
 
             if ((data == null)
@@ -173,10 +187,12 @@ public class SessionWordCountChart extends VBox implements QuollChart
                )
             {
 
+                this.showNoDataMessage ();
+
                 return;
 
             }
-
+*/
             Number min = data.get (0).getXValue ();
             Number max = data.get (data.size () - 1).getXValue ();
 
@@ -223,6 +239,21 @@ public class SessionWordCountChart extends VBox implements QuollChart
         this.chartWrapper.getChildren ().add (this.chart);
 
         this.createDetails ();
+
+    }
+
+    private void showNoDataMessage ()
+    {
+
+        VBox b = new VBox ();
+        b.getStyleClass ().add ("information");
+        Label l = QuollLabel.builder ()
+            .styleClassName (StyleClassNames.INFORMATION)
+            .label (getUILanguageStringProperty (charts,sessionwordcount,novalue))
+            .build ();
+        b.getChildren ().add (l);
+
+        this.chartWrapper.getChildren ().add (b);
 
     }
 

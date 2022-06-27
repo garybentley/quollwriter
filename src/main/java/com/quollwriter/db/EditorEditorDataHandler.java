@@ -73,7 +73,7 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
         try
         {
 
-            params.add (UIUtils.getImageBytes (ed.getAvatar ()));
+            params.add (UIUtils.getImageBytes (ed.getMainAvatar ()));
 
         } catch (Exception e) {
 
@@ -172,7 +172,7 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
         try
         {
 
-            params.add (UIUtils.getImageBytes (ed.getAvatar ()));
+            params.add (UIUtils.getImageBytes (ed.getMainAvatar ()));
 
         } catch (Exception e) {
 

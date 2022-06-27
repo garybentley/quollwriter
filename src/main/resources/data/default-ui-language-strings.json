@@ -6974,6 +6974,7 @@
             "tooltip" : "%1$s, %2$s",
             ":comment.tooltip" : "%1$s is the start date/time, %2$s is the session length.",
             ":scount.tooltip" : 2,
+            "novalue" : "No sessions within the specified date range",
             "labels" :
             {
                 "for" : "For",
@@ -7033,6 +7034,7 @@
             "tooltip" : "%1$s, %2$s",
             ":comment.tooltip" : "%1$s is the start date/time, %2$s is the session length.",
             ":scount.tooltip" : 2,
+            "novalue" : "No sessions within the specified date range",
             "labels" :
             {
                 "for" : "for",

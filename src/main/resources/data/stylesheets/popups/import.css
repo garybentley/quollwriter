@@ -24,9 +24,11 @@
     -fx-border-color: -qw-component-border-color;
     -fx-max-width: Infinity;
     -fx-cursor: hand;
+    -fx-text-fill: -qw-text-base-color;
 }
 .content .select-project .projects .label:hover { -fx-background-color: -qw-hover-bg; }
-.content .select-project .projects .label:selected { -fx-background-color: -qw-armed-bg; }
+.content .select-project .projects .label:selected { -fx-background-color: -qw-armed-bg; -fx-text-fill: -qw-title-selected-text-color; }
+.content .select-project .projects .label:hover { -fx-text-fill: -qw-title-selected-text-color; }
 .content .scroll-pane {
     -fx-border-color: -qw-component-border-color;
     -fx-border-width: 1px;

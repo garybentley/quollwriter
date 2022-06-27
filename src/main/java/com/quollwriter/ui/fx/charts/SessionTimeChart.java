@@ -77,6 +77,21 @@ public class SessionTimeChart extends VBox implements QuollChart
 
     }
 
+    private void showNoDataMessage ()
+    {
+
+        VBox b = new VBox ();
+        b.getStyleClass ().add (StyleClassNames.INFORMATION);
+        Label l = QuollLabel.builder ()
+            .styleClassName (StyleClassNames.INFORMATION)
+            .label (getUILanguageStringProperty (charts,sessionlength,novalue))
+            .build ();
+        b.getChildren ().add (l);
+
+        this.chartWrapper.getChildren ().add (b);
+
+    }
+
     private void createChart ()
     {
 
@@ -191,6 +206,20 @@ System.out.println ("HERE");
 
         }
 
+        List<XYChart.Data<Number, Number>> data = this.chart.getData ().get (0).getData ();
+
+        if ((data == null)
+            ||
+            (data.size () == 0)
+           )
+        {
+
+            this.showNoDataMessage ();
+
+            return;
+
+        }
+
         long minM = Constants.MIN_IN_MILLIS;
         long hour = Constants.HOUR_IN_MILLIS;
         long day = Constants.DAY_IN_MILLIS;
@@ -280,7 +309,7 @@ System.out.println ("HERE");
         {
 
             //this.getChildren ().add (this.avgLine);
-
+/*
             List<XYChart.Data<Number, Number>> data = this.chart.getData ().get (0).getData ();
 
             if ((data == null)
@@ -292,7 +321,7 @@ System.out.println ("HERE");
                 return;
 
             }
-
+*/
             Number min = data.get (0).getXValue ();
             Number max = data.get (data.size () - 1).getXValue ();
 
