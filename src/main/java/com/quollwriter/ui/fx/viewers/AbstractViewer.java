@@ -993,8 +993,10 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                             KeyCode.F1, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.cssviewer,
                             KeyCode.F2, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
+/*
         this.addKeyMapping (CommandId.whatsnew,
                             KeyCode.F11);
+*/
         this.addKeyMapping (CommandId.showoptions,
                             KeyCode.F3);
         this.addKeyMapping (CommandId.vieweditors,
@@ -1005,6 +1007,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                             KeyCode.F4);
         this.addKeyMapping (CommandId.fullscreen,
                             KeyCode.F5);
+        this.addKeyMapping (CommandId.fullscreen,
+                            KeyCode.F11);
         this.addKeyMapping (CommandId.nightmode,
                             KeyCode.F8);
         this.addKeyMapping (CommandId.showfullscreenheader,
