@@ -138,7 +138,7 @@ public class SideBar extends BaseVBox implements Stateful
                               ev ->
         {
 
-            _this.otherSideBarsShowButton.setVisible (ev.getViewer ().getActiveSideBarCount () > 1 && ev.getViewer ().getActiveOtherSideBar () != null);
+            _this.otherSideBarsShowButton.setVisible (ev.getViewer ().getActiveSideBarCount () > 0 && ev.getViewer ().getActiveOtherSideBar () != null);
 
         });
 
@@ -146,7 +146,7 @@ public class SideBar extends BaseVBox implements Stateful
                               ev ->
         {
 
-            _this.otherSideBarsShowButton.setVisible (ev.getViewer ().getActiveSideBarCount () > 1 && ev.getViewer ().getActiveOtherSideBar () != null);
+            _this.otherSideBarsShowButton.setVisible (ev.getViewer ().getActiveSideBarCount () > 0 && ev.getViewer ().getActiveOtherSideBar () != null);
 
         });
 
