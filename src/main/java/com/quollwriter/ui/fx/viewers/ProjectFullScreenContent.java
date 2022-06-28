@@ -44,7 +44,9 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
     private Pane popupPane = null;
     private Header header = null;
-    private HBox sidebarsPane = null;
+    private VBox sidebarsPane = null;
+    private VBox sidebarContent = null;
+    private HBox toolbarBox = null;
     private HBox info = null;
     private Label chapWords = null;
     private Label clockLabel = null;
@@ -101,7 +103,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
             }
 
             this.updateHeader ();
-
+            this.updateToolbar ();
             UIUtils.runLater (() ->
             {
 
@@ -835,13 +837,62 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
         //this.background.relocate (0, 0);
         //this.background.setPrefSize (swidth, sheight);
 
-        this.sidebarsPane = new HBox ();
+        this.toolbarBox = new HBox ();
+        this.toolbarBox.getStyleClass ().add (StyleClassNames.TOOLBAR);
+        this.toolbarBox.managedProperty ().bind (this.toolbarBox.visibleProperty ());
+        UIUtils.addStyleSheet (this.toolbarBox,
+                               Constants.SIDEBAR_STYLESHEET_TYPE,
+                               "projecttoolbar");
+        VBox.setVgrow (this.toolbarBox,
+                       Priority.NEVER);
+
+        this.sidebarContent = new VBox ();
+        VBox.setVgrow (this.sidebarContent,
+                       Priority.ALWAYS);
+
+        this.sidebarsPane = new VBox ();
         this.sidebarsPane.getStyleClass ().add (StyleClassNames.SIDEBARS);
         this.sidebarsPane.pseudoClassStateChanged (StyleClassNames.LEFT_PSEUDO_CLASS, true);
         this.sidebarsPane.managedProperty ().bind (this.sidebarsPane.visibleProperty ());
         this.sidebarsPane.setVisible (false);
         DragResizer dr = DragResizer.makeResizable (this.sidebarsPane,
                                                     Side.RIGHT);
+        this.sidebarsPane.getChildren ().addAll (this.sidebarContent, this.toolbarBox);
+
+        this.viewer.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
+                                     ev ->
+        {
+
+            this.updateToolbar ();
+
+        });
+
+        // Add listener to toolbar location position.
+        this.propertyBinder.addChangeListener (UserProperties.toolbarLocationProperty (),
+                                               (pr, oldv, newv) ->
+        {
+
+            this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (oldv), false);
+
+            this.updateToolbar ();
+
+        });
+
+        if (this.viewer instanceof PanelViewer)
+        {
+
+            this.propertyBinder.addChangeListener (((PanelViewer) this.viewer).currentPanelProperty (),
+                                                   (pr, oldv, newv) ->
+            {
+
+                this.updateToolbar ();
+
+            });
+
+        }
+
+        this.updateToolbar ();
+
         dr.newWidthProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -1159,6 +1210,96 @@ TODO
         this.clockFormat = new SimpleDateFormat ("h:mm a");
 
         this.updateHeader ();
+
+    }
+
+    private void updateToolbar ()
+    {
+
+        this.toolbarBox.setVisible (false);
+        this.toolbarBox.getChildren ().clear ();
+
+        if (!(this.viewer instanceof PanelViewer))
+        {
+
+            return;
+
+        }
+
+        if (!this.viewer.isInFullScreenMode ())
+        {
+
+            return;
+
+        }
+
+        PanelViewer pv = (PanelViewer) this.viewer;
+
+        Panel p = pv.getCurrentPanel ();
+
+        if (p == null)
+        {
+
+            return;
+
+        }
+
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.TOP), false);
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.BOTTOM), false);
+
+        String loc = UserProperties.toolbarLocationProperty ().getValue ();
+
+        if (loc == null)
+        {
+
+            loc = Constants.BOTTOM;
+
+        }
+
+        this.sidebarsPane.getChildren ().remove (this.toolbarBox);
+
+        if (loc.equals (Constants.TOP))
+        {
+
+            this.sidebarsPane.getChildren ().add (0,
+                                                  this.toolbarBox);
+
+        } else {
+
+            this.sidebarsPane.getChildren ().add (this.toolbarBox);
+
+        }
+
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (loc), true);
+
+        // Update the toolbar.
+        if (p.getContent () instanceof ToolBarSupported)
+        {
+
+            QuollToolBar tb = ((ToolBarSupported) p.getContent ()).getToolBar ();
+
+            if (tb != null)
+            {
+
+                if (tb.getParent () != null)
+                {
+
+                    ((Pane) tb.getParent ()).getChildren ().remove (tb);
+
+                }
+
+                HBox.setHgrow (tb,
+                               Priority.ALWAYS);
+                this.toolbarBox.getChildren ().add (tb);
+
+                this.toolbarBox.setVisible (true);
+
+            }
+
+
+        }
+
+        this.requestLayout ();
 
     }
 
@@ -1597,6 +1738,8 @@ TODO Remove
                              Runnable doAfterView)
     {
 
+        this.updateToolbar ();
+
         SideBar b = this.viewer.getSideBarById (id);
 
         if (b == null)
@@ -1616,14 +1759,14 @@ TODO Remove
 
         }
 
-        this.sidebarsPane.getChildren ().clear ();
+        this.sidebarContent.getChildren ().clear ();
 /*
         ScrollPane c = new ScrollPane (b);
         */
         HBox.setHgrow (b,
                        Priority.ALWAYS);
 
-        this.sidebarsPane.getChildren ().add (b);
+        this.sidebarContent.getChildren ().add (b);
         //b.prefWidthProperty ().bind (c.widthProperty ());
         //b.prefHeightProperty ().bind (c.heightProperty ());
 

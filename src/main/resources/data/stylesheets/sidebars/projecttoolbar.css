@@ -1,0 +1,50 @@
+.toolbar { -fx-padding: 0.2em; }
+.toolbar:bottom {
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.toolbar:top {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.toolbar .button > .iconbox,
+.toolbar .button > .iconbox .icon,
+.toolbar .menu-button > .label .iconbox,
+.toolbar .menu-button > .label .iconbox .icon {
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-min-width: 1.666em;
+    -fx-min-height: 1.666em;
+    -fx-max-width: 1.666em;
+    -fx-max-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.toolbar .button > .iconbox .info-icon.icon {
+    -fx-pref-width: 0.833em;
+    -fx-min-width: 0.833em;
+    -fx-max-width: 0.833em;
+}
+.toolbar .button > .iconbox .more-icon.icon {
+    -fx-pref-width: 0.415em;
+    -fx-min-width: 0.415em;
+    -fx-max-width: 0.415em;
+}
+
+.toolbar > .button > .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+
+.toolbar > .button > .controls .iconbox:hover .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+.toolbar .button.spellcheck > .iconbox {
+    -fx-alignment: top-center;
+}
+.toolbar .button > .iconbox .spellcheckoff-icon.icon {
+    -fx-pref-height: 1.3em;
+}
+.toolbar .button { -fx-content-display: graphic-only; }

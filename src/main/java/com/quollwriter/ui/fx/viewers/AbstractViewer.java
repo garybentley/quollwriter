@@ -3476,7 +3476,8 @@ TODO Not needed, is a function of the sidebar itself...
         v.init (null);
 
         this.viewer = v;
-
+/*
+Not needed, already covered by the full screen content.
         this.viewer.fullScreenProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -3488,7 +3489,7 @@ TODO Not needed, is a function of the sidebar itself...
             }
 
         });
-
+*/
         // Best place for this?
         v.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
                                       ev ->
@@ -3688,6 +3689,8 @@ TODO Not needed, is a function of the sidebar itself...
         this.inFullScreenModeProp.setValue (false);
 
         EditorsEnvironment.fullScreenExited ();
+        this.fireEvent (new Viewer.ViewerEvent (this.viewer,
+                                                Viewer.ViewerEvent.FULL_SCREEN_EXITED_EVENT));
         this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
                                     ProjectEvent.Action.exit);
 
@@ -3748,6 +3751,8 @@ TODO Not needed, is a function of the sidebar itself...
 
         this.fireProjectEventLater (ProjectEvent.Type.fullscreen,
                                     ProjectEvent.Action.enter);
+        this.fireEvent (new Viewer.ViewerEvent (this.viewer,
+                                                Viewer.ViewerEvent.FULL_SCREEN_ENTERED_EVENT));
 
     }
 

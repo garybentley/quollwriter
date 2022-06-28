@@ -86,7 +86,7 @@ public abstract class BaseSideBar<E extends AbstractViewer & PanelViewer> extend
 
     private void updateToolbar ()
     {
-
+if (true){return;}
         this.toolbarBox.setVisible (false);
         this.toolbarBox.getChildren ().clear ();
 

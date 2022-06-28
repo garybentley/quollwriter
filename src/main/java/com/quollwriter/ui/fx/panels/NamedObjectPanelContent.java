@@ -11,12 +11,13 @@ import com.quollwriter.ui.fx.components.*;
 /**
  * A base class for content that is suitable for display within a panel for a specific named object.
  */
-public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O extends NamedObject> extends PanelContent<E>
+public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O extends NamedObject> extends PanelContent<E> implements ToolBarSupported
 {
 
     protected O object = null;
     private BooleanProperty unsavedChangesProp = null;
     private boolean unsavedChanges = false;
+    private QuollToolBar tb = null;
 
     public NamedObjectPanelContent (E viewer,
                                     O object)
@@ -26,6 +27,26 @@ public abstract class NamedObjectPanelContent<E extends AbstractProjectViewer, O
 
         this.object = object;
         this.unsavedChangesProp = new SimpleBooleanProperty (false);
+
+    }
+
+    @Override
+    public QuollToolBar getToolBar ()
+    {
+
+        if (this.tb == null)
+        {
+
+            this.tb = QuollToolBar.builder ()
+                .styleClassName (StyleClassNames.TOOLBAR)
+                .controls (this.getToolBarItems ())
+            //.configurable (tbs.isToolBarConfigurable ())
+            //.inViewer (this.viewer)
+                .build ();
+
+        }
+
+        return this.tb;
 
     }
 

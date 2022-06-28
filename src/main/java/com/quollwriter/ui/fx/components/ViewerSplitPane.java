@@ -1,9 +1,12 @@
 package com.quollwriter.ui.fx.components;
 
+import java.util.*;
+
 import javafx.scene.*;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
+import javafx.css.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
@@ -15,6 +18,8 @@ public class ViewerSplitPane extends Pane implements Stateful
 {
 
     private VBox mainSidebar = null;
+    private VBox mainSidebarContent = null;
+    private HBox toolbarBox = null;
     private VBox content = null;
     private VBox otherSidebar = null;
     private Region div1 = null;
@@ -24,12 +29,14 @@ public class ViewerSplitPane extends Pane implements Stateful
     private String layout = null;
     private SideBar mainSB = null;
     private SideBar otherSB = null;
+    //private Map<Panel, QuollToolBar> toolbars = null;
 
     public ViewerSplitPane (StringProperty layoutProp,
                             AbstractViewer viewer)
     {
 
         this.viewer = viewer;
+        //this.toolbars = new HashMap<> ();
         this.binder = new PropertyBinder ();
         this.layout = layoutProp.getValue ();
         this.getStyleClass ().add (StyleClassNames.VIEWERCONTENT);
@@ -174,10 +181,32 @@ public class ViewerSplitPane extends Pane implements Stateful
         });
 
         this.mainSidebar = new VBox ();
+        this.mainSidebarContent = new VBox ();
+        VBox.setVgrow (this.mainSidebar,
+                       Priority.ALWAYS);
+        VBox.setVgrow (this.mainSidebarContent,
+                       Priority.ALWAYS);
+        this.toolbarBox = new HBox ();
+        this.toolbarBox.getStyleClass ().add (StyleClassNames.TOOLBAR);
+        this.toolbarBox.managedProperty ().bind (this.toolbarBox.visibleProperty ());
+        UIUtils.addStyleSheet (this.toolbarBox,
+                               Constants.SIDEBAR_STYLESHEET_TYPE,
+                               "projecttoolbar");
+        VBox.setVgrow (this.toolbarBox,
+                       Priority.NEVER);
+        this.mainSidebar.getChildren ().addAll (this.mainSidebarContent, this.toolbarBox);
         this.otherSidebar = new VBox ();
         this.content = new VBox ();
 
         this.getChildren ().addAll (this.div1, this.div2, this.mainSidebar, this.content, this.otherSidebar);
+
+        this.viewer.addEventHandler (Viewer.ViewerEvent.FULL_SCREEN_EXITED_EVENT,
+                                     ev ->
+        {
+
+            this.updateToolbar ();
+
+        });
 
         this.binder.addChangeListener (layoutProp,
                                        (pr, oldv, newv) ->
@@ -185,6 +214,14 @@ public class ViewerSplitPane extends Pane implements Stateful
 
             this.layout = newv;
             this.updateLayout ();
+
+        });
+
+        this.viewer.addEventHandler (Panel.PanelEvent.CLOSE_EVENT,
+                                     ev ->
+        {
+
+            this.updateToolbar ();
 
         });
 
@@ -230,6 +267,122 @@ public class ViewerSplitPane extends Pane implements Stateful
             this.otherSidebar.setPrefWidth (ow.doubleValue ());
 
         }
+
+        // Add listener to toolbar location position.
+        this.binder.addChangeListener (UserProperties.toolbarLocationProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+            this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (oldv), false);
+
+            this.updateToolbar ();
+
+        });
+
+        if (this.viewer instanceof PanelViewer)
+        {
+
+            this.binder.addChangeListener (((PanelViewer) this.viewer).currentPanelProperty (),
+                                           (pr, oldv, newv) ->
+            {
+
+                this.updateToolbar ();
+
+            });
+
+        }
+
+        this.updateToolbar ();
+
+    }
+
+    private void updateToolbar ()
+    {
+
+        this.toolbarBox.setVisible (false);
+        this.toolbarBox.getChildren ().clear ();
+
+        if (!(this.viewer instanceof PanelViewer))
+        {
+
+            return;
+
+        }
+
+        if (this.viewer.isInFullScreenMode ())
+        {
+
+            return;
+
+        }
+
+        PanelViewer pv = (PanelViewer) this.viewer;
+
+        Panel p = pv.getCurrentPanel ();
+
+        if (p == null)
+        {
+
+            return;
+
+        }
+
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.TOP), false);
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (Constants.BOTTOM), false);
+
+        String loc = UserProperties.toolbarLocationProperty ().getValue ();
+
+        if (loc == null)
+        {
+
+            loc = Constants.BOTTOM;
+
+        }
+
+        this.mainSidebar.getChildren ().remove (this.toolbarBox);
+
+        if (loc.equals (Constants.TOP))
+        {
+
+            this.mainSidebar.getChildren ().add (0,
+                                                 this.toolbarBox);
+
+        } else {
+
+            this.mainSidebar.getChildren ().add (this.toolbarBox);
+
+        }
+
+        this.toolbarBox.pseudoClassStateChanged (PseudoClass.getPseudoClass (loc), true);
+
+        // Update the toolbar.
+        if (p.getContent () instanceof ToolBarSupported)
+        {
+
+            QuollToolBar tb = ((ToolBarSupported) p.getContent ()).getToolBar ();
+
+            if (tb != null)
+            {
+
+                if (tb.getParent () != null)
+                {
+
+                    ((Pane) tb.getParent ()).getChildren ().remove (tb);
+
+                }
+
+                HBox.setHgrow (tb,
+                               Priority.ALWAYS);
+                this.toolbarBox.getChildren ().add (tb);
+
+                this.toolbarBox.setVisible (true);
+
+            }
+
+
+        }
+
+        this.requestLayout ();
 
     }
 
@@ -803,7 +956,7 @@ public class ViewerSplitPane extends Pane implements Stateful
 
             }
 
-            this.mainSidebar.getChildren ().clear ();
+            this.mainSidebarContent.getChildren ().clear ();
             this.otherSidebar.getChildren ().clear ();
 
             if (sb != null)
@@ -812,8 +965,9 @@ public class ViewerSplitPane extends Pane implements Stateful
                 VBox.setVgrow (sb,
                                Priority.ALWAYS);
 
+                sb.setVisible (true);
                 this.div1.setVisible (true);
-                this.mainSidebar.getChildren ().add (sb);
+                this.mainSidebarContent.getChildren ().add (sb);
 
             }
 
@@ -838,6 +992,7 @@ public class ViewerSplitPane extends Pane implements Stateful
                 VBox.setVgrow (sb,
                                Priority.ALWAYS);
 
+                sb.setVisible (true);
                 this.div2.setVisible (true);
                 this.otherSidebar.getChildren ().add (sb);
 
@@ -851,9 +1006,10 @@ public class ViewerSplitPane extends Pane implements Stateful
                 VBox.setVgrow (mb,
                                Priority.ALWAYS);
 
+                mb.setVisible (true);
                 this.div1.setVisible (true);
-                this.mainSidebar.getChildren ().clear ();
-                this.mainSidebar.getChildren ().add (mb);
+                this.mainSidebarContent.getChildren ().clear ();
+                this.mainSidebarContent.getChildren ().add (mb);
 
             }
 
@@ -891,7 +1047,7 @@ public class ViewerSplitPane extends Pane implements Stateful
 
         }
 
-        this.mainSidebar.setVisible (this.mainSidebar.getChildren ().size () > 0);
+        this.mainSidebarContent.setVisible (this.mainSidebarContent.getChildren ().size () > 0);
         this.otherSidebar.setVisible (this.otherSidebar.getChildren ().size () > 0);
         this.div1.setVisible (this.mainSidebar.isVisible ());
         this.div2.setVisible (this.otherSidebar.isVisible ());
@@ -991,12 +1147,12 @@ public class ViewerSplitPane extends Pane implements Stateful
 
                 } else {
 
-                    if (this.mainSidebar.getChildren ().size () > 0)
+                    if (this.mainSidebarContent.getChildren ().size () > 0)
                     {
 
                         // Content is at the min, check main.
-                        double msmw = this.mainSidebar.minWidth (height);
-                        double msw = this.mainSidebar.getWidth ();
+                        double msmw = this.mainSidebarContent.minWidth (height);
+                        double msw = this.mainSidebarContent.getWidth ();
 
                         if ((msw - diff) > msmw)
                         {
@@ -1252,7 +1408,7 @@ public class ViewerSplitPane extends Pane implements Stateful
         double d2w = 0;
         double contentw = 0;
 
-        if (this.mainSidebar.getChildren ().size () > 0)
+        if (this.mainSidebarContent.getChildren ().size () > 0)
         {
 
             double pw = this.mainSidebar.getPrefWidth ();
@@ -1398,7 +1554,7 @@ public class ViewerSplitPane extends Pane implements Stateful
         if (this.layout.equals (Constants.LAYOUT_PS_CH))
         {
 
-            if (this.mainSidebar.getChildren ().size () > 0)
+            if (this.mainSidebarContent.getChildren ().size () > 0)
             {
 
                 this.mainSidebar.setPrefSize (msw, height);
@@ -1466,7 +1622,7 @@ public class ViewerSplitPane extends Pane implements Stateful
 
             x = x + contentw;
 
-            if (this.mainSidebar.getChildren ().size () > 0)
+            if (this.mainSidebarContent.getChildren ().size () > 0)
             {
 
                 this.layoutInArea (this.div1,
@@ -1504,7 +1660,7 @@ public class ViewerSplitPane extends Pane implements Stateful
         if (this.layout.equals (Constants.LAYOUT_PS_OS_CH))
         {
 
-            if (this.mainSidebar.getChildren ().size () > 0)
+            if (this.mainSidebarContent.getChildren ().size () > 0)
             {
 
                 this.mainSidebar.setPrefSize (msw, height);
@@ -1649,7 +1805,7 @@ public class ViewerSplitPane extends Pane implements Stateful
 
             }
 
-            if (this.mainSidebar.getChildren ().size () > 0)
+            if (this.mainSidebarContent.getChildren ().size () > 0)
             {
 
                 //this.div2.setVisible (true);
@@ -1693,7 +1849,7 @@ public class ViewerSplitPane extends Pane implements Stateful
         if (this.layout.equals (Constants.LAYOUT_PS_CH_OS))
         {
 
-            if (this.mainSidebar.getChildren ().size () > 0)
+            if (this.mainSidebarContent.getChildren ().size () > 0)
             {
 
                 this.mainSidebar.setPrefSize (msw, height);
@@ -1836,7 +1992,7 @@ public class ViewerSplitPane extends Pane implements Stateful
 
             x = x + contentw;
 
-            if (this.mainSidebar.getChildren ().size () > 0)
+            if (this.mainSidebarContent.getChildren ().size () > 0)
             {
 
                 this.layoutInArea (this.div1,
