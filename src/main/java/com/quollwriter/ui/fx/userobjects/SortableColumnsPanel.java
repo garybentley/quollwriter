@@ -253,6 +253,13 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
                 for (int i = 0; i < widths.size (); i++)
                 {
 
+                    if (i >= this.getItems ().size ())
+                    {
+
+                        continue;
+
+                    }
+
                     ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue () - 1);
                     ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue () - 1);
 
@@ -272,6 +279,13 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
             for (int i = 0; i < widths.size (); i++)
             {
+
+                if (i >= this.getItems ().size ())
+                {
+
+                    continue;
+
+                }
 
                 ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue () - 1);
                 ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue () - 1);
