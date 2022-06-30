@@ -1164,6 +1164,7 @@ Text
 
 .tree .cell:selected > .label > .iconbox > .icon {
     -fx-background-color: #ffffff;
+    -fx-background-color: -qw-bg-color;
 }
 
 .root:night .tree .cell:selected > .label
@@ -2166,7 +2167,10 @@ Text
     -fx-pref-height: 1.333em;
     -fx-fill-height: false;
     -fx-alignment: center;
+    /*
+    IS THIS RIGHT?
     -fx-background-color: -qw-button-icon-color;
+    */
 }
 .viewer.project .sidebar.chapterinfo .scroll-pane
 {

@@ -1276,7 +1276,7 @@
                 {
                     "add" :
                     {
-                        "label" : "Click to find a file or files to add"
+                        "label" : "Click to find a file or drag-n-drop a file here"
                     }
                 },
                 "multitext" :

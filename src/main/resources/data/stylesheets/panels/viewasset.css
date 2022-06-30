@@ -46,7 +46,7 @@
 .field .view > .label,
 .field .edit > .single .label,
 .field .edit > .full .label { -fx-font-style: italic; }
-.column { -fx-padding: 0.5em; }
+.column { -fx-padding: 0 0.5em 0.5em 0.25em; }
 .field .view .control { -fx-padding: 0.25em 0.25em 0.25em 0.5em; }
 .column .fields .qtextarea.name {
     -fx-min-height: 5em;
@@ -132,7 +132,7 @@
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
 }
-/*.edit .control .image:noimage .image-view { -fx-image: url(/data/default-find-image.png); }*/
+
 .edit .control .image:noimage .noimage.iconbox,
 .view .control .image:noimage .noimage.iconbox {
     -fx-padding: 2em;
@@ -177,7 +177,6 @@
     -fx-font-style: normal;
     -fx-alignment: center;
     -fx-padding: 0.5em;
-    /*-fx-graphic: url(/imgs/add20.png);*/
     -fx-cursor: hand;
     -fx-wrap-text: true;
 }
@@ -198,7 +197,25 @@
     -fx-content-display: text-only;
     -fx-padding: 0.25em;
 }
-.documents .file:normal .label { -fx-graphic: url(/imgs/document-normal.png); }
+
+.documents .file:normal .label .iconbox .icon
+{
+    -fx-shape:"M 14,0 H 0 V 32 H 24 V 9.998 Z M 4,28 V 4 h 8 v 8 h 8 v 16 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 2.25em;
+    -fx-max-width: 2.25em;
+    -fx-min-width: 2.25em;
+    -fx-pref-height: 3em;
+    -fx-max-height: 3em;
+    -fx-min-height: 3em;
+}
+.documents .file:normal .label .iconbox
+{
+    -fx-alignment: center;
+    -fx-fill-height: false;
+    -fx-pref-width: 5em;
+    -fx-pref-height: 5em;
+}
 .documents .file .label {
     -fx-alignment: center-left;
     -fx-wrap-text: true;
@@ -469,4 +486,98 @@
 .column .header.title .iconbox
 {
     visibility: hidden;
+}
+
+.fields .field .header.label .iconbox
+{
+    visibility: hidden;
+}
+
+.column > .header.title .iconbox
+{
+    visibility: hidden;
+}
+
+.column .controls .control .label.information .iconbox
+{
+    visibility: hidden;
+}
+
+.column .control .label.add:hover
+{
+    -fx-text-fill: -qw-text-hover-color;
+}
+
+.column .control .label.add:hover .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+.overlay .iconbox,
+.overlay .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.control .documents .overlay .label
+{
+    -fx-background-color: transparent;
+    -fx-font-size: 1.3em;
+    -fx-font-style: none;
+    -fx-alignment: center;
+}
+
+.overlay
+{
+    -fx-padding: 0;
+    -fx-alignment: center;
+}
+
+.root:night .overlay .label
+{
+    -fx-text-fill: -qw-text-hover-color;
+    -fx-alignment: center;
+}
+
+.overlay:hover .label
+{
+    -fx-text-fill: -qw-text-hover-color;
+}
+
+.overlay:hover .label .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+.root:night .overlay .label .iconbox .icon,
+.root:night .documents .files .file .label:hover .image-view
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+.root:night .documents .files .file .label:hover
+{
+    -fx-text-fill: -qw-text-hover-color;
+}
+
+.documents .files .file:userimage .label .iconbox .icon
+{
+    -fx-alignment: center;
+}
+
+.documents .files .file:userimage .label .iconbox
+{
+    -fx-alignment: center;
+    -fx-pref-width: 5em;
+    -fx-pref-height: 5em;
+    -fx-max-width: 10em;
+    -fx-max-height: 10em;
+    -fx-fill-height: false;
 }

@@ -44,6 +44,7 @@ public class DocumentsPanel extends StackPane
         this.getStyleClass ().add (StyleClassNames.DOCUMENTS);
 
         VBox b = new VBox ();
+        b.managedProperty ().bind (b.visibleProperty ());
         b.setFillWidth (true);
         this.fileBoxes = new VBox ();
         this.fileBoxes.setFillWidth (true);
@@ -104,10 +105,13 @@ public class DocumentsPanel extends StackPane
         this.getChildren ().add (b);
 
         this.overlay = new VBox ();
+        this.overlay.prefWidthProperty ().bind (this.widthProperty ());
+        this.overlay.prefHeightProperty ().bind (this.heightProperty ());
         this.overlay.getStyleClass ().add (StyleClassNames.OVERLAY);
         this.overlay.managedProperty ().bind (this.overlay.visibleProperty ());
         this.overlay.getChildren ().add (QuollLabel.builder ()
             .label (assets,documents,add,drop)
+            .styleClassName (StyleClassNames.DOWNLOAD)
             .build ());
         this.overlay.setVisible (false);
         this.getChildren ().add (this.overlay);
@@ -176,6 +180,7 @@ public class DocumentsPanel extends StackPane
                 try
                 {
 
+                    b.setVisible (true);
                     this.overlay.setVisible (false);
 
                     for (Path f : pfs)
@@ -205,8 +210,18 @@ public class DocumentsPanel extends StackPane
         this.setOnDragExited (ev ->
         {
 
+            Node n = (Node) ev.getSource ();
+
+            if (this.localToScreen (this.getLayoutBounds ()).contains (n.localToScreen (ev.getX (), ev.getY ())))
+            {
+
+                return;
+
+            }
+
             this.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
             this.overlay.setVisible (false);
+            b.setVisible (true);
             ev.consume ();
 
         });
@@ -218,6 +233,8 @@ public class DocumentsPanel extends StackPane
 
             if (this.canHandleDragEvent (ev))
             {
+
+                b.setVisible (false);
 
                 List<Path> pfs = this.getFilesFromDragEvent (ev);
 
@@ -244,6 +261,7 @@ public class DocumentsPanel extends StackPane
             if (this.canHandleDragEvent (ev))
             {
 
+                b.setVisible (false);
                 List<Path> pfs = this.getFilesFromDragEvent (ev);
 
                 if (pfs.size () == 0)
@@ -515,12 +533,16 @@ public class DocumentsPanel extends StackPane
                 try
                 {
 
-                    ImageView iv = new ImageView (UIUtils.getImage (f));
+                    IconBox ic = IconBox.builder ()
+                        .image (new SimpleObjectProperty<Image> (UIUtils.getImage (f)))
+                        .build ();
 
-                    iv.setFitWidth (48);
-                    iv.setFitHeight (48);
+                    //ImageView iv = new ImageView (UIUtils.getImage (f));
 
-                    l.setGraphic (iv);
+                    //iv.setFitWidth (48);
+                    //iv.setFitHeight (48);
+
+                    l.setGraphic (ic);
                     //this.getChildren ().add (iv);
 
                 } catch (Exception e) {
@@ -535,6 +557,16 @@ public class DocumentsPanel extends StackPane
             } else {
 
                 this.pseudoClassStateChanged (StyleClassNames.NORMAL_PSUEDO_CLASS, true);
+                IconBox ic = IconBox.builder ()
+                    .iconName (StyleClassNames.NORMAL)
+                    .build ();
+
+                //ImageView iv = new ImageView (UIUtils.getImage (f));
+
+                //iv.setFitWidth (48);
+                //iv.setFitHeight (48);
+
+                l.setGraphic (ic);
 
             }
 

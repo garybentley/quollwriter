@@ -46,7 +46,7 @@
 .field .view > .label,
 .field .edit > .single .label,
 .field .edit > .full .label { -fx-font-style: italic; }
-.column { -fx-padding: 0.5em; }
+.column { -fx-padding: 0 0.5em 0.5em 0.25em; }
 .field .view .control { -fx-padding: 0.25em 0.25em 0.25em 0.5em; }
 .column .fields .qtextarea.name {
     -fx-min-height: 5em;
@@ -325,4 +325,38 @@
 .asset.new .objectname .control
 {
     -fx-padding: 0.25em 0 0 0.5em;
+}
+
+.asset.new .fields .field .header.label .iconbox
+{
+    visibility: hidden;
+}
+
+.asset.new .column > .header.title .iconbox
+{
+    visibility: hidden;
+}
+
+.asset.new .field.objectname .header.label .iconbox
+{
+    visibility: hidden;
+}
+
+.column > .header.title
+{
+}
+
+.column .controls .control .label.information .iconbox
+{
+    visibility: hidden;
+}
+
+.column .control .label.add:hover
+{
+    -fx-text-fill: -qw-text-hover-color;
+}
+
+.column .control .label.add:hover .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
 }
