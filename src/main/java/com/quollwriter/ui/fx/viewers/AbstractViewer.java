@@ -3721,7 +3721,7 @@ Not needed, already covered by the full screen content.
 
             this.fullScreenContent.prefWidthProperty ().bind (this.popupPane.widthProperty ());
             this.fullScreenContent.prefHeightProperty ().bind (this.popupPane.heightProperty ());
-            this.popupPane.getChildren ().add (0, this.fullScreenContent);
+            this.popupPane.getChildren ().add (this.fullScreenContent);
 
         }
 
