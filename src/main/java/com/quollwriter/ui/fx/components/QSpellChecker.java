@@ -603,6 +603,18 @@ TODO Remove?
 
         int wordStart = w.getAllTextStartOffset () + paraStartOffset;
 
+        int l = this.text.getText ().length ();
+
+        if ((wordStart >= l)
+            ||
+            (wordStart + w.getText ().length () >= l)
+           )
+        {
+
+            return;
+
+        }
+
         if (w.isPunctuation ())
         {
 
