@@ -239,54 +239,6 @@ TODO
 
         }
 
-       Nodes.addInputMap (this.editor,
-                          InputMap.process (EventPattern.mousePressed (),
-                                            ev ->
-                                            {
-
-                                               //this.hidePopups ();
-
-                                               // TODO Handle right click on chapter items in margin.
-                                               if ((ev.isPopupTrigger ())
-                                                   &&
-                                                   // TODO NEED BETTER WAY
-                                                   (!(ev.getTarget () instanceof ParagraphIconMargin))
-                                                  )
-                                               {
-
-                                                   //this.setContextMenu ();
-
-                                                   return InputHandler.Result.PROCEED;
-
-                                               }
-
-                                               return InputHandler.Result.PROCEED;
-
-                                           }));
-
-        Nodes.addInputMap (this.editor,
-                           InputMap.process (EventPattern.mouseReleased (),
-                                              ev ->
-                                              {
-
-                                                  // TODO Handle right click on chapter items in margin.
-                                                  if ((ev.isPopupTrigger ())
-                                                      &&
-                                                      // TODO NEED BETTER WAY
-                                                      (!(ev.getTarget () instanceof ParagraphIconMargin))
-                                                     )
-                                                  {
-
-                                                      //this.setContextMenu ();
-
-                                                      return InputHandler.Result.PROCEED;
-
-                                                  }
-
-                                                  return InputHandler.Result.PROCEED;
-
-                                              }));
-
     }
 
     public abstract Boolean canDrag (ChapterItem it);
