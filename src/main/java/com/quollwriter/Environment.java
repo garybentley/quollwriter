@@ -2863,6 +2863,13 @@ TODO NEeded?
                     Object k = iter.next ();
                     Object v = sing.get (k);
 
+                    if (v.toString ().contains ("${"))
+                    {
+
+                        Environment.logError ("Singular user object type key: " + k + ", " + v);
+
+                    }
+
                     singv.put (k.toString (),
                                new SimpleStringProperty (v.toString ()));
 
@@ -2880,6 +2887,13 @@ TODO NEeded?
 
                     Object k = iter.next ();
                     Object v = plur.get (k);
+
+                    if (v.toString ().contains ("${"))
+                    {
+
+                        Environment.logError ("Plural user object type key: " + k + ", " + v);
+
+                    }
 
                     plurv.put (k.toString (),
                                new SimpleStringProperty (v.toString ()));
@@ -2975,6 +2989,13 @@ xxx
             if (s != null)
             {
 
+                if (s.contains ("${"))
+                {
+
+                    Environment.logError ("Singular legacy user object type key: " + objType + ", " + s);
+
+                }
+
                 singular.put (objType,
                               new SimpleStringProperty (s));
 
@@ -2987,6 +3008,13 @@ xxx
 
             if (p != null)
             {
+
+                if (p.contains ("${"))
+                {
+
+                    Environment.logError ("Plural legacy user object type key: " + objType + ", " + p);
+
+                }
 
                 plural.put (objType,
                             new SimpleStringProperty (p));
