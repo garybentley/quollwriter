@@ -6353,6 +6353,17 @@
                         "text" : "<ul><li>More fixes and improvements as a result of the formal testing.</li></ul>"
                     }
                 }
+            },
+            "3.0.0b25" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fix",
+                        "text" : "<ul><li>Fix for a screen blinking problem introduced in b24 while in full screen.  Sorry, missed this one!</li></ul>"
+                    }
+                }
             }
         }
     },
