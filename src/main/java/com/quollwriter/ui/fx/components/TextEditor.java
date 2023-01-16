@@ -898,13 +898,15 @@ TODO
                                               loc + word.length (),
                                               repWord);
 
-                            if ((cp - 1) >= 0)
+                            cp += (repWord.length () - word.length ());
+
+                            if ((cp >= 0)
                                 &&
-                                ((cp - 1) <= this.getLength ())
+                                (cp <= this.getLength ())
                                )
                             {
 
-                                this.moveTo (cp - 1);
+                                this.moveTo (cp);
 
                             }
 
