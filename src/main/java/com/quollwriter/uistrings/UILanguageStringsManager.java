@@ -1171,7 +1171,7 @@ TODO Remove
                                       String...    ids)
     {
 
-        List<String> _ids = new ArrayList<> (prefix);
+        List<String> _ids = (prefix != null ? new ArrayList<> (prefix) : new ArrayList<> ());
 
         for (String s : ids)
         {
@@ -1180,14 +1180,7 @@ TODO Remove
 
         }
 
-        String s = null;
-
-        if (s == null)
-        {
-
-            s = UILanguageStringsManager.uiLanguageStrings.getString (_ids);
-
-        }
+        String s = UILanguageStringsManager.uiLanguageStrings.getString (_ids);
 
         if (s == null)
         {
