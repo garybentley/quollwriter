@@ -1325,6 +1325,8 @@ xxx
              ||
              (this.chapter.getEditPosition () >= po.getEnd ())
             )
+            &&
+            (thisb != null)
            )
         {
 
@@ -1358,7 +1360,7 @@ xxx
             }
 
             double w = this.editMarker.prefWidth (-1);
-            this.editMarker.setPrefHeight (h);
+            this.editMarker.setPrefHeight (thisb.getHeight ());
             this.editMarker.autosize ();
             this.editMarker.relocate (b.getMaxX () - w,
                                       0);
