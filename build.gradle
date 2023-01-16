@@ -132,7 +132,8 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java8:4.4.4'
 
     // RichtextFX
-    implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
+    implementation 'org.fxmisc.richtext:richtextfx:0.11.0'
+    //implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
     //implementation 'org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT'
 
     // This is temporary for testing changes to a local version of richtextfx.  Ignore.
