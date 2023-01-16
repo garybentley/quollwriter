@@ -898,7 +898,15 @@ TODO
                                               loc + word.length (),
                                               repWord);
 
-                            this.moveTo (cp - 1);
+                            if ((cp - 1) >= 0)
+                                &&
+                                ((cp - 1) <= this.getLength ())
+                               )
+                            {
+
+                                this.moveTo (cp - 1);
+
+                            }
 
                             viewer.fireProjectEvent (ProjectEvent.Type.spellcheck,
                                                      ProjectEvent.Action.replace,
