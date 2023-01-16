@@ -2569,7 +2569,12 @@ TODO NEeded?
                 UIUtils.forceRunLater (() ->
                 {
 
-                    Environment.allProjectsViewer.requestFocus ();
+                    if (Environment.allProjectsViewer != null)
+                    {
+
+                        Environment.allProjectsViewer.requestFocus ();
+
+                    }
 
                 });
 

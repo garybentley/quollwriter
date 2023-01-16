@@ -43,9 +43,14 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
         sessionS.valueProperty ().addListener ((p, oldv, newv) ->
         {
 
-            userTargets.setMySessionWriting (newv);
+            if (userTargets != null)
+            {
 
-            Environment.saveUserTargets ();
+                userTargets.setMySessionWriting (newv);
+
+                Environment.saveUserTargets ();
+
+            }
 
         });
 
@@ -57,9 +62,14 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
         dailyS.valueProperty ().addListener ((p, oldv, newv) ->
         {
 
-            userTargets.setMyDailyWriting (newv);
+            if (userTargets != null)
+            {
 
-            Environment.saveUserTargets ();
+                userTargets.setMyDailyWriting (newv);
+
+                Environment.saveUserTargets ();
+
+            }
 
         });
 
@@ -71,9 +81,14 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
         weeklyS.valueProperty ().addListener ((p, oldv, newv) ->
         {
 
-            userTargets.setMyWeeklyWriting (newv);
+            if (userTargets != null)
+            {
 
-            Environment.saveUserTargets ();
+                userTargets.setMyWeeklyWriting (newv);
+
+                Environment.saveUserTargets ();
+
+            }
 
         });
 
@@ -85,9 +100,14 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
         monthlyS.valueProperty ().addListener ((p, oldv, newv) ->
         {
 
-            userTargets.setMyMonthlyWriting (newv);
+            if (userTargets != null)
+            {
 
-            Environment.saveUserTargets ();
+                userTargets.setMyMonthlyWriting (newv);
+
+                Environment.saveUserTargets ();
+
+            }
 
         });
 
@@ -111,9 +131,14 @@ public class TargetsSideBar<E extends AbstractViewer> extends SideBarContent
             .onAction (ev ->
             {
 
-                userTargets.setShowMessageWhenSessionTargetReached (this.sessWarn.isSelected ());
+                if (userTargets != null)
+                {
 
-                Environment.saveUserTargets ();
+                    userTargets.setShowMessageWhenSessionTargetReached (this.sessWarn.isSelected ());
+
+                    Environment.saveUserTargets ();
+
+                }
 
             })
             .build ();
