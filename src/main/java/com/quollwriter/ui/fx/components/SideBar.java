@@ -159,7 +159,7 @@ public class SideBar extends BaseVBox implements Stateful
             if (b.wrapInScrollPane)
             {
 
-                this.scrollPane = new ScrollPane (b.content);
+                this.scrollPane = new QScrollPane (b.content);
 
                 VBox.setVgrow (this.scrollPane,
                                Priority.ALWAYS);

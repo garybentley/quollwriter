@@ -3,7 +3,7 @@
  */
  .sidebar > .header
  {
-     -fx-padding: 0em 0 0.5em 0.5em;
+     -fx-padding: 0em 0 0em 0.5em;
  }
  .sidebar > .header > .iconbox,
  .sidebar > .header > .iconbox .icon,
